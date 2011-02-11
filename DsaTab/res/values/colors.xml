@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<color name="Darker">#AA000000</color>
+	<color name="Brighter">#AAFFFFFF</color>
+	
+	<color name="RowOdd">#11000000</color>
+	<color name="RowEven">#AAFFFFFF</color>	
+	
+	<color name="ValueRed">#FFAA0000</color>
+	<color name="ValueGreen">#FF00AA00</color>
+	<color name="ValueBlack">#FF000000</color>
+	<color name="ValueWhite">#FFFFFFFF</color>
+	
+	<color name="window_background">#FF191919</color>
+	<color name="delete_color_filter">#A5FF0000</color>
+</resources>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="fill_parent"
+	android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
+	android:alwaysDrawnWithCache="false" android:padding="5dip">
+		
+		<LinearLayout  android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="4.0" android:layout_width="fill_parent" android:id="@+id/popup_purse_title_layout">
+		
+		<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_weight="1.0" android:text="Dukaten" android:textColor="#ffffff" android:ellipsize="end" android:gravity="center_horizontal"></TextView><TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_weight="1.0" android:textColor="#ffffff" android:ellipsize="end" android:text="Silber" android:gravity="center_horizontal"></TextView><TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_weight="1.0" android:textColor="#ffffff" android:ellipsize="end" android:text="Heller" android:gravity="center_horizontal"></TextView><TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_weight="1.0" android:textColor="#ffffff" android:ellipsize="end" android:text="Kreuzer" android:gravity="center_horizontal"></TextView></LinearLayout>
+		<LinearLayout  android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="4.0" android:layout_width="fill_parent" android:layout_below="@+id/popup_purse_title_layout">
+		<com.dsatab.view.NumberPicker android:layout_height="wrap_content" android:orientation="vertical" android:layout_width="wrap_content" android:id="@+id/popup_purse_dukat" android:layout_weight="1.0"></com.dsatab.view.NumberPicker>
+		<com.dsatab.view.NumberPicker android:layout_height="wrap_content" android:orientation="vertical" android:layout_width="wrap_content" android:id="@+id/popup_purse_silver" android:layout_weight="1.0"></com.dsatab.view.NumberPicker>
+		<com.dsatab.view.NumberPicker android:layout_height="wrap_content" android:orientation="vertical" android:layout_width="wrap_content" android:id="@+id/popup_purse_heller" android:layout_weight="1.0"></com.dsatab.view.NumberPicker>
+		<com.dsatab.view.NumberPicker android:layout_height="wrap_content" android:orientation="vertical" android:layout_width="wrap_content" android:id="@+id/popup_purse_kreuzer" android:layout_weight="1.0"></com.dsatab.view.NumberPicker>
+		</LinearLayout>
+		
+
+
+</RelativeLayout>

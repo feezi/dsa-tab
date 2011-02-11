@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_height="wrap_content" android:ellipsize="end" android:gravity="center_vertical" android:layout_width="fill_parent" style="@style/TextViewTitle" android:id="@+id/talent_list_headeritem" android:textColor="#000000" android:paddingLeft="30dip" android:paddingBottom="3dip" android:paddingTop="7dip" android:text="Groupname">
+</TextView>
+
+    
+

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent">
+	<Gallery android:layout_above="@+id/imageView"
+		android:layout_height="wrap_content" android:id="@+id/gal_gallery"
+		android:layout_alignParentTop="true" android:layout_alignParentLeft="true"
+		android:layout_alignParentRight="true" android:layout_width="fill_parent"></Gallery>
+
+
+
+
+	<ImageView android:id="@+id/gal_imageView"
+		android:scrollbarAlwaysDrawHorizontalTrack="true"
+		android:layout_height="wrap_content" android:scaleType="fitCenter"
+		android:layout_below="@+id/gal_gallery" android:layout_above="@+id/inc_gal_item_view"
+		android:layout_width="fill_parent" android:layout_toRightOf="@+id/body_attack_button"
+		android:layout_toLeftOf="@+id/body_cloth_button">
+	</ImageView>
+	<ImageButton android:layout_toLeftOf="@+id/gal_imageView"
+		android:layout_alignBottom="@+id/gal_imageView" android:id="@+id/body_search_button"
+		style="@style/IconButton" android:layout_alignParentLeft="true"
+		android:src="@drawable/icon_search" android:scaleType="centerInside"
+		android:layout_width="@dimen/icon_button_size" android:layout_height="@dimen/icon_button_size"></ImageButton>
+	<ImageButton android:id="@+id/body_attack_button"
+		android:layout_alignParentLeft="true" android:layout_height="@dimen/icon_button_size"
+		android:layout_width="@dimen/icon_button_size" android:src="@drawable/body_longsword"
+		style="@style/IconButton" android:layout_below="@+id/gal_gallery"></ImageButton>
+	<ImageButton android:id="@+id/body_defense_button"
+		android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size"
+		android:src="@drawable/body_shield" style="@style/IconButton"
+		android:layout_alignParentLeft="true" android:layout_below="@+id/body_attack_button"></ImageButton>
+	<ImageButton android:id="@+id/body_distance_button"
+		android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size"
+		android:src="@drawable/body_longbow" style="@style/IconButton"
+		android:layout_alignParentLeft="true" android:layout_below="@+id/body_defense_button"></ImageButton>
+	<ImageButton android:id="@+id/body_armor_button"
+		android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size"
+		android:src="@drawable/body_steel_armor" style="@style/IconButton"
+		android:layout_alignParentLeft="true" android:layout_below="@+id/body_distance_button"></ImageButton>
+	<ImageButton android:layout_height="@dimen/icon_button_size"
+		android:layout_width="@dimen/icon_button_size" 
+		android:id="@+id/body_cloth_button" android:layout_alignParentRight="true"
+		android:layout_below="@+id/gal_gallery" android:src="@drawable/icon_armor_cloth"
+		style="@style/IconButton"></ImageButton>
+	<ImageButton android:layout_height="@dimen/icon_button_size"
+		android:layout_width="@dimen/icon_button_size" android:layout_below="@+id/body_cloth_button"
+		android:id="@+id/body_bags_button" android:layout_alignParentRight="true"
+		style="@style/IconButton" android:src="@drawable/icon_bags"></ImageButton>
+	<ImageButton android:layout_height="@dimen/icon_button_size"
+		android:layout_width="@dimen/icon_button_size" android:id="@+id/body_items_button"
+		android:layout_below="@+id/body_bags_button"
+		android:layout_alignParentRight="true" style="@style/IconButton"
+		android:src="@drawable/icon_misc"></ImageButton>
+	<ImageButton android:layout_height="@dimen/icon_button_size"
+		android:layout_width="@dimen/icon_button_size" android:src="@drawable/icon_special"
+		android:id="@+id/body_special_button" android:layout_below="@+id/body_items_button" style="@style/IconButton"
+		android:layout_alignParentRight="true"></ImageButton>
+	<include android:layout_height="wrap_content"
+		layout="@layout/popup_item_chooser_item" android:id="@+id/inc_gal_item_view"
+		android:layout_width="fill_parent" android:layout_alignParentBottom="true"></include>
+
+
+
+	<AutoCompleteTextView android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true" android:id="@+id/body_autosearch"
+		android:layout_width="fill_parent"></AutoCompleteTextView>
+</RelativeLayout>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="fill_parent"
+	android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
+	android:alwaysDrawnWithCache="false" android:padding="5dip"
+	android:id="@+id/popup_edit_layout">
+
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:text="Reset"
+		android:id="@+id/popup_edit_reset" android:layout_alignParentRight="true"
+		android:layout_alignTop="@+id/popup_edit_text"></Button>
+
+
+	<com.dsatab.view.NumberPicker android:layout_height="wrap_content" android:id="@+id/popup_edit_text"
+		android:layout_width="wrap_content" android:layout_alignParentLeft="true"
+		android:layout_toLeftOf="@+id/popup_edit_reset" android:inputType="number"
+		android:text="0" android:imeOptions="flagNoEnterAction"></com.dsatab.view.NumberPicker>
+	<SeekBar android:layout_height="wrap_content"
+		android:layout_width="fill_parent" android:layout_marginBottom="5dip"
+		android:id="@+id/popup_edit_seek" android:layout_below="@+id/popup_edit_text"
+		android:padding="10dip"></SeekBar>
+
+
+
+
+	<TextView android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:text="Kampfstil"
+		android:textColor="#ffffff" android:gravity="center"
+		android:ellipsize="end" android:id="@+id/popup_edit_combat_style_label"
+		android:layout_alignBottom="@+id/popup_edit_combat_style"
+		android:textSize="20dip" android:layout_toLeftOf="@+id/popup_edit_combat_style"
+		android:layout_alignParentLeft="true" android:layout_below="@+id/popup_edit_seek"></TextView>
+
+	<ToggleButton android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/popup_edit_combat_style"
+		android:layout_alignParentRight="true" android:layout_below="@+id/popup_edit_seek"></ToggleButton>
+</RelativeLayout>
