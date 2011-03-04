@@ -2,7 +2,6 @@ package com.dsatab.data;
 
 import org.w3c.dom.Element;
 
-import com.dsatab.common.Debug;
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.Position;
@@ -11,6 +10,7 @@ import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.AbstractModifier;
 import com.dsatab.xml.Xml;
+import com.gandulf.guilib.util.Debug;
 
 public class WoundAttribute extends AbstractModifier {
 
@@ -44,8 +44,8 @@ public class WoundAttribute extends AbstractModifier {
 		case Chest:
 			info = "KO,KK,AT,PA -1; +1W6 SP";
 			break;
-		case LeftArm:
-		case RightArm:
+		case LeftLowerArm:
+		case RightLowerArm:
 			info = "KK,FF,AT,PA -2";
 			break;
 		case UpperLeg:
@@ -104,8 +104,8 @@ public class WoundAttribute extends AbstractModifier {
 			if (type == AttributeType.Konstitution || type == AttributeType.Körperkraft)
 				modifier = -1 * getValue();
 			break;
-		case LeftArm:
-		case RightArm:
+		case LeftLowerArm:
+		case RightLowerArm:
 			if (type == AttributeType.Fingerfertigkeit || type == AttributeType.Körperkraft)
 				modifier = -2 * getValue();
 			break;
@@ -121,8 +121,8 @@ public class WoundAttribute extends AbstractModifier {
 	@Override
 	public Modifier getModifier(Probe probe) {
 		int modifier = 0;
-		if (probe instanceof CombatDistanceTalent || probe instanceof CombatShieldTalent || probe instanceof CombatMeleeAttribute
-				|| probe instanceof CombatProbe) {
+		if (probe instanceof CombatDistanceTalent || probe instanceof CombatShieldTalent
+				|| probe instanceof CombatMeleeAttribute || probe instanceof CombatProbe) {
 			switch (getPosition()) {
 			case Head:
 				break;
@@ -130,8 +130,8 @@ public class WoundAttribute extends AbstractModifier {
 			case Chest:
 				modifier = -1 * getValue();
 				break;
-			case LeftArm:
-			case RightArm:
+			case LeftLowerArm:
+			case RightLowerArm:
 
 				if (probe instanceof CombatProbe) {
 					CombatProbe combatProbe = (CombatProbe) probe;
@@ -146,7 +146,7 @@ public class WoundAttribute extends AbstractModifier {
 							Debug.verbose("Zweihandwaffen Handwunde AT/PA-1*" + getValue());
 							break;
 						} else {
-							if (getPosition() == Position.LeftArm) {
+							if (getPosition() == Position.LeftLowerArm) {
 								Debug.verbose("Angriff/Parade mit Hauptwaffe und Wunde auf linkem Arm ignoriert");
 								break;
 							}
@@ -155,7 +155,7 @@ public class WoundAttribute extends AbstractModifier {
 					if (equippedItem != null && equippedItem.getItem() instanceof Shield) {
 						// Shield w = (Shield)
 						// combatProbe.getEquippedItem().getItem();
-						if (getPosition() == Position.RightArm) {
+						if (getPosition() == Position.RightLowerArm) {
 							Debug.verbose("Angriff/Parade mit Schildwaffe und Wunde auf rechtem Arm ignoriert");
 							break;
 						}

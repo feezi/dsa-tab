@@ -52,6 +52,10 @@ public class DataManager {
 		return itemsMap.get();
 	}
 
+	public static void reloadItemsMap() {
+		itemsMap = null;
+	}
+
 	public static Item getItemByName(String name) {
 		return getItemsMap().get(name);
 	}

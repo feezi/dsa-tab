@@ -24,8 +24,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.dsatab.R;
-import com.dsatab.common.Debug;
 import com.dsatab.data.Hero;
+import com.gandulf.guilib.util.Debug;
 
 public abstract class BaseMenuActivity extends Activity {
 
@@ -66,6 +66,22 @@ public abstract class BaseMenuActivity extends Activity {
 		inflater.inflate(R.menu.main_menu, menu);
 
 		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
+	 */
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+
+		Hero hero = DSATabApplication.getInstance().getHero();
+		menu.findItem(R.id.option_save_hero).setEnabled(hero != null);
+		menu.findItem(R.id.option_items).setEnabled(hero != null);
+		menu.findItem(R.id.option_notes).setEnabled(hero != null);
+
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override

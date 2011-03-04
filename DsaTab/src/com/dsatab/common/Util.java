@@ -17,13 +17,13 @@ import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.items.Armor;
-import com.dsatab.data.items.Armor.ArmorType;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.EquippedItem.Hand;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
+import com.gandulf.guilib.util.Debug;
 
 public class Util {
 
@@ -75,12 +75,12 @@ public class Util {
 
 	public static Integer parseInt(String s) {
 
-		if (s == null || s.length() == 0)
+		if (s == null)
 			return null;
 
-		if (MINUS.equals(s))
-			return null;
-		if (NULL.equals(s))
+		s = s.trim();
+
+		if (s.length() == 0 || MINUS.equals(s) || NULL.equals(s))
 			return null;
 
 		Integer i;
@@ -93,11 +93,12 @@ public class Util {
 	}
 
 	public static Double parseDouble(String s) {
-
-		if (MINUS.equals(s))
+		if (s == null)
 			return null;
 
-		if (NULL.equals(s))
+		s = s.trim();
+
+		if (s.length() == 0 || MINUS.equals(s) || NULL.equals(s))
 			return null;
 
 		Double i;
@@ -291,14 +292,14 @@ public class Util {
 		public int compare(Item object1, Item object2) {
 
 			CombatTalentType type1 = null, type2 = null;
-			ArmorType atype1 = null, atype2 = null;
+			String atype1 = null, atype2 = null;
 
 			if (object1 instanceof Weapon) {
 				type1 = ((Weapon) object1).getCombatTalentType();
 			} else if (object1 instanceof DistanceWeapon) {
 				type1 = ((DistanceWeapon) object1).getCombatTalentType();
 			} else if (object1 instanceof Armor) {
-				atype1 = ((Armor) object1).getArmorType();
+				atype1 = ((Armor) object1).getCategory();
 			}
 
 			if (object2 instanceof Weapon) {
@@ -306,7 +307,7 @@ public class Util {
 			} else if (object2 instanceof DistanceWeapon) {
 				type2 = ((DistanceWeapon) object2).getCombatTalentType();
 			} else if (object2 instanceof Armor) {
-				atype2 = ((Armor) object2).getArmorType();
+				atype2 = ((Armor) object2).getCategory();
 			}
 
 			int compareType = 0;

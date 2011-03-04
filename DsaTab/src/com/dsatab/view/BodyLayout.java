@@ -27,26 +27,28 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 	private static final double OFFSET_RIGHT_ARM_X = 0.83;
 	private static final double OFFSET_RIGHT_UPPER_ARM_X = 0.7;
 	private static final double OFFSET_LEFT_ARM_X = 0.15;
-	private static final double OFFSET_LEFT_UPPER_ARM_X = 0.25;
+	private static final double OFFSET_LEFT_UPPER_ARM_X = 0.26;
 	private static final double OFFSET_LEFT_SHOULDER_X = 0.30;
 	private static final double OFFSET_STOMACH_X = 0.5;
-	private static final double OFFSET_CHEST_X = 0.5;
+	private static final double OFFSET_CHEST_X = 0.45;
+	private static final double OFFSET_BACK_X = 0.55;
 	private static final double OFFSET_HEAD_X = 0.5;
 	private static final double OFFSET_HEAD_SIDE_X = 0.4;
 
 	private static final double OFFSET_RIGHT_SHOULDER_Y = 0.18;
-	private static final double OFFSET_RIGHT_UPPER_ARM_Y = 0.17;
+	private static final double OFFSET_RIGHT_UPPER_ARM_Y = 0.18;
 	private static final double OFFSET_RIGHT_ARM_Y = 0.35;
 
-	private static final double OFFSET_LEFT_SHOULDER_Y = 0.18;
+	private static final double OFFSET_LEFT_SHOULDER_Y = 0.175;
 	private static final double OFFSET_LEFT_UPPER_ARM_Y = 0.17;
 	private static final double OFFSET_LEFT_ARM_Y = 0.35;
 
 	private static final double OFFSET_HEAD_UP_Y = 0.005;
 	private static final double OFFSET_HEAD_Y = 0.05;
-	private static final double OFFSET_NECK_Y = 0.2;
-	private static final double OFFSET_CHEST_Y = 0.15;
-	private static final double OFFSET_STOMACH_Y = 0.3;
+	private static final double OFFSET_NECK_Y = 0.18;
+	private static final double OFFSET_CHEST_Y = 0.240;
+	private static final double OFFSET_BACK_Y = 0.240;
+	private static final double OFFSET_STOMACH_Y = 0.37;
 	private static final double OFFSET_PELVIS_Y = 0.5;
 	private static final double OFFSET_UPPER_LEG_Y = 0.6;
 	private static final double OFFSET_LOWER_LEG_Y = 0.7;
@@ -108,6 +110,14 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 	}
 
 	public void setArmorAttributes(Map<Position, ArmorAttribute> attributes) {
+
+		// remove old buttons if existing
+		for (TextView tv : armorButtons.values()) {
+			removeView(tv);
+		}
+		armorButtons.clear();
+
+		// add new ones
 		for (ArmorAttribute attr : attributes.values()) {
 
 			TextView rsText = armorButtons.get(attr.getPosition());
@@ -283,10 +293,10 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 					case Stomach:
 						torsoWidth += child.getMeasuredWidth();
 						break;
-					case LeftArm:
+					case LeftLowerArm:
 						leftArmWidth += child.getMeasuredWidth();
 						break;
-					case RightArm:
+					case RightLowerArm:
 						rightArmWidth += child.getMeasuredWidth();
 						break;
 					case UpperLeg:
@@ -341,13 +351,13 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 						ct = torsoY;
 						cb = ct + child.getMeasuredHeight();
 						break;
-					case LeftArm:
+					case LeftLowerArm:
 						cl = leftArmX;
 						cr = leftArmX = leftArmX + child.getMeasuredWidth();
 						ct = leftArmY;
 						cb = ct + child.getMeasuredHeight();
 						break;
-					case RightArm:
+					case RightLowerArm:
 						cl = rightArmX;
 						cr = rightArmX = rightArmX + child.getMeasuredWidth();
 						ct = rightArmY;
@@ -381,6 +391,7 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 						ct = (int) (height * (OFFSET_HEAD_Y) + woundSize);
 						cb = ct + child.getMeasuredHeight();
 						break;
+					case Head:
 					case Head_Face:
 						cl = (int) (width * OFFSET_HEAD_X) - (child.getMeasuredWidth() / 2);
 						cr = cl + child.getMeasuredWidth();
@@ -408,7 +419,13 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 					case Chest:
 						cl = (int) (width * OFFSET_CHEST_X) - (child.getMeasuredWidth() / 2);
 						cr = cl + child.getMeasuredWidth();
-						ct = (int) (height * (OFFSET_CHEST_Y) + woundSize);
+						ct = (int) (height * (OFFSET_CHEST_Y));
+						cb = ct + child.getMeasuredHeight();
+						break;
+					case Back:
+						cl = (int) (width * OFFSET_BACK_X) - (child.getMeasuredWidth() / 2);
+						cr = cl + child.getMeasuredWidth();
+						ct = (int) (height * (OFFSET_BACK_Y));
 						cb = ct + child.getMeasuredHeight();
 						break;
 					case LeftShoulder:
@@ -417,7 +434,7 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 						ct = (int) (height * (OFFSET_LEFT_SHOULDER_Y));
 						cb = ct + child.getMeasuredHeight();
 						break;
-					case LeftArm:
+					case LeftLowerArm:
 						cl = (int) (width * OFFSET_LEFT_ARM_X) - (child.getMeasuredWidth() / 2);
 						cr = cl + child.getMeasuredWidth();
 						ct = (int) (height * (OFFSET_LEFT_ARM_Y) + woundSize);
@@ -435,7 +452,7 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 						ct = (int) (height * (OFFSET_RIGHT_SHOULDER_Y));
 						cb = ct + child.getMeasuredHeight();
 						break;
-					case RightArm:
+					case RightLowerArm:
 						cl = (int) (width * OFFSET_RIGHT_ARM_X) - (child.getMeasuredWidth() / 2);
 						cr = cl + child.getMeasuredWidth();
 						ct = (int) (height * (OFFSET_RIGHT_ARM_Y) + woundSize);
@@ -447,12 +464,14 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 						ct = (int) (height * (OFFSET_RIGHT_UPPER_ARM_Y) + woundSize);
 						cb = ct + child.getMeasuredHeight();
 						break;
+					case LeftLeg:
 					case UpperLeg:
 						cl = (int) (width * OFFSET_UPPER_LEG_X) - (child.getMeasuredWidth() / 2);
 						cr = cl + child.getMeasuredWidth();
 						ct = (int) (height * (OFFSET_UPPER_LEG_Y) + woundSize);
 						cb = ct + child.getMeasuredHeight();
 						break;
+					case RightLeg:
 					case LowerLeg:
 						cl = (int) (width * OFFSET_LOWER_LEG_X) - (child.getMeasuredWidth() / 2);
 						cr = cl + child.getMeasuredWidth();

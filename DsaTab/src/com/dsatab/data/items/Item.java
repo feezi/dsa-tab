@@ -125,6 +125,16 @@ public class Item implements Serializable, Comparable<Item>, Cloneable {
 	@Override
 	public int compareTo(Item another) {
 
+		int comp0 = 0;
+		if (getType() != null && another.getType() != null)
+			comp0 = getType().compareTo(another.getType());
+		else if (getType() == null)
+			comp0 = -1;
+		else if (another.getType() == null)
+			comp0 = 1;
+		else
+			comp0 = 0;
+
 		int comp1 = 0;
 		if (getCategory() != null && another.getCategory() != null)
 			comp1 = getCategory().compareToIgnoreCase(another.getCategory());
@@ -137,7 +147,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable {
 
 		int comp2 = getName().compareToIgnoreCase(another.getName());
 
-		return comp1 * 1000 + comp2;
+		return comp0 * 100000 + comp1 * 1000 + comp2;
 	}
 
 	/*

@@ -11,17 +11,17 @@ public class Armor extends Item {
 
 	private static final long serialVersionUID = 5895989410415630188L;
 
-	public enum ArmorType {
-		Helm, Beine, Arme, Torso, Komplettrüstung
-	}
+	public static final String CATEGORY_ARME = "Arme";
+	public static final String CATEGORY_BEINE = "Beine";
+	public static final String CATEGORY_HELM = "Helm";
+	public static final String CATEGORY_FULL = "Komplettrüstung";
+	public static final String CATEGORY_TORSO = "Torso";
 
 	private double be;
 
 	private HashMap<Position, Integer> rs;
 
 	private int maxRs = 0;
-
-	private ArmorType armorType;
 
 	private String info = null;
 
@@ -48,10 +48,12 @@ public class Armor extends Item {
 			int[] kopf = new int[] { getRs(Position.Head_Face), getRs(Position.Head_Side), getRs(Position.Head_Up),
 					getRs(Position.Head), getRs(Position.Neck) };
 			int[] rumpf = new int[] { getRs(Position.Stomach), getRs(Position.Chest), getRs(Position.Pelvis),
-					getRs(Position.LeftShoulder), getRs(Position.RightShoulder) };
-			int[] arms = new int[] { getRs(Position.LeftArm), getRs(Position.LeftUpperArm), getRs(Position.RightArm),
-					getRs(Position.RightUpperArm) };
-			int[] legs = new int[] { getRs(Position.UpperLeg), getRs(Position.LowerLeg) };
+					getRs(Position.Back), getRs(Position.LeftShoulder), getRs(Position.RightShoulder) };
+			int[] arms = new int[] { getRs(Position.LeftLowerArm), getRs(Position.LeftUpperArm),
+					getRs(Position.RightLowerArm), getRs(Position.RightUpperArm), getRs(Position.LeftHand),
+					getRs(Position.RightHand) };
+			int[] legs = new int[] { getRs(Position.UpperLeg), getRs(Position.LowerLeg), getRs(Position.LeftLeg),
+					getRs(Position.RightLeg) };
 
 			Arrays.sort(kopf);
 			Arrays.sort(rumpf);
@@ -83,38 +85,26 @@ public class Armor extends Item {
 		maxRs = Math.max(maxRs, rs);
 	}
 
-	public ArmorType getArmorType() {
-		return armorType;
-	}
-
-	public void setArmorType(ArmorType armorType) {
-		this.armorType = armorType;
-	}
-
 	@Override
 	public int getResourceId() {
-		switch (getArmorType()) {
-		case Helm:
+		if (CATEGORY_HELM.equalsIgnoreCase(getCategory())) {
 			if (getRs(Position.Head_Face) > 5)
 				return R.drawable.icon_helm_full;
 			else if (getRs(Position.Head_Face) > 0)
 				return R.drawable.icon_helm_half;
 			else
 				return R.drawable.icon_helm;
-		case Torso:
+		} else if (CATEGORY_TORSO.equalsIgnoreCase(getCategory()) || CATEGORY_FULL.equalsIgnoreCase(getCategory())) {
 			if (maxRs > 6)
 				return R.drawable.icon_armor_metal;
 			else if (maxRs > 2)
 				return R.drawable.icon_armor_chain;
 			else
 				return R.drawable.icon_armor_cloth;
-		case Arme:
-		case Beine:
+		} else if (CATEGORY_ARME.equalsIgnoreCase(getCategory()) || CATEGORY_BEINE.equalsIgnoreCase(getCategory())) {
 			return R.drawable.icon_greaves;
-		default:
+		} else {
 			return R.drawable.icon_armor;
-
 		}
 	}
-
 }

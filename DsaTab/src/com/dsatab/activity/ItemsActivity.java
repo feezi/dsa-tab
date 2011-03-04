@@ -26,7 +26,6 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.dsatab.R;
-import com.dsatab.common.Debug;
 import com.dsatab.data.Hero;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
@@ -37,6 +36,7 @@ import com.dsatab.view.drag.DragLayer;
 import com.dsatab.view.drag.ItemInfo;
 import com.dsatab.view.drag.Workspace;
 import com.dsatab.xml.DataManager;
+import com.gandulf.guilib.util.Debug;
 
 public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickListener, View.OnClickListener {
 
@@ -211,10 +211,11 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 	private void fillBodyItems() {
 
 		Hero hero = DSATabApplication.getInstance().getHero();
-
-		for (List<Item> items : hero.getItems().values()) {
-			for (Item item : items) {
-				mWorkspace.addItemInCurrentScreen(item);
+		if (hero != null) {
+			for (List<Item> items : hero.getItems().values()) {
+				for (Item item : items) {
+					mWorkspace.addItemInCurrentScreen(item);
+				}
 			}
 		}
 

@@ -23,8 +23,8 @@ import java.io.OutputStreamWriter;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.dsatab.common.Debug;
 import com.dsatab.data.Hero;
+import com.gandulf.guilib.util.Debug;
 
 /**
  * @author Seraphim

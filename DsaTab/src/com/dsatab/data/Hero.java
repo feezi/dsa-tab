@@ -21,7 +21,6 @@ import android.widget.Toast;
 
 import com.dsatab.activity.DSATabApplication;
 import com.dsatab.activity.DsaPreferenceActivity;
-import com.dsatab.common.Debug;
 import com.dsatab.common.Util;
 import com.dsatab.data.TalentGroup.TalentGroupType;
 import com.dsatab.data.enums.AttributeType;
@@ -42,6 +41,7 @@ import com.dsatab.view.listener.ModifierChangedListener;
 import com.dsatab.view.listener.ValueChangedListener;
 import com.dsatab.xml.DataManager;
 import com.dsatab.xml.Xml;
+import com.gandulf.guilib.util.Debug;
 
 public class Hero {
 
@@ -525,6 +525,8 @@ public class Hero {
 
 			NodeList rsNodes = getHeldElement().getElementsByTagName(Xml.KEY_RUESTUNGSSCHUTZ);
 
+			final List<Position> armorPositions = DSATabApplication.getInstance().getConfiguration()
+					.getArmorPositions();
 			for (int i = 0; i < rsNodes.getLength(); i++) {
 				Element rsNode = null;
 				try {
@@ -532,21 +534,21 @@ public class Hero {
 
 					ArmorAttribute rs = new ArmorAttribute(rsNode, this);
 
-					if (Arrays.binarySearch(Position.ARMOR_POSITIONS, rs.getPosition()) >= 0)
+					if (armorPositions.contains(rs.getPosition())) {
 						armorAttributes.put(rs.getPosition(), rs);
+					}
 				} catch (Exception e) {
 					getHeldElement().removeChild(rsNode);
-					Debug.error(e);
+					Debug.warn(e);
 				}
 			}
 
 			// fill not existing values with 0
-			for (Position pos : Position.ARMOR_POSITIONS) {
+			for (Position pos : armorPositions) {
 
 				ArmorAttribute rs = armorAttributes.get(pos);
 
 				if (rs == null) {
-
 					Element rsNode = dom.createElement(Xml.KEY_RUESTUNGSSCHUTZ);
 					rsNode.setAttribute(Xml.KEY_NAME, pos.name());
 					rsNode.setAttribute(Xml.KEY_VALUE, Integer.toString(getArmorRs(pos)));
@@ -570,18 +572,16 @@ public class Hero {
 				Element rsNode = null;
 				try {
 					rsNode = (Element) rsNodes.item(i);
-
 					WoundAttribute rs = new WoundAttribute(this, rsNode);
-
 					wounds.put(rs.getPosition(), rs);
 				} catch (Exception e) {
-					Debug.error(e);
+					Debug.warn(e);
 					getHeldElement().removeChild(rsNode);
 				}
 			}
 
 			// fill not existing values with 0
-			for (Position pos : Position.WOUND_POSITIONS) {
+			for (Position pos : DSATabApplication.getInstance().getConfiguration().getWoundPositions()) {
 
 				WoundAttribute rs = wounds.get(pos);
 
@@ -895,7 +895,7 @@ public class Hero {
 
 	public List<SpecialFeature> getSpecialFeatures() {
 		if (specialFeatures == null) {
-			NodeList specialFeaturesNodes = dom.getElementsByTagName(Xml.KEY_SONDERFERTIGKEIT);
+			NodeList specialFeaturesNodes = getHeldElement().getElementsByTagName(Xml.KEY_SONDERFERTIGKEIT);
 
 			specialFeatures = new LinkedList<SpecialFeature>();
 
@@ -913,7 +913,7 @@ public class Hero {
 
 	public List<Advantage> getAdvantages() {
 		if (advantages == null) {
-			NodeList specialFeaturesNodes = dom.getElementsByTagName(Xml.KEY_VORTEIL);
+			NodeList specialFeaturesNodes = getHeldElement().getElementsByTagName(Xml.KEY_VORTEIL);
 
 			advantages = new LinkedList<Advantage>();
 
@@ -930,7 +930,7 @@ public class Hero {
 
 	public List<Advantage> getDisadvantages() {
 		if (disadvantages == null) {
-			NodeList specialFeaturesNodes = dom.getElementsByTagName(Xml.KEY_NACHTEIL);
+			NodeList specialFeaturesNodes = getHeldElement().getElementsByTagName(Xml.KEY_NACHTEIL);
 
 			disadvantages = new LinkedList<Advantage>();
 
@@ -1469,6 +1469,10 @@ public class Hero {
 
 	public List<Modificator> getModifiers() {
 		return modifiers;
+	}
+
+	public void reloadArmorAttributes() {
+		armorAttributes = null;
 	}
 
 	public void resetArmorAttributes() {

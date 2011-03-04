@@ -32,7 +32,6 @@ import android.widget.Toast;
 import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
 import com.dsatab.activity.DsaPreferenceActivity;
-import com.dsatab.common.Debug;
 import com.dsatab.common.DsaMath;
 import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.common.Util;
@@ -46,6 +45,8 @@ import com.dsatab.data.Modifier;
 import com.dsatab.data.Probe;
 import com.dsatab.data.Probe.ProbeType;
 import com.dsatab.data.enums.AttributeType;
+import com.gandulf.guilib.util.Debug;
+import com.gandulf.guilib.view.NumberPicker;
 
 public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 

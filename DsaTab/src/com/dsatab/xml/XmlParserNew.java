@@ -2,8 +2,11 @@ package com.dsatab.xml;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,23 +23,23 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 import android.text.TextUtils;
 import android.text.TextUtils.StringSplitter;
 
 import com.dsatab.activity.DSATabApplication;
-import com.dsatab.common.Debug;
 import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
 import com.dsatab.data.items.Armor;
-import com.dsatab.data.items.Armor.ArmorType;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
+import com.gandulf.guilib.util.Debug;
 
 public class XmlParserNew {
 
@@ -44,12 +47,27 @@ public class XmlParserNew {
 
 		Map<String, Item> items = new HashMap<String, Item>();
 
+		readItems("items.txt", items);
+
+		if (DSATabApplication.getInstance().getConfiguration().isHouseRules()) {
+			readItems("items_armor_house.txt", items);
+		} else {
+			readItems("items_armor.txt", items);
+		}
+
+		return items;
+
+	}
+
+	private static void readItems(String file, Map<String, Item> items) {
 		try {
 			BufferedReader r = new BufferedReader(new InputStreamReader(DSATabApplication.getInstance().getAssets()
-					.open("items.txt"), "Cp1252"), 1024 * 8);
+					.open(file), "Cp1252"), 1024 * 8);
 
 			String line;
 			StringSplitter splitter = new TextUtils.SimpleStringSplitter(';');
+
+			List<Position> armorPositions = DSATabApplication.getInstance().getConfiguration().getArmorPositions();
 
 			while ((line = r.readLine()) != null) {
 
@@ -64,7 +82,7 @@ public class XmlParserNew {
 					DistanceWeapon w = readDistanceWeapon(line, splitter);
 					items.put(w.getName(), w);
 				} else if (line.startsWith("A;")) {
-					Armor w = readArmor(line, splitter);
+					Armor w = readArmor(line, splitter, armorPositions);
 					items.put(w.getName(), w);
 				} else if (line.startsWith("S;")) {
 					Shield w = readShield(line, splitter);
@@ -80,9 +98,6 @@ public class XmlParserNew {
 		} catch (IOException e) {
 			Debug.error(e);
 		}
-
-		return items;
-
 	}
 
 	private static Weapon readWeapon(String line, StringSplitter splitter) {
@@ -137,7 +152,7 @@ public class XmlParserNew {
 		return null;
 	}
 
-	private static Armor readArmor(String line, StringSplitter splitter) {
+	private static Armor readArmor(String line, StringSplitter splitter, List<Position> armorPositions) {
 		splitter.setString(line);
 
 		Armor w = new Armor();
@@ -148,13 +163,11 @@ public class XmlParserNew {
 
 		w.setBe(Util.parseDouble(i.next()));
 
-		for (Position pos : Position.values()) {
+		for (Position pos : armorPositions) {
 			if (!i.hasNext())
 				break;
 			w.setRs(pos, Util.parseInt(i.next()));
 		}
-
-		w.setArmorType(ArmorType.valueOf(i.next()));
 
 		return w;
 	}
@@ -189,13 +202,35 @@ public class XmlParserNew {
 	}
 
 	private static void appendItem(BufferedWriter r, Item i, String category) throws IOException {
+		int lineLength = i.getName().length();
 		r.append(i.getName());
+
+		lineLength++;
 		r.append(";");
-		if (i.path != null)
+		if (i.path != null) {
 			r.append(i.path);
+			lineLength += i.path.length();
+		}
 		r.append(";");
-		r.append(i.getCategory() == null ? category : i.getCategory());
+		lineLength++;
+		if (i.getCategory() == null) {
+			r.append(category);
+			lineLength += category.length();
+		} else {
+			r.append(i.getCategory());
+			lineLength += i.getCategory().length();
+		}
+
+		int totalpad = 70 - lineLength;
+
+		while (totalpad > 0) {
+			r.append(" ");
+			totalpad--;
+		}
+
 		r.append(";");
+		lineLength++;
+
 	}
 
 	public static void writeItems() {
@@ -203,7 +238,7 @@ public class XmlParserNew {
 
 		try {
 
-			File itemsFile = new File(DSATabApplication.getDsaTabPath(), "items.txt");
+			File itemsFile = new File(DSATabApplication.getDsaTabPath(), "items_new.txt");
 			OutputStreamWriter itemsWriter = new OutputStreamWriter(new FileOutputStream(itemsFile), "Cp1252");
 			BufferedWriter itemsW = new BufferedWriter(itemsWriter, 1024 * 8);
 
@@ -309,9 +344,7 @@ public class XmlParserNew {
 					}
 
 					r.append("S;");
-
 					appendItem(r, i, guessCategory);
-
 					r.append(w.getWmAt() + "/" + w.getWmPa());
 					r.append(";");
 					r.append(Util.toString(w.getIni()));
@@ -330,34 +363,21 @@ public class XmlParserNew {
 				} else if (i instanceof Armor) {
 
 					Armor w = (Armor) i;
-					guessCategory = null;
-					if (i.getCategory() == null) {
-						if (w.getArmorType() == ArmorType.Torso) {
-							guessCategory = "Oben";
-						} else if (w.getArmorType() == ArmorType.Beine) {
-							guessCategory = "Unten";
-						} else if (w.getArmorType() == ArmorType.Helm) {
-							guessCategory = "Helme";
-						} else if (w.getArmorType() == ArmorType.Komplettrüstung) {
-							guessCategory = "Torso";
-						} else {
-							guessCategory = "Sonstige Rüstungsteile";
-						}
-					}
-
 					r.append("A;");
-					appendItem(r, i, guessCategory);
+					appendItem(r, i, null);
 
+					if (w.getBe() < 10)
+						r.append(" ");
 					r.append(Util.toString(w.getBe()));
 					r.append(";");
 
 					for (Position pos : Position.values()) {
-						r.append(Util.toString(w.getRs(pos)));
+						int rs = w.getRs(pos);
+						if (rs < 10)
+							r.append(" ");
+						r.append(Util.toString(rs));
 						r.append(";");
 					}
-
-					r.append(w.getArmorType().name());
-					r.append(";");
 
 				} else {
 					r = itemsW;
@@ -393,11 +413,11 @@ public class XmlParserNew {
 		if (!TextUtils.isEmpty(typeString))
 			item.setType(ItemType.fromCharacter(typeString.charAt(0))); // type
 
-		item.setName(i.next().replace('_', ' '));
+		item.setName(i.next().replace('_', ' ').trim());
 
-		item.setPath(i.next()); // path
+		item.setPath(i.next().trim()); // path
 
-		item.setCategory(i.next()); // category
+		item.setCategory(i.next().trim()); // category
 
 	}
 
@@ -434,6 +454,54 @@ public class XmlParserNew {
 
 	}
 
+	public static void normalize(File f) {
+
+		try {
+			FileReader reader = new FileReader(f);
+			BufferedReader r = new BufferedReader(reader);
+
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			OutputStreamWriter out = new OutputStreamWriter(outputStream);
+			BufferedWriter writer = new BufferedWriter(out);
+
+			String line = null;
+			boolean intag = false;
+
+			while ((line = r.readLine()) != null) {
+
+				char[] chars = line.toCharArray();
+
+				for (int i = 0; i < chars.length; i++) {
+
+					if (chars[i] == '<' && (i < chars.length - 2 && chars[i + 1] != '!'))
+						intag = true;
+					else if (chars[i] == '>')
+						intag = false;
+					else if (chars[i] == 'ü' && intag) {
+						writer.write("ue");
+						continue;
+					}
+
+					writer.write(chars[i]);
+				}
+
+				writer.write("\n");
+
+			}
+			writer.close();
+			r.close();
+
+			OutputStreamWriter fileOut = new OutputStreamWriter(new FileOutputStream(f));
+			fileOut.write(new String(outputStream.toByteArray()));
+			fileOut.close();
+		} catch (FileNotFoundException e) {
+			Debug.error(e);
+		} catch (IOException e) {
+			Debug.error(e);
+		}
+
+	}
+
 	public static Hero readHero(String path, InputStream in) {
 
 		Hero hero = null;
@@ -442,7 +510,13 @@ public class XmlParserNew {
 		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Debug.verbose("DocumentBuilder created:" + builder.getClass().getName());
-			Document dom = builder.parse(in);
+
+			InputStreamReader isr = new InputStreamReader(in, "UTF8");
+			InputSource is = new InputSource();
+			is.setCharacterStream(isr);
+			is.setEncoding("UTF-8");
+
+			Document dom = builder.parse(is);
 			if (dom != null)
 				Debug.verbose("Document sucessfully parsed");
 			else {

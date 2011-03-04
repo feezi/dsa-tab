@@ -24,7 +24,7 @@ import android.preference.PreferenceScreen;
 import android.webkit.WebView;
 
 import com.dsatab.R;
-import com.dsatab.common.Downloader;
+import com.gandulf.guilib.util.Downloader;
 
 public class DsaPreferenceActivity extends PreferenceActivity {
 
@@ -73,26 +73,26 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
 		if (preference.getKey().equals(KEY_DOWNLOAD_ALL)) {
 
-			downloader = new Downloader(this);
+			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
 			downloader.addPath(PATH_ITEMS);
 			// downloader.addPath(Downloader.PATH_MAPS);
 			// downloader.addPath(Downloader.PATH_RANG_PORTRAITS);
 			downloader.addPath(PATH_WESNOTH_PORTRAITS);
 			downloader.download();
 		} else if (preference.getKey().equals(KEY_DOWNLOAD_MAPS)) {
-			downloader = new Downloader(this);
+			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
 			downloader.addPath(PATH_MAPS);
 			downloader.download();
 		} else if (preference.getKey().equals(KEY_DOWNLOAD_ITEMS)) {
-			downloader = new Downloader(this);
+			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
 			downloader.addPath(PATH_ITEMS);
 			downloader.download();
 		} else if (preference.getKey().equals(KEY_DOWNLOAD_RANG_PORTRAITS)) {
-			downloader = new Downloader(this);
+			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
 			downloader.addPath(PATH_RANG_PORTRAITS);
 			downloader.download();
 		} else if (preference.getKey().equals(KEY_DOWNLOAD_WESNOTH_PORTRAITS)) {
-			downloader = new Downloader(this);
+			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
 			downloader.addPath(PATH_WESNOTH_PORTRAITS);
 			downloader.download();
 		} else if (preference.getKey().equals(KEY_CREDITS)) {

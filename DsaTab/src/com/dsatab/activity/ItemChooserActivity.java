@@ -49,7 +49,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.dsatab.R;
-import com.dsatab.common.Debug;
 import com.dsatab.data.adapter.GalleryImageAdapter;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
@@ -59,6 +58,7 @@ import com.dsatab.view.ItemChooserDialog;
 import com.dsatab.view.ItemListItem;
 import com.dsatab.view.drag.ItemInfo;
 import com.dsatab.xml.DataManager;
+import com.gandulf.guilib.util.Debug;
 
 public class ItemChooserActivity extends Activity implements View.OnClickListener, View.OnLongClickListener {
 

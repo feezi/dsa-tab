@@ -11,6 +11,7 @@ import com.dsatab.activity.DSATabApplication;
 import com.dsatab.activity.MainActivity;
 import com.dsatab.data.Purse;
 import com.dsatab.data.Purse.PurseUnit;
+import com.gandulf.guilib.view.NumberPicker;
 
 public class PurseDialog extends Dialog {
 

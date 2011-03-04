@@ -39,9 +39,9 @@ import android.widget.Scroller;
 
 import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
-import com.dsatab.common.Debug;
 import com.dsatab.data.items.Item;
 import com.dsatab.view.drag.CellLayout.CellInfo.VacantCell;
+import com.gandulf.guilib.util.Debug;
 
 /**
  * The workspace is a wide area with a wallpaper and a finite number of screens.

@@ -30,14 +30,16 @@ import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.dsatab.R;
-import com.dsatab.common.Debug;
 import com.dsatab.data.Hero;
 import com.dsatab.view.drag.IconCache;
 import com.dsatab.xml.XmlParserNew;
+import com.gandulf.guilib.util.Debug;
 
 public class DSATabApplication extends Application {
 
 	public static String DEFAULT_SD_CARD = "/sdcard/dsatab/";
+
+	public static String TAG = "DSATab";
 
 	// instance
 	private static DSATabApplication instance = null;
@@ -45,6 +47,8 @@ public class DSATabApplication extends Application {
 	private Hero hero = null;
 
 	private IconCache mIconCache;
+
+	private DsaTabConfiguration configuration;
 
 	/**
 	 * Convenient accessor, saves having to call and cast
@@ -64,6 +68,10 @@ public class DSATabApplication extends Application {
 		return PreferenceManager.getDefaultSharedPreferences(getInstance().getBaseContext());
 	}
 
+	public DsaTabConfiguration getConfiguration() {
+		return configuration;
+	}
+
 	/**
 	 * Accessor for some resource that depends on a context
 	 */
@@ -79,6 +87,9 @@ public class DSATabApplication extends Application {
 		instance = this;
 
 		mIconCache = new IconCache(this);
+		configuration = new DsaTabConfiguration(this);
+
+		Debug.setDebugTag(TAG);
 	}
 
 	public Hero getHero() {
@@ -121,7 +132,7 @@ public class DSATabApplication extends Application {
 			return null;
 		}
 
-		FileInputStream in = null;
+		FileInputStream fis = null;
 		try {
 			File file = new File(path);
 			if (!file.exists()) {
@@ -131,11 +142,13 @@ public class DSATabApplication extends Application {
 				return null;
 			}
 
+			XmlParserNew.normalize(file);
+
 			Debug.verbose("Opening inputstream for hero at " + path);
-			in = new FileInputStream(file);
+			fis = new FileInputStream(file);
 
 			Debug.verbose("Opened inputstream for hero at " + path);
-			hero = XmlParserNew.readHero(path, in);
+			hero = XmlParserNew.readHero(path, fis);
 			if (hero != null) {
 				Debug.verbose("Hero successfully parsed");
 
@@ -158,10 +171,10 @@ public class DSATabApplication extends Application {
 			Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
 			return null;
 		} finally {
-			if (in != null) {
+			if (fis != null) {
 				Debug.verbose("Closing inputstream");
 				try {
-					in.close();
+					fis.close();
 				} catch (IOException e) {
 					Debug.error(e);
 				}

@@ -39,13 +39,13 @@ import android.widget.ListView;
 import android.widget.Spinner;
 
 import com.dsatab.R;
-import com.dsatab.common.Debug;
 import com.dsatab.data.Event;
 import com.dsatab.data.Hero;
 import com.dsatab.data.NotesComparator;
 import com.dsatab.data.adapter.EventCatgoryAdapter;
 import com.dsatab.data.adapter.NotesAdapter;
 import com.dsatab.data.enums.EventCategory;
+import com.gandulf.guilib.util.Debug;
 
 /**
  * @author Seraphim

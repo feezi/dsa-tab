@@ -58,7 +58,6 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.dsatab.R;
-import com.dsatab.common.Debug;
 import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.common.Util;
 import com.dsatab.data.Advantage;
@@ -87,12 +86,14 @@ import com.dsatab.view.DiceSlider;
 import com.dsatab.view.EquippedItemChooserDialog;
 import com.dsatab.view.EvadeChooserDialog;
 import com.dsatab.view.InlineEditDialog;
-import com.dsatab.view.NumberPicker;
 import com.dsatab.view.PortraitChooserDialog;
 import com.dsatab.view.PurseDialog;
 import com.dsatab.view.listener.ModifierChangedListener;
 import com.dsatab.view.listener.ShakeListener;
 import com.dsatab.view.listener.ValueChangedListener;
+import com.gandulf.guilib.util.Debug;
+import com.gandulf.guilib.view.NumberPicker;
+import com.gandulf.guilib.view.OnViewChangedListener;
 
 public class MainActivity extends BaseMenuActivity implements OnClickListener, ValueChangedListener,
 		ModifierChangedListener, OnGesturePerformedListener {
@@ -395,7 +396,7 @@ public class MainActivity extends BaseMenuActivity implements OnClickListener, V
 
 		// Fight
 		fightLePicker = (NumberPicker) findViewById(R.id.fight_le_picker);
-		fightLePicker.setOnChangeListener(new NumberPicker.OnChangedListener() {
+		fightLePicker.setOnViewChangedListener(new OnViewChangedListener<NumberPicker>() {
 
 			@Override
 			public void onChanged(NumberPicker picker, int oldVal, int newVal) {

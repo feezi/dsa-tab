@@ -5,7 +5,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.ViewFlipper;
 
-import com.dsatab.common.Debug;
+import com.gandulf.guilib.util.Debug;
 
 public class ViewFlipperFix extends ViewFlipper {
 

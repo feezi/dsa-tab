@@ -1,24 +1,32 @@
+/**
+ *  This file is part of DsaTab.
+ *
+ *  DsaTab is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  DsaTab is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.dsatab.data.enums;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public enum Position {
 
-	// KO KS KG Hl SL OaL UaL SR OaR UaR Br Ba Be OS US
-	// order must be the same as in ruestung.txt
-	Head_Up("Kopf Oben"), Head_Side("Kopf seitl."), Head_Face("Gesicht"), Neck("Hals"),
-
-	LeftShoulder("Linke Schulter"), LeftUpperArm("Linker Oberarm"), LeftArm("Linker Unterarm"),
-
-	RightShoulder("Rechte Schulter"), RightUpperArm("Rechter Oberarm"), RightArm("Rechter Unterarm"),
-
-	Chest("Brust"), Stomach("Bauch"), Pelvis("Becken"),
-
-	UpperLeg("Oberschenkel"), LowerLeg("Unterschenkel"),
-
-	// no rs at the moment
-
-	Head("Kopf"), LeftHand("Linke Hand"), RightHand("Rechte Hand"), ;
+	Head_Up("Kopf Oben"), Head_Side("Kopf seitl."), Head_Face("Gesicht"), Neck("Hals"), LeftShoulder("Linke Schulter"), LeftUpperArm(
+			"Linker Oberarm"), LeftLowerArm("Linker Unterarm"), RightShoulder("Rechte Schulter"), RightUpperArm(
+			"Rechter Oberarm"), RightLowerArm("Rechter Unterarm"), Chest("Brust"), Stomach("Bauch"), Back("Rücken"), Pelvis(
+			"Becken"), UpperLeg("Oberschenkel"), LowerLeg("Unterschenkel"), Head("Kopf"), LeftHand("Linke Hand"), RightHand(
+			"Rechte Hand"), LeftLeg("Linkes Bein"), RightLeg("Rechtes Bein");
 
 	private String name;
 
@@ -30,27 +38,36 @@ public enum Position {
 		return name;
 	}
 
-	public static Position[] WOUND_POSITIONS = { Position.Head, Position.Stomach, Position.LeftArm, Position.RightArm, Position.UpperLeg, Position.LowerLeg };
+	public static List<Position> WOUND_POSITIONS = new ArrayList<Position>(Arrays.asList(Position.Head,
+			Position.Stomach, Position.LeftLowerArm, Position.RightLowerArm, Position.LowerLeg));
 
-	public static Position[] ARMOR_POSITIONS = { Position.Head_Up, Position.Head_Side, Position.Head_Face, Position.Neck, Position.Stomach,
-			Position.LeftShoulder, Position.LeftUpperArm, Position.LeftArm, Position.RightShoulder, Position.RightUpperArm, Position.RightArm, Position.Pelvis,
-			Position.UpperLeg, Position.LowerLeg };
-	static {
-		Arrays.sort(ARMOR_POSITIONS);
-	}
+	// KO KS KG Hl SL OaL UaL SR OaR UaR Br Rü Ba Be OS US
+	// order must be the same as in ruestung.txt
+	// armor positions for our house rules
+	public static List<Position> ARMOR_POSITIONS_HOUSE = new ArrayList<Position>(Arrays.asList(Position.Head_Up,
+			Position.Head_Side, Position.Head_Face, Position.Neck, Position.LeftShoulder, Position.LeftUpperArm,
+			Position.LeftLowerArm, Position.RightShoulder, Position.RightUpperArm, Position.RightLowerArm,
+			Position.Chest, Position.Back, Position.Stomach, Position.Pelvis, Position.UpperLeg, Position.LowerLeg));
+
+	// official armor positions 4.1
+	// Kopf, Rücken, RechterArm, LinkerArm, Brust, Bauch, RechtesBein,
+	// LinkesBein
+	public static List<Position> ARMOR_POSITIONS = new ArrayList<Position>(Arrays.asList(Position.Head,
+			Position.LeftLowerArm, Position.RightLowerArm, Position.Back, Position.Chest, Position.Stomach,
+			Position.LeftLeg, Position.RightLeg));
 
 	public static final Position[] messer_dolch_stich = new Position[21];
 	static {
 		messer_dolch_stich[1] = Position.UpperLeg;
 		messer_dolch_stich[2] = Position.UpperLeg;
 		messer_dolch_stich[3] = Position.RightShoulder;
-		messer_dolch_stich[4] = Position.RightArm;
-		messer_dolch_stich[5] = Position.RightArm;
+		messer_dolch_stich[4] = Position.RightLowerArm;
+		messer_dolch_stich[5] = Position.RightLowerArm;
 		messer_dolch_stich[6] = Position.RightHand;
 		messer_dolch_stich[7] = Position.RightHand;
 		messer_dolch_stich[8] = Position.RightUpperArm;
-		messer_dolch_stich[9] = Position.LeftArm;
-		messer_dolch_stich[10] = Position.LeftArm;
+		messer_dolch_stich[9] = Position.LeftLowerArm;
+		messer_dolch_stich[10] = Position.LeftLowerArm;
 		messer_dolch_stich[11] = Position.LeftHand;
 		messer_dolch_stich[12] = Position.Stomach;
 		messer_dolch_stich[13] = Position.Stomach;
@@ -68,10 +85,10 @@ public enum Position {
 		hieb_ketten[1] = Position.Pelvis;
 		hieb_ketten[2] = Position.UpperLeg;
 		hieb_ketten[3] = Position.RightHand;
-		hieb_ketten[4] = Position.RightArm;
-		hieb_ketten[5] = Position.RightArm;
-		hieb_ketten[6] = Position.LeftArm;
-		hieb_ketten[7] = Position.LeftArm;
+		hieb_ketten[4] = Position.RightLowerArm;
+		hieb_ketten[5] = Position.RightLowerArm;
+		hieb_ketten[6] = Position.LeftLowerArm;
+		hieb_ketten[7] = Position.LeftLowerArm;
 		hieb_ketten[8] = Position.RightUpperArm;
 		hieb_ketten[9] = Position.RightUpperArm;
 		hieb_ketten[10] = Position.LeftUpperArm;
@@ -91,8 +108,8 @@ public enum Position {
 	static {
 		schwert_saebel[1] = Position.RightHand;
 		schwert_saebel[2] = Position.RightUpperArm;
-		schwert_saebel[3] = Position.RightArm;
-		schwert_saebel[4] = Position.RightArm;
+		schwert_saebel[3] = Position.RightLowerArm;
+		schwert_saebel[4] = Position.RightLowerArm;
 		schwert_saebel[5] = Position.UpperLeg;
 		schwert_saebel[6] = Position.UpperLeg;
 		schwert_saebel[7] = Position.Pelvis;
@@ -103,7 +120,7 @@ public enum Position {
 		schwert_saebel[12] = Position.LeftShoulder;
 		schwert_saebel[13] = Position.RightShoulder;
 		schwert_saebel[14] = Position.LeftUpperArm;
-		schwert_saebel[15] = Position.LeftArm;
+		schwert_saebel[15] = Position.LeftLowerArm;
 		schwert_saebel[16] = Position.Chest;
 		schwert_saebel[17] = Position.Chest;
 		schwert_saebel[18] = Position.Head_Face;
@@ -113,10 +130,10 @@ public enum Position {
 
 	public static final Position[] stangen_zweih_stich = new Position[21];
 	static {
-		stangen_zweih_stich[1] = Position.LeftArm;
+		stangen_zweih_stich[1] = Position.LeftLowerArm;
 		stangen_zweih_stich[2] = Position.LeftUpperArm;
 		stangen_zweih_stich[3] = Position.LeftUpperArm;
-		stangen_zweih_stich[4] = Position.RightArm;
+		stangen_zweih_stich[4] = Position.RightLowerArm;
 		stangen_zweih_stich[5] = Position.RightUpperArm;
 		stangen_zweih_stich[6] = Position.UpperLeg;
 		stangen_zweih_stich[7] = Position.UpperLeg;
@@ -142,10 +159,10 @@ public enum Position {
 		stangen_zweih_hieb[3] = Position.LowerLeg;
 		stangen_zweih_hieb[4] = Position.Stomach;
 		stangen_zweih_hieb[5] = Position.Pelvis;
-		stangen_zweih_hieb[6] = Position.RightArm;
-		stangen_zweih_hieb[7] = Position.RightArm;
+		stangen_zweih_hieb[6] = Position.RightLowerArm;
+		stangen_zweih_hieb[7] = Position.RightLowerArm;
 		stangen_zweih_hieb[8] = Position.RightUpperArm;
-		stangen_zweih_hieb[9] = Position.LeftArm;
+		stangen_zweih_hieb[9] = Position.LeftLowerArm;
 		stangen_zweih_hieb[10] = Position.RightHand;
 		stangen_zweih_hieb[11] = Position.LeftUpperArm;
 		stangen_zweih_hieb[12] = Position.LeftShoulder;
@@ -165,10 +182,10 @@ public enum Position {
 		box_rauf_hruru[2] = Position.Chest;
 		box_rauf_hruru[3] = Position.LeftUpperArm;
 		box_rauf_hruru[4] = Position.RightUpperArm;
-		box_rauf_hruru[5] = Position.LeftArm;
-		box_rauf_hruru[6] = Position.LeftArm;
-		box_rauf_hruru[7] = Position.RightArm;
-		box_rauf_hruru[8] = Position.RightArm;
+		box_rauf_hruru[5] = Position.LeftLowerArm;
+		box_rauf_hruru[6] = Position.LeftLowerArm;
+		box_rauf_hruru[7] = Position.RightLowerArm;
+		box_rauf_hruru[8] = Position.RightLowerArm;
 		box_rauf_hruru[9] = Position.RightHand;
 		box_rauf_hruru[10] = Position.Head_Face;
 		box_rauf_hruru[11] = Position.Head_Face;
@@ -191,8 +208,8 @@ public enum Position {
 		fern_wurf[4] = Position.Pelvis;
 		fern_wurf[5] = Position.LeftUpperArm;
 		fern_wurf[6] = Position.RightUpperArm;
-		fern_wurf[7] = Position.LeftArm;
-		fern_wurf[8] = Position.RightArm;
+		fern_wurf[7] = Position.LeftLowerArm;
+		fern_wurf[8] = Position.RightLowerArm;
 		fern_wurf[9] = Position.Chest;
 		fern_wurf[10] = Position.Chest;
 		fern_wurf[11] = Position.Chest;

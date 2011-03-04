@@ -16,12 +16,13 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.dsatab.R;
-import com.dsatab.common.Debug;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero.CombatStyle;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.view.listener.ValueChangedListener;
+import com.gandulf.guilib.util.Debug;
+import com.gandulf.guilib.view.NumberPicker;
 
 public class InlineEditDialog extends Dialog implements android.view.View.OnClickListener, OnCheckedChangeListener,
 		Dialog.OnDismissListener {
