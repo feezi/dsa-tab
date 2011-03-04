@@ -65,11 +65,6 @@
 <string name="recording">Aufnahme</string>
 <string name="recording_message">Aufnahme läuft...</string>
 <string name="label_save">Speichern</string>
-<string name="download_finished">Fertig entpackt.</string>
-<string name="download_error">Es ist ein Fehler aufgetreten, der Download wurde abgebrochen.</string>
-<string name="download_canceled">Download auf Benutzerwunsch abgebrochen.</string>
-<string name="download">Herunterladen</string>
-<string name="download_message">Die benötigten Daten werden heruntergeladen und installiert.</string>
 <string name="settings">Einstellungen</string>
 <string name="menu_view_item">Eintrag betrachten</string>
 <string name="menu_show_hide_comments">Kommentare ein-/ausblenden</string>
@@ -77,6 +72,22 @@
 <string name="title_credits">Credits</string>
 <string name="credits">
 <![CDATA[
+
+<p>Copyright (C) 2010 Gandulf Kohlweiss</p>
+<p>
+This program is free software; you can redistribute it and/or modify it under the terms
+of the GNU General Public License as published by the Free Software Foundation;
+either version 3 of the License, or (at your option) any later version.</p>
+<p>
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.</p>
+<p>
+You should have received a copy of the GNU General Public License along with this program;
+if not, see <http://www.gnu.org/licenses/>.</p>
+ 
+<p>Contributions</p> 
+ 
 <ul>
 <li>Herz Icon wurde von Eugen Buzuk auf <a href="http://www.IconDrawer.com">www.IconDrawer.com</a> erstellt</li>
 <li>Waffen, Tab Icons von verschiedenen K&uuml;nstlern f&uuml;r <a href="http://www.wesnoth.org">www.wesnoth.org</a>, <a href="http://dl.dropbox.com/u/15750588/dsatab-wesnoth-icons.zip">Source Download</a></li>
@@ -86,7 +97,7 @@ Herunterladbarer Inhalt:
 <li>Bilder aus "Lanze, Helm und Federvieh" <a href="http://www.fuldigors-hoehle.de/">Fuldigaros H&ouml;hle</a></li>
 <li>Gesammltes Kartenwerk - Copyright <a href="http://www.fanpro.com/">FanPro</a> / <a href="http://www.ulisses-spiele.de/">Ullises Spiele</a></li>
 <li>Portraits aus dem unver&ouml;ffentlichen Band "Von Rang und Namen" - Copyright <a href="http://www.fanpro.com/">FanPro</a> <a href="http://www.ulisses-spiele.de/">Ullises Spiele</a></li>
-<li>Portraits Aus dem Spiel "Battle for Wesnoth" - Copyright <a href="http://www.wesnoth.org">www.wesnoth.org</a>, <a href="http://dl.dropbox.com/u/15750588/dsatab-wesnoth-portraits.zip">Source Download</a></li>
+<li>Portraits Aus dem Spiel "Battle for Wesnoth" - Copyright <a href="http://www.wesnoth.org">www.wesnoth.org</a>, <a href="http://code.google.com/p/dsa-tab/">Source Download</a></li>
 </ul>
 
 

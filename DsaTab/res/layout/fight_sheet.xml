@@ -15,8 +15,8 @@
 			android:layout_height="fill_parent" android:gravity="center_vertical"
 			android:textSize="25sp" android:text="LE"></TextView>
 
-		<com.dsatab.view.NumberPicker android:layout_width="wrap_content" android:orientation="horizontal"
-			android:layout_height="wrap_content" android:id="@+id/fight_le_picker"></com.dsatab.view.NumberPicker>
+		<com.gandulf.guilib.view.NumberPicker android:layout_width="wrap_content" android:orientation="horizontal"
+			android:layout_height="wrap_content" android:id="@+id/fight_le_picker"></com.gandulf.guilib.view.NumberPicker>
 	</LinearLayout>
 	<ScrollView android:layout_below="@+id/fight_le_layout"
 		android:layout_width="fill_parent" android:layout_marginTop="10dip"

@@ -10,10 +10,10 @@
 		android:layout_alignTop="@+id/popup_edit_text"></Button>
 
 
-	<com.dsatab.view.NumberPicker android:layout_height="wrap_content" android:id="@+id/popup_edit_text"
+	<com.gandulf.guilib.view.NumberPicker android:layout_height="wrap_content" android:id="@+id/popup_edit_text"
 		android:layout_width="wrap_content" android:layout_alignParentLeft="true"
 		android:layout_toLeftOf="@+id/popup_edit_reset" android:inputType="number"
-		android:text="0" android:imeOptions="flagNoEnterAction"></com.dsatab.view.NumberPicker>
+		android:text="0" android:imeOptions="flagNoEnterAction"></com.gandulf.guilib.view.NumberPicker>
 	<SeekBar android:layout_height="wrap_content"
 		android:layout_width="fill_parent" android:layout_marginBottom="5dip"
 		android:id="@+id/popup_edit_seek" android:layout_below="@+id/popup_edit_text"

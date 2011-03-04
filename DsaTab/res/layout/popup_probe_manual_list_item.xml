@@ -8,7 +8,7 @@
 		android:id="@+id/popup_probelist_item_text1" android:textColor="#dddddd"
 		android:layout_width="wrap_content" android:layout_weight="1" android:textStyle="bold" android:text="Manuell" android:layout_height="fill_parent" android:layout_gravity="center_vertical"/>
 				
-	<com.dsatab.view.NumberPicker android:id="@+id/popup_probelist_item_text2"
+	<com.gandulf.guilib.view.NumberPicker android:id="@+id/popup_probelist_item_text2"
 		android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="60dp" android:layout_gravity="right"/>
 
 </LinearLayout>
