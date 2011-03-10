@@ -26,6 +26,7 @@ import java.util.List;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
@@ -49,6 +50,8 @@ public class DSATabApplication extends Application {
 	private IconCache mIconCache;
 
 	private DsaTabConfiguration configuration;
+
+	private Typeface poorRichFont;
 
 	/**
 	 * Convenient accessor, saves having to call and cast
@@ -89,7 +92,12 @@ public class DSATabApplication extends Application {
 		mIconCache = new IconCache(this);
 		configuration = new DsaTabConfiguration(this);
 
+		poorRichFont = Typeface.createFromAsset(this.getAssets(), "fonts/poorich.ttf");
 		Debug.setDebugTag(TAG);
+	}
+
+	public Typeface getPoorRichardFont() {
+		return poorRichFont;
 	}
 
 	public Hero getHero() {

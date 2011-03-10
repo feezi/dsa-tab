@@ -287,10 +287,10 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 
 				if (lp.getRow() == 0) {
 					switch (lp.getPosition()) {
-					case Head:
+					case Kopf:
 						headWidth += child.getMeasuredWidth();
 						break;
-					case Stomach:
+					case Bauch:
 						torsoWidth += child.getMeasuredWidth();
 						break;
 					case LeftLowerArm:
@@ -339,13 +339,13 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 				// wounds
 				if (lp.getRow() == 0) {
 					switch (lp.getPosition()) {
-					case Head:
+					case Kopf:
 						cl = headX;
 						cr = headX = headX + child.getMeasuredWidth();
 						ct = headY;
 						cb = ct + child.getMeasuredHeight();
 						break;
-					case Stomach:
+					case Bauch:
 						cl = torsoX;
 						cr = torsoX = torsoX + child.getMeasuredWidth();
 						ct = torsoY;
@@ -391,7 +391,7 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 						ct = (int) (height * (OFFSET_HEAD_Y) + woundSize);
 						cb = ct + child.getMeasuredHeight();
 						break;
-					case Head:
+					case Kopf:
 					case Head_Face:
 						cl = (int) (width * OFFSET_HEAD_X) - (child.getMeasuredWidth() / 2);
 						cr = cl + child.getMeasuredWidth();
@@ -404,7 +404,7 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 						ct = (int) (height * (OFFSET_NECK_Y));
 						cb = ct + child.getMeasuredHeight();
 						break;
-					case Stomach:
+					case Bauch:
 						cl = (int) (width * OFFSET_STOMACH_X) - (child.getMeasuredWidth() / 2);
 						cr = cl + child.getMeasuredWidth();
 						ct = (int) (height * (OFFSET_STOMACH_Y) + woundSize);
@@ -416,13 +416,13 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 						ct = (int) (height * (OFFSET_PELVIS_Y));
 						cb = ct + child.getMeasuredHeight();
 						break;
-					case Chest:
+					case Brust:
 						cl = (int) (width * OFFSET_CHEST_X) - (child.getMeasuredWidth() / 2);
 						cr = cl + child.getMeasuredWidth();
 						ct = (int) (height * (OFFSET_CHEST_Y));
 						cb = ct + child.getMeasuredHeight();
 						break;
-					case Back:
+					case Ruecken:
 						cl = (int) (width * OFFSET_BACK_X) - (child.getMeasuredWidth() / 2);
 						cr = cl + child.getMeasuredWidth();
 						ct = (int) (height * (OFFSET_BACK_Y));
@@ -464,14 +464,14 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 						ct = (int) (height * (OFFSET_RIGHT_UPPER_ARM_Y) + woundSize);
 						cb = ct + child.getMeasuredHeight();
 						break;
-					case LeftLeg:
+					case LinkesBein:
 					case UpperLeg:
 						cl = (int) (width * OFFSET_UPPER_LEG_X) - (child.getMeasuredWidth() / 2);
 						cr = cl + child.getMeasuredWidth();
 						ct = (int) (height * (OFFSET_UPPER_LEG_Y) + woundSize);
 						cb = ct + child.getMeasuredHeight();
 						break;
-					case RightLeg:
+					case RechtesBein:
 					case LowerLeg:
 						cl = (int) (width * OFFSET_LOWER_LEG_X) - (child.getMeasuredWidth() / 2);
 						cr = cl + child.getMeasuredWidth();
@@ -491,7 +491,7 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 	}
 
 	public LayoutParams generateLayoutParams(AttributeSet attrs) {
-		return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Position.Head);
+		return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Position.Kopf);
 	}
 
 	protected boolean checkLayoutParams(android.view.ViewGroup.LayoutParams p) {

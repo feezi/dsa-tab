@@ -27,6 +27,8 @@
 	<dimen name="gallery_thumb_width">100dp</dimen>
 	<dimen name="gallery_thumb_height">150dp</dimen>
 	
+	<dimen name="card_text_padding">20dp</dimen>
+	
 	<dimen name="scroll_zone">20dp</dimen>
 	
 	<dimen name="workspace_cell_width">75dip</dimen>

@@ -3,9 +3,14 @@ package com.dsatab.data.items;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import com.dsatab.R;
 import com.dsatab.common.Util;
+import com.dsatab.data.Hero;
 import com.dsatab.data.enums.Position;
+import com.dsatab.xml.Xml;
 
 public class Armor extends Item {
 
@@ -46,14 +51,14 @@ public class Armor extends Item {
 			sb.append(Util.toString(getBe()));
 
 			int[] kopf = new int[] { getRs(Position.Head_Face), getRs(Position.Head_Side), getRs(Position.Head_Up),
-					getRs(Position.Head), getRs(Position.Neck) };
-			int[] rumpf = new int[] { getRs(Position.Stomach), getRs(Position.Chest), getRs(Position.Pelvis),
-					getRs(Position.Back), getRs(Position.LeftShoulder), getRs(Position.RightShoulder) };
+					getRs(Position.Kopf), getRs(Position.Neck) };
+			int[] rumpf = new int[] { getRs(Position.Bauch), getRs(Position.Brust), getRs(Position.Pelvis),
+					getRs(Position.Ruecken), getRs(Position.LeftShoulder), getRs(Position.RightShoulder) };
 			int[] arms = new int[] { getRs(Position.LeftLowerArm), getRs(Position.LeftUpperArm),
-					getRs(Position.RightLowerArm), getRs(Position.RightUpperArm), getRs(Position.LeftHand),
-					getRs(Position.RightHand) };
-			int[] legs = new int[] { getRs(Position.UpperLeg), getRs(Position.LowerLeg), getRs(Position.LeftLeg),
-					getRs(Position.RightLeg) };
+					getRs(Position.RightLowerArm), getRs(Position.RightUpperArm), getRs(Position.LinkerArm),
+					getRs(Position.RechterArm) };
+			int[] legs = new int[] { getRs(Position.UpperLeg), getRs(Position.LowerLeg), getRs(Position.LinkesBein),
+					getRs(Position.RechtesBein) };
 
 			Arrays.sort(kopf);
 			Arrays.sort(rumpf);
@@ -83,6 +88,35 @@ public class Armor extends Item {
 		this.rs.put(pos, rs);
 
 		maxRs = Math.max(maxRs, rs);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.items.Item#setElement(org.w3c.dom.Element)
+	 */
+	@Override
+	public void setElement(Element element) {
+		super.setElement(element);
+
+		NodeList ruestungList = element.getElementsByTagName(Xml.KEY_RUESTUNG);
+
+		if (ruestungList.getLength() > 0) {
+			Element ruestung = (Element) ruestungList.item(0);
+
+			String be = Hero.getChildValue(ruestung, Xml.KEY_GESAMT_BE, Xml.KEY_VALUE);
+			if (be != null) {
+				setBe(Util.parseDouble(be));
+			}
+			for (Position pos : Position.values()) {
+				String rs = Hero.getChildValue(ruestung, pos.name().toLowerCase(), Xml.KEY_VALUE);
+				if (rs != null) {
+					setRs(pos, Util.parseInt(rs));
+				}
+			}
+
+		}
+
 	}
 
 	@Override

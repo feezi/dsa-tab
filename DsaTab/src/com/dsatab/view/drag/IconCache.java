@@ -32,20 +32,19 @@ import com.dsatab.activity.DSATabApplication;
  * Cache of application icons. Icons can be made from any thread.
  */
 public class IconCache {
-	private static final String TAG = "Launcher.IconCache";
 
 	private static final int INITIAL_ICON_CACHE_CAPACITY = 50;
 
 	private static class CacheEntry {
 		public Bitmap icon;
 		public String title;
-		public Bitmap titleBitmap;
 	}
 
 	private final Bitmap mDefaultIcon;
 	private final DSATabApplication mContext;
 	private final PackageManager mPackageManager;
-	private final HashMap<ComponentName, CacheEntry> mCache = new HashMap<ComponentName, CacheEntry>(INITIAL_ICON_CACHE_CAPACITY);
+	private final HashMap<ComponentName, CacheEntry> mCache = new HashMap<ComponentName, CacheEntry>(
+			INITIAL_ICON_CACHE_CAPACITY);
 
 	public IconCache(DSATabApplication context) {
 		mContext = context;
@@ -56,7 +55,8 @@ public class IconCache {
 
 	private Bitmap makeDefaultIcon() {
 		Drawable d = mPackageManager.getDefaultActivityIcon();
-		Bitmap b = Bitmap.createBitmap(Math.max(d.getIntrinsicWidth(), 1), Math.max(d.getIntrinsicHeight(), 1), Bitmap.Config.ARGB_8888);
+		Bitmap b = Bitmap.createBitmap(Math.max(d.getIntrinsicWidth(), 1), Math.max(d.getIntrinsicHeight(), 1),
+				Bitmap.Config.ARGB_8888);
 		Canvas c = new Canvas(b);
 		d.setBounds(0, 0, b.getWidth(), b.getHeight());
 		d.draw(c);

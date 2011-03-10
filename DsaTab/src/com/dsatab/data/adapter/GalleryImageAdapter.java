@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -32,6 +33,7 @@ import android.widget.ImageView;
 import com.dsatab.R;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
+import com.dsatab.view.CardView;
 import com.dsatab.xml.DataManager;
 
 public class GalleryImageAdapter extends BaseAdapter {
@@ -46,6 +48,8 @@ public class GalleryImageAdapter extends BaseAdapter {
 	private int mGalleryItemBackground;
 
 	private int width, height;
+
+	private Typeface font;
 
 	/**
 	 * 
@@ -134,11 +138,14 @@ public class GalleryImageAdapter extends BaseAdapter {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
-		ImageView i;
-		if (convertView instanceof ImageView) {
-			i = (ImageView) convertView;
+		CardView i;
+		Item item = getItem(position);
+
+		if (convertView instanceof CardView) {
+			i = (CardView) convertView;
+			i.setItem(item);
 		} else {
-			i = new ImageView(context);
+			i = new CardView(context, item);
 		}
 
 		Bitmap bitmap = null;
@@ -146,7 +153,7 @@ public class GalleryImageAdapter extends BaseAdapter {
 		if (ref != null && ref.get() != null) {
 			bitmap = ref.get();
 		} else {
-			File lqFile = getItem(position).getFile();
+			File lqFile = item.getFile();
 			if (lqFile != null && lqFile.isFile()) {
 				bitmap = BitmapFactory.decodeFile(lqFile.getAbsolutePath());
 				bmps[position] = new WeakReference<Bitmap>(bitmap);

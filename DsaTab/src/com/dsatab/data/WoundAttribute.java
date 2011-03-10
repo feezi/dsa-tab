@@ -35,13 +35,13 @@ public class WoundAttribute extends AbstractModifier {
 		String info = null;
 
 		switch (getPosition()) {
-		case Head:
+		case Kopf:
 			info = "MU,KL,IN,IB -2; INI-2W6";
 			break;
-		case Stomach:
+		case Bauch:
 			info = "KO,KK,GS,IB,AT,PA -1; +1W6 SP";
 			break;
-		case Chest:
+		case Brust:
 			info = "KO,KK,AT,PA -1; +1W6 SP";
 			break;
 		case LeftLowerArm:
@@ -95,12 +95,12 @@ public class WoundAttribute extends AbstractModifier {
 
 		int modifier = 0;
 		switch (getPosition()) {
-		case Head:
+		case Kopf:
 			if (type == AttributeType.Mut || type == AttributeType.Klugheit || type == AttributeType.Intuition)
 				modifier = -2 * getValue();
 			break;
-		case Stomach:
-		case Chest:
+		case Bauch:
+		case Brust:
 			if (type == AttributeType.Konstitution || type == AttributeType.Körperkraft)
 				modifier = -1 * getValue();
 			break;
@@ -124,10 +124,10 @@ public class WoundAttribute extends AbstractModifier {
 		if (probe instanceof CombatDistanceTalent || probe instanceof CombatShieldTalent
 				|| probe instanceof CombatMeleeAttribute || probe instanceof CombatProbe) {
 			switch (getPosition()) {
-			case Head:
+			case Kopf:
 				break;
-			case Stomach:
-			case Chest:
+			case Bauch:
+			case Brust:
 				modifier = -1 * getValue();
 				break;
 			case LeftLowerArm:

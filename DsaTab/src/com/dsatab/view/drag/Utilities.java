@@ -38,21 +38,16 @@ import com.dsatab.R;
  * Various utilities shared amongst the Launcher's classes.
  */
 final class Utilities {
-	private static final String TAG = "Launcher.Utilities";
-
-	private static final boolean TEXT_BURN = false;
 
 	private static int sIconWidth = -1;
 	private static int sIconHeight = -1;
 	private static int sIconTextureWidth = -1;
 	private static int sIconTextureHeight = -1;
 
-	private static final Paint sPaint = new Paint();
 	private static final Paint sBlurPaint = new Paint();
 	private static final Paint sGlowColorPressedPaint = new Paint();
 	private static final Paint sGlowColorFocusedPaint = new Paint();
 	private static final Paint sDisabledPaint = new Paint();
-	private static final Rect sBounds = new Rect();
 	private static final Rect sOldBounds = new Rect();
 	private static final Canvas sCanvas = new Canvas();
 
@@ -67,8 +62,8 @@ final class Utilities {
 		if (bitmapWidth < width || bitmapHeight < height) {
 			int color = context.getResources().getColor(R.color.window_background);
 
-			Bitmap centered = Bitmap.createBitmap(bitmapWidth < width ? width : bitmapWidth, bitmapHeight < height ? height : bitmapHeight,
-					Bitmap.Config.RGB_565);
+			Bitmap centered = Bitmap.createBitmap(bitmapWidth < width ? width : bitmapWidth,
+					bitmapHeight < height ? height : bitmapHeight, Bitmap.Config.RGB_565);
 			centered.setDensity(bitmap.getDensity());
 			Canvas canvas = new Canvas(centered);
 			canvas.drawColor(color);
@@ -139,15 +134,16 @@ final class Utilities {
 			final int left = (textureWidth - width) / 2;
 			final int top = (textureHeight - height) / 2;
 
-			if (false) {
-				// draw a big box for the icon for debugging
-				canvas.drawColor(sColors[sColorIndex]);
-				if (++sColorIndex >= sColors.length)
-					sColorIndex = 0;
-				Paint debugPaint = new Paint();
-				debugPaint.setColor(0xffcccc00);
-				canvas.drawRect(left, top, left + width, top + height, debugPaint);
-			}
+			// if (false) {
+			// // draw a big box for the icon for debugging
+			// canvas.drawColor(sColors[sColorIndex]);
+			// if (++sColorIndex >= sColors.length)
+			// sColorIndex = 0;
+			// Paint debugPaint = new Paint();
+			// debugPaint.setColor(0xffcccc00);
+			// canvas.drawRect(left, top, left + width, top + height,
+			// debugPaint);
+			// }
 
 			sOldBounds.set(icon.getBounds());
 			icon.setBounds(left, top, left + width, top + height);

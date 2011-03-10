@@ -77,7 +77,8 @@ public class DragView extends View implements TweenCallback {
 	 * @param registrationY
 	 *            The y coordinate of the registration point.
 	 */
-	public DragView(Context context, Bitmap bitmap, int registrationX, int registrationY, int left, int top, int width, int height) {
+	public DragView(Context context, Bitmap bitmap, int registrationX, int registrationY, int left, int top, int width,
+			int height) {
 		super(context);
 
 		mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -103,13 +104,13 @@ public class DragView extends View implements TweenCallback {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		if (false) {
-			// for debugging
-			Paint p = new Paint();
-			p.setStyle(Paint.Style.FILL);
-			p.setColor(0xaaffffff);
-			canvas.drawRect(0, 0, getWidth(), getHeight(), p);
-		}
+		// if (false) {
+		// // for debugging
+		// Paint p = new Paint();
+		// p.setStyle(Paint.Style.FILL);
+		// p.setColor(0xaaffffff);
+		// canvas.drawRect(0, 0, getWidth(), getHeight(), p);
+		// }
 		float scale = mAnimationScale;
 		if (scale < 0.999f) { // allow for some float error
 			float width = mBitmap.getWidth();
@@ -158,10 +159,11 @@ public class DragView extends View implements TweenCallback {
 
 		pixelFormat = PixelFormat.TRANSLUCENT;
 
-		lp = new WindowManager.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, touchX - mRegistrationX, touchY
-				- mRegistrationY, WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL, WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-				| WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-		/* | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM */, pixelFormat);
+		lp = new WindowManager.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+				touchX - mRegistrationX, touchY - mRegistrationY,
+				WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL, WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+						| WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+				/* | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM */, pixelFormat);
 		// lp.token = mStatusBarView.getWindowToken();
 		lp.gravity = Gravity.LEFT | Gravity.TOP;
 		lp.token = windowToken;

@@ -21,6 +21,8 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
+	
+
     <!-- The workspace contains 5 screens of cells -->
     <com.dsatab.view.drag.Workspace
         android:id="@+id/workspace"
@@ -28,7 +30,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_marginBottom="60dip"
-        launcher:defaultScreen="2">
+        launcher:defaultScreen="0">
 
         <include android:id="@+id/cell1" layout="@layout/workspace_screen" />
         <include android:id="@+id/cell2" layout="@layout/workspace_screen" />
@@ -58,7 +60,12 @@
         android:src="@drawable/delete_zone_selector"
         android:visibility="invisible"
         launcher:direction="horizontal"
-    />    
+    />
+    
+    <TextView android:text="Set 1" android:layout_width="wrap_content" android:paddingTop="4dip" android:gravity="center" 
+        android:layout_height="56dip" android:layout_gravity="bottom|center_horizontal" android:id="@+id/screen_set_text"></TextView>
+    
+        
     
     <ImageView
         android:id="@+id/next_screen"

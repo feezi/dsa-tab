@@ -33,13 +33,12 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.Interpolator;
-import android.widget.ImageButton;
 import android.widget.ImageView.ScaleType;
 import android.widget.Scroller;
 
 import com.dsatab.R;
-import com.dsatab.activity.DSATabApplication;
 import com.dsatab.data.items.Item;
+import com.dsatab.view.CardView;
 import com.dsatab.view.drag.CellLayout.CellInfo.VacantCell;
 import com.gandulf.guilib.util.Debug;
 
@@ -89,8 +88,6 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 
 	private OnClickListener mClickListener;
 
-	private IconCache mIconCache;
-
 	private DragController mDragController;
 
 	/**
@@ -123,6 +120,12 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 
 	private static final float BASELINE_FLING_VELOCITY = 2500.f;
 	private static final float FLING_VELOCITY_INFLUENCE = 0.4f;
+
+	private OnScreenChangeListener onScreenChangeListener;
+
+	public interface OnScreenChangeListener {
+		public void onScreenChange(int oldScreen, int newScreen);
+	}
 
 	private static class WorkspaceOvershootInterpolator implements Interpolator {
 		private static final float DEFAULT_TENSION = 1.3f;
@@ -160,7 +163,7 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 	public Workspace(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
-		mDefaultScreen = 1;
+		mDefaultScreen = 0;
 		setHapticFeedbackEnabled(false);
 		initWorkspace();
 	}
@@ -174,7 +177,6 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 		mScroller = new Scroller(context, mScrollInterpolator);
 
 		mCurrentScreen = mDefaultScreen;
-		mIconCache = DSATabApplication.getInstance().getIconCache();
 
 		final ViewConfiguration configuration = ViewConfiguration.get(getContext());
 		mTouchSlop = configuration.getScaledTouchSlop();
@@ -214,7 +216,7 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 	}
 
 	View generateView(Item item) {
-		ImageButton view = new ImageButton(getContext());
+		CardView view = new CardView(getContext(), item);
 		view.setBackgroundResource(R.drawable.border_patch);
 		view.setScaleType(ScaleType.FIT_XY);
 		view.setImageBitmap(BitmapFactory.decodeFile(item.getFile().getAbsolutePath()));
@@ -225,7 +227,19 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 		return view;
 	}
 
-	public void addItemInCurrentScreen(Item item) {
+	public OnScreenChangeListener getOnScreenChangeListener() {
+		return onScreenChangeListener;
+	}
+
+	public void setOnScreenChangeListener(OnScreenChangeListener onScreenChangeListener) {
+		this.onScreenChangeListener = onScreenChangeListener;
+	}
+
+	public boolean addItemInCurrentScreen(Item item) {
+		return addItemInScreen(mCurrentScreen, item);
+	}
+
+	public boolean addItemInScreen(int screen, Item item) {
 
 		View view = generateView(item);
 
@@ -233,14 +247,19 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 
 		if (info.getCellX() == ItemInfo.INVALID_POSITION || info.getCellY() == ItemInfo.INVALID_POSITION) {
 
-			CellLayout.CellInfo info2 = findAllVacantCells(null);
-			VacantCell vacant = info2.vacantCells.get(0);
-
-			info.setCellX(vacant.cellX);
-			info.setCellY(vacant.cellY);
+			CellLayout.CellInfo info2 = findAllVacantCells(screen, null);
+			if (!info2.vacantCells.isEmpty()) {
+				VacantCell vacant = info2.vacantCells.get(0);
+				info.setCellX(vacant.cellX);
+				info.setCellY(vacant.cellY);
+			} else {
+				return false;
+			}
 		}
 
-		addInCurrentScreen(view, info.getCellX(), info.getCellY(), info.getSpanX(), info.getSpanY());
+		addInScreen(view, screen, info.getCellX(), info.getCellY(), info.getSpanX(), info.getSpanY());
+
+		return true;
 	}
 
 	@Override
@@ -278,47 +297,6 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 		mNextIndicator.setLevel(mCurrentScreen);
 		scrollTo(mCurrentScreen * getWidth(), 0);
 		invalidate();
-	}
-
-	/**
-	 * Adds the specified child in the current screen. The position and
-	 * dimension of the child are defined by x, y, spanX and spanY.
-	 * 
-	 * @param child
-	 *            The child to add in one of the workspace's screens.
-	 * @param x
-	 *            The X position of the child in the screen's grid.
-	 * @param y
-	 *            The Y position of the child in the screen's grid.
-	 * @param spanX
-	 *            The number of cells spanned horizontally by the child.
-	 * @param spanY
-	 *            The number of cells spanned vertically by the child.
-	 */
-	void addInCurrentScreen(View child, int x, int y, int spanX, int spanY) {
-		addInScreen(child, mCurrentScreen, x, y, spanX, spanY, false);
-	}
-
-	/**
-	 * Adds the specified child in the current screen. The position and
-	 * dimension of the child are defined by x, y, spanX and spanY.
-	 * 
-	 * @param child
-	 *            The child to add in one of the workspace's screens.
-	 * @param x
-	 *            The X position of the child in the screen's grid.
-	 * @param y
-	 *            The Y position of the child in the screen's grid.
-	 * @param spanX
-	 *            The number of cells spanned horizontally by the child.
-	 * @param spanY
-	 *            The number of cells spanned vertically by the child.
-	 * @param insert
-	 *            When true, the child is inserted at the beginning of the
-	 *            children list.
-	 */
-	void addInCurrentScreen(View child, int x, int y, int spanX, int spanY, boolean insert) {
-		addInScreen(child, mCurrentScreen, x, y, spanX, spanY, insert);
 	}
 
 	/**
@@ -386,12 +364,16 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 		}
 	}
 
-	CellLayout.CellInfo findAllVacantCells(boolean[] occupied) {
-		CellLayout group = (CellLayout) getChildAt(mCurrentScreen);
+	CellLayout.CellInfo findAllVacantCells(int screen, boolean[] occupied) {
+		CellLayout group = (CellLayout) getChildAt(screen);
 		if (group != null) {
 			return group.findAllVacantCells(occupied, null);
 		}
 		return null;
+	}
+
+	CellLayout.CellInfo findAllVacantCells(boolean[] occupied) {
+		return findAllVacantCells(mCurrentScreen, occupied);
 	}
 
 	private void clearVacantCache() {
@@ -513,7 +495,8 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 	protected void onAttachedToWindow() {
 		super.onAttachedToWindow();
 		computeScroll();
-		mDragController.setWindowToken(getWindowToken());
+		if (mDragController != null)
+			mDragController.setWindowToken(getWindowToken());
 	}
 
 	@Override
@@ -539,10 +522,11 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 
 		if (mFirstLayout) {
 			setHorizontalScrollBarEnabled(false);
-			scrollTo(mCurrentScreen * width, 0);
+			scrollTo(mCurrentScreen * (width), 0);
 			setHorizontalScrollBarEnabled(true);
 			mFirstLayout = false;
 		}
+
 	}
 
 	@Override
@@ -978,6 +962,10 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 		awakenScrollBars(duration);
 		mScroller.startScroll(getScrollX(), 0, delta, 0, duration);
 		invalidate();
+
+		if (onScreenChangeListener != null) {
+			onScreenChangeListener.onScreenChange(mCurrentScreen, mNextScreen);
+		}
 	}
 
 	public void startDrag(CellLayout.CellInfo cellInfo) {
@@ -1300,7 +1288,7 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 				final View view = layout.getChildAt(j);
 				Object tag = view.getTag();
 				if (tag instanceof Item) {
-					Item info = (Item) tag;
+					// Item info = (Item) tag;
 
 					// TODO
 				}

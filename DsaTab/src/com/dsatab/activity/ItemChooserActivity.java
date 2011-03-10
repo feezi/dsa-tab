@@ -45,13 +45,13 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Gallery;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.dsatab.R;
 import com.dsatab.data.adapter.GalleryImageAdapter;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
+import com.dsatab.view.CardView;
 import com.dsatab.view.FastAnimationSet;
 import com.dsatab.view.FastTranslateAnimation;
 import com.dsatab.view.ItemChooserDialog;
@@ -70,7 +70,7 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 	public static final String INTENT_EXTRA_ITEM = "item";
 
 	private Gallery gallery;
-	private ImageView imageView;
+	private CardView imageView;
 	private ItemListItem itemView;
 
 	private ImageButton searchButton;
@@ -92,7 +92,6 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 	private Animation mHandleOutAnimation;
 
 	private static final int ORIENTATION_HORIZONTAL = 1;
-	private static final int TRANSITION_DURATION = 250;
 	private static final int ANIMATION_DURATION = 200;
 
 	/*
@@ -137,7 +136,7 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		}
 
 		gallery = (Gallery) findViewById(R.id.gal_gallery);
-		imageView = (ImageView) findViewById(R.id.gal_imageView);
+		imageView = (CardView) findViewById(R.id.gal_imageView);
 		itemView = (ItemListItem) findViewById(R.id.inc_gal_item_view);
 		itemView.setTextColor(Color.BLACK);
 		itemView.setBackgroundColor(getResources().getColor(R.color.Brighter));
@@ -432,6 +431,7 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		}
 
 		imageView.setImageBitmap(bitmap);
+		imageView.setItem(card);
 
 		Item item = DataManager.getItemByName(card.getName());
 		if (item != null) {

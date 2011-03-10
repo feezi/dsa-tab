@@ -15,6 +15,7 @@
  */
 package com.dsatab.xml;
 
+
 /**
  * @author Seraphim
  * 
@@ -77,5 +78,11 @@ public interface Xml {
 	public static final String KEY_SCREEN = "screen";
 	public static final String KEY_SPAN_X = "spanX";
 	public static final String KEY_SPAN_Y = "spanY";
+
+	public static final String KEY_RUESTUNG = "Ruestung";
+	public static final String KEY_GESAMT_BE = "gesbe";
+	public static final String KEY_RS = "rs";
+	public static final String KEY_STERNE = "sterne";
+	public static final String KEY_TEILE = "teile";
 
 }

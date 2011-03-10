@@ -82,7 +82,7 @@ public class Hero {
 	private Map<Position, ArmorAttribute> armorAttributes;
 	private Map<Position, WoundAttribute> wounds;
 
-	private List<EquippedItem> equippedItems = null;
+	private List<EquippedItem>[] equippedItems = null;
 
 	private List<Element> beidhaendigerKampfElements = new LinkedList<Element>();
 
@@ -112,6 +112,8 @@ public class Hero {
 			if (attr.getValue() > 0)
 				modifiers.add(attr);
 		}
+
+		equippedItems = (LinkedList<EquippedItem>[]) new LinkedList[3];
 	}
 
 	public void addValueChangedListener(ValueChangedListener v) {
@@ -163,8 +165,12 @@ public class Hero {
 	}
 
 	public List<EquippedItem> getEquippedItems() {
-		if (equippedItems == null) {
-			equippedItems = new LinkedList<EquippedItem>();
+		return getEquippedItems(activeSet);
+	}
+
+	public List<EquippedItem> getEquippedItems(int selectedSet) {
+		if (equippedItems[selectedSet] == null) {
+			equippedItems[selectedSet] = new LinkedList<EquippedItem>();
 
 			NodeList equippedElements = getHeldElement().getElementsByTagName(Xml.KEY_HELDENAUSRUESTUNG);
 
@@ -177,7 +183,7 @@ public class Hero {
 				int set = 0;
 				if (element.hasAttribute(Xml.KEY_SET)) {
 					set = Util.parseInt(element.getAttribute(Xml.KEY_SET));
-					if (set != activeSet)
+					if (set != selectedSet)
 						continue;
 				}
 
@@ -187,7 +193,7 @@ public class Hero {
 				}
 
 				EquippedItem item = new EquippedItem(this, element);
-				equippedItems.add(item);
+				equippedItems[selectedSet].add(item);
 			}
 
 			// handle bk elements
@@ -196,7 +202,7 @@ public class Hero {
 				int set = 0;
 				if (element.hasAttribute(Xml.KEY_SET)) {
 					set = Util.parseInt(element.getAttribute(Xml.KEY_SET));
-					if (set != activeSet)
+					if (set != selectedSet)
 						continue;
 				}
 
@@ -219,11 +225,11 @@ public class Hero {
 				}
 
 			}
-			Util.sort(equippedItems);
+			Util.sort(equippedItems[selectedSet]);
 
 		}
 
-		return equippedItems;
+		return equippedItems[selectedSet];
 	}
 
 	public boolean hasBeidhaendigerKampf(EquippedItem item1, EquippedItem item2) {
@@ -281,8 +287,8 @@ public class Hero {
 	}
 
 	public void setActiveSet(int activeSet) {
-		if (activeSet != this.activeSet)
-			equippedItems = null;
+		// if (activeSet != this.activeSet)
+		// equippedItems = null;
 		this.activeSet = activeSet;
 	}
 
@@ -1121,8 +1127,7 @@ public class Hero {
 
 		base -= getAttributeValue(AttributeType.Behinderung);
 
-		base -= getWounds().get(Position.Stomach).getValue();
-		base -= getWounds().get(Position.UpperLeg).getValue();
+		base -= getWounds().get(Position.Bauch).getValue();
 		base -= getWounds().get(Position.LowerLeg).getValue();
 
 		return base;
@@ -1256,6 +1261,19 @@ public class Hero {
 		}
 
 		return items;
+	}
+
+	public static String getChildValue(Element node, String childTagName, String childParamName) {
+		NodeList childList = node.getElementsByTagName(childTagName);
+
+		if (childList.getLength() > 0) {
+			Element child = (Element) childList.item(0);
+
+			if (child.hasAttribute(childParamName)) {
+				return child.getAttribute(childParamName);
+			}
+		}
+		return null;
 	}
 
 	public Talent getTalent(String talentName) {

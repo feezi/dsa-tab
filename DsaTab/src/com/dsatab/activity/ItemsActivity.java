@@ -15,6 +15,7 @@
  */
 package com.dsatab.activity;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Intent;
@@ -24,21 +25,26 @@ import android.text.TextUtils;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.dsatab.R;
 import com.dsatab.data.Hero;
+import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.view.drag.CellLayout;
 import com.dsatab.view.drag.DeleteZone;
 import com.dsatab.view.drag.DragController;
 import com.dsatab.view.drag.DragLayer;
+import com.dsatab.view.drag.DragSource;
 import com.dsatab.view.drag.ItemInfo;
 import com.dsatab.view.drag.Workspace;
+import com.dsatab.view.drag.Workspace.OnScreenChangeListener;
 import com.dsatab.xml.DataManager;
 import com.gandulf.guilib.util.Debug;
 
-public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickListener, View.OnClickListener {
+public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickListener, View.OnClickListener,
+		DragController.DragListener, OnScreenChangeListener {
 
 	private static final int ACTION_CHOOSE_CARD = 2;
 
@@ -48,6 +54,7 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 
 	private ImageView mPreviousView;
 	private ImageView mNextView;
+	private TextView mScreenTextView;
 
 	private Item selectedItem = null;
 
@@ -118,6 +125,11 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 						// again
 					} else {
 
+						int oldActiveSet = hero.getActiveSet();
+
+						if (getActiveSet() >= 0)
+							hero.setActiveSet(getActiveSet());
+
 						hero.addItem(this, item, null, new Hero.ItemAddedCallback() {
 
 							@Override
@@ -135,13 +147,21 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 
 							}
 						});
-					}
 
+						hero.setActiveSet(oldActiveSet);
+					}
 				}
 			}
 		}
 
 		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	private int getActiveSet() {
+		if (mWorkspace.getCurrentScreen() > 3)
+			return -1;
+		else
+			return mWorkspace.getCurrentScreen();
 	}
 
 	public Hero getHero() {
@@ -156,10 +176,11 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.items_main);
 
 		mDragController = new DragController(this);
+		mScreenTextView = (TextView) findViewById(R.id.screen_set_text);
 
-		setContentView(R.layout.items_main);
 		setupViews();
 	}
 
@@ -192,11 +213,13 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 		workspace.setOnLongClickListener(this);
 		workspace.setOnClickListener(this);
 		workspace.setDragController(mDragController);
+		workspace.setOnScreenChangeListener(this);
 
 		mDeleteZone.setDragController(mDragController);
 
 		mDragController.setDragScoller(workspace);
-		mDragController.setDragListener(mDeleteZone);
+		mDragController.addDragListener(mDeleteZone);
+		mDragController.addDragListener(this);
 		mDragController.setScrollView(dragLayer);
 		mDragController.setMoveTarget(workspace);
 
@@ -206,19 +229,104 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 
 		fillBodyItems();
 
+		updateTextView(workspace.getCurrentScreen());
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.drag.Workspace.OnScreenChangeListener#onScreenChange(int,
+	 * int)
+	 */
+	@Override
+	public void onScreenChange(int oldScreen, int newScreen) {
+		updateTextView(newScreen);
+	}
+
+	private void updateTextView(int newScreen) {
+		if (newScreen < 3)
+			mScreenTextView.setText("Set " + (newScreen + 1));
+		else
+			mScreenTextView.setText("Ausrüstung");
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.drag.DragController.DragListener#onDragStart(com.dsatab
+	 * .view.drag.DragSource, com.dsatab.data.items.Item, int)
+	 */
+	@Override
+	public void onDragStart(DragSource source, Item info, int dragAction) {
+		mScreenTextView.setVisibility(View.INVISIBLE);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.view.drag.DragController.DragListener#onDragEnd()
+	 */
+	@Override
+	public void onDragEnd() {
+		mScreenTextView.setVisibility(View.VISIBLE);
 	}
 
 	private void fillBodyItems() {
 
+		boolean success = true;
+
 		Hero hero = DSATabApplication.getInstance().getHero();
+
+		List<Item> skipItems = new LinkedList<Item>();
+
+		int screen = 3;
 		if (hero != null) {
+			for (int i = 0; i < 3; i++) {
+				for (EquippedItem item : hero.getEquippedItems(i)) {
+					if (item.getItem() == null) {
+						Debug.verbose("Skipping " + item.getName() + "because equippedItem.getItem was null");
+						continue;
+					}
+					success = mWorkspace.addItemInScreen(i, item.getItem());
+					if (!success) {
+						Debug.verbose("Skipping " + item.getName() + "because inventory page was FULL");
+					}
+
+					// unable to add item, stop here the inventory is probably
+					// full
+					if (!success) {
+						return;
+					} else {
+						skipItems.add(item.getItem());
+					}
+
+				}
+			}
+
 			for (List<Item> items : hero.getItems().values()) {
 				for (Item item : items) {
-					mWorkspace.addItemInCurrentScreen(item);
+					// skip items already added during equipped sets
+					if (skipItems.contains(item))
+						continue;
+
+					success = mWorkspace.addItemInScreen(screen, item);
+					if (!success && screen < mWorkspace.getChildCount() - 1) {
+						screen++;
+						success = mWorkspace.addItemInScreen(screen, item);
+					}
+
+					// unable to add item, stop here the inventory is probably
+					// full
+					if (!success) {
+						Debug.warning("Unable to add item " + item.getName() + " try on screen " + screen);
+						return;
+					}
 				}
 			}
 		}
-
 	}
 
 	private void selectItem(Item item, CellLayout.CellInfo cellInfo) {

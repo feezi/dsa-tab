@@ -17,6 +17,8 @@
 package com.dsatab.view.drag;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -40,7 +42,6 @@ import com.dsatab.data.items.Item;
  */
 public class DragController {
 
-	@SuppressWarnings({ "UnusedDeclaration" })
 	private static final String TAG = "Launcher.DragController";
 
 	/** Indicates the drag is a move. */
@@ -107,7 +108,7 @@ public class DragController {
 	/** Who can receive drop events */
 	private ArrayList<DropTarget<? extends Item>> mDropTargets = new ArrayList<DropTarget<? extends Item>>();
 
-	private DragListener mListener;
+	private List<DragListener> mListener = new LinkedList<DragController.DragListener>();
 
 	/** The window token used as the parent for the DragView. */
 	private IBinder mWindowToken;
@@ -132,7 +133,7 @@ public class DragController {
 	/**
 	 * Interface to receive notifications when a drag starts or stops
 	 */
-	interface DragListener<T extends Item> {
+	public interface DragListener<T extends Item> {
 
 		/**
 		 * A drag has begun
@@ -243,8 +244,8 @@ public class DragController {
 		}
 		mInputMethodManager.hideSoftInputFromWindow(mWindowToken, 0);
 
-		if (mListener != null) {
-			mListener.onDragStart(source, dragInfo, dragAction);
+		for (DragListener<Item> listener : mListener) {
+			listener.onDragStart(source, dragInfo, dragAction);
 		}
 
 		int registrationX = ((int) mMotionDownX) - screenX;
@@ -326,8 +327,8 @@ public class DragController {
 			if (mOriginator != null) {
 				mOriginator.setVisibility(View.VISIBLE);
 			}
-			if (mListener != null) {
-				mListener.onDragEnd();
+			for (DragListener<Item> listener : mListener) {
+				listener.onDragEnd();
 			}
 			if (mDragView != null) {
 				mDragView.remove();
@@ -562,28 +563,28 @@ public class DragController {
 	/**
 	 * Sets the drag listner which will be notified when a drag starts or ends.
 	 */
-	public void setDragListener(DragListener l) {
-		mListener = l;
+	public void addDragListener(DragListener<?> l) {
+		mListener.add(l);
 	}
 
 	/**
 	 * Remove a previously installed drag listener.
 	 */
-	public void removeDragListener(DragListener l) {
-		mListener = null;
+	public void removeDragListener(DragListener<?> l) {
+		mListener.remove(l);
 	}
 
 	/**
 	 * Add a DropTarget to the list of potential places to receive drop events.
 	 */
-	public void addDropTarget(DropTarget target) {
+	public void addDropTarget(DropTarget<?> target) {
 		mDropTargets.add(target);
 	}
 
 	/**
 	 * Don't send drop events to <em>target</em> any more.
 	 */
-	public void removeDropTarget(DropTarget target) {
+	public void removeDropTarget(DropTarget<?> target) {
 		mDropTargets.remove(target);
 	}
 

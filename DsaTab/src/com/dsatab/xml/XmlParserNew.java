@@ -83,7 +83,8 @@ public class XmlParserNew {
 					items.put(w.getName(), w);
 				} else if (line.startsWith("A;")) {
 					Armor w = readArmor(line, splitter, armorPositions);
-					items.put(w.getName(), w);
+					if (w != null)
+						items.put(w.getName(), w);
 				} else if (line.startsWith("S;")) {
 					Shield w = readShield(line, splitter);
 					items.put(w.getName(), w);
@@ -371,7 +372,7 @@ public class XmlParserNew {
 					r.append(Util.toString(w.getBe()));
 					r.append(";");
 
-					for (Position pos : Position.values()) {
+					for (Position pos : DSATabApplication.getInstance().getConfiguration().getArmorPositions()) {
 						int rs = w.getRs(pos);
 						if (rs < 10)
 							r.append(" ");
@@ -476,6 +477,8 @@ public class XmlParserNew {
 					if (chars[i] == '<' && (i < chars.length - 2 && chars[i + 1] != '!'))
 						intag = true;
 					else if (chars[i] == '>')
+						intag = false;
+					else if (chars[i] == ' ')
 						intag = false;
 					else if (chars[i] == 'ü' && intag) {
 						writer.write("ue");

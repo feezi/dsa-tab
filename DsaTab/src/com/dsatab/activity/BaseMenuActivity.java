@@ -25,6 +25,7 @@ import android.view.MenuItem;
 
 import com.dsatab.R;
 import com.dsatab.data.Hero;
+import com.dsatab.xml.XmlParserNew;
 import com.gandulf.guilib.util.Debug;
 
 public abstract class BaseMenuActivity extends Activity {
@@ -98,6 +99,7 @@ public abstract class BaseMenuActivity extends Activity {
 			return true;
 		} else if (item.getItemId() == R.id.option_map) {
 			startActivity(new Intent(this, MapActivity.class));
+			XmlParserNew.writeItems();
 			return true;
 		} else if (item.getItemId() == R.id.option_notes) {
 			if (!getClass().equals(NotesActivity.class)) {

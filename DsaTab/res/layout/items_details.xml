@@ -9,13 +9,13 @@
 
 
 
-	<ImageView android:id="@+id/gal_imageView"
+	<com.dsatab.view.CardView android:id="@+id/gal_imageView"
 		android:scrollbarAlwaysDrawHorizontalTrack="true"
 		android:layout_height="wrap_content" android:scaleType="fitCenter"
 		android:layout_below="@+id/gal_gallery" android:layout_above="@+id/inc_gal_item_view"
 		android:layout_width="fill_parent" android:layout_toRightOf="@+id/body_attack_button"
 		android:layout_toLeftOf="@+id/body_cloth_button">
-	</ImageView>
+	</com.dsatab.view.CardView>
 	<ImageButton android:layout_toLeftOf="@+id/gal_imageView"
 		android:layout_alignBottom="@+id/gal_imageView" android:id="@+id/body_search_button"
 		style="@style/IconButton" android:layout_alignParentLeft="true"

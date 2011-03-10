@@ -157,7 +157,11 @@ public class EvadeChooserDialog extends Dialog implements android.view.View.OnCl
 		setOnDismissListener(new Dialog.OnDismissListener() {
 
 			public void onDismiss(DialogInterface dialog) {
+				Attribute ausweichen = main.getHero().getAttribute(AttributeType.Ausweichen);
+				ausweichen.setErschwernis(erschwernis + otherErschwernis);
 
+				dismiss();
+				main.fillAusweichen();
 			}
 		});
 
