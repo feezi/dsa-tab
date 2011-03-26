@@ -26,7 +26,7 @@ import com.dsatab.xml.Xml;
 /**
  * Represents an item in the launcher.
  */
-public class ItemInfo implements Serializable {
+public class ItemInfo implements Serializable, Cloneable {
 
 	/**
 	 * 
@@ -51,16 +51,6 @@ public class ItemInfo implements Serializable {
 	 * Indicates the Y position of the associated cell.
 	 */
 	private int cellY = INVALID_POSITION;
-
-	/**
-	 * Indicates the X cell span.
-	 */
-	private int spanX = 1;
-
-	/**
-	 * Indicates the Y cell span.
-	 */
-	private int spanY = 1;
 
 	/**
 	 * 
@@ -100,20 +90,20 @@ public class ItemInfo implements Serializable {
 	}
 
 	public int getSpanX() {
-		return spanX;
+		return 1;
 	}
 
 	public void setSpanX(int spanX) {
-		this.spanX = spanX;
+		// this.spanX = spanX;
 		element.setAttribute(Xml.KEY_SPAN_X, Util.toString(spanX));
 	}
 
 	public int getSpanY() {
-		return spanY;
+		return 1;
 	}
 
 	public void setSpanY(int spanY) {
-		this.spanY = spanY;
+		// this.spanY = spanY;
 		element.setAttribute(Xml.KEY_SPAN_Y, Util.toString(spanY));
 	}
 
@@ -148,7 +138,18 @@ public class ItemInfo implements Serializable {
 
 		ItemInfo i = (ItemInfo) o;
 
-		return i.cellX == cellX && i.cellY == cellY && i.screen == screen && i.spanX == spanX && i.spanY == spanY;
+		return i.cellX == cellX && i.cellY == cellY && i.screen == screen && i.getSpanX() == getSpanX()
+				&& i.getSpanY() == getSpanY();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
 	}
 
 }

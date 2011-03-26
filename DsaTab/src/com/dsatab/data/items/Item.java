@@ -2,6 +2,7 @@ package com.dsatab.data.items;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.UUID;
 
 import org.w3c.dom.Element;
 
@@ -10,7 +11,9 @@ import android.text.TextUtils;
 import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
 import com.dsatab.view.drag.ItemInfo;
+import com.dsatab.xml.DomUtil;
 import com.dsatab.xml.Xml;
+import com.gandulf.guilib.util.Debug;
 
 public class Item implements Serializable, Comparable<Item>, Cloneable {
 
@@ -26,9 +29,13 @@ public class Item implements Serializable, Comparable<Item>, Cloneable {
 
 	private ItemType type;
 
-	private Element element;
+	private transient Element element;
+
+	private UUID id;
 
 	private String name;
+
+	private String title;
 
 	private String category;
 
@@ -37,7 +44,16 @@ public class Item implements Serializable, Comparable<Item>, Cloneable {
 	private ItemInfo itemInfo;
 
 	public Item() {
+		id = UUID.randomUUID();
 		itemInfo = new ItemInfo();
+	}
+
+	public UUID getId() {
+		return id;
+	}
+
+	public void setId(UUID id) {
+		this.id = id;
 	}
 
 	public String getName() {
@@ -46,6 +62,13 @@ public class Item implements Serializable, Comparable<Item>, Cloneable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getTitle() {
+		if (title != null)
+			return title;
+		else
+			return getName();
 	}
 
 	public Element getElement() {
@@ -60,6 +83,14 @@ public class Item implements Serializable, Comparable<Item>, Cloneable {
 			path = element.getAttribute(Xml.KEY_PATH);
 		} else if (path != null) {
 			element.setAttribute(Xml.KEY_PATH, path);
+		}
+
+		Element domallgemein = DomUtil.getChildByTagName(element, Xml.KEY_MOD_ALLGEMEIN);
+		if (domallgemein != null) {
+			Element name = DomUtil.getChildByTagName(domallgemein, Xml.KEY_NAME);
+			if (name != null) {
+				title = name.getAttribute(Xml.KEY_VALUE);
+			}
 		}
 	}
 
@@ -146,8 +177,9 @@ public class Item implements Serializable, Comparable<Item>, Cloneable {
 			comp1 = 0;
 
 		int comp2 = getName().compareToIgnoreCase(another.getName());
+		int comp3 = getId().compareTo(another.getId());
 
-		return comp0 * 100000 + comp1 * 1000 + comp2;
+		return comp0 * 1000000 + comp1 * 10000 + comp2 * 100 + comp3;
 	}
 
 	/*
@@ -167,6 +199,9 @@ public class Item implements Serializable, Comparable<Item>, Cloneable {
 
 		Item otherItem = (Item) o;
 		if (!otherItem.getName().equals(getName()))
+			return false;
+
+		if (!otherItem.getId().equals(getId()))
 			return false;
 
 		if (getItemInfo() != null) {
@@ -202,6 +237,17 @@ public class Item implements Serializable, Comparable<Item>, Cloneable {
 		return itemInfo;
 	}
 
+	public Item duplicate() {
+		Item item = null;
+		try {
+			item = (Item) clone();
+			item.id = UUID.randomUUID();
+		} catch (CloneNotSupportedException e) {
+			Debug.error(e);
+		}
+		return item;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -209,7 +255,9 @@ public class Item implements Serializable, Comparable<Item>, Cloneable {
 	 */
 	@Override
 	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
+		Item item = (Item) super.clone();
+		item.itemInfo = (ItemInfo) itemInfo.clone();
+		return item;
 	}
 
 }

@@ -23,14 +23,6 @@ public class EquippedItem {
 
 	private static final String NAME_PREFIX_FK = "fkwaffe";
 
-	public enum UsageType {
-		Schild, Paradewaffe
-	};
-
-	public enum Hand {
-		rechts, links
-	}
-
 	private Element element;
 
 	private Item item = null;

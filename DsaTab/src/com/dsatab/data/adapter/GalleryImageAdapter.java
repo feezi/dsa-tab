@@ -17,13 +17,10 @@ package com.dsatab.data.adapter;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
-import java.util.Arrays;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Typeface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -40,7 +37,6 @@ public class GalleryImageAdapter extends BaseAdapter {
 
 	private Item[] images;
 
-	private String[] names;
 	private WeakReference<Bitmap>[] bmps;
 
 	private Context context;
@@ -48,8 +44,6 @@ public class GalleryImageAdapter extends BaseAdapter {
 	private int mGalleryItemBackground;
 
 	private int width, height;
-
-	private Typeface font;
 
 	/**
 	 * 
@@ -75,18 +69,6 @@ public class GalleryImageAdapter extends BaseAdapter {
 		width = context.getResources().getDimensionPixelSize(R.dimen.gallery_thumb_width);
 		height = context.getResources().getDimensionPixelSize(R.dimen.gallery_thumb_height);
 		a.recycle();
-	}
-
-	public String[] getNames() {
-		if (names == null) {
-			names = new String[images.length];
-			int i = 0;
-			for (Item item : images) {
-				names[i++] = item.getName();
-			}
-			Arrays.sort(names);
-		}
-		return names;
 	}
 
 	public int getPosition(Item item) {
@@ -155,7 +137,7 @@ public class GalleryImageAdapter extends BaseAdapter {
 		} else {
 			File lqFile = item.getFile();
 			if (lqFile != null && lqFile.isFile()) {
-				bitmap = BitmapFactory.decodeFile(lqFile.getAbsolutePath());
+				bitmap = DataManager.getBitmap(lqFile.getAbsolutePath());
 				bmps[position] = new WeakReference<Bitmap>(bitmap);
 			}
 		}

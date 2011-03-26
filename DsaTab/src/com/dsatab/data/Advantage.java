@@ -7,38 +7,46 @@ import com.dsatab.xml.Xml;
 
 public class Advantage {
 
-	private Element element;
+	private String name;
+	private String comment;
+	private String valueString;
 
 	public Advantage(Element element) {
-		this.element = element;
+
+		this.name = element.getAttribute(Xml.KEY_NAME);
+
+		if (name.startsWith("Begabung für ") && getValueAsString() != null) {
+			this.name = "Begabung für " + getValueAsString();
+		}
+
+		this.comment = element.getAttribute(Xml.KEY_COMMENT);
+
+		if (element.hasAttribute(Xml.KEY_VALUE))
+			this.valueString = element.getAttribute(Xml.KEY_VALUE);
+
 	}
 
 	public String getName() {
-		return element.getAttribute(Xml.KEY_NAME);
-	}
-
-	public void setName(String name) {
-		element.setAttribute(Xml.KEY_NAME, name);
+		return name;
 	}
 
 	public String getComment() {
-		return element.getAttribute(Xml.KEY_COMMENT);
+		return comment;
 	}
 
 	public Integer getValue() {
-		if (element.hasAttribute(Xml.KEY_VALUE))
-			return Util.parseInt(element.getAttribute(Xml.KEY_VALUE));
+		if (valueString != null)
+			return Util.parseInt(valueString);
 		else
 			return null;
 	}
 
-	public void setValue(Integer value) {
-		element.setAttribute(Xml.KEY_VALUE, Util.toString(value));
+	public String getValueAsString() {
+		return valueString;
 	}
 
 	@Override
 	public String toString() {
 		return getName();
 	}
-
 }

@@ -120,6 +120,17 @@ public class NotesActivity extends BaseMenuActivity implements OnClickListener, 
 		listView.setAdapter(notesListAdapter);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.activity.BaseMenuActivity#onHeroUnloaded(com.dsatab.data.Hero)
+	 */
+	@Override
+	protected void onHeroUnloaded(Hero hero) {
+
+	}
+
 	/**
 	 * 
 	 */

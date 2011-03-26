@@ -19,6 +19,7 @@ import com.dsatab.data.Value;
 import com.dsatab.data.WoundAttribute;
 import com.dsatab.data.enums.Position;
 import com.dsatab.view.listener.ValueChangedListener;
+import com.gandulf.guilib.util.Debug;
 
 public class BodyLayout extends FrameLayout implements View.OnClickListener, ValueChangedListener {
 
@@ -111,6 +112,7 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 
 	public void setArmorAttributes(Map<Position, ArmorAttribute> attributes) {
 
+		Debug.verbose("setting armorattr " + attributes.size());
 		// remove old buttons if existing
 		for (TextView tv : armorButtons.values()) {
 			removeView(tv);
@@ -130,6 +132,8 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 			else
 				rsText.setText("0");
 		}
+
+		requestLayout();
 	}
 
 	public void setWoundAttributes(Map<Position, WoundAttribute> attributes) {
@@ -160,6 +164,7 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 			}
 
 		}
+		requestLayout();
 	}
 
 	public void onValueChanged(Value value) {
@@ -257,17 +262,10 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 		}
 	}
 
-	private int lastWidth, lastHeight;
-
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
 		int width = r - l;
-
 		int height = b - t;
-
-		if (lastWidth == width && lastHeight == height)
-			return;
-
 		int count = getChildCount();
 
 		int headWidth = 0;
@@ -378,6 +376,8 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 					}
 					// armor
 				} else {
+					Debug.verbose("Layout " + child + "," + lp);
+
 					switch (lp.getPosition()) {
 					case Head_Up:
 						cl = (int) (width * OFFSET_HEAD_X) - (child.getMeasuredWidth() / 2);
@@ -486,8 +486,6 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 
 		}
 
-		lastWidth = width;
-		lastHeight = height;
 	}
 
 	public LayoutParams generateLayoutParams(AttributeSet attrs) {

@@ -22,9 +22,16 @@ public class Armor extends Item {
 	public static final String CATEGORY_FULL = "Komplettrüstung";
 	public static final String CATEGORY_TORSO = "Torso";
 
-	private double be;
+	private float be;
+
+	private int stars;
+
+	private boolean zonenHalfBe;
 
 	private HashMap<Position, Integer> rs;
+
+	private int zonenRs = 0;
+	private int totalRs = 0;
 
 	private int maxRs = 0;
 
@@ -34,12 +41,20 @@ public class Armor extends Item {
 		rs = new HashMap<Position, Integer>(Position.values().length);
 	}
 
-	public double getBe() {
+	public float getBe() {
 		return be;
 	}
 
-	public void setBe(double be) {
+	public void setBe(float be) {
 		this.be = be;
+	}
+
+	public boolean isZonenHalfBe() {
+		return zonenHalfBe;
+	}
+
+	public void setZonenHalfBe(boolean zonenHalfBe) {
+		this.zonenHalfBe = zonenHalfBe;
 	}
 
 	public String getInfo() {
@@ -75,6 +90,14 @@ public class Armor extends Item {
 		return info;
 	}
 
+	public int getStars() {
+		return stars;
+	}
+
+	public void setStars(int stars) {
+		this.stars = stars;
+	}
+
 	public int getRs(Position pos) {
 		Integer i = rs.get(pos);
 
@@ -88,6 +111,22 @@ public class Armor extends Item {
 		this.rs.put(pos, rs);
 
 		maxRs = Math.max(maxRs, rs);
+	}
+
+	public int getZonenRs() {
+		return zonenRs;
+	}
+
+	public void setZonenRs(int zonenRs) {
+		this.zonenRs = zonenRs;
+	}
+
+	public int getTotalRs() {
+		return totalRs;
+	}
+
+	public void setTotalRs(int totalRs) {
+		this.totalRs = totalRs;
 	}
 
 	/*
@@ -106,7 +145,7 @@ public class Armor extends Item {
 
 			String be = Hero.getChildValue(ruestung, Xml.KEY_GESAMT_BE, Xml.KEY_VALUE);
 			if (be != null) {
-				setBe(Util.parseDouble(be));
+				setBe(Util.parseFloat(be));
 			}
 			for (Position pos : Position.values()) {
 				String rs = Hero.getChildValue(ruestung, pos.name().toLowerCase(), Xml.KEY_VALUE);

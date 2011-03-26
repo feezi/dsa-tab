@@ -43,40 +43,34 @@ public class SpecialFeature {
 	public static final String GLASKNOCHEN = "Glasknochen";
 	public static final String EISERN = "Eisern";
 
-	private Element element;
+	private String name, kultur, gegenstand;
 
 	public SpecialFeature(Element element) {
-		this.element = element;
-	}
-
-	public String getName() {
-		return element.getAttribute(Xml.KEY_NAME);
-	}
-
-	public void setName(String name) {
-		element.setAttribute(Xml.KEY_NAME, name);
-	}
-
-	public String getKultur() {
+		this.name = element.getAttribute(Xml.KEY_NAME);
 
 		NodeList nodeList = element.getElementsByTagName(Xml.KEY_KULTUR);
 		if (nodeList.getLength() > 0) {
 			Element gegenstand = (Element) nodeList.item(0);
-			return gegenstand.getAttribute(Xml.KEY_NAME);
-		} else {
-			return null;
+			this.kultur = gegenstand.getAttribute(Xml.KEY_NAME);
 		}
 
+		nodeList = element.getElementsByTagName(Xml.KEY_GEGENSTAND);
+		if (nodeList.getLength() > 0) {
+			Element gegenstand = (Element) nodeList.item(0);
+			this.gegenstand = gegenstand.getAttribute(Xml.KEY_NAME);
+		}
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getKultur() {
+		return kultur;
 	}
 
 	public String getGegenstand() {
-		NodeList nodeList = element.getElementsByTagName(Xml.KEY_GEGENSTAND);
-		if (nodeList.getLength() > 0) {
-			Element gegenstand = (Element) nodeList.item(0);
-			return gegenstand.getAttribute(Xml.KEY_NAME);
-		} else {
-			return null;
-		}
+		return gegenstand;
 	}
 
 	@Override

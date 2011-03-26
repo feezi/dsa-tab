@@ -111,11 +111,11 @@ public class CardView extends ImageView {
 		int maxWidth = (int) Math.sqrt((w - TEXT_PADDING * 2) * (w - TEXT_PADDING * 2) + (h - TEXT_PADDING * 2)
 				* (h - TEXT_PADDING * 2));
 
-		float width = paint.measureText(item.getName());
+		float width = paint.measureText(item.getTitle());
 
 		while (width > maxWidth) {
 			paint.setTextSize(paint.getTextSize() - 2);
-			width = paint.measureText(item.getName());
+			width = paint.measureText(item.getTitle());
 		}
 
 		calculated = true;
@@ -129,7 +129,7 @@ public class CardView extends ImageView {
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		super.onSizeChanged(w, h, oldw, oldh);
-
+		calculated = false;
 		calcTextSize(w, h);
 
 	}
@@ -143,13 +143,12 @@ public class CardView extends ImageView {
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		if (!hasCardImage()) {
-
 			calcTextSize(getWidth(), getHeight());
 
 			Path path = new Path();
 			path.moveTo(TEXT_PADDING, TEXT_PADDING);
 			path.lineTo(getWidth() - TEXT_PADDING, getHeight() - TEXT_PADDING);
-			canvas.drawTextOnPath(item.getName(), path, 0, paint.getTextSize() / 2, paint);
+			canvas.drawTextOnPath(item.getTitle(), path, 0, paint.getTextSize() / 2, paint);
 		}
 	}
 }

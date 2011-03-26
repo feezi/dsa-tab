@@ -104,7 +104,7 @@ public class DSATabApplication extends Application {
 		if (hero != null)
 			return hero;
 		else
-			return getHero(null);
+			return null;
 	}
 
 	public List<String> getHeroes() {
@@ -162,7 +162,7 @@ public class DSATabApplication extends Application {
 
 				SharedPreferences preferences = getPreferences();
 				Editor editor = preferences.edit();
-				editor.putString(MainActivity.PREF_LAST_HERO, hero.getPath());
+				editor.putString(MainCharacterActivity.PREF_LAST_HERO, hero.getPath());
 				editor.commit();
 				Debug.verbose("Stored path of current hero in prefs:" + hero.getPath());
 

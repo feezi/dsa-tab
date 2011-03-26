@@ -103,7 +103,8 @@ public class CombatProbe implements Probe {
 	public String toString() {
 
 		return (isAttack() ? "Angriff mit " : "Parade mit ")
-				+ (getEquippedItem() != null ? (getEquippedItem().getItem().getName() + "(" + probe.getName() + ")") : probe.getName());
+				+ (getEquippedItem() != null ? (getEquippedItem().getItem().getTitle() + "(" + probe.getName() + ")")
+						: probe.getName());
 	}
 
 }

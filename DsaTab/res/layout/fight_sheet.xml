@@ -10,6 +10,7 @@
 		android:layout_width="fill_parent" android:weightSum="1.0"
 		android:gravity="center_horizontal" android:layout_marginTop="10dip"
 		android:layout_below="@+id/inc_fight_attributes_list">
+		<ImageButton style="@style/IconButton" android:src="@drawable/set" android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:layout_gravity="center_vertical" android:layout_marginRight="10dp" android:id="@+id/fight_set"></ImageButton>
 		<TextView android:layout_width="wrap_content" style="@style/TextLabel"
 			android:layout_gravity="center_vertical" android:ellipsize="end"
 			android:layout_height="fill_parent" android:gravity="center_vertical"

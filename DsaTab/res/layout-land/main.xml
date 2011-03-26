@@ -34,7 +34,7 @@
 			android:id="@+id/gen_tab_coins" style="@style/IconButton" android:src="@drawable/icon_coins"></ImageButton>	
 
 	</LinearLayout>
-	<com.dsatab.view.ViewFlipperFix
+	<com.gandulf.guilib.view.ViewFlipperFix
 		android:layout_above="@+id/gen_name" android:layout_height="fill_parent"
 		android:layout_width="fill_parent" android:id="@+id/gen_viewflipper"
 		android:layout_toLeftOf="@+id/gen_tab_layout" android:paddingBottom="5dip"
@@ -57,7 +57,7 @@
 
 
 
-	</com.dsatab.view.ViewFlipperFix>
+	</com.gandulf.guilib.view.ViewFlipperFix>
 
 
 </RelativeLayout>

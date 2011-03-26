@@ -13,7 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<com.dsatab.view.drag.DragLayer
+<com.gandulf.guilib.drag.DragLayer
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:launcher="http://schemas.android.com/apk/res/com.dsatab"
 
@@ -65,8 +65,6 @@
     <TextView android:text="Set 1" android:layout_width="wrap_content" android:paddingTop="4dip" android:gravity="center" 
         android:layout_height="56dip" android:layout_gravity="bottom|center_horizontal" android:id="@+id/screen_set_text"></TextView>
     
-        
-    
     <ImageView
         android:id="@+id/next_screen"
         android:layout_width="93dip"
@@ -77,4 +75,4 @@
         android:src="@drawable/home_arrows_right"
         android:focusable="true"/>
 
-</com.dsatab.view.drag.DragLayer>
+</com.gandulf.guilib.drag.DragLayer>

@@ -8,15 +8,18 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.dsatab.activity.DSATabApplication;
@@ -30,7 +33,7 @@ import com.dsatab.data.enums.Position;
 import com.dsatab.data.items.Armor;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
-import com.dsatab.data.items.EquippedItem.Hand;
+import com.dsatab.data.items.Hand;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.data.items.Shield;
@@ -40,6 +43,7 @@ import com.dsatab.data.modifier.Modificator;
 import com.dsatab.view.listener.ModifierChangedListener;
 import com.dsatab.view.listener.ValueChangedListener;
 import com.dsatab.xml.DataManager;
+import com.dsatab.xml.DomUtil;
 import com.dsatab.xml.Xml;
 import com.gandulf.guilib.util.Debug;
 
@@ -103,6 +107,7 @@ public class Hero {
 		this.path = path;
 		this.dom = dom;
 		this.attributes = new HashMap<AttributeType, Attribute>(AttributeType.values().length);
+		this.equippedItems = (LinkedList<EquippedItem>[]) new LinkedList[3];
 
 		this.leModifier = new LeModifier(this);
 		if (getLeRatio() < 0.5)
@@ -113,7 +118,6 @@ public class Hero {
 				modifiers.add(attr);
 		}
 
-		equippedItems = (LinkedList<EquippedItem>[]) new LinkedList[3];
 	}
 
 	public void addValueChangedListener(ValueChangedListener v) {
@@ -172,10 +176,10 @@ public class Hero {
 		if (equippedItems[selectedSet] == null) {
 			equippedItems[selectedSet] = new LinkedList<EquippedItem>();
 
-			NodeList equippedElements = getHeldElement().getElementsByTagName(Xml.KEY_HELDENAUSRUESTUNG);
+			List<Node> equippedElements = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_HELDENAUSRUESTUNG);
 
-			for (int i = 0; i < equippedElements.getLength(); i++) {
-				Element element = (Element) equippedElements.item(i);
+			for (int i = 0; i < equippedElements.size(); i++) {
+				Element element = (Element) equippedElements.get(i);
 
 				if (element.getAttribute(Xml.KEY_NAME).equals("jagtwaffe"))
 					continue;
@@ -354,6 +358,13 @@ public class Hero {
 
 		List<EquippedItem> toremove = new ArrayList<EquippedItem>();
 		for (EquippedItem equippedItem : getEquippedItems()) {
+
+			if (equippedItem.getItem() == null) {
+				Debug.warning("Empty EquippedItem found during item delete:" + equippedItem.getName() + " - "
+						+ equippedItem.getItemName());
+				continue;
+			}
+
 			if (equippedItem.getItem().equals(item)) {
 				toremove.add(equippedItem);
 			}
@@ -495,9 +506,9 @@ public class Hero {
 
 		if (attribute == null) {
 
-			NodeList attributes = dom.getElementsByTagName(Xml.KEY_EIGENSCHAFT);
-			for (int i = 0; i < attributes.getLength(); i++) {
-				Element attributeElement = (Element) attributes.item(i);
+			List<Node> attributes = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_EIGENSCHAFT);
+			for (int i = 0; i < attributes.size(); i++) {
+				Element attributeElement = (Element) attributes.get(i);
 
 				Attribute attr = new Attribute(attributeElement, this);
 				this.attributes.put(attr.getType(), attr);
@@ -505,7 +516,7 @@ public class Hero {
 
 			if (!this.attributes.containsKey(AttributeType.Behinderung)) {
 
-				Element element = dom.createElement("eigenschaft");
+				Element element = dom.createElement(Xml.KEY_EIGENSCHAFT);
 				element.setAttribute(Xml.KEY_NAME, AttributeType.Behinderung.name());
 				element.setAttribute(Xml.KEY_VALUE, Integer.toString(getArmorBe()));
 				getHeldElement().appendChild(element);
@@ -675,20 +686,30 @@ public class Hero {
 	}
 
 	public String getAusbildung() {
-		NodeList rasse = getHeldElement().getElementsByTagName("ausbildung");
 
-		if (rasse.getLength() > 0) {
-			return ((Element) rasse.item(0)).getAttribute("string");
-		} else
-			return null;
+		NodeList ausbildung = getHeldElement().getElementsByTagName(Xml.KEY_AUSBILDUNG);
+		if (ausbildung.getLength() > 0) {
+			String value = ((Element) ausbildung.item(0)).getAttribute(Xml.KEY_STRING);
+			if (!TextUtils.isEmpty(value))
+				return value;
+		}
+
+		NodeList profession = getHeldElement().getElementsByTagName(Xml.KEY_PROFESSION);
+		if (profession.getLength() > 0) {
+			String value = ((Element) profession.item(0)).getAttribute(Xml.KEY_STRING);
+			if (!TextUtils.isEmpty(value))
+				return value;
+		}
+
+		return null;
 
 	}
 
 	public String getHerkunft() {
-		NodeList rasse = getHeldElement().getElementsByTagName("rasse");
+		NodeList rasse = getHeldElement().getElementsByTagName(Xml.KEY_RASSE);
 
 		if (rasse.getLength() > 0) {
-			return ((Element) rasse.item(0)).getAttribute("string");
+			return ((Element) rasse.item(0)).getAttribute(Xml.KEY_STRING);
 		} else
 			return null;
 	}
@@ -1172,7 +1193,9 @@ public class Hero {
 	}
 
 	public int getArmorBe() {
-		double be = 0.0;
+		float be = 0.0f;
+
+		Debug.verbose("Start Be calc");
 
 		String rs1Armor = null;
 		if (hasFeature(SpecialFeature.RUESTUNGSGEWOEHNUNG_3)) {
@@ -1186,20 +1209,83 @@ public class Hero {
 			}
 		}
 
-		for (EquippedItem equippedItem : getEquippedItems()) {
-			Item item = equippedItem.getItem();
-			if (item instanceof Armor) {
-				Armor armor = (Armor) item;
-				be += armor.getBe();
+		switch (DSATabApplication.getInstance().getConfiguration().getArmorType()) {
 
-				if (rs1Armor != null && rs1Armor.equals(armor.getName())) {
-					be -= 1.0;
-					rs1Armor = null;
+		case ZonenRuestung: {
+
+			int stars = 0;
+			float totalRs = 0;
+
+			for (EquippedItem equippedItem : getEquippedItems()) {
+				Item item = equippedItem.getItem();
+				if (item instanceof Armor) {
+					Armor armor = (Armor) item;
+					stars += armor.getStars();
+
+					if (rs1Armor != null && rs1Armor.equals(armor.getName())) {
+						be -= 1.0;
+						rs1Armor = null;
+					}
+
+					for (int i = 0; i < Position.ARMOR_POSITIONS.size(); i++) {
+						float armorRs = armor.getRs(Position.ARMOR_POSITIONS.get(i));
+
+						if (armor.isZonenHalfBe())
+							armorRs = armorRs / 2.0f;
+
+						totalRs += (armorRs * Position.ARMOR_POSITIONS_MULTIPLIER[i]);
+					}
 				}
 			}
+
+			totalRs = (float) Math.ceil(totalRs / 20);
+			be += (totalRs - stars);
+			break;
+
 		}
 
+		case GesamtRuestung: {
+
+			for (EquippedItem equippedItem : getEquippedItems()) {
+				Item item = equippedItem.getItem();
+				if (item instanceof Armor) {
+					Armor armor = (Armor) item;
+					be += armor.getBe();
+
+					if (rs1Armor != null && rs1Armor.equals(armor.getName())) {
+						be -= 1.0;
+						rs1Armor = null;
+					}
+				}
+			}
+			break;
+
+		}
+		}
+
+		Debug.verbose("Finish Be calc");
+
 		return Math.max(0, (int) Math.ceil(be));
+	}
+
+	/**
+	 * A general overall Rs value calculated using the zone system sum with
+	 * multipliers
+	 * 
+	 * @return
+	 */
+	public int getArmorRs() {
+
+		int totalRs = 0;
+
+		for (int i = 0; i < Position.ARMOR_POSITIONS.size(); i++) {
+			totalRs += (getArmorRs(Position.ARMOR_POSITIONS.get(i)) * Position.ARMOR_POSITIONS_MULTIPLIER[i]);
+		}
+
+		totalRs = (int) Math.round(totalRs / 20.0);
+
+		return totalRs;
+
 	}
 
 	public int getArmorRs(Position pos) {
@@ -1221,14 +1307,10 @@ public class Hero {
 
 			items = new HashMap<ItemType, List<Item>>();
 
-			NodeList itemsElements = getHeldElement().getElementsByTagName(Xml.KEY_GEGENSTAND);
+			List<Node> itemsElements = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_GEGENSTAND);
 
-			for (int i = 0; i < itemsElements.getLength(); i++) {
-				Element element = (Element) itemsElements.item(i);
-
-				// skip nested gegenstand elements in Rüstungsgewöhnungstag
-				if (!element.getParentNode().equals(getHeldElement()))
-					continue;
+			for (int i = 0; i < itemsElements.size(); i++) {
+				Element element = (Element) itemsElements.get(i);
 
 				if (element.hasAttribute(Xml.KEY_NAME)) {
 
@@ -1236,12 +1318,7 @@ public class Hero {
 
 					if (item != null) {
 
-						try {
-							item = (Item) item.clone();
-						} catch (CloneNotSupportedException e) {
-							Debug.error(e);
-						}
-
+						item = (Item) item.duplicate();
 						item.setElement(element);
 
 						List<Item> its = items.get(item.getType());
@@ -1290,11 +1367,11 @@ public class Hero {
 
 			talentByName = new HashMap<String, Talent>();
 
-			NodeList talentList = dom.getElementsByTagName(Xml.KEY_TALENT);
+			List<Node> talentList = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_TALENT);
 			Talent talent;
 			boolean found = false;
-			for (int i = 0; i < talentList.getLength(); i++) {
-				Element element = (Element) talentList.item(i);
+			for (int i = 0; i < talentList.size(); i++) {
+				Element element = (Element) talentList.get(i);
 
 				if (!element.hasAttribute(Xml.KEY_VALUE))
 					continue;
@@ -1402,12 +1479,12 @@ public class Hero {
 
 	public List<Spell> getSpells() {
 		if (spells == null) {
-			NodeList spellList = dom.getElementsByTagName(Xml.KEY_ZAUBER);
+			List<Node> spellList = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_ZAUBER);
 
-			spells = new ArrayList<Spell>(spellList.getLength());
+			spells = new ArrayList<Spell>(spellList.size());
 
-			for (int i = 0; i < spellList.getLength(); i++) {
-				Element element = (Element) spellList.item(i);
+			for (int i = 0; i < spellList.size(); i++) {
+				Element element = (Element) spellList.get(i);
 				spells.add(new Spell(this, element));
 			}
 		}
@@ -1418,6 +1495,17 @@ public class Hero {
 		for (ItemType type : getItems().keySet()) {
 			for (Item item : getItems(type)) {
 				if (item.getName().equals(name)) {
+					return item;
+				}
+			}
+		}
+		return null;
+	}
+
+	public Item getItem(UUID id) {
+		for (ItemType type : getItems().keySet()) {
+			for (Item item : getItems(type)) {
+				if (item.getId().equals(id)) {
 					return item;
 				}
 			}

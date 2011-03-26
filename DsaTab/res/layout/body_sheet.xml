@@ -5,5 +5,8 @@
 	<com.dsatab.view.BodyLayout android:id="@+id/body_layout"
 			android:layout_height="fill_parent" android:layout_width="fill_parent">
 	</com.dsatab.view.BodyLayout>
+	<ImageButton style="@style/IconButton" android:id="@+id/body_set3" android:src="@drawable/set3" android:layout_alignParentBottom="true" android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size"></ImageButton>
+	<ImageButton style="@style/IconButton" android:id="@+id/body_set2" android:src="@drawable/set2" android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:layout_above="@+id/body_set3"></ImageButton>
+	<ImageButton android:id="@+id/body_set1" style="@style/IconButton" android:src="@drawable/set1" android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:layout_above="@+id/body_set2"></ImageButton>
 	
 </RelativeLayout>

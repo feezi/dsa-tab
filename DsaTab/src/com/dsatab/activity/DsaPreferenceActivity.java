@@ -15,15 +15,20 @@
  */
 package com.dsatab.activity;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 import android.webkit.WebView;
 
 import com.dsatab.R;
+import com.dsatab.activity.DsaTabConfiguration.ArmorType;
 import com.gandulf.guilib.util.Downloader;
 
 public class DsaPreferenceActivity extends PreferenceActivity {
@@ -37,6 +42,8 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 	public static final String KEY_PROBE_SHAKE_ROLL_DICE = "shakeRollDice";
 
 	public static final String KEY_HOUSE_RULES = "houseRules";
+
+	public static final String KEY_ARMOR_TYPE = "armorType";
 
 	public static final String KEY_SETUP_SDCARD_PATH = "sdcardPath";
 
@@ -61,6 +68,18 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 
 		addPreferencesFromResource(R.xml.preferences);
 
+		ListPreference listPreference = (ListPreference) findPreference(KEY_ARMOR_TYPE);
+
+		List<String> themeNames = new LinkedList<String>();
+		List<String> themeValues = new LinkedList<String>();
+
+		for (ArmorType themeValue : DsaTabConfiguration.ArmorType.values()) {
+			themeNames.add(themeValue.title());
+			themeValues.add(themeValue.name());
+		}
+
+		listPreference.setEntries(themeNames.toArray(new String[0]));
+		listPreference.setEntryValues(themeValues.toArray(new String[0]));
 	}
 
 	/*

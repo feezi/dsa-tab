@@ -24,7 +24,6 @@ import java.util.Map;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -35,6 +34,7 @@ import com.dsatab.R;
 import com.dsatab.data.Hero;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
+import com.dsatab.xml.DataManager;
 
 public class InventoryCardAdapter extends BaseAdapter {
 
@@ -132,7 +132,7 @@ public class InventoryCardAdapter extends BaseAdapter {
 
 			File lqFile = getItem(position).getFile();
 			if (lqFile != null && lqFile.isFile()) {
-				bitmap = BitmapFactory.decodeFile(lqFile.getAbsolutePath());
+				bitmap = DataManager.getBitmap(lqFile.getAbsolutePath());
 				bmps[position] = new WeakReference<Bitmap>(bitmap);
 			}
 		}

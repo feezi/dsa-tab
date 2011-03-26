@@ -15,33 +15,76 @@
  */
 package com.dsatab.activity;
 
+import java.io.File;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.dsatab.R;
 import com.dsatab.data.Hero;
-import com.dsatab.xml.XmlParserNew;
 import com.gandulf.guilib.util.Debug;
 
 public abstract class BaseMenuActivity extends Activity {
+
+	public static final String PREF_LAST_HERO = "LAST_HERO";
 
 	protected static final int ACTION_PREFERENCES = 1;
 	protected static final int ACTION_INVENTORY = 3;
 	protected static final int ACTION_CHOOSE_HERO = 4;
 
-	/**
-	 * 
-	 */
+	protected SharedPreferences preferences;
+
 	public BaseMenuActivity() {
 
 	}
 
+	public Hero getHero() {
+		return DSATabApplication.getInstance().getHero();
+	}
+
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		return (getHero());
+	}
+
+	protected final void loadHero(String heroPath) {
+
+		Hero oldHero = DSATabApplication.getInstance().getHero();
+		if (oldHero != null)
+			onHeroUnloaded(oldHero);
+
+		Hero hero = DSATabApplication.getInstance().getHero(heroPath);
+		if (hero != null) {
+			onHeroLoaded(hero);
+		}
+	}
+
+	private void loadHero() {
+		if (getLastNonConfigurationInstance() instanceof Hero) {
+			onHeroLoaded((Hero) getLastNonConfigurationInstance());
+		} else if (DSATabApplication.getInstance().getHero() != null) {
+			onHeroLoaded(DSATabApplication.getInstance().getHero());
+		} else {
+			String heroPath = preferences.getString(PREF_LAST_HERO, null);
+			if (heroPath != null && new File(heroPath).exists()) {
+				loadHero(heroPath);
+			} else {
+				showHeroChooser();
+			}
+		}
+	}
+
 	protected abstract void onHeroLoaded(Hero hero);
+
+	protected abstract void onHeroUnloaded(Hero hero);
 
 	/*
 	 * (non-Javadoc)
@@ -55,9 +98,31 @@ public abstract class BaseMenuActivity extends Activity {
 		if (requestCode == ACTION_CHOOSE_HERO && resultCode == RESULT_OK) {
 			String heroPath = data.getStringExtra(HeroChooserActivity.INTENT_NAME_HERO_PATH);
 			Debug.verbose("HeroChooserActivity returned with path:" + heroPath);
-			Hero hero = DSATabApplication.getInstance().getHero(heroPath);
-			onHeroLoaded(hero);
+			loadHero(heroPath);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 */
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onPostCreate(android.os.Bundle)
+	 */
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+		loadHero();
 	}
 
 	@Override
@@ -99,7 +164,6 @@ public abstract class BaseMenuActivity extends Activity {
 			return true;
 		} else if (item.getItemId() == R.id.option_map) {
 			startActivity(new Intent(this, MapActivity.class));
-			XmlParserNew.writeItems();
 			return true;
 		} else if (item.getItemId() == R.id.option_notes) {
 			if (!getClass().equals(NotesActivity.class)) {

@@ -616,7 +616,7 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 
 		res.setText(Integer.toString(value));
 		res.setTextColor(Color.WHITE);
-		res.setTextSize(getResources().getDimension(R.dimen.dices_font_size));
+		res.setTextSize(getResources().getInteger(R.integer.dices_font_size));
 		res.setTypeface(Typeface.DEFAULT_BOLD);
 		res.setGravity(Gravity.CENTER);
 		res.setPadding(padding, 0, padding, 0);

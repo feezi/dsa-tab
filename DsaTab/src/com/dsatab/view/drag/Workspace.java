@@ -19,7 +19,6 @@ package com.dsatab.view.drag;
 import java.util.ArrayList;
 
 import android.content.Context;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -40,6 +39,12 @@ import com.dsatab.R;
 import com.dsatab.data.items.Item;
 import com.dsatab.view.CardView;
 import com.dsatab.view.drag.CellLayout.CellInfo.VacantCell;
+import com.dsatab.xml.DataManager;
+import com.gandulf.guilib.drag.DragController;
+import com.gandulf.guilib.drag.DragScroller;
+import com.gandulf.guilib.drag.DragSource;
+import com.gandulf.guilib.drag.DragView;
+import com.gandulf.guilib.drag.DropTarget;
 import com.gandulf.guilib.util.Debug;
 
 /**
@@ -47,7 +52,7 @@ import com.gandulf.guilib.util.Debug;
  * Each screen contains a number of icons, folders or widgets the user can
  * interact with. A workspace is meant to be used with a fixed width only.
  */
-public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource, DragScroller {
+public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource<Item>, DragScroller {
 
 	private static final int INVALID_SCREEN = -1;
 
@@ -88,7 +93,7 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 
 	private OnClickListener mClickListener;
 
-	private DragController mDragController;
+	private DragController<Item> mDragController;
 
 	/**
 	 * Cache of vacant cells, used during drag events and invalidated as needed.
@@ -219,7 +224,7 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 		CardView view = new CardView(getContext(), item);
 		view.setBackgroundResource(R.drawable.border_patch);
 		view.setScaleType(ScaleType.FIT_XY);
-		view.setImageBitmap(BitmapFactory.decodeFile(item.getFile().getAbsolutePath()));
+		view.setImageBitmap(DataManager.getBitmap(item.getFile().getAbsolutePath()));
 		view.setOnLongClickListener(mLongClickListener);
 		view.setOnClickListener(mClickListener);
 		view.setTag(item);
@@ -288,7 +293,7 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 	 * 
 	 * @param currentScreen
 	 */
-	void setCurrentScreen(int currentScreen) {
+	public void setCurrentScreen(int currentScreen) {
 		if (!mScroller.isFinished())
 			mScroller.abortAnimation();
 		clearVacantCache();
@@ -340,6 +345,7 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 	 *            When true, the child is inserted at the beginning of the
 	 *            children list.
 	 */
+	@SuppressWarnings("unchecked")
 	void addInScreen(View child, int screen, int x, int y, int spanX, int spanY, boolean insert) {
 		if (screen < 0 || screen >= getChildCount()) {
 			Debug.error("The screen must be >= 0 and < " + getChildCount() + " (was " + screen + "); skipping child");
@@ -360,7 +366,7 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 		}
 		group.addView(child, insert ? 0 : -1, lp);
 		if (child instanceof DropTarget) {
-			mDragController.addDropTarget((DropTarget) child);
+			mDragController.addDropTarget((DropTarget<Item>) child);
 		}
 	}
 
@@ -914,7 +920,7 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 		return true;
 	}
 
-	void snapToScreen(int whichScreen) {
+	public void snapToScreen(int whichScreen) {
 		snapToScreen(whichScreen, 0, false);
 	}
 
@@ -1014,7 +1020,7 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 		onDropExternal(result[0], result[1], info, layout, insertAtFirst);
 	}
 
-	public void onDrop(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Item dragInfo) {
+	public void onDrop(DragSource<Item> source, int x, int y, int xOffset, int yOffset, DragView dragView, Item dragInfo) {
 		final CellLayout cellLayout = getCurrentDropLayout();
 		if (source != this) {
 			onDropExternal(x - xOffset, y - yOffset, dragInfo, cellLayout);
@@ -1044,14 +1050,17 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 		}
 	}
 
-	public void onDragEnter(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Item dragInfo) {
+	public void onDragEnter(DragSource<Item> source, int x, int y, int xOffset, int yOffset, DragView dragView,
+			Item dragInfo) {
 		clearVacantCache();
 	}
 
-	public void onDragOver(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Item dragInfo) {
+	public void onDragOver(DragSource<Item> source, int x, int y, int xOffset, int yOffset, DragView dragView,
+			Item dragInfo) {
 	}
 
-	public void onDragExit(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Item dragInfo) {
+	public void onDragExit(DragSource<Item> source, int x, int y, int xOffset, int yOffset, DragView dragView,
+			Item dragInfo) {
 		clearVacantCache();
 	}
 
@@ -1059,6 +1068,7 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 		onDropExternal(x, y, dragInfo, cellLayout, false);
 	}
 
+	@SuppressWarnings("unchecked")
 	private void onDropExternal(int x, int y, Item dragInfo, CellLayout cellLayout, boolean insertAtFirst) {
 
 		// Drag from somewhere else
@@ -1067,18 +1077,18 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 		cellLayout.addView(view, insertAtFirst ? 0 : -1);
 		view.setHapticFeedbackEnabled(false);
 		if (view instanceof DropTarget) {
-			mDragController.addDropTarget((DropTarget) view);
+			mDragController.addDropTarget((DropTarget<Item>) view);
 		}
 
 		mTargetCell = estimateDropCell(x, y, 1, 1, view, cellLayout, mTargetCell);
 		cellLayout.onDropChild(view, mTargetCell);
 		CellLayout.LayoutParams lp = (CellLayout.LayoutParams) view.getLayoutParams();
 
-		final Item info = (Item) view.getTag();
+		final Item item = (Item) view.getTag();
 
-		info.getItemInfo().setCellX(lp.cellX);
-		info.getItemInfo().setCellY(lp.cellY);
-		info.getItemInfo().setScreen(mCurrentScreen);
+		item.getItemInfo().setCellX(lp.cellX);
+		item.getItemInfo().setCellY(lp.cellY);
+		item.getItemInfo().setScreen(mCurrentScreen);
 	}
 
 	/**
@@ -1093,7 +1103,7 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean acceptDrop(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView,
+	public boolean acceptDrop(DragSource<Item> source, int x, int y, int xOffset, int yOffset, DragView dragView,
 			Item dragInfo) {
 		final CellLayout layout = getCurrentDropLayout();
 		final CellLayout.CellInfo cellInfo = mDragInfo;
@@ -1111,8 +1121,8 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 	/**
 	 * {@inheritDoc}
 	 */
-	public Rect estimateDropLocation(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView,
-			Item dragInfo, Rect recycle) {
+	public Rect estimateDropLocation(DragSource<Item> source, int x, int y, int xOffset, int yOffset,
+			DragView dragView, Item dragInfo, Rect recycle) {
 		final CellLayout layout = getCurrentDropLayout();
 
 		final CellLayout.CellInfo cellInfo = mDragInfo;
@@ -1154,11 +1164,12 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 		return layout.findNearestVacantArea(pixelX, pixelY, spanX, spanY, mVacantCache, recycle);
 	}
 
-	public void setDragController(DragController dragController) {
+	public void setDragController(DragController<Item> dragController) {
 		mDragController = dragController;
 	}
 
-	public void onDropCompleted(View target, boolean success) {
+	@SuppressWarnings("unchecked")
+	public void onDropCompleted(DropTarget<Item> target, boolean success) {
 		clearVacantCache();
 
 		if (success) {
@@ -1166,7 +1177,7 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 				final CellLayout cellLayout = (CellLayout) getChildAt(mDragInfo.screen);
 				cellLayout.removeView(mDragInfo.cell);
 				if (mDragInfo.cell instanceof DropTarget) {
-					mDragController.removeDropTarget((DropTarget) mDragInfo.cell);
+					mDragController.removeDropTarget((DropTarget<Item>) mDragInfo.cell);
 				}
 				// final Object tag = mDragInfo.cell.getTag();
 			}
@@ -1254,6 +1265,7 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 
 			// Avoid ANRs by treating each screen separately
 			post(new Runnable() {
+				@SuppressWarnings("unchecked")
 				public void run() {
 					int childCount = layout.getChildCount();
 					for (int j = 0; j < childCount; j++) {
@@ -1264,7 +1276,7 @@ public class Workspace extends ViewGroup implements DropTarget<Item>, DragSource
 
 							layout.removeViewInLayout(view);
 							if (view instanceof DropTarget) {
-								mDragController.removeDropTarget((DropTarget) view);
+								mDragController.removeDropTarget((DropTarget<Item>) view);
 							}
 							layout.requestLayout();
 							layout.invalidate();

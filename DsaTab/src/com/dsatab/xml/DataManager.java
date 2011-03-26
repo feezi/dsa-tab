@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
 
@@ -44,12 +47,39 @@ public class DataManager {
 
 	private static SoftReference<Map<ItemType, List<String>>> cardTypeCategories;
 
+	private static SoftReference<Map<String, SoftReference<Bitmap>>> bitmapsMap;
+
 	public static Map<String, Item> getItemsMap() {
 		if (itemsMap == null || itemsMap.get() == null) {
 			itemsMap = new SoftReference<Map<String, Item>>(XmlParserNew.readItems());
 		}
 
 		return itemsMap.get();
+	}
+
+	public static Bitmap getBitmap(String path) {
+
+		Map<String, SoftReference<Bitmap>> b = null;
+		if (bitmapsMap == null || bitmapsMap.get() == null) {
+			b = new HashMap<String, SoftReference<Bitmap>>();
+			bitmapsMap = new SoftReference<Map<String, SoftReference<Bitmap>>>(b);
+		} else {
+			b = bitmapsMap.get();
+		}
+
+		SoftReference<Bitmap> bitmapRef = b.get(path);
+
+		Bitmap bitmap = null;
+		if (bitmapRef == null || bitmapRef.get() == null) {
+			bitmap = BitmapFactory.decodeFile(path);
+
+			bitmapRef = new SoftReference<Bitmap>(bitmap);
+			b.put(path, bitmapRef);
+		} else {
+			bitmap = bitmapRef.get();
+		}
+
+		return bitmap;
 	}
 
 	public static void reloadItemsMap() {

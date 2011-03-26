@@ -19,28 +19,28 @@ import android.widget.RelativeLayout;
 
 import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
-import com.dsatab.activity.MainActivity;
+import com.dsatab.activity.MainCharacterActivity;
 
 public class PortraitChooserDialog extends Dialog {
 
-	private MainActivity main;
+	private MainCharacterActivity main;
 
 	private List<File> portraitPaths;
 
-	public PortraitChooserDialog(MainActivity context) {
+	public PortraitChooserDialog(MainCharacterActivity context) {
 		super(context, R.style.EditDialog);
 		this.main = context;
 		init();
 	}
 
-	public PortraitChooserDialog(MainActivity context, int theme) {
+	public PortraitChooserDialog(MainCharacterActivity context, int theme) {
 		super(context, theme);
 		this.main = context;
 		init();
 
 	}
 
-	protected MainActivity getMain() {
+	protected MainCharacterActivity getMain() {
 		return main;
 	}
 

@@ -15,7 +15,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.activity.MainActivity;
+import com.dsatab.activity.MainFightActivity;
 import com.dsatab.common.Util;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.enums.AttributeType;
@@ -42,15 +42,15 @@ public class EvadeChooserDialog extends Dialog implements android.view.View.OnCl
 
 	private boolean doubleDK = false;
 
-	private MainActivity main;
+	private MainFightActivity main;
 
-	public EvadeChooserDialog(MainActivity context) {
+	public EvadeChooserDialog(MainFightActivity context) {
 		super(context, R.style.NoTitleDialog);
 		this.main = context;
 		init();
 	}
 
-	protected MainActivity getMain() {
+	protected MainFightActivity getMain() {
 		return main;
 	}
 

@@ -31,6 +31,20 @@ public class DsaTabConfiguration {
 
 	private Context context;
 
+	public enum ArmorType {
+		ZonenRuestung("Zonenrüstung"), GesamtRuestung("Gesamte Rüstung");
+
+		private String title;
+
+		private ArmorType(String t) {
+			title = t;
+		}
+
+		public String title() {
+			return title;
+		}
+	}
+
 	public DsaTabConfiguration(Context context) {
 		this.context = context;
 	}
@@ -52,5 +66,11 @@ public class DsaTabConfiguration {
 			return Position.WOUND_POSITIONS;
 		} else
 			return Position.WOUND_POSITIONS;
+	}
+
+	public ArmorType getArmorType() {
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		return ArmorType.valueOf(preferences.getString(DsaPreferenceActivity.KEY_ARMOR_TYPE,
+				ArmorType.ZonenRuestung.name()));
 	}
 }

@@ -32,7 +32,7 @@ public class InlineEditDialog extends Dialog implements android.view.View.OnClic
 	private NumberPicker editText;
 	private TextView combatStyleText;
 	private SeekBar editSeek;
-	private Button editReset;
+	private Button editReset, editOk;
 	private ToggleButton combatStyleBtn;
 
 	private ValueChangedListener onValueChangedListener = null;
@@ -93,6 +93,9 @@ public class InlineEditDialog extends Dialog implements android.view.View.OnClic
 			editText.setCurrent(value.getReferenceValue());
 			dismiss();
 		}
+		if (v == editOk) {
+			dismiss();
+		}
 	}
 
 	public ValueChangedListener getOnValueChangedListener() {
@@ -114,6 +117,7 @@ public class InlineEditDialog extends Dialog implements android.view.View.OnClic
 		editText = (NumberPicker) popupcontent.findViewById(R.id.popup_edit_text);
 		editSeek = (SeekBar) popupcontent.findViewById(R.id.popup_edit_seek);
 		editReset = (Button) popupcontent.findViewById(R.id.popup_edit_reset);
+		editOk = (Button) popupcontent.findViewById(R.id.popup_edit_ok);
 
 		combatStyleText = (TextView) popupcontent.findViewById(R.id.popup_edit_combat_style_label);
 		combatStyleBtn = (ToggleButton) popupcontent.findViewById(R.id.popup_edit_combat_style);
@@ -141,6 +145,7 @@ public class InlineEditDialog extends Dialog implements android.view.View.OnClic
 		});
 
 		editReset.setOnClickListener(this);
+		editOk.setOnClickListener(this);
 
 		editSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 

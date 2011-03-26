@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -26,7 +27,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -48,6 +48,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.dsatab.R;
+import com.dsatab.data.Hero;
 import com.dsatab.data.adapter.GalleryImageAdapter;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
@@ -65,6 +66,7 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 	public static final String INTENT_EXTRA_ITEM_X = "itemX";
 	public static final String INTENT_EXTRA_ITEM_Y = "itemY";
 	public static final String INTENT_EXTRA_ITEM_NAME = "itemName";
+	public static final String INTENT_EXTRA_ITEM_ID = "itemID";
 	public static final String INTENT_EXTRA_ITEM_TYPE = "itemType";
 	public static final String INTENT_EXTRA_ITEM_CATEGORY = "itemCategory";
 	public static final String INTENT_EXTRA_ITEM = "item";
@@ -113,6 +115,8 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 
 		if (foundItem == null) {
 			String itemName = getIntent().getStringExtra(INTENT_EXTRA_ITEM_NAME);
+			UUID itemId = (UUID) getIntent().getSerializableExtra(INTENT_EXTRA_ITEM_ID);
+
 			String itemType = getIntent().getStringExtra(INTENT_EXTRA_ITEM_TYPE);
 			itemCategory = getIntent().getStringExtra(INTENT_EXTRA_ITEM_CATEGORY);
 
@@ -121,13 +125,17 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 				cardType = ItemType.valueOf(itemType);
 			}
 
-			if (!TextUtils.isEmpty(itemName)) {
+			if (itemId != null) {
+				Hero hero = DSATabApplication.getInstance().getHero();
+				foundItem = hero.getItem(itemId);
+			}
+			if (foundItem == null && !TextUtils.isEmpty(itemName)) {
 				foundItem = DataManager.getItemByName(itemName);
-				if (foundItem != null) {
-					cardType = foundItem.getType();
-					itemCategory = foundItem.getCategory();
-				}
+			}
 
+			if (foundItem != null) {
+				cardType = foundItem.getType();
+				itemCategory = foundItem.getCategory();
 				Debug.verbose("Displaying " + itemName + " " + cardType + "/" + itemCategory + " : " + foundItem);
 			}
 		} else {
@@ -210,9 +218,11 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		bagsButton.setOnLongClickListener(this);
 		bagsButton.setTag(ItemType.Behälter);
 
-		Item card = (Item) gallery.getSelectedItem();
-		if (card != null)
-			showCard(card, true);
+		if (foundItem != null)
+			showCard(foundItem, true);
+		else {
+			showCard((Item) gallery.getSelectedItem(), true);
+		}
 
 		searchButton = (ImageButton) findViewById(R.id.body_search_button);
 		searchButton.setOnClickListener(this);
@@ -404,8 +414,8 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		Intent intent = new Intent();
 		intent.putExtra(INTENT_EXTRA_ITEM_TYPE, card.getType().name());
 		intent.putExtra(INTENT_EXTRA_ITEM_NAME, card.getName());
+		intent.putExtra(INTENT_EXTRA_ITEM_ID, card.getId());
 		intent.putExtra(INTENT_EXTRA_ITEM_CATEGORY, card.getCategory());
-		intent.putExtra(INTENT_EXTRA_ITEM, card);
 
 		intent.putExtra(INTENT_EXTRA_ITEM_X, itemX);
 		intent.putExtra(INTENT_EXTRA_ITEM_Y, itemY);
@@ -421,31 +431,25 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 
 		Bitmap bitmap = null;
 		if (hqFile != null && hqFile.isFile()) {
-			bitmap = BitmapFactory.decodeFile(hqFile.getAbsolutePath());
+			bitmap = DataManager.getBitmap(hqFile.getAbsolutePath());
 		} else {
 			File lqFile = card.getFile();
 
 			if (lqFile != null && lqFile.isFile()) {
-				bitmap = BitmapFactory.decodeFile(lqFile.getAbsolutePath());
+				bitmap = DataManager.getBitmap(lqFile.getAbsolutePath());
 			}
 		}
 
 		imageView.setImageBitmap(bitmap);
 		imageView.setItem(card);
 
-		Item item = DataManager.getItemByName(card.getName());
-		if (item != null) {
-			itemView.setItem(item);
-			itemView.setVisibility(View.VISIBLE);
-		} else {
-			itemView.setVisibility(View.GONE);
-		}
+		itemView.setItem(card);
+		itemView.setVisibility(View.VISIBLE);
 
 		if (animate) {
-			int index = imageAdapter.getPosition(item);
+			int index = imageAdapter.getPosition(card);
 			if (index >= 0)
 				gallery.setSelection(index);
-
 		}
 	}
 

@@ -29,8 +29,7 @@
     <string name="label_ke">KE</string>
     <string name="label_ae">AE</string>
     <string name="label_au">AU</string>
-    <string name="label_le">LE</string>
-    
+    <string name="label_le">LE</string>    
     
     <string name="hero_loaded">%s geladen</string>
     <string name="hero_saved">%s gespeichert</string>
@@ -38,9 +37,7 @@
     <string name="menu_assign_main_weapon">Hauptwaffe zuweisen</string>
     <string name="menu_assign_secondary_weapon">Zweitwaffe zuweisen</string>
     
-    
-    
-    <string name="app_name">DSA Tab</string>
+    <string name="app_name">DsaTab</string>
     
     <string name="offensive">Offensive</string>
     <string name="defensive">Defensive</string>
@@ -84,22 +81,22 @@ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 See the GNU General Public License for more details.</p>
 <p>
 You should have received a copy of the GNU General Public License along with this program;
-if not, see <http://www.gnu.org/licenses/>.</p>
- 
-<p>Contributions</p> 
+if not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.</p>
+
+<p>Source Code of DsaTab is available here: <a href="http://code.google.com/p/dsa-tab/">Source Download</a></p>
+
+<p>Contributions</p>
  
 <ul>
-<li>Herz Icon wurde von Eugen Buzuk auf <a href="http://www.IconDrawer.com">www.IconDrawer.com</a> erstellt</li>
-<li>Waffen, Tab Icons von verschiedenen K&uuml;nstlern f&uuml;r <a href="http://www.wesnoth.org">www.wesnoth.org</a>, <a href="http://dl.dropbox.com/u/15750588/dsatab-wesnoth-icons.zip">Source Download</a></li>
-</ul>
-Herunterladbarer Inhalt:
-<ul>
-<li>Bilder aus "Lanze, Helm und Federvieh" <a href="http://www.fuldigors-hoehle.de/">Fuldigaros H&ouml;hle</a></li>
-<li>Gesammltes Kartenwerk - Copyright <a href="http://www.fanpro.com/">FanPro</a> / <a href="http://www.ulisses-spiele.de/">Ullises Spiele</a></li>
-<li>Portraits aus dem unver&ouml;ffentlichen Band "Von Rang und Namen" - Copyright <a href="http://www.fanpro.com/">FanPro</a> <a href="http://www.ulisses-spiele.de/">Ullises Spiele</a></li>
-<li>Portraits Aus dem Spiel "Battle for Wesnoth" - Copyright <a href="http://www.wesnoth.org">www.wesnoth.org</a>, <a href="http://code.google.com/p/dsa-tab/">Source Download</a></li>
+<li>Waffen, Tab Icons von verschiedenen K&uuml;nstlern f&uuml;r <a href="http://www.wesnoth.org">www.wesnoth.org</a></li>
+<li>Wunden Icon von Everaldo Coelho <a href="http://www.everaldo.com/"> www.everaldo.com</a></li>
 </ul>
 
+Extern herunterladbarer Inhalt:
+<ul>
+<li>Bilder aus "Lanze, Helm und Federvieh" <a href="http://www.fuldigors-hoehle.de/">Fuldigaros H&ouml;hle</a></li>
+<li>Portraits aus dem Spiel "Battle for Wesnoth" - Copyright <a href="http://www.wesnoth.org">www.wesnoth.org</a></li>
+</ul>
 
 <h3>Copyright Informationen</h3>
 

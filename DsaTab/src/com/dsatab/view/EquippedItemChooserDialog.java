@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -12,7 +13,6 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import com.dsatab.R;
-import com.dsatab.activity.MainActivity;
 import com.dsatab.data.adapter.EquippedItemAdapter;
 import com.dsatab.data.items.EquippedItem;
 
@@ -26,12 +26,12 @@ public class EquippedItemChooserDialog extends Dialog implements android.view.Vi
 
 	private List<EquippedItem> equippedItems = Collections.emptyList();
 
-	public EquippedItemChooserDialog(MainActivity context) {
+	public EquippedItemChooserDialog(Context context) {
 		super(context, R.style.EditDialog);
 		init();
 	}
 
-	public EquippedItemChooserDialog(MainActivity context, int theme) {
+	public EquippedItemChooserDialog(Context context, int theme) {
 		super(context, theme);
 		init();
 
@@ -65,9 +65,10 @@ public class EquippedItemChooserDialog extends Dialog implements android.view.Vi
 
 		setCanceledOnTouchOutside(true);
 
-		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(R.layout.popup_equipped_item_chooser, null, false);
-		addContentView(popupcontent, new LayoutParams(android.widget.LinearLayout.LayoutParams.FILL_PARENT, (int) (getContext().getResources()
-				.getDisplayMetrics().widthPixels * 0.80)));
+		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(
+				R.layout.popup_equipped_item_chooser, null, false);
+		addContentView(popupcontent, new LayoutParams(android.widget.LinearLayout.LayoutParams.FILL_PARENT,
+				(int) (getContext().getResources().getDisplayMetrics().widthPixels * 0.80)));
 
 		itemList = (ListView) popupcontent.findViewById(R.id.popup_equipped_item_list);
 		itemList.setOnItemClickListener(new ItemChooserListener());

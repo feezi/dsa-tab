@@ -36,10 +36,10 @@ public class WoundAttribute extends AbstractModifier {
 
 		switch (getPosition()) {
 		case Kopf:
-			info = "MU,KL,IN,IB -2; INI-2W6";
+			info = "MU,KL,IN,INI -2";
 			break;
 		case Bauch:
-			info = "KO,KK,GS,IB,AT,PA -1; +1W6 SP";
+			info = "KO,KK,GS,INI,AT,PA -1; +1W6 SP";
 			break;
 		case Brust:
 			info = "KO,KK,AT,PA -1; +1W6 SP";
@@ -50,7 +50,7 @@ public class WoundAttribute extends AbstractModifier {
 			break;
 		case UpperLeg:
 		case LowerLeg:
-			info = "GE,IB,AT,PA -2; GS -1";
+			info = "GE,INI,AT,PA -2; GS -1";
 			break;
 		}
 
@@ -96,7 +96,8 @@ public class WoundAttribute extends AbstractModifier {
 		int modifier = 0;
 		switch (getPosition()) {
 		case Kopf:
-			if (type == AttributeType.Mut || type == AttributeType.Klugheit || type == AttributeType.Intuition)
+			if (type == AttributeType.Mut || type == AttributeType.Klugheit || type == AttributeType.Intuition
+					|| type == AttributeType.ini)
 				modifier = -2 * getValue();
 			break;
 		case Bauch:
@@ -111,7 +112,7 @@ public class WoundAttribute extends AbstractModifier {
 			break;
 		case UpperLeg:
 		case LowerLeg:
-			if (type == AttributeType.Gewandtheit || type == AttributeType.Körperkraft)
+			if (type == AttributeType.Gewandtheit || type == AttributeType.ini)
 				modifier = -2 * getValue();
 			break;
 		}

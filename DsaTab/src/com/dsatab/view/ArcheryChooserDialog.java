@@ -16,14 +16,14 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.activity.MainActivity;
+import com.dsatab.activity.MainFightActivity;
 import com.dsatab.common.Util;
 import com.dsatab.data.CombatProbe;
 import com.dsatab.data.SpecialFeature;
-import com.dsatab.data.adapter.DistanceCatgoryAdapter;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
+import com.gandulf.guilib.view.adapter.SpinnerSimpleAdapter;
 
 public class ArcheryChooserDialog extends Dialog implements android.view.View.OnClickListener {
 
@@ -49,15 +49,15 @@ public class ArcheryChooserDialog extends Dialog implements android.view.View.On
 
 	private int otherErschwernis = 0;
 
-	private MainActivity main;
+	private MainFightActivity main;
 
-	public ArcheryChooserDialog(MainActivity context) {
+	public ArcheryChooserDialog(MainFightActivity context) {
 		super(context, R.style.NoTitleDialog);
 		this.main = context;
 		init();
 	}
 
-	protected MainActivity getMain() {
+	protected MainFightActivity getMain() {
 		return main;
 	}
 
@@ -70,7 +70,7 @@ public class ArcheryChooserDialog extends Dialog implements android.view.View.On
 
 		Item item = equippedItem.getItem();
 		if (weapon != null) {
-			text1.setText(item.getName());
+			text1.setText(item.getTitle());
 			text2.setText(item.getInfo());
 		}
 		iconLeft.setImageResource(item.getResourceId());
@@ -117,8 +117,8 @@ public class ArcheryChooserDialog extends Dialog implements android.view.View.On
 			}
 		}
 
-		SpinnerAdapter distanceAdapter = new DistanceCatgoryAdapter(getContext(), android.R.layout.simple_spinner_item,
-				distances);
+		SpinnerAdapter distanceAdapter = new SpinnerSimpleAdapter<String>(getContext(),
+				android.R.layout.simple_spinner_item, distances);
 		distanceSpinner.setAdapter(distanceAdapter);
 
 		super.onStart();

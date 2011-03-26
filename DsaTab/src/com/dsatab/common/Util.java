@@ -19,7 +19,7 @@ import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.items.Armor;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
-import com.dsatab.data.items.EquippedItem.Hand;
+import com.dsatab.data.items.Hand;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
@@ -111,6 +111,30 @@ public class Util {
 			i = effectFormat.parse(s).doubleValue();
 		} catch (ParseException e) {
 			i = Double.valueOf(s);
+		}
+
+		return i;
+	}
+
+	public static Float parseFloat(String s) {
+		if (s == null)
+			return null;
+
+		s = s.trim();
+
+		if (s.length() == 0 || MINUS.equals(s) || NULL.equals(s))
+			return null;
+
+		Float i;
+
+		if (s.startsWith(PLUS)) {
+			s = s.substring(1);
+		}
+
+		try {
+			i = effectFormat.parse(s).floatValue();
+		} catch (ParseException e) {
+			i = Float.valueOf(s);
 		}
 
 		return i;
@@ -252,6 +276,13 @@ public class Util {
 	}
 
 	public static String toString(Double value) {
+		if (value != null)
+			return effectFormat.format(value);
+		else
+			return MINUS;
+	}
+
+	public static String toString(Float value) {
 		if (value != null)
 			return effectFormat.format(value);
 		else

@@ -15,7 +15,6 @@
  */
 package com.dsatab.xml;
 
-
 /**
  * @author Seraphim
  * 
@@ -84,5 +83,26 @@ public interface Xml {
 	public static final String KEY_RS = "rs";
 	public static final String KEY_STERNE = "sterne";
 	public static final String KEY_TEILE = "teile";
+	public static final String KEY_PROFESSION = "profession";
+	public static final String KEY_STRING = "string";
+	public static final String KEY_AUSBILDUNG = "ausbildung";
+	public static final String KEY_RASSE = "rasse";
+
+	public static final String KEY_NAHKAMPWAFFE = "Nahkampfwaffe";
+	public static final String KEY_TREFFERPUNKTE = "trefferpunkte";
+	public static final String KEY_TREFFERPUNKTE_MUL = "mul";
+	public static final String KEY_TREFFERPUNKTE_DICE = "w";
+	public static final String KEY_TREFFERPUNKTE_SUM = "sum";
+	public static final String KEY_TREFFERPUNKTE_KK = "tpkk";
+	public static final String KEY_TREFFERPUNKTE_KK_MIN = "kk";
+	public static final String KEY_TREFFERPUNKTE_KK_STEP = "schrittweite";
+	public static final String KEY_WAFFENMODIF = "wm";
+	public static final String KEY_WAFFENMODIF_PA = "pa";
+	public static final String KEY_WAFFENMODIF_AT = "at";
+	public static final String KEY_BRUCHFAKTOR = "bf";
+	public static final String KEY_BRUCHFAKTOR_AKT = "akt";
+	public static final String KEY_INI_MOD = "inimod";
+	public static final String KEY_INI_MOD_INI = "ini";
+	public static final String KEY_MOD_ALLGEMEIN = "modallgemein";
 
 }

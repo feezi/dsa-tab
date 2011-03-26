@@ -102,7 +102,7 @@ public class ItemListItem extends TwoLineListItem {
 		}
 		// Set value for the first text field
 		if (getText1() != null) {
-			getText1().setText(e.getName());
+			getText1().setText(e.getTitle());
 			if (textColor != Color.TRANSPARENT)
 				getText1().setTextColor(textColor);
 		}

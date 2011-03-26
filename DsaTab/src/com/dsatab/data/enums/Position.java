@@ -38,8 +38,8 @@ public enum Position {
 		return name;
 	}
 
-	public static List<Position> WOUND_POSITIONS = new ArrayList<Position>(Arrays.asList(Position.Kopf,
-			Position.Bauch, Position.LeftLowerArm, Position.RightLowerArm, Position.LowerLeg));
+	public static List<Position> WOUND_POSITIONS = new ArrayList<Position>(Arrays.asList(Position.Kopf, Position.Bauch,
+			Position.LeftLowerArm, Position.RightLowerArm, Position.LowerLeg));
 
 	// KO KS KG Hl SL OaL UaL SR OaR UaR Br Rü Ba Be OS US
 	// order must be the same as in ruestung.txt
@@ -55,6 +55,8 @@ public enum Position {
 	public static List<Position> ARMOR_POSITIONS = new ArrayList<Position>(Arrays.asList(Position.Kopf, Position.Brust,
 			Position.Ruecken, Position.Bauch, Position.LeftLowerArm, Position.RightLowerArm, Position.LinkesBein,
 			Position.RechtesBein));
+
+	public static int[] ARMOR_POSITIONS_MULTIPLIER = { 2, 4, 4, 4, 1, 1, 2, 2 };
 
 	public static final Position[] messer_dolch_stich = new Position[21];
 	static {

@@ -162,14 +162,31 @@ public class XmlParserNew {
 
 		parseBase(w, i);
 
-		w.setBe(Util.parseDouble(i.next()));
+		w.setBe(Util.parseFloat(i.next()));
 
 		for (Position pos : armorPositions) {
 			if (!i.hasNext())
 				break;
 			w.setRs(pos, Util.parseInt(i.next()));
 		}
+		if (i.hasNext()) {
+			int zonenRs = Util.parseInt(i.next());
+			w.setZonenRs(zonenRs);
+		}
+		if (i.hasNext()) {
+			int totalRs = Util.parseInt(i.next());
+			w.setTotalRs(totalRs);
+		}
+		if (i.hasNext()) {
+			int stars = Util.parseInt(i.next());
+			w.setStars(stars);
+		}
 
+		if (i.hasNext()) {
+			String mod = i.next();
+			if (mod.contains("Z"))
+				w.setZonenHalfBe(true);
+		}
 		return w;
 	}
 
@@ -377,6 +394,17 @@ public class XmlParserNew {
 						if (rs < 10)
 							r.append(" ");
 						r.append(Util.toString(rs));
+						r.append(";");
+					}
+
+					r.append(Util.toString(w.getZonenRs()));
+					r.append(";");
+					r.append(Util.toString(w.getTotalRs()));
+					r.append(";");
+					r.append(Util.toString(w.getStars()));
+					r.append(";");
+					if (w.isZonenHalfBe()) {
+						r.append("Z");
 						r.append(";");
 					}
 

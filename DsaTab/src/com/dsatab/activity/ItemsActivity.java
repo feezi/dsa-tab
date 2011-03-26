@@ -17,6 +17,7 @@ package com.dsatab.activity;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -34,21 +35,21 @@ import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.view.drag.CellLayout;
 import com.dsatab.view.drag.DeleteZone;
-import com.dsatab.view.drag.DragController;
-import com.dsatab.view.drag.DragLayer;
-import com.dsatab.view.drag.DragSource;
 import com.dsatab.view.drag.ItemInfo;
 import com.dsatab.view.drag.Workspace;
 import com.dsatab.view.drag.Workspace.OnScreenChangeListener;
 import com.dsatab.xml.DataManager;
+import com.gandulf.guilib.drag.DragController;
+import com.gandulf.guilib.drag.DragLayer;
+import com.gandulf.guilib.drag.DragSource;
 import com.gandulf.guilib.util.Debug;
 
 public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickListener, View.OnClickListener,
-		DragController.DragListener, OnScreenChangeListener {
+		DragController.DragListener<Item>, OnScreenChangeListener {
 
 	private static final int ACTION_CHOOSE_CARD = 2;
 
-	private DragController mDragController;
+	private DragController<Item> mDragController;
 	private Workspace mWorkspace;
 	private DeleteZone mDeleteZone;
 
@@ -58,13 +59,6 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 
 	private Item selectedItem = null;
 
-	/**
-	 * 
-	 */
-	public ItemsActivity() {
-
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -73,7 +67,18 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 	 */
 	@Override
 	protected void onHeroLoaded(Hero hero) {
-		fillBodyItems();
+		fillBodyItems(hero);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.activity.BaseMenuActivity#onHeroUnloaded(com.dsatab.data.Hero)
+	 */
+	@Override
+	protected void onHeroUnloaded(Hero hero) {
+
 	}
 
 	/*
@@ -92,25 +97,22 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 			final int cellX = data.getIntExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_X, ItemInfo.INVALID_POSITION);
 			final int cellY = data.getIntExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_Y, ItemInfo.INVALID_POSITION);
 
-			item = (Item) data.getSerializableExtra(ItemChooserActivity.INTENT_EXTRA_ITEM);
+			UUID id = (UUID) data.getSerializableExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_ID);
+			String cardName = data.getStringExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_NAME);
 
 			Hero hero = getHero();
-			if (item == null) {
-				String cardName = data.getStringExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_NAME);
 
-				if (!TextUtils.isEmpty(cardName)) {
+			if (id != null) {
+				item = hero.getItem(id);
+			}
+			if (item == null && !TextUtils.isEmpty(cardName)) {
 
-					// add item to hero if he not already has it
-					item = hero.getItem(cardName);
-					if (item == null) {
-						try {
-							Item card = DataManager.getItemByName(cardName);
-							item = (Item) card.clone();
-							hero.addItem(item);
-						} catch (CloneNotSupportedException e) {
-							Debug.error(e);
-						}
-					}
+				// add item to hero if he not already has it
+				item = hero.getItem(cardName);
+				if (item == null) {
+					Item card = DataManager.getItemByName(cardName);
+					item = (Item) card.duplicate();
+					hero.addItem(item);
 				}
 			}
 
@@ -164,10 +166,6 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 			return mWorkspace.getCurrentScreen();
 	}
 
-	public Hero getHero() {
-		return DSATabApplication.getInstance().getHero();
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -178,7 +176,7 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.items_main);
 
-		mDragController = new DragController(this);
+		mDragController = new DragController<Item>(this);
 		mScreenTextView = (TextView) findViewById(R.id.screen_set_text);
 
 		setupViews();
@@ -193,8 +191,7 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 		dragLayer.setDragController(mDragController);
 
 		mWorkspace = (Workspace) dragLayer.findViewById(R.id.workspace);
-		final Workspace workspace = mWorkspace;
-		workspace.setHapticFeedbackEnabled(false);
+		mWorkspace.setHapticFeedbackEnabled(false);
 
 		mDeleteZone = (DeleteZone) dragLayer.findViewById(R.id.delete_zone);
 
@@ -210,26 +207,24 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 		mNextView.setHapticFeedbackEnabled(false);
 		mNextView.setOnClickListener(this);
 
-		workspace.setOnLongClickListener(this);
-		workspace.setOnClickListener(this);
-		workspace.setDragController(mDragController);
-		workspace.setOnScreenChangeListener(this);
+		mWorkspace.setOnLongClickListener(this);
+		mWorkspace.setOnClickListener(this);
+		mWorkspace.setDragController(mDragController);
+		mWorkspace.setOnScreenChangeListener(this);
 
 		mDeleteZone.setDragController(mDragController);
 
-		mDragController.setDragScoller(workspace);
+		mDragController.setDragScoller(mWorkspace);
 		mDragController.addDragListener(mDeleteZone);
 		mDragController.addDragListener(this);
 		mDragController.setScrollView(dragLayer);
-		mDragController.setMoveTarget(workspace);
+		mDragController.setMoveTarget(mWorkspace);
 
 		// The order here is bottom to top.
-		mDragController.addDropTarget(workspace);
+		mDragController.addDropTarget(mWorkspace);
 		mDragController.addDropTarget(mDeleteZone);
 
-		fillBodyItems();
-
-		updateTextView(workspace.getCurrentScreen());
+		updateTextView(mWorkspace.getCurrentScreen());
 
 	}
 
@@ -260,7 +255,7 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 	 * .view.drag.DragSource, com.dsatab.data.items.Item, int)
 	 */
 	@Override
-	public void onDragStart(DragSource source, Item info, int dragAction) {
+	public void onDragStart(DragSource<Item> source, Item info, int dragAction) {
 		mScreenTextView.setVisibility(View.INVISIBLE);
 	}
 
@@ -274,11 +269,9 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 		mScreenTextView.setVisibility(View.VISIBLE);
 	}
 
-	private void fillBodyItems() {
+	private void fillBodyItems(Hero hero) {
 
 		boolean success = true;
-
-		Hero hero = DSATabApplication.getInstance().getHero();
 
 		List<Item> skipItems = new LinkedList<Item>();
 
@@ -321,12 +314,19 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 					// unable to add item, stop here the inventory is probably
 					// full
 					if (!success) {
-						Debug.warning("Unable to add item " + item.getName() + " try on screen " + screen);
+						Debug.warning("Unable to add item " + item.getTitle() + " try on screen " + screen);
 						return;
 					}
 				}
 			}
 		}
+		showScreen(hero.getActiveSet());
+
+	}
+
+	private void showScreen(int i) {
+		mWorkspace.setCurrentScreen(i);
+		updateTextView(i);
 	}
 
 	private void selectItem(Item item, CellLayout.CellInfo cellInfo) {
@@ -338,6 +338,7 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 		if (item != null) {
 			ItemType cardType = item.getType();
 
+			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_ID, item.getId());
 			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_NAME, item.getName());
 			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_CATEGORY, item.getCategory());
 
