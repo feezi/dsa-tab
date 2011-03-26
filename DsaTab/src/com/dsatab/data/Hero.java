@@ -1,4 +1,4 @@
-package com.dsatab.data;
+Ôªøpackage com.dsatab.data;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -413,7 +413,7 @@ public class Hero {
 						talentNames.add(combatTalent.getName());
 					}
 					AlertDialog.Builder builder = new AlertDialog.Builder(context);
-					builder.setTitle("W‰hle ein Talent...");
+					builder.setTitle("W√§hle ein Talent...");
 					builder.setItems(talentNames.toArray(new String[0]), new DialogInterface.OnClickListener() {
 
 						@Override
@@ -814,7 +814,7 @@ public class Hero {
 					}
 				}
 
-				// check for beidh‰ndiger kampf
+				// check for beidh√§ndiger kampf
 				if (equippedItem.getHand() == Hand.links) {
 					EquippedItem equippedSecondaryWeapon = equippedItem.getSecondaryItem();
 
@@ -831,10 +831,10 @@ public class Hero {
 							m += 3;
 
 						modifiers
-								.add(new Modifier(m, "Beidh‰ndigerkampf Links",
-										"Beim Beidh‰ndigenkampf bekommt man je nach Sonderfertigkeiten bei aktionen mit der linken Hand Abz¸ge."));
+								.add(new Modifier(m, "Beidh√§ndigerkampf Links",
+										"Beim Beidh√§ndigenkampf bekommt man je nach Sonderfertigkeiten bei aktionen mit der linken Hand Abz√ºge."));
 
-						Debug.verbose("Beidh‰ndiger Kampf mit Links " + Util.toProbe(m));
+						Debug.verbose("Beidh√§ndiger Kampf mit Links " + Util.toProbe(m));
 
 					}
 

@@ -1,4 +1,4 @@
-package com.dsatab.data;
+Ôªøpackage com.dsatab.data;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -61,16 +61,16 @@ public class CombatMeleeTalent implements CombatTalent {
 			return Position.messer_dolch_stich[w20];
 		case Hiebwaffen:
 		case Kettenwaffen:
-		case Kettenst‰be:
+		case Kettenst√§be:
 			return Position.hieb_ketten[w20];
 		case Schwerter:
-		case S‰bel:
+		case S√§bel:
 			return Position.schwert_saebel[w20];
 		case Speere:
 			return Position.stangen_zweih_stich[w20];
-		case St‰be:
+		case St√§be:
 		case Zweihandflegel:
-		case Anderthalbh‰nder:
+		case Anderthalbh√§nder:
 		case Infanteriewaffen:
 		case Zweihandhiebwaffen:
 		case Zweihandschwerter:

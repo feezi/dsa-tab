@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2010 Gandulf Kohlweiss
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms
@@ -208,7 +208,7 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 			case Mut:
 			case Klugheit:
 			case Intuition:
-			case K�rperkraft:
+			case Körperkraft:
 			case Fingerfertigkeit:
 			case Konstitution:
 			case Charisma:
@@ -261,6 +261,8 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 			tfTotalKe.setVisibility(View.GONE);
 		} else {
 			tfTotalKe.setText(" / " + Util.toString(hero.getAttribute(AttributeType.Karmaenergie).getReferenceValue()));
+			tfLabelKe.setVisibility(View.VISIBLE);
+			tfTotalKe.setVisibility(View.VISIBLE);
 		}
 
 		if (hero.getAttributeValue(AttributeType.Astralenergie) == null) {
@@ -270,6 +272,8 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 		} else {
 			tfTotalAe
 					.setText(" / " + Util.toString(hero.getAttribute(AttributeType.Astralenergie).getReferenceValue()));
+			tfLabelAe.setVisibility(View.VISIBLE);
+			tfTotalAe.setVisibility(View.VISIBLE);
 		}
 
 		tfGs.setText(Util.toString(hero.getGs()));

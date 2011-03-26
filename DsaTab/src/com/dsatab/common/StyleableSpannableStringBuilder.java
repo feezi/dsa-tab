@@ -1,4 +1,4 @@
-package com.dsatab.common;
+﻿package com.dsatab.common;
 
 import android.graphics.Typeface;
 import android.text.SpannableStringBuilder;

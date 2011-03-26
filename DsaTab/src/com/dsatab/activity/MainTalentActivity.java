@@ -1,4 +1,4 @@
-/**
+﻿/**
  *  This file is part of DsaTab.
  *
  *  DsaTab is free software: you can redistribute it and/or modify
@@ -105,7 +105,7 @@ public class MainTalentActivity extends BaseMainActivity {
 			case Mut:
 			case Klugheit:
 			case Intuition:
-			case K�rperkraft:
+			case Körperkraft:
 			case Fingerfertigkeit:
 			case Konstitution:
 			case Charisma:

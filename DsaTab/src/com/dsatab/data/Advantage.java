@@ -1,4 +1,4 @@
-package com.dsatab.data;
+ï»¿package com.dsatab.data;
 
 import org.w3c.dom.Element;
 
@@ -15,8 +15,8 @@ public class Advantage {
 
 		this.name = element.getAttribute(Xml.KEY_NAME);
 
-		if (name.startsWith("Begabung für ") && getValueAsString() != null) {
-			this.name = "Begabung für " + getValueAsString();
+		if (name.startsWith("Begabung fÃ¼r ") && getValueAsString() != null) {
+			this.name = "Begabung fÃ¼r " + getValueAsString();
 		}
 
 		this.comment = element.getAttribute(Xml.KEY_COMMENT);

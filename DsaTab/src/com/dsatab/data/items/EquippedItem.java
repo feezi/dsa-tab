@@ -1,4 +1,4 @@
-package com.dsatab.data.items;
+﻿package com.dsatab.data.items;
 
 import org.w3c.dom.Element;
 

@@ -1,4 +1,4 @@
-package com.dsatab.data.items;
+﻿package com.dsatab.data.items;
 
 import java.io.File;
 import java.io.Serializable;
@@ -216,7 +216,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable {
 
 	public int getResourceId() {
 		switch (type) {
-		case Beh�lter:
+		case Behälter:
 			return R.drawable.icon_bags;
 		case Special:
 			return R.drawable.icon_special;

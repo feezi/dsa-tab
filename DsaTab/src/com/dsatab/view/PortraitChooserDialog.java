@@ -1,4 +1,4 @@
-package com.dsatab.view;
+﻿package com.dsatab.view;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class PortraitChooserDialog extends Dialog {
 
 	private void init() {
 
-		setTitle("W�hle ein Portrait...");
+		setTitle("Wähle ein Portrait...");
 
 		File mapDir = new File(DSATabApplication.getDsaTabPath(), "portraits");
 		if (!mapDir.exists())

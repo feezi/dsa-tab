@@ -1,4 +1,4 @@
-package com.dsatab.data.items;
+Ôªøpackage com.dsatab.data.items;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -173,12 +173,12 @@ public class Weapon extends Item {
 	@Override
 	public int getResourceId() {
 		switch (getCombatTalentType()) {
-		case Anderthalbh‰nder:
+		case Anderthalbh√§nder:
 		case Zweihandschwerter:
 			return R.drawable.icon_2schwert;
 		case Hiebwaffen:
 			return R.drawable.icon_hieb;
-		case St‰be:
+		case St√§be:
 			return R.drawable.icon_stab;
 		case Fechtwaffen:
 			return R.drawable.icon_fecht;
@@ -196,7 +196,7 @@ public class Weapon extends Item {
 			}
 		case Zweihandflegel:
 			return R.drawable.icon_2hieb;
-		case Kettenst‰be:
+		case Kettenst√§be:
 		case Kettenwaffen:
 			return R.drawable.icon_kettenwaffen;
 		case Raufen:

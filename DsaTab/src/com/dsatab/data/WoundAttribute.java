@@ -1,4 +1,4 @@
-package com.dsatab.data;
+ï»¿package com.dsatab.data;
 
 import org.w3c.dom.Element;
 
@@ -102,12 +102,12 @@ public class WoundAttribute extends AbstractModifier {
 			break;
 		case Bauch:
 		case Brust:
-			if (type == AttributeType.Konstitution || type == AttributeType.Körperkraft)
+			if (type == AttributeType.Konstitution || type == AttributeType.KÃ¶rperkraft)
 				modifier = -1 * getValue();
 			break;
 		case LeftLowerArm:
 		case RightLowerArm:
-			if (type == AttributeType.Fingerfertigkeit || type == AttributeType.Körperkraft)
+			if (type == AttributeType.Fingerfertigkeit || type == AttributeType.KÃ¶rperkraft)
 				modifier = -2 * getValue();
 			break;
 		case UpperLeg:

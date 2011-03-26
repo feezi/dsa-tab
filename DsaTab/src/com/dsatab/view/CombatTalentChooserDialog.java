@@ -1,4 +1,4 @@
-package com.dsatab.view;
+﻿package com.dsatab.view;
 
 import java.util.List;
 
@@ -63,7 +63,7 @@ public class CombatTalentChooserDialog extends Dialog implements AdapterView.OnI
 
 	private void init() {
 
-		setTitle("W�hle ein Talent...");
+		setTitle("Wähle ein Talent...");
 
 		setCanceledOnTouchOutside(true);
 

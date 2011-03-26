@@ -1,8 +1,8 @@
-package com.dsatab.data.enums;
+ï»¿package com.dsatab.data.enums;
 
 public enum AttributeType {
 	Mut("MU", false, true), Klugheit("KL", false, true), Intuition("IN", false, true), Charisma("CH", false, true), Fingerfertigkeit("FF", true, true), Gewandtheit(
-			"GE", true, true), Konstitution("KO", false, true), Körperkraft("KK", false, true), Sozialstatus, Lebensenergie, Ausdauer, Astralenergie, Karmaenergie, Magieresistenz, ini(
+			"GE", true, true), Konstitution("KO", false, true), KÃ¶rperkraft("KK", false, true), Sozialstatus, Lebensenergie, Ausdauer, Astralenergie, Karmaenergie, Magieresistenz, ini(
 			"INI", true, true), at("AT", true, true), pa("PA", true, true), fk("FK", true, true), Behinderung("BE", false), Ausweichen("BE", true, true);
 
 	private String code = null;
@@ -22,7 +22,7 @@ public enum AttributeType {
 		case Fingerfertigkeit:
 		case Gewandtheit:
 		case Konstitution:
-		case Körperkraft:
+		case KÃ¶rperkraft:
 			return true;
 		default:
 			return false;

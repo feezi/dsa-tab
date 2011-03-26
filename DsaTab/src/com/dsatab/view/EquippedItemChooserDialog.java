@@ -1,4 +1,4 @@
-package com.dsatab.view;
+﻿package com.dsatab.view;
 
 import java.util.Collections;
 import java.util.List;
@@ -61,7 +61,7 @@ public class EquippedItemChooserDialog extends Dialog implements android.view.Vi
 
 	private void init() {
 
-		setTitle("W�hle einen Gegenstand...");
+		setTitle("Wähle einen Gegenstand...");
 
 		setCanceledOnTouchOutside(true);
 

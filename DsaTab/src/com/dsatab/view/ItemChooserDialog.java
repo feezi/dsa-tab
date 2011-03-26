@@ -1,4 +1,4 @@
-package com.dsatab.view;
+﻿package com.dsatab.view;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -65,7 +65,7 @@ public class ItemChooserDialog extends Dialog implements android.view.View.OnCli
 
 	private void init() {
 
-		setTitle("W�hle einen Gegenstand...");
+		setTitle("Wähle einen Gegenstand...");
 
 		setCanceledOnTouchOutside(true);
 

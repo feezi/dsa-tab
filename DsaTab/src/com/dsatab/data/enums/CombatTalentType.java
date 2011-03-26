@@ -1,11 +1,11 @@
-package com.dsatab.data.enums;
+Ôªøpackage com.dsatab.data.enums;
 
 public enum CombatTalentType {
 
-	Anderthalbh‰nder(-2), Armbrust(-5, true), Belagerungswaffen(null, true), Blasrohr(-5, true), Bogen(-3, true), Diskus(-3, true), Dolche(-1), Fechtwaffen(-1), Hiebwaffen(
-			-4), Infanteriewaffen(-3), Kettenst‰be(-1), Kettenwaffen(-3), Lanzenreiten(null, true), Peitsche(-1), Raufen(0), Ringen(0), Schleuder(-2, true), Schwerter(
-			-2), Speere(-3), St‰be(-2), S‰bel(-2), Wurfbeile(-2, true), Wurfmesser(-3, true), Wurfspeere(-2, true), Zweihandflegel(-3), Zweihandhiebwaffen(-3), Zweihandschwerter(
-			-2, false, "Zweihandschwerter/-s‰bel");
+	Anderthalbh√§nder(-2), Armbrust(-5, true), Belagerungswaffen(null, true), Blasrohr(-5, true), Bogen(-3, true), Diskus(-3, true), Dolche(-1), Fechtwaffen(-1), Hiebwaffen(
+			-4), Infanteriewaffen(-3), Kettenst√§be(-1), Kettenwaffen(-3), Lanzenreiten(null, true), Peitsche(-1), Raufen(0), Ringen(0), Schleuder(-2, true), Schwerter(
+			-2), Speere(-3), St√§be(-2), S√§bel(-2), Wurfbeile(-2, true), Wurfmesser(-3, true), Wurfspeere(-2, true), Zweihandflegel(-3), Zweihandhiebwaffen(-3), Zweihandschwerter(
+			-2, false, "Zweihandschwerter/-s√§bel");
 
 	private Integer be;
 

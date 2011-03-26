@@ -1,4 +1,4 @@
-package com.dsatab.xml;
+Ôªøpackage com.dsatab.xml;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -62,7 +62,7 @@ public class XmlParserNew {
 	private static void readItems(String file, Map<String, Item> items) {
 		try {
 			BufferedReader r = new BufferedReader(new InputStreamReader(DSATabApplication.getInstance().getAssets()
-					.open(file), "Cp1252"), 1024 * 8);
+					.open(file), "UTF8"), 1024 * 8);
 
 			String line;
 			StringSplitter splitter = new TextUtils.SimpleStringSplitter(';');
@@ -257,7 +257,7 @@ public class XmlParserNew {
 		try {
 
 			File itemsFile = new File(DSATabApplication.getDsaTabPath(), "items_new.txt");
-			OutputStreamWriter itemsWriter = new OutputStreamWriter(new FileOutputStream(itemsFile), "Cp1252");
+			OutputStreamWriter itemsWriter = new OutputStreamWriter(new FileOutputStream(itemsFile), "UTF8");
 			BufferedWriter itemsW = new BufferedWriter(itemsWriter, 1024 * 8);
 
 			List<Item> its = new ArrayList<Item>(items.values());
@@ -280,11 +280,11 @@ public class XmlParserNew {
 						} else if (w.getCombatTalentType() == CombatTalentType.Zweihandflegel) {
 							guessCategory = "Zweihandhiebwaffen und -flegel";
 						} else if (w.getCombatTalentType() == CombatTalentType.Zweihandschwerter) {
-							guessCategory = "Zweihandschwerter und -s‰bel";
+							guessCategory = "Zweihandschwerter und -s√§bel";
 						} else if (w.getCombatTalentType() == CombatTalentType.Speere) {
-							guessCategory = "Speere und St‰be";
-						} else if (w.getCombatTalentType() == CombatTalentType.St‰be) {
-							guessCategory = "Speere und St‰be";
+							guessCategory = "Speere und St√§be";
+						} else if (w.getCombatTalentType() == CombatTalentType.St√§be) {
+							guessCategory = "Speere und St√§be";
 						} else if (w.getCombatTalentTypes().size() == 1) {
 							guessCategory = w.getCombatTalentType().name();
 						}
@@ -508,7 +508,7 @@ public class XmlParserNew {
 						intag = false;
 					else if (chars[i] == ' ')
 						intag = false;
-					else if (chars[i] == '¸' && intag) {
+					else if (chars[i] == '√º' && intag) {
 						writer.write("ue");
 						continue;
 					}

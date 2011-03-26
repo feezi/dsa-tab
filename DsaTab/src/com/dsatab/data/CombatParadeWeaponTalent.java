@@ -1,4 +1,4 @@
-package com.dsatab.data;
+﻿package com.dsatab.data;
 
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
@@ -38,7 +38,7 @@ public class CombatParadeWeaponTalent extends CombatShieldTalent {
 		int baseValue = 0;
 
 		if (hero != null) {
-			// der basiswert eine paradewaffe ist der paradewert der gef�hrten
+			// der basiswert eine paradewaffe ist der paradewert der geführten
 			// hauptwaffe (-6) + evtl. linkhand parierwaffen
 			if (paradeItem != null && paradeItem.getSecondaryItem() != null) {
 				EquippedItem equippedWeapon = paradeItem.getSecondaryItem();

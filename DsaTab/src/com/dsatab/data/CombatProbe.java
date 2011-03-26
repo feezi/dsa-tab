@@ -1,4 +1,4 @@
-package com.dsatab.data;
+﻿package com.dsatab.data;
 
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.items.EquippedItem;

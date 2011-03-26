@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2010 Gandulf Kohlweiss
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms
@@ -20,7 +20,7 @@ package com.dsatab.data.items;
  * 
  */
 public enum ItemType {
-	Waffen('W', "weapons", true), Fernwaffen('D', "weapons", true), Rüstung('A', "weapons", true), Schilde('S', "weapons", true), Sonstiges('M', "misc"), Behälter(
+	Waffen('W', "weapons", true), Fernwaffen('D', "weapons", true), RÃ¼stung('A', "weapons", true), Schilde('S', "weapons", true), Sonstiges('M', "misc"), BehÃ¤lter(
 			'B', "bags"), Kleidung('C', "cloths"), Special('X', "special");
 
 	private final String path;
@@ -60,7 +60,7 @@ public enum ItemType {
 	public static ItemType fromColor(String s) {
 
 		if ("gruen".equalsIgnoreCase(s)) {
-			return Behälter;
+			return BehÃ¤lter;
 		} else if ("gelb".equalsIgnoreCase(s)) {
 			return Waffen;
 		} else if ("grau".equalsIgnoreCase(s)) {
@@ -82,13 +82,13 @@ public enum ItemType {
 		case 'D':
 			return Fernwaffen;
 		case 'A':
-			return Rüstung;
+			return RÃ¼stung;
 		case 'S':
 			return Schilde;
 		case 'M':
 			return Sonstiges;
 		case 'B':
-			return Behälter;
+			return BehÃ¤lter;
 		case 'C':
 			return Kleidung;
 		case 'X':

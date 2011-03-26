@@ -1,4 +1,4 @@
-package com.dsatab.view;
+ï»¿package com.dsatab.view;
 
 import java.security.SecureRandom;
 import java.text.NumberFormat;
@@ -650,7 +650,7 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 
 		switch (w6) {
 		case 2:
-			return "Waffe zerstört";
+			return "Waffe zerstÃ¶rt";
 		case 3:
 		case 4:
 		case 5:
@@ -667,7 +667,7 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 		case 12:
 			return "Schwerer Eigentreffer (2x TP Waffe)";
 		default:
-			return "Ungültiger Wert: " + w6;
+			return "UngÃ¼ltiger Wert: " + w6;
 		}
 
 	}
@@ -677,9 +677,9 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 
 		switch (w6) {
 		case 2:
-			return "Waffe zerstört";
+			return "Waffe zerstÃ¶rt";
 		case 3:
-			return "Waffe beschädigt";
+			return "Waffe beschÃ¤digt";
 		case 4:
 		case 5:
 		case 6:
@@ -692,7 +692,7 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 		case 12:
 			return "Kamerad getroffen";
 		default:
-			return "Ungültiger Wert: " + w6;
+			return "UngÃ¼ltiger Wert: " + w6;
 		}
 
 	}

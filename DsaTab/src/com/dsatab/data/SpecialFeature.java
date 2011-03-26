@@ -1,4 +1,4 @@
-package com.dsatab.data;
+ï»¿package com.dsatab.data;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -19,29 +19,30 @@ public class SpecialFeature {
 	public static final String SCHILDKAMPF_1 = "Schildkampf I";
 	public static final String SCHILDKAMPF_2 = "Schildkampf II";
 	public static final String SCHILDKAMPF_3 = "Schildkampf III";
-	public static final String MEISTERSCHUETZE = "Meisterschütze";
-	public static final String SCHARFSCHUETZE = "Scharfschütze";
+	public static final String MEISTERSCHUETZE = "MeisterschÃ¼tze";
+	public static final String SCHARFSCHUETZE = "ScharfschÃ¼tze";
 
 	public static final String WK_GLADIATORENSTIL = "Waffenloser Kampfstil: Gladiatorenstil";
 	public static final String WK_HAMMERFAUST = "Waffenloser Kampfstil: Hammerfaust";
 	public static final String WK_MERCENARIO = "Waffenloser Kampfstil: Mercenario";
 	public static final String WK_HRURUZAT = "Waffenloser Kampfstil: Hruruzat";
 	public static final String WK_UNAUER_SCHULE = "Waffenloser Kampfstil: Unauer Schule";
-	public static final String WK_BORNLAENDISCH = "Waffenloser Kampfstil: Bornländisch";
-	public static final String BEIDHAENDIGER_KAMPF_1 = "Beidhändiger Kampf I";
-	public static final String BEIDHAENDIGER_KAMPF_2 = "Beidhändiger Kampf II";
+	public static final String WK_BORNLAENDISCH = "Waffenloser Kampfstil: BornlÃ¤ndisch";
+	public static final String BEIDHAENDIGER_KAMPF_1 = "BeidhÃ¤ndiger Kampf I";
+	public static final String BEIDHAENDIGER_KAMPF_2 = "BeidhÃ¤ndiger Kampf II";
 	public static final String FLINK = "Flink";
-	public static final String BEHAEBIG = "Behäbig";
+	public static final String BEHAEBIG = "BehÃ¤big";
 	public static final String EINBEINIG = "Einbeinig";
-	public static final String KLEINWUECHSIG = "Kleinwüchsig";
+	public static final String KLEINWUECHSIG = "KleinwÃ¼chsig";
 	public static final String LAHM = "Lahm";
 	public static final String ZWERGENWUCHS = "Zwergenwuchs";
-	public static final String RUESTUNGSGEWOEHNUNG_3 = "Rüstungsgewöhnung III";
-	public static final String RUESTUNGSGEWOEHNUNG_2 = "Rüstungsgewöhnung II";
-	public static final String RUESTUNGSGEWOEHNUNG_1 = "Rüstungsgewöhnung I";
+	public static final String RUESTUNGSGEWOEHNUNG_3 = "RÃ¼stungsgewÃ¶hnung III";
+	public static final String RUESTUNGSGEWOEHNUNG_2 = "RÃ¼stungsgewÃ¶hnung II";
+	public static final String RUESTUNGSGEWOEHNUNG_1 = "RÃ¼stungsgewÃ¶hnung I";
 	public static final String KULTURKUNDE = "Kulturkunde";
 	public static final String GLASKNOCHEN = "Glasknochen";
 	public static final String EISERN = "Eisern";
+	public static final String GEFAESS_DER_STERNE = "GefÃ¤ÃŸ der Sterne";
 
 	private String name, kultur, gegenstand;
 

@@ -1,4 +1,4 @@
-package com.dsatab.data.items;
+﻿package com.dsatab.data.items;
 
 import com.dsatab.R;
 import com.dsatab.common.Util;

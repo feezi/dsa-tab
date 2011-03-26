@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  *  This file is part of DsaTab.
  *
  *  DsaTab is free software: you can redistribute it and/or modify
@@ -32,7 +32,7 @@ public class DsaTabConfiguration {
 	private Context context;
 
 	public enum ArmorType {
-		ZonenRuestung("Zonenrüstung"), GesamtRuestung("Gesamte Rüstung");
+		ZonenRuestung("ZonenrÃ¼stung"), GesamtRuestung("Gesamte RÃ¼stung");
 
 		private String title;
 

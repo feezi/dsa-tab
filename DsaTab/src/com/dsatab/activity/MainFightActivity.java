@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  *  This file is part of DsaTab.
  *
  *  DsaTab is free software: you can redistribute it and/or modify
@@ -487,7 +487,7 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 			case Mut:
 			case Klugheit:
 			case Intuition:
-			case Körperkraft:
+			case KÃ¶rperkraft:
 			case Fingerfertigkeit:
 			case Konstitution:
 			case Charisma:
@@ -563,7 +563,7 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 			iconLeft.setOnClickListener(probeListener);
 			iconRight.setTag(new CombatProbe(getHero(), equippedItem, false));
 			iconRight.setOnClickListener(probeListener);
-			text2.setText(weapon.getInfo(getHero().getModifiedValue(AttributeType.Körperkraft)));
+			text2.setText(weapon.getInfo(getHero().getModifiedValue(AttributeType.KÃ¶rperkraft)));
 		} else if (item instanceof Armor) {
 			Armor armor = (Armor) item;
 			iconLeft.setImageResource(armor.getResourceId());

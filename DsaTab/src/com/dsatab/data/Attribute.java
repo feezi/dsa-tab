@@ -1,4 +1,4 @@
-package com.dsatab.data;
+ï»¿package com.dsatab.data;
 
 import org.w3c.dom.Element;
 
@@ -181,12 +181,20 @@ public class Attribute implements Probe, Value {
 		if (hero != null) {
 			if (type == AttributeType.Lebensenergie) {
 				baseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Konstitution) * 2 + hero
-						.getAttributeValue(AttributeType.Körperkraft)) / 2.0);
+						.getAttributeValue(AttributeType.KÃ¶rperkraft)) / 2.0);
 
 			} else if (type == AttributeType.Astralenergie) {
-				baseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
-						+ hero.getAttributeValue(AttributeType.Intuition) + hero
-						.getAttributeValue(AttributeType.Charisma)) / 2.0);
+
+				if (hero.hasFeature(SpecialFeature.GEFAESS_DER_STERNE)) {
+					baseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
+							+ hero.getAttributeValue(AttributeType.Intuition)
+							+ hero.getAttributeValue(AttributeType.Charisma) + hero
+							.getAttributeValue(AttributeType.Charisma)) / 2.0);
+				} else {
+					baseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
+							+ hero.getAttributeValue(AttributeType.Intuition) + hero
+							.getAttributeValue(AttributeType.Charisma)) / 2.0);
+				}
 
 			} else if (type == AttributeType.Ausdauer) {
 				baseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
@@ -211,19 +219,19 @@ public class Attribute implements Probe, Value {
 		case at: {
 			int mu = hero.getAttributeValue(AttributeType.Mut);
 			int ge = hero.getAttributeValue(AttributeType.Gewandtheit);
-			int kk = hero.getAttributeValue(AttributeType.Körperkraft);
+			int kk = hero.getAttributeValue(AttributeType.KÃ¶rperkraft);
 			return (int) Math.round((mu + ge + kk) / 5.0);
 		}
 		case pa: {
 			int in = hero.getAttributeValue(AttributeType.Intuition);
 			int ge = hero.getAttributeValue(AttributeType.Gewandtheit);
-			int kk = hero.getAttributeValue(AttributeType.Körperkraft);
+			int kk = hero.getAttributeValue(AttributeType.KÃ¶rperkraft);
 			return (int) Math.round((in + ge + kk) / 5.0);
 		}
 		case fk: {
 			int in = hero.getAttributeValue(AttributeType.Intuition);
 			int ff = hero.getAttributeValue(AttributeType.Fingerfertigkeit);
-			int kk = hero.getAttributeValue(AttributeType.Körperkraft);
+			int kk = hero.getAttributeValue(AttributeType.KÃ¶rperkraft);
 			return (int) Math.round((in + ff + kk) / 5.0);
 		}
 		case ini: {
@@ -274,7 +282,7 @@ public class Attribute implements Probe, Value {
 		case Fingerfertigkeit:
 		case Gewandtheit:
 		case Konstitution:
-		case Körperkraft:
+		case KÃ¶rperkraft:
 			max = 25;
 			break;
 		default:

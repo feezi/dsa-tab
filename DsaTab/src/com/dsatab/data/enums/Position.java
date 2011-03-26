@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  *  This file is part of DsaTab.
  *
  *  DsaTab is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@ public enum Position {
 
 	Head_Up("Kopf Oben"), Head_Side("Kopf seitl."), Head_Face("Gesicht"), Neck("Hals"), LeftShoulder("Linke Schulter"), LeftUpperArm(
 			"Linker Oberarm"), LeftLowerArm("Linker Unterarm"), RightShoulder("Rechte Schulter"), RightUpperArm(
-			"Rechter Oberarm"), RightLowerArm("Rechter Unterarm"), Brust("Brust"), Bauch("Bauch"), Ruecken("Rücken"), Pelvis(
+			"Rechter Oberarm"), RightLowerArm("Rechter Unterarm"), Brust("Brust"), Bauch("Bauch"), Ruecken("RÃ¼cken"), Pelvis(
 			"Becken"), UpperLeg("Oberschenkel"), LowerLeg("Unterschenkel"), Kopf("Kopf"), LinkerArm("Linke Hand"), RechterArm(
 			"Rechte Hand"), LinkesBein("Linkes Bein"), RechtesBein("Rechtes Bein");
 
@@ -41,7 +41,7 @@ public enum Position {
 	public static List<Position> WOUND_POSITIONS = new ArrayList<Position>(Arrays.asList(Position.Kopf, Position.Bauch,
 			Position.LeftLowerArm, Position.RightLowerArm, Position.LowerLeg));
 
-	// KO KS KG Hl SL OaL UaL SR OaR UaR Br Rü Ba Be OS US
+	// KO KS KG Hl SL OaL UaL SR OaR UaR Br RÃ¼ Ba Be OS US
 	// order must be the same as in ruestung.txt
 	// armor positions for our house rules
 	public static List<Position> ARMOR_POSITIONS_HOUSE = new ArrayList<Position>(Arrays.asList(Position.Head_Up,
@@ -50,7 +50,7 @@ public enum Position {
 			Position.Brust, Position.Ruecken, Position.Bauch, Position.Pelvis, Position.UpperLeg, Position.LowerLeg));
 
 	// official armor positions 4.1
-	// Kopf, Rücken, RechterArm, LinkerArm, Brust, Bauch, RechtesBein,
+	// Kopf, RÃ¼cken, RechterArm, LinkerArm, Brust, Bauch, RechtesBein,
 	// LinkesBein
 	public static List<Position> ARMOR_POSITIONS = new ArrayList<Position>(Arrays.asList(Position.Kopf, Position.Brust,
 			Position.Ruecken, Position.Bauch, Position.LeftLowerArm, Position.RightLowerArm, Position.LinkesBein,

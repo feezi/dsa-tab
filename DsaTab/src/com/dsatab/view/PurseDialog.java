@@ -1,4 +1,4 @@
-package com.dsatab.view;
+﻿package com.dsatab.view;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -107,7 +107,7 @@ public class PurseDialog extends Dialog implements OnItemSelectedListener {
 	private void init() {
 		setCanceledOnTouchOutside(true);
 
-		setTitle("Geldb�rse");
+		setTitle("Geldbörse");
 
 		final RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(
 				R.layout.popup_purse, null, false);

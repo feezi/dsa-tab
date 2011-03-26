@@ -1,4 +1,4 @@
-package com.dsatab.data.items;
+﻿package com.dsatab.data.items;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,7 +19,7 @@ public class Armor extends Item {
 	public static final String CATEGORY_ARME = "Arme";
 	public static final String CATEGORY_BEINE = "Beine";
 	public static final String CATEGORY_HELM = "Helm";
-	public static final String CATEGORY_FULL = "Komplettr�stung";
+	public static final String CATEGORY_FULL = "Komplettrüstung";
 	public static final String CATEGORY_TORSO = "Torso";
 
 	private float be;

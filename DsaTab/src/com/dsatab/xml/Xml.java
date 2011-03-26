@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2010 Gandulf Kohlweiss
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms
@@ -23,6 +23,7 @@ public interface Xml {
 	public static final String KEY_VALUE = "value";
 	public static final String KEY_NAME = "name";
 	public static final String KEY_MOD = "mod";
+	public static final String KEY_GROSSE_MEDIDATION = "grossemeditation";
 
 	public static final String KEY_TEXT = "text";
 	public static final String KEY_TIME = "time";

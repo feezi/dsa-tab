@@ -1,4 +1,4 @@
-package com.dsatab.view;
+Ôªøpackage com.dsatab.view;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -151,7 +151,7 @@ public class ArcheryChooserDialog extends Dialog implements android.view.View.On
 
 		});
 		sizeSpinner = (Spinner) popupcontent.findViewById(R.id.archery_size);
-		sizeSpinner.setPrompt("Grˆﬂe");
+		sizeSpinner.setPrompt("Gr√∂√üe");
 		sizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -206,11 +206,11 @@ public class ArcheryChooserDialog extends Dialog implements android.view.View.On
 
 		String[] modificationStrings = getContext().getResources().getStringArray(R.array.archeryModificationStrings);
 		if (getMain().getHero().hasFeature(SpecialFeature.MEISTERSCHUETZE)) {
-			modificationStrings[SCHNELLSCHUSS_INDEX] = "Schnellschuﬂ +0";
+			modificationStrings[SCHNELLSCHUSS_INDEX] = "Schnellschu√ü +0";
 			modificationValues[SCHNELLSCHUSS_INDEX] = 0;
 
 		} else if (getMain().getHero().hasFeature(SpecialFeature.SCHARFSCHUETZE)) {
-			modificationStrings[SCHNELLSCHUSS_INDEX] = "Schnellschuﬂ +1";
+			modificationStrings[SCHNELLSCHUSS_INDEX] = "Schnellschu√ü +1";
 			modificationValues[SCHNELLSCHUSS_INDEX] = 1;
 		}
 

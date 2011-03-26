@@ -1,4 +1,4 @@
-/*
+Ôªø/*
  * Copyright (C) 2010 Gandulf Kohlweiss
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms
@@ -171,7 +171,7 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		});
 
 		if (imageAdapter.getCount() == 0) {
-			Toast.makeText(this, "Keine Eintr‰ge gefunden", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "Keine Eintr√§ge gefunden", Toast.LENGTH_SHORT).show();
 			ItemChooserActivity.this.finish();
 			return;
 		} else {
@@ -204,7 +204,7 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		distanceButton.setTag(ItemType.Fernwaffen);
 		armorButton.setOnClickListener(this);
 		armorButton.setOnLongClickListener(this);
-		armorButton.setTag(ItemType.R¸stung);
+		armorButton.setTag(ItemType.R√ºstung);
 		itemsButton.setOnClickListener(this);
 		itemsButton.setOnLongClickListener(this);
 		itemsButton.setTag(ItemType.Sonstiges);
@@ -216,7 +216,7 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		specialButton.setTag(ItemType.Special);
 		bagsButton.setOnClickListener(this);
 		bagsButton.setOnLongClickListener(this);
-		bagsButton.setTag(ItemType.Beh‰lter);
+		bagsButton.setTag(ItemType.Beh√§lter);
 
 		if (foundItem != null)
 			showCard(foundItem, true);
@@ -485,7 +485,7 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 				dialog.dismiss();
 			}
 		});
-		builder.setTitle("Unterkategorie ausw‰hlen");
+		builder.setTitle("Unterkategorie ausw√§hlen");
 		builder.show();
 	}
 
