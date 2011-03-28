@@ -25,7 +25,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Gallery;
-import android.widget.ImageView;
 
 import com.dsatab.R;
 import com.dsatab.data.items.Item;
@@ -143,9 +142,6 @@ public class GalleryImageAdapter extends BaseAdapter {
 		}
 
 		i.setImageBitmap(bitmap);
-
-		/* Image should be scaled as width/height are set. */
-		i.setScaleType(ImageView.ScaleType.FIT_XY);
 
 		/* Set the Width/Height of the ImageView. */
 		i.setLayoutParams(new Gallery.LayoutParams(width, height));

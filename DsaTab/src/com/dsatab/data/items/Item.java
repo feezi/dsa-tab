@@ -15,7 +15,7 @@ import com.dsatab.xml.DomUtil;
 import com.dsatab.xml.Xml;
 import com.gandulf.guilib.util.Debug;
 
-public class Item implements Serializable, Comparable<Item>, Cloneable {
+public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard {
 
 	/**
 	 * 
@@ -64,6 +64,16 @@ public class Item implements Serializable, Comparable<Item>, Cloneable {
 		this.name = name;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.items.ItemCard#getItem()
+	 */
+	@Override
+	public Item getItem() {
+		return this;
+	}
+
 	public String getTitle() {
 		if (title != null)
 			return title;
@@ -78,12 +88,6 @@ public class Item implements Serializable, Comparable<Item>, Cloneable {
 	public void setElement(Element element) {
 		this.element = element;
 		this.itemInfo.setElement(element);
-
-		if (element.hasAttribute(Xml.KEY_PATH)) {
-			path = element.getAttribute(Xml.KEY_PATH);
-		} else if (path != null) {
-			element.setAttribute(Xml.KEY_PATH, path);
-		}
 
 		Element domallgemein = DomUtil.getChildByTagName(element, Xml.KEY_MOD_ALLGEMEIN);
 		if (domallgemein != null) {
@@ -122,10 +126,6 @@ public class Item implements Serializable, Comparable<Item>, Cloneable {
 			path = BLANK_PATH;
 
 		this.path = path;
-
-		if (element != null) {
-			element.setAttribute(Xml.KEY_PATH, path);
-		}
 	}
 
 	public File getFile() {

@@ -62,7 +62,7 @@ public class XmlParserNew {
 	private static void readItems(String file, Map<String, Item> items) {
 		try {
 			BufferedReader r = new BufferedReader(new InputStreamReader(DSATabApplication.getInstance().getAssets()
-					.open(file), "UTF8"), 1024 * 8);
+					.open(file), "UTF-8"), 1024 * 8);
 
 			String line;
 			StringSplitter splitter = new TextUtils.SimpleStringSplitter(';');
@@ -257,7 +257,7 @@ public class XmlParserNew {
 		try {
 
 			File itemsFile = new File(DSATabApplication.getDsaTabPath(), "items_new.txt");
-			OutputStreamWriter itemsWriter = new OutputStreamWriter(new FileOutputStream(itemsFile), "UTF8");
+			OutputStreamWriter itemsWriter = new OutputStreamWriter(new FileOutputStream(itemsFile), "UTF-8");
 			BufferedWriter itemsW = new BufferedWriter(itemsWriter, 1024 * 8);
 
 			List<Item> its = new ArrayList<Item>(items.values());
@@ -490,7 +490,7 @@ public class XmlParserNew {
 			BufferedReader r = new BufferedReader(reader);
 
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			OutputStreamWriter out = new OutputStreamWriter(outputStream);
+			OutputStreamWriter out = new OutputStreamWriter(outputStream, "UTF-8");
 			BufferedWriter writer = new BufferedWriter(out);
 
 			String line = null;
@@ -522,7 +522,7 @@ public class XmlParserNew {
 			writer.close();
 			r.close();
 
-			OutputStreamWriter fileOut = new OutputStreamWriter(new FileOutputStream(f));
+			OutputStreamWriter fileOut = new OutputStreamWriter(new FileOutputStream(f), "UTF-8");
 			fileOut.write(new String(outputStream.toByteArray()));
 			fileOut.close();
 		} catch (FileNotFoundException e) {
@@ -542,7 +542,7 @@ public class XmlParserNew {
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Debug.verbose("DocumentBuilder created:" + builder.getClass().getName());
 
-			InputStreamReader isr = new InputStreamReader(in, "UTF8");
+			InputStreamReader isr = new InputStreamReader(in, "UTF-8");
 			InputSource is = new InputSource();
 			is.setCharacterStream(isr);
 			is.setEncoding("UTF-8");

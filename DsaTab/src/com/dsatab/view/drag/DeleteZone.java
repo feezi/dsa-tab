@@ -34,7 +34,7 @@ import android.widget.ImageView;
 import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
 import com.dsatab.data.Hero;
-import com.dsatab.data.items.Item;
+import com.dsatab.data.items.ItemCard;
 import com.dsatab.view.FastAnimationSet;
 import com.dsatab.view.FastTranslateAnimation;
 import com.gandulf.guilib.drag.DragController;
@@ -42,7 +42,7 @@ import com.gandulf.guilib.drag.DragSource;
 import com.gandulf.guilib.drag.DragView;
 import com.gandulf.guilib.drag.DropTarget;
 
-public class DeleteZone extends ImageView implements DropTarget<Item>, DragController.DragListener<Item> {
+public class DeleteZone extends ImageView implements DropTarget<ItemCard>, DragController.DragListener<ItemCard> {
 
 	private static final int ORIENTATION_HORIZONTAL = 1;
 	private static final int TRANSITION_DURATION = 250;
@@ -58,7 +58,7 @@ public class DeleteZone extends ImageView implements DropTarget<Item>, DragContr
 	private Animation mHandleOutAnimation;
 
 	private int mOrientation;
-	private DragController<Item> mDragController;
+	private DragController<ItemCard> mDragController;
 
 	private final RectF mRegion = new RectF();
 	private TransitionDrawable mTransition;
@@ -89,44 +89,43 @@ public class DeleteZone extends ImageView implements DropTarget<Item>, DragContr
 		mTransition = (TransitionDrawable) getDrawable();
 	}
 
-	public boolean acceptDrop(DragSource<Item> source, int x, int y, int xOffset, int yOffset, DragView dragView,
-			Item dragInfo) {
+	public boolean acceptDrop(DragSource<ItemCard> source, int x, int y, int xOffset, int yOffset, DragView dragView,
+			ItemCard dragInfo) {
 		return true;
 	}
 
-	public Rect estimateDropLocation(DragSource<Item> source, int x, int y, int xOffset, int yOffset,
-			DragView dragView, Item dragInfo, Rect recycle) {
+	public Rect estimateDropLocation(DragSource<ItemCard> source, int x, int y, int xOffset, int yOffset,
+			DragView dragView, ItemCard dragInfo, Rect recycle) {
 		return null;
 	}
 
-	public void onDrop(DragSource<Item> source, int x, int y, int xOffset, int yOffset, DragView dragView, Item dragInfo) {
-		final Item item = (Item) dragInfo;
+	public void onDrop(DragSource<ItemCard> source, int x, int y, int xOffset, int yOffset, DragView dragView,
+			ItemCard dragInfo) {
 
 		Hero hero = DSATabApplication.getInstance().getHero();
 
-		hero.removeItem(item);
+		hero.removeItem(dragInfo.getItem());
 
 	}
 
-	public void onDragEnter(DragSource<Item> source, int x, int y, int xOffset, int yOffset, DragView dragView,
-			Item dragInfo) {
+	public void onDragEnter(DragSource<ItemCard> source, int x, int y, int xOffset, int yOffset, DragView dragView,
+			ItemCard dragInfo) {
 		mTransition.reverseTransition(TRANSITION_DURATION);
 		dragView.setPaint(mTrashPaint);
 	}
 
-	public void onDragOver(DragSource<Item> source, int x, int y, int xOffset, int yOffset, DragView dragView,
-			Item dragInfo) {
+	public void onDragOver(DragSource<ItemCard> source, int x, int y, int xOffset, int yOffset, DragView dragView,
+			ItemCard dragInfo) {
 	}
 
-	public void onDragExit(DragSource<Item> source, int x, int y, int xOffset, int yOffset, DragView dragView,
-			Item dragInfo) {
+	public void onDragExit(DragSource<ItemCard> source, int x, int y, int xOffset, int yOffset, DragView dragView,
+			ItemCard dragInfo) {
 		mTransition.reverseTransition(TRANSITION_DURATION);
 		dragView.setPaint(null);
 	}
 
-	public void onDragStart(DragSource<Item> source, Item info, int dragAction) {
+	public void onDragStart(DragSource<ItemCard> source, ItemCard item, int dragAction) {
 
-		final Object item = (Object) info;
 		if (item != null) {
 			mTrashMode = true;
 			createAnimations();
@@ -191,7 +190,7 @@ public class DeleteZone extends ImageView implements DropTarget<Item>, DragContr
 		}
 	}
 
-	public void setDragController(DragController<Item> dragController) {
+	public void setDragController(DragController<ItemCard> dragController) {
 		mDragController = dragController;
 	}
 

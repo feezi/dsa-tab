@@ -48,8 +48,11 @@ public class LegacyXmlWriter {
 				StringBuffer attrs = new StringBuffer();
 				if (root.getAttributes() != null) {
 					for (int k = 0; k < root.getAttributes().getLength(); ++k) {
+
+						String nodeValue = root.getAttributes().item(k).getNodeValue();
+						nodeValue = nodeValue.replace("&", "&amp;");
 						attrs.append(" ").append(root.getAttributes().item(k).getNodeName()).append("=\"")
-								.append(root.getAttributes().item(k).getNodeValue()).append("\" ");
+								.append(nodeValue).append("\" ");
 					}
 				}
 				result.append("<").append(root.getNodeName()).append(" ").append(attrs).append(">");

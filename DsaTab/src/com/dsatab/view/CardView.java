@@ -28,14 +28,14 @@ import android.widget.ImageView;
 
 import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
-import com.dsatab.data.items.Item;
+import com.dsatab.data.items.ItemCard;
 
 /**
  * 
  */
 public class CardView extends ImageView {
 
-	private Item item;
+	private ItemCard item;
 
 	private Boolean hasCardImage;
 
@@ -48,7 +48,7 @@ public class CardView extends ImageView {
 	/**
 	 * @param context
 	 */
-	public CardView(Context context, Item item) {
+	public CardView(Context context, ItemCard item) {
 		this(context, null, 0);
 		this.item = item;
 	}
@@ -71,6 +71,10 @@ public class CardView extends ImageView {
 	 * 
 	 */
 	private void init() {
+
+		setBackgroundResource(R.drawable.border_patch);
+		setScaleType(ScaleType.FIT_XY);
+
 		paint = new Paint();
 		paint.setTextAlign(Align.CENTER);
 		paint.setTextSize(20);
@@ -80,11 +84,11 @@ public class CardView extends ImageView {
 		TEXT_PADDING = getResources().getDimensionPixelOffset(R.dimen.card_text_padding);
 	}
 
-	public Item getItem() {
+	public ItemCard getItem() {
 		return item;
 	}
 
-	public void setItem(Item item) {
+	public void setItem(ItemCard item) {
 		this.item = item;
 		hasCardImage = null;
 		calculated = false;

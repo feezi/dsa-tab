@@ -1,13 +1,16 @@
 ﻿package com.dsatab.data.items;
 
+import java.io.File;
+
 import org.w3c.dom.Element;
 
 import com.dsatab.common.Util;
 import com.dsatab.data.CombatTalent;
 import com.dsatab.data.Hero;
+import com.dsatab.view.drag.ItemInfo;
 import com.dsatab.xml.Xml;
 
-public class EquippedItem {
+public class EquippedItem implements ItemCard {
 
 	private static final String RUESTUNGSNAME = "ruestungsname";
 
@@ -42,25 +45,32 @@ public class EquippedItem {
 
 	private Hero hero;
 
+	private ItemInfo itemInfo;
+
 	public EquippedItem(Hero hero) {
-		this.hero = hero;
+		this(hero, null, null);
 	}
 
 	public EquippedItem(Hero hero, Element element) {
-		this.hero = hero;
-		setElement(element);
+		this(hero, element, null);
 	}
 
 	public EquippedItem(Hero hero, Element element, Item item) {
 		this.hero = hero;
 		this.element = element;
 		this.item = item;
+		this.itemInfo = new ItemInfo();
 		setItem(item);
 		setElement(element);
+
 	}
 
 	public Element getElement() {
 		return element;
+	}
+
+	public ItemInfo getItemInfo() {
+		return itemInfo;
 	}
 
 	public UsageType getUsageType() {
@@ -102,6 +112,10 @@ public class EquippedItem {
 
 	public void setElement(Element element) {
 		this.element = element;
+		this.itemInfo.setElement(element);
+
+		if (element == null)
+			return;
 
 		if (!element.hasAttribute(Xml.KEY_SLOT))
 			element.setAttribute(Xml.KEY_SLOT, "0");
@@ -150,6 +164,26 @@ public class EquippedItem {
 		return element.getAttribute(Xml.KEY_NAME);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.items.ItemCard#getTitle()
+	 */
+	@Override
+	public String getTitle() {
+		return getItem().getTitle();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.items.ItemCard#getFile()
+	 */
+	@Override
+	public File getFile() {
+		return getItem().getFile();
+	}
+
 	public int getNameId() {
 		return nameId;
 	}
@@ -174,7 +208,7 @@ public class EquippedItem {
 			element.setAttribute(RUESTUNGSNAME, item.getName());
 		}
 
-		if (!element.hasAttribute(Xml.KEY_NAME)) {
+		if (element != null && !element.hasAttribute(Xml.KEY_NAME)) {
 			String namePrefix = null;
 
 			if (item instanceof Weapon) {

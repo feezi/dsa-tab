@@ -110,6 +110,9 @@ public class ItemInfo implements Serializable, Cloneable {
 	public void setElement(Element element) {
 		this.element = element;
 
+		if (element == null)
+			return;
+
 		if (element.hasAttribute(Xml.KEY_CELL_X))
 			setCellX(Util.parseInt(element.getAttribute(Xml.KEY_CELL_X)));
 		if (element.hasAttribute(Xml.KEY_CELL_Y))

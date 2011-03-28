@@ -32,6 +32,7 @@ import com.dsatab.R;
 import com.dsatab.data.Hero;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
+import com.dsatab.data.items.ItemCard;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.view.drag.CellLayout;
 import com.dsatab.view.drag.DeleteZone;
@@ -45,11 +46,11 @@ import com.gandulf.guilib.drag.DragSource;
 import com.gandulf.guilib.util.Debug;
 
 public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickListener, View.OnClickListener,
-		DragController.DragListener<Item>, OnScreenChangeListener {
+		DragController.DragListener<ItemCard>, OnScreenChangeListener {
 
 	private static final int ACTION_CHOOSE_CARD = 2;
 
-	private DragController<Item> mDragController;
+	private DragController<ItemCard> mDragController;
 	private Workspace mWorkspace;
 	private DeleteZone mDeleteZone;
 
@@ -176,7 +177,7 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.items_main);
 
-		mDragController = new DragController<Item>(this);
+		mDragController = new DragController<ItemCard>(this);
 		mScreenTextView = (TextView) findViewById(R.id.screen_set_text);
 
 		setupViews();
@@ -255,7 +256,7 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 	 * .view.drag.DragSource, com.dsatab.data.items.Item, int)
 	 */
 	@Override
-	public void onDragStart(DragSource<Item> source, Item info, int dragAction) {
+	public void onDragStart(DragSource<ItemCard> source, ItemCard info, int dragAction) {
 		mScreenTextView.setVisibility(View.INVISIBLE);
 	}
 
@@ -283,7 +284,7 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 						Debug.verbose("Skipping " + item.getName() + "because equippedItem.getItem was null");
 						continue;
 					}
-					success = mWorkspace.addItemInScreen(i, item.getItem());
+					success = mWorkspace.addItemInScreen(i, item);
 					if (!success) {
 						Debug.verbose("Skipping " + item.getName() + "because inventory page was FULL");
 					}
@@ -329,18 +330,18 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 		updateTextView(i);
 	}
 
-	private void selectItem(Item item, CellLayout.CellInfo cellInfo) {
+	private void selectItem(ItemCard item, CellLayout.CellInfo cellInfo) {
 
-		selectedItem = item;
+		selectedItem = item.getItem();
 
 		Intent intent = new Intent(this, ItemChooserActivity.class);
 
 		if (item != null) {
-			ItemType cardType = item.getType();
+			ItemType cardType = selectedItem.getType();
 
-			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_ID, item.getId());
-			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_NAME, item.getName());
-			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_CATEGORY, item.getCategory());
+			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_ID, selectedItem.getId());
+			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_NAME, selectedItem.getName());
+			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_CATEGORY, selectedItem.getCategory());
 
 			if (cardType != null) {
 				intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_TYPE, cardType.name());
@@ -369,8 +370,8 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 			mWorkspace.scrollRight();
 		} else if (v == mPreviousView) {
 			mWorkspace.scrollLeft();
-		} else if (v.getTag() instanceof Item) {
-			Item item = (Item) v.getTag();
+		} else if (v.getTag() instanceof ItemCard) {
+			ItemCard item = (ItemCard) v.getTag();
 			selectItem(item, null);
 		} else {
 			// click on empt cell open browser for items

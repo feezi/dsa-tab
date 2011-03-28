@@ -28,8 +28,6 @@ public class ArmorAttribute implements Value {
 
 	private Hero hero;
 
-	private Integer referenceValue;
-
 	public ArmorAttribute(Element element) {
 		this(element, null);
 	}
@@ -37,7 +35,6 @@ public class ArmorAttribute implements Value {
 	public ArmorAttribute(Element element, Hero hero) {
 		this.element = element;
 		this.hero = hero;
-		this.referenceValue = 0;
 	}
 
 	public String getName() {
@@ -64,7 +61,7 @@ public class ArmorAttribute implements Value {
 	}
 
 	public Integer getReferenceValue() {
-		return referenceValue;
+		return hero.getArmorRs(getPosition());
 	}
 
 	public int getMinimum() {
