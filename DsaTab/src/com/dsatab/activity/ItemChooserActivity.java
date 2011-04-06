@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2010 Gandulf Kohlweiss
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms
@@ -50,6 +50,8 @@ import android.widget.Toast;
 import com.dsatab.R;
 import com.dsatab.data.Hero;
 import com.dsatab.data.adapter.GalleryImageAdapter;
+import com.dsatab.data.enums.Position;
+import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.view.CardView;
@@ -70,6 +72,8 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 	public static final String INTENT_EXTRA_ITEM_TYPE = "itemType";
 	public static final String INTENT_EXTRA_ITEM_CATEGORY = "itemCategory";
 	public static final String INTENT_EXTRA_ITEM = "item";
+
+	public static final String INTENT_EXTRA_ARMOR_POSITION = "position";
 
 	private Gallery gallery;
 	private CardView imageView;
@@ -95,6 +99,8 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 
 	private static final int ORIENTATION_HORIZONTAL = 1;
 	private static final int ANIMATION_DURATION = 200;
+
+	boolean categorySelectable = true;
 
 	/*
 	 * (non-Javadoc)
@@ -152,7 +158,21 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		imageView.setOnClickListener(this);
 		imageView.setOnLongClickListener(this);
 
-		imageAdapter = new GalleryImageAdapter(this, cardType, itemCategory);
+		if (getIntent().hasExtra(INTENT_EXTRA_ARMOR_POSITION)) {
+			categorySelectable = false;
+			Position pos = (Position) getIntent().getSerializableExtra(INTENT_EXTRA_ARMOR_POSITION);
+			Hero hero = DSATabApplication.getInstance().getHero();
+
+			List<EquippedItem> equippedItems = hero.getArmor(pos);
+			Item[] items = new Item[equippedItems.size()];
+			for (int i = 0; i < equippedItems.size(); i++) {
+				items[i] = equippedItems.get(i).getItem();
+			}
+			imageAdapter = new GalleryImageAdapter(this, null, null, items);
+		} else {
+
+			imageAdapter = new GalleryImageAdapter(this, cardType, itemCategory, null);
+		}
 		gallery.setAdapter(imageAdapter);
 		gallery.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
@@ -193,73 +213,89 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		ImageButton specialButton = (ImageButton) findViewById(R.id.body_special_button);
 		ImageButton bagsButton = (ImageButton) findViewById(R.id.body_bags_button);
 
-		weaponButton.setOnClickListener(this);
-		weaponButton.setOnLongClickListener(this);
-		weaponButton.setTag(ItemType.Waffen);
-		shieldButton.setOnClickListener(this);
-		shieldButton.setOnLongClickListener(this);
-		shieldButton.setTag(ItemType.Schilde);
-		distanceButton.setOnClickListener(this);
-		distanceButton.setOnLongClickListener(this);
-		distanceButton.setTag(ItemType.Fernwaffen);
-		armorButton.setOnClickListener(this);
-		armorButton.setOnLongClickListener(this);
-		armorButton.setTag(ItemType.Rüstung);
-		itemsButton.setOnClickListener(this);
-		itemsButton.setOnLongClickListener(this);
-		itemsButton.setTag(ItemType.Sonstiges);
-		clothButton.setOnClickListener(this);
-		clothButton.setOnLongClickListener(this);
-		clothButton.setTag(ItemType.Kleidung);
-		specialButton.setOnClickListener(this);
-		specialButton.setOnLongClickListener(this);
-		specialButton.setTag(ItemType.Special);
-		bagsButton.setOnClickListener(this);
-		bagsButton.setOnLongClickListener(this);
-		bagsButton.setTag(ItemType.Behälter);
+		searchButton = (ImageButton) findViewById(R.id.body_search_button);
+		searchText = (AutoCompleteTextView) findViewById(R.id.body_autosearch);
+
+		if (categorySelectable) {
+			weaponButton.setOnClickListener(this);
+			weaponButton.setOnLongClickListener(this);
+			weaponButton.setTag(ItemType.Waffen);
+			shieldButton.setOnClickListener(this);
+			shieldButton.setOnLongClickListener(this);
+			shieldButton.setTag(ItemType.Schilde);
+			distanceButton.setOnClickListener(this);
+			distanceButton.setOnLongClickListener(this);
+			distanceButton.setTag(ItemType.Fernwaffen);
+			armorButton.setOnClickListener(this);
+			armorButton.setOnLongClickListener(this);
+			armorButton.setTag(ItemType.Rüstung);
+			itemsButton.setOnClickListener(this);
+			itemsButton.setOnLongClickListener(this);
+			itemsButton.setTag(ItemType.Sonstiges);
+			clothButton.setOnClickListener(this);
+			clothButton.setOnLongClickListener(this);
+			clothButton.setTag(ItemType.Kleidung);
+			specialButton.setOnClickListener(this);
+			specialButton.setOnLongClickListener(this);
+			specialButton.setTag(ItemType.Special);
+			bagsButton.setOnClickListener(this);
+			bagsButton.setOnLongClickListener(this);
+			bagsButton.setTag(ItemType.Behälter);
+
+			searchButton.setOnClickListener(this);
+			searchText.setVisibility(View.GONE);
+
+			List<String> itemNames = new ArrayList<String>(DataManager.getItemsMap().keySet());
+			Collections.sort(itemNames);
+
+			final ArrayAdapter<String> arrAdapter = new ArrayAdapter<String>(this,
+					android.R.layout.simple_dropdown_item_1line, itemNames);
+			searchText.setAdapter(arrAdapter);
+			createAnimations();
+
+			searchText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+				@Override
+				public void onFocusChange(View v, boolean hasFocus) {
+					if (!hasFocus) {
+						closeSearch();
+					}
+				}
+			});
+			searchText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					searchText.clearFocus();
+
+					Item item = DataManager.getItemByName(arrAdapter.getItem(position));
+					if (item != null) {
+
+						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+						imm.hideSoftInputFromWindow(searchText.getWindowToken(), 0);
+
+						chooseType(item.getType(), item.getCategory(), item);
+					}
+				}
+			});
+
+		} else {
+			weaponButton.setVisibility(View.INVISIBLE);
+			shieldButton.setVisibility(View.INVISIBLE);
+			distanceButton.setVisibility(View.INVISIBLE);
+			armorButton.setVisibility(View.INVISIBLE);
+			itemsButton.setVisibility(View.INVISIBLE);
+			clothButton.setVisibility(View.INVISIBLE);
+			specialButton.setVisibility(View.INVISIBLE);
+			bagsButton.setVisibility(View.INVISIBLE);
+
+			searchButton.setVisibility(View.INVISIBLE);
+			searchText.setVisibility(View.INVISIBLE);
+		}
 
 		if (foundItem != null)
 			showCard(foundItem, true);
 		else {
 			showCard((Item) gallery.getSelectedItem(), true);
 		}
-
-		searchButton = (ImageButton) findViewById(R.id.body_search_button);
-		searchButton.setOnClickListener(this);
-		searchText = (AutoCompleteTextView) findViewById(R.id.body_autosearch);
-		searchText.setVisibility(View.GONE);
-
-		List<String> itemNames = new ArrayList<String>(DataManager.getItemsMap().keySet());
-		Collections.sort(itemNames);
-
-		final ArrayAdapter<String> arrAdapter = new ArrayAdapter<String>(this,
-				android.R.layout.simple_dropdown_item_1line, itemNames);
-		searchText.setAdapter(arrAdapter);
-		createAnimations();
-
-		searchText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-			@Override
-			public void onFocusChange(View v, boolean hasFocus) {
-				if (!hasFocus) {
-					closeSearch();
-				}
-			}
-		});
-		searchText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				searchText.clearFocus();
-
-				Item item = DataManager.getItemByName(arrAdapter.getItem(position));
-				if (item != null) {
-
-					InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-					imm.hideSoftInputFromWindow(searchText.getWindowToken(), 0);
-
-					chooseType(item.getType(), item.getCategory(), item);
-				}
-			}
-		});
 
 	}
 
@@ -323,7 +359,7 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 
 	private void showItemChooserPopup() {
 		if (itemChooserDialog == null) {
-			itemChooserDialog = new ItemChooserDialog(this);
+			itemChooserDialog = new ItemChooserDialog(this, DSATabApplication.getInstance().getHero());
 			itemChooserDialog.setShowOwnItems(false);
 			itemChooserDialog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 				/*
@@ -455,8 +491,10 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.gallery_menu, menu);
+		if (categorySelectable) {
+			MenuInflater inflater = getMenuInflater();
+			inflater.inflate(R.menu.gallery_menu, menu);
+		}
 		return true;
 	}
 
@@ -464,7 +502,7 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		this.cardType = type;
 
 		gallery.setVisibility(View.VISIBLE);
-		imageAdapter = new GalleryImageAdapter(ItemChooserActivity.this, cardType, category);
+		imageAdapter = new GalleryImageAdapter(ItemChooserActivity.this, cardType, category, null);
 		gallery.setAdapter(imageAdapter);
 
 		if (item == null && imageAdapter.getCount() > 0)

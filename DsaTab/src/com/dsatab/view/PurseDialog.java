@@ -1,8 +1,7 @@
-﻿package com.dsatab.view;
+package com.dsatab.view;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -14,13 +13,15 @@ import android.widget.TextView;
 
 import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
+import com.dsatab.data.Hero;
 import com.dsatab.data.Purse;
 import com.dsatab.data.Purse.Currency;
 import com.dsatab.data.Purse.PurseUnit;
 import com.gandulf.guilib.view.NumberPicker;
+import com.gandulf.guilib.view.OnViewChangedListener;
 import com.gandulf.guilib.view.adapter.SpinnerSimpleAdapter;
 
-public class PurseDialog extends Dialog implements OnItemSelectedListener {
+public class PurseDialog extends Dialog implements OnItemSelectedListener, OnViewChangedListener<NumberPicker> {
 
 	private Spinner currencySpinner;
 
@@ -29,8 +30,11 @@ public class PurseDialog extends Dialog implements OnItemSelectedListener {
 
 	private Purse purse;
 
-	public PurseDialog(Context context) {
+	private Hero hero;
+
+	public PurseDialog(Context context, Hero hero) {
 		super(context, R.style.NoTitleDialog);
+		this.hero = hero;
 		init();
 	}
 
@@ -104,6 +108,19 @@ public class PurseDialog extends Dialog implements OnItemSelectedListener {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.gandulf.guilib.view.OnViewChangedListener#onChanged(android.view.
+	 * View, int, int)
+	 */
+	@Override
+	public void onChanged(NumberPicker picker, int oldVal, int newVal) {
+		PurseUnit unit = (PurseUnit) picker.getTag();
+		purse.setCoins(unit, picker.getCurrent());
+	}
+
 	private void init() {
 		setCanceledOnTouchOutside(true);
 
@@ -119,9 +136,13 @@ public class PurseDialog extends Dialog implements OnItemSelectedListener {
 
 		picker = new NumberPicker[4];
 		picker[0] = (NumberPicker) popupcontent.findViewById(R.id.popup_purse_dukat);
+		picker[0].setOnViewChangedListener(this);
 		picker[1] = (NumberPicker) popupcontent.findViewById(R.id.popup_purse_silver);
+		picker[1].setOnViewChangedListener(this);
 		picker[2] = (NumberPicker) popupcontent.findViewById(R.id.popup_purse_heller);
+		picker[2].setOnViewChangedListener(this);
 		picker[3] = (NumberPicker) popupcontent.findViewById(R.id.popup_purse_kreuzer);
+		picker[3].setOnViewChangedListener(this);
 
 		labels = new TextView[4];
 		labels[0] = (TextView) popupcontent.findViewById(R.id.tv_currency1);
@@ -129,19 +150,6 @@ public class PurseDialog extends Dialog implements OnItemSelectedListener {
 		labels[2] = (TextView) popupcontent.findViewById(R.id.tv_currency3);
 		labels[3] = (TextView) popupcontent.findViewById(R.id.tv_currency4);
 
-		setOnDismissListener(new Dialog.OnDismissListener() {
-
-			public void onDismiss(DialogInterface dialog) {
-
-				if (purse.getActiveCurrency() != null) {
-					for (PurseUnit unit : purse.getActiveCurrency().units()) {
-						NumberPicker picker = (NumberPicker) popupcontent.findViewWithTag(unit);
-						purse.setCoins(unit, picker.getCurrent());
-					}
-				}
-
-			}
-		});
 	}
 
 }

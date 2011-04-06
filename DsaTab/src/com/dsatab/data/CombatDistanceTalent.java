@@ -1,4 +1,4 @@
-﻿package com.dsatab.data;
+package com.dsatab.data;
 
 import org.w3c.dom.Element;
 
@@ -105,6 +105,8 @@ public class CombatDistanceTalent implements Probe, Value, CombatTalent {
 			element.setAttribute(Xml.KEY_VALUE, Util.toString(value - getBaseValue()));
 		else
 			element.removeAttribute(Xml.KEY_VALUE);
+
+		hero.fireValueChangedEvent(this);
 	}
 
 	public Position getPosition(int w20) {

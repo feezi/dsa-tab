@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2008 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,7 +44,7 @@ import com.gandulf.guilib.drag.DropTarget;
 
 public class DeleteZone extends ImageView implements DropTarget<ItemCard>, DragController.DragListener<ItemCard> {
 
-	private static final int ORIENTATION_HORIZONTAL = 1;
+	public static final int ORIENTATION_HORIZONTAL = 1;
 	private static final int TRANSITION_DURATION = 250;
 	private static final int ANIMATION_DURATION = 200;
 
@@ -192,6 +192,14 @@ public class DeleteZone extends ImageView implements DropTarget<ItemCard>, DragC
 
 	public void setDragController(DragController<ItemCard> dragController) {
 		mDragController = dragController;
+	}
+
+	public int getOrientation() {
+		return mOrientation;
+	}
+
+	public void setOrientation(int orientation) {
+		this.mOrientation = orientation;
 	}
 
 }

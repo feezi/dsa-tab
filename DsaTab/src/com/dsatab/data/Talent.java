@@ -1,4 +1,4 @@
-﻿package com.dsatab.data;
+package com.dsatab.data;
 
 import org.w3c.dom.Element;
 
@@ -74,6 +74,8 @@ public class Talent implements Probe, Value {
 			element.setAttribute(Xml.KEY_VALUE, Integer.toString(value));
 		else
 			element.removeAttribute(Xml.KEY_VALUE);
+
+		hero.fireValueChangedEvent(this);
 	}
 
 	public Integer getReferenceValue() {

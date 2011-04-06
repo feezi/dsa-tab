@@ -1,4 +1,4 @@
-﻿package com.dsatab.view.listener;
+package com.dsatab.view.listener;
 
 import android.content.Context;
 import android.hardware.Sensor;

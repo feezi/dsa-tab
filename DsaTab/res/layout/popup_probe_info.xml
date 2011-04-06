@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:layout_width="fill_parent"
-	android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
-	android:alwaysDrawnWithCache="false" android:padding="5dip">
-		
-		<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:textColor="#ffffff" android:ellipsize="end" android:gravity="center_horizontal" android:text="Probenzuschläge" android:id="@+id/popup_probe_info_title"></TextView>
-		<LinearLayout  android:layout_height="wrap_content" android:weightSum="4.0" android:layout_width="fill_parent" android:id="@+id/popup_probe_layout" android:layout_below="@+id/popup_probe_info_title" android:orientation="vertical">
-		
-		
-		
-		
-		</LinearLayout>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ 	android:layout_width="fill_parent"	android:layout_height="wrap_content" 
+	android:padding="5dip"	
+	android:id="@+id/popup_probe_layout" android:orientation="vertical">
+</LinearLayout>
 		
 
 
-</RelativeLayout>
+

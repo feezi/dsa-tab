@@ -1,4 +1,4 @@
-﻿package com.dsatab.data;
+package com.dsatab.data;
 
 import org.w3c.dom.Element;
 
@@ -87,6 +87,8 @@ public class CombatMeleeAttribute implements Probe, Value {
 		} else {
 			element.removeAttribute(Xml.KEY_VALUE);
 		}
+
+		hero.fireValueChangedEvent(this);
 	}
 
 	public boolean isAttack() {

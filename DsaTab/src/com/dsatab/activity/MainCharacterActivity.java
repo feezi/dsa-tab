@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2010 Gandulf Kohlweiss
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms
@@ -19,10 +19,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.ContextMenu;
@@ -30,6 +33,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -46,11 +50,14 @@ import com.dsatab.data.Hero;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.modifier.Modificator;
+import com.dsatab.view.LiteInfoDialog;
 import com.dsatab.view.PortraitChooserDialog;
+import com.dsatab.view.VersionInfoDialog;
 import com.dsatab.view.listener.ModifierChangedListener;
 import com.dsatab.view.listener.ValueChangedListener;
 
-public class MainCharacterActivity extends BaseMainActivity implements ValueChangedListener, ModifierChangedListener {
+public class MainCharacterActivity extends BaseMainActivity implements ValueChangedListener, ModifierChangedListener,
+		DialogInterface.OnDismissListener {
 
 	private static final String PREF_SHOW_FEATURE_COMMENTS = "SHOW_COMMENTS";
 
@@ -62,6 +69,10 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 	private View charAttributesList;
 
 	private TableLayout tblCombatAttributes;
+
+	private AlertDialog liteDialog;
+
+	private VersionInfoDialog newsDialog;
 
 	private Map<Value, TextView[]> tfValues = new HashMap<Value, TextView[]>(50);
 
@@ -95,6 +106,9 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 
 		charAttributesList = findViewById(R.id.gen_attributes);
 
+		if (!showNewsInfoPopup())
+			showLiteInfoPopup();
+
 	}
 
 	@Override
@@ -104,6 +118,74 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 		} else {
 			super.onCreateContextMenu(menu, v, menuInfo);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.content.DialogInterface.OnDismissListener#onDismiss(android.content
+	 * .DialogInterface)
+	 */
+	@Override
+	public void onDismiss(DialogInterface dialog) {
+
+		if (dialog == newsDialog) {
+			newsDialog = null;
+			showLiteInfoPopup();
+		} else if (dialog == liteDialog) {
+			liteDialog = null;
+			showNewsInfoPopup();
+		}
+	}
+
+	private boolean showLiteInfoPopup() {
+
+		if (DSATabApplication.isLiteVersion() && !DSATabApplication.getInstance().liteShown) {
+
+			liteDialog = new LiteInfoDialog(this);
+			liteDialog.setOwnerActivity(this);
+			liteDialog.setOnDismissListener(this);
+			liteDialog.show();
+
+			DSATabApplication.getInstance().liteShown = true;
+			return true;
+		} else {
+			return false;
+		}
+
+	}
+
+	private boolean showNewsInfoPopup() {
+
+		if (DSATabApplication.getInstance().newsShown)
+			return false;
+
+		int seenVersion = preferences.getInt(DsaPreferenceActivity.KEY_NEWS_VERSION, 0);
+
+		newsDialog = new VersionInfoDialog(this);
+		newsDialog.setSeenVersion(seenVersion);
+		newsDialog.setOnDismissListener(this);
+		if (newsDialog.hasContent()) {
+			newsDialog.show();
+
+			int version = DSATabApplication.getInstance().getPackageVersion();
+
+			Editor edit = preferences.edit();
+			edit.putInt(DsaPreferenceActivity.KEY_NEWS_VERSION, version);
+			edit.commit();
+			DSATabApplication.getInstance().newsShown = true;
+
+			// TODO remove later after TESTING
+			// edit = preferences.edit();
+			// edit.putInt(DsaPreferenceActivity.KEY_NEWS_VERSION, 0);
+			// edit.commit();
+
+			return true;
+		} else {
+			return false;
+		}
+
 	}
 
 	@Override
@@ -125,9 +207,12 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 	public void onClick(View v) {
 		super.onClick(v);
 
-		if (v.getId() == R.id.gen_name) {
+		switch (v.getId()) {
+		case R.id.gen_name:
+		case R.id.gen_portrait:
 			PortraitChooserDialog dialog = new PortraitChooserDialog(this);
 			dialog.show();
+			break;
 		}
 
 	}
@@ -153,6 +238,7 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 	}
 
 	public void onValueChanged(Value value) {
+
 		if (value == null) {
 			return;
 		}
@@ -171,14 +257,30 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 			case Lebensenergie:
 				fillAttributeValue((TextView) findViewById(R.id.gen_lp), AttributeType.Lebensenergie);
 				break;
+			case Lebensenergie_Total:
+				fillAttributeValue((TextView) findViewById(R.id.gen_lp), AttributeType.Lebensenergie);
+				fillAttributeValue(tfTotalLp, AttributeType.Lebensenergie_Total, " / ");
+				break;
 			case Astralenergie:
 				fillAttributeValue((TextView) findViewById(R.id.gen_ae), AttributeType.Astralenergie);
+				break;
+			case Astralenergie_Total:
+				fillAttributeValue((TextView) findViewById(R.id.gen_ae), AttributeType.Astralenergie);
+				fillAttributeValue(tfTotalAe, AttributeType.Astralenergie_Total, " / ");
 				break;
 			case Ausdauer:
 				fillAttributeValue((TextView) findViewById(R.id.gen_au), AttributeType.Ausdauer);
 				break;
+			case Ausdauer_Total:
+				fillAttributeValue((TextView) findViewById(R.id.gen_au), AttributeType.Ausdauer);
+				fillAttributeValue(tfTotalAu, AttributeType.Ausdauer_Total, " / ");
+				break;
 			case Karmaenergie:
 				fillAttributeValue((TextView) findViewById(R.id.gen_ke), AttributeType.Karmaenergie);
+				break;
+			case Karmaenergie_Total:
+				fillAttributeValue((TextView) findViewById(R.id.gen_ke), AttributeType.Karmaenergie);
+				fillAttributeValue(tfTotalKe, AttributeType.Karmaenergie_Total, " / ");
 				break;
 			case Magieresistenz:
 				fillAttributeValue((TextView) findViewById(R.id.gen_mr), AttributeType.Magieresistenz);
@@ -252,15 +354,16 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 		fillAttributeLabel((TextView) findViewById(R.id.gen_ini_label), AttributeType.ini);
 		fillAttributeLabel((TextView) findViewById(R.id.gen_be_label), AttributeType.Behinderung);
 
-		tfTotalLp.setText(" / " + Util.toString(hero.getAttribute(AttributeType.Lebensenergie).getReferenceValue()));
-		tfTotalAu.setText(" / " + Util.toString(hero.getAttribute(AttributeType.Ausdauer).getReferenceValue()));
+		fillAttributeValue(tfTotalLp, AttributeType.Lebensenergie_Total, " / ");
+		fillAttributeValue(tfTotalAu, AttributeType.Ausdauer_Total, " / ");
 
 		if (hero.getAttributeValue(AttributeType.Karmaenergie) == null) {
 			findViewById(R.id.gen_ke).setVisibility(View.GONE);
 			tfLabelKe.setVisibility(View.GONE);
 			tfTotalKe.setVisibility(View.GONE);
 		} else {
-			tfTotalKe.setText(" / " + Util.toString(hero.getAttribute(AttributeType.Karmaenergie).getReferenceValue()));
+			fillAttributeValue(tfTotalKe, AttributeType.Karmaenergie_Total, " / ");
+			findViewById(R.id.gen_ke).setVisibility(View.VISIBLE);
 			tfLabelKe.setVisibility(View.VISIBLE);
 			tfTotalKe.setVisibility(View.VISIBLE);
 		}
@@ -270,8 +373,8 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 			tfLabelAe.setVisibility(View.GONE);
 			tfTotalAe.setVisibility(View.GONE);
 		} else {
-			tfTotalAe
-					.setText(" / " + Util.toString(hero.getAttribute(AttributeType.Astralenergie).getReferenceValue()));
+			fillAttributeValue(tfTotalAe, AttributeType.Astralenergie_Total, " / ");
+			findViewById(R.id.gen_ae).setVisibility(View.VISIBLE);
 			tfLabelAe.setVisibility(View.VISIBLE);
 			tfTotalAe.setVisibility(View.VISIBLE);
 		}
@@ -295,8 +398,22 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 
 		loadCombatTalents(hero);
 
+		ImageView portrait = (ImageView) findViewById(R.id.gen_portrait);
+		portrait.setOnClickListener(this);
+		updatePortrait(hero);
+
 		hero.addModifierChangedListener(this);
-		hero.addValueChangedListener(this);
+
+	}
+
+	protected void updatePortrait(Hero hero) {
+		ImageView portrait = (ImageView) findViewById(R.id.gen_portrait);
+
+		Drawable drawable = hero.getPortrait();
+		if (drawable != null)
+			portrait.setImageDrawable(drawable);
+		else
+			portrait.setImageResource(R.drawable.profile_blank);
 	}
 
 	/*
@@ -309,7 +426,6 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 	protected void onHeroUnloaded(Hero hero) {
 		super.onHeroLoaded(hero);
 		hero.removeModifierChangedListener(this);
-		hero.removeValueChangeListener(this);
 	}
 
 	/**
@@ -337,7 +453,7 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 				} else {
 					first = false;
 				}
-				stringBuilder.append(advantage.getName());
+				stringBuilder.append(advantage.toString());
 				if (showComments && !TextUtils.isEmpty(advantage.getComment())) {
 					stringBuilder.appendColor(Color.GRAY, " (");
 					stringBuilder.appendColor(Color.GRAY, advantage.getComment());
@@ -354,17 +470,17 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 			stringBuilder.appendBold(": ");
 
 			boolean first = true;
-			for (Advantage advantage : hero.getDisadvantages()) {
+			for (Advantage disadvantage : hero.getDisadvantages()) {
 
 				if (!first) {
 					stringBuilder.append(", ");
 				} else {
 					first = false;
 				}
-				stringBuilder.append(advantage.getName());
-				if (showComments && !TextUtils.isEmpty(advantage.getComment())) {
+				stringBuilder.append(disadvantage.toString());
+				if (showComments && !TextUtils.isEmpty(disadvantage.getComment())) {
 					stringBuilder.appendColor(Color.GRAY, " (");
-					stringBuilder.appendColor(Color.GRAY, advantage.getComment());
+					stringBuilder.appendColor(Color.GRAY, disadvantage.getComment());
 					stringBuilder.appendColor(Color.GRAY, ")");
 				}
 
@@ -457,10 +573,12 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 
 	}
 
-	public void setPortraitFile(String drawableId) {
+	public void setPortraitFile(String drawableName) {
 		Editor editor = preferences.edit();
-		editor.putString(getHero().getPath(), drawableId);
+		editor.putString(getHero().getPath(), drawableName);
 		editor.commit();
+
+		updatePortrait(getHero());
 	}
 
 }

@@ -1,4 +1,4 @@
-﻿/**
+/**
  *  This file is part of DsaTab.
  *
  *  DsaTab is free software: you can redistribute it and/or modify
@@ -188,6 +188,12 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 		findViewById(R.id.gen_tab_fight).setOnClickListener(this);
 		findViewById(R.id.gen_tab_fight).setSelected(getClass().equals(MainFightActivity.class));
 		findViewById(R.id.gen_tab_coins).setOnClickListener(this);
+		findViewById(R.id.gen_tab_items).setSelected(getClass().equals(ItemsActivity.class));
+		findViewById(R.id.gen_tab_items).setOnClickListener(this);
+		findViewById(R.id.gen_tab_notes).setSelected(getClass().equals(NotesActivity.class));
+		findViewById(R.id.gen_tab_notes).setOnClickListener(this);
+		findViewById(R.id.gen_tab_maps).setSelected(getClass().equals(MapActivity.class));
+		findViewById(R.id.gen_tab_maps).setOnClickListener(this);
 	}
 
 	public void onClick(View v) {
@@ -224,10 +230,20 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 			}
 			break;
 		case R.id.gen_tab_coins:
-			PurseDialog dialog = new PurseDialog(this);
+			PurseDialog dialog = new PurseDialog(this, getHero());
 			dialog.show();
 			break;
 
+		case R.id.gen_tab_items:
+			startItems();
+			break;
+		case R.id.gen_tab_maps:
+			startMap();
+			break;
+
+		case R.id.gen_tab_notes:
+			startNotes();
+			break;
 		}
 	}
 
@@ -259,6 +275,18 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 			findViewById(R.id.gen_tab_magic).setVisibility(View.VISIBLE);
 		}
 
+		hero.addValueChangedListener(this);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.activity.BaseMenuActivity#onHeroUnloaded(com.dsatab.data.Hero)
+	 */
+	@Override
+	protected void onHeroUnloaded(Hero hero) {
+		hero.removeValueChangeListener(this);
 	}
 
 	protected void fillAttributesList(View view) {
@@ -321,24 +349,35 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 	}
 
 	public void showEditPopup(Value value) {
-		InlineEditDialog inlineEditdialog = new InlineEditDialog(this, value);
-		inlineEditdialog.setOnValueChangedListener(this);
-		inlineEditdialog.setTitle(value.getName());
-		inlineEditdialog.show();
+
+		if (DSATabApplication.isLiteVersion()) {
+			tease("<strong>Mal eben schnell einen Wert steigern?</strong> Mit der Vollversion von DsaTab können Eigenschaften, Talente, Zauber, Rüstungsschutz und noch vieles mehr einfach und bequem editiert werden. Getätigte Änderungen werden in der XML Datei nachgezogen und können somit auch wieder in die Helden-Software importiert werden, falls notwendig. ");
+		} else {
+			InlineEditDialog inlineEditdialog = new InlineEditDialog(this, value);
+			inlineEditdialog.setTitle(value.getName());
+			inlineEditdialog.show();
+		}
 	}
 
 	protected void fillAttributeValue(TextView tv, AttributeType type) {
+		fillAttributeValue(tv, type, null);
+	}
+
+	protected void fillAttributeValue(TextView tv, AttributeType type, String prefix) {
 		if (getHero() == null)
 			return;
 		Attribute attribute = getHero().getAttribute(type);
 		if (attribute != null) {
-			Util.setText(tv, attribute);
+
+			Util.setText(tv, attribute, prefix);
 			tv.setTag(attribute);
 
 			if (!tv.isLongClickable()) {
 
-				if (type == AttributeType.Lebensenergie || type == AttributeType.Karmaenergie
-						|| type == AttributeType.Astralenergie || type == AttributeType.Ausdauer
+				if (type == AttributeType.Lebensenergie || type == AttributeType.Lebensenergie_Total
+						|| type == AttributeType.Karmaenergie || type == AttributeType.Karmaenergie_Total
+						|| type == AttributeType.Astralenergie || type == AttributeType.Astralenergie_Total
+						|| type == AttributeType.Ausdauer || type == AttributeType.Ausdauer_Total
 						|| type == AttributeType.Behinderung) {
 					tv.setOnClickListener(editListener);
 				} else if (type.probable()) {

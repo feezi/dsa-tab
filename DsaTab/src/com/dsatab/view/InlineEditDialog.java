@@ -1,4 +1,4 @@
-﻿package com.dsatab.view;
+package com.dsatab.view;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -20,7 +20,6 @@ import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero.CombatStyle;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
-import com.dsatab.view.listener.ValueChangedListener;
 import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.view.NumberPicker;
 
@@ -34,8 +33,6 @@ public class InlineEditDialog extends Dialog implements android.view.View.OnClic
 	private SeekBar editSeek;
 	private Button editReset, editOk;
 	private ToggleButton combatStyleBtn;
-
-	private ValueChangedListener onValueChangedListener = null;
 
 	public InlineEditDialog(Context context, Value value) {
 		super(context, R.style.EditDialog);
@@ -71,6 +68,7 @@ public class InlineEditDialog extends Dialog implements android.view.View.OnClic
 			combatStyleText.setVisibility(visible);
 			combatStyleBtn.setVisibility(visible);
 
+			editReset.setEnabled(value.getReferenceValue() != null);
 		}
 	}
 
@@ -96,14 +94,6 @@ public class InlineEditDialog extends Dialog implements android.view.View.OnClic
 		if (v == editOk) {
 			dismiss();
 		}
-	}
-
-	public ValueChangedListener getOnValueChangedListener() {
-		return onValueChangedListener;
-	}
-
-	public void setOnValueChangedListener(ValueChangedListener onValueChangedListener) {
-		this.onValueChangedListener = onValueChangedListener;
 	}
 
 	private void init() {
@@ -169,8 +159,6 @@ public class InlineEditDialog extends Dialog implements android.view.View.OnClic
 		try {
 			int currentValue = editText.getCurrent();
 			value.setValue(currentValue);
-
-			onValueChangedListener.onValueChanged(value);
 		} catch (NumberFormatException e) {
 			Debug.error(e);
 		}

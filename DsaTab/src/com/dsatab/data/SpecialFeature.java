@@ -1,4 +1,4 @@
-﻿package com.dsatab.data;
+package com.dsatab.data;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -43,6 +43,9 @@ public class SpecialFeature {
 	public static final String GLASKNOCHEN = "Glasknochen";
 	public static final String EISERN = "Eisern";
 	public static final String GEFAESS_DER_STERNE = "Gefäß der Sterne";
+
+	public static final String KAMPFREFLEXE = "Kampfreflexe";
+	public static final String KAMPFGESPUER = "Kampfgespür";
 
 	private String name, kultur, gegenstand;
 

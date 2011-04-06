@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2010 Gandulf Kohlweiss
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms
@@ -195,6 +195,7 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 		mWorkspace.setHapticFeedbackEnabled(false);
 
 		mDeleteZone = (DeleteZone) dragLayer.findViewById(R.id.delete_zone);
+		mDeleteZone.setOrientation(DeleteZone.ORIENTATION_HORIZONTAL);
 
 		mPreviousView = (ImageView) dragLayer.findViewById(R.id.previous_screen);
 		mNextView = (ImageView) dragLayer.findViewById(R.id.next_screen);
@@ -331,12 +332,14 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 	}
 
 	private void selectItem(ItemCard item, CellLayout.CellInfo cellInfo) {
-
-		selectedItem = item.getItem();
+		if (item != null)
+			selectedItem = item.getItem();
+		else
+			selectedItem = null;
 
 		Intent intent = new Intent(this, ItemChooserActivity.class);
 
-		if (item != null) {
+		if (selectedItem != null) {
 			ItemType cardType = selectedItem.getType();
 
 			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_ID, selectedItem.getId());

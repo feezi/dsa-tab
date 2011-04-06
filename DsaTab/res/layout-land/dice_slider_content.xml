@@ -10,7 +10,7 @@
 
 	<LinearLayout android:layout_height="wrap_content"
 		android:layout_width="wrap_content"
-		android:layout_centerHorizontal="true" android:id="@+id/dice_dices" android:layout_toRightOf="@+id/dice_probe_table" android:layout_alignParentRight="true" android:gravity="center_horizontal" android:layout_alignWithParentIfMissing="true" android:layout_alignParentTop="true">
+		android:layout_centerHorizontal="true" android:id="@+id/dice_dices" android:layout_alignParentRight="true" android:gravity="center_horizontal" android:layout_alignWithParentIfMissing="true" android:layout_alignParentTop="true" android:layout_toRightOf="@+id/dice_info">
 		<ImageView android:id="@+id/dice_w20" android:src="@drawable/w20" android:layout_marginRight="5dip" android:layout_width="@dimen/dice_size" android:layout_height="@dimen/dice_size" android:scaleType="fitCenter"></ImageView>
 		<ImageView android:id="@+id/dice_w6"
 			android:src="@drawable/w6_6" android:layout_marginLeft="5dip" android:layout_height="@dimen/dice_size" android:layout_width="@dimen/dice_size" android:scaleType="fitCenter"></ImageView><ImageView android:layout_marginLeft="5dip" android:soundEffectsEnabled="false" android:id="@+id/dice_area" android:visibility="gone" android:src="@drawable/icon_dummy" android:scaleType="fitCenter" android:layout_height="@dimen/dice_size" android:layout_width="@dimen/dice_size"></ImageView>
@@ -32,6 +32,7 @@
 
 </TableRow>
 </TableLayout>
+<ImageButton android:layout_height="wrap_content" android:id="@+id/dice_info" android:src="@android:drawable/ic_menu_info_details" android:layout_width="wrap_content" android:background="@null" android:scaleType="fitCenter" android:layout_toRightOf="@+id/dice_probe_table"></ImageButton>
 
 
 

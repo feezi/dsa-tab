@@ -32,7 +32,9 @@
 		<ImageButton android:layout_height="@dimen/tab_icon_size" android:layout_width="@dimen/tab_icon_size"
 			android:padding="@dimen/tab_icon_padding"
 			android:id="@+id/gen_tab_coins" style="@style/IconButton" android:src="@drawable/icon_coins"></ImageButton>	
-
+<ImageButton android:padding="@dimen/tab_icon_padding" style="@style/IconButton" android:layout_width="@dimen/tab_icon_size" android:layout_height="@dimen/tab_icon_size" android:id="@+id/gen_tab_items" android:src="@drawable/icon_items"></ImageButton>
+		<ImageButton android:padding="@dimen/tab_icon_padding" style="@style/IconButton" android:layout_width="@dimen/tab_icon_size" android:layout_height="@dimen/tab_icon_size" android:id="@+id/gen_tab_notes" android:src="@drawable/icon_notes"></ImageButton>
+		<ImageButton android:padding="@dimen/tab_icon_padding" style="@style/IconButton" android:layout_width="@dimen/tab_icon_size" android:layout_height="@dimen/tab_icon_size" android:id="@+id/gen_tab_maps" android:src="@drawable/icon_map"></ImageButton>
 	</LinearLayout>
 	<com.gandulf.guilib.view.ViewFlipperFix
 		android:layout_above="@+id/gen_name" android:layout_height="fill_parent"

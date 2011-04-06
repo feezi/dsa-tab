@@ -1,4 +1,4 @@
-﻿package com.dsatab.common;
+package com.dsatab.common;
 
 import android.view.MotionEvent;
 

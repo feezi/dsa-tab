@@ -1,4 +1,4 @@
-﻿package com.dsatab.xml;
+package com.dsatab.xml;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

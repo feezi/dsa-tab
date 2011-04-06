@@ -1,4 +1,4 @@
-﻿package com.dsatab.view;
+package com.dsatab.view;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

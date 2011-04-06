@@ -1,4 +1,4 @@
-﻿package com.dsatab.view;
+package com.dsatab.view;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2010 Gandulf Kohlweiss
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms
@@ -29,6 +29,7 @@ import android.webkit.WebView;
 
 import com.dsatab.R;
 import com.dsatab.activity.DsaTabConfiguration.ArmorType;
+import com.dsatab.view.VersionInfoDialog;
 import com.gandulf.guilib.util.Downloader;
 
 public class DsaPreferenceActivity extends PreferenceActivity {
@@ -54,6 +55,10 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 	public static final String KEY_DOWNLOAD_ITEMS = "downloadItems";
 
 	public static final String KEY_CREDITS = "credits";
+
+	public static final String KEY_INFOS = "infos";
+
+	public static final String KEY_NEWS_VERSION = "newsversion";
 
 	public static final String PATH_MAPS = "http://dl.dropbox.com/u/15750588/dsatab-maps.zip";
 	public static final String PATH_ITEMS = "http://dl.dropbox.com/u/15750588/dsatab-items.zip";
@@ -131,6 +136,10 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 				}
 			});
 			builder.show();
+		} else if (preference.getKey().equals(KEY_INFOS)) {
+			VersionInfoDialog newsDialog = new VersionInfoDialog(this);
+			newsDialog.setSeenVersion(-1);
+			newsDialog.show();
 		}
 
 		return super.onPreferenceTreeClick(preferenceScreen, preference);

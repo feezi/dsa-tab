@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2010 Gandulf Kohlweiss
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms
@@ -30,6 +30,7 @@ import android.view.MenuItem;
 
 import com.dsatab.R;
 import com.dsatab.data.Hero;
+import com.dsatab.view.LiteInfoDialog;
 import com.gandulf.guilib.util.Debug;
 
 public abstract class BaseMenuActivity extends Activity {
@@ -41,6 +42,8 @@ public abstract class BaseMenuActivity extends Activity {
 	protected static final int ACTION_CHOOSE_HERO = 4;
 
 	protected SharedPreferences preferences;
+
+	protected LiteInfoDialog liteFeatureTeaser;
 
 	public BaseMenuActivity() {
 
@@ -134,6 +137,15 @@ public abstract class BaseMenuActivity extends Activity {
 		return true;
 	}
 
+	protected void tease(String feature) {
+		if (liteFeatureTeaser == null) {
+			liteFeatureTeaser = new LiteInfoDialog(this);
+			liteFeatureTeaser.setOwnerActivity(this);
+		}
+		liteFeatureTeaser.setFeature(feature);
+		liteFeatureTeaser.show();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -163,20 +175,53 @@ public abstract class BaseMenuActivity extends Activity {
 			startActivityForResult(new Intent(this, DsaPreferenceActivity.class), ACTION_PREFERENCES);
 			return true;
 		} else if (item.getItemId() == R.id.option_map) {
-			startActivity(new Intent(this, MapActivity.class));
+			startMap();
 			return true;
 		} else if (item.getItemId() == R.id.option_notes) {
-			if (!getClass().equals(NotesActivity.class)) {
-				startActivity(new Intent(this, NotesActivity.class));
-			}
+			startNotes();
 			return true;
 		} else if (item.getItemId() == R.id.option_items) {
-			if (!getClass().equals(ItemsActivity.class)) {
-				startActivityForResult(new Intent(this, ItemsActivity.class), ACTION_INVENTORY);
-			}
+			startItems();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	/**
+	 * 
+	 */
+	protected void startMap() {
+		if (!getClass().equals(MapActivity.class)) {
+			if (DSATabApplication.isLiteVersion())
+				tease("<strong>Nie wieder nach einer bestimmten Karte suchen.</strong> Schau dir all deine Karten bequem über DsaTab an. <br/><br/> <em>Achtung:</em> Das Kartenmaterial selbst ist nicht in DsaTab enthalten und muss eingescannt oder aus dem Internet heruntergeladen werden.");
+			else
+				startActivity(new Intent(this, MapActivity.class));
+		}
+
+	}
+
+	/**
+	 * 
+	 */
+	protected void startItems() {
+		if (!getClass().equals(ItemsActivity.class)) {
+			if (DSATabApplication.isLiteVersion())
+				tease("<strong>Mal eben schnell deine Ausrüstung wechseln?.</strong> Hier kannst du deine gesamte Ausrüstung bequem verwalten. Einen neuen Gegenstand hinzufügen? Kein Problem DsaTab verfügt über die wichtigsten Daten des gesamten Aventurischen Arsenals und noch viele zusätzliche nützliche Gegenstände mehr.");
+			else
+				startActivityForResult(new Intent(this, ItemsActivity.class), ACTION_INVENTORY);
+		}
+
+	}
+
+	protected void startNotes() {
+		if (!getClass().equals(NotesActivity.class)) {
+
+			if (DSATabApplication.isLiteVersion())
+				tease("<strong>Nie wieder einen wichtigen Hinweis vergessen.</strong> Du kannst jetzt notizen entweder aufschreiben, oder noch bequemer einfach über das eingebaute Mikrofon aufnehmen und dann abspielen.");
+			else
+				startActivity(new Intent(this, NotesActivity.class));
+
+		}
 	}
 
 	protected void showHeroChooser() {

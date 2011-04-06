@@ -1,4 +1,4 @@
-﻿package com.dsatab.data;
+package com.dsatab.data;
 
 import org.w3c.dom.Element;
 
@@ -31,10 +31,17 @@ public class Attribute implements Probe, Value {
 	}
 
 	public Attribute(Element element, Hero hero) {
+		this(element, null, hero);
+	}
+
+	public Attribute(Element element, AttributeType type, Hero hero) {
 		this.element = element;
 		this.hero = hero;
 
-		type = AttributeType.valueOf(element.getAttribute(Xml.KEY_NAME));
+		if (type == null)
+			type = AttributeType.valueOf(element.getAttribute(Xml.KEY_NAME));
+
+		this.type = type;
 
 		referenceValue = getCoreValue();
 
@@ -60,6 +67,14 @@ public class Attribute implements Probe, Value {
 			return "Fernkampf Basiswert";
 		case ini:
 			return "Initiative";
+		case Lebensenergie:
+			return "Lebensenergie aktuell";
+		case Ausdauer:
+			return "Ausdauer aktuell";
+		case Astralenergie:
+			return "Astralenergie aktuell";
+		case Karmaenergie:
+			return "Karmaenergie aktuell";
 		default:
 			return element.getAttribute(Xml.KEY_NAME);
 		}
@@ -84,7 +99,7 @@ public class Attribute implements Probe, Value {
 	}
 
 	public Integer getValue() {
-		if (element.hasAttribute(Xml.KEY_DSATAB_VALUE)) {
+		if (isDSATabValue() && element.hasAttribute(Xml.KEY_DSATAB_VALUE)) {
 			return Integer.parseInt(element.getAttribute(Xml.KEY_DSATAB_VALUE));
 		} else {
 			return getCoreValue();
@@ -134,11 +149,6 @@ public class Attribute implements Probe, Value {
 	public void setValue(Integer value) {
 		if (value != null) {
 
-			double oldLe = 0;
-			if (type == AttributeType.Lebensenergie) {
-				oldLe = hero.getLeRatio();
-			}
-
 			if (isDSATabValue()) {
 				element.setAttribute(Xml.KEY_DSATAB_VALUE, value.toString());
 			} else {
@@ -148,25 +158,10 @@ public class Attribute implements Probe, Value {
 				element.setAttribute(Xml.KEY_VALUE, Integer.toString(value - getBaseValue()));
 			}
 
-			if (type == AttributeType.Lebensenergie) {
-
-				double newLe = hero.getLeRatio();
-
-				if (oldLe >= 0.5 && newLe < 0.5)
-					hero.fireModifierAddedEvent(hero.leModifier);
-				else if (oldLe < 0.5 && newLe >= 0.5)
-					hero.fireModifierRemovedEvent(hero.leModifier);
-				else if (oldLe < 0.25 && newLe >= 0.25)
-					hero.fireModifierChangedEvent(hero.leModifier);
-				else if (oldLe < 0.33 && (newLe >= 0.33 || newLe < 0.25))
-					hero.fireModifierChangedEvent(hero.leModifier);
-				else if (oldLe < 0.5 && newLe < 0.33)
-					hero.fireModifierChangedEvent(hero.leModifier);
-
-			}
-
 		} else
 			element.removeAttribute(Xml.KEY_VALUE);
+
+		hero.fireValueChangedEvent(this);
 	}
 
 	private boolean isDSATabValue() {
@@ -179,11 +174,11 @@ public class Attribute implements Probe, Value {
 		int baseValue = 0;
 
 		if (hero != null) {
-			if (type == AttributeType.Lebensenergie) {
+			if (type == AttributeType.Lebensenergie || type == AttributeType.Lebensenergie_Total) {
 				baseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Konstitution) * 2 + hero
 						.getAttributeValue(AttributeType.Körperkraft)) / 2.0);
 
-			} else if (type == AttributeType.Astralenergie) {
+			} else if (type == AttributeType.Astralenergie || type == AttributeType.Astralenergie_Total) {
 
 				if (hero.hasFeature(SpecialFeature.GEFAESS_DER_STERNE)) {
 					baseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
@@ -196,7 +191,7 @@ public class Attribute implements Probe, Value {
 							.getAttributeValue(AttributeType.Charisma)) / 2.0);
 				}
 
-			} else if (type == AttributeType.Ausdauer) {
+			} else if (type == AttributeType.Ausdauer || type == AttributeType.Ausdauer_Total) {
 				baseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
 						+ hero.getAttributeValue(AttributeType.Konstitution) + hero
 						.getAttributeValue(AttributeType.Gewandtheit)) / 2.0);
@@ -211,6 +206,10 @@ public class Attribute implements Probe, Value {
 		}
 
 		return baseValue;
+	}
+
+	public void setReferenceValue(Integer referenceValue) {
+		this.referenceValue = referenceValue;
 	}
 
 	public Integer getReferenceValue() {
@@ -240,6 +239,12 @@ public class Attribute implements Probe, Value {
 			int ge = hero.getAttributeValue(AttributeType.Gewandtheit);
 			return (int) Math.round((mu + mu + in + ge) / 5.0);
 		}
+
+		case Ausdauer_Total:
+		case Karmaenergie_Total:
+		case Astralenergie_Total:
+		case Lebensenergie_Total:
+			return null;
 		case Behinderung:
 			return hero.getArmorBe();
 		default:
@@ -261,19 +266,19 @@ public class Attribute implements Probe, Value {
 
 		switch (type) {
 		case Lebensenergie:
-			max = hero.getAttribute(AttributeType.Lebensenergie).getReferenceValue();
+			max = hero.getAttributeValue(AttributeType.Lebensenergie_Total);
 			break;
 		case Astralenergie:
-			max = hero.getAttribute(AttributeType.Astralenergie).getReferenceValue();
+			max = hero.getAttributeValue(AttributeType.Astralenergie_Total);
 			break;
 		case Ausdauer:
-			max = hero.getAttribute(AttributeType.Ausdauer).getReferenceValue();
+			max = hero.getAttributeValue(AttributeType.Ausdauer_Total);
 			break;
 		case Karmaenergie:
-			max = hero.getAttribute(AttributeType.Karmaenergie).getReferenceValue();
+			max = hero.getAttributeValue(AttributeType.Karmaenergie_Total);
 			break;
 		case Behinderung:
-			max = 10;
+			max = 15;
 			break;
 		case Mut:
 		case Klugheit:
@@ -284,6 +289,12 @@ public class Attribute implements Probe, Value {
 		case Konstitution:
 		case Körperkraft:
 			max = 25;
+			break;
+		case Lebensenergie_Total:
+		case Astralenergie_Total:
+		case Ausdauer_Total:
+		case Karmaenergie_Total:
+			max = 200;
 			break;
 		default:
 			max = 99;

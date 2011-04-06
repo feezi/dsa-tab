@@ -1,30 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/gen_tab_layout"
-	android:layout_width="fill_parent" android:orientation="horizontal"
-	android:layout_alignParentBottom="true" android:gravity="bottom|left"
-	android:background="@drawable/bg_tab_nonland" android:layout_height="wrap_content">
-	
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"  
+	android:layout_width="fill_parent" android:layout_height="wrap_content"
+	android:background="@drawable/bg_tab_nonland" android:layout_gravity="bottom|left" android:fillViewport="true" android:scrollbars="none" android:fadingEdge="none" android:scrollbarSize="0dp">
+<LinearLayout 
+	android:id="@+id/gen_tab_layout" android:layout_width="fill_parent"
+	android:orientation="horizontal" android:gravity="bottom|left"  android:layout_height="wrap_content" android:layout_gravity="bottom|left">
+    
+    
+    
+
 	<ImageButton android:id="@+id/gen_tab_char"
 		android:layout_height="@dimen/tab_icon_size" android:layout_width="@dimen/tab_icon_size"
-		android:padding="@dimen/tab_icon_padding" android:src="@drawable/icon_attributes" style="@style/IconButton"></ImageButton>			
+		android:padding="@dimen/tab_icon_padding" android:src="@drawable/icon_attributes"
+		style="@style/IconButton"></ImageButton>
 	<ImageButton android:id="@+id/gen_tab_talents"
 		android:layout_height="@dimen/tab_icon_size" android:layout_width="@dimen/tab_icon_size"
-		android:padding="@dimen/tab_icon_padding"
-		style="@style/IconButton" android:src="@drawable/icon_character"></ImageButton>
+		android:padding="@dimen/tab_icon_padding" style="@style/IconButton"
+		android:src="@drawable/icon_character"></ImageButton>
 	<ImageButton android:id="@+id/gen_tab_magic"
 		android:layout_height="@dimen/tab_icon_size" android:layout_width="@dimen/tab_icon_size"
-		android:padding="@dimen/tab_icon_padding"
-		style="@style/IconButton" android:src="@drawable/icon_magic"></ImageButton>
+		android:padding="@dimen/tab_icon_padding" style="@style/IconButton"
+		android:src="@drawable/icon_magic"></ImageButton>
 	<ImageButton android:layout_height="@dimen/tab_icon_size"
 		android:layout_width="@dimen/tab_icon_size" android:id="@+id/gen_tab_body"
-		 android:padding="@dimen/tab_icon_padding" style="@style/IconButton" android:src="@drawable/icon_wound"></ImageButton>
+		android:padding="@dimen/tab_icon_padding" style="@style/IconButton"
+		android:src="@drawable/icon_wound"></ImageButton>
 	<ImageButton android:layout_height="@dimen/tab_icon_size"
-		android:layout_width="@dimen/tab_icon_size" 
-		android:padding="@dimen/tab_icon_padding" android:id="@+id/gen_tab_fight" style="@style/IconButton" android:src="@drawable/icon_fight"></ImageButton>
-	<ImageButton android:layout_height="@dimen/tab_icon_size" android:layout_width="@dimen/tab_icon_size"
-		android:padding="@dimen/tab_icon_padding"
+		android:layout_width="@dimen/tab_icon_size" android:padding="@dimen/tab_icon_padding"
+		android:id="@+id/gen_tab_fight" style="@style/IconButton" android:src="@drawable/icon_fight"></ImageButton>
+	<ImageButton android:layout_height="@dimen/tab_icon_size"
+		android:layout_width="@dimen/tab_icon_size" android:padding="@dimen/tab_icon_padding"
 		android:id="@+id/gen_tab_coins" style="@style/IconButton" android:src="@drawable/icon_coins"></ImageButton>
-
+	<ImageButton android:padding="@dimen/tab_icon_padding"
+		style="@style/IconButton" android:layout_width="@dimen/tab_icon_size"
+		android:layout_height="@dimen/tab_icon_size" android:id="@+id/gen_tab_items"
+		android:src="@drawable/icon_items"></ImageButton>
+	<ImageButton android:padding="@dimen/tab_icon_padding"
+		style="@style/IconButton" android:layout_width="@dimen/tab_icon_size"
+		android:layout_height="@dimen/tab_icon_size" android:id="@+id/gen_tab_notes"
+		android:src="@drawable/icon_notes"></ImageButton>
+	<ImageButton android:padding="@dimen/tab_icon_padding"
+		style="@style/IconButton" android:layout_width="@dimen/tab_icon_size"
+		android:layout_height="@dimen/tab_icon_size" android:id="@+id/gen_tab_maps"
+		android:src="@drawable/icon_map"></ImageButton>
 </LinearLayout>
-	
+</HorizontalScrollView>	
 		

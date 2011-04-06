@@ -1,4 +1,4 @@
-﻿package com.dsatab.data.items;
+package com.dsatab.data.items;
 
 import java.io.File;
 

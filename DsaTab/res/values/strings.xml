@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="label_haar_augen_farbe">Haar-/ Augen</string>
+    <string name="label_haar_augen_farbe">Haar,Augen</string>
     <string name="label_alter">Alter</string>
     <string name="label_ausbildung">Ausbildung</string>
     <string name="label_gewicht">Gewicht</string>
@@ -31,6 +31,9 @@
     <string name="label_au">AU</string>
     <string name="label_le">LE</string>    
     
+    <string name="label_buy_app">App kaufen</string>
+    <string name="label_no_thanks">Nein danke</string>
+    
     <string name="hero_loaded">%s geladen</string>
     <string name="hero_saved">%s gespeichert</string>
     
@@ -38,6 +41,7 @@
     <string name="menu_assign_secondary_weapon">Zweitwaffe zuweisen</string>
     
     <string name="app_name">DsaTab</string>
+    <string name="app_name_lite">DsaTab Lite</string>
     
     <string name="offensive">Offensive</string>
     <string name="defensive">Defensive</string>
@@ -103,4 +107,34 @@ Extern herunterladbarer Inhalt:
 <p>[Benutzte Begriffe, also etwa Das Schwarze Auge, Aventurien, Myranor, Armalion ...] sind eingetragene Warenzeichen von Fantasy Productions GmbH, Erkrath. Copyright by Fantasy Productions GmbH. Diese Website enth&auml;lt nichtoffizielle Informationen zum Rollenspiel "Das Schwarze Auge" und zur Welt "Aventurien" [bzw. "Myranor"]. Diese Informationen k&ouml;nnen im Widerspruch zu offiziell publizierten Texten stehen; bei Fragen zu dieser Seite wendet Euch bitte an gandulf.k et gmail.com</p> 
 ]]>
 </string>
+
+<string name="lite_title">DsaTab Lite</string>
+<string name="lite_info">
+<![CDATA[
+<p>Mit der Lite Version kannst du dir die Wert deines Helden ansehen und Proben ohne Modifikatoren w&uuml;rfeln.</p>
+
+<p>Falls du auch die <string>zus&auml;tzlichen Features</strong> nutzen willst oder mich bei der Entwicklung von DsaTab unterstützen willst, kauf dir die Vollversion im <a href="market://market.android.com/details?id=com.dsatab">Android Market</a> oder über <a href="http://www.androidpit.de/de/android/market/apps/app/com.dsatab/DsaTab">AndroidPIT</a> falls du mit <b>PayPal</b> zahlen willst.</p>
+ 
+<a href="market://market.android.com/details?id=com.dsatab"><img src="file:///android_asset/badge.png"></a>
+
+<a href="http://www.androidpit.de/de/android/market/apps/app/com.dsatab/DsaTab"><img src="file:///android_asset/badge_paypal.png"></a>
+]]>
+</string>
+
+
+<string name="lite_feature_teaser_title">Willst du mehr?</string>
+<string name="lite_feature_teaser">
+<![CDATA[
+
+<p>%1$s</p>
+ 
+<h3>Hol dir jetzt die Vollversion:</h3>
+<a href="market://market.android.com/details?id=com.dsatab"><img src="file:///android_asset/badge.png"></a>
+
+<a href="http://www.androidpit.de/de/android/market/apps/app/com.dsatab/DsaTab"><img src="file:///android_asset/badge_paypal.png"></a>
+]]>
+</string>
+
+<string name="news_title">Informationen</string>
+
 </resources>

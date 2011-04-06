@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<color name="Disabled">#AAAAAAAA</color>
+
 	<color name="Darker">#AA000000</color>
 	<color name="Brighter">#AAFFFFFF</color>
 	

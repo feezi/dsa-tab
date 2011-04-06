@@ -1,4 +1,4 @@
-﻿package com.dsatab.view.drag;
+package com.dsatab.view.drag;
 
 import android.graphics.MaskFilter;
 

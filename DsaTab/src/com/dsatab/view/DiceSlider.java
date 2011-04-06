@@ -1,4 +1,4 @@
-﻿package com.dsatab.view;
+package com.dsatab.view;
 
 import java.security.SecureRandom;
 import java.text.NumberFormat;
@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SlidingDrawer;
@@ -59,6 +60,8 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 	private TextView tfDiceTalent, tfDiceTalentValue, tfDiceProbesAttr, tfDiceProbesAttrValues, tfEffect,
 			tfEffectValue;
 	private ImageView tfDice20, tfDice6, tfArea;
+
+	private ImageButton info;
 
 	private LinearLayout linDiceResult;
 
@@ -109,78 +112,102 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 			rollDice20();
 		}
 
-		if (v.getId() == R.id.dice_probe_table) {
+		if (v.getId() == R.id.dice_probe_table || v.getId() == R.id.dice_info) {
 
-			AlertDialog.Builder builder;
-			AlertDialog alertDialog;
+			if (DSATabApplication.isLiteVersion()) {
+				LiteInfoDialog dialog = new LiteInfoDialog(getContext());
+				dialog.setFeature("<strong>Keine Lust mehr dir alle Einbußen und Modifikatoren zu merken?</strong> Die Vollversion kümmert sich ab jetzt für dich darum. Egal ob Einbußen durch zu niedrige Lebensenergie, Wunden, Waffen-Modifikatoren, Behinderung oder weiss der Meister was. DsaTab berücksichtigt das bei jeder Probe automatisch. Zusätzlich kannst du eine Probe noch um einen beliebigen Wert erleichtern oder erschweren.");
+				dialog.show();
+			} else {
 
-			LayoutInflater inflater = LayoutInflater.from(getContext());
-			View layout = inflater.inflate(R.layout.popup_probe_info, null, false);
-			LinearLayout linearLayout = (LinearLayout) layout.findViewById(R.id.popup_probe_layout);
+				AlertDialog.Builder builder;
+				AlertDialog alertDialog;
 
-			StyleableSpannableStringBuilder stringBuilder = new StyleableSpannableStringBuilder();
+				LayoutInflater inflater = LayoutInflater.from(getContext());
+				LinearLayout linearLayout = (LinearLayout) inflater.inflate(R.layout.popup_probe_info, null, false);
 
-			for (Modifier mod : modifiers) {
+				StyleableSpannableStringBuilder stringBuilder = new StyleableSpannableStringBuilder();
 
-				if (mod == manualModifer)
-					continue;
+				for (Modifier mod : modifiers) {
 
-				View listItem = inflater.inflate(R.layout.popup_probe_list_item, linearLayout, false);
+					if (mod == manualModifer)
+						continue;
 
-				TextView text1 = (TextView) listItem.findViewById(R.id.popup_probelist_item_text1);
-				text1.setText(mod.getTitle());
+					View listItem = inflater.inflate(R.layout.popup_probe_list_item, linearLayout, false);
 
-				TextView text2 = (TextView) listItem.findViewById(R.id.popup_probelist_item_text2);
+					TextView text1 = (TextView) listItem.findViewById(R.id.popup_probelist_item_text1);
+					text1.setText(mod.getTitle());
 
-				stringBuilder.clear();
+					TextView text2 = (TextView) listItem.findViewById(R.id.popup_probelist_item_text2);
 
-				if (mod.getModifier() < 0) {
-					stringBuilder.appendColor(Color.RED, Util.toProbe(-mod.getModifier()));
-				} else {
-					stringBuilder.appendColor(Color.GREEN, Util.toProbe(-mod.getModifier()));
-				}
-				text2.setText(stringBuilder.toString());
+					stringBuilder.clear();
 
-				linearLayout.addView(listItem);
-			}
-
-			// manual modifier
-			View editListItem = inflater.inflate(R.layout.popup_probe_manual_list_item, linearLayout, false);
-			final NumberPicker picker = (NumberPicker) editListItem.findViewById(R.id.popup_probelist_item_text2);
-			picker.setRange(-20, 20);
-			picker.setNegativeColor(Color.GREEN);
-			picker.setPositiveColor(Color.RED);
-
-			if (manualModifer == null) {
-				manualModifer = new Modifier(0, "Manuell", "Manuell");
-			}
-			TextView text1 = (TextView) editListItem.findViewById(R.id.popup_probelist_item_text1);
-			text1.setText(manualModifer.getTitle());
-
-			picker.setCurrent(-manualModifer.getModifier());
-
-			linearLayout.addView(editListItem);
-
-			// build
-			builder = new AlertDialog.Builder(getContext());
-			builder.setView(layout);
-			alertDialog = builder.create();
-			alertDialog.setCanceledOnTouchOutside(true);
-			alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-
-				@Override
-				public void onDismiss(DialogInterface dialog) {
-					int erschwernis = picker.getCurrent();
-
-					if (manualModifer == null) {
-						manualModifer = new Modifier(-erschwernis, "Manuell", "Manuell");
+					if (mod.getModifier() < 0) {
+						stringBuilder.appendColor(Color.RED, Util.toProbe(-mod.getModifier()));
 					} else {
-						manualModifer.setModifier(-erschwernis);
+						stringBuilder.appendColor(Color.GREEN, Util.toProbe(-mod.getModifier()));
 					}
-					checkProbe(probeInfo, manualModifer);
+					text2.setText(stringBuilder.toString());
+
+					linearLayout.addView(listItem);
 				}
-			});
-			alertDialog.show();
+
+				// manual modifier
+				View editListItem = inflater.inflate(R.layout.popup_probe_manual_list_item, linearLayout, false);
+				final NumberPicker picker = (NumberPicker) editListItem.findViewById(R.id.popup_probelist_item_text2);
+				picker.setRange(-20, 20);
+				picker.setNegativeColor(Color.GREEN);
+				picker.setPositiveColor(Color.RED);
+
+				if (manualModifer == null) {
+					manualModifer = new Modifier(0, "Manuell", "Manuell");
+				}
+				TextView text1 = (TextView) editListItem.findViewById(R.id.popup_probelist_item_text1);
+				text1.setText(manualModifer.getTitle());
+
+				picker.setCurrent(-manualModifer.getModifier());
+
+				linearLayout.addView(editListItem);
+
+				// build
+				builder = new AlertDialog.Builder(getContext());
+				builder.setView(linearLayout);
+				builder.setTitle("Probenzuschläge");
+				builder.setNeutralButton(getContext().getString(R.string.label_ok),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+							}
+						});
+				alertDialog = builder.create();
+				alertDialog.setCanceledOnTouchOutside(true);
+				alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+
+					@Override
+					public void onDismiss(DialogInterface dialog) {
+						int erschwernis = 0;
+						if (picker != null) {
+							erschwernis = picker.getCurrent();
+						}
+
+						if (manualModifer == null) {
+							if (erschwernis != 0) {
+								manualModifer = new Modifier(-erschwernis, "Manuell", "Manuell");
+							}
+						} else {
+							manualModifer.setModifier(-erschwernis);
+						}
+
+						if (manualModifer != null)
+							checkProbe(probeInfo, manualModifer);
+						else
+							checkProbe(probeInfo);
+					}
+				});
+				alertDialog.show();
+
+			}
 		}
 	}
 
@@ -196,6 +223,10 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 		tfDiceTalentValue = (TextView) findViewById(R.id.dice_talent_value);
 		tfDiceProbesAttr = (TextView) findViewById(R.id.dice_probe);
 		tfDiceProbesAttrValues = (TextView) findViewById(R.id.dice_value);
+
+		info = (ImageButton) findViewById(R.id.dice_info);
+		info.setOnClickListener(this);
+		info.setVisibility(View.INVISIBLE);
 
 		tfEffect = (TextView) findViewById(R.id.dice_effect);
 		tfEffectValue = (TextView) findViewById(R.id.dice_effect_value);
@@ -220,6 +251,7 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 
 			public void onDrawerClosed() {
 				tblDiceProbe.setVisibility(View.GONE);
+				info.setVisibility(View.INVISIBLE);
 			}
 		});
 
@@ -239,7 +271,7 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
-			if (preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_PROBABILITY, false)) {
+			if (probability != null && preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_PROBABILITY, false)) {
 				tfEffectValue.append(" " + probabilityFormat.format(probability));
 			}
 
@@ -308,7 +340,7 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 
 		int heroBe = hero.getBe(probe);
 
-		if (heroBe != 0) {
+		if (heroBe != 0 && !DSATabApplication.isLiteVersion()) {
 			modifiers.add(new Modifier(-1 * heroBe, "Behinderung " + probe.getBe(), null));
 		}
 
@@ -335,6 +367,7 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 
 		// --
 		tblDiceProbe.setVisibility(View.VISIBLE);
+		this.info.setVisibility(View.VISIBLE);
 		tfDiceTalent.setText(probe.getName());
 
 		if (probe.getProbeBonus() != null) {
@@ -373,9 +406,13 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 		if (probe instanceof Attribute) {
 			Attribute attribute = (Attribute) probe;
 			if (attribute.getType() == AttributeType.ini) {
-				int dice = rollDice6();
-				double effect = info.hero.getAttributeValue(AttributeType.ini) + dice - info.be;
+				if (info.dice[0] == null)
+					info.dice[0] = rollDice6();
+
+				double effect = info.hero.getAttributeValue(AttributeType.ini) + info.dice[0] + modifiersSum;
 				showEffect(false, false, effect, null, null);
+
+				info.hero.getAttribute(AttributeType.Initiative_Aktuell).setValue((int) effect);
 				return effect;
 			}
 		}
@@ -391,9 +428,9 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 			effect = 0.0;
 
 			int taw = 0;
-			if (probe.getProbeBonus() != null)
+			if (probe.getProbeBonus() != null) {
 				taw += probe.getProbeBonus();
-
+			}
 			taw += modifiersSum;
 
 			int valueModifier = 0;

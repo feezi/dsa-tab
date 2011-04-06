@@ -1,4 +1,4 @@
-﻿package com.dsatab.data;
+package com.dsatab.data;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -19,6 +19,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -38,6 +39,7 @@ import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
+import com.dsatab.data.modifier.AuModifier;
 import com.dsatab.data.modifier.LeModifier;
 import com.dsatab.data.modifier.Modificator;
 import com.dsatab.view.listener.ModifierChangedListener;
@@ -94,6 +96,7 @@ public class Hero {
 	private List<Modificator> modifiers = new LinkedList<Modificator>();
 
 	LeModifier leModifier;
+	AuModifier auModifier;
 
 	private Purse purse = null;
 
@@ -102,6 +105,8 @@ public class Hero {
 	private int activeSet = 0;
 
 	private List<File> deletableAudioFiles = new LinkedList<File>();
+
+	private Integer oldAuRatioLevel, oldLeRatioLevel;
 
 	public Hero(String path, Document dom) {
 		this.path = path;
@@ -113,10 +118,28 @@ public class Hero {
 		if (getLeRatio() < 0.5)
 			modifiers.add(leModifier);
 
+		this.auModifier = new AuModifier(this);
+		if (getLeRatio() < 0.33)
+			modifiers.add(auModifier);
+
 		for (WoundAttribute attr : getWounds().values()) {
 			if (attr.getValue() > 0)
 				modifiers.add(attr);
 		}
+
+	}
+
+	public Drawable getPortrait() {
+
+		SharedPreferences preferences = DSATabApplication.getPreferences();
+		String profileName = preferences.getString(getPath(), null);
+
+		Drawable drawable = null;
+		if (profileName != null) {
+			drawable = Drawable.createFromPath(DSATabApplication.getDsaTabPath() + "portraits/" + profileName);
+		}
+
+		return drawable;
 
 	}
 
@@ -151,15 +174,16 @@ public class Hero {
 		return purse;
 	}
 
-	public List<EquippedItem> getEquippedItems(Class<? extends Item> itemClass) {
+	public List<EquippedItem> getEquippedItems(Class<? extends Item>... itemClass) {
 
 		List<EquippedItem> items = new LinkedList<EquippedItem>();
 		for (EquippedItem ei : getEquippedItems()) {
-
 			Item item = ei.getItem();
-
-			if (itemClass.isAssignableFrom(item.getClass())) {
-				items.add(ei);
+			for (Class<? extends Item> clazz : itemClass) {
+				if (clazz.isAssignableFrom(item.getClass())) {
+					items.add(ei);
+					break;
+				}
 			}
 
 		}
@@ -197,7 +221,12 @@ public class Hero {
 				}
 
 				EquippedItem item = new EquippedItem(this, element);
-				equippedItems[selectedSet].add(item);
+
+				if (item.getItem() != null) {
+					equippedItems[selectedSet].add(item);
+				} else {
+					Debug.warning("Skipped EquippedItem because Item was not found: " + item.getItemName());
+				}
 			}
 
 			// handle bk elements
@@ -293,7 +322,19 @@ public class Hero {
 	public void setActiveSet(int activeSet) {
 		// if (activeSet != this.activeSet)
 		// equippedItems = null;
+
+		int heroBe = getAttributeValue(AttributeType.Behinderung);
+		int armorBe = getArmorBe();
+
+		boolean resetBe = heroBe == armorBe;
+
 		this.activeSet = activeSet;
+
+		if (resetBe) {
+			getAttribute(AttributeType.Behinderung).setValue(getArmorBe());
+
+			fireValueChangedEvent(getAttribute(AttributeType.Behinderung));
+		}
 	}
 
 	public void addModifierChangedListener(ModifierChangedListener listener) {
@@ -314,8 +355,31 @@ public class Hero {
 	}
 
 	public void fireValueChangedEvent(Value value) {
-		for (ValueChangedListener l : listener)
+		if (value instanceof Attribute) {
+
+			Attribute attribute = (Attribute) value;
+
+			if (attribute.getType() == AttributeType.Ausdauer) {
+				postAuRatioCheck();
+			} else if (attribute.getType() == AttributeType.Lebensenergie) {
+				postLeRatioCheck();
+			} else if (attribute.getType() == AttributeType.Lebensenergie_Total) {
+				getAttribute(AttributeType.Lebensenergie).setReferenceValue(value.getValue());
+				postLeRatioCheck();
+			} else if (attribute.getType() == AttributeType.Ausdauer_Total) {
+				getAttribute(AttributeType.Ausdauer).setReferenceValue(value.getValue());
+				postAuRatioCheck();
+			} else if (attribute.getType() == AttributeType.Astralenergie_Total) {
+				getAttribute(AttributeType.Astralenergie).setReferenceValue(value.getValue());
+			} else if (attribute.getType() == AttributeType.Karmaenergie_Total) {
+				getAttribute(AttributeType.Karmaenergie).setReferenceValue(value.getValue());
+			}
+		}
+
+		for (ValueChangedListener l : listener) {
 			l.onValueChanged(value);
+		}
+
 	}
 
 	void fireModifierChangedEvent(Modificator modifier) {
@@ -512,6 +576,20 @@ public class Hero {
 
 				Attribute attr = new Attribute(attributeElement, this);
 				this.attributes.put(attr.getType(), attr);
+
+				if (attr.getType() == AttributeType.Lebensenergie) {
+					Attribute attr2 = new Attribute(attributeElement, AttributeType.Lebensenergie_Total, this);
+					this.attributes.put(attr2.getType(), attr2);
+				} else if (attr.getType() == AttributeType.Ausdauer) {
+					Attribute attr2 = new Attribute(attributeElement, AttributeType.Ausdauer_Total, this);
+					this.attributes.put(attr2.getType(), attr2);
+				} else if (attr.getType() == AttributeType.Karmaenergie) {
+					Attribute attr2 = new Attribute(attributeElement, AttributeType.Karmaenergie_Total, this);
+					this.attributes.put(attr2.getType(), attr2);
+				} else if (attr.getType() == AttributeType.Astralenergie) {
+					Attribute attr2 = new Attribute(attributeElement, AttributeType.Astralenergie_Total, this);
+					this.attributes.put(attr2.getType(), attr2);
+				}
 			}
 
 			if (!this.attributes.containsKey(AttributeType.Behinderung)) {
@@ -528,6 +606,15 @@ public class Hero {
 				element.setAttribute(Xml.KEY_NAME, AttributeType.Ausweichen.name());
 				getHeldElement().appendChild(element);
 				this.attributes.put(AttributeType.Ausweichen, new Attribute(element, this));
+			}
+
+			if (!this.attributes.containsKey(AttributeType.Initiative_Aktuell)) {
+
+				Element element = dom.createElement(Xml.KEY_EIGENSCHAFT);
+				element.setAttribute(Xml.KEY_NAME, AttributeType.Initiative_Aktuell.name());
+				element.setAttribute(Xml.KEY_VALUE, "0");
+				getHeldElement().appendChild(element);
+				this.attributes.put(AttributeType.Initiative_Aktuell, new Attribute(element, this));
 			}
 
 			attribute = this.attributes.get(type);
@@ -725,6 +812,53 @@ public class Hero {
 		return Integer.parseInt(experience.getAttribute(Xml.KEY_VALUE));
 	}
 
+	protected void postLeRatioCheck() {
+
+		double newLeRatioCheck = getLeRatio();
+
+		int newLeRatioLevel = 0;
+
+		if (newLeRatioCheck < 0.25)
+			newLeRatioLevel = 3;
+		else if (newLeRatioCheck < 0.33)
+			newLeRatioLevel = 2;
+		else if (newLeRatioCheck < 0.5)
+			newLeRatioLevel = 1;
+
+		if (oldLeRatioLevel == null || oldLeRatioLevel == 0) {
+			if (newLeRatioLevel > 0)
+				fireModifierAddedEvent(leModifier);
+		} else if (oldLeRatioLevel > 0 && newLeRatioLevel == 0)
+			fireModifierRemovedEvent(leModifier);
+		else if (oldLeRatioLevel != newLeRatioLevel)
+			fireModifierChangedEvent(leModifier);
+
+		oldLeRatioLevel = newLeRatioLevel;
+
+	}
+
+	protected void postAuRatioCheck() {
+
+		double newAuRatioCheck = getAuRatio();
+
+		int newAuRatioLevel = 0;
+		if (newAuRatioCheck < 0.25)
+			newAuRatioLevel = 2;
+		else if (newAuRatioCheck < 0.33)
+			newAuRatioLevel = 1;
+
+		if (oldAuRatioLevel == null || oldAuRatioLevel == 0) {
+			if (newAuRatioLevel > 0)
+				fireModifierAddedEvent(auModifier);
+		} else if (oldAuRatioLevel > 0 && newAuRatioLevel == 0)
+			fireModifierRemovedEvent(auModifier);
+		else if (oldAuRatioLevel != newAuRatioLevel)
+			fireModifierChangedEvent(auModifier);
+
+		oldAuRatioLevel = newAuRatioLevel;
+
+	}
+
 	/**
 	 * @return
 	 */
@@ -733,15 +867,39 @@ public class Hero {
 		return ((double) le.getValue()) / le.getReferenceValue();
 	}
 
+	/**
+	 * @return
+	 */
+	public double getAuRatio() {
+		Attribute au = getAttribute(AttributeType.Ausdauer);
+		return ((double) au.getValue()) / au.getReferenceValue();
+	}
+
 	public List<Modifier> getModificator(Probe probe) {
 
 		List<Modifier> modifiers = new LinkedList<Modifier>();
+
+		if (DSATabApplication.isLiteVersion())
+			return modifiers;
+
 		for (Modificator modificator : getModifiers()) {
 			Modifier mod = modificator.getModifier(probe);
 
 			Debug.verbose("Modificator of " + mod.getTitle() + " is " + mod.getModifier());
 			if (mod.getModifier() != 0) {
 				modifiers.add(mod);
+			}
+		}
+
+		if (probe instanceof Attribute) {
+			Attribute attribute = (Attribute) probe;
+
+			if (attribute.getType() == AttributeType.ini) {
+				if (attribute.getHero().hasFeature(SpecialFeature.KAMPFGESPUER))
+					modifiers.add(new Modifier(2, "Kampfgespür", ""));
+
+				if (attribute.getHero().hasFeature(SpecialFeature.KAMPFREFLEXE))
+					modifiers.add(new Modifier(4, "Kampfreflexe", ""));
 			}
 		}
 
@@ -902,9 +1060,13 @@ public class Hero {
 
 	public Integer getModifiedValue(AttributeType type) {
 		int modifier = 0;
-		for (Modificator m : getModifiers()) {
-			modifier += m.getModifier(type).getModifier();
+
+		if (!DSATabApplication.isLiteVersion()) {
+			for (Modificator m : getModifiers()) {
+				modifier += m.getModifier(type).getModifier();
+			}
 		}
+
 		if (getAttributeValue(type) != null)
 			return getAttributeValue(type) + modifier;
 		else
@@ -1288,6 +1450,21 @@ public class Hero {
 
 	}
 
+	public List<EquippedItem> getArmor(Position pos) {
+		List<EquippedItem> items = new LinkedList<EquippedItem>();
+
+		for (EquippedItem equippedItem : getEquippedItems()) {
+			Item item = equippedItem.getItem();
+			if (item instanceof Armor) {
+				Armor armor = (Armor) item;
+				if (armor.getRs(pos) > 0)
+					items.add(equippedItem);
+			}
+		}
+
+		return items;
+	}
+
 	public int getArmorRs(Position pos) {
 
 		int rs = 0;
@@ -1574,7 +1751,10 @@ public class Hero {
 	}
 
 	public List<Modificator> getModifiers() {
-		return modifiers;
+		if (DSATabApplication.isLiteVersion())
+			return Collections.EMPTY_LIST;
+		else
+			return modifiers;
 	}
 
 	public void reloadArmorAttributes() {

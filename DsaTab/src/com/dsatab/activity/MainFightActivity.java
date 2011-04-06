@@ -1,4 +1,4 @@
-﻿/**
+/**
  *  This file is part of DsaTab.
  *
  *  DsaTab is free software: you can redistribute it and/or modify
@@ -16,11 +16,14 @@
  */
 package com.dsatab.activity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.drawable.LevelListDrawable;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -28,6 +31,8 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnLongClickListener;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -59,7 +64,7 @@ import com.gandulf.guilib.view.OnViewChangedListener;
  * @author Ganymede
  * 
  */
-public class MainFightActivity extends BaseMainActivity implements ModifierChangedListener {
+public class MainFightActivity extends BaseMainActivity implements ModifierChangedListener, OnLongClickListener {
 
 	private static final int CONTEXTMENU_SORT_EQUIPPED_ITEM = 5;
 	private static final int CONTEXTMENU_ASSIGN_SECONDARY = 6;
@@ -70,28 +75,39 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 	private static final int CONTEXTMENU_FIGHT_SET_3 = 12;
 	private static final int CONTEXTMENU_VIEWEQUIPPEDITEM = 13;
 
+	private static final String KEY_PICKER_TYPE = "pickerType";
+
 	private View fightAttributesList;
 
 	private boolean fightItemsOdd = false;
 
 	private View selectedEquippedItemView;
 
-	private NumberPicker fightLePicker;
+	private NumberPicker fightNumberPicker;
 	private LinearLayout fightLpLayout, fightItems, fightModifiers;
 
 	class TargetListener implements View.OnClickListener {
 
 		public void onClick(View v) {
 			if (v.getTag() instanceof EquippedItem) {
-				EquippedItem item = (EquippedItem) v.getTag();
-				ArcheryChooserDialog targetChooserDialog = new ArcheryChooserDialog(MainFightActivity.this);
-				targetChooserDialog.setWeapon(item);
-				targetChooserDialog.show();
+
+				if (DSATabApplication.isLiteVersion()) {
+					tease("<strong>Wo ist nochmal schnell die Fernkampftabelle?</strong> Hier! Einfach die Größe und Entfernung eingeben und die Vollversion von DsaTab berechnet dir automatisch für jede Waffe die genaue Erschwernis. Auch bewegliche Ziele oder schlechte Sichtverhältnisse können berücksichtigt werden.");
+				} else {
+					EquippedItem item = (EquippedItem) v.getTag();
+					ArcheryChooserDialog targetChooserDialog = new ArcheryChooserDialog(MainFightActivity.this);
+					targetChooserDialog.setWeapon(item);
+					targetChooserDialog.show();
+				}
 			}
 		}
 	}
 
 	private TargetListener targetListener = new TargetListener();
+	private Button fightPickerButton;
+	private AttributeType fightPickerType = AttributeType.Lebensenergie;
+
+	private List<AttributeType> fightPickerTypes;
 
 	/*
 	 * (non-Javadoc)
@@ -206,14 +222,13 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 						}
 					}
 				});
-
 			}
 		} else if (item.getItemId() == CONTEXTMENU_ASSIGN_SECONDARY) {
 			if (selectedEquippedItemView != null) {
 				final EquippedItem equippedPrimaryWeapon = (EquippedItem) selectedEquippedItemView.getTag();
 
 				EquippedItemChooserDialog dialog = new EquippedItemChooserDialog(this);
-				dialog.setEquippedItems(getHero().getEquippedItems(Weapon.class));
+				dialog.setEquippedItems(getHero().getEquippedItems(Weapon.class, Shield.class));
 
 				// do not select item itself
 				dialog.getEquippedItems().remove(equippedPrimaryWeapon);
@@ -300,6 +315,24 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see android.view.View.OnLongClickListener#onLongClick(android.view.View)
+	 */
+	@Override
+	public boolean onLongClick(View v) {
+		switch (v.getId()) {
+		case R.id.fight_btn_picker:
+			if (fightPickerType == AttributeType.Initiative_Aktuell) {
+				checkProbe(getHero().getAttribute(AttributeType.ini));
+				return true;
+			}
+			break;
+		}
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.dsatab.activity.BaseMainActivity#onClick(android.view.View)
 	 */
 	@Override
@@ -316,13 +349,22 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 		case R.id.body_set3:
 			selectItemSet(2);
 			break;
-
 		case R.id.fight_set:
 			int set = getHero().getActiveSet();
 			selectItemSet((set + 1) % 3);
 			break;
-		}
 
+		case R.id.fight_btn_picker:
+
+			int index = fightPickerTypes.indexOf(fightPickerType);
+			int next = (index + 1) % fightPickerTypes.size();
+			fightPickerType = fightPickerTypes.get(next);
+
+			Attribute attr = getHero().getAttribute(fightPickerType);
+
+			updateNumberPicker(attr);
+			break;
+		}
 	}
 
 	/*
@@ -355,20 +397,29 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 
 			@Override
 			public void onClick(View v) {
-				EvadeChooserDialog ausweichenModificationDialog = new EvadeChooserDialog(MainFightActivity.this);
-				ausweichenModificationDialog.show();
+
+				if (DSATabApplication.isLiteVersion()) {
+					tease("<strong>Auf welche Seite sind die Ausweichen Modifikatoren?</strong> Egal, die Vollversion von DsaTab berechnet nicht nur deinen Ausweichenwert, sie berücksichtigt auch sämtliche Modifikatoren (Mehrere Gegner, Distanzklasse, Gezieltes Ausweichen).");
+				} else {
+					EvadeChooserDialog ausweichenModificationDialog = new EvadeChooserDialog(MainFightActivity.this);
+					ausweichenModificationDialog.show();
+				}
 			}
 		});
 
-		fightLePicker = (NumberPicker) findViewById(R.id.fight_le_picker);
-		fightLePicker.setOnViewChangedListener(new OnViewChangedListener<NumberPicker>() {
+		fightPickerButton = (Button) findViewById(R.id.fight_btn_picker);
+		fightPickerButton.setOnClickListener(this);
+		fightPickerButton.setOnLongClickListener(this);
+
+		fightNumberPicker = (NumberPicker) findViewById(R.id.fight_picker);
+		fightNumberPicker.setOnViewChangedListener(new OnViewChangedListener<NumberPicker>() {
 
 			@Override
 			public void onChanged(NumberPicker picker, int oldVal, int newVal) {
 				if (oldVal != newVal) {
-					Attribute le = getHero().getAttribute(AttributeType.Lebensenergie);
-					le.setValue(newVal);
-					onValueChanged(le);
+					Attribute attr = getHero().getAttribute(fightPickerType);
+					attr.setValue(newVal);
+					onValueChanged(attr);
 				}
 			}
 		});
@@ -378,6 +429,29 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 		fightItems = (LinearLayout) findViewById(R.id.fight_items);
 		fightModifiers = (LinearLayout) findViewById(R.id.fight_modifiers);
 
+		SharedPreferences pref = getPreferences(MODE_PRIVATE);
+		try {
+			String typeString = pref.getString(KEY_PICKER_TYPE, AttributeType.Lebensenergie.name());
+			fightPickerType = AttributeType.valueOf(typeString);
+		} catch (Exception e) {
+			Debug.error(e);
+			fightPickerType = AttributeType.Lebensenergie;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.activity.BaseMainActivity#onPause()
+	 */
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+		SharedPreferences pref = getPreferences(MODE_PRIVATE);
+		Editor edit = pref.edit();
+		edit.putString(KEY_PICKER_TYPE, fightPickerType.name());
+		edit.commit();
 	}
 
 	/*
@@ -393,10 +467,26 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 		fillFightItemDescriptions();
 		fillAttributesList(fightAttributesList);
 
+		fightPickerTypes = new ArrayList<AttributeType>(4);
+		fightPickerTypes.add(AttributeType.Lebensenergie);
+		fightPickerTypes.add(AttributeType.Ausdauer);
+
+		if (hero.getAttributeValue(AttributeType.Astralenergie) != null
+				&& hero.getAttributeValue(AttributeType.Astralenergie) >= 0) {
+			fightPickerTypes.add(AttributeType.Astralenergie);
+		}
+		if (hero.getAttributeValue(AttributeType.Karmaenergie) != null
+				&& hero.getAttributeValue(AttributeType.Karmaenergie) >= 0) {
+			fightPickerTypes.add(AttributeType.Karmaenergie);
+		}
+		fightPickerTypes.add(AttributeType.Initiative_Aktuell);
+
+		if (!fightPickerTypes.contains(fightPickerType)) {
+			fightPickerType = fightPickerTypes.get(0);
+		}
 		// fight
-		Attribute leAttr = hero.getAttribute(AttributeType.Lebensenergie);
-		fightLePicker.setTag(leAttr);
-		onValueChanged(leAttr);
+		Attribute attr = hero.getAttribute(fightPickerType);
+		updateNumberPicker(attr);
 
 		fightItems.removeAllViews();
 		for (EquippedItem item : hero.getEquippedItems()) {
@@ -412,7 +502,6 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 			fillFightModifierDescription(item, null);
 		}
 
-		hero.addValueChangedListener(this);
 		hero.addModifierChangedListener(this);
 	}
 
@@ -424,7 +513,7 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 	 */
 	@Override
 	protected void onHeroUnloaded(Hero hero) {
-		hero.removeValueChangeListener(this);
+		super.onHeroUnloaded(hero);
 		hero.removeModifierChangedListener(this);
 	}
 
@@ -447,7 +536,6 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 	public void onModifierChanged(Modificator value) {
 		View itemLayout = fightModifiers.findViewWithTag(value);
 		fillFightModifierDescription(value, itemLayout);
-
 	}
 
 	@Override
@@ -461,6 +549,29 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 
 	}
 
+	private void updateNumberPicker(Attribute value) {
+
+		fightNumberPicker.setTag(value);
+		fightNumberPicker.setRange(value.getMinimum(), value.getMaximum());
+		fightNumberPicker.setCurrent(value.getValue());
+		fightNumberPicker.setDefault(value.getReferenceValue());
+
+		fightPickerButton.setText(value.getType().code());
+
+		double ratio = 1.0;
+
+		if (value.getType() == AttributeType.Lebensenergie) {
+			ratio = getHero().getLeRatio();
+		}
+
+		if (ratio < 0.5)
+			fightNumberPicker.getEditText().setTextColor(getResources().getColor(R.color.ValueRed));
+		else if (ratio < 1.0)
+			fightNumberPicker.getEditText().setTextColor(getResources().getColor(R.color.ValueBlack));
+		else
+			fightNumberPicker.getEditText().setTextColor(getResources().getColor(R.color.ValueGreen));
+	}
+
 	public void onValueChanged(Value value) {
 		if (value == null) {
 			return;
@@ -470,20 +581,6 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 			Attribute attr = (Attribute) value;
 
 			switch (attr.getType()) {
-
-			case Lebensenergie:
-				fightLePicker.setRange(value.getMinimum(), value.getMaximum());
-				fightLePicker.setCurrent(value.getValue());
-				fightLePicker.setDefault(value.getReferenceValue());
-				double ratio = getHero().getLeRatio();
-				if (ratio < 0.5)
-					fightLePicker.getEditText().setTextColor(getResources().getColor(R.color.ValueRed));
-				else if (ratio < 1.0)
-					fightLePicker.getEditText().setTextColor(getResources().getColor(R.color.ValueBlack));
-				else
-					fightLePicker.getEditText().setTextColor(getResources().getColor(R.color.ValueGreen));
-
-				break;
 			case Mut:
 			case Klugheit:
 			case Intuition:
@@ -493,6 +590,10 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 			case Charisma:
 				fillAttributesList(fightAttributesList);
 				break;
+			}
+
+			if (attr.getType() == fightPickerType) {
+				updateNumberPicker(attr);
 			}
 
 		}

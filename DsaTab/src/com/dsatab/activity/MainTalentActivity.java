@@ -1,4 +1,4 @@
-﻿/**
+/**
  *  This file is part of DsaTab.
  *
  *  DsaTab is free software: you can redistribute it and/or modify
@@ -79,18 +79,6 @@ public class MainTalentActivity extends BaseMainActivity {
 		loadHeroTalents(hero);
 		fillAttributesList(talentAttributeList);
 
-		hero.addValueChangedListener(this);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.activity.BaseMenuActivity#onHeroUnloaded(com.dsatab.data.Hero)
-	 */
-	@Override
-	protected void onHeroUnloaded(Hero hero) {
-		hero.removeValueChangeListener(this);
 	}
 
 	public void onValueChanged(Value value) {

@@ -1,4 +1,4 @@
-﻿package com.dsatab.view;
+package com.dsatab.view;
 
 import java.util.List;
 
@@ -14,8 +14,8 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.dsatab.R;
-import com.dsatab.activity.DSATabApplication;
 import com.dsatab.data.CombatTalent;
+import com.dsatab.data.Hero;
 import com.dsatab.data.items.Weapon;
 
 public class CombatTalentChooserDialog extends Dialog implements AdapterView.OnItemClickListener {
@@ -28,9 +28,12 @@ public class CombatTalentChooserDialog extends Dialog implements AdapterView.OnI
 
 	private List<CombatTalent> combatTalents;
 
-	public CombatTalentChooserDialog(Context context) {
+	private Hero hero;
+
+	public CombatTalentChooserDialog(Context context, Hero hero) {
 		super(context, R.style.EditDialog);
 
+		this.hero = hero;
 		init();
 	}
 
@@ -38,7 +41,8 @@ public class CombatTalentChooserDialog extends Dialog implements AdapterView.OnI
 	protected void onStart() {
 		super.onStart();
 
-		talentAdapter = new ArrayAdapter<CombatTalent>(getContext(), android.R.layout.simple_spinner_item, combatTalents);
+		talentAdapter = new ArrayAdapter<CombatTalent>(getContext(), android.R.layout.simple_spinner_item,
+				combatTalents);
 		categoryList.setAdapter(talentAdapter);
 	}
 
@@ -46,7 +50,7 @@ public class CombatTalentChooserDialog extends Dialog implements AdapterView.OnI
 		this.selectedItem = weapon;
 
 		if (combatTalents == null) {
-			combatTalents = DSATabApplication.getInstance().getHero().getAvailableCombatTalents(selectedItem);
+			combatTalents = hero.getAvailableCombatTalents(selectedItem);
 		}
 		this.combatTalents = combatTalents;
 
@@ -67,16 +71,17 @@ public class CombatTalentChooserDialog extends Dialog implements AdapterView.OnI
 
 		setCanceledOnTouchOutside(true);
 
-		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(R.layout.popup_talent_chooser, null, false);
-		addContentView(popupcontent, new LayoutParams(android.widget.LinearLayout.LayoutParams.FILL_PARENT, (int) (getContext().getResources()
-				.getDisplayMetrics().widthPixels * 0.80)));
+		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(
+				R.layout.popup_talent_chooser, null, false);
+		addContentView(popupcontent, new LayoutParams(android.widget.LinearLayout.LayoutParams.FILL_PARENT,
+				(int) (getContext().getResources().getDisplayMetrics().widthPixels * 0.80)));
 
 		categoryList = (ListView) popupcontent.findViewById(R.id.popup_item_category_list);
 		categoryList.setOnItemClickListener(this);
 	}
 
 	private void choose(CombatTalent talent) {
-		DSATabApplication.getInstance().getHero().addItem(getContext(), selectedItem, talent);
+		hero.addItem(getContext(), selectedItem, talent);
 		dismiss();
 	}
 

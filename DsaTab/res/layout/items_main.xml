@@ -29,8 +29,7 @@
         android:background="@drawable/character"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_marginBottom="60dip"
-        launcher:defaultScreen="0">
+        android:layout_marginBottom="60dip">
 
         <include android:id="@+id/cell1" layout="@layout/workspace_screen" />
         <include android:id="@+id/cell2" layout="@layout/workspace_screen" />
@@ -59,7 +58,6 @@
         android:scaleType="centerInside"
         android:src="@drawable/delete_zone_selector"
         android:visibility="invisible"
-        launcher:direction="horizontal"
     />
     
     <TextView android:text="Set 1" android:layout_width="wrap_content" android:paddingTop="4dip" android:gravity="center" 

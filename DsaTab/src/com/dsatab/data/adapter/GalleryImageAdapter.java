@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2010 Gandulf Kohlweiss
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms
@@ -34,9 +34,9 @@ import com.dsatab.xml.DataManager;
 
 public class GalleryImageAdapter extends BaseAdapter {
 
-	private Item[] images;
+	private Item[] items;
 
-	private WeakReference<Bitmap>[] bmps;
+	private WeakReference<Bitmap>[] images;
 
 	private Context context;
 
@@ -48,19 +48,23 @@ public class GalleryImageAdapter extends BaseAdapter {
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
-	public GalleryImageAdapter(Context context, ItemType cardType, String category) {
+	public GalleryImageAdapter(Context context, ItemType cardType, String category, Item[] items) {
 
 		this.context = context;
 
-		if (category != null) {
-			images = DataManager.getItemsByCategory(category).toArray(new Item[0]);
-		} else if (cardType != null) {
-			images = DataManager.getItemsByType(cardType).toArray(new Item[0]);
+		if (items == null) {
+			if (category != null) {
+				this.items = DataManager.getItemsByCategory(category).toArray(new Item[0]);
+			} else if (cardType != null) {
+				this.items = DataManager.getItemsByType(cardType).toArray(new Item[0]);
+			} else {
+				this.items = DataManager.getItemsMap().values().toArray(new Item[0]);
+			}
 		} else {
-			images = DataManager.getItemsMap().values().toArray(new Item[0]);
+			this.items = items;
 		}
 
-		bmps = (WeakReference<Bitmap>[]) new WeakReference[images.length];
+		images = (WeakReference<Bitmap>[]) new WeakReference[this.items.length];
 
 		TypedArray a = context.obtainStyledAttributes(R.styleable.Gallery);
 		mGalleryItemBackground = a.getResourceId(R.styleable.Gallery_android_galleryItemBackground, 0);
@@ -72,8 +76,8 @@ public class GalleryImageAdapter extends BaseAdapter {
 
 	public int getPosition(Item item) {
 		if (item != null) {
-			for (int i = 0; i < images.length; i++) {
-				if (item.equals(images[i]))
+			for (int i = 0; i < items.length; i++) {
+				if (item.equals(items[i]))
 					return i;
 			}
 		}
@@ -87,7 +91,7 @@ public class GalleryImageAdapter extends BaseAdapter {
 	 */
 	@Override
 	public int getCount() {
-		return images.length;
+		return items.length;
 	}
 
 	/*
@@ -97,7 +101,7 @@ public class GalleryImageAdapter extends BaseAdapter {
 	 */
 	@Override
 	public Item getItem(int position) {
-		return images[position];
+		return items[position];
 	}
 
 	/*
@@ -130,14 +134,14 @@ public class GalleryImageAdapter extends BaseAdapter {
 		}
 
 		Bitmap bitmap = null;
-		WeakReference<Bitmap> ref = bmps[position];
+		WeakReference<Bitmap> ref = images[position];
 		if (ref != null && ref.get() != null) {
 			bitmap = ref.get();
 		} else {
 			File lqFile = item.getFile();
 			if (lqFile != null && lqFile.isFile()) {
 				bitmap = DataManager.getBitmap(lqFile.getAbsolutePath());
-				bmps[position] = new WeakReference<Bitmap>(bitmap);
+				images[position] = new WeakReference<Bitmap>(bitmap);
 			}
 		}
 

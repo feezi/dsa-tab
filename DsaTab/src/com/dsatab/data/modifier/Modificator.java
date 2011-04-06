@@ -1,4 +1,4 @@
-﻿package com.dsatab.data.modifier;
+package com.dsatab.data.modifier;
 
 import com.dsatab.data.Modifier;
 import com.dsatab.data.Probe;

@@ -1,4 +1,4 @@
-﻿package com.dsatab.common;
+package com.dsatab.common;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -174,7 +174,7 @@ public class Util {
 	}
 
 	public static void setTextColor(TextView tf, Value value) {
-		if (value.getValue() != null) {
+		if (value.getValue() != null && value.getReferenceValue() != null) {
 
 			if (value.getValue() < value.getReferenceValue())
 				tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed));
@@ -188,8 +188,15 @@ public class Util {
 	}
 
 	public static void setText(TextView tf, Value value) {
+		setText(tf, value, null);
+	}
+
+	public static void setText(TextView tf, Value value, String prefix) {
 		if (value.getValue() != null) {
-			tf.setText(Integer.toString(value.getValue()));
+			if (prefix != null)
+				tf.setText(prefix + Util.toString(value.getValue()));
+			else
+				tf.setText(Util.toString(value.getValue()));
 		} else {
 			tf.setText("");
 		}

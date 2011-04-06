@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2008 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,6 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -73,20 +72,17 @@ public class CellLayout extends ViewGroup {
 
 	public CellLayout(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CellLayout, defStyle, 0);
 
-		mCellWidth = a.getDimensionPixelSize(R.styleable.CellLayout_cellWidth, 10);
-		mCellHeight = a.getDimensionPixelSize(R.styleable.CellLayout_cellHeight, 10);
+		mCellWidth = getResources().getDimensionPixelSize(R.dimen.workspace_cell_width);
+		mCellHeight = getResources().getDimensionPixelSize(R.dimen.workspace_cell_height);
 
-		mLongAxisStartPadding = a.getDimensionPixelSize(R.styleable.CellLayout_longAxisStartPadding, 10);
-		mLongAxisEndPadding = a.getDimensionPixelSize(R.styleable.CellLayout_longAxisEndPadding, 10);
-		mShortAxisStartPadding = a.getDimensionPixelSize(R.styleable.CellLayout_shortAxisStartPadding, 10);
-		mShortAxisEndPadding = a.getDimensionPixelSize(R.styleable.CellLayout_shortAxisEndPadding, 10);
+		mLongAxisStartPadding = getResources().getDimensionPixelSize(R.dimen.workspace_cell_padding);
+		mLongAxisEndPadding = 0;
+		mShortAxisStartPadding = getResources().getDimensionPixelSize(R.dimen.workspace_cell_padding);
+		mShortAxisEndPadding = getResources().getDimensionPixelSize(R.dimen.workspace_cell_padding);
 
-		mShortAxisCells = a.getInt(R.styleable.CellLayout_shortAxisCells, 4);
-		mLongAxisCells = a.getInt(R.styleable.CellLayout_longAxisCells, 4);
-
-		a.recycle();
+		mShortAxisCells = 4;
+		mLongAxisCells = 4;
 
 		setAlwaysDrawnWithCacheEnabled(false);
 

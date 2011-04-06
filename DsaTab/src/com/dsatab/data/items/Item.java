@@ -1,4 +1,4 @@
-﻿package com.dsatab.data.items;
+package com.dsatab.data.items;
 
 import java.io.File;
 import java.io.Serializable;
@@ -225,7 +225,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		case Sonstiges:
 			return R.drawable.icon_misc;
 		default:
-			return R.drawable.icon_items;
+			return R.drawable.icon_other;
 		}
 
 	}

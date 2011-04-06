@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2010 Gandulf Kohlweiss
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms
@@ -26,7 +26,12 @@ import java.util.List;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Typeface;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
@@ -45,6 +50,8 @@ public class DSATabApplication extends Application {
 	// instance
 	private static DSATabApplication instance = null;
 
+	private static boolean liteVersion = false;
+
 	private Hero hero = null;
 
 	private IconCache mIconCache;
@@ -53,6 +60,10 @@ public class DSATabApplication extends Application {
 
 	private Typeface poorRichFont;
 
+	public boolean liteShown = false;
+
+	public boolean newsShown = false;
+
 	/**
 	 * Convenient accessor, saves having to call and cast
 	 * getApplicationContext()
@@ -60,6 +71,14 @@ public class DSATabApplication extends Application {
 	public static DSATabApplication getInstance() {
 		checkInstance();
 		return instance;
+	}
+
+	public static boolean isLiteVersion() {
+		return liteVersion;
+	}
+
+	public static void setLiteVersion(boolean light) {
+		DSATabApplication.liteVersion = light;
 	}
 
 	public static String getDsaTabPath() {
@@ -73,6 +92,18 @@ public class DSATabApplication extends Application {
 
 	public DsaTabConfiguration getConfiguration() {
 		return configuration;
+	}
+
+	public int getPackageVersion() {
+		int version = 0;
+		try {
+			PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
+			version = info.versionCode;
+		} catch (NameNotFoundException e) {
+			Debug.error(e);
+		}
+
+		return version;
 	}
 
 	/**
@@ -94,6 +125,17 @@ public class DSATabApplication extends Application {
 
 		poorRichFont = Typeface.createFromAsset(this.getAssets(), "fonts/poorich.ttf");
 		Debug.setDebugTag(TAG);
+
+		try {
+			ApplicationInfo ai = getPackageManager().getApplicationInfo(this.getPackageName(),
+					PackageManager.GET_META_DATA);
+			Bundle aBundle = ai.metaData;
+			liteVersion = aBundle.getBoolean("lite", true);
+		} catch (NameNotFoundException e) {
+			Debug.error(e);
+			liteVersion = true;
+		}
+
 	}
 
 	public Typeface getPoorRichardFont() {

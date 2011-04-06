@@ -35,6 +35,7 @@
         <item name="android:paddingLeft">3dp</item>
         <item name="android:paddingRight">3dp</item>
         <item name="android:paddingBottom">3dp</item>
+        <item name="android:textColor">#FFFFFF</item>
     </style>
     
     <style name="Icon">
@@ -76,8 +77,7 @@
         <item name="android:shadowRadius">2.0</item>
     </style>
     
-     <style name="EditDialog" parent="android:style/Theme.Dialog">                
-        <item name="android:windowIsFloating">true</item>        
+     <style name="EditDialog" parent="android:style/Theme.Dialog">
         <item name="android:colorForeground">#dddddd</item>
         <item name="android:textColor">#dddddd</item>
     </style>
@@ -94,7 +94,6 @@
         <item name="android:layout_weight">1</item>                
         <item name="android:scaleType">fitXY</item>        
     </style>
-    
     
     <style name="WorkspaceIcon">
         <item name="android:textSize">13dip</item>

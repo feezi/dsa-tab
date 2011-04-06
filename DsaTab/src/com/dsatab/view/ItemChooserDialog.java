@@ -1,4 +1,4 @@
-﻿package com.dsatab.view;
+package com.dsatab.view;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -11,7 +11,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import com.dsatab.R;
-import com.dsatab.activity.DSATabApplication;
+import com.dsatab.data.Hero;
 import com.dsatab.data.adapter.ItemAdapter;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.xml.DataManager;
@@ -28,8 +28,11 @@ public class ItemChooserDialog extends Dialog implements android.view.View.OnCli
 
 	private boolean showOwnItems = true;
 
-	public ItemChooserDialog(Context context) {
+	private Hero hero;
+
+	public ItemChooserDialog(Context context, Hero hero) {
 		super(context, R.style.EditDialog);
+		this.hero = hero;
 		init();
 	}
 
@@ -38,11 +41,12 @@ public class ItemChooserDialog extends Dialog implements android.view.View.OnCli
 		super.onStart();
 
 		if (showOwnItems) {
-			itemAdapter = new ItemAdapter(getContext(), com.dsatab.R.layout.popup_item_chooser_item, DSATabApplication.getInstance().getHero().getItems(
-					itemType));
+			itemAdapter = new ItemAdapter(getContext(), com.dsatab.R.layout.popup_item_chooser_item,
+					hero.getItems(itemType));
 			btnOtherItems.setVisibility(View.VISIBLE);
 		} else {
-			itemAdapter = new ItemAdapter(getContext(), com.dsatab.R.layout.popup_item_chooser_item, DataManager.getItemsByType(itemType));
+			itemAdapter = new ItemAdapter(getContext(), com.dsatab.R.layout.popup_item_chooser_item,
+					DataManager.getItemsByType(itemType));
 			btnOtherItems.setVisibility(View.GONE);
 		}
 		itemList.setAdapter(itemAdapter);
@@ -69,9 +73,10 @@ public class ItemChooserDialog extends Dialog implements android.view.View.OnCli
 
 		setCanceledOnTouchOutside(true);
 
-		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(R.layout.popup_item_chooser, null, false);
-		addContentView(popupcontent, new LayoutParams(android.widget.LinearLayout.LayoutParams.FILL_PARENT, (int) (getContext().getResources()
-				.getDisplayMetrics().widthPixels * 0.80)));
+		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(
+				R.layout.popup_item_chooser, null, false);
+		addContentView(popupcontent, new LayoutParams(android.widget.LinearLayout.LayoutParams.FILL_PARENT,
+				(int) (getContext().getResources().getDisplayMetrics().widthPixels * 0.80)));
 
 		itemList = (ListView) popupcontent.findViewById(R.id.popup_item_list);
 
@@ -85,7 +90,8 @@ public class ItemChooserDialog extends Dialog implements android.view.View.OnCli
 		if (v == btnOtherItems) {
 			showOwnItems = false;
 
-			itemAdapter = new ItemAdapter(getContext(), com.dsatab.R.layout.popup_item_chooser_item, DataManager.getItemsByType(itemType));
+			itemAdapter = new ItemAdapter(getContext(), com.dsatab.R.layout.popup_item_chooser_item,
+					DataManager.getItemsByType(itemType));
 			itemList.setAdapter(itemAdapter);
 
 			btnOtherItems.setVisibility(View.GONE);

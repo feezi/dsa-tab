@@ -1,4 +1,4 @@
-﻿package com.dsatab.view;
+package com.dsatab.view;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dsatab.R;
@@ -21,7 +20,7 @@ import com.dsatab.data.enums.Position;
 import com.dsatab.view.listener.ValueChangedListener;
 import com.gandulf.guilib.util.Debug;
 
-public class BodyLayout extends FrameLayout implements View.OnClickListener, ValueChangedListener {
+public class BodyLayout extends FrameLayout implements ValueChangedListener {
 
 	private static final double OFFSET_LOWER_LEG_X = 0.70;
 	private static final double OFFSET_UPPER_LEG_X = 0.35;
@@ -62,6 +61,9 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 
 	private Map<Position, TextView> armorButtons = new HashMap<Position, TextView>(Position.values().length);
 	private Map<Position, ImageButton[]> woundButtons = new HashMap<Position, ImageButton[]>(Position.values().length);
+
+	private OnClickListener onArmorClickListener, onWoundClickListener;
+	private OnLongClickListener onArmorLongClickListener;
 
 	public class LayoutParams extends FrameLayout.LayoutParams {
 		private Position position;
@@ -191,12 +193,50 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 		setBackgroundResource(R.drawable.character);
 	}
 
+	public OnLongClickListener getOnArmorLongClickListener() {
+		return onArmorLongClickListener;
+	}
+
+	public void setOnArmorLongClickListener(OnLongClickListener onArmorLongClickListener) {
+		this.onArmorLongClickListener = onArmorLongClickListener;
+
+		for (TextView btn : armorButtons.values()) {
+			btn.setOnLongClickListener(onArmorLongClickListener);
+		}
+	}
+
+	public OnClickListener getOnArmorClickListener() {
+		return onArmorClickListener;
+	}
+
+	public void setOnArmorClickListener(OnClickListener onArmorClickListener) {
+		this.onArmorClickListener = onArmorClickListener;
+
+		for (TextView btn : armorButtons.values()) {
+			btn.setOnClickListener(onArmorClickListener);
+		}
+	}
+
+	public OnClickListener getOnWoundClickListener() {
+		return onWoundClickListener;
+	}
+
+	public void setOnWoundClickListener(OnClickListener onWoundClickListener) {
+		this.onWoundClickListener = onWoundClickListener;
+
+		for (ImageButton[] btns : woundButtons.values()) {
+			for (ImageButton btn : btns) {
+				btn.setOnClickListener(onWoundClickListener);
+			}
+		}
+	}
+
 	protected ImageButton addWoundButton(WoundAttribute attr) {
 		ImageButton woundButton = new ImageButton(getContext());
 		woundButton.setPadding(5, 5, 5, 5);
 		woundButton.setTag(attr);
 		woundButton.setBackgroundResource(R.drawable.icon_wound_btn);
-		woundButton.setOnClickListener(this);
+		woundButton.setOnClickListener(onWoundClickListener);
 		woundButton.setMinimumWidth(woundSize);
 		woundButton.setMinimumHeight(woundSize);
 
@@ -209,7 +249,8 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 		TextView rsText = new TextView(getContext());
 
 		rsText.setBackgroundResource(R.drawable.icon_armor_btn);
-		rsText.setOnClickListener(this);
+		rsText.setOnClickListener(onArmorClickListener);
+		rsText.setOnLongClickListener(onArmorLongClickListener);
 		rsText.setGravity(Gravity.CENTER);
 		rsText.setTextSize(rsTextSize);
 		rsText.setMinimumWidth(rsSize);
@@ -219,38 +260,6 @@ public class BodyLayout extends FrameLayout implements View.OnClickListener, Val
 		armorButtons.put(pos, rsText);
 
 		return rsText;
-	}
-
-	public void onClick(View v) {
-		// wounds
-		if (v instanceof ImageView) {
-
-			ImageView iv = (ImageButton) v;
-			WoundAttribute attribute = (WoundAttribute) v.getTag();
-
-			if (iv.isSelected()) {
-				attribute.setValue(attribute.getValue() - 1);
-			} else {
-				attribute.setValue(attribute.getValue() + 1);
-			}
-			iv.setSelected(!iv.isSelected());
-
-			if (iv.isSelected())
-				iv.setBackgroundResource(R.drawable.icon_wound_s);
-			else
-				iv.setBackgroundResource(R.drawable.icon_wound_btn);
-		}
-
-		else if (v.getTag() instanceof Value) {
-			Value value = (Value) v.getTag();
-
-			InlineEditDialog inlineEditdialog = new InlineEditDialog(getContext(), null);
-			inlineEditdialog.setOnValueChangedListener(this);
-			inlineEditdialog.setValue(value);
-			inlineEditdialog.setTitle(value.getName());
-			inlineEditdialog.show();
-		}
-
 	}
 
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {

@@ -1,4 +1,4 @@
-﻿/**
+/**
  *  This file is part of DsaTab.
  *
  *  DsaTab is free software: you can redistribute it and/or modify
@@ -58,6 +58,8 @@ public class ArmorAttribute implements Value {
 			element.setAttribute(Xml.KEY_VALUE, Integer.toString(value));
 		} else
 			element.removeAttribute(Xml.KEY_VALUE);
+
+		hero.fireValueChangedEvent(this);
 	}
 
 	public Integer getReferenceValue() {

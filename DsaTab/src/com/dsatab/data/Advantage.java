@@ -1,6 +1,8 @@
-﻿package com.dsatab.data;
+package com.dsatab.data;
 
 import org.w3c.dom.Element;
+
+import android.text.TextUtils;
 
 import com.dsatab.common.Util;
 import com.dsatab.xml.Xml;
@@ -47,6 +49,9 @@ public class Advantage {
 
 	@Override
 	public String toString() {
-		return getName();
+		if (!TextUtils.isEmpty(valueString))
+			return getName() + " " + valueString;
+		else
+			return getName();
 	}
 }

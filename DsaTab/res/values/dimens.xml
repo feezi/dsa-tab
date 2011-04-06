@@ -5,6 +5,9 @@
 
 	<dimen name="portrait_height">100dp</dimen>
 	
+	<dimen name="portrait_height_small">60dp</dimen>
+	<dimen name="portrait_width_small">60dp</dimen>
+	
 	<dimen name="icon_button_size">50dp</dimen>
 	
 	<dimen name="tab_icon_size">50dp</dimen>
@@ -32,4 +35,5 @@
 	
 	<dimen name="workspace_cell_width">75dip</dimen>
     <dimen name="workspace_cell_height">105dip</dimen>
+    <dimen name="workspace_cell_padding">5dip</dimen>
 </resources>

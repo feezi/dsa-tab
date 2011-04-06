@@ -71,5 +71,14 @@
                 android:title="Credits, Copyright"
                 android:summary="Hinweise zu verwendeten Inhalten, Copyright Informationen"                
                 android:key="credits" />
+        
+        <Preference
+                android:title="Version Infos"
+                android:summary="Hinweise zu den Veränderungen der aktuellen Version"                
+                android:key="infos" />
+                
         </PreferenceCategory>
+        
+        
+        
 </PreferenceScreen>

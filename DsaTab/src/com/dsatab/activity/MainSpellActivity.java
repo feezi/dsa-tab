@@ -1,4 +1,4 @@
-﻿/**
+/**
  *  This file is part of DsaTab.
  *
  *  DsaTab is free software: you can redistribute it and/or modify
@@ -81,7 +81,6 @@ public class MainSpellActivity extends BaseMainActivity {
 		loadHeroSpells(hero);
 		fillAttributesList(spellAttributeList);
 
-		hero.addValueChangedListener(this);
 	}
 
 	/*
@@ -92,7 +91,7 @@ public class MainSpellActivity extends BaseMainActivity {
 	 */
 	@Override
 	protected void onHeroUnloaded(Hero hero) {
-		hero.removeValueChangeListener(this);
+		super.onHeroUnloaded(hero);
 	}
 
 	public void onValueChanged(Value value) {

@@ -1,4 +1,4 @@
-﻿package com.dsatab.data.enums;
+package com.dsatab.data.enums;
 
 public enum CombatTalentType {
 

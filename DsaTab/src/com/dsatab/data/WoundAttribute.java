@@ -1,4 +1,4 @@
-﻿package com.dsatab.data;
+package com.dsatab.data;
 
 import org.w3c.dom.Element;
 
@@ -97,23 +97,24 @@ public class WoundAttribute extends AbstractModifier {
 		switch (getPosition()) {
 		case Kopf:
 			if (type == AttributeType.Mut || type == AttributeType.Klugheit || type == AttributeType.Intuition
-					|| type == AttributeType.ini)
-				modifier = -2 * getValue();
+					|| type == AttributeType.ini || type == AttributeType.Initiative_Aktuell)
+				modifier += -2 * getValue();
 			break;
 		case Bauch:
 		case Brust:
 			if (type == AttributeType.Konstitution || type == AttributeType.Körperkraft)
-				modifier = -1 * getValue();
+				modifier += -1 * getValue();
 			break;
 		case LeftLowerArm:
 		case RightLowerArm:
 			if (type == AttributeType.Fingerfertigkeit || type == AttributeType.Körperkraft)
-				modifier = -2 * getValue();
+				modifier += -2 * getValue();
 			break;
 		case UpperLeg:
 		case LowerLeg:
-			if (type == AttributeType.Gewandtheit || type == AttributeType.ini)
-				modifier = -2 * getValue();
+			if (type == AttributeType.Gewandtheit || type == AttributeType.ini
+					|| type == AttributeType.Initiative_Aktuell)
+				modifier += -2 * getValue();
 			break;
 		}
 		return new Modifier(modifier, getModifierName(), getModifierInfo());
@@ -122,6 +123,29 @@ public class WoundAttribute extends AbstractModifier {
 	@Override
 	public Modifier getModifier(Probe probe) {
 		int modifier = 0;
+
+		if (probe instanceof Attribute) {
+			Attribute attr = (Attribute) probe;
+			if (attr.getType() == AttributeType.ini) {
+				switch (getPosition()) {
+				case Kopf:
+					modifier += -2 * getValue();
+					break;
+				case Bauch:
+					modifier += -1 * getValue();
+					break;
+				case UpperLeg:
+				case LowerLeg:
+					modifier += -2 * getValue();
+					break;
+				case Brust:
+				case LeftLowerArm:
+				case RightLowerArm:
+					break;
+				}
+			}
+		}
+
 		if (probe instanceof CombatDistanceTalent || probe instanceof CombatShieldTalent
 				|| probe instanceof CombatMeleeAttribute || probe instanceof CombatProbe) {
 			switch (getPosition()) {
@@ -129,7 +153,7 @@ public class WoundAttribute extends AbstractModifier {
 				break;
 			case Bauch:
 			case Brust:
-				modifier = -1 * getValue();
+				modifier += -1 * getValue();
 				break;
 			case LeftLowerArm:
 			case RightLowerArm:
@@ -143,7 +167,7 @@ public class WoundAttribute extends AbstractModifier {
 						Weapon w = (Weapon) equippedItem.getItem();
 
 						if (w.isTwoHanded()) {
-							modifier = -1 * getValue();
+							modifier += -1 * getValue();
 							Debug.verbose("Zweihandwaffen Handwunde AT/PA-1*" + getValue());
 							break;
 						} else {
@@ -164,11 +188,11 @@ public class WoundAttribute extends AbstractModifier {
 
 				}
 				Debug.verbose(" Wunde auf Arm AT/PA -2*" + getValue());
-				modifier = -2 * getValue();
+				modifier += -2 * getValue();
 				break;
 			case UpperLeg:
 			case LowerLeg:
-				modifier = -2 * getValue();
+				modifier += -2 * getValue();
 				break;
 			}
 		}

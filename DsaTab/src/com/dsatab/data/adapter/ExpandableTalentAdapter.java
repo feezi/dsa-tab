@@ -1,4 +1,4 @@
-﻿package com.dsatab.data.adapter;
+package com.dsatab.data.adapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
