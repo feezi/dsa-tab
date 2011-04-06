@@ -41,7 +41,7 @@ public class PurseDialog extends Dialog implements OnItemSelectedListener, OnVie
 	@Override
 	protected void onStart() {
 		if (DSATabApplication.getInstance().getHero() != null) {
-			purse = DSATabApplication.getInstance().getHero().getPurse();
+			purse = hero.getPurse();
 
 			if (purse.getActiveCurrency() == null) {
 				purse.setActiveCurrency(Currency.Mittelreich);
