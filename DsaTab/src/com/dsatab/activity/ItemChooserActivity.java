@@ -170,7 +170,6 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 			}
 			imageAdapter = new GalleryImageAdapter(this, null, null, items);
 		} else {
-
 			imageAdapter = new GalleryImageAdapter(this, cardType, itemCategory, null);
 		}
 		gallery.setAdapter(imageAdapter);
@@ -182,13 +181,15 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 			}
 		});
 
-		gallery.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-				showItemChooserPopup();
-				return true;
-			}
-		});
+		if (categorySelectable) {
+			gallery.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+				@Override
+				public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+					showItemChooserPopup();
+					return true;
+				}
+			});
+		}
 
 		if (imageAdapter.getCount() == 0) {
 			Toast.makeText(this, "Keine Einträge gefunden", Toast.LENGTH_SHORT).show();
@@ -516,7 +517,7 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 	private void openSubCategoriesDialog(final ItemType cardType) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		final String[] subCategories = DataManager.getCardCategories(cardType).toArray(new String[0]);
-		builder.setSingleChoiceItems(subCategories, 0, new DialogInterface.OnClickListener() {
+		builder.setItems(subCategories, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				chooseType(cardType, subCategories[which], null);

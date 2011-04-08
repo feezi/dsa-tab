@@ -11,7 +11,6 @@ import java.util.StringTokenizer;
 import android.view.Gravity;
 import android.widget.TextView;
 
-import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
@@ -23,6 +22,7 @@ import com.dsatab.data.items.Hand;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
+import com.dsatab.R;
 import com.gandulf.guilib.util.Debug;
 
 public class Util {
@@ -38,7 +38,7 @@ public class Util {
 
 	public static int getDrawableByName(String name) {
 		try {
-			return com.dsatab.R.drawable.class.getDeclaredField(name).getInt(null);
+			return R.drawable.class.getDeclaredField(name).getInt(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return -1;

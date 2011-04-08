@@ -25,8 +25,8 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.webkit.WebView;
 
-import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
+import com.dsatab.R;
 
 public class LiteInfoDialog extends AlertDialog implements DialogInterface.OnClickListener {
 
@@ -74,7 +74,7 @@ public class LiteInfoDialog extends AlertDialog implements DialogInterface.OnCli
 		case DialogInterface.BUTTON_POSITIVE:
 			dialog.dismiss();
 			Intent intent = new Intent(Intent.ACTION_VIEW);
-			intent.setData(Uri.parse("market://details?id=" + DSATabApplication.getInstance().getPackageName()));
+			intent.setData(Uri.parse("market://details?id=" + DSATabApplication.FULL_PACKAGE_NAME));
 			getContext().startActivity(intent);
 			break;
 		case DialogInterface.BUTTON_NEGATIVE:

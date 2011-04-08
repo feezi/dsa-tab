@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TwoLineListItem;
 
 import com.dsatab.data.modifier.Modificator;
+import com.dsatab.R;
 
 public class ModifierAdapter extends ArrayAdapter<Modificator> {
 
@@ -51,7 +52,7 @@ public class ModifierAdapter extends ArrayAdapter<Modificator> {
 			// We need the layoutinflater to pick up the view from xml
 			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			// Pick up the TwoLineListItem defined in the xml file
-			view = (TwoLineListItem) inflater.inflate(com.dsatab.R.layout.popup_item_chooser_item, parent, false);
+			view = (TwoLineListItem) inflater.inflate(R.layout.popup_item_chooser_item, parent, false);
 		} else {
 			view = (TwoLineListItem) convertView;
 		}

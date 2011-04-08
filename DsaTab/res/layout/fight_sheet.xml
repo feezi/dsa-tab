@@ -13,7 +13,7 @@
 		<Button android:text="LE" android:layout_gravity="center_vertical" android:id="@+id/fight_btn_picker" android:gravity="center" android:layout_width="wrap_content" android:layout_height="@dimen/icon_button_size" style="@style/IconButton"></Button>
 
 		<com.gandulf.guilib.view.NumberPicker android:layout_width="wrap_content" android:orientation="horizontal"
-			android:layout_height="wrap_content" android:id="@+id/fight_picker"></com.gandulf.guilib.view.NumberPicker>
+			android:id="@+id/fight_picker" android:layout_height="70dp"></com.gandulf.guilib.view.NumberPicker>
 	</LinearLayout>
 	<ScrollView android:layout_below="@+id/fight_le_layout"
 		android:layout_width="fill_parent" android:layout_marginTop="10dip"

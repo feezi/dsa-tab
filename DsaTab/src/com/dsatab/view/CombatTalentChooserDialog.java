@@ -2,11 +2,12 @@ package com.dsatab.view;
 
 import java.util.List;
 
-import android.app.Dialog;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -18,7 +19,7 @@ import com.dsatab.data.CombatTalent;
 import com.dsatab.data.Hero;
 import com.dsatab.data.items.Weapon;
 
-public class CombatTalentChooserDialog extends Dialog implements AdapterView.OnItemClickListener {
+public class CombatTalentChooserDialog extends AlertDialog implements AdapterView.OnItemClickListener {
 
 	private ArrayAdapter<CombatTalent> talentAdapter = null;
 
@@ -31,8 +32,7 @@ public class CombatTalentChooserDialog extends Dialog implements AdapterView.OnI
 	private Hero hero;
 
 	public CombatTalentChooserDialog(Context context, Hero hero) {
-		super(context, R.style.EditDialog);
-
+		super(context);
 		this.hero = hero;
 		init();
 	}
@@ -67,14 +67,18 @@ public class CombatTalentChooserDialog extends Dialog implements AdapterView.OnI
 
 	private void init() {
 
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		setTitle("Wähle ein Talent...");
 
 		setCanceledOnTouchOutside(true);
 
 		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(
 				R.layout.popup_talent_chooser, null, false);
-		addContentView(popupcontent, new LayoutParams(android.widget.LinearLayout.LayoutParams.FILL_PARENT,
-				(int) (getContext().getResources().getDisplayMetrics().widthPixels * 0.80)));
+		popupcontent.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.FILL_PARENT,
+				android.widget.LinearLayout.LayoutParams.WRAP_CONTENT));
+
+		setView(popupcontent);
 
 		categoryList = (ListView) popupcontent.findViewById(R.id.popup_item_category_list);
 		categoryList.setOnItemClickListener(this);

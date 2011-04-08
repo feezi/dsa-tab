@@ -71,7 +71,7 @@ public class MainBodyActivity extends BaseMainActivity implements OnLongClickLis
 		// armor
 		if (v.getTag() instanceof ArmorAttribute) {
 			ArmorAttribute value = (ArmorAttribute) v.getTag();
-			if (DSATabApplication.isLiteVersion()) {
+			if (DSATabApplication.getInstance().isLiteVersion()) {
 				tease("<strong>Mal eben schnell einen Wert steigern?</strong> Mit der Vollversion von DsaTab können Eigenschaften, Talente, Zauber, Rüstungsschutz und noch vieles mehr einfach und bequem editiert werden. Getätigte Änderungen werden in der XML Datei nachgezogen und können somit auch wieder in die Helden-Software importiert werden, falls notwendig. ");
 			} else {
 				showEditPopup(value);
@@ -122,7 +122,7 @@ public class MainBodyActivity extends BaseMainActivity implements OnLongClickLis
 		// armor
 		else if (v.getTag() instanceof ArmorAttribute) {
 			ArmorAttribute value = (ArmorAttribute) v.getTag();
-			if (DSATabApplication.isLiteVersion()) {
+			if (DSATabApplication.getInstance().isLiteVersion()) {
 				tease("<strong>Was hab ich hier schnell nochmal an?</strong> Ein Klick genug und schon kannst du dir deine Rüstungsgegenstände an dieser Stelle ansehen. ");
 			} else {
 				Intent intent = new Intent(this, ItemChooserActivity.class);

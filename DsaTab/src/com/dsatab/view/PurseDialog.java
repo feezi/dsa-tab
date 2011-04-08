@@ -1,10 +1,11 @@
 package com.dsatab.view;
 
-import android.app.Dialog;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.RelativeLayout;
@@ -21,7 +22,7 @@ import com.gandulf.guilib.view.NumberPicker;
 import com.gandulf.guilib.view.OnViewChangedListener;
 import com.gandulf.guilib.view.adapter.SpinnerSimpleAdapter;
 
-public class PurseDialog extends Dialog implements OnItemSelectedListener, OnViewChangedListener<NumberPicker> {
+public class PurseDialog extends AlertDialog implements OnItemSelectedListener, OnViewChangedListener<NumberPicker> {
 
 	private Spinner currencySpinner;
 
@@ -33,7 +34,7 @@ public class PurseDialog extends Dialog implements OnItemSelectedListener, OnVie
 	private Hero hero;
 
 	public PurseDialog(Context context, Hero hero) {
-		super(context, R.style.NoTitleDialog);
+		super(context);
 		this.hero = hero;
 		init();
 	}
@@ -122,13 +123,18 @@ public class PurseDialog extends Dialog implements OnItemSelectedListener, OnVie
 	}
 
 	private void init() {
+
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		setCanceledOnTouchOutside(true);
 
 		setTitle("Geldbörse");
 
 		final RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(
 				R.layout.popup_purse, null, false);
-		addContentView(popupcontent, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+
+		setView(popupcontent);
 
 		currencySpinner = (Spinner) popupcontent.findViewById(R.id.sp_currency);
 		currencySpinner.setAdapter(new SpinnerSimpleAdapter<Currency>(getContext(), Currency.values()));

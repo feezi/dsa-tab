@@ -1,4 +1,4 @@
-﻿#;NAME                                                                  ;BE;KO;KS;KG;Hl;SL;OL;UL;SR;OR;UR;Br,Rü;Ba;Rü;Be;OS;US;
+#;NAME                                                                  ;BE;KO;KS;KG;Hl;SL;OL;UL;SR;OR;UR;Br,Rü;Ba;Rü;Be;OS;US;
 A;Armschiene (links), Leder;lederzeug_arme_links00_LQ.gif;Arme          ; 5; 0; 0; 0; 0; 0; 3; 3; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0;
 A;Armschiene (rechts), Leder;lederzeug_arme_rechts00_LQ.gif;Arme        ; 5; 0; 0; 0; 0; 0; 0; 0; 0; 3; 3; 0; 0; 0; 0; 0; 0; 0;
 A;Armschiene links, Bronze;plattenzeug_links00_LQ.gif;Arme              ; 5; 0; 0; 0; 0; 0; 3; 3; 0; 3; 3; 0; 0; 0; 0; 0; 0; 0;

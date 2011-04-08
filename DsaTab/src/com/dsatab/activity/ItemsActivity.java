@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 import com.dsatab.R;
 import com.dsatab.data.Hero;
+import com.dsatab.data.Value;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
@@ -45,7 +46,7 @@ import com.gandulf.guilib.drag.DragLayer;
 import com.gandulf.guilib.drag.DragSource;
 import com.gandulf.guilib.util.Debug;
 
-public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickListener, View.OnClickListener,
+public class ItemsActivity extends BaseMainActivity implements View.OnLongClickListener, View.OnClickListener,
 		DragController.DragListener<ItemCard>, OnScreenChangeListener {
 
 	private static final int ACTION_CHOOSE_CARD = 2;
@@ -68,6 +69,7 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 	 */
 	@Override
 	protected void onHeroLoaded(Hero hero) {
+		super.onHeroLoaded(hero);
 		fillBodyItems(hero);
 	}
 
@@ -79,6 +81,28 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 	 */
 	@Override
 	protected void onHeroUnloaded(Hero hero) {
+		super.onHeroUnloaded(hero);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.ValueChangedListener#onValueChanged(com.dsatab
+	 * .data.Value)
+	 */
+	@Override
+	public void onValueChanged(Value value) {
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.activity.BaseMainActivity#setupDiceSilder()
+	 */
+	@Override
+	protected void setupDiceSilder() {
 
 	}
 
@@ -174,8 +198,8 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setContentView(R.layout.main_hero_items);
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.items_main);
 
 		mDragController = new DragController<ItemCard>(this);
 		mScreenTextView = (TextView) findViewById(R.id.screen_set_text);
@@ -369,6 +393,7 @@ public class ItemsActivity extends BaseMenuActivity implements View.OnLongClickL
 	 */
 	@Override
 	public void onClick(View v) {
+		super.onClick(v);
 		if (v == mNextView) {
 			mWorkspace.scrollRight();
 		} else if (v == mPreviousView) {

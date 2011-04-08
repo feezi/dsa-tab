@@ -6,7 +6,7 @@
 	<include layout="@layout/hero_tabs" android:layout_alignParentBottom="true" android:gravity="bottom|left"
 			android:layout_width="fill_parent" android:id="@+id/inc_tabs" android:layout_height="@dimen/tab_size"></include>
 			
-	<include layout="@layout/body_sheet" android:layout_height="fill_parent"
-			android:layout_width="fill_parent" android:id="@+id/inc_body_sheet" android:layout_above="@+id/inc_tabs"></include>		
+	<include layout="@layout/notes_sheet" android:layout_height="fill_parent"
+			android:layout_width="fill_parent" android:id="@+id/inc_notes_sheet" android:layout_above="@+id/inc_tabs"></include>		
 
 </RelativeLayout>

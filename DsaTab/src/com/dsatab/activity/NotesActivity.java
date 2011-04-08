@@ -42,16 +42,13 @@ import com.dsatab.R;
 import com.dsatab.data.Event;
 import com.dsatab.data.Hero;
 import com.dsatab.data.NotesComparator;
+import com.dsatab.data.Value;
 import com.dsatab.data.adapter.EventCatgoryAdapter;
 import com.dsatab.data.adapter.NotesAdapter;
 import com.dsatab.data.enums.EventCategory;
 import com.gandulf.guilib.util.Debug;
 
-/**
- * @author Seraphim
- * 
- */
-public class NotesActivity extends BaseMenuActivity implements OnClickListener, OnItemClickListener {
+public class NotesActivity extends BaseMainActivity implements OnClickListener, OnItemClickListener {
 
 	public static final int ACTION_EDIT = 1;
 
@@ -81,8 +78,8 @@ public class NotesActivity extends BaseMenuActivity implements OnClickListener, 
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setContentView(R.layout.main_hero_notes);
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.notes_sheet);
 
 		this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
@@ -112,23 +109,25 @@ public class NotesActivity extends BaseMenuActivity implements OnClickListener, 
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.dsatab.activity.BaseMenuActivity#onHeroLoaded(com.dsatab.data.Hero)
+	 * com.dsatab.view.listener.ValueChangedListener#onValueChanged(com.dsatab
+	 * .data.Value)
 	 */
 	@Override
-	protected void onHeroLoaded(Hero hero) {
-		notesListAdapter = new NotesAdapter(this, android.R.layout.simple_list_item_1, getHero().getEvents());
-		listView.setAdapter(notesListAdapter);
+	public void onValueChanged(Value value) {
+
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.dsatab.activity.BaseMenuActivity#onHeroUnloaded(com.dsatab.data.Hero)
+	 * com.dsatab.activity.BaseMenuActivity#onHeroLoaded(com.dsatab.data.Hero)
 	 */
 	@Override
-	protected void onHeroUnloaded(Hero hero) {
-
+	protected void onHeroLoaded(Hero hero) {
+		super.onHeroLoaded(hero);
+		notesListAdapter = new NotesAdapter(this, android.R.layout.simple_list_item_1, getHero().getEvents());
+		listView.setAdapter(notesListAdapter);
 	}
 
 	/**
@@ -155,6 +154,8 @@ public class NotesActivity extends BaseMenuActivity implements OnClickListener, 
 			menu.add(0, CONTEXTMENU_DELETEITEM, 2, getString(R.string.menu_delete_item));
 			menu.add(0, CONTEXTMENU_SORT_NOTES, 3, getString(R.string.menu_sort_items));
 		}
+
+		super.onCreateContextMenu(menu, v, menuInfo);
 	}
 
 	/*
@@ -187,7 +188,7 @@ public class NotesActivity extends BaseMenuActivity implements OnClickListener, 
 			notesListAdapter.notifyDataSetChanged();
 			return true;
 		}
-		return false;
+		return super.onContextItemSelected(item);
 	}
 
 	/*
@@ -237,6 +238,7 @@ public class NotesActivity extends BaseMenuActivity implements OnClickListener, 
 	 */
 	@Override
 	public void onClick(View v) {
+		super.onClick(v);
 		if (v.getId() == R.id.notes_btn_mic_add) {
 
 			try {
@@ -353,10 +355,6 @@ public class NotesActivity extends BaseMenuActivity implements OnClickListener, 
 		((ArrayAdapter<?>) listView.getAdapter()).notifyDataSetChanged();
 	}
 
-	public Hero getHero() {
-		return DSATabApplication.getInstance().getHero();
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -376,15 +374,4 @@ public class NotesActivity extends BaseMenuActivity implements OnClickListener, 
 
 		super.onPause();
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onResume()
-	 */
-	@Override
-	protected void onResume() {
-		super.onResume();
-	}
-
 }

@@ -83,17 +83,6 @@ public class MainSpellActivity extends BaseMainActivity {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.activity.BaseMenuActivity#onHeroUnloaded(com.dsatab.data.Hero)
-	 */
-	@Override
-	protected void onHeroUnloaded(Hero hero) {
-		super.onHeroUnloaded(hero);
-	}
-
 	public void onValueChanged(Value value) {
 		if (value == null) {
 			return;

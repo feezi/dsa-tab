@@ -54,8 +54,8 @@ public class CellLayout extends ViewGroup {
 	private final Rect mRect = new Rect();
 	private final CellInfo mCellInfo = new CellInfo();
 
-	int[] mCellXY = new int[2];
-	boolean[][] mOccupied;
+	private int[] mCellXY = new int[2];
+	private boolean[][] mOccupied;
 
 	private RectF mDragRect = new RectF();
 
@@ -894,6 +894,10 @@ public class CellLayout extends ViewGroup {
 		return new CellLayout.LayoutParams(p);
 	}
 
+	public boolean lastDownOnOccupiedCell() {
+		return mLastDownOnOccupiedCell;
+	}
+
 	public static class LayoutParams extends ViewGroup.MarginLayoutParams {
 		/**
 		 * Horizontal location of the item in the grid.
@@ -1135,7 +1139,4 @@ public class CellLayout extends ViewGroup {
 		}
 	}
 
-	public boolean lastDownOnOccupiedCell() {
-		return mLastDownOnOccupiedCell;
-	}
 }

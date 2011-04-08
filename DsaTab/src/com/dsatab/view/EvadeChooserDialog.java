@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -20,7 +21,8 @@ import com.dsatab.common.Util;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.enums.AttributeType;
 
-public class EvadeChooserDialog extends Dialog implements android.view.View.OnClickListener {
+public class EvadeChooserDialog extends AlertDialog implements android.view.View.OnClickListener,
+		Dialog.OnDismissListener {
 
 	private int[] distanceValues;
 	private int[] enemyValues;
@@ -45,7 +47,7 @@ public class EvadeChooserDialog extends Dialog implements android.view.View.OnCl
 	private MainFightActivity main;
 
 	public EvadeChooserDialog(MainFightActivity context) {
-		super(context, R.style.NoTitleDialog);
+		super(context);
 		this.main = context;
 		init();
 	}
@@ -64,6 +66,8 @@ public class EvadeChooserDialog extends Dialog implements android.view.View.OnCl
 			main.fillAusweichen();
 			main.checkProbe(ausweichen);
 		} else if (v == btnOthers) {
+			if (othersDialog == null)
+				initOthersDialog();
 			othersDialog.show();
 		}
 	}
@@ -104,6 +108,8 @@ public class EvadeChooserDialog extends Dialog implements android.view.View.OnCl
 
 	private void init() {
 
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		distanceValues = getContext().getResources().getIntArray(R.array.evadeDistanceValues);
 		enemyValues = getContext().getResources().getIntArray(R.array.evadeEnemyValues);
 		modificationValues = getContext().getResources().getIntArray(R.array.evadeModificationValues);
@@ -112,7 +118,8 @@ public class EvadeChooserDialog extends Dialog implements android.view.View.OnCl
 
 		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(R.layout.popup_evade,
 				null, false);
-		addContentView(popupcontent, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		setView(popupcontent);
 
 		distanceSpinner = (Spinner) popupcontent.findViewById(R.id.evade_distance);
 		distanceSpinner.setPrompt("Entfernung");
@@ -154,20 +161,22 @@ public class EvadeChooserDialog extends Dialog implements android.view.View.OnCl
 		iconRight = (ImageButton) popupcontent.findViewById(R.id.icon_right);
 		iconLeft.setOnClickListener(this);
 
-		setOnDismissListener(new Dialog.OnDismissListener() {
+		setOnDismissListener(this);
 
-			public void onDismiss(DialogInterface dialog) {
-				Attribute ausweichen = main.getHero().getAttribute(AttributeType.Ausweichen);
-				ausweichen.setErschwernis(erschwernis + otherErschwernis);
-
-				dismiss();
-				main.fillAusweichen();
-			}
-		});
-
-		btnOthers = (Button) findViewById(R.id.evade_others);
+		btnOthers = (Button) popupcontent.findViewById(R.id.evade_others);
 		btnOthers.setOnClickListener(this);
 
+	}
+
+	public void onDismiss(DialogInterface dialog) {
+		Attribute ausweichen = main.getHero().getAttribute(AttributeType.Ausweichen);
+		ausweichen.setErschwernis(erschwernis + otherErschwernis);
+
+		dismiss();
+		main.fillAusweichen();
+	}
+
+	private void initOthersDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		builder.setTitle(R.string.modifikatoren);
 		builder.setPositiveButton(R.string.label_ok, new OnClickListener() {
@@ -205,6 +214,5 @@ public class EvadeChooserDialog extends Dialog implements android.view.View.OnCl
 			}
 		});
 		othersDialog = builder.create();
-
 	}
 }

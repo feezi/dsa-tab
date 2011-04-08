@@ -10,6 +10,7 @@
 	
 	<dimen name="icon_button_size">50dp</dimen>
 	
+	<dimen name="tab_size">65dp</dimen>	
 	<dimen name="tab_icon_size">50dp</dimen>
 	<dimen name="tab_icon_padding">5dp</dimen>
 	
@@ -34,6 +35,6 @@
 	<dimen name="card_text_padding">20dp</dimen>
 	
 	<dimen name="workspace_cell_width">75dip</dimen>
-    <dimen name="workspace_cell_height">105dip</dimen>
+    <dimen name="workspace_cell_height">95dip</dimen>
     <dimen name="workspace_cell_padding">5dip</dimen>
 </resources>

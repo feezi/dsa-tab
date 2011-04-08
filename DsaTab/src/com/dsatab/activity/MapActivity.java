@@ -19,7 +19,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -43,8 +42,9 @@ import android.widget.Toast;
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.common.WrapMotionEvent;
+import com.dsatab.data.Value;
 
-public class MapActivity extends Activity implements OnTouchListener {
+public class MapActivity extends BaseMainActivity implements OnTouchListener {
 
 	private static final String PREF_KEY_LAST_MAP_COORDINATES = "lastMapCoordinates";
 	private static final String PREF_KEY_LAST_MAP = "lastMap";
@@ -67,10 +67,21 @@ public class MapActivity extends Activity implements OnTouchListener {
 	private String[] mapFiles;
 	private String[] mapNames;
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.activity.BaseMainActivity#setupDiceSilder()
+	 */
+	@Override
+	protected void setupDiceSilder() {
+
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		setContentView(R.layout.main_hero_maps);
+
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.map);
 		ImageView view = (ImageView) findViewById(R.id.imageView);
 		view.setOnTouchListener(this);
 
@@ -124,12 +135,24 @@ public class MapActivity extends Activity implements OnTouchListener {
 		view.setImageMatrix(matrix);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.ValueChangedListener#onValueChanged(com.dsatab
+	 * .data.Value)
+	 */
+	@Override
+	public void onValueChanged(Value value) {
+
+	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.map_menu, menu);
-		return true;
+
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	/*
@@ -157,7 +180,8 @@ public class MapActivity extends Activity implements OnTouchListener {
 		if (item.getItemId() == R.id.option_choose_map) {
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setSingleChoiceItems(mapNames, 0, new DialogInterface.OnClickListener() {
+			builder.setTitle("Karte auswählen");
+			builder.setItems(mapNames, new DialogInterface.OnClickListener() {
 
 				@Override
 				public void onClick(DialogInterface dialog, int which) {

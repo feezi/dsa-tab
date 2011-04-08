@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.view.ItemListItem;
+import com.dsatab.R;
 
 public class EquippedItemAdapter extends ArrayAdapter<EquippedItem> {
 
@@ -73,7 +74,7 @@ public class EquippedItemAdapter extends ArrayAdapter<EquippedItem> {
 			// We need the layoutinflater to pick up the view from xml
 			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			// Pick up the TwoLineListItem defined in the xml file
-			view = (ItemListItem) inflater.inflate(com.dsatab.R.layout.popup_item_chooser_item, parent, false);
+			view = (ItemListItem) inflater.inflate(R.layout.popup_item_chooser_item, parent, false);
 		} else {
 			view = (ItemListItem) convertView;
 		}

@@ -35,13 +35,15 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
-import com.dsatab.R;
 import com.dsatab.data.Hero;
 import com.dsatab.view.drag.IconCache;
 import com.dsatab.xml.XmlParserNew;
+import com.dsatab.R;
 import com.gandulf.guilib.util.Debug;
 
 public class DSATabApplication extends Application {
+
+	public static String FULL_PACKAGE_NAME = "com.dsatab";
 
 	public static String DEFAULT_SD_CARD = "/sdcard/dsatab/";
 
@@ -50,7 +52,7 @@ public class DSATabApplication extends Application {
 	// instance
 	private static DSATabApplication instance = null;
 
-	private static boolean liteVersion = false;
+	private boolean liteVersion = false;
 
 	private Hero hero = null;
 
@@ -73,12 +75,12 @@ public class DSATabApplication extends Application {
 		return instance;
 	}
 
-	public static boolean isLiteVersion() {
+	public boolean isLiteVersion() {
 		return liteVersion;
 	}
 
-	public static void setLiteVersion(boolean light) {
-		DSATabApplication.liteVersion = light;
+	public void setLiteVersion(boolean light) {
+		liteVersion = light;
 	}
 
 	public static String getDsaTabPath() {
@@ -125,6 +127,8 @@ public class DSATabApplication extends Application {
 
 		poorRichFont = Typeface.createFromAsset(this.getAssets(), "fonts/poorich.ttf");
 		Debug.setDebugTag(TAG);
+
+		liteShown = false;
 
 		try {
 			ApplicationInfo ai = getPackageManager().getApplicationInfo(this.getPackageName(),

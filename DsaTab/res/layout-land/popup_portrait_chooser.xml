@@ -4,5 +4,5 @@
 
 
 
-<GridView android:layout_height="fill_parent" android:layout_width="fill_parent" android:clickable="true" android:focusable="true" android:focusableInTouchMode="true" android:textFilterEnabled="true" android:verticalSpacing="5dip" android:horizontalSpacing="5dip" android:id="@+id/popup_portrait_chooser_list" android:stretchMode="none" android:numColumns="4"></GridView>
+<GridView android:layout_height="fill_parent" android:layout_width="fill_parent" android:clickable="true" android:focusable="true" android:focusableInTouchMode="true" android:verticalSpacing="5dip" android:horizontalSpacing="5dip" android:id="@+id/popup_portrait_chooser_list" android:numColumns="4" android:stretchMode="columnWidth"></GridView>
 </RelativeLayout>

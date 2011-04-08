@@ -1,5 +1,6 @@
 package com.dsatab.view;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -7,6 +8,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -23,8 +25,8 @@ import com.dsatab.data.enums.AttributeType;
 import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.view.NumberPicker;
 
-public class InlineEditDialog extends Dialog implements android.view.View.OnClickListener, OnCheckedChangeListener,
-		Dialog.OnDismissListener {
+public class InlineEditDialog extends AlertDialog implements android.view.View.OnClickListener,
+		OnCheckedChangeListener, Dialog.OnDismissListener {
 
 	private Value value;
 
@@ -35,8 +37,7 @@ public class InlineEditDialog extends Dialog implements android.view.View.OnClic
 	private ToggleButton combatStyleBtn;
 
 	public InlineEditDialog(Context context, Value value) {
-		super(context, R.style.EditDialog);
-
+		super(context);
 		init();
 		setValue(value);
 	}
@@ -97,12 +98,16 @@ public class InlineEditDialog extends Dialog implements android.view.View.OnClic
 	}
 
 	private void init() {
+
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		setCanceledOnTouchOutside(true);
 		setOnDismissListener(this);
 
 		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(R.layout.popup_edit,
 				null, false);
-		addContentView(popupcontent, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		setView(popupcontent);
 
 		editText = (NumberPicker) popupcontent.findViewById(R.id.popup_edit_text);
 		editSeek = (SeekBar) popupcontent.findViewById(R.id.popup_edit_seek);

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"  
-	android:layout_width="fill_parent" android:background="@drawable/bg_tab_nonland" android:layout_gravity="bottom|left" android:fillViewport="true" android:scrollbars="none" android:fadingEdge="none" android:scrollbarSize="0dp" android:layout_height="@dimen/tab_size">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"  
+	android:layout_width="fill_parent" android:layout_height="wrap_content"
+	android:fillViewport="true" android:scrollbars="none" android:fadingEdge="none" android:scrollbarSize="0dp" android:background="@drawable/bg_tab_land" android:layout_gravity="top|right">
 <LinearLayout 
-	android:id="@+id/gen_tab_layout" android:layout_width="fill_parent"
-	android:orientation="horizontal" android:gravity="bottom|left"  android:layout_gravity="bottom|left" android:layout_height="@dimen/tab_size">
+	android:id="@+id/gen_tab_layout" android:layout_height="wrap_content" android:orientation="vertical" android:layout_gravity="top|right" android:gravity="top|right" android:layout_width="@dimen/tab_size">
     
     
     
@@ -43,5 +43,5 @@
 		android:layout_height="@dimen/tab_icon_size" android:id="@+id/gen_tab_maps"
 		android:src="@drawable/icon_map"></ImageButton>
 </LinearLayout>
-</HorizontalScrollView>	
+</ScrollView>	
 		

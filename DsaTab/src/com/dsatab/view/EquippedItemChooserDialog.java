@@ -3,11 +3,12 @@ package com.dsatab.view;
 import java.util.Collections;
 import java.util.List;
 
-import android.app.Dialog;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -16,7 +17,7 @@ import com.dsatab.R;
 import com.dsatab.data.adapter.EquippedItemAdapter;
 import com.dsatab.data.items.EquippedItem;
 
-public class EquippedItemChooserDialog extends Dialog implements android.view.View.OnClickListener {
+public class EquippedItemChooserDialog extends AlertDialog implements AdapterView.OnItemClickListener {
 
 	private EquippedItemAdapter itemAdapter = null;
 
@@ -27,7 +28,7 @@ public class EquippedItemChooserDialog extends Dialog implements android.view.Vi
 	private List<EquippedItem> equippedItems = Collections.emptyList();
 
 	public EquippedItemChooserDialog(Context context) {
-		super(context, R.style.EditDialog);
+		super(context);
 		init();
 	}
 
@@ -43,7 +44,7 @@ public class EquippedItemChooserDialog extends Dialog implements android.view.Vi
 
 		selectedItem = null;
 
-		itemAdapter = new EquippedItemAdapter(getContext(), com.dsatab.R.layout.popup_item_chooser_item, equippedItems);
+		itemAdapter = new EquippedItemAdapter(getContext(), R.layout.popup_item_chooser_item, equippedItems);
 		itemList.setAdapter(itemAdapter);
 	}
 
@@ -61,37 +62,27 @@ public class EquippedItemChooserDialog extends Dialog implements android.view.Vi
 
 	private void init() {
 
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		setTitle("Wähle einen Gegenstand...");
 
 		setCanceledOnTouchOutside(true);
 
 		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(
 				R.layout.popup_equipped_item_chooser, null, false);
-		addContentView(popupcontent, new LayoutParams(android.widget.LinearLayout.LayoutParams.FILL_PARENT,
-				(int) (getContext().getResources().getDisplayMetrics().widthPixels * 0.80)));
+		popupcontent.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.FILL_PARENT,
+				android.widget.LinearLayout.LayoutParams.WRAP_CONTENT));
+		setView(popupcontent);
 
 		itemList = (ListView) popupcontent.findViewById(R.id.popup_equipped_item_list);
-		itemList.setOnItemClickListener(new ItemChooserListener());
+		itemList.setOnItemClickListener(this);
 
 	}
 
 	@Override
-	public void onClick(View v) {
-
-	}
-
-	class ItemChooserListener implements AdapterView.OnItemClickListener {
-
-		public ItemChooserListener() {
-
-		}
-
-		@Override
-		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-			selectedItem = itemAdapter.getItem(position);
-			EquippedItemChooserDialog.this.dismiss();
-		}
-
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		selectedItem = itemAdapter.getItem(position);
+		EquippedItemChooserDialog.this.dismiss();
 	}
 
 }

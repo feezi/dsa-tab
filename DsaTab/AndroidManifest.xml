@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.dsatab" android:versionCode="9" android:versionName="1.4">
-	<application android:name=".activity.DSATabApplication" android:debuggable="false" android:label="@string/app_name" android:icon="@drawable/icon">
+	package="com.dsatab" android:versionCode="10" android:versionName="1.4.1">
+	<application android:debuggable="false" android:label="@string/app_name" android:icon="@drawable/icon" android:name="com.dsatab.activity.DSATabApplication">
 		<activity android:theme="@style/Theme.MapBackground"
-			android:windowSoftInputMode="adjustResize" android:name=".activity.MainCharacterActivity">
+			android:windowSoftInputMode="adjustResize" android:name="com.dsatab.activity.MainCharacterActivity">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".activity.DsaPreferenceActivity"
+		<activity android:name="com.dsatab.activity.DsaPreferenceActivity"
 			android:label="Einstellungen" android:theme="@style/Theme.NoTitle"></activity>
-		<activity android:name=".activity.MapActivity" android:label="Karten"
+		<activity android:name="com.dsatab.activity.MapActivity" android:label="Karten"
 			android:theme="@style/Theme.WhiteBackground"></activity>
-		<activity android:name=".activity.NotesActivity"
+		<activity android:name="com.dsatab.activity.NotesActivity"
 			android:label="Notizen" android:theme="@style/Theme.MapBackground"></activity>
-		<activity android:name=".activity.ItemChooserActivity"
+		<activity android:name="com.dsatab.activity.ItemChooserActivity"
 			android:label="Inventar" android:theme="@style/Theme.ItemsBackground"></activity>
 		<activity android:label="Inventar" android:theme="@style/Theme.MapBackground"
-			android:name=".activity.ItemsActivity"></activity>
-		<activity android:name=".activity.NotesEditActivity"
+			android:name="com.dsatab.activity.ItemsActivity"></activity>
+		<activity android:name="com.dsatab.activity.NotesEditActivity"
 			android:label="Notizen" android:theme="@style/Theme.MapBackground"
 			android:windowSoftInputMode="stateVisible|adjustResize"></activity>
-		<activity android:name=".activity.HeroChooserActivity"
+		<activity android:name="com.dsatab.activity.HeroChooserActivity"
 			android:theme="@style/Theme.MapBackground" android:label="Held auswählen"></activity>
 		<activity android:theme="@style/Theme.MapBackground"
-			android:label="Talente" android:name=".activity.MainTalentActivity"></activity>
+			android:label="Talente" android:name="com.dsatab.activity.MainTalentActivity"></activity>
 		<activity android:theme="@style/Theme.MapBackground"
-			android:name=".activity.MainSpellActivity"></activity>
+			android:name="com.dsatab.activity.MainSpellActivity"></activity>
 		<activity android:theme="@style/Theme.MapBackground"
-			android:name=".activity.MainFightActivity" android:windowSoftInputMode="stateHidden|adjustResize"></activity>
+			android:name="com.dsatab.activity.MainFightActivity" android:windowSoftInputMode="stateHidden|adjustResize"></activity>
 		<activity android:theme="@style/Theme.MapBackground"
-			android:name=".activity.MainBodyActivity"></activity>
+			android:name="com.dsatab.activity.MainBodyActivity"></activity>
 		<meta-data android:name="lite" android:value="false"></meta-data>
 	</application>
 	<uses-sdk android:minSdkVersion="5" android:targetSdkVersion="8" />

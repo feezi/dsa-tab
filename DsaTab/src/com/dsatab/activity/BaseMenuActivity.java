@@ -114,6 +114,8 @@ public abstract class BaseMenuActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 
@@ -154,10 +156,8 @@ public abstract class BaseMenuActivity extends Activity {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 
-		Hero hero = DSATabApplication.getInstance().getHero();
+		Hero hero = getHero();
 		menu.findItem(R.id.option_save_hero).setEnabled(hero != null);
-		menu.findItem(R.id.option_items).setEnabled(hero != null);
-		menu.findItem(R.id.option_notes).setEnabled(hero != null);
 
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -174,15 +174,6 @@ public abstract class BaseMenuActivity extends Activity {
 		} else if (item.getItemId() == R.id.option_settings) {
 			startActivityForResult(new Intent(this, DsaPreferenceActivity.class), ACTION_PREFERENCES);
 			return true;
-		} else if (item.getItemId() == R.id.option_map) {
-			startMap();
-			return true;
-		} else if (item.getItemId() == R.id.option_notes) {
-			startNotes();
-			return true;
-		} else if (item.getItemId() == R.id.option_items) {
-			startItems();
-			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -192,10 +183,12 @@ public abstract class BaseMenuActivity extends Activity {
 	 */
 	protected void startMap() {
 		if (!getClass().equals(MapActivity.class)) {
-			if (DSATabApplication.isLiteVersion())
+			if (DSATabApplication.getInstance().isLiteVersion())
 				tease("<strong>Nie wieder nach einer bestimmten Karte suchen.</strong> Schau dir all deine Karten bequem über DsaTab an. <br/><br/> <em>Achtung:</em> Das Kartenmaterial selbst ist nicht in DsaTab enthalten und muss eingescannt oder aus dem Internet heruntergeladen werden.");
-			else
+			else {
 				startActivity(new Intent(this, MapActivity.class));
+				finish();
+			}
 		}
 
 	}
@@ -205,10 +198,12 @@ public abstract class BaseMenuActivity extends Activity {
 	 */
 	protected void startItems() {
 		if (!getClass().equals(ItemsActivity.class)) {
-			if (DSATabApplication.isLiteVersion())
+			if (DSATabApplication.getInstance().isLiteVersion())
 				tease("<strong>Mal eben schnell deine Ausrüstung wechseln?.</strong> Hier kannst du deine gesamte Ausrüstung bequem verwalten. Einen neuen Gegenstand hinzufügen? Kein Problem DsaTab verfügt über die wichtigsten Daten des gesamten Aventurischen Arsenals und noch viele zusätzliche nützliche Gegenstände mehr.");
-			else
+			else {
 				startActivityForResult(new Intent(this, ItemsActivity.class), ACTION_INVENTORY);
+				finish();
+			}
 		}
 
 	}
@@ -216,10 +211,12 @@ public abstract class BaseMenuActivity extends Activity {
 	protected void startNotes() {
 		if (!getClass().equals(NotesActivity.class)) {
 
-			if (DSATabApplication.isLiteVersion())
+			if (DSATabApplication.getInstance().isLiteVersion())
 				tease("<strong>Nie wieder einen wichtigen Hinweis vergessen.</strong> Du kannst jetzt notizen entweder aufschreiben, oder noch bequemer einfach über das eingebaute Mikrofon aufnehmen und dann abspielen.");
-			else
+			else {
 				startActivity(new Intent(this, NotesActivity.class));
+				finish();
+			}
 
 		}
 	}

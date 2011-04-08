@@ -141,7 +141,7 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 
 	private boolean showLiteInfoPopup() {
 
-		if (DSATabApplication.isLiteVersion() && !DSATabApplication.getInstance().liteShown) {
+		if (DSATabApplication.getInstance().isLiteVersion() && !DSATabApplication.getInstance().liteShown) {
 
 			liteDialog = new LiteInfoDialog(this);
 			liteDialog.setOwnerActivity(this);

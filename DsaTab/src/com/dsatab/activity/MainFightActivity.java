@@ -91,7 +91,7 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 		public void onClick(View v) {
 			if (v.getTag() instanceof EquippedItem) {
 
-				if (DSATabApplication.isLiteVersion()) {
+				if (DSATabApplication.getInstance().isLiteVersion()) {
 					tease("<strong>Wo ist nochmal schnell die Fernkampftabelle?</strong> Hier! Einfach die Größe und Entfernung eingeben und die Vollversion von DsaTab berechnet dir automatisch für jede Waffe die genaue Erschwernis. Auch bewegliche Ziele oder schlechte Sichtverhältnisse können berücksichtigt werden.");
 				} else {
 					EquippedItem item = (EquippedItem) v.getTag();
@@ -398,7 +398,7 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 			@Override
 			public void onClick(View v) {
 
-				if (DSATabApplication.isLiteVersion()) {
+				if (DSATabApplication.getInstance().isLiteVersion()) {
 					tease("<strong>Auf welche Seite sind die Ausweichen Modifikatoren?</strong> Egal, die Vollversion von DsaTab berechnet nicht nur deinen Ausweichenwert, sie berücksichtigt auch sämtliche Modifikatoren (Mehrere Gegner, Distanzklasse, Gezieltes Ausweichen).");
 				} else {
 					EvadeChooserDialog ausweichenModificationDialog = new EvadeChooserDialog(MainFightActivity.this);

@@ -1,12 +1,12 @@
 package com.dsatab.view;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -25,7 +25,7 @@ import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.gandulf.guilib.view.adapter.SpinnerSimpleAdapter;
 
-public class ArcheryChooserDialog extends Dialog implements android.view.View.OnClickListener {
+public class ArcheryChooserDialog extends AlertDialog implements android.view.View.OnClickListener {
 
 	private int[] distanceProbe;
 	private int[] sizeProbe;
@@ -43,7 +43,7 @@ public class ArcheryChooserDialog extends Dialog implements android.view.View.On
 
 	private ImageButton iconLeft, iconRight;
 
-	private AlertDialog othersDialog;
+	private AlertDialog othersDialog = null;
 
 	private int erschwernis = 0;
 
@@ -52,7 +52,7 @@ public class ArcheryChooserDialog extends Dialog implements android.view.View.On
 	private MainFightActivity main;
 
 	public ArcheryChooserDialog(MainFightActivity context) {
-		super(context, R.style.NoTitleDialog);
+		super(context);
 		this.main = context;
 		init();
 	}
@@ -85,6 +85,8 @@ public class ArcheryChooserDialog extends Dialog implements android.view.View.On
 			dismiss();
 			main.checkProbe(combatProbe);
 		} else if (v == btnOthers) {
+			if (othersDialog == null)
+				initOthersDialog();
 			othersDialog.show();
 		}
 	}
@@ -126,6 +128,8 @@ public class ArcheryChooserDialog extends Dialog implements android.view.View.On
 
 	private void init() {
 
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		distanceProbe = getContext().getResources().getIntArray(R.array.archeryDistanceValues);
 		sizeProbe = getContext().getResources().getIntArray(R.array.archerySizeValues);
 		modificationValues = getContext().getResources().getIntArray(R.array.archeryModificationValues);
@@ -134,7 +138,8 @@ public class ArcheryChooserDialog extends Dialog implements android.view.View.On
 
 		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(
 				R.layout.popup_archery, null, false);
-		addContentView(popupcontent, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		setView(popupcontent);
 
 		distanceSpinner = (Spinner) popupcontent.findViewById(R.id.archery_distance);
 		distanceSpinner.setPrompt("Entfernung");
@@ -175,16 +180,11 @@ public class ArcheryChooserDialog extends Dialog implements android.view.View.On
 		iconLeft = (ImageButton) popupcontent.findViewById(R.id.icon_left);
 		iconRight = (ImageButton) popupcontent.findViewById(R.id.icon_right);
 
-		setOnDismissListener(new Dialog.OnDismissListener() {
-
-			public void onDismiss(DialogInterface dialog) {
-
-			}
-		});
-
-		btnOthers = (Button) findViewById(R.id.archery_others);
+		btnOthers = (Button) popupcontent.findViewById(R.id.archery_others);
 		btnOthers.setOnClickListener(this);
+	}
 
+	private void initOthersDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		builder.setTitle(R.string.modifikatoren);
 		builder.setPositiveButton("Ok", new OnClickListener() {
@@ -226,6 +226,5 @@ public class ArcheryChooserDialog extends Dialog implements android.view.View.On
 			}
 		});
 		othersDialog = builder.create();
-
 	}
 }

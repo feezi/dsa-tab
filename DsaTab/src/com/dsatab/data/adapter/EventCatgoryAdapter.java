@@ -5,13 +5,13 @@ import java.util.List;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.dsatab.R;
 import com.dsatab.data.enums.EventCategory;
+import com.gandulf.guilib.view.adapter.SpinnerSimpleAdapter;
 
-public class EventCatgoryAdapter extends ArrayAdapter<EventCategory> {
+public class EventCatgoryAdapter extends SpinnerSimpleAdapter<EventCategory> {
 
 	public EventCatgoryAdapter(Context context, int textViewResourceId, EventCategory[] objects) {
 		super(context, textViewResourceId, objects);
@@ -52,7 +52,8 @@ public class EventCatgoryAdapter extends ArrayAdapter<EventCategory> {
 			EventCategory e = getItem(position);
 
 			textView.setCompoundDrawablesWithIntrinsicBounds(e.getDrawableId(), 0, 0, 0);
-			textView.setCompoundDrawablePadding(getContext().getResources().getDimensionPixelSize(R.dimen.dices_padding));
+			textView.setCompoundDrawablePadding(getContext().getResources()
+					.getDimensionPixelSize(R.dimen.dices_padding));
 			textView.setText(e.name());
 		}
 
@@ -68,7 +69,8 @@ public class EventCatgoryAdapter extends ArrayAdapter<EventCategory> {
 			EventCategory e = getItem(position);
 
 			textView.setCompoundDrawablesWithIntrinsicBounds(e.getDrawableId(), 0, 0, 0);
-			textView.setCompoundDrawablePadding(getContext().getResources().getDimensionPixelSize(R.dimen.dices_padding));
+			textView.setCompoundDrawablePadding(getContext().getResources()
+					.getDimensionPixelSize(R.dimen.dices_padding));
 			textView.setText(e.name());
 		}
 

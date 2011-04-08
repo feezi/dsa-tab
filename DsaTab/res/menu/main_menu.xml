@@ -4,20 +4,8 @@
           android:title="Held laden" />
     <item android:id="@+id/option_save_hero"
           android:icon="@drawable/m_icon_save"
-          android:title="Held speichern" />          
+          android:title="Held speichern" />
 	<item android:id="@+id/option_settings"
           android:icon="@drawable/m_icon_misc"
           android:title="Einstellungen" />
-          	
-	<item android:id="@+id/option_map"
-          android:icon="@drawable/m_icon_natur"
-          android:title="Karten" />          
-	<item android:id="@+id/option_notes"
-          android:icon="@drawable/m_icon_mic"
-          android:title="Notizen" />                    
-	<item android:id="@+id/option_items"
-          android:icon="@drawable/m_icon_star"
-          android:title="Gegenstände" />          
-                    
-	          
 </menu>

@@ -2,10 +2,9 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/contentLayout" android:gravity="center|top"
-	android:layout_width="fill_parent" android:background="@color/Darker"
-	android:layout_height="fill_parent" android:paddingBottom="0dip"
+	android:layout_width="fill_parent" android:layout_height="fill_parent" android:paddingBottom="0dip"
 	android:paddingLeft="10dip" android:paddingRight="10dip"
-	android:paddingTop="10dip" android:clickable="true">
+	android:paddingTop="10dip" android:clickable="true" android:background="@drawable/bg_tab_dice">
 
 
 
@@ -30,9 +29,8 @@
 				android:id="@+id/dice_probe"></TextView>
 
 			<TextView android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:text="Effekt"
-				android:textColor="#ffffff" android:textSize="20dip"
-				android:layout_marginLeft="20dip" android:id="@+id/dice_effect"></TextView>
+				android:layout_height="wrap_content" android:textColor="#ffffff" android:textSize="20dip"
+				android:layout_marginLeft="20dip" android:id="@+id/dice_effect" android:text="TaP*"></TextView>
 		</TableRow>
 		<TableRow android:id="@+id/TableRow02" android:layout_width="wrap_content"
 			android:layout_height="wrap_content">

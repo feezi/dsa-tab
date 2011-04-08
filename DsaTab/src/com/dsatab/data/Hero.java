@@ -547,6 +547,10 @@ public class Hero {
 			equippedItem.setTalent(talent);
 		getEquippedItems().add(equippedItem);
 
+		if (item instanceof Armor) {
+			resetArmorAttributes();
+		}
+
 		return equippedItem;
 	}
 
@@ -879,7 +883,7 @@ public class Hero {
 
 		List<Modifier> modifiers = new LinkedList<Modifier>();
 
-		if (DSATabApplication.isLiteVersion())
+		if (DSATabApplication.getInstance().isLiteVersion())
 			return modifiers;
 
 		for (Modificator modificator : getModifiers()) {
@@ -1061,7 +1065,7 @@ public class Hero {
 	public Integer getModifiedValue(AttributeType type) {
 		int modifier = 0;
 
-		if (!DSATabApplication.isLiteVersion()) {
+		if (!DSATabApplication.getInstance().isLiteVersion()) {
 			for (Modificator m : getModifiers()) {
 				modifier += m.getModifier(type).getModifier();
 			}
@@ -1748,11 +1752,15 @@ public class Hero {
 
 		getHeldElement().removeChild(equippedItem.getElement());
 		getEquippedItems().remove(equippedItem);
+
+		if (equippedItem.getItem() instanceof Armor) {
+			resetArmorAttributes();
+		}
 	}
 
 	public List<Modificator> getModifiers() {
-		if (DSATabApplication.isLiteVersion())
-			return Collections.EMPTY_LIST;
+		if (DSATabApplication.getInstance().isLiteVersion())
+			return Collections.emptyList();
 		else
 			return modifiers;
 	}

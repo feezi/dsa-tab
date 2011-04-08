@@ -25,7 +25,9 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,15 +45,13 @@ import com.dsatab.view.listener.ShakeListener;
 import com.dsatab.view.listener.ValueChangedListener;
 import com.gandulf.guilib.util.Debug;
 
-/**
- * @author Ganymede
- * 
- */
 public abstract class BaseMainActivity extends BaseMenuActivity implements OnClickListener, ValueChangedListener {
 
 	private DiceSlider diceSlider;
 
 	private ShakeListener mShaker;
+
+	private static int tabScrollOffset = 0;
 
 	class EditListener implements View.OnClickListener, View.OnLongClickListener {
 
@@ -171,11 +171,7 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 			registerShakeDice();
 		}
 
-		RelativeLayout relMainLayout = (RelativeLayout) findViewById(R.id.gen_main_layout);
-		diceSlider = (DiceSlider) LayoutInflater.from(this).inflate(R.layout.dice_slider, relMainLayout, false);
-		RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) diceSlider.getLayoutParams();
-		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		relMainLayout.addView(diceSlider);
+		setupDiceSilder();
 
 		findViewById(R.id.gen_tab_char).setOnClickListener(this);
 		findViewById(R.id.gen_tab_char).setSelected(getClass().equals(MainCharacterActivity.class));
@@ -194,6 +190,43 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 		findViewById(R.id.gen_tab_notes).setOnClickListener(this);
 		findViewById(R.id.gen_tab_maps).setSelected(getClass().equals(MapActivity.class));
 		findViewById(R.id.gen_tab_maps).setOnClickListener(this);
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onWindowFocusChanged(boolean)
+	 */
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+
+		if (hasFocus) {
+			View scroller = findViewById(R.id.inc_tabs);
+			ScrollView scrollView = null;
+			HorizontalScrollView hScrollView = null;
+			if (scroller instanceof ScrollView)
+				scrollView = (ScrollView) scroller;
+			if (scroller instanceof HorizontalScrollView)
+				hScrollView = (HorizontalScrollView) scroller;
+
+			if (scrollView != null)
+				scrollView.scrollTo(0, tabScrollOffset);
+
+			if (hScrollView != null)
+				hScrollView.scrollTo(tabScrollOffset, 0);
+
+		}
+
+		super.onWindowFocusChanged(hasFocus);
+	}
+
+	protected void setupDiceSilder() {
+		RelativeLayout relMainLayout = (RelativeLayout) findViewById(R.id.gen_main_layout);
+		diceSlider = (DiceSlider) LayoutInflater.from(this).inflate(R.layout.dice_slider, relMainLayout, false);
+		RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) diceSlider.getLayoutParams();
+		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		relMainLayout.addView(diceSlider);
 	}
 
 	public void onClick(View v) {
@@ -255,7 +288,7 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 	@Override
 	public void onBackPressed() {
 
-		if (diceSlider.isOpened()) {
+		if (diceSlider != null && diceSlider.isOpened()) {
 			diceSlider.animateClose();
 		} else {
 			super.onBackPressed();
@@ -350,7 +383,7 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 
 	public void showEditPopup(Value value) {
 
-		if (DSATabApplication.isLiteVersion()) {
+		if (DSATabApplication.getInstance().isLiteVersion()) {
 			tease("<strong>Mal eben schnell einen Wert steigern?</strong> Mit der Vollversion von DsaTab können Eigenschaften, Talente, Zauber, Rüstungsschutz und noch vieles mehr einfach und bequem editiert werden. Getätigte Änderungen werden in der XML Datei nachgezogen und können somit auch wieder in die Helden-Software importiert werden, falls notwendig. ");
 		} else {
 			InlineEditDialog inlineEditdialog = new InlineEditDialog(this, value);
@@ -389,7 +422,8 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 	}
 
 	public boolean checkProbe(Probe probe) {
-		diceSlider.checkProbe(getHero(), probe);
+		if (diceSlider != null)
+			diceSlider.checkProbe(getHero(), probe);
 		return true;
 	}
 
@@ -430,7 +464,8 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 			mShaker.setOnShakeListener(new ShakeListener.OnShakeListener() {
 				public void onShake() {
 					vibe.vibrate(100);
-					diceSlider.rollDice20();
+					if (diceSlider != null)
+						diceSlider.rollDice20();
 				}
 			});
 		}
@@ -452,6 +487,21 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 	protected void onPause() {
 		if (mShaker != null)
 			mShaker.pause();
+
+		View scroller = findViewById(R.id.inc_tabs);
+		ScrollView scrollView = null;
+		HorizontalScrollView hScrollView = null;
+		if (scroller instanceof ScrollView)
+			scrollView = (ScrollView) scroller;
+		if (scroller instanceof HorizontalScrollView)
+			hScrollView = (HorizontalScrollView) scroller;
+
+		if (scrollView != null)
+			tabScrollOffset = scrollView.getScrollY();
+
+		if (hScrollView != null)
+			tabScrollOffset = hScrollView.getScrollX();
+
 		super.onPause();
 	}
 
@@ -459,6 +509,7 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 	protected void onResume() {
 		if (mShaker != null)
 			mShaker.resume();
+
 		super.onResume();
 	}
 

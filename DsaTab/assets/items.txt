@@ -1,4 +1,4 @@
-﻿W;Anderthalbhänder;anderthalbhaender00_LQ.gif;Anderthalbhänder          ;1W+5;11/4;0/0;1;1;NS;;Anderthalbhänder;Zweihandschwerter;
+W;Anderthalbhänder;anderthalbhaender00_LQ.gif;Anderthalbhänder          ;1W+5;11/4;0/0;1;1;NS;;Anderthalbhänder;Zweihandschwerter;
 W;Bastardschwert;bastardschwert00_LQ.gif;Anderthalbhänder               ;1W+5;11/3;0/-1;0;2;NS;;Anderthalbhänder;
 W;Bastardschwert 1H;bastardschwert00_LQ.gif;Anderthalbhänder            ;1W+5;12/4;0/-1;-1;2;N;;Schwerter;
 W;Nachtwind;blank_LQ.gif;Anderthalbhänder                               ;1W+4;11/5;0/0;2;0;N;;Anderthalbhänder;Schwerter;

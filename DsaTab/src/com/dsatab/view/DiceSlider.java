@@ -30,7 +30,6 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
 import com.dsatab.activity.DsaPreferenceActivity;
 import com.dsatab.common.DsaMath;
@@ -46,6 +45,7 @@ import com.dsatab.data.Modifier;
 import com.dsatab.data.Probe;
 import com.dsatab.data.Probe.ProbeType;
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.R;
 import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.view.NumberPicker;
 
@@ -114,7 +114,7 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 
 		if (v.getId() == R.id.dice_probe_table || v.getId() == R.id.dice_info) {
 
-			if (DSATabApplication.isLiteVersion()) {
+			if (DSATabApplication.getInstance().isLiteVersion()) {
 				LiteInfoDialog dialog = new LiteInfoDialog(getContext());
 				dialog.setFeature("<strong>Keine Lust mehr dir alle Einbußen und Modifikatoren zu merken?</strong> Die Vollversion kümmert sich ab jetzt für dich darum. Egal ob Einbußen durch zu niedrige Lebensenergie, Wunden, Waffen-Modifikatoren, Behinderung oder weiss der Meister was. DsaTab berücksichtigt das bei jeder Probe automatisch. Zusätzlich kannst du eine Probe noch um einen beliebigen Wert erleichtern oder erschweren.");
 				dialog.show();
@@ -124,7 +124,8 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 				AlertDialog alertDialog;
 
 				LayoutInflater inflater = LayoutInflater.from(getContext());
-				LinearLayout linearLayout = (LinearLayout) inflater.inflate(R.layout.popup_probe_info, null, false);
+				View probeInfoView = inflater.inflate(R.layout.popup_probe_info, null, false);
+				LinearLayout linearLayout = (LinearLayout) probeInfoView.findViewById(R.id.popup_probe_layout);
 
 				StyleableSpannableStringBuilder stringBuilder = new StyleableSpannableStringBuilder();
 
@@ -171,7 +172,7 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 
 				// build
 				builder = new AlertDialog.Builder(getContext());
-				builder.setView(linearLayout);
+				builder.setView(probeInfoView);
 				builder.setTitle("Probenzuschläge");
 				builder.setNeutralButton(getContext().getString(R.string.label_ok),
 						new DialogInterface.OnClickListener() {
@@ -272,7 +273,7 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
 			if (probability != null && preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_PROBABILITY, false)) {
-				tfEffectValue.append(" " + probabilityFormat.format(probability));
+				tfEffectValue.append(" (" + probabilityFormat.format(probability) + ")");
 			}
 
 			if (failureTwenty && effect < 0) {
@@ -340,7 +341,7 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 
 		int heroBe = hero.getBe(probe);
 
-		if (heroBe != 0 && !DSATabApplication.isLiteVersion()) {
+		if (heroBe != 0 && !DSATabApplication.getInstance().isLiteVersion()) {
 			modifiers.add(new Modifier(-1 * heroBe, "Behinderung " + probe.getBe(), null));
 		}
 
