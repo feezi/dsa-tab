@@ -65,7 +65,8 @@ public class ItemInfo implements Serializable, Cloneable {
 
 	public void setScreen(int screen) {
 		this.screen = screen;
-		element.setAttribute(Xml.KEY_SCREEN, Util.toString(screen));
+		if (element != null)
+			element.setAttribute(Xml.KEY_SCREEN, Util.toString(screen));
 
 	}
 

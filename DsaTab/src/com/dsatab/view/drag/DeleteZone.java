@@ -24,6 +24,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.TransitionDrawable;
 import android.util.AttributeSet;
+import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -34,6 +35,8 @@ import android.widget.ImageView;
 import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
 import com.dsatab.data.Hero;
+import com.dsatab.data.items.EquippedItem;
+import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
 import com.dsatab.view.FastAnimationSet;
 import com.dsatab.view.FastTranslateAnimation;
@@ -104,7 +107,12 @@ public class DeleteZone extends ImageView implements DropTarget<ItemCard>, DragC
 
 		Hero hero = DSATabApplication.getInstance().getHero();
 
-		hero.removeItem(dragInfo.getItem());
+		if (dragInfo instanceof Item)
+			hero.removeItem((Item) dragInfo);
+		else if (dragInfo instanceof EquippedItem)
+			hero.removeEquippedItem((EquippedItem) dragInfo);
+		else
+			hero.removeItem(dragInfo.getItem());
 
 	}
 
@@ -139,6 +147,18 @@ public class DeleteZone extends ImageView implements DropTarget<ItemCard>, DragC
 
 			setVisibility(VISIBLE);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.gandulf.guilib.drag.DragController.DragListener#onDragDrop(java.lang
+	 * .Object, int, int, int)
+	 */
+	@Override
+	public void onDragDrop(View cell, ItemCard dragInfo, int x, int y, int screen) {
+
 	}
 
 	public void onDragEnd() {

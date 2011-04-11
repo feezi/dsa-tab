@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -42,6 +43,7 @@ import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.AuModifier;
 import com.dsatab.data.modifier.LeModifier;
 import com.dsatab.data.modifier.Modificator;
+import com.dsatab.view.listener.InventoryChangedListener;
 import com.dsatab.view.listener.ModifierChangedListener;
 import com.dsatab.view.listener.ValueChangedListener;
 import com.dsatab.xml.DataManager;
@@ -83,7 +85,7 @@ public class Hero {
 	private List<Spell> spells;
 	private List<CombatDistanceTalent> combatDistanceTalents;
 	private List<Event> events;
-	private Map<ItemType, List<Item>> items;
+	private List<Item> items;
 
 	private Map<Position, ArmorAttribute> armorAttributes;
 	private Map<Position, WoundAttribute> wounds;
@@ -93,6 +95,7 @@ public class Hero {
 	private List<Element> beidhaendigerKampfElements = new LinkedList<Element>();
 
 	private List<ModifierChangedListener> modifierChangedListeners = new LinkedList<ModifierChangedListener>();
+	private List<InventoryChangedListener> inventoryChangedListeners = new LinkedList<InventoryChangedListener>();
 	private List<Modificator> modifiers = new LinkedList<Modificator>();
 
 	LeModifier leModifier;
@@ -112,7 +115,7 @@ public class Hero {
 		this.path = path;
 		this.dom = dom;
 		this.attributes = new HashMap<AttributeType, Attribute>(AttributeType.values().length);
-		this.equippedItems = (LinkedList<EquippedItem>[]) new LinkedList[3];
+		this.equippedItems = new LinkedList[3];
 
 		this.leModifier = new LeModifier(this);
 		if (getLeRatio() < 0.5)
@@ -126,7 +129,6 @@ public class Hero {
 			if (attr.getValue() > 0)
 				modifiers.add(attr);
 		}
-
 	}
 
 	public Drawable getPortrait() {
@@ -153,9 +155,11 @@ public class Hero {
 
 	public EquippedItem getEquippedItem(String name) {
 
-		for (EquippedItem item : getEquippedItems()) {
-			if (item.getName().equals(name))
-				return item;
+		for (List<EquippedItem> items : equippedItems) {
+			for (EquippedItem item : items) {
+				if (item.getName().equals(name))
+					return item;
+			}
 		}
 		return null;
 
@@ -174,22 +178,34 @@ public class Hero {
 		return purse;
 	}
 
-	public List<EquippedItem> getEquippedItems(Class<? extends Item>... itemClass) {
+	public List<EquippedItem> getEquippedItems(Class<?>... itemClass) {
 
 		List<EquippedItem> items = new LinkedList<EquippedItem>();
-		for (EquippedItem ei : getEquippedItems()) {
-			Item item = ei.getItem();
-			for (Class<? extends Item> clazz : itemClass) {
-				if (clazz.isAssignableFrom(item.getClass())) {
-					items.add(ei);
-					break;
+
+		for (List<EquippedItem> equippedList : equippedItems) {
+			for (EquippedItem ei : equippedList) {
+				Item item = ei.getItem();
+				for (Class<?> clazz : itemClass) {
+					if (clazz.isAssignableFrom(item.getClass())) {
+						items.add(ei);
+						break;
+					}
 				}
 			}
-
 		}
 
 		return items;
 
+	}
+
+	public List<EquippedItem> getAllEquippedItems() {
+		LinkedList<EquippedItem> items = new LinkedList<EquippedItem>();
+
+		for (List<EquippedItem> i : equippedItems) {
+			items.addAll(i);
+		}
+
+		return items;
 	}
 
 	public List<EquippedItem> getEquippedItems() {
@@ -345,6 +361,14 @@ public class Hero {
 		modifierChangedListeners.remove(listener);
 	}
 
+	public void addInventoryChangedListener(InventoryChangedListener listener) {
+		inventoryChangedListeners.add(listener);
+	}
+
+	public void removeInventoryChangedListener(InventoryChangedListener listener) {
+		inventoryChangedListeners.remove(listener);
+	}
+
 	void fireModifiersChangedEvent(List<Modificator> modifiers) {
 
 		this.modifiers = modifiers;
@@ -394,6 +418,30 @@ public class Hero {
 		}
 	}
 
+	void fireItemAddedEvent(Item item) {
+		for (InventoryChangedListener listener : inventoryChangedListeners) {
+			listener.onItemAdded(item);
+		}
+	}
+
+	void fireItemRemovedEvent(Item item) {
+		for (InventoryChangedListener listener : inventoryChangedListeners) {
+			listener.onItemRemoved(item);
+		}
+	}
+
+	void fireItemEquippedEvent(EquippedItem item) {
+		for (InventoryChangedListener listener : inventoryChangedListeners) {
+			listener.onItemEquipped(item);
+		}
+	}
+
+	void fireItemUnequippedEvent(EquippedItem item) {
+		for (InventoryChangedListener listener : inventoryChangedListeners) {
+			listener.onItemUnequipped(item);
+		}
+	}
+
 	void fireModifierAddedEvent(Modificator modifier) {
 
 		modifiers.add(modifier);
@@ -416,22 +464,36 @@ public class Hero {
 	 * @param item
 	 */
 	public void removeItem(Item item) {
-		List<Item> items = getItems().get(item.getType());
+		List<Item> items = getItems();
 		items.remove(item);
-		getHeldElement().removeChild(item.getElement());
+		try {
+			getHeldElement().removeChild(item.getElement());
+		} catch (DOMException e) {
+			if (e.code == DOMException.NOT_FOUND_ERR) {
+				Debug.error("Trying to remove item that was not there " + item);
+			}
+			Debug.error(e);
+		}
+
+		fireItemRemovedEvent(item);
 
 		List<EquippedItem> toremove = new ArrayList<EquippedItem>();
-		for (EquippedItem equippedItem : getEquippedItems()) {
 
-			if (equippedItem.getItem() == null) {
-				Debug.warning("Empty EquippedItem found during item delete:" + equippedItem.getName() + " - "
-						+ equippedItem.getItemName());
-				continue;
+		for (List<EquippedItem> equippedList : equippedItems) {
+
+			for (EquippedItem equippedItem : equippedList) {
+
+				if (equippedItem.getItem() == null) {
+					Debug.warning("Empty EquippedItem found during item delete:" + equippedItem.getName() + " - "
+							+ equippedItem.getItemName());
+					continue;
+				}
+
+				if (equippedItem.getItem().equals(item)) {
+					toremove.add(equippedItem);
+				}
 			}
 
-			if (equippedItem.getItem().equals(item)) {
-				toremove.add(equippedItem);
-			}
 		}
 
 		for (EquippedItem equippedItem : toremove) {
@@ -459,6 +521,11 @@ public class Hero {
 	}
 
 	public void addItem(final Context context, final Item item, CombatTalent talent, final ItemAddedCallback callback) {
+		addItem(context, item, talent, getActiveSet(), callback);
+	}
+
+	public void addItem(final Context context, final Item item, CombatTalent talent, final int set,
+			final ItemAddedCallback callback) {
 
 		if (talent == null) {
 			if (item instanceof Weapon) {
@@ -482,14 +549,13 @@ public class Hero {
 
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							addItem(context, item, combatTalents.get(which), callback);
+							addItem(context, item, combatTalents.get(which), set, callback);
 						}
 					});
 
 					builder.show().setCanceledOnTouchOutside(true);
 					return;
 				}
-
 			} else if (item instanceof DistanceWeapon) {
 				DistanceWeapon weapon = (DistanceWeapon) item;
 				if (weapon.getCombatTalentType() != null) {
@@ -504,52 +570,74 @@ public class Hero {
 
 		addItem(item);
 
-		if (callback != null)
-			callback.onItemAdded(item);
+		fireItemAddedEvent(item);
 
-		if (item.getType().isEquipable()) {
-			addEquippedItem(item, talent);
-		}
+		if (callback != null)
+
+			if (item.getType().isEquipable() && set >= 0) {
+				EquippedItem equippedItem = addEquippedItem(item, talent, set);
+				callback.onEquippedItemAdded(equippedItem);
+			} else {
+				callback.onItemAdded(item);
+			}
 	}
 
-	public void addItem(Item item) {
+	/**
+	 * @param item
+	 * @return <code>true</code> if item has been added successfully, otherwise
+	 *         <code>false</code>
+	 */
+	public boolean addItem(Item item) {
+
+		List<Item> items = getItems();
+
+		// item already added, no need to add again
+		if (items.contains(item))
+			return false;
+
+		if (item.getElement() != null) {
+			throw new IllegalArgumentException("Item " + item.getName()
+					+ " cannot be added since it already has a dom element");
+		}
 
 		Element element = dom.createElement(Xml.KEY_GEGENSTAND);
 		element.setAttribute(Xml.KEY_NAME, item.getName());
 		element.setAttribute(Xml.KEY_ANZAHL, "1");
 		element.setAttribute(Xml.KEY_SLOT, "0");
-
 		item.setElement(element);
-		List<Item> items = getItems().get(item.getType());
-		if (items == null) {
-			items = new LinkedList<Item>();
-			getItems().put(item.getType(), items);
-		}
+
 		items.add(item);
 
 		getHeldElement().appendChild(element);
 
+		return true;
 	}
 
 	public EquippedItem addEquippedItem(Item item, CombatTalent talent) {
+		return addEquippedItem(item, talent, getActiveSet());
+	}
+
+	public EquippedItem addEquippedItem(Item item, CombatTalent talent, final int set) {
 
 		// if hero does not have item yet, add it first.
-		Item heroItem = getItem(item.getName());
+		Item heroItem = getItem(item.getId());
 		if (heroItem == null) {
 			addItem(item);
 		}
 
 		Element element = dom.createElement(Xml.KEY_HELDENAUSRUESTUNG);
-		element.setAttribute(Xml.KEY_SET, Util.toString(activeSet));
+		element.setAttribute(Xml.KEY_SET, Util.toString(set));
 		getHeldElement().appendChild(element);
 		EquippedItem equippedItem = new EquippedItem(this, element, item);
 		if (talent != null)
 			equippedItem.setTalent(talent);
-		getEquippedItems().add(equippedItem);
+		getEquippedItems(set).add(equippedItem);
 
 		if (item instanceof Armor) {
 			resetArmorAttributes();
 		}
+
+		fireItemEquippedEvent(equippedItem);
 
 		return equippedItem;
 	}
@@ -683,8 +771,8 @@ public class Hero {
 					WoundAttribute rs = new WoundAttribute(this, rsNode);
 					wounds.put(rs.getPosition(), rs);
 				} catch (Exception e) {
-					Debug.warn(e);
 					getHeldElement().removeChild(rsNode);
+					Debug.warn(e);
 				}
 			}
 
@@ -1274,18 +1362,13 @@ public class Hero {
 	}
 
 	public List<Item> getItems(ItemType... types) {
+		List<Item> result = new LinkedList<Item>();
+		List<ItemType> typeList = Arrays.asList(types);
 
-		List<Item> result = null;
-		if (types.length == 1) {
-			result = getItems().get(types[0]);
-		} else if (types.length > 1) {
-			result = new LinkedList<Item>();
-			for (ItemType t : types) {
-				result.addAll(getItems(t));
-			}
+		for (Item item : getItems()) {
+			if (typeList.contains(item.getType()))
+				result.add(item);
 		}
-		if (result == null)
-			result = Collections.emptyList();
 
 		return result;
 	}
@@ -1482,11 +1565,11 @@ public class Hero {
 		return rs;
 	}
 
-	public Map<ItemType, List<Item>> getItems() {
+	public List<Item> getItems() {
 
 		if (items == null) {
 
-			items = new HashMap<ItemType, List<Item>>();
+			items = new LinkedList<Item>();
 
 			List<Node> itemsElements = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_GEGENSTAND);
 
@@ -1501,14 +1584,7 @@ public class Hero {
 
 						item = (Item) item.duplicate();
 						item.setElement(element);
-
-						List<Item> its = items.get(item.getType());
-
-						if (its == null) {
-							its = new LinkedList<Item>();
-							items.put(item.getType(), its);
-						}
-						its.add(item);
+						items.add(item);
 
 					} else {
 						Debug.warning("Item not found skipping it:" + element.getAttribute(Xml.KEY_NAME));
@@ -1673,22 +1749,20 @@ public class Hero {
 	}
 
 	public Item getItem(String name) {
-		for (ItemType type : getItems().keySet()) {
-			for (Item item : getItems(type)) {
-				if (item.getName().equals(name)) {
-					return item;
-				}
+
+		for (Item item : getItems()) {
+			if (item.getName().equals(name)) {
+				return item;
 			}
 		}
+
 		return null;
 	}
 
 	public Item getItem(UUID id) {
-		for (ItemType type : getItems().keySet()) {
-			for (Item item : getItems(type)) {
-				if (item.getId().equals(id)) {
-					return item;
-				}
+		for (Item item : getItems()) {
+			if (item.getId().equals(id)) {
+				return item;
 			}
 		}
 		return null;
@@ -1751,11 +1825,16 @@ public class Hero {
 		}
 
 		getHeldElement().removeChild(equippedItem.getElement());
-		getEquippedItems().remove(equippedItem);
+
+		for (List<EquippedItem> items : equippedItems) {
+			items.remove(equippedItem);
+		}
 
 		if (equippedItem.getItem() instanceof Armor) {
 			resetArmorAttributes();
 		}
+
+		fireItemUnequippedEvent(equippedItem);
 	}
 
 	public List<Modificator> getModifiers() {
@@ -1781,5 +1860,7 @@ public class Hero {
 
 	public interface ItemAddedCallback {
 		public void onItemAdded(Item item);
+
+		public void onEquippedItemAdded(EquippedItem item);
 	}
 }

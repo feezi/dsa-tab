@@ -194,6 +194,15 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		super.addView(child, index, params);
 	}
 
+	public boolean isCellEmpty(int x, int y) {
+		return isCellEmpty(x, y, getCurrentScreen());
+	}
+
+	public boolean isCellEmpty(int x, int y, int screen) {
+		final CellLayout group = (CellLayout) getChildAt(screen);
+		return group.isCellEmpty(x, y);
+	}
+
 	@Override
 	public void addView(View child) {
 		if (!(child instanceof CellLayout)) {
@@ -256,14 +265,13 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 				VacantCell vacant = info2.vacantCells.get(0);
 				info.setCellX(vacant.cellX);
 				info.setCellY(vacant.cellY);
+				info.setScreen(screen);
 			} else {
 				return false;
 			}
 		}
 
-		addInScreen(view, screen, info.getCellX(), info.getCellY(), info.getSpanX(), info.getSpanY());
-
-		return true;
+		return addInScreen(view, screen, info.getCellX(), info.getCellY(), info.getSpanX(), info.getSpanY());
 	}
 
 	@Override
@@ -320,8 +328,8 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 	 * @param spanY
 	 *            The number of cells spanned vertically by the child.
 	 */
-	void addInScreen(View child, int screen, int x, int y, int spanX, int spanY) {
-		addInScreen(child, screen, x, y, spanX, spanY, false);
+	boolean addInScreen(View child, int screen, int x, int y, int spanX, int spanY) {
+		return addInScreen(child, screen, x, y, spanX, spanY, false);
 	}
 
 	/**
@@ -345,15 +353,21 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 	 *            children list.
 	 */
 	@SuppressWarnings("unchecked")
-	void addInScreen(View child, int screen, int x, int y, int spanX, int spanY, boolean insert) {
+	boolean addInScreen(View child, int screen, int x, int y, int spanX, int spanY, boolean insert) {
 		if (screen < 0 || screen >= getChildCount()) {
 			Debug.error("The screen must be >= 0 and < " + getChildCount() + " (was " + screen + "); skipping child");
-			return;
+			return false;
 		}
 
 		clearVacantCache();
 
 		final CellLayout group = (CellLayout) getChildAt(screen);
+
+		if (!group.isCellEmpty(x, y)) {
+			Debug.error("Cell " + x + "/" + y + " already occupied");
+			return false;
+		}
+
 		CellLayout.LayoutParams lp = (CellLayout.LayoutParams) child.getLayoutParams();
 		if (lp == null) {
 			lp = new CellLayout.LayoutParams(x, y, spanX, spanY);
@@ -367,6 +381,8 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		if (child instanceof DropTarget) {
 			mDragController.addDropTarget((DropTarget<ItemCard>) child);
 		}
+
+		return true;
 	}
 
 	CellLayout.CellInfo findAllVacantCells(int screen, boolean[] occupied) {
@@ -1011,14 +1027,6 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		}
 	}
 
-	void addApplicationShortcut(ItemCard info, CellLayout.CellInfo cellInfo, boolean insertAtFirst) {
-		final CellLayout layout = (CellLayout) getChildAt(cellInfo.screen);
-		final int[] result = new int[2];
-
-		layout.cellToPoint(cellInfo.cellX, cellInfo.cellY, result);
-		onDropExternal(result[0], result[1], info, layout, insertAtFirst);
-	}
-
 	public void onDrop(DragSource<ItemCard> source, int x, int y, int xOffset, int yOffset, DragView dragView,
 			ItemCard dragInfo) {
 		final CellLayout cellLayout = getCurrentDropLayout();
@@ -1028,8 +1036,8 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 			// Move internally
 			if (mDragInfo != null) {
 				final View cell = mDragInfo.cell;
-				int index = mScroller.isFinished() ? mCurrentScreen : mNextScreen;
-				if (index != mDragInfo.screen) {
+				int newScreen = mScroller.isFinished() ? mCurrentScreen : mNextScreen;
+				if (newScreen != mDragInfo.screen) {
 					final CellLayout originalCellLayout = (CellLayout) getChildAt(mDragInfo.screen);
 					originalCellLayout.removeView(cell);
 					cellLayout.addView(cell);
@@ -1043,9 +1051,12 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 				Debug.verbose("d&d item from " + mDragInfo.cellX + "/" + mDragInfo.cellY + " to " + mTargetCell[0]
 						+ "/" + mTargetCell[1]);
 
+				// handle drag & drop over different screens (equipment etc...)
+				mDragController.onDrop(cell, info, mTargetCell[0], mTargetCell[1], newScreen);
+
 				info.getItemInfo().setCellX(mTargetCell[0]);
 				info.getItemInfo().setCellY(mTargetCell[1]);
-				info.getItemInfo().setScreen(index);
+				info.getItemInfo().setScreen(newScreen);
 			}
 		}
 	}
@@ -1085,6 +1096,8 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		CellLayout.LayoutParams lp = (CellLayout.LayoutParams) view.getLayoutParams();
 
 		final ItemCard item = (ItemCard) view.getTag();
+
+		mDragController.onDrop(view, item, lp.cellX, lp.cellY, mCurrentScreen);
 
 		item.getItemInfo().setCellX(lp.cellX);
 		item.getItemInfo().setCellY(lp.cellY);

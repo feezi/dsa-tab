@@ -17,9 +17,6 @@ package com.dsatab.data.adapter;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -33,12 +30,10 @@ import android.widget.ImageView;
 import com.dsatab.R;
 import com.dsatab.data.Hero;
 import com.dsatab.data.items.Item;
-import com.dsatab.data.items.ItemType;
 import com.dsatab.xml.DataManager;
 
 public class InventoryCardAdapter extends BaseAdapter {
 
-	private Item[] images;
 	private WeakReference<Bitmap>[] bmps;
 
 	private Context context;
@@ -58,17 +53,7 @@ public class InventoryCardAdapter extends BaseAdapter {
 		this.hero = hero;
 		this.context = context;
 
-		Map<ItemType, List<Item>> items = hero.getItems();
-
-		List<Item> itemList = new LinkedList<Item>();
-
-		for (ItemType clazz : items.keySet()) {
-			itemList.addAll(items.get(clazz));
-		}
-
-		images = itemList.toArray(new Item[0]);
-
-		bmps = (WeakReference<Bitmap>[]) new WeakReference[images.length];
+		bmps = (WeakReference<Bitmap>[]) new WeakReference[hero.getItems().size()];
 
 		TypedArray a = context.obtainStyledAttributes(R.styleable.Gallery);
 		mGalleryItemBackground = a.getResourceId(R.styleable.Gallery_android_galleryItemBackground, 0);
@@ -85,7 +70,7 @@ public class InventoryCardAdapter extends BaseAdapter {
 	 */
 	@Override
 	public int getCount() {
-		return images.length;
+		return hero.getItems().size();
 	}
 
 	/*
@@ -95,7 +80,7 @@ public class InventoryCardAdapter extends BaseAdapter {
 	 */
 	@Override
 	public Item getItem(int position) {
-		return images[position];
+		return hero.getItems().get(position);
 	}
 
 	/*

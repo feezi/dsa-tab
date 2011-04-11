@@ -11,6 +11,7 @@ import java.util.StringTokenizer;
 import android.view.Gravity;
 import android.widget.TextView;
 
+import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
@@ -22,7 +23,6 @@ import com.dsatab.data.items.Hand;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
-import com.dsatab.R;
 import com.gandulf.guilib.util.Debug;
 
 public class Util {
@@ -40,7 +40,7 @@ public class Util {
 		try {
 			return R.drawable.class.getDeclaredField(name).getInt(null);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Debug.error(e);
 			return -1;
 		}
 	}
@@ -151,7 +151,7 @@ public class Util {
 			return value - be;
 		} else if (beModifier.startsWith("BE-")) {
 			try {
-				int beMinus = Integer.parseInt(beModifier.substring(3));
+				int beMinus = Util.parseInt(beModifier.substring(3));
 				return value - Math.max(0, (be - beMinus));
 			} catch (NumberFormatException e) {
 				Debug.error(e);
@@ -159,7 +159,7 @@ public class Util {
 			}
 		} else if (beModifier.startsWith("BEX")) {
 			try {
-				int beMulti = Integer.parseInt(beModifier.substring(3));
+				int beMulti = Util.parseInt(beModifier.substring(3));
 				return value - (be * beMulti);
 			} catch (NumberFormatException e) {
 				Debug.error(e);

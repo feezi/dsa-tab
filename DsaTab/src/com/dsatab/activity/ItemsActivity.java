@@ -40,6 +40,7 @@ import com.dsatab.view.drag.DeleteZone;
 import com.dsatab.view.drag.ItemInfo;
 import com.dsatab.view.drag.Workspace;
 import com.dsatab.view.drag.Workspace.OnScreenChangeListener;
+import com.dsatab.view.listener.InventoryChangedListener;
 import com.dsatab.xml.DataManager;
 import com.gandulf.guilib.drag.DragController;
 import com.gandulf.guilib.drag.DragLayer;
@@ -47,7 +48,7 @@ import com.gandulf.guilib.drag.DragSource;
 import com.gandulf.guilib.util.Debug;
 
 public class ItemsActivity extends BaseMainActivity implements View.OnLongClickListener, View.OnClickListener,
-		DragController.DragListener<ItemCard>, OnScreenChangeListener {
+		DragController.DragListener<ItemCard>, OnScreenChangeListener, InventoryChangedListener {
 
 	private static final int ACTION_CHOOSE_CARD = 2;
 
@@ -71,6 +72,8 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 	protected void onHeroLoaded(Hero hero) {
 		super.onHeroLoaded(hero);
 		fillBodyItems(hero);
+
+		hero.addInventoryChangedListener(this);
 	}
 
 	/*
@@ -82,6 +85,8 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 	@Override
 	protected void onHeroUnloaded(Hero hero) {
 		super.onHeroUnloaded(hero);
+
+		hero.removeInventoryChangedListener(this);
 	}
 
 	/*
@@ -132,12 +137,14 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 			}
 			if (item == null && !TextUtils.isEmpty(cardName)) {
 
-				// add item to hero if he not already has it
-				item = hero.getItem(cardName);
+				// on a set page check whether he already has the item and reuse
+				// it
+				if (getActiveSet() >= 0) {
+					item = hero.getItem(cardName);
+				}
 				if (item == null) {
 					Item card = DataManager.getItemByName(cardName);
 					item = (Item) card.duplicate();
-					hero.addItem(item);
 				}
 			}
 
@@ -152,12 +159,7 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 						// again
 					} else {
 
-						int oldActiveSet = hero.getActiveSet();
-
-						if (getActiveSet() >= 0)
-							hero.setActiveSet(getActiveSet());
-
-						hero.addItem(this, item, null, new Hero.ItemAddedCallback() {
+						hero.addItem(this, item, null, getActiveSet(), new Hero.ItemAddedCallback() {
 
 							@Override
 							public void onItemAdded(Item item) {
@@ -173,9 +175,29 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 								mWorkspace.addItemInCurrentScreen(item);
 
 							}
+
+							/*
+							 * (non-Javadoc)
+							 * 
+							 * @see com.dsatab.data.Hero.ItemAddedCallback#
+							 * onEquippedItemAdded
+							 * (com.dsatab.data.items.EquippedItem)
+							 */
+							@Override
+							public void onEquippedItemAdded(EquippedItem item) {
+								if (selectedItem != null) {
+									mWorkspace.removeItem(selectedItem);
+									getHero().removeItem(selectedItem);
+								}
+
+								item.getItemInfo().setCellX(cellX);
+								item.getItemInfo().setCellY(cellY);
+								item.getItemInfo().setScreen(mWorkspace.getCurrentScreen());
+								mWorkspace.addItemInCurrentScreen(item);
+
+							}
 						});
 
-						hero.setActiveSet(oldActiveSet);
 					}
 				}
 			}
@@ -184,8 +206,12 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+	private boolean isSetIndex(int index) {
+		return index >= 0 && index < 3;
+	}
+
 	private int getActiveSet() {
-		if (mWorkspace.getCurrentScreen() > 3)
+		if (!isSetIndex(mWorkspace.getCurrentScreen()))
 			return -1;
 		else
 			return mWorkspace.getCurrentScreen();
@@ -263,11 +289,13 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 	 */
 	@Override
 	public void onScreenChange(int oldScreen, int newScreen) {
+		if (isSetIndex(newScreen))
+			getHero().setActiveSet(newScreen);
 		updateTextView(newScreen);
 	}
 
 	private void updateTextView(int newScreen) {
-		if (newScreen < 3)
+		if (isSetIndex(newScreen))
 			mScreenTextView.setText("Set " + (newScreen + 1));
 		else
 			mScreenTextView.setText("Ausrüstung");
@@ -283,6 +311,70 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 	@Override
 	public void onDragStart(DragSource<ItemCard> source, ItemCard info, int dragAction) {
 		mScreenTextView.setVisibility(View.INVISIBLE);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.gandulf.guilib.drag.DragController.DragListener#onDragDrop(java.lang
+	 * .Object, int, int, int)
+	 */
+	@Override
+	public void onDragDrop(View cell, ItemCard dragInfo, int x, int y, int newScreen) {
+		int oldScreen = dragInfo.getItemInfo().getScreen();
+
+		if (dragInfo instanceof EquippedItem) {
+			EquippedItem equippedItem = (EquippedItem) dragInfo;
+			if (oldScreen != newScreen) {
+				// drag von set to set
+				if (isSetIndex(oldScreen) && isSetIndex(newScreen)) {
+					getHero().getEquippedItems(oldScreen).remove(equippedItem);
+					getHero().getEquippedItems(newScreen).add(equippedItem);
+					equippedItem.setSet(newScreen);
+
+				}
+				// drag from set to inventory
+				else if (isSetIndex(oldScreen) && !isSetIndex(newScreen)) {
+					getHero().getEquippedItems(oldScreen).remove(equippedItem);
+
+					Item item = equippedItem.getItem();
+
+					item.getItemInfo().setCellX(x);
+					item.getItemInfo().setCellY(y);
+					item.getItemInfo().setScreen(newScreen);
+
+					cell.setTag(item);
+				} else {
+					Debug.error("Should never happen oldscreen=" + oldScreen + " newscreen=" + newScreen);
+				}
+
+			}
+		} else if (dragInfo instanceof Item) {
+			Item item = (Item) dragInfo;
+			if (oldScreen != newScreen) {
+				// drag from inventory to set
+				if (!isSetIndex(oldScreen) && !isSetIndex(newScreen)) {
+					// simple drag between two inventory pages, no special
+					// handling needed
+				}
+				// drag a item from inventory to set (equip it)
+				else if (!isSetIndex(oldScreen) && isSetIndex(newScreen)) {
+					EquippedItem equippedItem = getHero().addEquippedItem(item, null, newScreen);
+
+					equippedItem.getItemInfo().setCellX(x);
+					equippedItem.getItemInfo().setCellY(y);
+					equippedItem.getItemInfo().setScreen(newScreen);
+
+					cell.setTag(equippedItem);
+				}
+				// moving a not equippable item from set to inventory
+				else if (isSetIndex(oldScreen) && !isSetIndex(newScreen)) {
+
+				}
+			}
+		}
+
 	}
 
 	/*
@@ -310,6 +402,17 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 						continue;
 					}
 					success = mWorkspace.addItemInScreen(i, item);
+
+					// is unable to add item at specified position try again
+					// without position info (will be added in first empty slot)
+					if (!success
+							&& (item.getItemInfo().getCellX() != ItemInfo.INVALID_POSITION || item.getItemInfo()
+									.getCellY() != ItemInfo.INVALID_POSITION)) {
+
+						item.getItemInfo().setCellX(ItemInfo.INVALID_POSITION);
+						item.getItemInfo().setCellY(ItemInfo.INVALID_POSITION);
+						success = mWorkspace.addItemInScreen(i, item);
+					}
 					if (!success) {
 						Debug.verbose("Skipping " + item.getName() + "because inventory page was FULL");
 					}
@@ -325,27 +428,44 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 				}
 			}
 
-			for (List<Item> items : hero.getItems().values()) {
-				for (Item item : items) {
-					// skip items already added during equipped sets
-					if (skipItems.contains(item))
-						continue;
+			for (Item item : hero.getItems()) {
 
+				// skip items already added during equipped sets
+				if (skipItems.contains(item))
+					continue;
+
+				if (item.getItemInfo().getScreen() != ItemInfo.INVALID_POSITION)
+					success = mWorkspace.addItemInScreen(item.getItemInfo().getScreen(), item);
+				else
+					success = false;
+
+				if (!success)
 					success = mWorkspace.addItemInScreen(screen, item);
-					if (!success && screen < mWorkspace.getChildCount() - 1) {
-						screen++;
-						success = mWorkspace.addItemInScreen(screen, item);
-					}
 
-					// unable to add item, stop here the inventory is probably
-					// full
-					if (!success) {
-						Debug.warning("Unable to add item " + item.getTitle() + " try on screen " + screen);
-						return;
-					}
+				// is unable to add item at specified position try again
+				// without position info (will be added in first empty slot)
+				if (!success
+						&& (item.getItemInfo().getCellX() != ItemInfo.INVALID_POSITION || item.getItemInfo().getCellY() != ItemInfo.INVALID_POSITION)) {
+
+					item.getItemInfo().setCellX(ItemInfo.INVALID_POSITION);
+					item.getItemInfo().setCellY(ItemInfo.INVALID_POSITION);
+					success = mWorkspace.addItemInScreen(screen, item);
+				}
+
+				if (!success && screen < mWorkspace.getChildCount() - 1) {
+					screen++;
+					success = mWorkspace.addItemInScreen(screen, item);
+				}
+
+				// unable to add item, stop here the inventory is probably
+				// full
+				if (!success) {
+					Debug.warning("Unable to add item " + item.getTitle() + " try on screen " + screen);
+					return;
 				}
 			}
 		}
+
 		showScreen(hero.getActiveSet());
 
 	}
@@ -453,6 +573,54 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 
 		}
 		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.InventoryChangedListener#onItemAdded(com.dsatab
+	 * .data.items.Item)
+	 */
+	@Override
+	public void onItemAdded(Item item) {
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.InventoryChangedListener#onItemRemoved(com.dsatab
+	 * .data.items.Item)
+	 */
+	@Override
+	public void onItemRemoved(Item item) {
+		mWorkspace.removeItem(item);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.InventoryChangedListener#onItemEquipped(com.
+	 * dsatab.data.items.EquippedItem)
+	 */
+	@Override
+	public void onItemEquipped(EquippedItem item) {
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.InventoryChangedListener#onItemUnequipped(com
+	 * .dsatab.data.items.EquippedItem)
+	 */
+	@Override
+	public void onItemUnequipped(EquippedItem item) {
+		mWorkspace.removeItem(item);
 	}
 
 }

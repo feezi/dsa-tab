@@ -2,12 +2,14 @@
 <h2>Version 1.4.1</h2>
 <h4>New Features</h4>
 <ul>
-<li>Alle zusätzlichen Features sind jetzt auch über Tabs erreichbar (Notizen, Karten, Inventar)</li>  
+<li>Alle zusätzlichen Features sind jetzt auch über Tabs erreichbar (Notizen, Karten, Inventar)</li>
+<li>Um die Fehlersuche zu erleichtern können Fehlerberichte nun per Email verschickt werden</li>  
 </ul>
 
 <h4>Bugfixes</h4>
 <ul>
 <li>Anderthalbhänder hinzugefügt</li>
-<li>Würfelansicht zeigte Behinderung im Landscape Modus falsch an</li> 
+<li>Würfelansicht zeigte Behinderung im Landscape Modus falsch an</li>
+<li>Drap&amp;Drop der Gegenstände im Inventar überarbeitet</li> 
 </ul>
 </div>

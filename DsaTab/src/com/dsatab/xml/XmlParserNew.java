@@ -40,6 +40,7 @@ import com.dsatab.data.items.ItemType;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
 import com.gandulf.guilib.util.Debug;
+import com.gandulf.guilib.util.ErrorHandler;
 
 public class XmlParserNew {
 
@@ -47,22 +48,28 @@ public class XmlParserNew {
 
 		Map<String, Item> items = new HashMap<String, Item>();
 
-		readItems("items.txt", items);
+		try {
+			readItems("items.txt", items);
 
-		if (DSATabApplication.getInstance().getConfiguration().isHouseRules()) {
-			readItems("items_armor_house.txt", items);
-		} else {
-			readItems("items_armor.txt", items);
+			if (DSATabApplication.getInstance().getConfiguration().isHouseRules()) {
+				readItems("items_armor_house.txt", items);
+			} else {
+				readItems("items_armor.txt", items);
+			}
+		} catch (IOException e) {
+			Debug.error(e);
+			ErrorHandler.handleError(e, DSATabApplication.getInstance().getBaseContext());
 		}
 
 		return items;
 
 	}
 
-	private static void readItems(String file, Map<String, Item> items) {
+	private static void readItems(String file, Map<String, Item> items) throws IOException {
+		BufferedReader r = null;
 		try {
-			BufferedReader r = new BufferedReader(new InputStreamReader(DSATabApplication.getInstance().getAssets()
-					.open(file), "UTF-8"), 1024 * 8);
+			r = new BufferedReader(new InputStreamReader(DSATabApplication.getInstance().getAssets().open(file),
+					"UTF-8"), 1024 * 8);
 
 			String line;
 			StringSplitter splitter = new TextUtils.SimpleStringSplitter(';');
@@ -94,10 +101,12 @@ public class XmlParserNew {
 				}
 
 			}
-
-			r.close();
-		} catch (IOException e) {
-			Debug.error(e);
+		} finally {
+			try {
+				if (r != null)
+					r.close();
+			} catch (IOException e) {
+			}
 		}
 	}
 
@@ -144,11 +153,7 @@ public class XmlParserNew {
 			return w;
 
 		} catch (NumberFormatException e) {
-			Debug.warning(line);
-			e.printStackTrace();
-		} catch (Throwable e) {
-			Debug.warning(line);
-			e.printStackTrace();
+			Debug.error(line, e);
 		}
 		return null;
 	}
@@ -210,11 +215,7 @@ public class XmlParserNew {
 
 			return w;
 		} catch (NumberFormatException e) {
-			Debug.warning(line);
-			e.printStackTrace();
-		} catch (Throwable e) {
-			Debug.warning(line);
-			e.printStackTrace();
+			Debug.error(line, e);
 		}
 		return null;
 	}
@@ -420,7 +421,7 @@ public class XmlParserNew {
 
 			itemsW.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			Debug.error(e);
 		}
 	}
 
@@ -527,37 +528,34 @@ public class XmlParserNew {
 			fileOut.close();
 		} catch (FileNotFoundException e) {
 			Debug.error(e);
+			ErrorHandler.handleError(e, DSATabApplication.getInstance().getBaseContext());
 		} catch (IOException e) {
 			Debug.error(e);
+			ErrorHandler.handleError(e, DSATabApplication.getInstance().getBaseContext());
 		}
 
 	}
 
-	public static Hero readHero(String path, InputStream in) {
+	public static Hero readHero(String path, InputStream in) throws Exception {
 
 		Hero hero = null;
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		Debug.verbose("DomFactory created:" + factory.getClass().getName());
-		try {
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			Debug.verbose("DocumentBuilder created:" + builder.getClass().getName());
 
-			InputStreamReader isr = new InputStreamReader(in, "UTF-8");
-			InputSource is = new InputSource();
-			is.setCharacterStream(isr);
-			is.setEncoding("UTF-8");
-
-			Document dom = builder.parse(is);
-			if (dom != null)
-				Debug.verbose("Document sucessfully parsed");
-			else {
-				Debug.error("Error: DOM was null.");
-			}
-			hero = new Hero(path, dom);
-			Debug.verbose("Hero object created: " + hero.toString());
-		} catch (Exception e) {
-			Debug.error(e);
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		Debug.verbose("DocumentBuilder created:" + builder.getClass().getName());
+		InputStreamReader isr = new InputStreamReader(in, "UTF-8");
+		InputSource is = new InputSource();
+		is.setCharacterStream(isr);
+		is.setEncoding("UTF-8");
+		Document dom = builder.parse(is);
+		if (dom != null)
+			Debug.verbose("Document sucessfully parsed");
+		else {
+			Debug.error("Error: DOM was null.");
 		}
+		hero = new Hero(path, dom);
+		Debug.verbose("Hero object created: " + hero.toString());
 
 		return hero;
 	}

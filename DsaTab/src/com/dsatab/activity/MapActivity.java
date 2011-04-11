@@ -95,10 +95,12 @@ public class MapActivity extends BaseMainActivity implements OnTouchListener {
 			mapDir.mkdirs();
 
 		File[] files = mapDir.listFiles();
-		for (File file : files) {
-			if (file.isFile()) {
-				mapFiles.add(file.getName());
-				mapNames.add(file.getName().replace("-", " ").substring(0, file.getName().length() - 4));
+		if (files != null) {
+			for (File file : files) {
+				if (file.isFile()) {
+					mapFiles.add(file.getName());
+					mapNames.add(file.getName().replace("-", " ").substring(0, file.getName().length() - 4));
+				}
 			}
 		}
 

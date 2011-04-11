@@ -35,11 +35,12 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+import com.dsatab.R;
 import com.dsatab.data.Hero;
 import com.dsatab.view.drag.IconCache;
 import com.dsatab.xml.XmlParserNew;
-import com.dsatab.R;
 import com.gandulf.guilib.util.Debug;
+import com.gandulf.guilib.util.ErrorHandler;
 
 public class DSATabApplication extends Application {
 
@@ -122,6 +123,8 @@ public class DSATabApplication extends Application {
 		// provide an instance for our static accessors
 		instance = this;
 
+		ErrorHandler.setup("gandulf.k@gmail.com", "DsaTab Fehlerbericht");
+
 		mIconCache = new IconCache(this);
 		configuration = new DsaTabConfiguration(this);
 
@@ -202,6 +205,7 @@ public class DSATabApplication extends Application {
 			fis = new FileInputStream(file);
 
 			Debug.verbose("Opened inputstream for hero at " + path);
+
 			hero = XmlParserNew.readHero(path, fis);
 			if (hero != null) {
 				Debug.verbose("Hero successfully parsed");
@@ -220,9 +224,10 @@ public class DSATabApplication extends Application {
 			}
 
 			return hero;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Debug.error(e);
-			Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, "Held konnte nicht geladen werden.", Toast.LENGTH_LONG);
+			ErrorHandler.handleError(e, this);
 			return null;
 		} finally {
 			if (fis != null) {
@@ -245,6 +250,7 @@ public class DSATabApplication extends Application {
 			Toast.makeText(this, getString(R.string.hero_saved, hero.getName()), Toast.LENGTH_SHORT).show();
 		} catch (IOException e) {
 			Debug.error(e);
+			ErrorHandler.handleError(e, this);
 		} finally {
 			if (out != null) {
 				Debug.verbose("Closing outputstream");

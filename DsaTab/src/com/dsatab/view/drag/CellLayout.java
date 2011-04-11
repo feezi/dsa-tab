@@ -856,6 +856,23 @@ public class CellLayout extends ViewGroup {
 		return flat;
 	}
 
+	public boolean isCellEmpty(int locX, int locY) {
+		int count = getChildCount();
+		for (int i = 0; i < count; i++) {
+			View child = getChildAt(i);
+
+			LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
+			for (int x = lp.cellX; x < lp.cellX + lp.cellHSpan; x++) {
+				for (int y = lp.cellY; y < lp.cellY + lp.cellVSpan; y++) {
+					if (locX == x && locY == y)
+						return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	private void findOccupiedCells(int xCount, int yCount, boolean[][] occupied, View ignoreView) {
 		for (int x = 0; x < xCount; x++) {
 			for (int y = 0; y < yCount; y++) {
