@@ -48,7 +48,7 @@ public class Talent implements Probe, Value {
 		// add leMod again since leModifier values do not count for talent
 		// probes.
 
-		if (probes != null && probes[i] != null) {
+		if (probes != null && probes.length > i && probes[i] != null) {
 			int leMod = hero.leModifier.getModifier(probes[i]).getModifier();
 
 			return hero.getModifiedValue(probes[i]) + (-leMod);

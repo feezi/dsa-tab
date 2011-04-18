@@ -162,6 +162,7 @@ public class InlineEditDialog extends AlertDialog implements android.view.View.O
 	public void onDismiss(DialogInterface dialog) {
 
 		try {
+			editText.validate();
 			int currentValue = editText.getCurrent();
 			value.setValue(currentValue);
 		} catch (NumberFormatException e) {

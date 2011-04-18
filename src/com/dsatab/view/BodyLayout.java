@@ -46,13 +46,14 @@ public class BodyLayout extends FrameLayout implements ValueChangedListener {
 	private static final double OFFSET_HEAD_UP_Y = 0.005;
 	private static final double OFFSET_HEAD_Y = 0.05;
 	private static final double OFFSET_NECK_Y = 0.18;
-	private static final double OFFSET_CHEST_Y = 0.240;
-	private static final double OFFSET_BACK_Y = 0.240;
+	private static final double OFFSET_CHEST_Y = 0.235;
+	private static final double OFFSET_BACK_Y = 0.235;
 	private static final double OFFSET_STOMACH_Y = 0.37;
-	private static final double OFFSET_PELVIS_Y = 0.5;
+	private static final double OFFSET_PELVIS_Y = 0.525;
 	private static final double OFFSET_UPPER_LEG_Y = 0.6;
 	private static final double OFFSET_LOWER_LEG_Y = 0.7;
 
+	private static final int MAX_WOUNDS = 3;
 	private int childWidthMeasureSpec;
 	private int childHeightMeasureSpec;
 
@@ -145,11 +146,11 @@ public class BodyLayout extends FrameLayout implements ValueChangedListener {
 			ImageButton[] buttons = woundButtons.get(attr.getPosition());
 
 			if (buttons == null) {
-				buttons = new ImageButton[3];
+				buttons = new ImageButton[MAX_WOUNDS];
 				woundButtons.put(attr.getPosition(), buttons);
 			}
 
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < MAX_WOUNDS; i++) {
 				ImageButton ib = buttons[i];
 
 				if (ib == null) {
@@ -279,6 +280,7 @@ public class BodyLayout extends FrameLayout implements ValueChangedListener {
 
 		int headWidth = 0;
 		int torsoWidth = 0;
+		int chestWidth = 0;
 		int leftArmWidth = 0;
 		int rightArmWidth = 0;
 		int upperLegWidth = 0;
@@ -299,6 +301,9 @@ public class BodyLayout extends FrameLayout implements ValueChangedListener {
 						break;
 					case Bauch:
 						torsoWidth += child.getMeasuredWidth();
+						break;
+					case Brust:
+						chestWidth += child.getMeasuredWidth();
 						break;
 					case LeftLowerArm:
 						leftArmWidth += child.getMeasuredWidth();
@@ -322,6 +327,9 @@ public class BodyLayout extends FrameLayout implements ValueChangedListener {
 
 		int torsoX = (int) (width * OFFSET_STOMACH_X) - (torsoWidth / 2);
 		int torsoY = (int) (height * OFFSET_STOMACH_Y);
+
+		int chestX = (int) (width * OFFSET_CHEST_X) - (chestWidth / 2);
+		int chestY = (int) (height * OFFSET_CHEST_Y);
 
 		int leftArmX = (int) (width * OFFSET_LEFT_ARM_X) - (leftArmWidth / 2);
 		int leftArmY = (int) (height * OFFSET_LEFT_ARM_Y);
@@ -358,6 +366,12 @@ public class BodyLayout extends FrameLayout implements ValueChangedListener {
 						ct = torsoY;
 						cb = ct + child.getMeasuredHeight();
 						break;
+					case Brust:
+						cl = chestX;
+						cr = chestX = chestX + child.getMeasuredWidth();
+						ct = chestY;
+						cb = ct + child.getMeasuredHeight();
+						break;
 					case LeftLowerArm:
 						cl = leftArmX;
 						cr = leftArmX = leftArmX + child.getMeasuredWidth();
@@ -385,8 +399,6 @@ public class BodyLayout extends FrameLayout implements ValueChangedListener {
 					}
 					// armor
 				} else {
-					Debug.verbose("Layout " + child + "," + lp);
-
 					switch (lp.getPosition()) {
 					case Head_Up:
 						cl = (int) (width * OFFSET_HEAD_X) - (child.getMeasuredWidth() / 2);
@@ -428,13 +440,13 @@ public class BodyLayout extends FrameLayout implements ValueChangedListener {
 					case Brust:
 						cl = (int) (width * OFFSET_CHEST_X) - (child.getMeasuredWidth() / 2);
 						cr = cl + child.getMeasuredWidth();
-						ct = (int) (height * (OFFSET_CHEST_Y));
+						ct = (int) (height * (OFFSET_CHEST_Y) + woundSize);
 						cb = ct + child.getMeasuredHeight();
 						break;
 					case Ruecken:
 						cl = (int) (width * OFFSET_BACK_X) - (child.getMeasuredWidth() / 2);
 						cr = cl + child.getMeasuredWidth();
-						ct = (int) (height * (OFFSET_BACK_Y));
+						ct = (int) (height * (OFFSET_BACK_Y) + woundSize);
 						cb = ct + child.getMeasuredHeight();
 						break;
 					case LeftShoulder:

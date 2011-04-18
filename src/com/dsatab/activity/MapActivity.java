@@ -74,7 +74,7 @@ public class MapActivity extends BaseMainActivity implements OnTouchListener {
 	 */
 	@Override
 	protected void setupDiceSilder() {
-
+		// disable diceslider
 	}
 
 	@Override
@@ -82,6 +82,9 @@ public class MapActivity extends BaseMainActivity implements OnTouchListener {
 		setContentView(R.layout.main_hero_maps);
 
 		super.onCreate(savedInstanceState);
+
+		tabFlingEnabled = false;
+
 		ImageView view = (ImageView) findViewById(R.id.imageView);
 		view.setOnTouchListener(this);
 
@@ -111,7 +114,6 @@ public class MapActivity extends BaseMainActivity implements OnTouchListener {
 					this,
 					"Kein Kartenmaterial gefunden. Scan deine Karten ein und kopiere sie auf deine SD-Karte unter "
 							+ path, Toast.LENGTH_LONG).show();
-			finish();
 			return;
 		}
 		this.mapFiles = mapFiles.toArray(new String[0]);

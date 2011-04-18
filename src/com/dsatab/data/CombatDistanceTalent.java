@@ -92,7 +92,6 @@ public class CombatDistanceTalent implements Probe, Value, CombatTalent {
 		int baseValue = 0;
 
 		if (hero != null) {
-
 			if (type.isFk())
 				baseValue = hero.getAttributeValue(AttributeType.fk);
 		}

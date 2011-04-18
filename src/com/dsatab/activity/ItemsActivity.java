@@ -60,7 +60,7 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 	private ImageView mNextView;
 	private TextView mScreenTextView;
 
-	private Item selectedItem = null;
+	private ItemCard selectedItem = null;
 
 	/*
 	 * (non-Javadoc)
@@ -85,8 +85,8 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 	@Override
 	protected void onHeroUnloaded(Hero hero) {
 		super.onHeroUnloaded(hero);
-
-		hero.removeInventoryChangedListener(this);
+		if (hero != null)
+			hero.removeInventoryChangedListener(this);
 	}
 
 	/*
@@ -154,7 +154,7 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 						&& item.getItemInfo().getCellX() == cellX && item.getItemInfo().getCellY() == cellY) {
 					// the icon is already in the screen no need to add it again
 				} else {
-					if (selectedItem != null && selectedItem.getName().equals(item.getName())) {
+					if (selectedItem != null && selectedItem.getItem().equals(item.getName())) {
 						// the icon is already in the screen no need to add it
 						// again
 					} else {
@@ -165,14 +165,17 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 							public void onItemAdded(Item item) {
 
 								if (selectedItem != null) {
-									mWorkspace.removeItem(selectedItem);
-									getHero().removeItem(selectedItem);
+									mWorkspace.replaceItem(selectedItem, item);
+									if (selectedItem instanceof EquippedItem)
+										getHero().removeEquippedItem((EquippedItem) selectedItem);
+									else
+										getHero().removeItem(selectedItem.getItem());
+								} else {
+									item.getItemInfo().setCellX(cellX);
+									item.getItemInfo().setCellY(cellY);
+									item.getItemInfo().setScreen(mWorkspace.getCurrentScreen());
+									mWorkspace.addItemInScreen(item);
 								}
-
-								item.getItemInfo().setCellX(cellX);
-								item.getItemInfo().setCellY(cellY);
-								item.getItemInfo().setScreen(mWorkspace.getCurrentScreen());
-								mWorkspace.addItemInCurrentScreen(item);
 
 							}
 
@@ -186,14 +189,17 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 							@Override
 							public void onEquippedItemAdded(EquippedItem item) {
 								if (selectedItem != null) {
-									mWorkspace.removeItem(selectedItem);
-									getHero().removeItem(selectedItem);
+									mWorkspace.replaceItem(selectedItem, item);
+									if (selectedItem instanceof EquippedItem)
+										getHero().removeEquippedItem((EquippedItem) selectedItem);
+									else
+										getHero().removeItem(selectedItem.getItem());
+								} else {
+									item.getItemInfo().setCellX(cellX);
+									item.getItemInfo().setCellY(cellY);
+									item.getItemInfo().setScreen(mWorkspace.getCurrentScreen());
+									mWorkspace.addItemInScreen(item);
 								}
-
-								item.getItemInfo().setCellX(cellX);
-								item.getItemInfo().setCellY(cellY);
-								item.getItemInfo().setScreen(mWorkspace.getCurrentScreen());
-								mWorkspace.addItemInCurrentScreen(item);
 
 							}
 						});
@@ -226,7 +232,7 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 	protected void onCreate(Bundle savedInstanceState) {
 		setContentView(R.layout.main_hero_items);
 		super.onCreate(savedInstanceState);
-
+		tabFlingEnabled = false;
 		mDragController = new DragController<ItemCard>(this);
 		mScreenTextView = (TextView) findViewById(R.id.screen_set_text);
 
@@ -237,6 +243,9 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 	 * Finds all the views we need and configure them properly.
 	 */
 	private void setupViews() {
+
+		// 192*288
+		// 120*180
 
 		DragLayer dragLayer = (DragLayer) findViewById(R.id.drag_layer);
 		dragLayer.setDragController(mDragController);
@@ -321,7 +330,7 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 	 * .Object, int, int, int)
 	 */
 	@Override
-	public void onDragDrop(View cell, ItemCard dragInfo, int x, int y, int newScreen) {
+	public boolean onDragDrop(View cell, ItemCard dragInfo, int x, int y, int newScreen) {
 		int oldScreen = dragInfo.getItemInfo().getScreen();
 
 		if (dragInfo instanceof EquippedItem) {
@@ -375,6 +384,8 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 			}
 		}
 
+		return true;
+
 	}
 
 	/*
@@ -393,9 +404,9 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 
 		List<Item> skipItems = new LinkedList<Item>();
 
-		int screen = 3;
+		int screen = Hero.MAXIMUM_SET_NUMBER;
 		if (hero != null) {
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < Hero.MAXIMUM_SET_NUMBER; i++) {
 				for (EquippedItem item : hero.getEquippedItems(i)) {
 					if (item.getItem() == null) {
 						Debug.verbose("Skipping " + item.getName() + "because equippedItem.getItem was null");
@@ -475,27 +486,29 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 		updateTextView(i);
 	}
 
-	private void selectItem(ItemCard item, CellLayout.CellInfo cellInfo) {
-		if (item != null)
-			selectedItem = item.getItem();
+	private void selectItem(ItemCard itemCard, CellLayout.CellInfo cellInfo) {
+		if (itemCard != null)
+			selectedItem = itemCard;
 		else
 			selectedItem = null;
 
 		Intent intent = new Intent(this, ItemChooserActivity.class);
 
 		if (selectedItem != null) {
-			ItemType cardType = selectedItem.getType();
 
-			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_ID, selectedItem.getId());
-			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_NAME, selectedItem.getName());
-			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_CATEGORY, selectedItem.getCategory());
+			Item item = selectedItem.getItem();
+			ItemType cardType = item.getType();
+
+			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_ID, item.getId());
+			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_NAME, item.getName());
+			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_CATEGORY, item.getCategory());
 
 			if (cardType != null) {
 				intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_TYPE, cardType.name());
 			}
 
-			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_X, item.getItemInfo().getCellX());
-			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_Y, item.getItemInfo().getCellY());
+			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_X, itemCard.getItemInfo().getCellX());
+			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_Y, itemCard.getItemInfo().getCellY());
 		}
 
 		if (cellInfo != null) {

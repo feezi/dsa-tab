@@ -16,7 +16,6 @@
 package com.dsatab.data.adapter;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -36,18 +35,12 @@ public class GalleryImageAdapter extends BaseAdapter {
 
 	private Item[] items;
 
-	private WeakReference<Bitmap>[] images;
-
 	private Context context;
 
 	private int mGalleryItemBackground;
 
 	private int width, height;
 
-	/**
-	 * 
-	 */
-	@SuppressWarnings("unchecked")
 	public GalleryImageAdapter(Context context, ItemType cardType, String category, Item[] items) {
 
 		this.context = context;
@@ -63,8 +56,6 @@ public class GalleryImageAdapter extends BaseAdapter {
 		} else {
 			this.items = items;
 		}
-
-		images = (WeakReference<Bitmap>[]) new WeakReference[this.items.length];
 
 		TypedArray a = context.obtainStyledAttributes(R.styleable.Gallery);
 		mGalleryItemBackground = a.getResourceId(R.styleable.Gallery_android_galleryItemBackground, 0);
@@ -131,25 +122,20 @@ public class GalleryImageAdapter extends BaseAdapter {
 			i.setItem(item);
 		} else {
 			i = new CardView(context, item);
+			/* Set the Width/Height of the ImageView. */
+			i.setMaxWidth(width);
+			i.setMaxHeight(height);
+			i.setLayoutParams(new Gallery.LayoutParams(width, height));
+			i.setBackgroundResource(mGalleryItemBackground);
 		}
 
 		Bitmap bitmap = null;
-		WeakReference<Bitmap> ref = images[position];
-		if (ref != null && ref.get() != null) {
-			bitmap = ref.get();
-		} else {
-			File lqFile = item.getFile();
-			if (lqFile != null && lqFile.isFile()) {
-				bitmap = DataManager.getBitmap(lqFile.getAbsolutePath());
-				images[position] = new WeakReference<Bitmap>(bitmap);
-			}
+
+		File lqFile = item.getFile();
+		if (lqFile != null && lqFile.isFile()) {
+			bitmap = DataManager.getBitmap(lqFile.getAbsolutePath());
 		}
-
 		i.setImageBitmap(bitmap);
-
-		/* Set the Width/Height of the ImageView. */
-		i.setLayoutParams(new Gallery.LayoutParams(width, height));
-		i.setBackgroundResource(mGalleryItemBackground);
 
 		return i;
 	}

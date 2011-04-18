@@ -170,7 +170,8 @@ public class MainBodyActivity extends BaseMainActivity implements OnLongClickLis
 
 	protected void onHeroUnloaded(Hero hero) {
 		super.onHeroUnloaded(hero);
-		hero.removeValueChangeListener(bodyLayout);
+		if (hero != null)
+			hero.removeValueChangeListener(bodyLayout);
 	}
 
 	/*

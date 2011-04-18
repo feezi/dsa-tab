@@ -43,8 +43,6 @@ public class Attribute implements Probe, Value {
 
 		this.type = type;
 
-		referenceValue = getCoreValue();
-
 		if (type == AttributeType.Ausweichen)
 			erschwernis = 0;
 	}
@@ -135,7 +133,7 @@ public class Attribute implements Probe, Value {
 					value += 3;
 
 				Talent athletik = hero.getTalent(Talent.ATHLETIK);
-				if (athletik.getValue() >= 9) {
+				if (athletik != null && athletik.getValue() >= 9) {
 					value += (athletik.getValue() - 9) / 3;
 				}
 
@@ -248,6 +246,10 @@ public class Attribute implements Probe, Value {
 		case Behinderung:
 			return hero.getArmorBe();
 		default:
+
+			if (referenceValue == null)
+				referenceValue = getCoreValue();
+
 			return referenceValue;
 		}
 	}

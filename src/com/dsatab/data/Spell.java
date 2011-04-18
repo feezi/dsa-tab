@@ -42,7 +42,7 @@ public class Spell implements Probe, Value {
 			probes = Util.splitProbeString(getProbe());
 		}
 
-		if (probes != null && probes[i] != null) {
+		if (probes != null && probes.length > i && probes[i] != null) {
 			// add leMod again since leModifier values do not count for talent
 			// probes.
 			int leMod = hero.leModifier.getModifier(probes[i]).getModifier();
@@ -92,6 +92,42 @@ public class Spell implements Probe, Value {
 
 	public Element getElement() {
 		return element;
+	}
+
+	public String getNotes() {
+		return element.getAttribute(Xml.KEY_ANMERKUNGEN);
+	}
+
+	public String getComments() {
+		return element.getAttribute(Xml.KEY_ZAUBERKOMMENTAR);
+	}
+
+	public boolean isHouseSpell() {
+		return Boolean.valueOf(element.getAttribute(Xml.KEY_HAUSZAUBER));
+	}
+
+	public String getCosts() {
+		return element.getAttribute(Xml.KEY_KOSTEN);
+	}
+
+	public String getRange() {
+		return element.getAttribute(Xml.KEY_REICHWEITE);
+	}
+
+	public String getRepresantation() {
+		return element.getAttribute(Xml.KEY_REPRESENTATION);
+	}
+
+	public String getVariant() {
+		return element.getAttribute(Xml.KEY_VARIANTE);
+	}
+
+	public String getSpellDuration() {
+		return element.getAttribute(Xml.KEY_WIRKUNGSDAUER);
+	}
+
+	public String getCastDuration() {
+		return element.getAttribute(Xml.KEY_ZAUBERDAUER);
 	}
 
 }

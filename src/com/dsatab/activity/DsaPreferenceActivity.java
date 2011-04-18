@@ -60,6 +60,13 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 
 	public static final String KEY_NEWS_VERSION = "newsversion";
 
+	public static final String KEY_EXCHANGE_PROVIDER = "exchange_provider";
+
+	public static final String KEY_EXCHANGE_USERNAME = "exchange_username";
+	public static final String KEY_EXCHANGE_PASSWORD = "exchange_password";
+
+	public static final String DEFAULT_EXCHANGE_PROVIDER = "http://helden.draschenfels.de/";
+
 	public static final String PATH_MAPS = "http://dl.dropbox.com/u/15750588/dsatab-maps.zip";
 	public static final String PATH_ITEMS = "http://dl.dropbox.com/u/15750588/dsatab-items.zip";
 	public static final String PATH_RANG_PORTRAITS = "http://dl.dropbox.com/u/15750588/dsatab-rang-portraits.zip";
@@ -102,23 +109,23 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 			// downloader.addPath(Downloader.PATH_MAPS);
 			// downloader.addPath(Downloader.PATH_RANG_PORTRAITS);
 			downloader.addPath(PATH_WESNOTH_PORTRAITS);
-			downloader.download();
+			downloader.downloadZip();
 		} else if (preference.getKey().equals(KEY_DOWNLOAD_MAPS)) {
 			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
 			downloader.addPath(PATH_MAPS);
-			downloader.download();
+			downloader.downloadZip();
 		} else if (preference.getKey().equals(KEY_DOWNLOAD_ITEMS)) {
 			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
 			downloader.addPath(PATH_ITEMS);
-			downloader.download();
+			downloader.downloadZip();
 		} else if (preference.getKey().equals(KEY_DOWNLOAD_RANG_PORTRAITS)) {
 			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
 			downloader.addPath(PATH_RANG_PORTRAITS);
-			downloader.download();
+			downloader.downloadZip();
 		} else if (preference.getKey().equals(KEY_DOWNLOAD_WESNOTH_PORTRAITS)) {
 			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
 			downloader.addPath(PATH_WESNOTH_PORTRAITS);
-			downloader.download();
+			downloader.downloadZip();
 		} else if (preference.getKey().equals(KEY_CREDITS)) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setTitle(R.string.title_credits);

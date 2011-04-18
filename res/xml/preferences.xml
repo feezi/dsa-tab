@@ -34,6 +34,28 @@
         </PreferenceCategory>
         
         <PreferenceCategory android:title="Setup">
+        <PreferenceScreen
+                android:key="heldenAustauschScreen"
+                android:title="Heldenaustausch Einstellungen"
+                android:summary="Ermöglich es, Helden aus dem Heldenaustausch zu importieren.">
+                
+                <ListPreference
+                        android:title="Heldenaustausch Provider"
+                        android:summary="Wähle die Webseite aus, die für den Heldenaustausch verwendet werden soll."
+                        android:key="exchange_provider"
+                        android:defaultValue="http://helden.draschenfels.de/"
+                        android:entries="@array/heldenAustauschProvider"
+                        android:entryValues="@array/heldenAustauschProviderValues"/>
+                <EditTextPreference
+                	android:title="Benutzername"
+                	android:summary="Benutzername der Heldenaustauschseite"
+                	android:key="exchange_username" />                
+                <EditTextPreference
+                	android:title="Password"
+                	android:summary="Password der Heldenaustauschseite"
+                	android:key="exchange_password" />
+        </PreferenceScreen>
+        
         	<EditTextPreference
                 android:name="SDCard: Pfad zu DsaTab"
                 android:summary="Pfad auf der SD Karte zu den DsaTab Daten (Helden Profile, Karten Material, ...)"

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:fillViewport="true"
+	android:layout_height="fill_parent">
+	
+	<TableLayout android:layout_width="match_parent"
+		android:layout_height="match_parent" android:stretchColumns="0,1"
+		android:paddingLeft="5dp" android:paddingRight="5dp" android:shrinkColumns="1" android:id="@+id/popup_spell_table">
+		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+			<TextView android:layout_height="wrap_content" android:text="Zauberdauer" android:layout_width="wrap_content" style="@style/TextLabelPopup"></TextView>
+			<TextView android:layout_height="wrap_content" android:text="10SP"
+				android:layout_width="wrap_content" android:id="@+id/popup_spell_castduration" style="@style/TextValuePopup"></TextView>
+		</TableRow>
+		<TableRow android:layout_width="wrap_content"
+			android:layout_height="wrap_content">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="Kosten" style="@style/TextLabelPopup"></TextView>
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="10SP"
+				android:id="@+id/popup_spell_costs" style="@style/TextValuePopup"></TextView>
+		</TableRow>
+		<TableRow android:layout_height="wrap_content"
+		android:layout_width="wrap_content">
+		<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Reichweite" style="@style/TextLabelPopup"></TextView>
+		<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_range" android:text="10Schritt" style="@style/TextValuePopup"></TextView>
+	</TableRow>
+		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Wirkungsdauer" android:paddingRight="5dp" style="@style/TextLabelPopup"></TextView>
+			<TextView android:layout_height="wrap_content" android:text="10Schritt" android:layout_width="wrap_content" android:id="@+id/popup_spell_spellduration" style="@style/TextValuePopup"></TextView>
+		</TableRow>
+		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Anmerkungen" style="@style/TextLabelPopup"></TextView>
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_notes" style="@style/TextValuePopup" android:textSize="14sp" android:textStyle="normal"></TextView>
+		</TableRow>
+		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Kommentar" style="@style/TextLabelPopup"></TextView>
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_comment" style="@style/TextValuePopup" android:textSize="14sp" android:textStyle="normal"></TextView>
+		</TableRow>
+		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Repräsentation" android:paddingRight="5dp" style="@style/TextLabelPopup"></TextView>
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Magier" android:id="@+id/popup_spell_representation" style="@style/TextValuePopup"></TextView>
+		</TableRow>
+		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Variante" style="@style/TextLabelPopup"></TextView>
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_variant" style="@style/TextValuePopup"></TextView>
+		</TableRow>
+	</TableLayout>
+</ScrollView>
+
+		
+
+
+

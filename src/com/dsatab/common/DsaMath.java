@@ -1,5 +1,10 @@
 package com.dsatab.common;
 
+import android.content.SharedPreferences;
+
+import com.dsatab.activity.DSATabApplication;
+import com.dsatab.activity.DsaPreferenceActivity;
+
 public class DsaMath {
 
 	public static double getProbePercentage(int[] e, int t) {
@@ -38,13 +43,20 @@ public class DsaMath {
 
 	public static double testEigen(int e1, int taw) {
 
-		e1 = e1 + taw;
+		SharedPreferences preferences = DSATabApplication.getPreferences();
 
-		int a = Math.min(20, e1) * Math.min(20, e1) * (20 - Math.min(20, e1));
-		int d = Math.min(20, e1) * Math.min(20, e1) * Math.min(20, e1);
+		if (preferences.getBoolean(DsaPreferenceActivity.KEY_HOUSE_RULES, false) == false) {
+			return Math.min(1.0, (e1 + taw) / 20.0);
+		} else {
 
-		return (3 * a + d) / 8000.0;
+			e1 = e1 + taw;
 
+			int a = Math.min(20, e1) * Math.min(20, e1) * (20 - Math.min(20, e1));
+			int d = Math.min(20, e1) * Math.min(20, e1) * Math.min(20, e1);
+
+			return (3 * a + d) / 8000.0;
+
+		}
 	}
 
 	public static double testTalent(int e1, int e2, int e3, int taw) {

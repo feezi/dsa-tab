@@ -35,10 +35,12 @@ public class CombatProbe implements Probe {
 		this.hero = hero;
 		this.combatTalent = talent;
 
-		if (this.attack)
-			probe = talent.getAttack();
-		else
-			probe = talent.getDefense();
+		if (combatTalent != null) {
+			if (this.attack)
+				probe = combatTalent.getAttack();
+			else
+				probe = combatTalent.getDefense();
+		}
 	}
 
 	public Integer getErschwernis() {

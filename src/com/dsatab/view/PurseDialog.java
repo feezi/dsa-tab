@@ -77,9 +77,9 @@ public class PurseDialog extends AlertDialog implements OnItemSelectedListener, 
 		}
 
 		for (int i = units.length; i < 4; i++) {
-			picker[i].setVisibility(View.INVISIBLE);
+			picker[i].setVisibility(View.GONE);
 			picker[i].setTag(null);
-			labels[i].setVisibility(View.INVISIBLE);
+			labels[i].setVisibility(View.GONE);
 		}
 	}
 
@@ -149,6 +149,10 @@ public class PurseDialog extends AlertDialog implements OnItemSelectedListener, 
 		picker[2].setOnViewChangedListener(this);
 		picker[3] = (NumberPicker) popupcontent.findViewById(R.id.popup_purse_kreuzer);
 		picker[3].setOnViewChangedListener(this);
+
+		for (int i = 0; i < picker.length; i++) {
+			picker[i].setRange(0, 9999);
+		}
 
 		labels = new TextView[4];
 		labels[0] = (TextView) popupcontent.findViewById(R.id.tv_currency1);

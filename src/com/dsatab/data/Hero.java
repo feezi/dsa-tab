@@ -43,6 +43,7 @@ import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.AuModifier;
 import com.dsatab.data.modifier.LeModifier;
 import com.dsatab.data.modifier.Modificator;
+import com.dsatab.view.drag.ItemInfo;
 import com.dsatab.view.listener.InventoryChangedListener;
 import com.dsatab.view.listener.ModifierChangedListener;
 import com.dsatab.view.listener.ValueChangedListener;
@@ -57,6 +58,8 @@ public class Hero {
 
 	private static final String PREFIX_BK = "bk";
 
+	public static final int MAXIMUM_SET_NUMBER = 3;
+
 	public enum CombatStyle {
 		Offensive, Defensive
 	}
@@ -69,7 +72,7 @@ public class Hero {
 
 	private Element held;
 
-	private Element experience;
+	private EditableValue experience, freeExperience;
 
 	private Map<AttributeType, Attribute> attributes;
 
@@ -111,11 +114,12 @@ public class Hero {
 
 	private Integer oldAuRatioLevel, oldLeRatioLevel;
 
+	@SuppressWarnings("unchecked")
 	public Hero(String path, Document dom) {
 		this.path = path;
 		this.dom = dom;
 		this.attributes = new HashMap<AttributeType, Attribute>(AttributeType.values().length);
-		this.equippedItems = new LinkedList[3];
+		this.equippedItems = new List[MAXIMUM_SET_NUMBER];
 
 		this.leModifier = new LeModifier(this);
 		if (getLeRatio() < 0.5)
@@ -154,9 +158,8 @@ public class Hero {
 	}
 
 	public EquippedItem getEquippedItem(String name) {
-
-		for (List<EquippedItem> items : equippedItems) {
-			for (EquippedItem item : items) {
+		for (int i = 0; i < MAXIMUM_SET_NUMBER; i++) {
+			for (EquippedItem item : getEquippedItems(i)) {
 				if (item.getName().equals(name))
 					return item;
 			}
@@ -173,6 +176,10 @@ public class Hero {
 			if (purseElements.getLength() > 0) {
 				Element purseElement = (Element) purseElements.item(0);
 				purse = new Purse(purseElement);
+			} else {
+				Element purseElement = dom.createElement(Xml.KEY_GELDBOERSE);
+				getHeldElement().appendChild(purseElement);
+				purse = new Purse(purseElement);
 			}
 		}
 		return purse;
@@ -182,8 +189,8 @@ public class Hero {
 
 		List<EquippedItem> items = new LinkedList<EquippedItem>();
 
-		for (List<EquippedItem> equippedList : equippedItems) {
-			for (EquippedItem ei : equippedList) {
+		for (int i = 0; i < MAXIMUM_SET_NUMBER; i++) {
+			for (EquippedItem ei : getEquippedItems(i)) {
 				Item item = ei.getItem();
 				for (Class<?> clazz : itemClass) {
 					if (clazz.isAssignableFrom(item.getClass())) {
@@ -201,8 +208,8 @@ public class Hero {
 	public List<EquippedItem> getAllEquippedItems() {
 		LinkedList<EquippedItem> items = new LinkedList<EquippedItem>();
 
-		for (List<EquippedItem> i : equippedItems) {
-			items.addAll(i);
+		for (int i = 0; i < MAXIMUM_SET_NUMBER; i++) {
+			items.addAll(getEquippedItems(i));
 		}
 
 		return items;
@@ -237,6 +244,11 @@ public class Hero {
 				}
 
 				EquippedItem item = new EquippedItem(this, element);
+
+				// fix wrong screen iteminfo
+				if (item.getItemInfo().getScreen() == ItemInfo.INVALID_POSITION) {
+					item.getItemInfo().setScreen(item.getSet());
+				}
 
 				if (item.getItem() != null) {
 					equippedItems[selectedSet].add(item);
@@ -479,9 +491,9 @@ public class Hero {
 
 		List<EquippedItem> toremove = new ArrayList<EquippedItem>();
 
-		for (List<EquippedItem> equippedList : equippedItems) {
+		for (int i = 0; i < MAXIMUM_SET_NUMBER; i++) {
 
-			for (EquippedItem equippedItem : equippedList) {
+			for (EquippedItem equippedItem : getEquippedItems(i)) {
 
 				if (equippedItem.getItem() == null) {
 					Debug.warning("Empty EquippedItem found during item delete:" + equippedItem.getName() + " - "
@@ -684,29 +696,83 @@ public class Hero {
 				}
 			}
 
-			if (!this.attributes.containsKey(AttributeType.Behinderung)) {
-
+			if (type == AttributeType.Behinderung && !this.attributes.containsKey(AttributeType.Behinderung)) {
 				Element element = dom.createElement(Xml.KEY_EIGENSCHAFT);
 				element.setAttribute(Xml.KEY_NAME, AttributeType.Behinderung.name());
-				element.setAttribute(Xml.KEY_VALUE, Integer.toString(getArmorBe()));
+				element.setAttribute(Xml.KEY_VALUE, "0");
 				getHeldElement().appendChild(element);
-				this.attributes.put(AttributeType.Behinderung, new Attribute(element, this));
-			}
-			if (!this.attributes.containsKey(AttributeType.Ausweichen)) {
 
+				Attribute be = new Attribute(element, this);
+				be.setValue(getArmorBe());
+				this.attributes.put(AttributeType.Behinderung, be);
+			}
+			if (type == AttributeType.Ausweichen && !this.attributes.containsKey(AttributeType.Ausweichen)) {
 				Element element = dom.createElement(Xml.KEY_EIGENSCHAFT);
 				element.setAttribute(Xml.KEY_NAME, AttributeType.Ausweichen.name());
 				getHeldElement().appendChild(element);
 				this.attributes.put(AttributeType.Ausweichen, new Attribute(element, this));
 			}
 
-			if (!this.attributes.containsKey(AttributeType.Initiative_Aktuell)) {
-
+			if (type == AttributeType.Initiative_Aktuell
+					&& !this.attributes.containsKey(AttributeType.Initiative_Aktuell)) {
 				Element element = dom.createElement(Xml.KEY_EIGENSCHAFT);
 				element.setAttribute(Xml.KEY_NAME, AttributeType.Initiative_Aktuell.name());
 				element.setAttribute(Xml.KEY_VALUE, "0");
 				getHeldElement().appendChild(element);
 				this.attributes.put(AttributeType.Initiative_Aktuell, new Attribute(element, this));
+			}
+
+			if (type == AttributeType.fk && !this.attributes.containsKey(AttributeType.fk)) {
+				Element element = dom.createElement(Xml.KEY_EIGENSCHAFT);
+				element.setAttribute(Xml.KEY_NAME, AttributeType.fk.name());
+
+				int basefk = getAttributeValue(AttributeType.Intuition)
+						+ getAttributeValue(AttributeType.Fingerfertigkeit)
+						+ getAttributeValue(AttributeType.Körperkraft);
+				basefk = Math.round(basefk / 5.0F);
+				element.setAttribute(Xml.KEY_VALUE, Util.toString(basefk));
+				element.setAttribute(Xml.KEY_MOD, "0");
+				getHeldElement().appendChild(element);
+				this.attributes.put(AttributeType.fk, new Attribute(element, this));
+			}
+
+			if (type == AttributeType.pa && !this.attributes.containsKey(AttributeType.pa)) {
+				Element element = dom.createElement(Xml.KEY_EIGENSCHAFT);
+				element.setAttribute(Xml.KEY_NAME, AttributeType.pa.name());
+
+				int basefk = getAttributeValue(AttributeType.Intuition) + getAttributeValue(AttributeType.Gewandtheit)
+						+ getAttributeValue(AttributeType.Körperkraft);
+				basefk = Math.round(basefk / 5.0F);
+				element.setAttribute(Xml.KEY_VALUE, Util.toString(basefk));
+				element.setAttribute(Xml.KEY_MOD, "0");
+				getHeldElement().appendChild(element);
+				this.attributes.put(AttributeType.pa, new Attribute(element, this));
+			}
+
+			if (type == AttributeType.at && !this.attributes.containsKey(AttributeType.at)) {
+				Element element = dom.createElement(Xml.KEY_EIGENSCHAFT);
+				element.setAttribute(Xml.KEY_NAME, AttributeType.at.name());
+
+				int basefk = getAttributeValue(AttributeType.Mut) + getAttributeValue(AttributeType.Gewandtheit)
+						+ getAttributeValue(AttributeType.Körperkraft);
+				basefk = Math.round(basefk / 5.0F);
+				element.setAttribute(Xml.KEY_VALUE, Util.toString(basefk));
+				element.setAttribute(Xml.KEY_MOD, "0");
+				getHeldElement().appendChild(element);
+				this.attributes.put(AttributeType.at, new Attribute(element, this));
+			}
+
+			if (type == AttributeType.ini && !this.attributes.containsKey(AttributeType.ini)) {
+				Element element = dom.createElement(Xml.KEY_EIGENSCHAFT);
+				element.setAttribute(Xml.KEY_NAME, AttributeType.ini.name());
+
+				int basefk = getAttributeValue(AttributeType.Mut) + getAttributeValue(AttributeType.Mut)
+						+ getAttributeValue(AttributeType.Intuition) + getAttributeValue(AttributeType.Gewandtheit);
+				basefk = Math.round(basefk / 5.0F);
+				element.setAttribute(Xml.KEY_VALUE, Util.toString(basefk));
+				element.setAttribute(Xml.KEY_MOD, "0");
+				getHeldElement().appendChild(element);
+				this.attributes.put(AttributeType.ini, new Attribute(element, this));
 			}
 
 			attribute = this.attributes.get(type);
@@ -897,11 +963,23 @@ public class Hero {
 		return getHeldElement().getAttribute(Xml.KEY_NAME);
 	}
 
-	public int getExperience() {
-		if (experience == null)
-			experience = (Element) getHeldElement().getElementsByTagName(Xml.KEY_ABENTEUERPUNKTE).item(0);
+	public EditableValue getExperience() {
+		if (experience == null) {
+			experience = new Experience(this, "Abenteuerpunkte", DomUtil.getChildByTagName(getHeldElement(),
+					Xml.KEY_ABENTEUERPUNKTE));
+			experience.setMaximum(100000);
+		}
+		return experience;
+	}
 
-		return Integer.parseInt(experience.getAttribute(Xml.KEY_VALUE));
+	public EditableValue getFreeExperience() {
+		if (freeExperience == null) {
+			freeExperience = new EditableValue(this, "Freie Abenteuerpunkte", DomUtil.getChildByTagName(
+					getHeldElement(), Xml.KEY_FREIE_ABENTEUERPUNKTE));
+			experience.setMaximum(100000);
+		}
+
+		return freeExperience;
 	}
 
 	protected void postLeRatioCheck() {
@@ -1587,7 +1665,15 @@ public class Hero {
 						items.add(item);
 
 					} else {
-						Debug.warning("Item not found skipping it:" + element.getAttribute(Xml.KEY_NAME));
+						Debug.warning("Item not found generating it:" + element.getAttribute(Xml.KEY_NAME));
+
+						item = new Item();
+						item.setName(element.getAttribute(Xml.KEY_NAME));
+						item.setType(ItemType.Sonstiges);
+						item.setElement(element);
+						item.setId(UUID.randomUUID());
+						item.setCategory("Sonstiges");
+						items.add(item);
 					}
 				}
 			}
@@ -1705,9 +1791,9 @@ public class Hero {
 				element.setAttribute(Xml.KEY_NAME, talentName);
 
 				Element attacke = dom.createElement(Xml.KEY_ATTACKE);
-				attacke.setAttribute(Xml.KEY_VALUE, "0");
+				attacke.setAttribute(Xml.KEY_VALUE, Util.toString(getAttributeValue(AttributeType.at)));
 				Element parade = dom.createElement(Xml.KEY_PARADE);
-				parade.setAttribute(Xml.KEY_VALUE, "0");
+				parade.setAttribute(Xml.KEY_VALUE, Util.toString(getAttributeValue(AttributeType.pa)));
 
 				element.appendChild(attacke);
 				element.appendChild(parade);
@@ -1826,8 +1912,8 @@ public class Hero {
 
 		getHeldElement().removeChild(equippedItem.getElement());
 
-		for (List<EquippedItem> items : equippedItems) {
-			items.remove(equippedItem);
+		for (int i = 0; i < MAXIMUM_SET_NUMBER; i++) {
+			getEquippedItems(i).remove(equippedItem);
 		}
 
 		if (equippedItem.getItem() instanceof Armor) {
