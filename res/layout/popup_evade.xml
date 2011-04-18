@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="fill_parent"
+	android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
+	android:alwaysDrawnWithCache="false" android:padding="5dip"
+	android:id="@+id/popup_edit_layout">
+
+	<include android:layout_height="wrap_content" layout="@layout/fight_sheet_item"
+		android:id="@+id/inc_evade_item" android:layout_width="fill_parent"></include>
+
+	<TextView android:layout_below="@+id/inc_evade_item"
+		android:layout_height="wrap_content" android:layout_width="wrap_content"
+		android:text="Entfernung" android:id="@+id/evade_distance_text"
+		android:layout_alignParentLeft="true" android:layout_alignBottom="@+id/evade_distance"
+		android:layout_centerInParent="false" android:gravity="center_vertical"
+		android:textColor="#ddd"></TextView>
+
+	<Spinner android:layout_height="wrap_content"
+		android:layout_below="@+id/inc_evade_item" android:layout_width="fill_parent"
+		android:id="@+id/evade_distance" android:layout_toRightOf="@+id/evade_distance_text"
+		android:entries="@array/evadeDistance"></Spinner>
+	<TextView android:layout_height="wrap_content"
+		android:layout_width="wrap_content" android:layout_alignParentLeft="true"
+		android:layout_below="@id/evade_distance" android:gravity="center_vertical"
+		android:textColor="#ddd" android:text="Gegner" android:id="@+id/evade_enemy_text"
+		android:layout_alignBottom="@+id/evade_enemy"></TextView>
+	<Spinner android:layout_height="wrap_content"
+		android:layout_width="fill_parent" android:layout_below="@+id/evade_distance"
+		android:layout_toRightOf="@+id/evade_enemy_text"
+		android:layout_alignLeft="@+id/evade_distance" android:id="@+id/evade_enemy"
+		android:entries="@array/evadeEnemy"></Spinner>
+	<Button android:layout_width="wrap_content"
+		android:layout_toRightOf="@+id/evade_enemy_text"
+		android:layout_height="wrap_content" android:id="@+id/evade_others"
+		android:layout_alignRight="@+id/evade_distance" android:text="Sonstige Modifikatoren"
+		android:layout_alignParentLeft="true" android:layout_below="@+id/evade_enemy"></Button>
+	<TextView android:layout_height="wrap_content"
+		android:layout_width="wrap_content" android:id="@+id/evade_probe"
+		android:layout_marginRight="5dip" android:textSize="30dip"
+		android:text="Erschwernis:" android:layout_below="@+id/evade_others"
+		android:textColor="#ddd"></TextView>
+	<TextView android:layout_height="wrap_content"
+		android:layout_width="wrap_content" android:id="@+id/evade_probe_value"
+		android:layout_toRightOf="@+id/evade_probe" style="@style/TextValue"
+		android:textSize="30dip" android:text="+8" android:layout_below="@+id/evade_others"
+		android:textColor="#ddd"></TextView>
+
+
+
+</RelativeLayout>

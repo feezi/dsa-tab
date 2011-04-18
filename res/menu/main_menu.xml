@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/option_load_hero"
+          android:icon="@drawable/m_icon_load"
+          android:title="Held laden" />
+    <item android:id="@+id/option_save_hero"
+          android:icon="@drawable/m_icon_save"
+          android:title="Held speichern" />
+	<item android:id="@+id/option_settings"
+          android:icon="@drawable/m_icon_misc"
+          android:title="Einstellungen" />
+</menu>

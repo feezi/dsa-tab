@@ -1,0 +1,7 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    
+	<item android:id="@+id/option_choose_map"
+          android:icon="@drawable/m_icon_natur"
+          android:title="Karte auswählen" />
+              
+</menu>

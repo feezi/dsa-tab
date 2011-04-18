@@ -1,0 +1,46 @@
+<RelativeLayout android:id="@+id/RelativeLayout01"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<include android:layout_width="wrap_content"
+		android:layout_height="wrap_content" layout="@layout/attributes_list"
+		android:id="@+id/inc_fight_attributes_list"></include>
+	<LinearLayout android:layout_height="wrap_content"
+		android:layout_centerHorizontal="true" android:id="@+id/fight_le_layout"
+		android:layout_width="fill_parent" android:weightSum="1.0"
+		android:gravity="center_horizontal" android:layout_below="@+id/inc_fight_attributes_list" android:layout_marginTop="5dip">
+		<ImageButton style="@style/IconButton" android:src="@drawable/set" android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:layout_gravity="center_vertical" android:layout_marginRight="10dp" android:id="@+id/fight_set"></ImageButton>
+		<Button android:text="LE" android:layout_gravity="center_vertical" android:id="@+id/fight_btn_picker" android:gravity="center" android:layout_width="wrap_content" android:layout_height="@dimen/icon_button_size" style="@style/IconButton"></Button>
+
+		<com.gandulf.guilib.view.NumberPicker android:layout_width="wrap_content" android:orientation="horizontal"
+			android:id="@+id/fight_picker" android:layout_height="70dp"></com.gandulf.guilib.view.NumberPicker>
+	</LinearLayout>
+	<ScrollView android:layout_below="@+id/fight_le_layout"
+		android:layout_width="fill_parent" android:layout_marginTop="10dip"
+		android:layout_height="fill_parent" android:fillViewport="true">
+		<LinearLayout android:orientation="vertical"
+			android:layout_width="fill_parent" android:layout_height="fill_parent">
+			<LinearLayout android:id="@+id/LinearLayout01" android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/BorderPanel" android:orientation="vertical"><LinearLayout android:layout_height="wrap_content" android:id="@+id/fight_items" android:orientation="vertical" android:layout_width="fill_parent">
+			</LinearLayout><include android:layout_height="wrap_content" layout="@layout/fight_sheet_item" android:id="@+id/inc_fight_ausweichen" android:layout_width="fill_parent"></include></LinearLayout>
+			<LinearLayout android:layout_height="wrap_content"
+				android:orientation="vertical" android:layout_width="fill_parent"
+				android:id="@+id/fight_modifiers" style="@style/BorderPanel"
+				android:layout_marginTop="5dip" android:visibility="gone">
+				<TextView android:layout_height="wrap_content"
+					android:text="Einbußen" android:id="@+id/fight_modifiers_title"
+					style="@style/TextViewTitle" android:layout_width="fill_parent"></TextView>
+			
+</LinearLayout>
+		
+</LinearLayout>
+	</ScrollView>
+
+
+
+
+
+
+
+
+
+</RelativeLayout>

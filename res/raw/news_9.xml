@@ -1,0 +1,21 @@
+<div>
+<h2>Version 1.4</h2>
+<h4>New Features</h4>
+<ul>
+<li>Versions Neuigkeiten werden ab jetzt in der Applikation angezeigt, wie man sieht. ;-)</li>
+<li>Astralenergie, Karmaenergie Ausdauer und Initiative Tracker bei der Kampfübersicht hinzugefügt</li>
+<li>Initiative Probe kann durch einen langen Tap auf den Tracker Umschalter durchgeführt werden</li>
+<li>Kampfreflexe, Kampfgespühr und Wunden werden bei Initiative berücksichtigt</li>
+<li>Umschalten zwischen Ausrüstungssets vereinfacht</li>
+<li>Lebenspunkte, Ausdauer, Astralenergie und Karmaenergie Basiswert kann jetzt verändert werden</li>
+<li>Zusätzliche Icons für Inventarverwaltung, Notizen und Karten wurden in der Tableiste hinzugefügt</li>
+<li>Portraitbild in der Charakterübersicht hinzugefügt</li>  
+</ul>
+
+<h4>Bugfixes</h4>
+<ul>
+<li>Wunden Symbol fehlte für eines der Beine</li>
+<li>Geld wird nun für alle Währungen gespeichert</li>
+<li>Die Position von Gegenständen wird nun auch bei Set 1/2/3 korrekt gespeichert</li> 
+</ul>
+</div>

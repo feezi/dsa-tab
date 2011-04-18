@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label_haar_augen_farbe">Haar,Augen</string>
+    <string name="label_alter">Alter</string>
+    <string name="label_ausbildung">Ausbildung</string>
+    <string name="label_gewicht">Gewicht</string>
+    <string name="label_groesse">Größe</string>
+    <string name="label_herkunft">Herkunft</string>
+    
+    <string name="label_ws">WS</string>
+    <string name="label_ini">Ini</string>
+    <string name="label_fk">FK</string>
+    <string name="label_pa">PA</string>
+    <string name="label_at">AT</string>
+    <string name="label_kk">Körperkraft</string>
+    <string name="label_ko">Konstitution</string>
+    <string name="label_ge">Gewandtheit</string>
+    <string name="label_ff">Fingerfertigkeit</string>
+    <string name="label_ch">Charisma</string>
+    <string name="label_in">Intuition</string>
+    <string name="label_kl">Klugheit</string>
+    <string name="label_mu">Mut</string>
+    <string name="label_be">BE</string>
+    <string name="label_gs">GS</string>
+    <string name="label_ap">AP</string>
+    <string name="label_st">Stufe</string>
+    <string name="label_so">SO</string>
+    <string name="label_mr">MR</string>
+    <string name="label_ke">KE</string>
+    <string name="label_ae">AE</string>
+    <string name="label_au">AU</string>
+    <string name="label_le">LE</string>    
+    
+    <string name="label_buy_app">App kaufen</string>
+    <string name="label_no_thanks">Nein danke</string>
+    
+    <string name="hero_loaded">%s geladen</string>
+    <string name="hero_saved">%s gespeichert</string>
+    
+    <string name="menu_assign_main_weapon">Hauptwaffe zuweisen</string>
+    <string name="menu_assign_secondary_weapon">Zweitwaffe zuweisen</string>
+    
+    <string name="app_name">DsaTab</string>
+    <string name="app_name_lite">DsaTab Lite</string>
+    
+    <string name="offensive">Offensive</string>
+    <string name="defensive">Defensive</string>
+    
+    <item type="id" name="TAG_KEY_VALUE" />
+    <item type="id" name="TAG_KEY_PROBE" />
+    <item type="id" name="TAG_CARD_TYPE" />
+	<item type="id" name="TAG_CARD_POSITION" />    
+    
+<string name="menu_unassign_item">Zuweisung aufheben</string>
+<string name="menu_delete_item">Eintrag löschen</string>
+<string name="menu_sort_items">Einträge sortieren</string>
+<string name="menu_reset_values">Werte zurücksetzen</string>
+<string name="menu_equipment_set">Ausrüstungsset %s</string>
+<string name="advantages">Vorteile</string>
+<string name="disadvantages">Nachteile</string>
+<string name="ausweichen_info">Wert %1$s - Mod %2$s</string>
+<string name="label_ok">Ok</string>
+<string name="label_cancel">Abbrechen</string>
+<string name="modifikatoren">Modifikatoren</string>
+<string name="menu_edit_item">Eintrag bearbeiten</string>
+<string name="recording">Aufnahme</string>
+<string name="recording_message">Aufnahme läuft...</string>
+<string name="label_save">Speichern</string>
+<string name="settings">Einstellungen</string>
+<string name="menu_view_item">Eintrag betrachten</string>
+<string name="menu_show_hide_comments">Kommentare ein-/ausblenden</string>
+
+<string name="title_credits">Credits</string>
+<string name="credits">
+<![CDATA[
+
+<p>Copyright (C) 2010 Gandulf Kohlweiss</p>
+<p>
+This program is free software; you can redistribute it and/or modify it under the terms
+of the GNU General Public License as published by the Free Software Foundation;
+either version 3 of the License, or (at your option) any later version.</p>
+<p>
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.</p>
+<p>
+You should have received a copy of the GNU General Public License along with this program;
+if not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.</p>
+
+<p>Source Code of DsaTab is available here: <a href="http://code.google.com/p/dsa-tab/">Source Download</a></p>
+
+<p>Contributions</p>
+ 
+<ul>
+<li>Waffen, Tab Icons von verschiedenen K&uuml;nstlern f&uuml;r <a href="http://www.wesnoth.org">www.wesnoth.org</a></li>
+<li>Wunden Icon von Everaldo Coelho <a href="http://www.everaldo.com/"> www.everaldo.com</a></li>
+</ul>
+
+Extern herunterladbarer Inhalt:
+<ul>
+<li>Bilder aus "Lanze, Helm und Federvieh" <a href="http://www.fuldigors-hoehle.de/">Fuldigors H&ouml;hle</a></li>
+<li>Portraits aus dem Spiel "Battle for Wesnoth" - Copyright <a href="http://www.wesnoth.org">www.wesnoth.org</a></li>
+</ul>
+
+<h3>Copyright Informationen</h3>
+
+<p>[Benutzte Begriffe, also etwa Das Schwarze Auge, Aventurien, Myranor, Armalion ...] sind eingetragene Warenzeichen von Fantasy Productions GmbH, Erkrath. Copyright by Fantasy Productions GmbH. Diese Website enth&auml;lt nichtoffizielle Informationen zum Rollenspiel "Das Schwarze Auge" und zur Welt "Aventurien" [bzw. "Myranor"]. Diese Informationen k&ouml;nnen im Widerspruch zu offiziell publizierten Texten stehen; bei Fragen zu dieser Seite wendet Euch bitte an gandulf.k et gmail.com</p> 
+]]>
+</string>
+
+<string name="lite_title">DsaTab Lite</string>
+<string name="lite_info">
+<![CDATA[
+<p>Mit der Lite Version kannst du dir die Wert deines Helden ansehen und Proben ohne Modifikatoren w&uuml;rfeln.</p>
+
+<p>Falls du auch die <string>zus&auml;tzlichen Features</strong> nutzen willst, oder mich bei der Entwicklung von DsaTab unterstützen willst, kauf dir die Vollversion im <a href="market://market.android.com/details?id=com.dsatab">Android Market</a>. Für diejenigen die keine Kreditkarte haben, kann die App auch über <a href="http://www.androidpit.de/de/android/market/apps/app/com.dsatab/DsaTab">AndroidPIT</a> mittels <b>PayPal</b> erworben werden.</p>
+ 
+<a href="market://market.android.com/details?id=com.dsatab"><img src="file:///android_asset/badge.png"></a>
+
+<a href="http://www.androidpit.de/de/android/market/apps/app/com.dsatab/DsaTab"><img src="file:///android_asset/badge_paypal.png"></a>
+]]>
+</string>
+
+
+<string name="lite_feature_teaser_title">Willst du mehr?</string>
+<string name="lite_feature_teaser">
+<![CDATA[
+
+<p>%1$s</p>
+ 
+<h3>Hol dir jetzt die Vollversion:</h3>
+<a href="market://market.android.com/details?id=com.dsatab"><img src="file:///android_asset/badge.png"></a>
+
+<a href="http://www.androidpit.de/de/android/market/apps/app/com.dsatab/DsaTab"><img src="file:///android_asset/badge_paypal.png"></a>
+]]>
+</string>
+
+<string name="news_title">Informationen</string>
+
+</resources>

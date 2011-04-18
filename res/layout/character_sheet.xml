@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:id="@+id/ScrollView01"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_height="fill_parent" android:layout_width="fill_parent"
+	android:scrollbarStyle="outsideOverlay">
+	<RelativeLayout android:layout_height="fill_parent"
+		android:layout_width="fill_parent" android:id="@+id/gen_char_sheet">
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/gen_name"
+			android:text="Character Name" style="@style/TextViewTitle" android:layout_marginLeft="@dimen/portrait_width_small" android:paddingLeft="10dp"></TextView>
+		<ImageView android:id="@+id/gen_portrait" android:src="@drawable/profile_blank" android:layout_height="@dimen/portrait_height_small" android:scaleType="fitCenter" android:layout_width="@dimen/portrait_width_small" android:layout_alignTop="@+id/gen_description" android:layout_alignBottom="@+id/gen_description" style="@style/BorderPanel" android:layout_marginRight="5dp"></ImageView>
+		<TableLayout android:layout_height="wrap_content"
+			android:layout_below="@id/gen_name" android:layout_width="fill_parent"
+			android:id="@+id/gen_description" style="@style/BorderPanel"
+			android:layout_marginBottom="5dip" android:stretchColumns="1,3"
+			android:layout_alignParentRight="true"
+			android:shrinkColumns="1"
+			android:paddingLeft="10dip" android:paddingRight="10dip" android:layout_toRightOf="@+id/gen_portrait">
+			<TableRow android:id="@+id/TableRow02" android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="Söldner"
+					android:id="@+id/gen_ausbildung"
+					android:ellipsize="middle" style="@style/TextLabelSmall" android:layout_span="4"></TextView>
+			</TableRow>
+			<TableRow android:id="@+id/TableRow02" android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/label_herkunft"
+					style="@style/TextLabelSmall"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/gen_herkunft" android:layout_span="3" android:text="Mittelländer"
+					android:ellipsize="middle" style="@style/TextLabelSmall" android:paddingLeft="5dip"></TextView>
+
+
+			</TableRow>
+			<TableRow android:id="@+id/TableRow03" android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/label_gewicht"
+					style="@style/TextLabelSmall"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="80 Stein" android:id="@+id/gen_gewicht" style="@style/TextLabelSmall" android:paddingLeft="5dip"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/label_groesse"
+					style="@style/TextLabelSmall"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/gen_groesse"
+					android:text="1,80" style="@style/TextLabelSmall" android:paddingLeft="5dip"></TextView>
+			</TableRow>
+			<TableRow android:id="@+id/TableRow02" android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/label_haar_augen_farbe"
+					style="@style/TextLabelSmall"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/gen_haar_augen"
+					android:text="grün / blau" android:lines="1" style="@style/TextLabelSmall" android:paddingLeft="5dip"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/label_alter"
+					style="@style/TextLabelSmall"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:ellipsize="middle"
+					android:id="@+id/gen_alter"
+					android:lines="1" android:text="42" style="@style/TextLabelSmall" android:paddingLeft="5dip"></TextView>
+			</TableRow>
+		</TableLayout>
+		<TableLayout android:layout_height="wrap_content"
+			android:id="@+id/gen_attributes" android:stretchColumns="0,1"
+			android:layout_alignParentLeft="true" style="@style/BorderPanel"
+			android:paddingLeft="10dip" android:shrinkColumns="0"
+			android:layout_width="170dip" android:layout_below="@+id/gen_description">
+			<TableRow android:layout_height="wrap_content"
+				android:layout_width="wrap_content" android:id="@+id/TableRow01">
+				<TextView android:layout_width="wrap_content" style="@style/TextLabel"
+					android:id="@+id/talent_mu_label" android:ellipsize="end"
+					android:layout_height="fill_parent" android:gravity="center_vertical"
+					android:text="@string/label_mu"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextValue"
+					android:layout_gravity="center" android:id="@+id/talent_mu"></TextView>
+			</TableRow>
+			<TableRow android:layout_height="wrap_content"
+				android:layout_width="wrap_content" android:layout_below="@+id/gen_name"
+				android:id="@+id/TableRow01">
+				<TextView android:layout_width="wrap_content" style="@style/TextLabel"
+					android:ellipsize="end" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:id="@+id/talent_kl_label"
+					android:text="@string/label_kl"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextValue"
+					android:layout_gravity="center" android:id="@+id/talent_kl"></TextView>
+			</TableRow>
+			<TableRow android:layout_height="wrap_content"
+				android:layout_width="wrap_content" android:layout_below="@+id/gen_name"
+				android:id="@+id/TableRow01">
+				<TextView android:layout_width="wrap_content" style="@style/TextLabel"
+					android:ellipsize="end" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:id="@+id/talent_in_label"
+					android:text="@string/label_in"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextValue"
+					android:layout_gravity="center" android:id="@+id/talent_in"></TextView>
+			</TableRow>
+			<TableRow android:layout_height="wrap_content"
+				android:layout_width="wrap_content" android:layout_below="@+id/gen_name"
+				android:id="@+id/TableRow01">
+				<TextView android:layout_width="wrap_content" style="@style/TextLabel"
+					android:ellipsize="end" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:id="@+id/talent_ch_label"
+					android:text="@string/label_ch"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextValue"
+					android:layout_gravity="center" android:id="@+id/talent_ch"></TextView>
+			</TableRow>
+			<TableRow android:layout_height="wrap_content"
+				android:layout_width="wrap_content" android:layout_below="@+id/gen_name"
+				android:id="@+id/TableRow01">
+				<TextView android:layout_width="wrap_content" style="@style/TextLabel"
+					android:ellipsize="end" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:id="@+id/talent_ff_label"
+					android:text="@string/label_ff"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextValue"
+					android:layout_gravity="center" android:id="@+id/talent_ff"></TextView>
+			</TableRow>
+			<TableRow android:layout_height="wrap_content"
+				android:layout_width="wrap_content" android:layout_below="@+id/gen_name"
+				android:id="@+id/TableRow01">
+				<TextView android:layout_width="wrap_content" style="@style/TextLabel"
+					android:ellipsize="end" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:id="@+id/talent_ge_label"
+					android:text="@string/label_ge"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextValue"
+					android:layout_gravity="center" android:id="@+id/talent_ge"></TextView>
+			</TableRow>
+			<TableRow android:layout_height="wrap_content"
+				android:layout_width="wrap_content" android:layout_below="@+id/gen_name"
+				android:id="@+id/TableRow01">
+				<TextView android:layout_width="wrap_content" style="@style/TextLabel"
+					android:ellipsize="end" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:id="@+id/talent_ko_label"
+					android:text="@string/label_ko"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextValue"
+					android:layout_gravity="center" android:id="@+id/talent_ko"></TextView>
+			</TableRow>
+			<TableRow android:layout_height="wrap_content"
+				android:layout_width="wrap_content" android:layout_below="@+id/gen_name"
+				android:id="@+id/TableRow01" android:paddingBottom="5dp">
+				<TextView android:layout_width="wrap_content" style="@style/TextLabel"
+					android:ellipsize="end" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:id="@+id/talent_kk_label"
+					android:text="@string/label_kk"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" android:id="@+id/talent_kk"
+					style="@style/TextValue" android:layout_gravity="center"></TextView>
+			</TableRow>
+
+		</TableLayout>
+
+		<TableLayout android:id="@+id/gen_attributes2"
+			android:layout_marginLeft="5dip" android:layout_alignParentRight="true"
+			android:layout_toRightOf="@+id/gen_attributes" android:layout_width="wrap_content"
+			android:layout_alignTop="@+id/gen_attributes" android:layout_height="wrap_content"
+			android:layout_alignBottom="@+id/gen_attributes" style="@style/BorderPanel"
+			android:paddingLeft="10dip" android:shrinkColumns="0"
+			android:stretchColumns="0" android:paddingRight="10dip">
+
+			<TableRow android:layout_height="wrap_content"
+				android:layout_width="wrap_content">
+				<TextView android:layout_width="wrap_content" style="@style/TextLabel"
+					android:layout_gravity="center_vertical" android:ellipsize="end"
+					android:layout_height="fill_parent" android:gravity="center_vertical"
+					android:text="@string/label_le"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextValue"
+					android:id="@+id/gen_lp"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:text="10" android:id="@+id/gen_total_lp" style="@style/TextLabel"
+					android:gravity="right|center_vertical" android:layout_width="60dip"></TextView>
+			</TableRow>
+
+			<TableRow android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+				<TextView android:layout_width="wrap_content" style="@style/TextLabel"
+					android:layout_gravity="center_vertical" android:ellipsize="end"
+					android:layout_height="fill_parent" android:gravity="center_vertical"
+					android:text="@string/label_au"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextValue"
+					android:id="@+id/gen_au"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10"
+					android:id="@+id/gen_total_au" style="@style/TextLabel"
+					android:gravity="right|center_vertical"></TextView>
+			</TableRow>
+
+			<TableRow android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+				<TextView android:layout_width="wrap_content" style="@style/TextLabel"
+					android:id="@+id/gen_label_ae" android:layout_gravity="center_vertical"
+					android:ellipsize="end" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:text="@string/label_ae"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextValue"
+					android:id="@+id/gen_ae"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10"
+					android:id="@+id/gen_total_ae" style="@style/TextLabel"
+					android:gravity="right|center_vertical"></TextView>
+			</TableRow>
+
+			<TableRow android:layout_height="wrap_content"
+				android:layout_width="wrap_content">
+				<TextView android:layout_width="wrap_content" style="@style/TextLabel"
+					android:id="@+id/gen_label_ke" android:layout_gravity="center_vertical"
+					android:ellipsize="end" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:text="@string/label_ke"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextValue"
+					android:id="@+id/gen_ke"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10"
+					android:id="@+id/gen_total_ke" style="@style/TextLabel"
+					android:gravity="right|center_vertical"></TextView>
+			</TableRow>
+			<TableRow android:layout_height="wrap_content"
+				android:layout_width="wrap_content">
+				<TextView android:layout_width="wrap_content" style="@style/TextLabel"
+					android:layout_span="2" android:layout_gravity="center_vertical"
+					android:ellipsize="end" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:text="@string/label_mr"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" android:id="@+id/gen_mr"
+
+					style="@style/TextLabel" android:gravity="right|center_vertical"></TextView>
+
+			</TableRow>
+
+			<TableRow android:layout_height="wrap_content"
+				android:layout_width="wrap_content">
+
+				<TextView android:layout_width="wrap_content" style="@style/TextLabel"
+					android:layout_span="2" android:layout_gravity="center_vertical"
+					android:ellipsize="end" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:text="@string/label_so"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" android:id="@+id/gen_so"
+					style="@style/TextLabel" android:gravity="right|center_vertical"></TextView>
+			</TableRow>
+
+			<TableRow android:layout_height="wrap_content"
+				android:layout_width="wrap_content">
+				<TextView android:layout_width="wrap_content" style="@style/TextLabel"
+					android:layout_span="2" android:layout_gravity="center_vertical"
+					android:layout_height="fill_parent" android:gravity="center_vertical"
+					android:text="@string/label_st"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" android:id="@+id/gen_st"
+					style="@style/TextLabel" android:gravity="right|center_vertical"></TextView>
+
+			</TableRow>
+			<TableRow android:layout_height="wrap_content"
+				android:layout_width="wrap_content">
+
+				<TextView android:layout_width="wrap_content" style="@style/TextLabel"
+					android:layout_gravity="center_vertical" android:layout_span="2"
+					android:layout_height="fill_parent" android:gravity="center_vertical"
+					android:ellipsize="end" android:text="@string/label_ap"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:id="@+id/gen_abp"
+					style="@style/TextLabel" android:gravity="right|center_vertical"
+					android:text="10" android:ellipsize="none"></TextView>
+
+			</TableRow>
+			<TableRow android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+				<TextView android:layout_width="wrap_content"
+					android:layout_span="2" android:layout_gravity="center_vertical"
+					style="@style/TextLabel" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:ellipsize="end"
+					android:id="@+id/gen_gs_label" android:text="@string/label_gs"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" android:id="@+id/gen_gs"
+					style="@style/TextLabel" android:gravity="right|center_vertical"></TextView>
+			</TableRow>
+			<TableRow android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+				<TextView android:layout_width="wrap_content"
+					android:layout_span="2" android:layout_gravity="center_vertical"
+					style="@style/TextLabel" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:ellipsize="end"
+					android:id="@+id/gen_ws_label" android:text="@string/label_ws"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextLabel"
+					android:gravity="right|center_vertical" android:id="@+id/gen_ws"></TextView>
+			</TableRow>
+			<TableRow android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+				<TextView android:layout_width="wrap_content" android:id="@+id/gen_be_label"
+					android:layout_span="2" android:layout_gravity="center_vertical"
+					style="@style/TextLabel" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:ellipsize="end"
+					android:text="@string/label_be"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextValue"
+					android:id="@+id/gen_be" android:gravity="right|center_vertical"></TextView>
+			</TableRow>
+
+
+
+		</TableLayout>
+		
+		<TableLayout android:layout_height="wrap_content"
+				android:layout_marginTop="5dip"
+				android:layout_below="@+id/gen_attributes2"
+				android:layout_width="fill_parent"
+				android:shrinkColumns="0" android:stretchColumns="0"
+				style="@style/BorderPanel" android:id="@+id/gen_combat_attributes"></TableLayout>
+
+
+		<TableLayout android:layout_height="wrap_content"
+			android:id="@+id/gen_attributes3" android:layout_width="fill_parent"
+			android:layout_marginTop="5dip" android:padding="2dip"
+			android:stretchColumns="0,1,2,3,4,5,6,7,8" android:background="@color/Brighter"
+			android:shrinkColumns="0,2,4,6" android:layout_below="@+id/gen_combat_attributes">
+			<TableRow android:layout_height="wrap_content"
+				android:layout_width="wrap_content" android:id="@+id/TableRow01">
+				<TextView android:layout_width="wrap_content" style="@style/TextLabelSmall"
+					android:id="@+id/gen_at_label" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:ellipsize="end"
+					android:layout_gravity="center_vertical" android:text="@string/label_at" android:paddingTop="10dp"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextValue"
+					android:id="@+id/gen_at"></TextView>
+				<TextView android:layout_width="wrap_content" style="@style/TextLabelSmall"
+					android:id="@+id/gen_pa_label" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:ellipsize="end"
+					android:layout_gravity="center_vertical" android:text="@string/label_pa"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextValue"
+					android:id="@+id/gen_pa"></TextView>
+				<TextView android:layout_width="wrap_content" style="@style/TextLabelSmall"
+					android:id="@+id/gen_fk_label" android:layout_height="fill_parent"
+					android:gravity="center_vertical" android:ellipsize="end"
+					android:layout_gravity="center_vertical" android:text="@string/label_fk"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextValue"
+					android:id="@+id/gen_fk"></TextView>
+				<TextView android:layout_width="wrap_content" android:id="@+id/gen_ini_label"
+					android:layout_height="fill_parent" android:gravity="center_vertical"
+					android:ellipsize="end" style="@style/TextLabelSmall"
+					android:layout_gravity="center_vertical" android:text="@string/label_ini"></TextView>
+				<TextView android:layout_height="wrap_content"
+					android:layout_width="wrap_content" android:text="10" style="@style/TextValue"
+					android:id="@+id/gen_ini" android:paddingRight="10dp"></TextView>
+
+
+			</TableRow>
+
+
+
+
+
+
+
+		</TableLayout>
+		<TextView android:layout_height="wrap_content" android:text="Beidhändig, Gezielter Stich"
+			android:id="@+id/gen_specialfeatures" android:background="@color/Brighter"
+			android:padding="5dip" android:inputType="textMultiLine"
+			android:layout_marginTop="5dip" android:layout_width="fill_parent"
+			android:layout_below="@+id/gen_attributes3" style="@style/TextLabelSmall"></TextView>
+
+
+
+
+	</RelativeLayout>
+</ScrollView>

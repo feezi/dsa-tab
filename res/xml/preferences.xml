@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+        <PreferenceCategory android:title="Proben">
+                <CheckBoxPreference
+                        android:title="Hausregeln verwenden"
+                        android:defaultValue="false"
+                        android:summary="Spezielle Hausregeln verwenden: Eigenschafts-/Kampfproben besten 2 von 3 Würfen"
+                        android:key="houseRules" />
+                <CheckBoxPreference
+                        android:title="Wahrscheinlichkeit anzeigen"
+                        android:defaultValue="false"
+                        android:summary="Die Wahrscheinlichkeit mit der eine Probe gelingt wird angezeigt"
+                        android:key="probeProbability" />
+				<CheckBoxPreference
+                        android:title="Schüttel Wurf"
+                        android:defaultValue="false"
+                        android:summary="Durch das Schüttel des Handies wird ein Würfel geworfen"
+                        android:key="shakeRollDice" />
+
+				<ListPreference
+                        android:title="Rüstungsschutzart"
+                        android:summary="Wähle nach welcher Art der Rüstungsschutz berechnet wird (Zonenrüstung/Gesamtrüstung)."
+                        android:key="armorType"
+                        android:defaultValue="ZonenRuestung"/>
+                                                
+        </PreferenceCategory>        
+                
+        <PreferenceCategory android:title="Seiten">                                      
+                <CheckBoxPreference
+                        android:title="Rüstungen anzeigen"
+                        android:defaultValue="true"
+                        android:summary="Zeige Rüstungen in der Kampfüberischt an"
+                        android:key="showArmor" />
+        </PreferenceCategory>
+        
+        <PreferenceCategory android:title="Setup">
+        	<EditTextPreference
+                android:name="SDCard: Pfad zu DsaTab"
+                android:summary="Pfad auf der SD Karte zu den DsaTab Daten (Helden Profile, Karten Material, ...)"
+                android:defaultValue="/sdcard/dsatab/"
+                android:title="SD Karten Pfad"
+                android:key="sdcardPath" />
+                
+           <PreferenceScreen
+                android:key="doanloadMediaScreen"
+                android:title="Portraits, Bilder, etc herunterladen"
+                android:summary="Ladet zusätzliche Charakter Portraits, etc. aus dem Internet herunter.">
+                <Preference
+                android:title="Alles herunterladen"
+                android:summary="Portraits, Gegenstände (19 MB)"
+                android:key="downloadAll" />
+                <!--   Preference
+                android:title="Portraits herunterladen"
+                android:summary="Aus dem unveröffentlichen Band 'Von Rand und Namen' - Copyright FanPro (400 kB)"
+                android:key="downloadRangPortraits" / -->
+                <Preference
+                android:title="Portraits herunterladen"
+                android:summary="Aus dem Spiel 'Battle for Wesnoth' - Copyright www.wesnoth.org (800 kB)"
+                android:key="downloadWesnothPortraits" />
+                <!-- Preference
+                android:title="Karten herunterladen"
+                android:summary="Gesammltes Kartenwerk - Copyright FanPro (9 MB)"                
+                android:key="downloadMaps" / -->
+                <Preference
+                android:title="Gegenstände herunterladen"
+                android:summary="Bilder aus 'Lanze, Helm und Federvieh' (18 MB)"                
+                android:key="downloadItems" />
+        </PreferenceScreen>
+        
+        <Preference
+                android:title="Credits, Copyright"
+                android:summary="Hinweise zu verwendeten Inhalten, Copyright Informationen"                
+                android:key="credits" />
+        
+        <Preference
+                android:title="Version Infos"
+                android:summary="Hinweise zu den Veränderungen der aktuellen Version"                
+                android:key="infos" />
+                
+        </PreferenceCategory>
+        
+        
+        
+</PreferenceScreen>

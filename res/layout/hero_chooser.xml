@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?><RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android" android:alwaysDrawnWithCache="false" android:padding="5dip" android:id="@+id/popup_hero_chooser_layout">
+
+
+
+
+
+<GridView android:id="@+id/popup_hero_chooser_list" android:layout_height="fill_parent" android:layout_width="fill_parent" android:clickable="true" android:focusable="true" android:focusableInTouchMode="true" android:verticalSpacing="5dip" android:numColumns="2" android:horizontalSpacing="5dip" android:gravity="center" android:layout_centerHorizontal="true"></GridView>
+</RelativeLayout>
