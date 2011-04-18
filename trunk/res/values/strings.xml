@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<string name="path_items">http://dl.dropbox.com/u/15750588/dsatab-items-small.zip</string>
+
     <string name="label_haar_augen_farbe">Haar,Augen</string>
     <string name="label_alter">Alter</string>
     <string name="label_ausbildung">Ausbildung</string>

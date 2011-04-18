@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
@@ -49,13 +50,21 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 			mapDir.mkdirs();
 
 		File[] files = mapDir.listFiles();
+		if (files != null) {
+			portraitPaths = new ArrayList<File>(files.length);
 
-		portraitPaths = new ArrayList<File>(files.length);
-
-		for (File file : files) {
-			if (file.isFile()) {
-				portraitPaths.add(file);
+			for (File file : files) {
+				if (file.isFile()) {
+					portraitPaths.add(file);
+				}
 			}
+		}
+
+		if (portraitPaths == null || portraitPaths.isEmpty()) {
+			Toast.makeText(getContext(),
+					"Keine Portraits gefunden. Kopiere sie auf deine SD-Karte unter dsatab/portraits",
+					Toast.LENGTH_LONG).show();
+			dismiss();
 		}
 
 		setCanceledOnTouchOutside(true);

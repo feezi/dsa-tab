@@ -118,13 +118,13 @@ public class Purse {
 
 		if (m == null) {
 			m = element.getOwnerDocument().createElement(Xml.KEY_MUENZE);
-			m.setAttribute(Xml.KEY_WAEHRUNG, Currency.Mittelreich.xmlName());
+			m.setAttribute(Xml.KEY_WAEHRUNG, activeCurrency.xmlName());
 			m.setAttribute(Xml.KEY_NAME, w.xmlName());
 			element.appendChild(m);
 
 			coins.put(w, m);
 		}
-		m.setAttribute("anzahl", Util.toString(value));
+		m.setAttribute(Xml.KEY_ANZAHL, Util.toString(value));
 	}
 
 	public int getCoins(PurseUnit w) {

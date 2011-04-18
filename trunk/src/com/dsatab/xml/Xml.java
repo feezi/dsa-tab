@@ -42,6 +42,8 @@ public interface Xml {
 	public static final String KEY_RUESTUNGSSCHUTZ = "ruestungsschutz";
 	public static final String KEY_WUNDE = "wunde";
 	public static final String KEY_ABENTEUERPUNKTE = "abenteuerpunkte";
+	public static final String KEY_FREIE_ABENTEUERPUNKTE = "freieabenteuerpunkte";
+
 	public static final String KEY_SONDERFERTIGKEIT = "sonderfertigkeit";
 	public static final String KEY_VORTEIL = "vorteil";
 	public static final String KEY_NACHTEIL = "nachteil";
@@ -105,5 +107,14 @@ public interface Xml {
 	public static final String KEY_INI_MOD = "inimod";
 	public static final String KEY_INI_MOD_INI = "ini";
 	public static final String KEY_MOD_ALLGEMEIN = "modallgemein";
+	public static final String KEY_ANMERKUNGEN = "anmerkungen";
+	public static final String KEY_HAUSZAUBER = "hauszauber";
+	public static final String KEY_KOSTEN = "kosten";
+	public static final String KEY_REICHWEITE = "reichweite";
+	public static final String KEY_REPRESENTATION = "repraesentation";
+	public static final String KEY_VARIANTE = "variante";
+	public static final String KEY_WIRKUNGSDAUER = "wirkungsdauer";
+	public static final String KEY_ZAUBERDAUER = "zauberdauer";
+	public static final String KEY_ZAUBERKOMMENTAR = "zauberkommentar";
 
 }

@@ -514,7 +514,8 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 	@Override
 	protected void onHeroUnloaded(Hero hero) {
 		super.onHeroUnloaded(hero);
-		hero.removeModifierChangedListener(this);
+		if (hero != null)
+			hero.removeModifierChangedListener(this);
 	}
 
 	@Override
@@ -644,26 +645,32 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 		if (item instanceof DistanceWeapon) {
 			DistanceWeapon distanceWeapon = (DistanceWeapon) item;
 			iconLeft.setImageResource(distanceWeapon.getResourceId());
-
-			CombatProbe probe = new CombatProbe(getHero(), equippedItem, true);
 			iconRight.setImageResource(R.drawable.icon_target);
-			iconRight.setTag(equippedItem);
-			iconRight.setOnClickListener(targetListener);
-			iconLeft.setTag(probe);
-			iconLeft.setOnClickListener(probeListener);
+
+			if (equippedItem.getTalent() != null) {
+				CombatProbe probe = new CombatProbe(getHero(), equippedItem, true);
+				iconRight.setTag(equippedItem);
+				iconRight.setOnClickListener(targetListener);
+				iconLeft.setTag(probe);
+				iconLeft.setOnClickListener(probeListener);
+			}
 		} else if (item instanceof Shield) {
 			iconRight.setImageResource(item.getResourceId());
 			iconLeft.setVisibility(View.INVISIBLE);
-			iconRight.setTag(new CombatProbe(getHero(), equippedItem, false));
-			iconRight.setOnClickListener(probeListener);
+			if (equippedItem.getTalent() != null) {
+				iconRight.setTag(new CombatProbe(getHero(), equippedItem, false));
+				iconRight.setOnClickListener(probeListener);
+			}
 		} else if (item instanceof Weapon) {
 			Weapon weapon = (Weapon) item;
 			iconLeft.setImageResource(weapon.getResourceId());
 			iconRight.setImageResource(R.drawable.icon_shield);
-			iconLeft.setTag(new CombatProbe(getHero(), equippedItem, true));
-			iconLeft.setOnClickListener(probeListener);
-			iconRight.setTag(new CombatProbe(getHero(), equippedItem, false));
-			iconRight.setOnClickListener(probeListener);
+			if (equippedItem.getTalent() != null) {
+				iconLeft.setTag(new CombatProbe(getHero(), equippedItem, true));
+				iconLeft.setOnClickListener(probeListener);
+				iconRight.setTag(new CombatProbe(getHero(), equippedItem, false));
+				iconRight.setOnClickListener(probeListener);
+			}
 			text2.setText(weapon.getInfo(getHero().getModifiedValue(AttributeType.Körperkraft)));
 		} else if (item instanceof Armor) {
 			Armor armor = (Armor) item;

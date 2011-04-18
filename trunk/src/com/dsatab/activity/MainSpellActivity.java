@@ -32,6 +32,7 @@ import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Spell;
 import com.dsatab.data.Value;
+import com.dsatab.view.SpellInfoDialog;
 import com.gandulf.guilib.util.Debug;
 
 /**
@@ -45,6 +46,46 @@ public class MainSpellActivity extends BaseMainActivity {
 	private View spellAttributeList;
 
 	private Map<Value, TextView[]> tfValues = new HashMap<Value, TextView[]>(50);
+
+	class InfoListener implements View.OnClickListener, View.OnLongClickListener {
+
+		public void onClick(View v) {
+
+			Spell probe = null;
+
+			if (v.getTag(R.id.TAG_KEY_PROBE) instanceof Spell) {
+				probe = (Spell) v.getTag(R.id.TAG_KEY_PROBE);
+			} else if (v.getTag() instanceof Spell) {
+				probe = (Spell) v.getTag();
+			}
+
+			if (probe != null) {
+				showInfo(probe);
+			}
+
+		}
+
+		public boolean onLongClick(View v) {
+			Spell probe = null;
+
+			if (v.getTag(R.id.TAG_KEY_PROBE) instanceof Spell) {
+				probe = (Spell) v.getTag(R.id.TAG_KEY_PROBE);
+			} else if (v.getTag() instanceof Spell) {
+				probe = (Spell) v.getTag();
+			}
+
+			if (probe != null) {
+				showInfo(probe);
+				return true;
+			}
+			return false;
+		}
+
+	}
+
+	protected InfoListener infoListener = new InfoListener();
+
+	private SpellInfoDialog spellInfo;
 
 	/**
 	 * 
@@ -66,6 +107,17 @@ public class MainSpellActivity extends BaseMainActivity {
 		tblSpell1 = (TableLayout) findViewById(R.id.gen_spell_table1);
 		spellAttributeList = findViewById(R.id.inc_spell_attributes_list);
 
+	}
+
+	/**
+	 * @param probe
+	 */
+	private void showInfo(Spell probe) {
+		if (spellInfo == null) {
+			spellInfo = new SpellInfoDialog(this);
+		}
+		spellInfo.setSpell(probe);
+		spellInfo.show();
 	}
 
 	/*
@@ -131,6 +183,9 @@ public class MainSpellActivity extends BaseMainActivity {
 
 			TextView spellLabel = (TextView) row.findViewById(R.id.spell_row_name);
 			spellLabel.setText(spell.getName());
+			spellLabel.setOnLongClickListener(infoListener);
+			spellLabel.setOnClickListener(infoListener);
+			spellLabel.setTag(spell);
 
 			TextView spellProbe = (TextView) row.findViewById(R.id.spell_row_probe);
 			spellProbe.setText(spell.getProbe());

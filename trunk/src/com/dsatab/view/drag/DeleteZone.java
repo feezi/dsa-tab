@@ -16,7 +16,9 @@
 
 package com.dsatab.view.drag;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -102,18 +104,42 @@ public class DeleteZone extends ImageView implements DropTarget<ItemCard>, DragC
 		return null;
 	}
 
-	public void onDrop(DragSource<ItemCard> source, int x, int y, int xOffset, int yOffset, DragView dragView,
+	public boolean onDrop(DragSource<ItemCard> source, int x, int y, int xOffset, int yOffset, DragView dragView,
 			ItemCard dragInfo) {
 
 		Hero hero = DSATabApplication.getInstance().getHero();
 
-		if (dragInfo instanceof Item)
-			hero.removeItem((Item) dragInfo);
-		else if (dragInfo instanceof EquippedItem)
+		if (dragInfo instanceof Item) {
+			final Item item = (Item) dragInfo;
+
+			if (item.getType().isEquipable()) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+				DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							Hero hero = DSATabApplication.getInstance().getHero();
+							hero.removeItem(item);
+						}
+					}
+				};
+				builder.setTitle("Wirklich löschen?");
+				builder.setMessage("Falls dieser Gegenstand gelöscht wird, wird er auch aus allen Ausrüstungssets entfernt.");
+				builder.setPositiveButton("Löschen", listener);
+				builder.setNegativeButton("Abbrechen", listener);
+				builder.show();
+
+				return false;
+			}
+
+		} else if (dragInfo instanceof EquippedItem)
 			hero.removeEquippedItem((EquippedItem) dragInfo);
 		else
 			hero.removeItem(dragInfo.getItem());
 
+		return true;
 	}
 
 	public void onDragEnter(DragSource<ItemCard> source, int x, int y, int xOffset, int yOffset, DragView dragView,
@@ -157,8 +183,8 @@ public class DeleteZone extends ImageView implements DropTarget<ItemCard>, DragC
 	 * .Object, int, int, int)
 	 */
 	@Override
-	public void onDragDrop(View cell, ItemCard dragInfo, int x, int y, int screen) {
-
+	public boolean onDragDrop(View cell, ItemCard dragInfo, int x, int y, int screen) {
+		return true;
 	}
 
 	public void onDragEnd() {

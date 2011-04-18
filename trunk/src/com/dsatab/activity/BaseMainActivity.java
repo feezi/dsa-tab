@@ -16,13 +16,18 @@
  */
 package com.dsatab.activity;
 
+import java.util.Arrays;
+import java.util.List;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.HorizontalScrollView;
@@ -52,6 +57,12 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 	private ShakeListener mShaker;
 
 	private static int tabScrollOffset = 0;
+
+	private List<Class<? extends BaseMainActivity>> tabActivities = Arrays.asList(MainCharacterActivity.class,
+			MainTalentActivity.class, MainSpellActivity.class, MainBodyActivity.class, MainFightActivity.class,
+			ItemsActivity.class, NotesActivity.class, MapActivity.class);
+
+	protected boolean tabFlingEnabled = true;
 
 	class EditListener implements View.OnClickListener, View.OnLongClickListener {
 
@@ -128,6 +139,32 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 
 	protected EditListener editListener = new EditListener();
 
+	protected GestureDetector gestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
+
+		private static final int SWIPE_MIN_DISTANCE = 120;
+		private static final int SWIPE_MAX_OFF_PATH = 250;
+		private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+			try {
+				if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+					return false;
+				if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+					showNextTab();
+					return true;
+				} else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+					showPreviousTab();
+					return true;
+				}
+			} catch (Exception e) {
+				Debug.error(e);
+			}
+			return false;
+
+		};
+
+	});
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -156,6 +193,17 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 		}
 
 		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent ev) {
+		if (tabFlingEnabled) {
+			super.dispatchTouchEvent(ev);
+			return gestureDetector.onTouchEvent(ev);
+		} else {
+			return super.dispatchTouchEvent(ev);
+		}
+
 	}
 
 	/*
@@ -227,6 +275,42 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 		RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) diceSlider.getLayoutParams();
 		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 		relMainLayout.addView(diceSlider);
+	}
+
+	protected boolean showNextTab() {
+		int index = tabActivities.indexOf(getClass());
+		int nextIndex = (index + 1) % tabActivities.size();
+
+		Class<?> activity = tabActivities.get(nextIndex);
+
+		if (activity == MainSpellActivity.class && getHero().getSpells().isEmpty()) {
+			nextIndex = (nextIndex + 1) % tabActivities.size();
+			activity = tabActivities.get(nextIndex);
+		}
+
+		startActivity(new Intent(this, activity));
+		finish();
+
+		return true;
+	}
+
+	protected boolean showPreviousTab() {
+		int index = tabActivities.indexOf(getClass());
+		int prevIndex = (index - 1) % tabActivities.size();
+		if (prevIndex < 0)
+			prevIndex = tabActivities.size() - prevIndex;
+
+		Class<?> activity = tabActivities.get(prevIndex);
+
+		if (activity == MainSpellActivity.class && getHero().getSpells().isEmpty()) {
+			prevIndex = (prevIndex - 1) % tabActivities.size();
+			activity = tabActivities.get(prevIndex);
+		}
+
+		startActivity(new Intent(this, activity));
+		finish();
+
+		return true;
 	}
 
 	public void onClick(View v) {
@@ -319,7 +403,8 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 	 */
 	@Override
 	protected void onHeroUnloaded(Hero hero) {
-		hero.removeValueChangeListener(this);
+		if (hero != null)
+			hero.removeValueChangeListener(this);
 	}
 
 	protected void fillAttributesList(View view) {

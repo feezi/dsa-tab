@@ -174,12 +174,13 @@ public class XmlParserNew {
 				break;
 			w.setRs(pos, Util.parseInt(i.next()));
 		}
+
 		if (i.hasNext()) {
 			int zonenRs = Util.parseInt(i.next());
 			w.setZonenRs(zonenRs);
 		}
 		if (i.hasNext()) {
-			int totalRs = Util.parseInt(i.next());
+			Integer totalRs = Util.parseInt(i.next());
 			w.setTotalRs(totalRs);
 		}
 		if (i.hasNext()) {

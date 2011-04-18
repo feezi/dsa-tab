@@ -55,9 +55,23 @@
         <item name="android:layout_gravity">center_vertical</item>
     </style>
     
+    <style name="TextValuePopup" parent="TextValue">
+    	<item name="android:gravity">right</item>    	
+        <item name="android:textColor">#ffffff</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+    
     <style name="TextLabel" parent="@android:style/Widget.TextView">
     	<item name="android:textSize">14sp</item>
     	<item name="android:textColor">#333333</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+    
+    <style name="TextLabelPopup" parent="TextLabel">
+    	<item name="android:textSize">14sp</item>
+    	<item name="android:textColor">#dddddd</item>
+    	<item name="android:textStyle">bold</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:ellipsize">end</item>
     </style>

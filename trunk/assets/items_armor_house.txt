@@ -39,7 +39,7 @@ A;Stechhelm / Visierhelm;topfhelm00_LQ.gif;Helm                         ; 1; 3; 
 A;Sturmhaube;sturmhaube00_LQ.gif;Helm                                   ; 1; 9; 9; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0;
 A;Tellerhelm;blank_LQ.gif;Helm                                          ; 1; 9; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0;
 A;Topfhelm;topfhelm00_LQ.gif;Helm                                       ; 2; 9; 9; 9; 9; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0;
-A;Wattierte Kappe;blank_LQ.gif;Helm                                     ; 2; 5; 5; 5; 5; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 
+A;Wattierte Kappe;blank_LQ.gif;Helm                                     ; 2; 5; 5; 5; 5; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0;
 A;Amazonenrüstung (kompl);blank_LQ.gif;Komplettrüstung                  ; 3; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0;
 A;Dicke Kleidung;blank_LQ.gif;Komplettrüstung                           ; 1; 0; 0; 0; 0; 1; 1; 1; 1; 1; 1; 1; 1; 1; 0; 1; 1; 1;
 A;Garether Platte;garether_platte00_LQ.gif;Komplettrüstung              ; 4; 0; 0; 0; 0; 8; 9; 9; 8; 9; 9; 9; 9; 9; 0; 7; 9; 9;

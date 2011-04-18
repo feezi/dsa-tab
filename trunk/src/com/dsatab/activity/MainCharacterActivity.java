@@ -21,6 +21,7 @@ import java.util.Map;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
@@ -34,6 +35,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -88,6 +90,8 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 
 		tfExperience = (TextView) findViewById(R.id.gen_abp);
 		((TableRow.LayoutParams) tfExperience.getLayoutParams()).span = 2;
+		tfExperience.setOnClickListener(editListener);
+		tfExperience.setOnLongClickListener(editListener);
 
 		tblCombatAttributes = (TableLayout) findViewById(R.id.gen_combat_attributes);
 
@@ -210,8 +214,36 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 		switch (v.getId()) {
 		case R.id.gen_name:
 		case R.id.gen_portrait:
-			PortraitChooserDialog dialog = new PortraitChooserDialog(this);
-			dialog.show();
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+			builder.setTitle(getHero().getName());
+
+			ImageView iv = new ImageView(this);
+			iv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+			iv.setImageDrawable(getHero().getPortrait());
+			iv.setScaleType(ScaleType.CENTER_INSIDE);
+			builder.setView(iv);
+
+			DialogInterface.OnClickListener clickListener = new OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+
+					if (which == DialogInterface.BUTTON_NEGATIVE) {
+						dialog.dismiss();
+						PortraitChooserDialog pdialog = new PortraitChooserDialog(MainCharacterActivity.this);
+						pdialog.show();
+					} else if (which == DialogInterface.BUTTON_POSITIVE) {
+						dialog.dismiss();
+					}
+
+				}
+			};
+
+			builder.setNegativeButton("Ändern", clickListener);
+			builder.setPositiveButton(R.string.label_ok, clickListener);
+			builder.show();
 			break;
 		}
 
@@ -333,7 +365,9 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 
 		((TextView) findViewById(R.id.gen_name)).setText(hero.getName());
 
-		tfExperience.setText(Util.toString(hero.getExperience()));
+		Util.setText(tfExperience, hero.getExperience(), null);
+		tfExperience.setTag(hero.getExperience());
+		tfValues.put(hero.getExperience(), new TextView[] { tfExperience });
 
 		fillAttributeValue((TextView) findViewById(R.id.gen_ae), AttributeType.Astralenergie);
 		fillAttributeValue((TextView) findViewById(R.id.gen_au), AttributeType.Ausdauer);
@@ -425,7 +459,8 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 	@Override
 	protected void onHeroUnloaded(Hero hero) {
 		super.onHeroLoaded(hero);
-		hero.removeModifierChangedListener(this);
+		if (hero != null)
+			hero.removeModifierChangedListener(this);
 	}
 
 	/**
@@ -500,39 +535,39 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 		int rowCount = 0;
 		TableLayout currentTable = tblCombatAttributes;
 
-		for (CombatMeleeTalent element : getHero().getCombatMeleeTalents()) {
+		for (CombatMeleeTalent meleeTalent : getHero().getCombatMeleeTalents()) {
 			rowCount++;
 
 			TableRow row = (TableRow) getLayoutInflater().inflate(R.layout.combat_talent_row, null);
 
 			TextView talentLabel = (TextView) row.findViewById(R.id.combat_talent_name);
-			talentLabel.setText(element.getName());
+			talentLabel.setText(meleeTalent.getName());
 
 			TextView talentBe = (TextView) row.findViewById(R.id.combat_talent_be);
-			talentBe.setText(element.getType().getBe());
+			talentBe.setText(meleeTalent.getType().getBe());
 
 			TextView talentValueAt = (TextView) row.findViewById(R.id.combat_talent_at);
-			if (element.getAttack() != null || element.getAttack().getValue() != null) {
-				talentValueAt.setText(Integer.toString(element.getAttack().getValue()));
+			if (meleeTalent.getAttack() != null || meleeTalent.getAttack().getValue() != null) {
+				talentValueAt.setText(Integer.toString(meleeTalent.getAttack().getValue()));
 				talentValueAt.setOnClickListener(probeListener);
 				talentValueAt.setOnLongClickListener(editListener);
 
-				talentValueAt.setTag(R.id.TAG_KEY_VALUE, element.getAttack());
-				talentValueAt.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(getHero(), element, true));
+				talentValueAt.setTag(R.id.TAG_KEY_VALUE, meleeTalent.getAttack());
+				talentValueAt.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(getHero(), meleeTalent, true));
 			}
 
-			tfValues.put(element.getAttack(), new TextView[] { talentValueAt });
+			tfValues.put(meleeTalent.getAttack(), new TextView[] { talentValueAt });
 
 			TextView talentValuePa = (TextView) row.findViewById(R.id.combat_talent_pa);
 
-			if (element.getDefense() != null && element.getDefense().getValue() != null) {
-				talentValuePa.setText(Integer.toString(element.getDefense().getValue()));
+			if (meleeTalent.getDefense() != null && meleeTalent.getDefense().getValue() != null) {
+				talentValuePa.setText(Integer.toString(meleeTalent.getDefense().getValue()));
 				talentValuePa.setOnClickListener(probeListener);
 				talentValuePa.setOnLongClickListener(editListener);
-				talentValuePa.setTag(R.id.TAG_KEY_VALUE, element.getDefense());
-				talentValuePa.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(getHero(), element, false));
+				talentValuePa.setTag(R.id.TAG_KEY_VALUE, meleeTalent.getDefense());
+				talentValuePa.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(getHero(), meleeTalent, false));
 			}
-			tfValues.put(element.getDefense(), new TextView[] { talentValuePa });
+			tfValues.put(meleeTalent.getDefense(), new TextView[] { talentValuePa });
 
 			if (rowCount % 2 == 1) {
 				row.setBackgroundResource(R.color.RowOdd);

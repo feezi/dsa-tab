@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent" android:fillViewport="true" android:layout_height="fill_parent">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentLeft="true" android:id="@+id/lbl_heldenkey" android:text="HeldenKey / HeldenID" style="@style/TextLabelPopup"></TextView>
+    <EditText android:layout_height="wrap_content" android:id="@+id/et_heldenkey" android:layout_below="@+id/lbl_heldenkey" android:layout_width="fill_parent"></EditText>
+    <TextView android:layout_width="wrap_content" style="@style/TextLabelPopup" android:layout_height="wrap_content" android:text="Eigentümer" android:id="@+id/lbl_heldenowner" android:layout_below="@+id/et_heldenkey" android:layout_alignLeft="@+id/et_heldenkey"></TextView>
+    <EditText android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_below="@+id/lbl_heldenowner" android:layout_alignLeft="@+id/lbl_heldenowner" android:id="@+id/et_heldenowner"></EditText>
+</RelativeLayout>
+
+		
+
+
+

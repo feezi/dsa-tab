@@ -34,6 +34,8 @@ import android.view.ViewParent;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
+import com.dsatab.data.items.EquippedItem;
+import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
 import com.dsatab.view.CardView;
 import com.dsatab.view.drag.CellLayout.CellInfo.VacantCell;
@@ -252,13 +254,27 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		return addItemInScreen(mCurrentScreen, item);
 	}
 
+	public boolean addItemInScreen(ItemCard item) {
+		return addItemInScreen(item.getItemInfo().getScreen(), item);
+	}
+
 	public boolean addItemInScreen(int screen, ItemCard item) {
 
 		View view = generateView(item);
 
 		ItemInfo info = item.getItemInfo();
 
-		if (info.getCellX() == ItemInfo.INVALID_POSITION || info.getCellY() == ItemInfo.INVALID_POSITION) {
+		if (screen == ItemInfo.INVALID_POSITION) {
+			if (item instanceof Item) {
+				screen = 3;
+			} else if (item instanceof EquippedItem) {
+				EquippedItem equippedItem = (EquippedItem) item;
+				screen = equippedItem.getSet();
+			}
+		}
+
+		if (info.getScreen() == ItemInfo.INVALID_POSITION || info.getCellX() == ItemInfo.INVALID_POSITION
+				|| info.getCellY() == ItemInfo.INVALID_POSITION) {
 
 			CellLayout.CellInfo info2 = findAllVacantCells(screen, null);
 			if (!info2.vacantCells.isEmpty()) {
@@ -1027,37 +1043,47 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		}
 	}
 
-	public void onDrop(DragSource<ItemCard> source, int x, int y, int xOffset, int yOffset, DragView dragView,
+	public boolean onDrop(DragSource<ItemCard> source, int x, int y, int xOffset, int yOffset, DragView dragView,
 			ItemCard dragInfo) {
 		final CellLayout cellLayout = getCurrentDropLayout();
 		if (source != this) {
-			onDropExternal(x - xOffset, y - yOffset, dragInfo, cellLayout);
+			return onDropExternal(x - xOffset, y - yOffset, dragInfo, cellLayout);
 		} else {
 			// Move internally
 			if (mDragInfo != null) {
 				final View cell = mDragInfo.cell;
-				int newScreen = mScroller.isFinished() ? mCurrentScreen : mNextScreen;
-				if (newScreen != mDragInfo.screen) {
-					final CellLayout originalCellLayout = (CellLayout) getChildAt(mDragInfo.screen);
-					originalCellLayout.removeView(cell);
-					cellLayout.addView(cell);
-				}
+
 				mTargetCell = estimateDropCell(x - xOffset, y - yOffset, mDragInfo.spanX, mDragInfo.spanY, cell,
 						cellLayout, mTargetCell);
-				cellLayout.onDropChild(cell, mTargetCell);
-
 				final ItemCard info = (ItemCard) cell.getTag();
 
-				Debug.verbose("d&d item from " + mDragInfo.cellX + "/" + mDragInfo.cellY + " to " + mTargetCell[0]
-						+ "/" + mTargetCell[1]);
+				int newScreen = mScroller.isFinished() ? mCurrentScreen : mNextScreen;
 
-				// handle drag & drop over different screens (equipment etc...)
-				mDragController.onDrop(cell, info, mTargetCell[0], mTargetCell[1], newScreen);
+				boolean drop = mDragController.onDrop(cell, info, mTargetCell[0], mTargetCell[1], newScreen);
 
-				info.getItemInfo().setCellX(mTargetCell[0]);
-				info.getItemInfo().setCellY(mTargetCell[1]);
-				info.getItemInfo().setScreen(newScreen);
+				if (drop) {
+					if (newScreen != mDragInfo.screen) {
+						final CellLayout originalCellLayout = (CellLayout) getChildAt(mDragInfo.screen);
+						originalCellLayout.removeView(cell);
+						cellLayout.addView(cell);
+					}
+
+					cellLayout.onDropChild(cell, mTargetCell);
+
+					Debug.verbose("d&d item from " + mDragInfo.cellX + "/" + mDragInfo.cellY + " to " + mTargetCell[0]
+							+ "/" + mTargetCell[1]);
+
+					// handle drag & drop over different screens (equipment
+					// etc...)
+
+					info.getItemInfo().setCellX(mTargetCell[0]);
+					info.getItemInfo().setCellY(mTargetCell[1]);
+					info.getItemInfo().setScreen(newScreen);
+				} else {
+					Debug.verbose("Cancel drop due to listener result");
+				}
 			}
+			return true;
 		}
 	}
 
@@ -1075,33 +1101,39 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		clearVacantCache();
 	}
 
-	private void onDropExternal(int x, int y, ItemCard dragInfo, CellLayout cellLayout) {
-		onDropExternal(x, y, dragInfo, cellLayout, false);
+	private boolean onDropExternal(int x, int y, ItemCard dragInfo, CellLayout cellLayout) {
+		return onDropExternal(x, y, dragInfo, cellLayout, false);
 	}
 
 	@SuppressWarnings("unchecked")
-	private void onDropExternal(int x, int y, ItemCard dragInfo, CellLayout cellLayout, boolean insertAtFirst) {
+	private boolean onDropExternal(int x, int y, ItemCard dragInfo, CellLayout cellLayout, boolean insertAtFirst) {
 
 		// Drag from somewhere else
 		View view = generateView(dragInfo);
-
-		cellLayout.addView(view, insertAtFirst ? 0 : -1);
-		view.setHapticFeedbackEnabled(false);
-		if (view instanceof DropTarget) {
-			mDragController.addDropTarget((DropTarget<ItemCard>) view);
-		}
-
-		mTargetCell = estimateDropCell(x, y, 1, 1, view, cellLayout, mTargetCell);
-		cellLayout.onDropChild(view, mTargetCell);
-		CellLayout.LayoutParams lp = (CellLayout.LayoutParams) view.getLayoutParams();
-
 		final ItemCard item = (ItemCard) view.getTag();
 
-		mDragController.onDrop(view, item, lp.cellX, lp.cellY, mCurrentScreen);
+		mTargetCell = estimateDropCell(x, y, 1, 1, view, cellLayout, mTargetCell);
 
-		item.getItemInfo().setCellX(lp.cellX);
-		item.getItemInfo().setCellY(lp.cellY);
-		item.getItemInfo().setScreen(mCurrentScreen);
+		boolean drop = mDragController.onDrop(view, item, mTargetCell[0], mTargetCell[1], mCurrentScreen);
+
+		if (drop) {
+			cellLayout.addView(view, insertAtFirst ? 0 : -1);
+			view.setHapticFeedbackEnabled(false);
+			if (view instanceof DropTarget) {
+				mDragController.addDropTarget((DropTarget<ItemCard>) view);
+			}
+
+			cellLayout.onDropChild(view, mTargetCell);
+			CellLayout.LayoutParams lp = (CellLayout.LayoutParams) view.getLayoutParams();
+
+			item.getItemInfo().setCellX(lp.cellX);
+			item.getItemInfo().setCellY(lp.cellY);
+			item.getItemInfo().setScreen(mCurrentScreen);
+			return true;
+		} else {
+			Debug.verbose("external Drop canceled due to controller result");
+			return false;
+		}
 	}
 
 	/**
@@ -1268,6 +1300,27 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 	 */
 	public void setAllowLongPress(boolean allowLongPress) {
 		mAllowLongPress = allowLongPress;
+	}
+
+	public void replaceItem(final ItemCard oldItem, final ItemCard newItem) {
+
+		newItem.getItemInfo().setCellX(oldItem.getItemInfo().getCellX());
+		newItem.getItemInfo().setCellY(oldItem.getItemInfo().getCellY());
+		newItem.getItemInfo().setScreen(oldItem.getItemInfo().getScreen());
+		removeItem(oldItem);
+
+		// post it since it has to run after reomveItem is finished!
+		post(new Runnable() {
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see java.lang.Runnable#run()
+			 */
+			@Override
+			public void run() {
+				addItemInScreen(newItem);
+			}
+		});
 	}
 
 	public void removeItem(final ItemCard apps) {

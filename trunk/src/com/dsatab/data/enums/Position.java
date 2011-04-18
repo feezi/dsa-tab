@@ -39,7 +39,7 @@ public enum Position {
 	}
 
 	public static List<Position> WOUND_POSITIONS = new ArrayList<Position>(Arrays.asList(Position.Kopf, Position.Bauch,
-			Position.LeftLowerArm, Position.RightLowerArm, Position.LowerLeg, Position.UpperLeg));
+			Position.Brust, Position.LeftLowerArm, Position.RightLowerArm, Position.LowerLeg, Position.UpperLeg));
 
 	// KO KS KG Hl SL OaL UaL SR OaR UaR Br Rü Ba Be OS US
 	// order must be the same as in ruestung.txt
