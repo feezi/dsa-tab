@@ -18,11 +18,11 @@ package com.dsatab.data.items;
 
 import java.io.File;
 
-import com.dsatab.view.drag.ItemInfo;
+import com.dsatab.view.drag.ItemLocationInfo;
 
 public interface ItemCard {
 
-	public ItemInfo getItemInfo();
+	public ItemLocationInfo getItemInfo();
 
 	public File getFile();
 

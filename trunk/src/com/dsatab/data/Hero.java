@@ -43,7 +43,7 @@ import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.AuModifier;
 import com.dsatab.data.modifier.LeModifier;
 import com.dsatab.data.modifier.Modificator;
-import com.dsatab.view.drag.ItemInfo;
+import com.dsatab.view.drag.ItemLocationInfo;
 import com.dsatab.view.listener.InventoryChangedListener;
 import com.dsatab.view.listener.ModifierChangedListener;
 import com.dsatab.view.listener.ValueChangedListener;
@@ -122,11 +122,11 @@ public class Hero {
 		this.equippedItems = new List[MAXIMUM_SET_NUMBER];
 
 		this.leModifier = new LeModifier(this);
-		if (getLeRatio() < 0.5)
+		if (getLeRatio() < LeModifier.LEVEL_1)
 			modifiers.add(leModifier);
 
 		this.auModifier = new AuModifier(this);
-		if (getLeRatio() < 0.33)
+		if (getAuRatio() < AuModifier.LEVEL_1)
 			modifiers.add(auModifier);
 
 		for (WoundAttribute attr : getWounds().values()) {
@@ -246,7 +246,7 @@ public class Hero {
 				EquippedItem item = new EquippedItem(this, element);
 
 				// fix wrong screen iteminfo
-				if (item.getItemInfo().getScreen() == ItemInfo.INVALID_POSITION) {
+				if (item.getItemInfo().getScreen() == ItemLocationInfo.INVALID_POSITION) {
 					item.getItemInfo().setScreen(item.getSet());
 				}
 

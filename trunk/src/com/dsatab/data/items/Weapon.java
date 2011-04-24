@@ -35,9 +35,6 @@ public class Weapon extends Item {
 
 	private List<CombatTalentType> combatTalentType = new LinkedList<CombatTalentType>();
 
-	public Weapon() {
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 

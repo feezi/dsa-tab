@@ -37,7 +37,7 @@ import com.dsatab.data.items.ItemCard;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.view.drag.CellLayout;
 import com.dsatab.view.drag.DeleteZone;
-import com.dsatab.view.drag.ItemInfo;
+import com.dsatab.view.drag.ItemLocationInfo;
 import com.dsatab.view.drag.Workspace;
 import com.dsatab.view.drag.Workspace.OnScreenChangeListener;
 import com.dsatab.view.listener.InventoryChangedListener;
@@ -124,8 +124,8 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 
 			Item item = null;
 
-			final int cellX = data.getIntExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_X, ItemInfo.INVALID_POSITION);
-			final int cellY = data.getIntExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_Y, ItemInfo.INVALID_POSITION);
+			final int cellX = data.getIntExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_X, ItemLocationInfo.INVALID_POSITION);
+			final int cellY = data.getIntExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_Y, ItemLocationInfo.INVALID_POSITION);
 
 			UUID id = (UUID) data.getSerializableExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_ID);
 			String cardName = data.getStringExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_NAME);
@@ -150,7 +150,7 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 
 			if (item != null) {
 
-				if (cellX != ItemInfo.INVALID_POSITION && cellY != ItemInfo.INVALID_POSITION
+				if (cellX != ItemLocationInfo.INVALID_POSITION && cellY != ItemLocationInfo.INVALID_POSITION
 						&& item.getItemInfo().getCellX() == cellX && item.getItemInfo().getCellY() == cellY) {
 					// the icon is already in the screen no need to add it again
 				} else {
@@ -417,11 +417,11 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 					// is unable to add item at specified position try again
 					// without position info (will be added in first empty slot)
 					if (!success
-							&& (item.getItemInfo().getCellX() != ItemInfo.INVALID_POSITION || item.getItemInfo()
-									.getCellY() != ItemInfo.INVALID_POSITION)) {
+							&& (item.getItemInfo().getCellX() != ItemLocationInfo.INVALID_POSITION || item.getItemInfo()
+									.getCellY() != ItemLocationInfo.INVALID_POSITION)) {
 
-						item.getItemInfo().setCellX(ItemInfo.INVALID_POSITION);
-						item.getItemInfo().setCellY(ItemInfo.INVALID_POSITION);
+						item.getItemInfo().setCellX(ItemLocationInfo.INVALID_POSITION);
+						item.getItemInfo().setCellY(ItemLocationInfo.INVALID_POSITION);
 						success = mWorkspace.addItemInScreen(i, item);
 					}
 					if (!success) {
@@ -445,7 +445,7 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 				if (skipItems.contains(item))
 					continue;
 
-				if (item.getItemInfo().getScreen() != ItemInfo.INVALID_POSITION)
+				if (item.getItemInfo().getScreen() != ItemLocationInfo.INVALID_POSITION)
 					success = mWorkspace.addItemInScreen(item.getItemInfo().getScreen(), item);
 				else
 					success = false;
@@ -456,10 +456,10 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 				// is unable to add item at specified position try again
 				// without position info (will be added in first empty slot)
 				if (!success
-						&& (item.getItemInfo().getCellX() != ItemInfo.INVALID_POSITION || item.getItemInfo().getCellY() != ItemInfo.INVALID_POSITION)) {
+						&& (item.getItemInfo().getCellX() != ItemLocationInfo.INVALID_POSITION || item.getItemInfo().getCellY() != ItemLocationInfo.INVALID_POSITION)) {
 
-					item.getItemInfo().setCellX(ItemInfo.INVALID_POSITION);
-					item.getItemInfo().setCellY(ItemInfo.INVALID_POSITION);
+					item.getItemInfo().setCellX(ItemLocationInfo.INVALID_POSITION);
+					item.getItemInfo().setCellY(ItemLocationInfo.INVALID_POSITION);
 					success = mWorkspace.addItemInScreen(screen, item);
 				}
 

@@ -15,13 +15,10 @@
  */
 package com.dsatab.data.items;
 
-/**
- * @author Seraphim
- * 
- */
 public enum ItemType {
-	Waffen('W', "weapons", true), Fernwaffen('D', "weapons", true), Rüstung('A', "weapons", true), Schilde('S', "weapons", true), Sonstiges('M', "misc"), Behälter(
-			'B', "bags"), Kleidung('C', "cloths"), Special('X', "special");
+	Waffen('W', "weapons", true), Fernwaffen('D', "weapons", true), Rüstung('A', "weapons", true), Schilde('S',
+			"weapons", true), Sonstiges('M', "misc"), Behälter('B', "bags"), Kleidung('C', "cloths"), Special('X',
+			"special");
 
 	private final String path;
 

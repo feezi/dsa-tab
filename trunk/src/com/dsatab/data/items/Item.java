@@ -10,16 +10,13 @@ import android.text.TextUtils;
 
 import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
-import com.dsatab.view.drag.ItemInfo;
+import com.dsatab.view.drag.ItemLocationInfo;
 import com.dsatab.xml.DomUtil;
 import com.dsatab.xml.Xml;
 import com.gandulf.guilib.util.Debug;
 
 public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 7011220901677479470L;
 
 	static final String POSTFIX_LQ = "_LQ.gif";
@@ -41,11 +38,11 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 
 	public String path = BLANK_PATH;
 
-	private ItemInfo itemInfo;
+	private ItemLocationInfo itemInfo;
 
 	public Item() {
 		id = UUID.randomUUID();
-		itemInfo = new ItemInfo();
+		itemInfo = new ItemLocationInfo();
 	}
 
 	public UUID getId() {
@@ -233,7 +230,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	/**
 	 * @return the itemInfo
 	 */
-	public ItemInfo getItemInfo() {
+	public ItemLocationInfo getItemInfo() {
 		return itemInfo;
 	}
 
@@ -256,7 +253,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		Item item = (Item) super.clone();
-		item.itemInfo = (ItemInfo) itemInfo.clone();
+		item.itemInfo = (ItemLocationInfo) itemInfo.clone();
 		return item;
 	}
 
