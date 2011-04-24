@@ -76,7 +76,11 @@ W;Efferdbart;efferdbart00_LQ.gif;Speere und Stäbe                       ;1W+4;1
 W;Jagdspieß;blank_LQ.gif;Speere und Stäbe                               ;1W+6;12/4;0/-1;-1;3;S;;Speere;
 W;Kampfstab;kampfstab00_LQ.gif;Speere und Stäbe                         ;1W+1;12/4;0/0;1;5;NS;;Stäbe;
 W;Kriegslanze;lanze_krieg00_LQ.gif;Speere und Stäbe                     ;1W+3;12/5;-2/-4;-2;5;P;;Speere;
-W;Magierstab;magierstab00_LQ.gif;Speere und Stäbe                       ;1W+1;11/5;-1/-1;0;-;NS;;Stäbe;
+W;Magierstab;magierstab00_LQ.gif;Speere und Stäbe                       ;1W+1;11/5;-1/-1;0;-9;NS;;Stäbe;
+W;Magierstab (kurz);magierstab00_LQ.gif;Speere und Stäbe                ;1W;11/4;-1/-1;0;-9;N;;Hiebwaffen;
+W;Magierstab (sehr kurz);magierstab00_LQ.gif;Speere und Stäbe           ;1W+1;11/5;-1/-1;-1;-9;NS;;Hiebwaffen;
+W;Magierstab als Stab;magierstab00_LQ.gif;Speere und Stäbe              ;1W+1;11/5;-1/-1;0;-9;NS;;Stäbe;
+W;Magierstab mit Kristallk.;magierstab00_LQ.gif;Speere und Stäbe        ;1W+1;11/4;-1/-1;-2;-9;N;;Zweihandhiebwaffen;
 W;Pike;blank_LQ.gif;Speere und Stäbe                                    ;1W+5;14/4;-1/-2;-2;6;P;;Speere;
 W;Speer;speer00_LQ.gif;Speere und Stäbe                                 ;1W+5;12/4;0/-2;-1;5;S;;Speere;
 W;Stoßspeer;blank_LQ.gif;Speere und Stäbe                               ;2W+2;11/4;0/-1;-1;3;S;;Speere;

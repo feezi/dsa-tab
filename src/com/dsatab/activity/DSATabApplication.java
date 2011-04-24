@@ -15,9 +15,11 @@
  */
 package com.dsatab.activity;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -37,6 +39,7 @@ import android.widget.Toast;
 
 import com.dsatab.R;
 import com.dsatab.data.Hero;
+import com.dsatab.data.HeroInfo;
 import com.dsatab.view.drag.IconCache;
 import com.dsatab.xml.XmlParserNew;
 import com.gandulf.guilib.util.Debug;
@@ -156,8 +159,8 @@ public class DSATabApplication extends Application {
 			return null;
 	}
 
-	public List<String> getHeroes() {
-		List<String> heroes = new ArrayList<String>();
+	public boolean hasHeroes() {
+		boolean result = false;
 
 		File profilesDir = new File(DSATabApplication.getDsaTabPath());
 		if (!profilesDir.exists())
@@ -167,7 +170,33 @@ public class DSATabApplication extends Application {
 		if (files != null) {
 			for (File file : files) {
 				if (file.isFile() && file.getName().endsWith(".xml")) {
-					heroes.add(file.getName());
+					String heroName = getHeroName(file);
+					if (heroName != null) {
+						result = true;
+						break;
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	public List<HeroInfo> getHeroes() {
+		List<HeroInfo> heroes = new ArrayList<HeroInfo>();
+
+		File profilesDir = new File(DSATabApplication.getDsaTabPath());
+		if (!profilesDir.exists())
+			profilesDir.mkdirs();
+
+		File[] files = profilesDir.listFiles();
+		if (files != null) {
+			for (File file : files) {
+				if (file.isFile() && file.getName().endsWith(".xml")) {
+					String heroName = getHeroName(file);
+					if (heroName != null) {
+						HeroInfo info = new HeroInfo(heroName, file);
+						heroes.add(info);
+					}
 				}
 			}
 		} else {
@@ -176,6 +205,29 @@ public class DSATabApplication extends Application {
 		}
 
 		return heroes;
+	}
+
+	private String getHeroName(File file) {
+		String heroName = null;
+		try {
+			FileReader reader = new FileReader(file);
+			BufferedReader br = new BufferedReader(reader);
+			String line = null;
+			int lines = 0;
+			while ((line = br.readLine()) != null) {
+				int index = line.indexOf("name=\"");
+				if (index >= 0) {
+					heroName = line.substring(index + 6, line.indexOf("\"", index + 6));
+					break;
+				}
+				if (lines++ > 10)
+					break;
+			}
+			br.close();
+		} catch (IOException e) {
+			Debug.error(e);
+		}
+		return heroName;
 	}
 
 	public IconCache getIconCache() {

@@ -22,32 +22,24 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.dsatab.R;
+import com.dsatab.common.HeroExchange;
 import com.dsatab.data.Hero;
 import com.dsatab.view.LiteInfoDialog;
 import com.gandulf.guilib.util.Debug;
-import com.gandulf.guilib.util.Downloader;
 
 public abstract class BaseMenuActivity extends Activity {
 
 	public static final String PREF_LAST_HERO = "LAST_HERO";
 
-	public static final String PREF_LAST_HERO_KEY = "LAST_HERO_KEY";
-	public static final String PREF_LAST_HERO_OWNER = "LAST_HERO_OWNER";
-
-	protected static final int ACTION_PREFERENCES = 1;
+	public static final int ACTION_PREFERENCES = 1;
 	protected static final int ACTION_INVENTORY = 3;
 	protected static final int ACTION_CHOOSE_HERO = 4;
 
@@ -68,7 +60,7 @@ public abstract class BaseMenuActivity extends Activity {
 		return (getHero());
 	}
 
-	protected final void loadHero(String heroPath) {
+	public final void loadHero(String heroPath) {
 
 		Hero oldHero = DSATabApplication.getInstance().getHero();
 		if (oldHero != null)
@@ -185,83 +177,34 @@ public abstract class BaseMenuActivity extends Activity {
 		case R.id.option_settings:
 			startActivityForResult(new Intent(this, DsaPreferenceActivity.class), ACTION_PREFERENCES);
 			return true;
-		case R.id.option_import_hero:
+		case R.id.option_import_hero: {
+			HeroExchange exchange = new HeroExchange(this);
 
-			if (!preferences.contains(DsaPreferenceActivity.KEY_EXCHANGE_USERNAME)
-					|| !preferences.contains(DsaPreferenceActivity.KEY_EXCHANGE_PASSWORD)
-					|| !preferences.contains(DsaPreferenceActivity.KEY_EXCHANGE_PROVIDER)) {
+			if (!exchange.isConfigured()) {
 
 				Toast.makeText(this, "Bitte zuerst die Logindaten bei den Heldenaustausch Einstellungen angeben.",
 						Toast.LENGTH_LONG).show();
 
-				startActivityForResult(new Intent(this, DsaPreferenceActivity.class), ACTION_PREFERENCES);
-				return true;
+				startActivityForResult(new Intent(this, DsaPreferenceActivity.class),
+						BaseMenuActivity.ACTION_PREFERENCES);
 			}
-
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-			final View popupContent = getLayoutInflater().inflate(R.layout.popup_import, null);
-
-			final EditText heldenKey = (EditText) popupContent.findViewById(R.id.et_heldenkey);
-			final EditText heldenOwner = (EditText) popupContent.findViewById(R.id.et_heldenowner);
-
-			heldenKey.setText(preferences.getString(PREF_LAST_HERO_KEY, ""));
-			heldenOwner.setText(preferences.getString(PREF_LAST_HERO_OWNER, ""));
-
-			DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					switch (which) {
-					case DialogInterface.BUTTON_NEGATIVE:
-						dialog.dismiss();
-						break;
-					case DialogInterface.BUTTON_POSITIVE:
-
-						String key = heldenKey.getText().toString();
-						String owner = heldenOwner.getText().toString();
-
-						if (TextUtils.isEmpty(key)) {
-							Toast.makeText(BaseMenuActivity.this, "Heldenkey ungültig", Toast.LENGTH_SHORT);
-						} else {
-
-							Editor editor = preferences.edit();
-							editor.putString(PREF_LAST_HERO_KEY, key);
-							editor.putString(PREF_LAST_HERO_OWNER, owner);
-							editor.commit();
-
-							Downloader downloader = new Downloader(DSATabApplication.getDsaTabPath(),
-									BaseMenuActivity.this);
-
-							StringBuilder sb = new StringBuilder();
-							sb.append(preferences.getString(DsaPreferenceActivity.KEY_EXCHANGE_PROVIDER,
-									DsaPreferenceActivity.DEFAULT_EXCHANGE_PROVIDER));
-							sb.append("index.php?login=");
-							sb.append(preferences.getString(DsaPreferenceActivity.KEY_EXCHANGE_USERNAME, "gastlogin"));
-							sb.append("&password=");
-							sb.append(preferences.getString(DsaPreferenceActivity.KEY_EXCHANGE_PASSWORD, "gastlogin"));
-							sb.append("&action=downloadheld2&hkey=");
-							sb.append(key);
-
-							if (!TextUtils.isEmpty(owner)) {
-								sb.append("&masterLogin=");
-								sb.append(owner);
-							}
-
-							downloader.downloadFile(sb.toString());
-						}
-						break;
-					}
-				}
-			};
-			builder.setTitle("Held importieren");
-
-			popupContent.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-			builder.setView(popupContent);
-			builder.setPositiveButton("Importieren", clickListener);
-			builder.setNegativeButton("Abbrechen", clickListener);
-			builder.show();
+			exchange.importHero();
 			return true;
+		}
+		case R.id.option_export_hero: {
+			HeroExchange exchange = new HeroExchange(this);
+
+			if (!exchange.isConfigured()) {
+
+				Toast.makeText(this, "Bitte zuerst die Logindaten bei den Heldenaustausch Einstellungen angeben.",
+						Toast.LENGTH_LONG).show();
+
+				startActivityForResult(new Intent(this, DsaPreferenceActivity.class),
+						BaseMenuActivity.ACTION_PREFERENCES);
+			}
+			exchange.exportHero(getHero());
+			return true;
+		}
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -311,7 +254,7 @@ public abstract class BaseMenuActivity extends Activity {
 
 	protected void showHeroChooser() {
 
-		if (DSATabApplication.getInstance().getHeroes().isEmpty()) {
+		if (!DSATabApplication.getInstance().hasHeroes()) {
 			// --
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setTitle("Keine Helden gefunden");

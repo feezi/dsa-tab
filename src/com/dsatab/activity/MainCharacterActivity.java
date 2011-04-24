@@ -215,36 +215,44 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 		case R.id.gen_name:
 		case R.id.gen_portrait:
 
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			Drawable portrait = getHero().getPortrait();
 
-			builder.setTitle(getHero().getName());
+			if (portrait != null) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-			ImageView iv = new ImageView(this);
-			iv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-			iv.setImageDrawable(getHero().getPortrait());
-			iv.setScaleType(ScaleType.CENTER_INSIDE);
-			builder.setView(iv);
+				builder.setTitle(getHero().getName());
 
-			DialogInterface.OnClickListener clickListener = new OnClickListener() {
+				ImageView iv = new ImageView(this);
+				iv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+				iv.setImageDrawable(portrait);
+				iv.setScaleType(ScaleType.CENTER_INSIDE);
+				builder.setView(iv);
 
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
+				DialogInterface.OnClickListener clickListener = new OnClickListener() {
 
-					if (which == DialogInterface.BUTTON_NEGATIVE) {
-						dialog.dismiss();
-						PortraitChooserDialog pdialog = new PortraitChooserDialog(MainCharacterActivity.this);
-						pdialog.show();
-					} else if (which == DialogInterface.BUTTON_POSITIVE) {
-						dialog.dismiss();
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+
+						if (which == DialogInterface.BUTTON_NEGATIVE) {
+							dialog.dismiss();
+							PortraitChooserDialog pdialog = new PortraitChooserDialog(MainCharacterActivity.this);
+							pdialog.show();
+						} else if (which == DialogInterface.BUTTON_POSITIVE) {
+							dialog.dismiss();
+						}
+
 					}
+				};
 
-				}
-			};
-
-			builder.setNegativeButton("Ändern", clickListener);
-			builder.setPositiveButton(R.string.label_ok, clickListener);
-			builder.show();
+				builder.setNegativeButton("Ändern", clickListener);
+				builder.setPositiveButton(R.string.label_ok, clickListener);
+				builder.show();
+			} else {
+				PortraitChooserDialog pdialog = new PortraitChooserDialog(MainCharacterActivity.this);
+				pdialog.show();
+			}
 			break;
+
 		}
 
 	}

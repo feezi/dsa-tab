@@ -116,5 +116,6 @@ public interface Xml {
 	public static final String KEY_WIRKUNGSDAUER = "wirkungsdauer";
 	public static final String KEY_ZAUBERDAUER = "zauberdauer";
 	public static final String KEY_ZAUBERKOMMENTAR = "zauberkommentar";
+	public static final String KEY_KEY = "key";
 
 }
