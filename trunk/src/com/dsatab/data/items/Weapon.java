@@ -69,7 +69,7 @@ public class Weapon extends Item {
 			Element wm = DomUtil.getChildByTagName(waffe, Xml.KEY_WAFFENMODIF);
 			if (wm != null) {
 				setWmAt(Util.parseInt(wm.getAttribute(Xml.KEY_WAFFENMODIF_AT)));
-				setTpKKStep(Util.parseInt(wm.getAttribute(Xml.KEY_WAFFENMODIF_PA)));
+				setWmPa(Util.parseInt(wm.getAttribute(Xml.KEY_WAFFENMODIF_PA)));
 			}
 			Element bf = DomUtil.getChildByTagName(waffe, Xml.KEY_BRUCHFAKTOR);
 			if (bf != null) {

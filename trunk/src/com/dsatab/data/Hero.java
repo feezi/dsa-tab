@@ -343,6 +343,10 @@ public class Hero {
 
 	}
 
+	public String getKey() {
+		return getHeldElement().getAttribute(Xml.KEY_KEY);
+	}
+
 	public int getActiveSet() {
 		return activeSet;
 	}

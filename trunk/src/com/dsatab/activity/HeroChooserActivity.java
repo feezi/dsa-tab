@@ -27,15 +27,21 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dsatab.R;
+import com.dsatab.data.HeroInfo;
+import com.gandulf.guilib.util.Debug;
 
 /**
  * @author Ganymede
@@ -44,6 +50,11 @@ import com.dsatab.R;
 public class HeroChooserActivity extends Activity implements AdapterView.OnItemClickListener {
 
 	public static final String INTENT_NAME_HERO_PATH = "heroPath";
+
+	private static final int CONTEXTMENU_DELETEITEM = 1;
+
+	private GridView list;
+	private HeroAdapter adapter;
 
 	/**
 	 * 
@@ -62,20 +73,56 @@ public class HeroChooserActivity extends Activity implements AdapterView.OnItemC
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.hero_chooser);
 
-		final GridView list = (GridView) findViewById(R.id.popup_hero_chooser_list);
-		HeroAdapter adapter = new HeroAdapter(this, R.layout.hero_chooser_item, DSATabApplication.getInstance()
-				.getHeroes());
+		list = (GridView) findViewById(R.id.popup_hero_chooser_list);
+		adapter = new HeroAdapter(this, R.layout.hero_chooser_item, DSATabApplication.getInstance().getHeroes());
 		list.setAdapter(adapter);
+		registerForContextMenu(list);
 		list.setOnItemClickListener(this);
 	}
 
-	class HeroAdapter extends ArrayAdapter<String> {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onCreateContextMenu(android.view.ContextMenu,
+	 * android.view.View, android.view.ContextMenu.ContextMenuInfo)
+	 */
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		if (v.getId() == R.id.popup_hero_chooser_list) {
+			menu.add(0, CONTEXTMENU_DELETEITEM, 0, getString(R.string.menu_delete_item));
+		}
+		super.onCreateContextMenu(menu, v, menuInfo);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onContextItemSelected(android.view.MenuItem)
+	 */
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		if (item.getItemId() == CONTEXTMENU_DELETEITEM) {
+			AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
+			HeroInfo event = (HeroInfo) list.getItemAtPosition(menuInfo.position);
+
+			Debug.verbose("Deleting " + event.getName());
+			event.getFile().delete();
+
+			adapter.remove(event);
+			adapter.notifyDataSetChanged();
+
+			return true;
+		}
+		return super.onContextItemSelected(item);
+	}
+
+	class HeroAdapter extends ArrayAdapter<HeroInfo> {
 
 		private Map<String, WeakReference<Drawable>> imageCache = new HashMap<String, WeakReference<Drawable>>();
 
 		private SharedPreferences preferences = null;
 
-		public HeroAdapter(Context context, int textViewResourceId, List<String> objects) {
+		public HeroAdapter(Context context, int textViewResourceId, List<HeroInfo> objects) {
 			super(context, textViewResourceId, objects);
 
 			preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
@@ -94,11 +141,9 @@ public class HeroChooserActivity extends Activity implements AdapterView.OnItemC
 			TextView tv = (TextView) layout.findViewById(R.id.textView);
 			ImageView iv = (ImageView) layout.findViewById(R.id.imageView);
 
-			String name = getItem(position);
-			tv.setText(name.substring(0, name.lastIndexOf(".")));
-			layout.setTag(name);
-
-			String profileName = preferences.getString(DSATabApplication.getDsaTabPath() + name, null);
+			HeroInfo hero = getItem(position);
+			tv.setText(hero.getName());
+			String profileName = preferences.getString(hero.getFile().getAbsolutePath(), null);
 
 			if (profileName != null) {
 				Drawable drawable = null;
@@ -123,9 +168,9 @@ public class HeroChooserActivity extends Activity implements AdapterView.OnItemC
 	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		String heroName = view.getTag().toString();
+		HeroInfo hero = (HeroInfo) parent.getItemAtPosition(position);
 		Intent intent = new Intent();
-		intent.putExtra(INTENT_NAME_HERO_PATH, DSATabApplication.getDsaTabPath() + heroName);
+		intent.putExtra(INTENT_NAME_HERO_PATH, hero.getFile().getAbsolutePath());
 		setResult(RESULT_OK, intent);
 		finish();
 	}
