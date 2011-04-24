@@ -12,6 +12,9 @@ import com.dsatab.data.enums.AttributeType;
 
 public class AuModifier extends AbstractModifier {
 
+	public static final double LEVEL_1 = 0.33;
+	public static final double LEVEL_2 = 0.25;
+
 	public AuModifier(Hero hero) {
 		super(hero);
 	}
@@ -20,9 +23,9 @@ public class AuModifier extends AbstractModifier {
 	public String getModifierName() {
 
 		double ratio = hero.getAuRatio();
-		if (ratio < 0.25) {
+		if (ratio < LEVEL_2) {
 			return "Ausdauer < 1/4";
-		} else if (ratio < 0.33) {
+		} else if (ratio < LEVEL_1) {
 			return "Ausdauer < 1/3";
 		} else {
 			return null;
@@ -34,9 +37,9 @@ public class AuModifier extends AbstractModifier {
 	public String getModifierInfo() {
 		String info = "";
 		double ratio = hero.getAuRatio();
-		if (ratio < 0.25) {
+		if (ratio < LEVEL_2) {
 			info = "AT,PA,INI +2";
-		} else if (ratio < 0.33) {
+		} else if (ratio < LEVEL_1) {
 			info = "AT,PA,INI +1";
 		}
 		return info;
@@ -51,17 +54,17 @@ public class AuModifier extends AbstractModifier {
 		if (probe instanceof CombatProbe || probe instanceof CombatShieldTalent
 				|| probe instanceof CombatDistanceTalent || probe instanceof CombatMeleeAttribute) {
 
-			if (ratio < 0.25) {
+			if (ratio < LEVEL_2) {
 				modifier = -2;
-			} else if (ratio < 0.33) {
+			} else if (ratio < LEVEL_1) {
 				modifier = -1;
 			}
 		} else if (probe instanceof Attribute) {
 			Attribute attr = (Attribute) probe;
 			if (attr.getType() == AttributeType.ini) {
-				if (ratio < 0.25) {
+				if (ratio < LEVEL_2) {
 					modifier = -2;
-				} else if (ratio < 0.33) {
+				} else if (ratio < LEVEL_1) {
 					modifier = -1;
 				}
 			}
@@ -75,11 +78,11 @@ public class AuModifier extends AbstractModifier {
 		int modifier = 0;
 		double ratio = hero.getAuRatio();
 
-		if (ratio < 0.25) {
+		if (ratio < LEVEL_2) {
 			if (type == AttributeType.ini || type == AttributeType.Initiative_Aktuell) {
 				modifier = -2;
 			}
-		} else if (ratio < 0.33) {
+		} else if (ratio < LEVEL_1) {
 			if (type == AttributeType.ini || type == AttributeType.Initiative_Aktuell) {
 				modifier = -1;
 			}

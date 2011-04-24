@@ -14,6 +14,10 @@ import com.dsatab.data.enums.AttributeType;
 
 public class LeModifier extends AbstractModifier {
 
+	public static final double LEVEL_1 = 0.5;
+	public static final double LEVEL_2 = 0.33;
+	public static final double LEVEL_3 = 0.25;
+
 	public LeModifier(Hero hero) {
 		super(hero);
 	}
@@ -22,11 +26,11 @@ public class LeModifier extends AbstractModifier {
 	public String getModifierName() {
 
 		double ratio = hero.getLeRatio();
-		if (ratio < 0.25) {
+		if (ratio < LEVEL_3) {
 			return "Lebensenergie < 1/4";
-		} else if (ratio < 0.33) {
+		} else if (ratio < LEVEL_2) {
 			return "Lebensenergie < 1/3";
-		} else if (ratio < 0.5) {
+		} else if (ratio < LEVEL_1) {
 			return "Lebensenergie < 1/2";
 		} else {
 			return null;
@@ -38,11 +42,11 @@ public class LeModifier extends AbstractModifier {
 	public String getModifierInfo() {
 		String info = "";
 		double ratio = hero.getLeRatio();
-		if (ratio < 0.25) {
+		if (ratio < LEVEL_3) {
 			info = "Eigenschaft, Kampf +3; Talent-/Zauberproben +9; GS-3";
-		} else if (ratio < 0.33) {
+		} else if (ratio < LEVEL_2) {
 			info = "Eigenschaft, Kampf +2; Talent-/Zauberproben +6; GS-2";
-		} else if (ratio < 0.5) {
+		} else if (ratio < LEVEL_1) {
 			info = "Eigenschaft, Kampf +1; Talent-/Zauberproben +3; GS-1";
 		}
 		return info;
@@ -56,20 +60,21 @@ public class LeModifier extends AbstractModifier {
 
 		if (probe instanceof Talent || probe instanceof Spell) {
 
-			if (ratio < 0.25) {
+			if (ratio < LEVEL_3) {
 				modifier = -9;
-			} else if (ratio < 0.33) {
+			} else if (ratio < LEVEL_2) {
 				modifier = -6;
-			} else if (ratio < 0.5) {
+			} else if (ratio < LEVEL_1) {
 				modifier = -3;
 			}
-		} else if (probe instanceof CombatProbe || probe instanceof CombatShieldTalent || probe instanceof CombatDistanceTalent
-				|| probe instanceof CombatMeleeAttribute || probe instanceof Attribute) {
-			if (ratio < 0.25) {
+		} else if (probe instanceof CombatProbe || probe instanceof CombatShieldTalent
+				|| probe instanceof CombatDistanceTalent || probe instanceof CombatMeleeAttribute
+				|| probe instanceof Attribute) {
+			if (ratio < LEVEL_3) {
 				modifier = -3;
-			} else if (ratio < 0.33) {
+			} else if (ratio < LEVEL_2) {
 				modifier = -2;
-			} else if (ratio < 0.5) {
+			} else if (ratio < LEVEL_1) {
 				modifier = -1;
 			}
 		}
@@ -82,15 +87,15 @@ public class LeModifier extends AbstractModifier {
 		int modifier = 0;
 		double ratio = hero.getLeRatio();
 
-		if (ratio < 0.25) {
+		if (ratio < LEVEL_3) {
 			if (AttributeType.isEigenschaft(type)) {
 				modifier = -3;
 			}
-		} else if (ratio < 0.33) {
+		} else if (ratio < LEVEL_2) {
 			if (AttributeType.isEigenschaft(type)) {
 				modifier = -2;
 			}
-		} else if (ratio < 0.5) {
+		} else if (ratio < LEVEL_1) {
 			if (AttributeType.isEigenschaft(type)) {
 				modifier = -1;
 			}

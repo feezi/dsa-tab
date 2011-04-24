@@ -7,7 +7,7 @@ import org.w3c.dom.Element;
 import com.dsatab.common.Util;
 import com.dsatab.data.CombatTalent;
 import com.dsatab.data.Hero;
-import com.dsatab.view.drag.ItemInfo;
+import com.dsatab.view.drag.ItemLocationInfo;
 import com.dsatab.xml.Xml;
 
 public class EquippedItem implements ItemCard {
@@ -45,7 +45,7 @@ public class EquippedItem implements ItemCard {
 
 	private Hero hero;
 
-	private ItemInfo itemInfo;
+	private ItemLocationInfo itemInfo;
 
 	public EquippedItem(Hero hero) {
 		this(hero, null, null);
@@ -59,7 +59,7 @@ public class EquippedItem implements ItemCard {
 		this.hero = hero;
 		this.element = element;
 		this.item = item;
-		this.itemInfo = new ItemInfo();
+		this.itemInfo = new ItemLocationInfo();
 		setItem(item);
 		setElement(element);
 
@@ -69,7 +69,7 @@ public class EquippedItem implements ItemCard {
 		return element;
 	}
 
-	public ItemInfo getItemInfo() {
+	public ItemLocationInfo getItemInfo() {
 		return itemInfo;
 	}
 

@@ -59,7 +59,7 @@ import com.dsatab.view.FastAnimationSet;
 import com.dsatab.view.FastTranslateAnimation;
 import com.dsatab.view.ItemChooserDialog;
 import com.dsatab.view.ItemListItem;
-import com.dsatab.view.drag.ItemInfo;
+import com.dsatab.view.drag.ItemLocationInfo;
 import com.dsatab.xml.DataManager;
 import com.gandulf.guilib.util.Debug;
 
@@ -116,8 +116,8 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		String itemCategory;
 
 		foundItem = (Item) getIntent().getSerializableExtra(INTENT_EXTRA_ITEM);
-		itemX = getIntent().getIntExtra(INTENT_EXTRA_ITEM_X, ItemInfo.INVALID_POSITION);
-		itemY = getIntent().getIntExtra(INTENT_EXTRA_ITEM_Y, ItemInfo.INVALID_POSITION);
+		itemX = getIntent().getIntExtra(INTENT_EXTRA_ITEM_X, ItemLocationInfo.INVALID_POSITION);
+		itemY = getIntent().getIntExtra(INTENT_EXTRA_ITEM_Y, ItemLocationInfo.INVALID_POSITION);
 
 		if (foundItem == null) {
 			String itemName = getIntent().getStringExtra(INTENT_EXTRA_ITEM_NAME);

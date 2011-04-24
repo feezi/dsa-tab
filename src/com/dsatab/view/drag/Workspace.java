@@ -262,9 +262,9 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 
 		View view = generateView(item);
 
-		ItemInfo info = item.getItemInfo();
+		ItemLocationInfo info = item.getItemInfo();
 
-		if (screen == ItemInfo.INVALID_POSITION) {
+		if (screen == ItemLocationInfo.INVALID_POSITION) {
 			if (item instanceof Item) {
 				screen = 3;
 			} else if (item instanceof EquippedItem) {
@@ -273,8 +273,8 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 			}
 		}
 
-		if (info.getScreen() == ItemInfo.INVALID_POSITION || info.getCellX() == ItemInfo.INVALID_POSITION
-				|| info.getCellY() == ItemInfo.INVALID_POSITION) {
+		if (info.getScreen() == ItemLocationInfo.INVALID_POSITION || info.getCellX() == ItemLocationInfo.INVALID_POSITION
+				|| info.getCellY() == ItemLocationInfo.INVALID_POSITION) {
 
 			CellLayout.CellInfo info2 = findAllVacantCells(screen, null);
 			if (!info2.vacantCells.isEmpty()) {
