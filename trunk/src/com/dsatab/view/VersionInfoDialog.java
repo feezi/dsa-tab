@@ -20,6 +20,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.TextUtils;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -72,8 +73,11 @@ public class VersionInfoDialog extends AlertDialog {
 		setTitle(R.string.news_title);
 		setIcon(R.drawable.icon);
 
-		webView = (WebView) getLayoutInflater().inflate(R.layout.popup_webview, null);
-		webView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		View contentView = (View) getLayoutInflater().inflate(R.layout.popup_webview, null);
+
+		webView = (WebView) contentView.findViewById(R.id.info_web);
+
+		contentView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 
 		setButton(getContext().getString(R.string.label_ok), new DialogInterface.OnClickListener() {
 			@Override
@@ -86,7 +90,7 @@ public class VersionInfoDialog extends AlertDialog {
 			webView.loadDataWithBaseURL("/fake", content, "text/html", "utf-8", null);
 		}
 
-		setView(webView);
+		setView(contentView);
 	}
 
 	public boolean hasContent() {

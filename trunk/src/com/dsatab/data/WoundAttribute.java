@@ -163,8 +163,8 @@ public class WoundAttribute extends AbstractModifier {
 
 					EquippedItem equippedItem = combatProbe.getEquippedItem();
 
-					if (equippedItem != null && equippedItem.getItem() instanceof Weapon) {
-						Weapon w = (Weapon) equippedItem.getItem();
+					if (equippedItem != null && equippedItem.getItem().hasSpecification(Weapon.class)) {
+						Weapon w = (Weapon) equippedItem.getItem().getSpecification(Weapon.class);
 
 						if (w.isTwoHanded()) {
 							modifier += -1 * getValue();
@@ -177,7 +177,7 @@ public class WoundAttribute extends AbstractModifier {
 							}
 						}
 					}
-					if (equippedItem != null && equippedItem.getItem() instanceof Shield) {
+					if (equippedItem != null && equippedItem.getItem().hasSpecification(Shield.class)) {
 						// Shield w = (Shield)
 						// combatProbe.getEquippedItem().getItem();
 						if (getPosition() == Position.RightLowerArm) {

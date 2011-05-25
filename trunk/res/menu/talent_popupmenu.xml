@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+ <item android:id="@+id/option_edit_value"
+          android:icon="@drawable/m_icon_misc"
+          android:title="Wert bearbeiten" />
+
+<item android:id="@+id/option_view_details"
+          android:icon="@android:drawable/ic_menu_view"
+          android:title="Details anzeigen" />          
+          
+    <item android:id="@+id/option_mark_favorite"
+          android:icon="@drawable/m_icon_misc"
+          android:title="Als Favorit markieren" />
+    <item android:id="@+id/option_mark_unused"
+          android:icon="@drawable/m_icon_load"
+          android:title="Als ungenützt markieren" />
+    <item android:id="@+id/option_unmark"
+          android:icon="@drawable/m_icon_misc"
+          android:title="Markierung aufheben" />
+</menu>

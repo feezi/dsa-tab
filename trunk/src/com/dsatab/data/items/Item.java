@@ -2,13 +2,14 @@ package com.dsatab.data.items;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 import org.w3c.dom.Element;
 
 import android.text.TextUtils;
 
-import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
 import com.dsatab.view.drag.ItemLocationInfo;
 import com.dsatab.xml.DomUtil;
@@ -22,9 +23,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	static final String POSTFIX_LQ = "_LQ.gif";
 	static final String POSTFIX_HQ = "_HQ.jpg";
 
-	static final String BLANK_PATH = "blank_LQ.gif";
-
-	private ItemType type;
+	public static final String BLANK_PATH = "blank_w_LQ.gif";
 
 	private transient Element element;
 
@@ -40,9 +39,48 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 
 	private ItemLocationInfo itemInfo;
 
+	private List<ItemSpecification> itemSpecs;
+
 	public Item() {
 		id = UUID.randomUUID();
 		itemInfo = new ItemLocationInfo();
+		itemSpecs = new LinkedList<ItemSpecification>();
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends ItemSpecification> T getSpecification(Class<T> type) {
+		for (ItemSpecification itemSpecification : itemSpecs) {
+			if (itemSpecification.getClass() == type)
+				return (T) itemSpecification;
+		}
+		return null;
+	}
+
+	public void addSpecification(ItemSpecification itemSpecification) {
+		int version = 0;
+		for (ItemSpecification specification : itemSpecs) {
+			if (specification.getClass().equals(itemSpecification.getClass())) {
+				version++;
+			}
+		}
+		itemSpecification.setVersion(version);
+
+		if (element != null) {
+			itemSpecification.setElement(element);
+		}
+		itemSpecs.add(itemSpecification);
+	}
+
+	public List<ItemSpecification> getSpecifications() {
+		return itemSpecs;
+	}
+
+	public boolean hasSpecification(Class<? extends ItemSpecification> type) {
+		for (ItemSpecification itemSpecification : itemSpecs) {
+			if (itemSpecification.getClass() == type)
+				return true;
+		}
+		return false;
 	}
 
 	public UUID getId() {
@@ -93,10 +131,10 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 				title = name.getAttribute(Xml.KEY_VALUE);
 			}
 		}
-	}
 
-	public ItemType getType() {
-		return type;
+		for (ItemSpecification specification : itemSpecs) {
+			specification.setElement(element);
+		}
 	}
 
 	public String getCategory() {
@@ -104,14 +142,10 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	}
 
 	public String getPath() {
-		if (type != null && path != null)
-			return type.getPath() + "/" + path;
+		if (path != null)
+			return path;
 		else
 			return null;
-	}
-
-	public void setType(ItemType type) {
-		this.type = type;
 	}
 
 	public void setCategory(String category) {
@@ -140,28 +174,29 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	}
 
 	public String getHQPath() {
-		if (path != null && type != null)
-			return type.getPath() + "/" + path.replace(POSTFIX_LQ, POSTFIX_HQ);
+		if (path != null)
+			return path.replace(POSTFIX_LQ, POSTFIX_HQ);
 		else
 			return null;
 	}
 
+	public boolean isEquipable() {
+		for (ItemSpecification specification : itemSpecs) {
+			if (specification.type.isEquipable())
+				return true;
+		}
+		return false;
+	}
+
 	public String getInfo() {
-		return "";
+		if (itemSpecs.isEmpty())
+			return "";
+		else
+			return itemSpecs.get(0).getInfo();
 	}
 
 	@Override
 	public int compareTo(Item another) {
-
-		int comp0 = 0;
-		if (getType() != null && another.getType() != null)
-			comp0 = getType().compareTo(another.getType());
-		else if (getType() == null)
-			comp0 = -1;
-		else if (another.getType() == null)
-			comp0 = 1;
-		else
-			comp0 = 0;
 
 		int comp1 = 0;
 		if (getCategory() != null && another.getCategory() != null)
@@ -176,7 +211,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		int comp2 = getName().compareToIgnoreCase(another.getName());
 		int comp3 = getId().compareTo(another.getId());
 
-		return comp0 * 1000000 + comp1 * 10000 + comp2 * 100 + comp3;
+		return comp1 * 10000 + comp2 * 100 + comp3;
 	}
 
 	/*
@@ -195,35 +230,18 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 			return false;
 
 		Item otherItem = (Item) o;
-		if (!otherItem.getName().equals(getName()))
-			return false;
 
 		if (!otherItem.getId().equals(getId()))
 			return false;
-
-		if (getItemInfo() != null) {
-			if (!getItemInfo().equals(otherItem.getItemInfo()))
-				return false;
-		} else if (otherItem.getItemInfo() != null) {
-			return false;
-		}
 
 		return true;
 	}
 
 	public int getResourceId() {
-		switch (type) {
-		case Behälter:
-			return R.drawable.icon_bags;
-		case Special:
-			return R.drawable.icon_special;
-		case Kleidung:
-			return R.drawable.icon_armor_cloth;
-		case Sonstiges:
-			return R.drawable.icon_misc;
-		default:
-			return R.drawable.icon_other;
-		}
+		if (itemSpecs.isEmpty())
+			return 0;
+		else
+			return itemSpecs.get(0).getResourceId();
 
 	}
 

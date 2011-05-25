@@ -3,11 +3,13 @@ package com.dsatab.data.items;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.w3c.dom.Element;
+
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.CombatTalentType;
 
-public class Shield extends Item {
+public class Shield extends ItemSpecification {
 
 	private static final long serialVersionUID = -1317930157801685718L;
 
@@ -23,8 +25,8 @@ public class Shield extends Item {
 
 	private List<CombatTalentType> combatTalentType = new LinkedList<CombatTalentType>();
 
-	public Shield() {
-
+	public Shield(Item item) {
+		super(item, ItemType.Schilde, 0);
 	}
 
 	public Integer getBf() {
@@ -90,12 +92,33 @@ public class Shield extends Item {
 		this.combatTalentType = type;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.data.items.ItemSpecification#setElement(org.w3c.dom.Element)
+	 */
+	@Override
+	public void setElement(Element element) {
+
+	}
+
 	@Override
 	public int getResourceId() {
 		if (isParadeWeapon() && !isShield())
 			return R.drawable.icon_messer;
 		else
 			return R.drawable.icon_shield;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.items.ItemSpecification#getName()
+	 */
+	@Override
+	public String getName() {
+		return "Paradewaffe";
 	}
 
 	public String getInfo() {

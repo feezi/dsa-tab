@@ -28,6 +28,7 @@ import android.widget.ImageView;
 
 import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
+import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
 
 /**
@@ -101,7 +102,7 @@ public class CardView extends ImageView {
 			if (lqFile == null || !lqFile.isFile())
 				hasCardImage = false;
 			else
-				hasCardImage = (!lqFile.getName().equals("blank_LQ.gif"));
+				hasCardImage = (!lqFile.getName().equals(Item.BLANK_PATH));
 		}
 		return hasCardImage;
 

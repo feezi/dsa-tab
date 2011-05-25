@@ -2,7 +2,9 @@ package com.dsatab.data.adapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -19,6 +21,7 @@ import com.dsatab.data.Hero;
 import com.dsatab.data.Talent;
 import com.dsatab.data.TalentGroup;
 import com.dsatab.data.TalentGroup.TalentGroupType;
+import com.dsatab.view.FilterSettings;
 
 public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 
@@ -26,22 +29,71 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 
 	private Hero hero;
 
-	public ExpandableTalentAdapter(Hero hero) {
+	private FilterSettings filterSettings;
+
+	private Map<TalentGroupType, List<Talent>> groupsMap;
+
+	public ExpandableTalentAdapter(Hero hero, boolean showFavorite, boolean showNormal, boolean showUnused) {
 		this.hero = hero;
+		this.filterSettings = new FilterSettings(showFavorite, showNormal, showUnused);
+
 		groups = new ArrayList<TalentGroupType>(Arrays.asList(TalentGroupType.values()));
 		groups.retainAll(hero.getTalentGroups().keySet());
+
+		groupsMap = new HashMap<TalentGroup.TalentGroupType, List<Talent>>();
+	}
+
+	public void setFilter(boolean showFavorite, boolean showNormal, boolean showUnused) {
+
+		boolean hasChanged = !filterSettings.equals(showFavorite, showNormal, showUnused);
+
+		filterSettings.set(showFavorite, showNormal, showUnused);
+
+		if (hasChanged) {
+			groupsMap.clear();
+		}
 	}
 
 	public Talent getChild(int groupPosition, int childPosition) {
 		TalentGroupType groupType = getGroup(groupPosition);
 
-		TalentGroup talentGroup = hero.getTalentGroups().get(groupType);
+		List<Talent> talents = getTalents(groupType);
 
-		if (talentGroup != null && talentGroup.getTalents() != null)
-			return talentGroup.getTalents().get(childPosition);
+		if (talents != null)
+			return talents.get(childPosition);
 		else
 			return null;
+	}
 
+	private List<Talent> getTalents(TalentGroupType groupType) {
+		List<Talent> talents = groupsMap.get(groupType);
+
+		if (talents == null) {
+			TalentGroup talentGroup = hero.getTalentGroups().get(groupType);
+
+			if (talentGroup != null && talentGroup.getTalents() != null) {
+				talents = filter(talentGroup.getTalents());
+			}
+		}
+
+		return talents;
+	}
+
+	private List<Talent> filter(List<Talent> in) {
+
+		if (filterSettings.isAllVisible()) {
+			return in;
+		} else {
+			List<Talent> result = new ArrayList<Talent>();
+
+			for (Talent t : in) {
+				if (filterSettings.isVisible(t)) {
+					result.add(t);
+				}
+			}
+
+			return result;
+		}
 	}
 
 	public long getChildId(int groupPosition, int childPosition) {
@@ -49,34 +101,33 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 	}
 
 	public int getChildrenCount(int groupPosition) {
-		TalentGroupType talentType = getGroup(groupPosition);
+		TalentGroupType groupType = getGroup(groupPosition);
 
-		TalentGroup talentGroup = hero.getTalentGroups().get(talentType);
+		List<Talent> talents = getTalents(groupType);
 
-		if (talentGroup != null && talentGroup.getTalents() != null)
-			return talentGroup.getTalents().size();
+		if (talents != null)
+			return talents.size();
 		else
 			return 0;
 	}
 
-	public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+	public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView,
+			ViewGroup parent) {
 
 		View listItem = null;
 		if (convertView instanceof LinearLayout) {
 			listItem = convertView;
 		} else {
-			listItem = LayoutInflater.from(DSATabApplication.getInstance()).inflate(R.layout.talent_list_item, null, false);
+			listItem = LayoutInflater.from(DSATabApplication.getInstance()).inflate(R.layout.talent_list_item, null,
+					false);
 		}
 
 		// name
 		TextView text1 = (TextView) listItem.findViewById(R.id.talent_list_item_text1);
-
 		// be
 		TextView text2 = (TextView) listItem.findViewById(R.id.talent_list_item_text2);
-
 		// probe
 		TextView text3 = (TextView) listItem.findViewById(R.id.talent_list_item_text3);
-
 		// value
 		TextView text4 = (TextView) listItem.findViewById(R.id.talent_list_item_text4);
 
@@ -94,10 +145,7 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 		text3.setText(talent.getProbe());
 		text4.setText(Util.toString(talent.getValue()));
 
-		if (childPosition % 2 == 1) {
-			listItem.setBackgroundResource(R.color.RowOdd);
-		} else
-			listItem.setBackgroundResource(0);
+		Util.applyRowStyle(talent, listItem, childPosition);
 
 		listItem.setTag(talent);
 		return listItem;
@@ -120,7 +168,8 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 		if (convertView instanceof TextView) {
 			listItem = (TextView) convertView;
 		} else {
-			listItem = (TextView) LayoutInflater.from(DSATabApplication.getInstance()).inflate(R.layout.talent_list_headeritem, null, false);
+			listItem = (TextView) LayoutInflater.from(DSATabApplication.getInstance()).inflate(
+					R.layout.talent_list_headeritem, null, false);
 		}
 
 		TalentGroupType groupType = getGroup(groupPosition);
@@ -135,7 +184,7 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 	}
 
 	public boolean hasStableIds() {
-		return true;
+		return false;
 	}
 
 }

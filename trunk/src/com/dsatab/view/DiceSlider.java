@@ -30,6 +30,7 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
 import com.dsatab.activity.DsaPreferenceActivity;
 import com.dsatab.common.DsaMath;
@@ -45,7 +46,6 @@ import com.dsatab.data.Modifier;
 import com.dsatab.data.Probe;
 import com.dsatab.data.Probe.ProbeType;
 import com.dsatab.data.enums.AttributeType;
-import com.dsatab.R;
 import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.view.NumberPicker;
 
@@ -114,101 +114,93 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 
 		if (v.getId() == R.id.dice_probe_table || v.getId() == R.id.dice_info) {
 
-			if (DSATabApplication.getInstance().isLiteVersion()) {
-				LiteInfoDialog dialog = new LiteInfoDialog(getContext());
-				dialog.setFeature("<strong>Keine Lust mehr dir alle Einbußen und Modifikatoren zu merken?</strong> Die Vollversion kümmert sich ab jetzt für dich darum. Egal ob Einbußen durch zu niedrige Lebensenergie, Wunden, Waffen-Modifikatoren, Behinderung oder weiss der Meister was. DsaTab berücksichtigt das bei jeder Probe automatisch. Zusätzlich kannst du eine Probe noch um einen beliebigen Wert erleichtern oder erschweren.");
-				dialog.show();
-			} else {
+			AlertDialog.Builder builder;
+			AlertDialog alertDialog;
 
-				AlertDialog.Builder builder;
-				AlertDialog alertDialog;
+			LayoutInflater inflater = LayoutInflater.from(getContext());
+			View probeInfoView = inflater.inflate(R.layout.popup_probe_info, null, false);
+			LinearLayout linearLayout = (LinearLayout) probeInfoView.findViewById(R.id.popup_probe_layout);
 
-				LayoutInflater inflater = LayoutInflater.from(getContext());
-				View probeInfoView = inflater.inflate(R.layout.popup_probe_info, null, false);
-				LinearLayout linearLayout = (LinearLayout) probeInfoView.findViewById(R.id.popup_probe_layout);
+			StyleableSpannableStringBuilder stringBuilder = new StyleableSpannableStringBuilder();
 
-				StyleableSpannableStringBuilder stringBuilder = new StyleableSpannableStringBuilder();
+			for (Modifier mod : modifiers) {
 
-				for (Modifier mod : modifiers) {
+				if (mod == manualModifer)
+					continue;
 
-					if (mod == manualModifer)
-						continue;
+				View listItem = inflater.inflate(R.layout.popup_probe_list_item, linearLayout, false);
 
-					View listItem = inflater.inflate(R.layout.popup_probe_list_item, linearLayout, false);
+				TextView text1 = (TextView) listItem.findViewById(R.id.popup_probelist_item_text1);
+				text1.setText(mod.getTitle());
 
-					TextView text1 = (TextView) listItem.findViewById(R.id.popup_probelist_item_text1);
-					text1.setText(mod.getTitle());
+				TextView text2 = (TextView) listItem.findViewById(R.id.popup_probelist_item_text2);
 
-					TextView text2 = (TextView) listItem.findViewById(R.id.popup_probelist_item_text2);
+				stringBuilder.clear();
 
-					stringBuilder.clear();
-
-					if (mod.getModifier() < 0) {
-						stringBuilder.appendColor(Color.RED, Util.toProbe(-mod.getModifier()));
-					} else {
-						stringBuilder.appendColor(Color.GREEN, Util.toProbe(-mod.getModifier()));
-					}
-					text2.setText(stringBuilder.toString());
-
-					linearLayout.addView(listItem);
+				if (mod.getModifier() < 0) {
+					stringBuilder.appendColor(Color.RED, Util.toProbe(-mod.getModifier()));
+				} else {
+					stringBuilder.appendColor(Color.GREEN, Util.toProbe(-mod.getModifier()));
 				}
+				text2.setText(stringBuilder.toString());
 
-				// manual modifier
-				View editListItem = inflater.inflate(R.layout.popup_probe_manual_list_item, linearLayout, false);
-				final NumberPicker picker = (NumberPicker) editListItem.findViewById(R.id.popup_probelist_item_text2);
-				picker.setRange(-20, 20);
-				picker.setNegativeColor(Color.GREEN);
-				picker.setPositiveColor(Color.RED);
-
-				if (manualModifer == null) {
-					manualModifer = new Modifier(0, "Manuell", "Manuell");
-				}
-				TextView text1 = (TextView) editListItem.findViewById(R.id.popup_probelist_item_text1);
-				text1.setText(manualModifer.getTitle());
-
-				picker.setCurrent(-manualModifer.getModifier());
-
-				linearLayout.addView(editListItem);
-
-				// build
-				builder = new AlertDialog.Builder(getContext());
-				builder.setView(probeInfoView);
-				builder.setTitle("Probenzuschläge");
-				builder.setNeutralButton(getContext().getString(R.string.label_ok),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								dialog.dismiss();
-							}
-						});
-				alertDialog = builder.create();
-				alertDialog.setCanceledOnTouchOutside(true);
-				alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-
-					@Override
-					public void onDismiss(DialogInterface dialog) {
-						int erschwernis = 0;
-						if (picker != null) {
-							erschwernis = picker.getCurrent();
-						}
-
-						if (manualModifer == null) {
-							if (erschwernis != 0) {
-								manualModifer = new Modifier(-erschwernis, "Manuell", "Manuell");
-							}
-						} else {
-							manualModifer.setModifier(-erschwernis);
-						}
-
-						if (manualModifer != null)
-							checkProbe(probeInfo, manualModifer);
-						else
-							checkProbe(probeInfo);
-					}
-				});
-				alertDialog.show();
-
+				linearLayout.addView(listItem);
 			}
+
+			// manual modifier
+			View editListItem = inflater.inflate(R.layout.popup_probe_manual_list_item, linearLayout, false);
+			final NumberPicker picker = (NumberPicker) editListItem.findViewById(R.id.popup_probelist_item_text2);
+			picker.setRange(-20, 20);
+			picker.setNegativeColor(Color.GREEN);
+			picker.setPositiveColor(Color.RED);
+
+			if (manualModifer == null) {
+				manualModifer = new Modifier(0, "Manuell", "Manuell");
+			}
+			TextView text1 = (TextView) editListItem.findViewById(R.id.popup_probelist_item_text1);
+			text1.setText(manualModifer.getTitle());
+
+			picker.setCurrent(-manualModifer.getModifier());
+
+			linearLayout.addView(editListItem);
+
+			// build
+			builder = new AlertDialog.Builder(getContext());
+			builder.setView(probeInfoView);
+			builder.setTitle("Probenzuschläge");
+			builder.setNeutralButton(getContext().getString(R.string.label_ok), new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			});
+			alertDialog = builder.create();
+			alertDialog.setCanceledOnTouchOutside(true);
+			alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+
+				@Override
+				public void onDismiss(DialogInterface dialog) {
+					int erschwernis = 0;
+					if (picker != null) {
+						erschwernis = picker.getCurrent();
+					}
+
+					if (manualModifer == null) {
+						if (erschwernis != 0) {
+							manualModifer = new Modifier(-erschwernis, "Manuell", "Manuell");
+						}
+					} else {
+						manualModifer.setModifier(-erschwernis);
+					}
+
+					if (manualModifer != null)
+						checkProbe(probeInfo, manualModifer);
+					else
+						checkProbe(probeInfo);
+				}
+			});
+			alertDialog.show();
+
 		}
 	}
 

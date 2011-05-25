@@ -28,12 +28,9 @@ import java.util.List;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Typeface;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
@@ -55,8 +52,6 @@ public class DSATabApplication extends Application {
 
 	// instance
 	private static DSATabApplication instance = null;
-
-	private boolean liteVersion = false;
 
 	private Hero hero = null;
 
@@ -80,11 +75,8 @@ public class DSATabApplication extends Application {
 	}
 
 	public boolean isLiteVersion() {
-		return liteVersion;
-	}
-
-	public void setLiteVersion(boolean light) {
-		liteVersion = light;
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getInstance().getBaseContext());
+		return !preferences.getBoolean(DsaPreferenceActivity.KEY_FULL_VERSION, false);
 	}
 
 	public static String getDsaTabPath() {
@@ -135,17 +127,6 @@ public class DSATabApplication extends Application {
 		Debug.setDebugTag(TAG);
 
 		liteShown = false;
-
-		try {
-			ApplicationInfo ai = getPackageManager().getApplicationInfo(this.getPackageName(),
-					PackageManager.GET_META_DATA);
-			Bundle aBundle = ai.metaData;
-			liteVersion = aBundle.getBoolean("lite", true);
-		} catch (NameNotFoundException e) {
-			Debug.error(e);
-			liteVersion = true;
-		}
-
 	}
 
 	public Typeface getPoorRichardFont() {
@@ -211,7 +192,7 @@ public class DSATabApplication extends Application {
 		String heroName = null;
 		try {
 			FileReader reader = new FileReader(file);
-			BufferedReader br = new BufferedReader(reader);
+			BufferedReader br = new BufferedReader(reader, 8 * 1024);
 			String line = null;
 			int lines = 0;
 			while ((line = br.readLine()) != null) {

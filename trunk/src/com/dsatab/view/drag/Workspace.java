@@ -273,7 +273,8 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 			}
 		}
 
-		if (info.getScreen() == ItemLocationInfo.INVALID_POSITION || info.getCellX() == ItemLocationInfo.INVALID_POSITION
+		if (info.getScreen() == ItemLocationInfo.INVALID_POSITION
+				|| info.getCellX() == ItemLocationInfo.INVALID_POSITION
 				|| info.getCellY() == ItemLocationInfo.INVALID_POSITION) {
 
 			CellLayout.CellInfo info2 = findAllVacantCells(screen, null);
@@ -1321,6 +1322,17 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 				addItemInScreen(newItem);
 			}
 		});
+	}
+
+	public void removeAllItems() {
+		final int count = getChildCount();
+
+		for (int i = 0; i < count; i++) {
+			final CellLayout layout = (CellLayout) getChildAt(i);
+			layout.removeAllViews();
+
+		}
+		clearChildrenCache();
 	}
 
 	public void removeItem(final ItemCard apps) {

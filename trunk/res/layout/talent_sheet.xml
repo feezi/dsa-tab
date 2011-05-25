@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/gen_talent_sheet" android:layout_height="fill_parent" android:layout_width="fill_parent">
-	
-	
-	
+	android:id="@+id/gen_talent_sheet" android:layout_height="fill_parent"
+	android:layout_width="fill_parent">
 
 
 
 
-<include android:layout_width="wrap_content" android:layout_height="wrap_content" layout="@layout/attributes_list" android:id="@+id/inc_talent_attributes_list"></include><ExpandableListView android:id="@+id/talent_list" android:layout_height="fill_parent" style="@style/BorderPanel" android:layout_below="@+id/inc_talent_attributes_list" android:layout_width="fill_parent" android:fadingEdgeLength="0dip" android:cacheColorHint="#00000000" android:childDivider="#00000000" android:choiceMode="singleChoice" android:dividerHeight="0dip"></ExpandableListView>
+
+
+
+	<include android:layout_width="wrap_content"
+		android:layout_height="wrap_content" layout="@layout/attributes_list"
+		android:id="@+id/inc_talent_attributes_list"></include>
+	<ExpandableListView android:id="@+id/talent_list"
+		android:layout_height="fill_parent" style="@style/BorderPanel"
+		android:layout_below="@+id/inc_talent_attributes_list"
+		android:layout_width="fill_parent" android:fadingEdgeLength="0dip"
+		android:cacheColorHint="#00000000" android:childDivider="#00000000"
+		android:choiceMode="singleChoice" android:dividerHeight="0dip"></ExpandableListView>
 
 
 

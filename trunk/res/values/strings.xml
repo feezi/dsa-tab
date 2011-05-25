@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="path_items">http://dl.dropbox.com/u/15750588/dsatab-items-small.zip</string>
+	<string name="path_items">http://dl.dropbox.com/u/15750588/dsatab-items2.zip</string>
 
     <string name="label_haar_augen_farbe">Haar,Augen</string>
     <string name="label_alter">Alter</string>
@@ -33,7 +33,7 @@
     <string name="label_au">AU</string>
     <string name="label_le">LE</string>    
     
-    <string name="label_buy_app">App kaufen</string>
+    <string name="label_donate">Spenden</string>
     <string name="label_no_thanks">Nein danke</string>
     
     <string name="hero_loaded">%s geladen</string>
@@ -56,12 +56,14 @@
 <string name="menu_unassign_item">Zuweisung aufheben</string>
 <string name="menu_delete_item">Eintrag löschen</string>
 <string name="menu_sort_items">Einträge sortieren</string>
+<string name="menu_select_version">Variante auswählen</string>
 <string name="menu_reset_values">Werte zurücksetzen</string>
 <string name="menu_equipment_set">Ausrüstungsset %s</string>
 <string name="advantages">Vorteile</string>
 <string name="disadvantages">Nachteile</string>
 <string name="ausweichen_info">Wert %1$s - Mod %2$s</string>
 <string name="label_ok">Ok</string>
+<string name="label_edit">Ändern</string>
 <string name="label_cancel">Abbrechen</string>
 <string name="modifikatoren">Modifikatoren</string>
 <string name="menu_edit_item">Eintrag bearbeiten</string>
@@ -77,19 +79,19 @@
 <![CDATA[
 
 <p>Copyright (C) 2010 Gandulf Kohlweiss</p>
-<p>
+<p style="text-align:justify">
 This program is free software; you can redistribute it and/or modify it under the terms
 of the GNU General Public License as published by the Free Software Foundation;
 either version 3 of the License, or (at your option) any later version.</p>
-<p>
+<p style="text-align:justify">
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 See the GNU General Public License for more details.</p>
-<p>
+<p style="text-align:justify">
 You should have received a copy of the GNU General Public License along with this program;
 if not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.</p>
 
-<p>Source Code of DsaTab is available here: <a href="http://code.google.com/p/dsa-tab/">Source Download</a></p>
+<p style="text-align:justify">Source Code of DsaTab is available here: <a href="http://code.google.com/p/dsa-tab/">Source Download</a></p>
 
 <p>Contributions</p>
  
@@ -106,20 +108,20 @@ Extern herunterladbarer Inhalt:
 
 <h3>Copyright Informationen</h3>
 
-<p>[Benutzte Begriffe, also etwa Das Schwarze Auge, Aventurien, Myranor, Armalion ...] sind eingetragene Warenzeichen von Fantasy Productions GmbH, Erkrath. Copyright by Fantasy Productions GmbH. Diese Website enth&auml;lt nichtoffizielle Informationen zum Rollenspiel "Das Schwarze Auge" und zur Welt "Aventurien" [bzw. "Myranor"]. Diese Informationen k&ouml;nnen im Widerspruch zu offiziell publizierten Texten stehen; bei Fragen zu dieser Seite wendet Euch bitte an gandulf.k et gmail.com</p> 
+<p style="text-align:justify">[Benutzte Begriffe, also etwa Das Schwarze Auge, Aventurien, Myranor, Armalion ...] sind eingetragene Warenzeichen von Fantasy Productions GmbH, Erkrath. Copyright by Fantasy Productions GmbH. Diese Website enth&auml;lt nichtoffizielle Informationen zum Rollenspiel "Das Schwarze Auge" und zur Welt "Aventurien" [bzw. "Myranor"]. Diese Informationen k&ouml;nnen im Widerspruch zu offiziell publizierten Texten stehen; bei Fragen zu dieser Seite wendet Euch bitte an gandulf.k et gmail.com</p> 
 ]]>
 </string>
 
-<string name="lite_title">DsaTab Lite</string>
+<string name="lite_title">DsaTab Donationware</string>
 <string name="lite_info">
 <![CDATA[
-<p>Mit der Lite Version kannst du dir die Wert deines Helden ansehen und Proben ohne Modifikatoren w&uuml;rfeln.</p>
+<p style="text-align:justify">DsaTab ist kostenlos, du kannst jederzeit in den Einstellungen zur Vollversion wechseln. Mit der Lite Version kannst du dir die Wert deines Helden ansehen und Proben ohne Modifikatoren w&uuml;rfeln.</p>
 
-<p>Falls du auch die <string>zus&auml;tzlichen Features</strong> nutzen willst, oder mich bei der Entwicklung von DsaTab unterstützen willst, kauf dir die Vollversion im <a href="market://market.android.com/details?id=com.dsatab">Android Market</a>. Für diejenigen die keine Kreditkarte haben, kann die App auch über <a href="http://www.androidpit.de/de/android/market/apps/app/com.dsatab/DsaTab">AndroidPIT</a> mittels <b>PayPal</b> erworben werden.</p>
- 
-<a href="market://market.android.com/details?id=com.dsatab"><img src="file:///android_asset/badge.png"></a>
+<p style="text-align:justify">Falls du mich bei der Entwicklung von DsaTab unterstützen willst, lass mir doch eine kleine Spende via Paypal zukommen. Ich verspreche dir, dass sie nur für Motivations-fördernde Maßnahmen verwendet wird (Kaffee, Bier, ....)</p>
 
-<a href="http://www.androidpit.de/de/android/market/apps/app/com.dsatab/DsaTab"><img src="file:///android_asset/badge_paypal.png"></a>
+<div align="center">
+<img src="file:///android_asset/beer.png">
+</div> 
 ]]>
 </string>
 
@@ -127,13 +129,13 @@ Extern herunterladbarer Inhalt:
 <string name="lite_feature_teaser_title">Willst du mehr?</string>
 <string name="lite_feature_teaser">
 <![CDATA[
+<p style="text-align:justify">%1$s</p>
 
-<p>%1$s</p>
- 
-<h3>Hol dir jetzt die Vollversion:</h3>
-<a href="market://market.android.com/details?id=com.dsatab"><img src="file:///android_asset/badge.png"></a>
+<p style="text-align:justify">Falls du mich bei der Entwicklung von DsaTab unterstützen willst, lass mir doch eine kleine Spende via Paypal zukommen. Ich verspreche dir, dass sie nur für Motivations-fördernde Maßnahmen verwendet wird (Kaffee, Bier, ....).</p>
 
-<a href="http://www.androidpit.de/de/android/market/apps/app/com.dsatab/DsaTab"><img src="file:///android_asset/badge_paypal.png"></a>
+<div align="center">
+<img src="file:///android_asset/beer.png">
+</div> 
 ]]>
 </string>
 

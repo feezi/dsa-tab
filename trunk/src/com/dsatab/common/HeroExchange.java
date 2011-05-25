@@ -96,14 +96,18 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 	public boolean isConfigured() {
 		final SharedPreferences preferences = DSATabApplication.getPreferences();
 
-		if (!preferences.contains(DsaPreferenceActivity.KEY_EXCHANGE_USERNAME)
-				|| !preferences.contains(DsaPreferenceActivity.KEY_EXCHANGE_PASSWORD)
-				|| !preferences.contains(DsaPreferenceActivity.KEY_EXCHANGE_PROVIDER)) {
+		if (preferences.contains(DsaPreferenceActivity.KEY_EXCHANGE_USERNAME)
+				&& preferences.contains(DsaPreferenceActivity.KEY_EXCHANGE_PASSWORD)
+				&& preferences.contains(DsaPreferenceActivity.KEY_EXCHANGE_PROVIDER)) {
 
-			return false;
+			String user = preferences.getString(DsaPreferenceActivity.KEY_EXCHANGE_USERNAME, "");
+			String password = preferences.getString(DsaPreferenceActivity.KEY_EXCHANGE_USERNAME, "");
+			String provider = preferences.getString(DsaPreferenceActivity.KEY_EXCHANGE_USERNAME, "");
+
+			return !TextUtils.isEmpty(user) && !TextUtils.isEmpty(password) && !TextUtils.isEmpty(provider);
 		}
 
-		return true;
+		return false;
 	}
 
 	public void importHero() {

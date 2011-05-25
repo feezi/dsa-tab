@@ -65,6 +65,16 @@ public class GalleryImageAdapter extends BaseAdapter {
 		a.recycle();
 	}
 
+	public int getPositionByName(Item item) {
+		if (item != null) {
+			for (int i = 0; i < items.length; i++) {
+				if (item.getName().equals(items[i].getName()))
+					return i;
+			}
+		}
+		return -1;
+	}
+
 	public int getPosition(Item item) {
 		if (item != null) {
 			for (int i = 0; i < items.length; i++) {

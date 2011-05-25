@@ -112,7 +112,7 @@ public class DeleteZone extends ImageView implements DropTarget<ItemCard>, DragC
 		if (dragInfo instanceof Item) {
 			final Item item = (Item) dragInfo;
 
-			if (item.getType().isEquipable()) {
+			if (item.isEquipable()) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
 				DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {

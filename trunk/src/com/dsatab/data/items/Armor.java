@@ -12,7 +12,7 @@ import com.dsatab.data.Hero;
 import com.dsatab.data.enums.Position;
 import com.dsatab.xml.Xml;
 
-public class Armor extends Item {
+public class Armor extends ItemSpecification {
 
 	private static final long serialVersionUID = 5895989410415630188L;
 
@@ -37,7 +37,8 @@ public class Armor extends Item {
 
 	private String info = null;
 
-	public Armor() {
+	public Armor(Item item) {
+		super(item, ItemType.Rüstung, 0);
 		rs = new HashMap<Position, Integer>(Position.values().length);
 	}
 
@@ -55,6 +56,16 @@ public class Armor extends Item {
 
 	public void setZonenHalfBe(boolean zonenHalfBe) {
 		this.zonenHalfBe = zonenHalfBe;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.items.ItemSpecification#getName()
+	 */
+	@Override
+	public String getName() {
+		return "Rüstung";
 	}
 
 	public String getInfo() {
@@ -129,14 +140,7 @@ public class Armor extends Item {
 		this.totalRs = totalRs;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.items.Item#setElement(org.w3c.dom.Element)
-	 */
-	@Override
 	public void setElement(Element element) {
-		super.setElement(element);
 
 		NodeList ruestungList = element.getElementsByTagName(Xml.KEY_RUESTUNG);
 
@@ -158,23 +162,24 @@ public class Armor extends Item {
 
 	}
 
-	@Override
 	public int getResourceId() {
-		if (CATEGORY_HELM.equalsIgnoreCase(getCategory())) {
+		if (CATEGORY_HELM.equalsIgnoreCase(item.getCategory())) {
 			if (getRs(Position.Head_Face) > 5)
 				return R.drawable.icon_helm_full;
 			else if (getRs(Position.Head_Face) > 0)
 				return R.drawable.icon_helm_half;
 			else
 				return R.drawable.icon_helm;
-		} else if (CATEGORY_TORSO.equalsIgnoreCase(getCategory()) || CATEGORY_FULL.equalsIgnoreCase(getCategory())) {
+		} else if (CATEGORY_TORSO.equalsIgnoreCase(item.getCategory())
+				|| CATEGORY_FULL.equalsIgnoreCase(item.getCategory())) {
 			if (maxRs > 6)
 				return R.drawable.icon_armor_metal;
 			else if (maxRs > 2)
 				return R.drawable.icon_armor_chain;
 			else
 				return R.drawable.icon_armor_cloth;
-		} else if (CATEGORY_ARME.equalsIgnoreCase(getCategory()) || CATEGORY_BEINE.equalsIgnoreCase(getCategory())) {
+		} else if (CATEGORY_ARME.equalsIgnoreCase(item.getCategory())
+				|| CATEGORY_BEINE.equalsIgnoreCase(item.getCategory())) {
 			return R.drawable.icon_greaves;
 		} else {
 			return R.drawable.icon_armor;

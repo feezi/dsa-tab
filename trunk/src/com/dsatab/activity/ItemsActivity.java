@@ -34,7 +34,6 @@ import com.dsatab.data.Value;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
-import com.dsatab.data.items.ItemType;
 import com.dsatab.view.drag.CellLayout;
 import com.dsatab.view.drag.DeleteZone;
 import com.dsatab.view.drag.ItemLocationInfo;
@@ -124,8 +123,10 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 
 			Item item = null;
 
-			final int cellX = data.getIntExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_X, ItemLocationInfo.INVALID_POSITION);
-			final int cellY = data.getIntExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_Y, ItemLocationInfo.INVALID_POSITION);
+			final int cellX = data.getIntExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_X,
+					ItemLocationInfo.INVALID_POSITION);
+			final int cellY = data.getIntExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_Y,
+					ItemLocationInfo.INVALID_POSITION);
 
 			UUID id = (UUID) data.getSerializableExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_ID);
 			String cardName = data.getStringExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_NAME);
@@ -369,7 +370,7 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 				}
 				// drag a item from inventory to set (equip it)
 				else if (!isSetIndex(oldScreen) && isSetIndex(newScreen)) {
-					EquippedItem equippedItem = getHero().addEquippedItem(item, null, newScreen);
+					EquippedItem equippedItem = getHero().addEquippedItem(this, item, null, newScreen);
 
 					equippedItem.getItemInfo().setCellX(x);
 					equippedItem.getItemInfo().setCellY(y);
@@ -402,6 +403,8 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 
 		boolean success = true;
 
+		mWorkspace.removeAllItems();
+
 		List<Item> skipItems = new LinkedList<Item>();
 
 		int screen = Hero.MAXIMUM_SET_NUMBER;
@@ -417,8 +420,8 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 					// is unable to add item at specified position try again
 					// without position info (will be added in first empty slot)
 					if (!success
-							&& (item.getItemInfo().getCellX() != ItemLocationInfo.INVALID_POSITION || item.getItemInfo()
-									.getCellY() != ItemLocationInfo.INVALID_POSITION)) {
+							&& (item.getItemInfo().getCellX() != ItemLocationInfo.INVALID_POSITION || item
+									.getItemInfo().getCellY() != ItemLocationInfo.INVALID_POSITION)) {
 
 						item.getItemInfo().setCellX(ItemLocationInfo.INVALID_POSITION);
 						item.getItemInfo().setCellY(ItemLocationInfo.INVALID_POSITION);
@@ -456,7 +459,8 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 				// is unable to add item at specified position try again
 				// without position info (will be added in first empty slot)
 				if (!success
-						&& (item.getItemInfo().getCellX() != ItemLocationInfo.INVALID_POSITION || item.getItemInfo().getCellY() != ItemLocationInfo.INVALID_POSITION)) {
+						&& (item.getItemInfo().getCellX() != ItemLocationInfo.INVALID_POSITION || item.getItemInfo()
+								.getCellY() != ItemLocationInfo.INVALID_POSITION)) {
 
 					item.getItemInfo().setCellX(ItemLocationInfo.INVALID_POSITION);
 					item.getItemInfo().setCellY(ItemLocationInfo.INVALID_POSITION);
@@ -497,15 +501,10 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 		if (selectedItem != null) {
 
 			Item item = selectedItem.getItem();
-			ItemType cardType = item.getType();
 
 			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_ID, item.getId());
 			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_NAME, item.getName());
 			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_CATEGORY, item.getCategory());
-
-			if (cardType != null) {
-				intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_TYPE, cardType.name());
-			}
 
 			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_X, itemCard.getItemInfo().getCellX());
 			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_Y, itemCard.getItemInfo().getCellY());
@@ -597,6 +596,18 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 	 */
 	@Override
 	public void onItemAdded(Item item) {
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.InventoryChangedListener#onItemChanged(com.dsatab
+	 * .data.items.EquippedItem)
+	 */
+	@Override
+	public void onItemChanged(EquippedItem item) {
 
 	}
 

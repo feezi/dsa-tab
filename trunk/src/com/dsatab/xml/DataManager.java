@@ -29,6 +29,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.dsatab.data.items.Item;
+import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.ItemType;
 
 /**
@@ -114,15 +115,19 @@ public class DataManager {
 
 			Map<ItemType, List<String>> categoriesMap = new HashMap<ItemType, List<String>>();
 
-			for (Item card : getItemsMap().values()) {
-				List<String> categoryList = categoriesMap.get(card.getType());
-				if (categoryList == null) {
-					categoryList = new LinkedList<String>();
-					categoriesMap.put(card.getType(), categoryList);
-				}
+			for (Item item : getItemsMap().values()) {
 
-				if (!categoryList.contains(card.getCategory()))
-					categoryList.add(card.getCategory());
+				for (ItemSpecification spec : item.getSpecifications()) {
+					List<String> categoryList = categoriesMap.get(spec.getType());
+					if (categoryList == null) {
+						categoryList = new LinkedList<String>();
+						categoriesMap.put(spec.getType(), categoryList);
+					}
+
+					if (!categoryList.contains(item.getCategory()))
+						categoryList.add(item.getCategory());
+
+				}
 			}
 
 			cardTypeCategories = new SoftReference<Map<ItemType, List<String>>>(categoriesMap);
@@ -174,13 +179,16 @@ public class DataManager {
 			Map<ItemType, List<Item>> categoryMap = new HashMap<ItemType, List<Item>>();
 			cardsTypeMap = new SoftReference<Map<ItemType, List<Item>>>(categoryMap);
 
-			for (Item card : getItemsMap().values()) {
-				List<Item> nameCards = categoryMap.get(card.getType());
-				if (nameCards == null) {
-					nameCards = new LinkedList<Item>();
-					categoryMap.put(card.getType(), nameCards);
+			for (Item item : getItemsMap().values()) {
+
+				for (ItemSpecification spec : item.getSpecifications()) {
+					List<Item> nameCards = categoryMap.get(spec.getType());
+					if (nameCards == null) {
+						nameCards = new LinkedList<Item>();
+						categoryMap.put(spec.getType(), nameCards);
+					}
+					nameCards.add(item);
 				}
-				nameCards.add(card);
 			}
 
 			for (List<Item> items : categoryMap.values()) {

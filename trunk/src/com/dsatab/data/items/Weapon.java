@@ -14,7 +14,7 @@ import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.xml.DomUtil;
 import com.dsatab.xml.Xml;
 
-public class Weapon extends Item {
+public class Weapon extends ItemSpecification {
 
 	private static final long serialVersionUID = 6832804846158222277L;
 
@@ -35,6 +35,17 @@ public class Weapon extends Item {
 
 	private List<CombatTalentType> combatTalentType = new LinkedList<CombatTalentType>();
 
+	public Weapon(Item item, int version) {
+		super(item, ItemType.Waffen, version);
+	}
+
+	/**
+	 * 
+	 */
+	public Weapon(Item item) {
+		super(item, ItemType.Waffen, 0);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -42,39 +53,43 @@ public class Weapon extends Item {
 	 */
 	@Override
 	public void setElement(Element element) {
-
-		super.setElement(element);
-
 		NodeList waffeList = element.getElementsByTagName(Xml.KEY_NAHKAMPWAFFE);
 
-		if (waffeList.getLength() > 0) {
-			Element waffe = (Element) waffeList.item(0);
+		int count = waffeList.getLength();
+		for (int i = 0; i < count; i++) {
+			Element waffe = (Element) waffeList.item(i);
 
-			Element trefferpunkte = DomUtil.getChildByTagName(waffe, Xml.KEY_TREFFERPUNKTE);
-			if (trefferpunkte != null) {
-				String tp = trefferpunkte.getAttribute(Xml.KEY_TREFFERPUNKTE_MUL) + "W"
-						+ trefferpunkte.getAttribute(Xml.KEY_TREFFERPUNKTE_DICE) + "+"
-						+ trefferpunkte.getAttribute(Xml.KEY_TREFFERPUNKTE_SUM);
-				setTp(tp);
-			}
+			if (waffe.hasAttribute(Xml.KEY_VARIANTE)) {
 
-			Element tpKK = DomUtil.getChildByTagName(waffe, Xml.KEY_TREFFERPUNKTE_KK);
-			if (tpKK != null) {
-				setTpKKMin(Util.parseInt(tpKK.getAttribute(Xml.KEY_TREFFERPUNKTE_KK_MIN)));
-				setTpKKStep(Util.parseInt(tpKK.getAttribute(Xml.KEY_TREFFERPUNKTE_KK_STEP)));
-			}
-			Element wm = DomUtil.getChildByTagName(waffe, Xml.KEY_WAFFENMODIF);
-			if (wm != null) {
-				setWmAt(Util.parseInt(wm.getAttribute(Xml.KEY_WAFFENMODIF_AT)));
-				setWmPa(Util.parseInt(wm.getAttribute(Xml.KEY_WAFFENMODIF_PA)));
-			}
-			Element bf = DomUtil.getChildByTagName(waffe, Xml.KEY_BRUCHFAKTOR);
-			if (bf != null) {
-				setBf(Util.parseInt(bf.getAttribute(Xml.KEY_BRUCHFAKTOR_AKT)));
-			}
-			Element ini = DomUtil.getChildByTagName(waffe, Xml.KEY_INI_MOD);
-			if (ini != null) {
-				setIni(Util.parseInt(ini.getAttribute(Xml.KEY_INI_MOD_INI)));
+				int variante = Util.parseInt(waffe.getAttribute(Xml.KEY_VARIANTE));
+				if (variante == version) {
+					Element trefferpunkte = DomUtil.getChildByTagName(waffe, Xml.KEY_TREFFERPUNKTE);
+					if (trefferpunkte != null) {
+						String tp = trefferpunkte.getAttribute(Xml.KEY_TREFFERPUNKTE_MUL) + "W"
+								+ trefferpunkte.getAttribute(Xml.KEY_TREFFERPUNKTE_DICE) + "+"
+								+ trefferpunkte.getAttribute(Xml.KEY_TREFFERPUNKTE_SUM);
+						setTp(tp);
+					}
+
+					Element tpKK = DomUtil.getChildByTagName(waffe, Xml.KEY_TREFFERPUNKTE_KK);
+					if (tpKK != null) {
+						setTpKKMin(Util.parseInt(tpKK.getAttribute(Xml.KEY_TREFFERPUNKTE_KK_MIN)));
+						setTpKKStep(Util.parseInt(tpKK.getAttribute(Xml.KEY_TREFFERPUNKTE_KK_STEP)));
+					}
+					Element wm = DomUtil.getChildByTagName(waffe, Xml.KEY_WAFFENMODIF);
+					if (wm != null) {
+						setWmAt(Util.parseInt(wm.getAttribute(Xml.KEY_WAFFENMODIF_AT)));
+						setWmPa(Util.parseInt(wm.getAttribute(Xml.KEY_WAFFENMODIF_PA)));
+					}
+					Element bf = DomUtil.getChildByTagName(waffe, Xml.KEY_BRUCHFAKTOR);
+					if (bf != null) {
+						setBf(Util.parseInt(bf.getAttribute(Xml.KEY_BRUCHFAKTOR_AKT)));
+					}
+					Element ini = DomUtil.getChildByTagName(waffe, Xml.KEY_INI_MOD);
+					if (ini != null) {
+						setIni(Util.parseInt(ini.getAttribute(Xml.KEY_INI_MOD_INI)));
+					}
+				}
 			}
 
 		}
@@ -186,7 +201,7 @@ public class Weapon extends Item {
 		case Infanteriewaffen:
 			return R.drawable.icon_halberd;
 		case Zweihandhiebwaffen:
-			if (getName().contains("hammer")) {
+			if (item.getName().contains("hammer")) {
 				return R.drawable.icon_hammer;
 			} else {
 				return R.drawable.icon_2hieb;
@@ -221,6 +236,16 @@ public class Weapon extends Item {
 		return TextUtils.expandTemplate("^1 ^2/^3 ^4/^5 Ini ^6 ^7 ^8", tp, Util.toString(getTpKKMin()),
 				Util.toString(getTpKKStep()), Util.toString(getWmAt()), Util.toString(getWmPa()),
 				Util.toString(getIni()), getDistance(), isTwoHanded() ? "2H" : "").toString();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.items.ItemSpecification#getName()
+	 */
+	@Override
+	public String getName() {
+		return "Nahkampf";
 	}
 
 	public String getInfo() {
