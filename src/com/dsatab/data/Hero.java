@@ -37,7 +37,9 @@ import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Hand;
 import com.dsatab.data.items.Item;
+import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.ItemType;
+import com.dsatab.data.items.MiscSpecification;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.AuModifier;
@@ -168,6 +170,17 @@ public class Hero {
 
 	}
 
+	public EquippedItem getEquippedItem(UUID id) {
+		for (int i = 0; i < MAXIMUM_SET_NUMBER; i++) {
+			for (EquippedItem item : getEquippedItems(i)) {
+				if (item.getId().equals(id))
+					return item;
+			}
+		}
+		return null;
+
+	}
+
 	public Purse getPurse() {
 		if (purse == null) {
 
@@ -185,18 +198,16 @@ public class Hero {
 		return purse;
 	}
 
-	public List<EquippedItem> getEquippedItems(Class<?>... itemClass) {
+	public List<EquippedItem> getEquippedItems(Class<? extends ItemSpecification>... itemClass) {
 
 		List<EquippedItem> items = new LinkedList<EquippedItem>();
 
-		for (int i = 0; i < MAXIMUM_SET_NUMBER; i++) {
-			for (EquippedItem ei : getEquippedItems(i)) {
-				Item item = ei.getItem();
-				for (Class<?> clazz : itemClass) {
-					if (clazz.isAssignableFrom(item.getClass())) {
-						items.add(ei);
-						break;
-					}
+		for (EquippedItem ei : getEquippedItems()) {
+			ItemSpecification item = ei.getItemSpecification();
+			for (Class<? extends ItemSpecification> clazz : itemClass) {
+				if (clazz.isAssignableFrom(item.getClass())) {
+					items.add(ei);
+					break;
 				}
 			}
 		}
@@ -452,6 +463,12 @@ public class Hero {
 		}
 	}
 
+	public void fireItemChangedEvent(EquippedItem item) {
+		for (InventoryChangedListener listener : inventoryChangedListeners) {
+			listener.onItemChanged(item);
+		}
+	}
+
 	void fireItemUnequippedEvent(EquippedItem item) {
 		for (InventoryChangedListener listener : inventoryChangedListeners) {
 			listener.onItemUnequipped(item);
@@ -532,25 +549,54 @@ public class Hero {
 
 	}
 
-	public void addItem(final Context context, final Item item, CombatTalent talent) {
-		addItem(context, item, talent, null);
+	public void addItem(Context context, Item item, CombatTalent talent) {
+		addItem(context, item, null, talent, getActiveSet(), null);
 	}
 
-	public void addItem(final Context context, final Item item, CombatTalent talent, final ItemAddedCallback callback) {
-		addItem(context, item, talent, getActiveSet(), callback);
+	public void addItem(Context context, Item item, CombatTalent talent, ItemAddedCallback callback) {
+		addItem(context, item, null, talent, getActiveSet(), callback);
 	}
 
-	public void addItem(final Context context, final Item item, CombatTalent talent, final int set,
-			final ItemAddedCallback callback) {
+	public void addItem(Context context, Item item, CombatTalent talent, int set, ItemAddedCallback callback) {
+		addItem(context, item, null, talent, set, callback);
+	}
 
-		if (talent == null) {
-			if (item instanceof Weapon) {
-				Weapon weapon = (Weapon) item;
+	public void addItem(final Context context, final Item item, ItemSpecification itemSpecification,
+			final CombatTalent currentTalent, final int set, final ItemAddedCallback callback) {
+
+		if (itemSpecification == null) {
+			if (item.getSpecifications().size() > 1) {
+				List<String> specNames = new ArrayList<String>(item.getSpecifications().size());
+				for (ItemSpecification itemSpec : item.getSpecifications()) {
+					specNames.add(itemSpec.getName() + ": " + itemSpec.getInfo());
+				}
+				AlertDialog.Builder builder = new AlertDialog.Builder(context);
+				builder.setTitle("Wähle ein Variante...");
+				builder.setItems(specNames.toArray(new String[0]), new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						addItem(context, item, item.getSpecifications().get(which), currentTalent, set, callback);
+					}
+				});
+
+				builder.show().setCanceledOnTouchOutside(true);
+				return;
+			} else if (item.getSpecifications().size() == 1) {
+				itemSpecification = item.getSpecifications().get(0);
+			}
+		}
+
+		CombatTalent newTalent = currentTalent;
+		if (currentTalent == null) {
+
+			if (itemSpecification instanceof Weapon) {
+				Weapon weapon = (Weapon) itemSpecification;
 
 				final List<CombatTalent> combatTalents = getAvailableCombatTalents(weapon);
 
 				if (combatTalents.size() == 1) {
-					talent = combatTalents.get(0);
+					newTalent = combatTalents.get(0);
 				} else if (combatTalents.isEmpty()) {
 					Toast.makeText(context, "Es wurde kein verwendbares Talent gefunden.", Toast.LENGTH_LONG).show();
 					return;
@@ -562,7 +608,6 @@ public class Hero {
 					AlertDialog.Builder builder = new AlertDialog.Builder(context);
 					builder.setTitle("Wähle ein Talent...");
 					builder.setItems(talentNames.toArray(new String[0]), new DialogInterface.OnClickListener() {
-
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							addItem(context, item, combatTalents.get(which), set, callback);
@@ -572,11 +617,11 @@ public class Hero {
 					builder.show().setCanceledOnTouchOutside(true);
 					return;
 				}
-			} else if (item instanceof DistanceWeapon) {
-				DistanceWeapon weapon = (DistanceWeapon) item;
+			} else if (itemSpecification instanceof DistanceWeapon) {
+				DistanceWeapon weapon = (DistanceWeapon) itemSpecification;
 				if (weapon.getCombatTalentType() != null) {
-					talent = getCombatTalent(weapon.getCombatTalentType().getName());
-					if (talent == null) {
+					newTalent = getCombatTalent(weapon.getCombatTalentType().getName());
+					if (newTalent == null) {
 						Toast.makeText(context, "Kein verwendbares Talent gefunden", Toast.LENGTH_LONG).show();
 						return;
 					}
@@ -590,8 +635,8 @@ public class Hero {
 
 		if (callback != null)
 
-			if (item.getType().isEquipable() && set >= 0) {
-				EquippedItem equippedItem = addEquippedItem(item, talent, set);
+			if (item.isEquipable() && set >= 0) {
+				EquippedItem equippedItem = addEquippedItem(context, item, itemSpecification, newTalent, set);
 				callback.onEquippedItemAdded(equippedItem);
 			} else {
 				callback.onItemAdded(item);
@@ -629,11 +674,16 @@ public class Hero {
 		return true;
 	}
 
-	public EquippedItem addEquippedItem(Item item, CombatTalent talent) {
-		return addEquippedItem(item, talent, getActiveSet());
+	public EquippedItem addEquippedItem(Context context, Item item, CombatTalent talent) {
+		return addEquippedItem(context, item, null, talent, getActiveSet());
 	}
 
-	public EquippedItem addEquippedItem(Item item, CombatTalent talent, final int set) {
+	public EquippedItem addEquippedItem(Context context, Item item, CombatTalent talent, final int set) {
+		return addEquippedItem(context, item, null, talent, set);
+	}
+
+	public EquippedItem addEquippedItem(Context context, Item item, ItemSpecification itemSpecification,
+			CombatTalent talent, final int set) {
 
 		// if hero does not have item yet, add it first.
 		Item heroItem = getItem(item.getId());
@@ -647,9 +697,12 @@ public class Hero {
 		EquippedItem equippedItem = new EquippedItem(this, element, item);
 		if (talent != null)
 			equippedItem.setTalent(talent);
+		if (itemSpecification != null)
+			equippedItem.setItemSpecification(context, itemSpecification);
+
 		getEquippedItems(set).add(equippedItem);
 
-		if (item instanceof Armor) {
+		if (item.hasSpecification(Armor.class)) {
 			resetArmorAttributes();
 		}
 
@@ -976,6 +1029,14 @@ public class Hero {
 		return experience;
 	}
 
+	public int getLevel() {
+		int level = getExperience().getValue() - getFreeExperience().getValue();
+
+		level = level / 1000;
+
+		return level;
+	}
+
 	public EditableValue getFreeExperience() {
 		if (freeExperience == null) {
 			freeExperience = new EditableValue(this, "Freie Abenteuerpunkte", DomUtil.getChildByTagName(
@@ -1081,21 +1142,22 @@ public class Hero {
 			CombatProbe combatProbe = (CombatProbe) probe;
 			EquippedItem equippedItem = combatProbe.getEquippedItem();
 
-			if (equippedItem != null && equippedItem.getItem() instanceof Weapon) {
-				Weapon weapon = (Weapon) combatProbe.getEquippedItem().getItem();
+			if (equippedItem != null && equippedItem.getItem().hasSpecification(Weapon.class)) {
+				Item item = combatProbe.getEquippedItem().getItem();
+				Weapon weapon = item.getSpecification(Weapon.class);
 
 				if (combatProbe.isAttack()) {
 					Debug.verbose("Hauptwaffe Wm Attack is " + weapon.getWmAt());
 					modifiers.add(new Modifier(weapon.getWmAt(), "Waffenmodifikator At", ""));
 				} else {
-					Debug.verbose("Hauptwaffe  Wm Defense is " + weapon.getWmPa());
+					Debug.verbose("Hauptwaffe Wm Defense is " + weapon.getWmPa());
 					modifiers.add(new Modifier(weapon.getWmPa(), "Waffenmodifikator Pa", ""));
 				}
 
 				for (SpecialFeature special : getSpecialFeatures()) {
 					if (special.getName().startsWith("Talentspezialisierung")
-							&& special.getName().endsWith(weapon.getName() + ")")) {
-						Debug.verbose("Talentspezialisierung " + weapon.getName());
+							&& special.getName().endsWith(item.getName() + ")")) {
+						Debug.verbose("Talentspezialisierung " + item.getName());
 
 						modifiers.add(new Modifier(1, special.getName(), ""));
 
@@ -1104,7 +1166,7 @@ public class Hero {
 				}
 
 				// waffenlose kampftechniken +1/+1
-				if (weapon.getName().startsWith("Raufen")) {
+				if (item.getName().startsWith("Raufen")) {
 					if (hasFeature(SpecialFeature.WK_GLADIATORENSTIL)) {
 						modifiers.add(new Modifier(1, SpecialFeature.WK_GLADIATORENSTIL, ""));
 					}
@@ -1119,7 +1181,7 @@ public class Hero {
 					}
 				}
 
-				if (weapon.getName().startsWith("Hruruzat")) {
+				if (item.getName().startsWith("Hruruzat")) {
 					if (hasFeature(SpecialFeature.WK_GLADIATORENSTIL)) {
 						modifiers.add(new Modifier(1, SpecialFeature.WK_GLADIATORENSTIL, ""));
 					}
@@ -1134,7 +1196,7 @@ public class Hero {
 					}
 				}
 
-				if (weapon.getName().startsWith("Ringen")) {
+				if (item.getName().startsWith("Ringen")) {
 					if (hasFeature(SpecialFeature.WK_UNAUER_SCHULE)) {
 						modifiers.add(new Modifier(1, SpecialFeature.WK_UNAUER_SCHULE, ""));
 					}
@@ -1150,7 +1212,8 @@ public class Hero {
 				if (equippedItem.getHand() == Hand.links) {
 					EquippedItem equippedSecondaryWeapon = equippedItem.getSecondaryItem();
 
-					if (equippedSecondaryWeapon != null && equippedSecondaryWeapon.getItem() instanceof Weapon) {
+					if (equippedSecondaryWeapon != null
+							&& equippedSecondaryWeapon.getItem().hasSpecification(Weapon.class)) {
 						int m = -9;
 
 						if (hasFeature(SpecialFeature.LINKHAND))
@@ -1176,9 +1239,9 @@ public class Hero {
 				// weapon is shield
 				if (combatProbe.isAttack()) {
 					EquippedItem equippedShield = equippedItem.getSecondaryItem();
-					if (equippedShield != null && equippedShield.getItem() instanceof Shield) {
+					if (equippedShield != null && equippedShield.getItem().hasSpecification(Shield.class)) {
 
-						Shield shield = (Shield) equippedShield.getItem();
+						Shield shield = (Shield) equippedShield.getItem().getSpecification(Shield.class);
 
 						modifiers.add(new Modifier(shield.getWmAt(), "Schildkampf Modifikator At", ""));
 
@@ -1186,8 +1249,8 @@ public class Hero {
 					}
 				}
 			}
-			if (equippedItem != null && equippedItem.getItem() instanceof Shield) {
-				Shield shield = (Shield) combatProbe.getEquippedItem().getItem();
+			if (equippedItem != null && equippedItem.getItem().hasSpecification(Shield.class)) {
+				Shield shield = (Shield) combatProbe.getEquippedItem().getItem().getSpecification(Shield.class);
 
 				if (combatProbe.isAttack()) {
 					Debug.verbose("Shield Wm Attack is " + shield.getWmAt());
@@ -1448,8 +1511,12 @@ public class Hero {
 		List<ItemType> typeList = Arrays.asList(types);
 
 		for (Item item : getItems()) {
-			if (typeList.contains(item.getType()))
-				result.add(item);
+			for (ItemSpecification spec : item.getSpecifications()) {
+				if (typeList.contains(spec.getType())) {
+					result.add(item);
+					break;
+				}
+			}
 		}
 
 		return result;
@@ -1548,12 +1615,12 @@ public class Hero {
 			float totalRs = 0;
 
 			for (EquippedItem equippedItem : getEquippedItems()) {
-				Item item = equippedItem.getItem();
-				if (item instanceof Armor) {
-					Armor armor = (Armor) item;
+
+				if (equippedItem.getItemSpecification() instanceof Armor) {
+					Armor armor = (Armor) equippedItem.getItemSpecification();
 					stars += armor.getStars();
 
-					if (rs1Armor != null && rs1Armor.equals(armor.getName())) {
+					if (rs1Armor != null && rs1Armor.equals(equippedItem.getItemName())) {
 						be -= 1.0;
 						rs1Armor = null;
 					}
@@ -1578,12 +1645,12 @@ public class Hero {
 		case GesamtRuestung: {
 
 			for (EquippedItem equippedItem : getEquippedItems()) {
-				Item item = equippedItem.getItem();
-				if (item instanceof Armor) {
-					Armor armor = (Armor) item;
+				ItemSpecification itemSpec = equippedItem.getItemSpecification();
+				if (itemSpec instanceof Armor) {
+					Armor armor = (Armor) itemSpec;
 					be += armor.getBe();
 
-					if (rs1Armor != null && rs1Armor.equals(armor.getName())) {
+					if (rs1Armor != null && rs1Armor.equals(equippedItem.getItemName())) {
 						be -= 1.0;
 						rs1Armor = null;
 					}
@@ -1609,12 +1676,24 @@ public class Hero {
 
 		int totalRs = 0;
 
-		for (int i = 0; i < Position.ARMOR_POSITIONS.size(); i++) {
-			totalRs += (getArmorRs(Position.ARMOR_POSITIONS.get(i)) * Position.ARMOR_POSITIONS_MULTIPLIER[i]);
+		switch (DSATabApplication.getInstance().getConfiguration().getArmorType()) {
+
+		case ZonenRuestung:
+			for (int i = 0; i < Position.ARMOR_POSITIONS.size(); i++) {
+				totalRs += (getArmorRs(Position.ARMOR_POSITIONS.get(i)) * Position.ARMOR_POSITIONS_MULTIPLIER[i]);
+			}
+			totalRs = (int) Math.round(totalRs / 20.0);
+			break;
+		case GesamtRuestung:
+			for (EquippedItem equippedItem : getEquippedItems()) {
+				ItemSpecification itemSpec = equippedItem.getItemSpecification();
+				if (itemSpec instanceof Armor) {
+					Armor armor = (Armor) itemSpec;
+					totalRs += armor.getTotalRs();
+				}
+			}
+			break;
 		}
-
-		totalRs = (int) Math.round(totalRs / 20.0);
-
 		return totalRs;
 
 	}
@@ -1624,8 +1703,8 @@ public class Hero {
 
 		for (EquippedItem equippedItem : getEquippedItems()) {
 			Item item = equippedItem.getItem();
-			if (item instanceof Armor) {
-				Armor armor = (Armor) item;
+			if (item.hasSpecification(Armor.class)) {
+				Armor armor = (Armor) item.getSpecification(Armor.class);
 				if (armor.getRs(pos) > 0)
 					items.add(equippedItem);
 			}
@@ -1639,8 +1718,8 @@ public class Hero {
 		int rs = 0;
 		for (EquippedItem equippedItem : getEquippedItems()) {
 			Item item = equippedItem.getItem();
-			if (item instanceof Armor) {
-				Armor armor = (Armor) item;
+			if (item.hasSpecification(Armor.class)) {
+				Armor armor = (Armor) item.getSpecification(Armor.class);
 				rs += armor.getRs(pos);
 			}
 		}
@@ -1673,7 +1752,7 @@ public class Hero {
 
 						item = new Item();
 						item.setName(element.getAttribute(Xml.KEY_NAME));
-						item.setType(ItemType.Sonstiges);
+						item.addSpecification(new MiscSpecification(item, ItemType.Sonstiges));
 						item.setElement(element);
 						item.setId(UUID.randomUUID());
 						item.setCategory("Sonstiges");
@@ -1782,7 +1861,7 @@ public class Hero {
 				missingTypes.remove(talent.getType());
 			}
 
-			// add missing combat talents with a value of 0.
+			// add missing combat talents with a value of base.
 			for (CombatTalentType talentType : missingTypes) {
 
 				// skip fernkampf talent
@@ -1835,6 +1914,8 @@ public class Hero {
 				spells.add(new Spell(this, element));
 			}
 		}
+
+		Collections.sort(spells, Spell.NAME_COMPARATOR);
 		return spells;
 	}
 
@@ -1920,7 +2001,7 @@ public class Hero {
 			getEquippedItems(i).remove(equippedItem);
 		}
 
-		if (equippedItem.getItem() instanceof Armor) {
+		if (equippedItem.getItem().hasSpecification(Armor.class)) {
 			resetArmorAttributes();
 		}
 

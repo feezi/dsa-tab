@@ -25,6 +25,7 @@ import android.widget.TwoLineListItem;
 
 import com.dsatab.R;
 import com.dsatab.data.items.Item;
+import com.dsatab.data.items.ItemSpecification;
 
 /**
  * @author Seraphim
@@ -94,6 +95,11 @@ public class ItemListItem extends TwoLineListItem {
 	}
 
 	public void setItem(Item e) {
+		setItem(e, e.getSpecifications().get(0));
+	}
+
+	public void setItem(Item e, ItemSpecification spec) {
+
 		ImageView icon1 = getIcon1();
 
 		if (icon1 != null) {
@@ -109,7 +115,7 @@ public class ItemListItem extends TwoLineListItem {
 
 		// set value for the second text field
 		if (getText2() != null) {
-			getText2().setText(e.getInfo());
+			getText2().setText(spec.getInfo());
 			if (textColor != Color.TRANSPARENT)
 				getText2().setTextColor(textColor);
 		}

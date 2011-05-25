@@ -17,8 +17,10 @@
 package com.dsatab.activity;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -49,12 +51,14 @@ import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Hand;
 import com.dsatab.data.items.Item;
+import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.Modificator;
 import com.dsatab.view.ArcheryChooserDialog;
 import com.dsatab.view.EquippedItemChooserDialog;
 import com.dsatab.view.EvadeChooserDialog;
+import com.dsatab.view.listener.InventoryChangedListener;
 import com.dsatab.view.listener.ModifierChangedListener;
 import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.view.NumberPicker;
@@ -64,7 +68,8 @@ import com.gandulf.guilib.view.OnViewChangedListener;
  * @author Ganymede
  * 
  */
-public class MainFightActivity extends BaseMainActivity implements ModifierChangedListener, OnLongClickListener {
+public class MainFightActivity extends BaseMainActivity implements ModifierChangedListener, OnLongClickListener,
+		InventoryChangedListener {
 
 	private static final int CONTEXTMENU_SORT_EQUIPPED_ITEM = 5;
 	private static final int CONTEXTMENU_ASSIGN_SECONDARY = 6;
@@ -74,6 +79,7 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 	private static final int CONTEXTMENU_FIGHT_SET_2 = 11;
 	private static final int CONTEXTMENU_FIGHT_SET_3 = 12;
 	private static final int CONTEXTMENU_VIEWEQUIPPEDITEM = 13;
+	private static final int CONTEXTMENU_SELECT_VERSION = 14;
 
 	private static final String KEY_PICKER_TYPE = "pickerType";
 
@@ -117,13 +123,10 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Debug.verbose("onActivityResult request=" + requestCode + " result=" + resultCode);
 
 		if (requestCode == ACTION_PREFERENCES) {
 
-			if (resultCode == RESULT_OK) {
-				fillFightItemDescriptions();
-			}
+			fillFightItemDescriptions();
 
 		} else if (requestCode == ACTION_INVENTORY) {
 			fillFightItemDescriptions();
@@ -139,11 +142,11 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 			selectedEquippedItemView = v;
 
 			EquippedItem equippedItem = (EquippedItem) v.getTag();
-			if (equippedItem.getItem() instanceof Shield) {
+			if (equippedItem.getItem().hasSpecification(Shield.class)) {
 				menu.add(0, CONTEXTMENU_ASSIGN_PRIMARY, 0, getString(R.string.menu_assign_main_weapon));
 			}
-			if (equippedItem.getItem() instanceof Weapon) {
-				Weapon weapon = (Weapon) equippedItem.getItem();
+			if (equippedItem.getItem().hasSpecification(Weapon.class)) {
+				Weapon weapon = (Weapon) equippedItem.getItem().getSpecification(Weapon.class);
 				if (!weapon.isTwoHanded()) {
 					menu.add(0, CONTEXTMENU_ASSIGN_SECONDARY, 0, getString(R.string.menu_assign_secondary_weapon));
 				}
@@ -153,8 +156,14 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 				menu.add(0, CONTEXTMENU_UNASSIGN, 1, getString(R.string.menu_unassign_item));
 			}
 
-			menu.add(1, CONTEXTMENU_VIEWEQUIPPEDITEM, 3, getString(R.string.menu_view_item));
-			menu.add(1, CONTEXTMENU_SORT_EQUIPPED_ITEM, 4, getString(R.string.menu_sort_items));
+			if (equippedItem.getItem().getSpecifications().size() > 1) {
+				menu.add(0, CONTEXTMENU_SELECT_VERSION, 2, getString(R.string.menu_select_version));
+			}
+
+			// menu.add(1, CONTEXTMENU_VIEWEQUIPPEDITEM, 3,
+			// getString(R.string.menu_view_item));
+			// menu.add(1, CONTEXTMENU_SORT_EQUIPPED_ITEM, 4,
+			// getString(R.string.menu_sort_items));
 		} else if (v.getId() == R.id.gen_tab_fight) {
 			menu.add(0, CONTEXTMENU_FIGHT_SET_1, 1, getString(R.string.menu_equipment_set, "1"));
 			menu.add(0, CONTEXTMENU_FIGHT_SET_2, 2, getString(R.string.menu_equipment_set, "2"));
@@ -179,10 +188,10 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 			if (selectedEquippedItemView != null) {
 
 				EquippedItem equippedItem = (EquippedItem) selectedEquippedItemView.getTag();
-				String name = equippedItem.getItemName();
-
 				Intent intent = new Intent(this, ItemChooserActivity.class);
-				intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ITEM_NAME, name);
+				intent.putExtra(ItemChooserActivity.INTENT_EXTRA_EQUIPPED_ITEM_ID, equippedItem.getId());
+				intent.putExtra(ItemChooserActivity.INTENT_EXTRA_SEARCHABLE, false);
+				intent.putExtra(ItemChooserActivity.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
 				startActivity(intent);
 			}
 
@@ -232,8 +241,6 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 
 				// do not select item itself
 				dialog.getEquippedItems().remove(equippedPrimaryWeapon);
-
-				dialog.show();
 				dialog.setOnDismissListener(new Dialog.OnDismissListener() {
 
 					@Override
@@ -270,6 +277,8 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 					}
 				});
 
+				dialog.show();
+
 			}
 		} else if (item.getItemId() == CONTEXTMENU_UNASSIGN) {
 			if (selectedEquippedItemView != null) {
@@ -289,6 +298,29 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 			selectItemSet(1);
 		} else if (item.getItemId() == CONTEXTMENU_FIGHT_SET_3) {
 			selectItemSet(2);
+		} else if (item.getItemId() == CONTEXTMENU_SELECT_VERSION) {
+
+			if (selectedEquippedItemView != null) {
+				final EquippedItem equippedPrimaryWeapon = (EquippedItem) selectedEquippedItemView.getTag();
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+				List<String> specInfo = new LinkedList<String>();
+				for (ItemSpecification itemSpec : equippedPrimaryWeapon.getItem().getSpecifications()) {
+					specInfo.add(itemSpec.getName() + ": " + itemSpec.getInfo());
+				}
+
+				builder.setItems(specInfo.toArray(new String[0]), new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						equippedPrimaryWeapon.setItemSpecification(MainFightActivity.this, equippedPrimaryWeapon
+								.getItem().getSpecifications().get(which));
+						dialog.dismiss();
+					}
+				});
+
+				builder.setTitle("Wähle eine Variante...");
+				builder.show();
+			}
 		}
 
 		return super.onContextItemSelected(item);
@@ -364,6 +396,15 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 
 			updateNumberPicker(attr);
 			break;
+		}
+
+		if (v.getTag() instanceof EquippedItem) {
+			EquippedItem equippedItem = (EquippedItem) v.getTag();
+			Intent intent = new Intent(this, ItemChooserActivity.class);
+			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_EQUIPPED_ITEM_ID, equippedItem.getId());
+			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_SEARCHABLE, false);
+			intent.putExtra(ItemChooserActivity.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
+			startActivity(intent);
 		}
 	}
 
@@ -503,6 +544,7 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 		}
 
 		hero.addModifierChangedListener(this);
+		hero.addInventoryChangedListener(this);
 	}
 
 	/*
@@ -514,8 +556,10 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 	@Override
 	protected void onHeroUnloaded(Hero hero) {
 		super.onHeroUnloaded(hero);
-		if (hero != null)
+		if (hero != null) {
 			hero.removeModifierChangedListener(this);
+			hero.removeInventoryChangedListener(this);
+		}
 	}
 
 	@Override
@@ -566,11 +610,11 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 		}
 
 		if (ratio < 0.5)
-			fightNumberPicker.getEditText().setTextColor(getResources().getColor(R.color.ValueRed));
+			fightNumberPicker.setTextColor(getResources().getColor(R.color.ValueRed));
 		else if (ratio < 1.0)
-			fightNumberPicker.getEditText().setTextColor(getResources().getColor(R.color.ValueBlack));
+			fightNumberPicker.setTextColor(getResources().getColor(R.color.ValueBlack));
 		else
-			fightNumberPicker.getEditText().setTextColor(getResources().getColor(R.color.ValueGreen));
+			fightNumberPicker.setTextColor(getResources().getColor(R.color.ValueGreen));
 	}
 
 	public void onValueChanged(Value value) {
@@ -602,29 +646,36 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 	}
 
 	private void fillFightItemDescription(EquippedItem equippedItem) {
+		fillFightItemDescription(null, equippedItem);
+	}
+
+	private void fillFightItemDescription(View itemLayout, EquippedItem equippedItem) {
 
 		Item item = equippedItem.getItem();
+		ItemSpecification itemSpecification = equippedItem.getItemSpecification();
 
-		if (item == null)
+		if (item == null || itemSpecification == null)
 			return;
 
 		if (!preferences.getBoolean(DsaPreferenceActivity.KEY_FIGHT_ARMOR_VISIBILITY, true)) {
-			if (item instanceof Armor) {
+			if (itemSpecification instanceof Armor) {
 				return;
 			}
 		}
 
-		LayoutInflater layoutInflater = getLayoutInflater();
+		if (itemLayout == null) {
+			LayoutInflater layoutInflater = getLayoutInflater();
 
-		View itemLayout = layoutInflater.inflate(R.layout.fight_sheet_item, fightItems, false);
-		itemLayout.setTag(equippedItem);
-		if (fightItemsOdd) {
-			itemLayout.setBackgroundResource(R.color.RowOdd);
+			itemLayout = layoutInflater.inflate(R.layout.fight_sheet_item, fightItems, false);
+			itemLayout.setTag(equippedItem);
+			itemLayout.setOnClickListener(this);
+			if (fightItemsOdd) {
+				itemLayout.setBackgroundResource(R.color.RowOdd);
+			}
+			registerForContextMenu(itemLayout);
+
+			fightItems.addView(itemLayout);
 		}
-
-		registerForContextMenu(itemLayout);
-
-		fightItems.addView(itemLayout);
 
 		TextView text1 = (TextView) itemLayout.findViewById(android.R.id.text1);
 		TextView text2 = (TextView) itemLayout.findViewById(android.R.id.text2);
@@ -633,51 +684,76 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 		ImageButton iconRight = (ImageButton) itemLayout.findViewById(R.id.icon_right);
 
 		if (equippedItem.getSecondaryItem() != null
-				&& (equippedItem.getSecondaryItem().getItem() instanceof Shield || (equippedItem.getSecondaryItem()
-						.getItem() instanceof Weapon && equippedItem.getHand() == Hand.rechts))) {
+				&& (equippedItem.getSecondaryItem().getItem().hasSpecification(Shield.class) || (equippedItem
+						.getSecondaryItem().getItem().hasSpecification(Weapon.class) && equippedItem.getHand() == Hand.rechts))) {
 			// keep odd/even
 		} else {
 			fightItemsOdd = !fightItemsOdd;
 		}
 		text1.setText(item.getTitle());
-		text2.setText(item.getInfo());
+		text2.setText(itemSpecification.getInfo());
 
-		if (item instanceof DistanceWeapon) {
-			DistanceWeapon distanceWeapon = (DistanceWeapon) item;
+		if (itemSpecification instanceof DistanceWeapon) {
+			DistanceWeapon distanceWeapon = (DistanceWeapon) itemSpecification;
 			iconLeft.setImageResource(distanceWeapon.getResourceId());
 			iconRight.setImageResource(R.drawable.icon_target);
 
 			if (equippedItem.getTalent() != null) {
 				CombatProbe probe = new CombatProbe(getHero(), equippedItem, true);
+				iconRight.setEnabled(true);
+				iconLeft.setEnabled(true);
 				iconRight.setTag(equippedItem);
 				iconRight.setOnClickListener(targetListener);
 				iconLeft.setTag(probe);
 				iconLeft.setOnClickListener(probeListener);
+			} else {
+				iconRight.setEnabled(false);
+				iconLeft.setEnabled(false);
 			}
-		} else if (item instanceof Shield) {
+		} else if (itemSpecification instanceof Shield) {
 			iconRight.setImageResource(item.getResourceId());
 			iconLeft.setVisibility(View.INVISIBLE);
 			if (equippedItem.getTalent() != null) {
+				iconRight.setEnabled(true);
+				iconLeft.setEnabled(true);
 				iconRight.setTag(new CombatProbe(getHero(), equippedItem, false));
 				iconRight.setOnClickListener(probeListener);
+			} else {
+				iconRight.setEnabled(false);
+				iconLeft.setEnabled(false);
 			}
-		} else if (item instanceof Weapon) {
-			Weapon weapon = (Weapon) item;
+		} else if (itemSpecification instanceof Weapon) {
+			Weapon weapon = (Weapon) itemSpecification;
 			iconLeft.setImageResource(weapon.getResourceId());
 			iconRight.setImageResource(R.drawable.icon_shield);
 			if (equippedItem.getTalent() != null) {
+				iconRight.setEnabled(true);
+				iconLeft.setEnabled(true);
 				iconLeft.setTag(new CombatProbe(getHero(), equippedItem, true));
 				iconLeft.setOnClickListener(probeListener);
 				iconRight.setTag(new CombatProbe(getHero(), equippedItem, false));
 				iconRight.setOnClickListener(probeListener);
+			} else {
+				iconRight.setEnabled(false);
+				iconLeft.setEnabled(false);
 			}
 			text2.setText(weapon.getInfo(getHero().getModifiedValue(AttributeType.Körperkraft)));
-		} else if (item instanceof Armor) {
-			Armor armor = (Armor) item;
+		} else if (itemSpecification instanceof Armor) {
+			Armor armor = (Armor) itemSpecification;
 			iconLeft.setImageResource(armor.getResourceId());
 			iconLeft.setFocusable(false);
 			iconRight.setVisibility(View.GONE);
 		}
+	}
+
+	private View findFightItemDescription(EquippedItem equippedItem) {
+		int count = fightItems.getChildCount();
+		for (int i = 0; i < count; i++) {
+			View child = fightItems.getChildAt(i);
+			if (equippedItem.equals(child.getTag()))
+				return child;
+		}
+		return null;
 	}
 
 	private void fillFightItemDescriptions() {
@@ -716,6 +792,66 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 			text1.setText(null);
 			text2.setText(null);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.InventoryChangedListener#onItemAdded(com.dsatab
+	 * .data.items.Item)
+	 */
+	@Override
+	public void onItemAdded(Item item) {
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.InventoryChangedListener#onItemRemoved(com.dsatab
+	 * .data.items.Item)
+	 */
+	@Override
+	public void onItemRemoved(Item item) {
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.InventoryChangedListener#onItemChanged(com.dsatab
+	 * .data.items.EquippedItem)
+	 */
+	@Override
+	public void onItemChanged(EquippedItem item) {
+		fillFightItemDescription(findFightItemDescription(item), item);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.InventoryChangedListener#onItemEquipped(com.
+	 * dsatab.data.items.EquippedItem)
+	 */
+	@Override
+	public void onItemEquipped(EquippedItem item) {
+		fillFightItemDescription(findFightItemDescription(item), item);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.InventoryChangedListener#onItemUnequipped(com
+	 * .dsatab.data.items.EquippedItem)
+	 */
+	@Override
+	public void onItemUnequipped(EquippedItem item) {
+		fightItems.removeView(findFightItemDescription(item));
 	}
 
 }

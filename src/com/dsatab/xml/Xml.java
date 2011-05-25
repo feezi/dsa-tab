@@ -118,4 +118,6 @@ public interface Xml {
 	public static final String KEY_ZAUBERKOMMENTAR = "zauberkommentar";
 	public static final String KEY_KEY = "key";
 
+	public static final String KEY_FAVORITE = "fav";
+	public static final String KEY_UNUSED = "unused";
 }

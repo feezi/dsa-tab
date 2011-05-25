@@ -22,8 +22,10 @@ import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.dsatab.R;
+import com.dsatab.common.Util;
 import com.dsatab.data.ArmorAttribute;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Value;
@@ -88,6 +90,7 @@ public class MainBodyActivity extends BaseMainActivity implements OnLongClickLis
 	@Override
 	public void onClick(View v) {
 		super.onClick(v);
+
 		switch (v.getId()) {
 		case R.id.body_set1:
 			selectItemSet(0);
@@ -127,6 +130,7 @@ public class MainBodyActivity extends BaseMainActivity implements OnLongClickLis
 			} else {
 				Intent intent = new Intent(this, ItemChooserActivity.class);
 				intent.putExtra(ItemChooserActivity.INTENT_EXTRA_ARMOR_POSITION, value.getPosition());
+				intent.putExtra(ItemChooserActivity.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
 				startActivity(intent);
 			}
 		}
@@ -137,13 +141,33 @@ public class MainBodyActivity extends BaseMainActivity implements OnLongClickLis
 	 * @param i
 	 */
 	private void selectItemSet(int i) {
-		getHero().setActiveSet(i);
-		getHero().resetArmorAttributes();
+		if (getHero() != null) {
+			getHero().setActiveSet(i);
+			getHero().resetArmorAttributes();
 
-		findViewById(R.id.body_set1).setSelected(i == 0);
-		findViewById(R.id.body_set2).setSelected(i == 1);
-		findViewById(R.id.body_set3).setSelected(i == 2);
+			findViewById(R.id.body_set1).setSelected(i == 0);
+			findViewById(R.id.body_set2).setSelected(i == 1);
+			findViewById(R.id.body_set3).setSelected(i == 2);
+		}
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onActivityResult(int, int,
+	 * android.content.Intent)
+	 */
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+		if (requestCode == ACTION_PREFERENCES) {
+
+			((TextView) findViewById(R.id.body_total_rs)).setText(Util.toString(getHero().getArmorRs()));
+			((TextView) findViewById(R.id.body_total_be)).setText(Util.toString(getHero().getArmorBe()));
+
+		}
+
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	/*
@@ -165,6 +189,9 @@ public class MainBodyActivity extends BaseMainActivity implements OnLongClickLis
 		findViewById(R.id.body_set2).setSelected(hero.getActiveSet() == 1);
 		findViewById(R.id.body_set3).setSelected(hero.getActiveSet() == 2);
 
+		((TextView) findViewById(R.id.body_total_rs)).setText(Util.toString(hero.getArmorRs()));
+		((TextView) findViewById(R.id.body_total_be)).setText(Util.toString(hero.getArmorBe()));
+
 		hero.addValueChangedListener(bodyLayout);
 	}
 
@@ -183,7 +210,10 @@ public class MainBodyActivity extends BaseMainActivity implements OnLongClickLis
 	 */
 	@Override
 	public void onValueChanged(Value value) {
-
+		if (value instanceof ArmorAttribute) {
+			((TextView) findViewById(R.id.body_total_rs)).setText(Util.toString(getHero().getArmorRs()));
+			((TextView) findViewById(R.id.body_total_be)).setText(Util.toString(getHero().getArmorBe()));
+		}
 	}
 
 }

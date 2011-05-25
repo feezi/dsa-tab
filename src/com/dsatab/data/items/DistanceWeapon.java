@@ -1,10 +1,12 @@
 package com.dsatab.data.items;
 
+import org.w3c.dom.Element;
+
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.CombatTalentType;
 
-public class DistanceWeapon extends Item {
+public class DistanceWeapon extends ItemSpecification {
 
 	private static final long serialVersionUID = 8538598636617857056L;
 
@@ -18,8 +20,8 @@ public class DistanceWeapon extends Item {
 
 	private CombatTalentType combatTalentType;
 
-	public DistanceWeapon() {
-
+	public DistanceWeapon(Item item) {
+		super(item, ItemType.Fernwaffen, 0);
 	}
 
 	public String getTp() {
@@ -62,8 +64,29 @@ public class DistanceWeapon extends Item {
 		this.combatTalentType = combatTalentType;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.items.ItemSpecification#getName()
+	 */
+	@Override
+	public String getName() {
+		return "Fernkampf";
+	}
+
 	public String getInfo() {
 		return getTp() + " " + getDistances() + " " + getTpDistances();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.data.items.ItemSpecification#setElement(org.w3c.dom.Element)
+	 */
+	@Override
+	public void setElement(Element element) {
+
 	}
 
 	public int getResourceId() {

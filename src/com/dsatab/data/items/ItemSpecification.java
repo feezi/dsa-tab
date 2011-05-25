@@ -14,19 +14,42 @@
  *  You should have received a copy of the GNU General Public License
  *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.dsatab.view.listener;
+package com.dsatab.data.items;
 
-import com.dsatab.data.items.EquippedItem;
-import com.dsatab.data.items.Item;
+import org.w3c.dom.Element;
 
-public interface InventoryChangedListener {
-	public void onItemAdded(Item item);
+public abstract class ItemSpecification {
 
-	public void onItemRemoved(Item item);
+	protected Item item;
 
-	public void onItemChanged(EquippedItem item);
+	protected ItemType type;
 
-	public void onItemEquipped(EquippedItem item);
+	protected int version;
 
-	public void onItemUnequipped(EquippedItem item);
+	public ItemSpecification(Item item, ItemType type, int version) {
+		this.item = item;
+		this.type = type;
+		this.version = version;
+	}
+
+	public abstract String getInfo();
+
+	public abstract String getName();
+
+	public abstract void setElement(Element element);
+
+	public abstract int getResourceId();
+
+	public ItemType getType() {
+		return type;
+	}
+
+	public int getVersion() {
+		return version;
+	}
+
+	void setVersion(int version) {
+		this.version = version;
+	}
+
 }

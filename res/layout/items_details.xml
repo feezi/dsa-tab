@@ -4,17 +4,16 @@
 	<Gallery android:layout_above="@+id/imageView"
 		android:id="@+id/gal_gallery"
 		android:layout_alignParentTop="true" android:layout_alignParentLeft="true"
-		android:layout_alignParentRight="true" android:layout_width="fill_parent" android:layout_height="@dimen/gallery_thumb_height"></Gallery>
+		android:layout_alignParentRight="true" android:layout_width="fill_parent" android:layout_height="@dimen/gallery_thumb_height" android:visibility="visible"></Gallery>
 
 
 
 
 	<com.dsatab.view.CardView android:id="@+id/gal_imageView"
-		android:scrollbarAlwaysDrawHorizontalTrack="true"
 		android:layout_height="wrap_content" android:scaleType="fitCenter"
 		android:layout_below="@+id/gal_gallery" android:layout_above="@+id/inc_gal_item_view"
 		android:layout_width="fill_parent" android:layout_toRightOf="@+id/body_attack_button"
-		android:layout_toLeftOf="@+id/body_cloth_button">
+		android:layout_toLeftOf="@+id/body_cloth_button" android:layout_alignWithParentIfMissing="true">
 	</com.dsatab.view.CardView>
 	<ImageButton android:layout_toLeftOf="@+id/gal_imageView"
 		android:layout_alignBottom="@+id/gal_imageView" android:id="@+id/body_search_button"

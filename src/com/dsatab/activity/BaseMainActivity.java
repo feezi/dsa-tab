@@ -31,6 +31,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -55,6 +56,8 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 	private DiceSlider diceSlider;
 
 	private ShakeListener mShaker;
+
+	private LinearLayout tabLayout;
 
 	private static int tabScrollOffset = 0;
 
@@ -221,24 +224,44 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 
 		setupDiceSilder();
 
-		findViewById(R.id.gen_tab_char).setOnClickListener(this);
-		findViewById(R.id.gen_tab_char).setSelected(getClass().equals(MainCharacterActivity.class));
-		findViewById(R.id.gen_tab_talents).setOnClickListener(this);
-		findViewById(R.id.gen_tab_talents).setSelected(getClass().equals(MainTalentActivity.class));
-		findViewById(R.id.gen_tab_magic).setOnClickListener(this);
-		findViewById(R.id.gen_tab_magic).setSelected(getClass().equals(MainSpellActivity.class));
-		findViewById(R.id.gen_tab_body).setOnClickListener(this);
-		findViewById(R.id.gen_tab_body).setSelected(getClass().equals(MainBodyActivity.class));
-		findViewById(R.id.gen_tab_fight).setOnClickListener(this);
-		findViewById(R.id.gen_tab_fight).setSelected(getClass().equals(MainFightActivity.class));
-		findViewById(R.id.gen_tab_coins).setOnClickListener(this);
-		findViewById(R.id.gen_tab_items).setSelected(getClass().equals(ItemsActivity.class));
-		findViewById(R.id.gen_tab_items).setOnClickListener(this);
-		findViewById(R.id.gen_tab_notes).setSelected(getClass().equals(NotesActivity.class));
-		findViewById(R.id.gen_tab_notes).setOnClickListener(this);
-		findViewById(R.id.gen_tab_maps).setSelected(getClass().equals(MapActivity.class));
-		findViewById(R.id.gen_tab_maps).setOnClickListener(this);
+		tabLayout = (LinearLayout) findViewById(R.id.gen_tab_layout);
 
+		View tab = findViewById(R.id.gen_tab_char);
+		tab.setOnClickListener(this);
+		tab.setSelected(getClass().equals(MainCharacterActivity.class));
+
+		tab = findViewById(R.id.gen_tab_talents);
+		tab.setOnClickListener(this);
+		tab.setSelected(getClass().equals(MainTalentActivity.class));
+
+		tab = findViewById(R.id.gen_tab_magic);
+		tab.setOnClickListener(this);
+		tab.setSelected(getClass().equals(MainSpellActivity.class));
+
+		tab = findViewById(R.id.gen_tab_body);
+		tab.setOnClickListener(this);
+		tab.setSelected(getClass().equals(MainBodyActivity.class));
+
+		tab = findViewById(R.id.gen_tab_fight);
+		tab.setOnClickListener(this);
+		tab.setSelected(getClass().equals(MainFightActivity.class));
+
+		tab = findViewById(R.id.gen_tab_coins);
+		tab.setOnClickListener(this);
+
+		tab = findViewById(R.id.gen_tab_items);
+		tab.setSelected(getClass().equals(ItemsActivity.class));
+		tab.setOnClickListener(this);
+
+		tab = findViewById(R.id.gen_tab_notes);
+		tab.setSelected(getClass().equals(NotesActivity.class));
+		tab.setOnClickListener(this);
+
+		tab = findViewById(R.id.gen_tab_maps);
+		tab.setSelected(getClass().equals(MapActivity.class));
+		tab.setOnClickListener(this);
+
+		setTabsEnabled(false);
 	}
 
 	/*
@@ -379,11 +402,21 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 		}
 	}
 
+	private void setTabsEnabled(boolean enabled) {
+		int count = tabLayout.getChildCount();
+		for (int i = 0; i < count; i++) {
+			tabLayout.getChildAt(i).setEnabled(enabled);
+		}
+	}
+
 	protected void onHeroLoaded(Hero hero) {
 
 		if (hero == null) {
 			Toast.makeText(this, "Error: Trying to load empty hero. Please contact developer!", Toast.LENGTH_LONG);
+			setTabsEnabled(false);
 			return;
+		} else {
+			setTabsEnabled(true);
 		}
 
 		if (hero.getSpells().isEmpty()) {

@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import android.view.Gravity;
+import android.view.View;
 import android.widget.TextView;
 
 import com.dsatab.R;
 import com.dsatab.activity.DSATabApplication;
+import com.dsatab.data.Markable;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
@@ -90,6 +92,26 @@ public class Util {
 			i = Integer.valueOf(s);
 
 		return i;
+	}
+
+	public static void applyRowStyle(Markable markable, View row, int position) {
+		if (position % 2 == 1) {
+			if (markable.isFavorite())
+				row.setBackgroundResource(R.color.RowFavoriteOdd);
+			else if (markable.isUnused()) {
+				row.setBackgroundResource(R.color.RowUnusedOdd);
+			} else {
+				row.setBackgroundResource(R.color.RowOdd);
+			}
+		} else {
+			if (markable.isFavorite())
+				row.setBackgroundResource(R.color.RowFavoriteEven);
+			else if (markable.isUnused()) {
+				row.setBackgroundResource(R.color.RowUnusedEven);
+			} else {
+				row.setBackgroundResource(R.color.RowEven);
+			}
+		}
 	}
 
 	public static Double parseDouble(String s) {
@@ -332,20 +354,24 @@ public class Util {
 			CombatTalentType type1 = null, type2 = null;
 			String atype1 = null, atype2 = null;
 
-			if (object1 instanceof Weapon) {
-				type1 = ((Weapon) object1).getCombatTalentType();
-			} else if (object1 instanceof DistanceWeapon) {
-				type1 = ((DistanceWeapon) object1).getCombatTalentType();
-			} else if (object1 instanceof Armor) {
-				atype1 = ((Armor) object1).getCategory();
+			if (object1.hasSpecification(Weapon.class)) {
+				Weapon weapon = object1.getSpecification(Weapon.class);
+				type1 = weapon.getCombatTalentType();
+			} else if (object1.hasSpecification(DistanceWeapon.class)) {
+				DistanceWeapon weapon = object1.getSpecification(DistanceWeapon.class);
+				type1 = weapon.getCombatTalentType();
+			} else if (object1.hasSpecification(Armor.class)) {
+				atype1 = object1.getCategory();
 			}
 
-			if (object2 instanceof Weapon) {
-				type2 = ((Weapon) object2).getCombatTalentType();
-			} else if (object2 instanceof DistanceWeapon) {
-				type2 = ((DistanceWeapon) object2).getCombatTalentType();
-			} else if (object2 instanceof Armor) {
-				atype2 = ((Armor) object2).getCategory();
+			if (object2.hasSpecification(Weapon.class)) {
+				Weapon weapon = object1.getSpecification(Weapon.class);
+				type2 = weapon.getCombatTalentType();
+			} else if (object2.hasSpecification(DistanceWeapon.class)) {
+				DistanceWeapon weapon = object1.getSpecification(DistanceWeapon.class);
+				type2 = weapon.getCombatTalentType();
+			} else if (object2.hasSpecification(Armor.class)) {
+				atype2 = object2.getCategory();
 			}
 
 			int compareType = 0;
@@ -368,11 +394,12 @@ public class Util {
 
 			EquippedItem equippedItem = equippedItems.get(i);
 
-			if (equippedItem.getItem() instanceof Weapon && equippedItem.getSecondaryItem() != null) {
+			if (equippedItem.getItem().hasSpecification(Weapon.class) && equippedItem.getSecondaryItem() != null) {
 				EquippedItem secondaryEquippedItem = equippedItem.getSecondaryItem();
 
-				if (secondaryEquippedItem.getItem() instanceof Shield
-						|| (secondaryEquippedItem.getItem() instanceof Weapon && secondaryEquippedItem.getHand() == Hand.links)) {
+				if (secondaryEquippedItem.getItem().hasSpecification(Shield.class)
+						|| (secondaryEquippedItem.getItem().hasSpecification(Weapon.class) && secondaryEquippedItem
+								.getHand() == Hand.links)) {
 					equippedItems.remove(secondaryEquippedItem);
 
 					int index = equippedItems.indexOf(equippedItem);

@@ -6,7 +6,7 @@ import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.xml.Xml;
 
-public class Talent implements Probe, Value {
+public class Talent implements Probe, Value, Markable {
 
 	public static final String ATHLETIK = "Athletik";
 
@@ -27,6 +27,36 @@ public class Talent implements Probe, Value {
 
 	public String getProbe() {
 		return element.getAttribute(Xml.KEY_PROBE);
+	}
+
+	public boolean isFavorite() {
+		if (element.hasAttribute(Xml.KEY_FAVORITE)) {
+			return Boolean.valueOf(element.getAttribute(Xml.KEY_FAVORITE));
+		} else {
+			return false;
+		}
+	}
+
+	public boolean isUnused() {
+		if (element.hasAttribute(Xml.KEY_UNUSED)) {
+			return Boolean.valueOf(element.getAttribute(Xml.KEY_UNUSED));
+		} else {
+			return false;
+		}
+	}
+
+	public void setFavorite(boolean value) {
+		if (value)
+			element.setAttribute(Xml.KEY_FAVORITE, Boolean.TRUE.toString());
+		else
+			element.removeAttribute(Xml.KEY_FAVORITE);
+	}
+
+	public void setUnused(boolean value) {
+		if (value)
+			element.setAttribute(Xml.KEY_UNUSED, Boolean.TRUE.toString());
+		else
+			element.removeAttribute(Xml.KEY_UNUSED);
 	}
 
 	@Override

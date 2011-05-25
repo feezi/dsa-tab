@@ -1,12 +1,27 @@
 package com.dsatab.data;
 
+import java.util.Comparator;
+
 import org.w3c.dom.Element;
 
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.xml.Xml;
 
-public class Spell implements Probe, Value {
+public class Spell implements Probe, Value, Markable {
+
+	public static final Comparator<Spell> NAME_COMPARATOR = new Comparator<Spell>() {
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+		 */
+		@Override
+		public int compare(Spell object1, Spell object2) {
+			return object1.getName().compareTo(object2.getName());
+		}
+
+	};
 
 	private Element element;
 
@@ -25,6 +40,36 @@ public class Spell implements Probe, Value {
 
 	public String getProbe() {
 		return element.getAttribute(Xml.KEY_PROBE);
+	}
+
+	public boolean isFavorite() {
+		if (element.hasAttribute(Xml.KEY_FAVORITE)) {
+			return Boolean.valueOf(element.getAttribute(Xml.KEY_FAVORITE));
+		} else {
+			return false;
+		}
+	}
+
+	public boolean isUnused() {
+		if (element.hasAttribute(Xml.KEY_UNUSED)) {
+			return Boolean.valueOf(element.getAttribute(Xml.KEY_UNUSED));
+		} else {
+			return false;
+		}
+	}
+
+	public void setFavorite(boolean value) {
+		if (value)
+			element.setAttribute(Xml.KEY_FAVORITE, Boolean.TRUE.toString());
+		else
+			element.removeAttribute(Xml.KEY_FAVORITE);
+	}
+
+	public void setUnused(boolean value) {
+		if (value)
+			element.setAttribute(Xml.KEY_UNUSED, Boolean.TRUE.toString());
+		else
+			element.removeAttribute(Xml.KEY_UNUSED);
 	}
 
 	@Override

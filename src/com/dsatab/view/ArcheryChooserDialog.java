@@ -108,8 +108,8 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 	protected void onStart() {
 
 		String[] distances = getContext().getResources().getStringArray(R.array.archeryDistance);
-		if (equippedItem != null && equippedItem.getItem() instanceof DistanceWeapon) {
-			DistanceWeapon item = (DistanceWeapon) equippedItem.getItem();
+		if (equippedItem != null && equippedItem.getItem().hasSpecification(DistanceWeapon.class)) {
+			DistanceWeapon item = (DistanceWeapon) equippedItem.getItem().getSpecification(DistanceWeapon.class);
 
 			for (int i = 0; i < distances.length; i++) {
 				distances[i] += " (";

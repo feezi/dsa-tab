@@ -14,19 +14,23 @@
  *  You should have received a copy of the GNU General Public License
  *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.dsatab.view.listener;
+package com.dsatab.activity;
 
-import com.dsatab.data.items.EquippedItem;
-import com.dsatab.data.items.Item;
+import com.paypal.android.MEP.PayPal;
 
-public interface InventoryChangedListener {
-	public void onItemAdded(Item item);
+/** 
+ * 
+ */
+public class PaypalSettings {
 
-	public void onItemRemoved(Item item);
+	public static final int PAYPAL_MODE = PayPal.ENV_LIVE;
 
-	public void onItemChanged(EquippedItem item);
+	// live id
+	public static final String PAYPAL_APP_ID = "APP-4YM786561F801531C";
 
-	public void onItemEquipped(EquippedItem item);
+	// sandbox id
+	// public static final String PAYPAL_APP_ID ="APP-80W284485P519543T";
 
-	public void onItemUnequipped(EquippedItem item);
+	public static final String PAYPAL_RECIPIENT = "gandulf.k@gmx.net";
+
 }

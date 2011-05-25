@@ -31,9 +31,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TableLayout;
@@ -49,9 +51,11 @@ import com.dsatab.data.CombatDistanceTalent;
 import com.dsatab.data.CombatMeleeTalent;
 import com.dsatab.data.CombatProbe;
 import com.dsatab.data.Hero;
+import com.dsatab.data.Markable;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.modifier.Modificator;
+import com.dsatab.view.FilterSettings;
 import com.dsatab.view.LiteInfoDialog;
 import com.dsatab.view.PortraitChooserDialog;
 import com.dsatab.view.VersionInfoDialog;
@@ -63,6 +67,10 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 
 	private static final String PREF_SHOW_FEATURE_COMMENTS = "SHOW_COMMENTS";
 
+	private static final String PREF_KEY_SHOW_FAVORITE = "SHOW_FAVORITE";
+	private static final String PREF_KEY_SHOW_NORMAL = "SHOW_NORMAL";
+	private static final String PREF_KEY_SHOW_UNUSED = "SHOW_UNUSED";
+
 	private static final int CONTEXTMENU_COMMENTS_TOGGLE = 14;
 
 	private TextView tfSpecialFeatures, tfExperience, tfLabelAe, tfLabelKe, tfTotalLp, tfTotalAu, tfTotalAe, tfTotalKe,
@@ -72,9 +80,13 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 
 	private TableLayout tblCombatAttributes;
 
-	private AlertDialog liteDialog;
+	private LiteInfoDialog liteDialog;
 
 	private VersionInfoDialog newsDialog;
+
+	private Markable selectedTalent;
+
+	private FilterSettings filterSettings;
 
 	private Map<Value, TextView[]> tfValues = new HashMap<Value, TextView[]>(50);
 
@@ -110,18 +122,125 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 
 		charAttributesList = findViewById(R.id.gen_attributes);
 
+		SharedPreferences pref = getPreferences(MODE_PRIVATE);
+
+		filterSettings = new FilterSettings();
+		filterSettings.set(pref.getBoolean(PREF_KEY_SHOW_FAVORITE, true), pref.getBoolean(PREF_KEY_SHOW_NORMAL, true),
+
+		pref.getBoolean(PREF_KEY_SHOW_UNUSED, false));
 		if (!showNewsInfoPopup())
 			showLiteInfoPopup();
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.activity.BaseMenuActivity#onCreateOptionsMenu(android.view
+	 * .Menu)
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.talent_menu, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.activity.BaseMenuActivity#onOptionsItemSelected(android.view
+	 * .MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.option_filter) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+			builder.setTitle("Talente filtern");
+			builder.setIcon(android.R.drawable.ic_menu_view);
+			View content = getLayoutInflater().inflate(R.layout.popup_filter, null);
+
+			final CheckBox fav = (CheckBox) content.findViewById(R.id.cb_show_favorites);
+			final CheckBox normal = (CheckBox) content.findViewById(R.id.cb_show_normal);
+			final CheckBox unused = (CheckBox) content.findViewById(R.id.cb_show_unused);
+
+			SharedPreferences pref = getPreferences(MODE_PRIVATE);
+
+			fav.setChecked(pref.getBoolean(PREF_KEY_SHOW_FAVORITE, true));
+			normal.setChecked(pref.getBoolean(PREF_KEY_SHOW_NORMAL, true));
+			unused.setChecked(pref.getBoolean(PREF_KEY_SHOW_UNUSED, false));
+
+			builder.setView(content);
+
+			DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if (which == DialogInterface.BUTTON_POSITIVE) {
+
+						SharedPreferences pref = getPreferences(MODE_PRIVATE);
+						Editor edit = pref.edit();
+
+						edit.putBoolean(PREF_KEY_SHOW_FAVORITE, fav.isChecked());
+						edit.putBoolean(PREF_KEY_SHOW_NORMAL, normal.isChecked());
+						edit.putBoolean(PREF_KEY_SHOW_UNUSED, unused.isChecked());
+
+						edit.commit();
+
+						filterSettings.set(fav.isChecked(), normal.isChecked(), unused.isChecked());
+						loadCombatTalents(getHero());
+					} else if (which == DialogInterface.BUTTON_NEUTRAL) {
+						// do nothing
+					}
+
+				}
+			};
+
+			builder.setPositiveButton(R.string.label_ok, clickListener);
+			builder.setNegativeButton(R.string.label_cancel, clickListener);
+
+			builder.show();
+			return true;
+		} else {
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		if (v == tfSpecialFeatures) {
+
+		switch (v.getId()) {
+		case R.id.combat_talent_name:
+
+			if (v.getTag() instanceof CombatMeleeTalent) {
+				selectedTalent = (CombatMeleeTalent) v.getTag();
+			} else if (v.getTag() instanceof CombatDistanceTalent) {
+				selectedTalent = (CombatDistanceTalent) v.getTag();
+			}
+
+			if (selectedTalent != null) {
+
+				getMenuInflater().inflate(R.menu.talent_popupmenu, menu);
+
+				menu.setHeaderTitle(selectedTalent.getName());
+				menu.findItem(R.id.option_unmark).setVisible(selectedTalent.isFavorite() || selectedTalent.isUnused());
+				menu.findItem(R.id.option_mark_favorite).setVisible(!selectedTalent.isFavorite());
+				menu.findItem(R.id.option_mark_unused).setVisible(!selectedTalent.isUnused());
+
+				menu.findItem(R.id.option_view_details).setVisible(false);
+				menu.findItem(R.id.option_edit_value).setVisible(false);
+			}
+			break;
+
+		case R.id.gen_specialfeatures:
 			menu.add(0, CONTEXTMENU_COMMENTS_TOGGLE, 0, R.string.menu_show_hide_comments);
-		} else {
-			super.onCreateContextMenu(menu, v, menuInfo);
+			break;
 		}
+
+		super.onCreateContextMenu(menu, v, menuInfo);
+
 	}
 
 	/*
@@ -180,11 +299,6 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 			edit.commit();
 			DSATabApplication.getInstance().newsShown = true;
 
-			// TODO remove later after TESTING
-			// edit = preferences.edit();
-			// edit.putInt(DsaPreferenceActivity.KEY_NEWS_VERSION, 0);
-			// edit.commit();
-
 			return true;
 		} else {
 			return false;
@@ -194,7 +308,8 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-		if (item.getItemId() == CONTEXTMENU_COMMENTS_TOGGLE) {
+		switch (item.getItemId()) {
+		case CONTEXTMENU_COMMENTS_TOGGLE: {
 			boolean showComments = preferences.getBoolean(PREF_SHOW_FEATURE_COMMENTS, true);
 
 			showComments = !showComments;
@@ -203,6 +318,30 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 			edit.commit();
 
 			fillSpecialFeatures(getHero());
+			return true;
+		}
+		case R.id.option_mark_favorite:
+			if (selectedTalent != null) {
+				selectedTalent.setFavorite(true);
+				loadCombatTalents(getHero());
+				selectedTalent = null;
+			}
+			return true;
+		case R.id.option_mark_unused:
+			if (selectedTalent != null) {
+				selectedTalent.setUnused(true);
+				loadCombatTalents(getHero());
+			}
+			selectedTalent = null;
+			return true;
+		case R.id.option_unmark:
+			if (selectedTalent != null) {
+				selectedTalent.setFavorite(false);
+				selectedTalent.setUnused(false);
+				loadCombatTalents(getHero());
+			}
+			selectedTalent = null;
+			return true;
 		}
 
 		return super.onContextItemSelected(item);
@@ -244,7 +383,7 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 					}
 				};
 
-				builder.setNegativeButton("Ändern", clickListener);
+				builder.setNegativeButton(R.string.label_edit, clickListener);
 				builder.setPositiveButton(R.string.label_ok, clickListener);
 				builder.show();
 			} else {
@@ -421,6 +560,8 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 			tfTotalAe.setVisibility(View.VISIBLE);
 		}
 
+		((TextView) findViewById(R.id.gen_st)).setText(Util.toString(hero.getLevel()));
+
 		tfGs.setText(Util.toString(hero.getGs()));
 
 		int[] ws = hero.getWundschwelle();
@@ -544,12 +685,17 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 		TableLayout currentTable = tblCombatAttributes;
 
 		for (CombatMeleeTalent meleeTalent : getHero().getCombatMeleeTalents()) {
+
+			if (!filterSettings.isVisible(meleeTalent))
+				continue;
 			rowCount++;
 
 			TableRow row = (TableRow) getLayoutInflater().inflate(R.layout.combat_talent_row, null);
 
 			TextView talentLabel = (TextView) row.findViewById(R.id.combat_talent_name);
 			talentLabel.setText(meleeTalent.getName());
+			talentLabel.setTag(meleeTalent);
+			registerForContextMenu(talentLabel);
 
 			TextView talentBe = (TextView) row.findViewById(R.id.combat_talent_be);
 			talentBe.setText(meleeTalent.getType().getBe());
@@ -577,14 +723,16 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 			}
 			tfValues.put(meleeTalent.getDefense(), new TextView[] { talentValuePa });
 
-			if (rowCount % 2 == 1) {
-				row.setBackgroundResource(R.color.RowOdd);
-			}
+			Util.applyRowStyle(meleeTalent, row, rowCount);
 
 			currentTable.addView(row, tableLayout);
 		}
 
 		for (CombatDistanceTalent element : getHero().getCombatDistanceTalents()) {
+
+			if (!filterSettings.isVisible(element))
+				continue;
+
 			rowCount++;
 
 			TableRow row = (TableRow) getLayoutInflater().inflate(R.layout.combat_talent_row, null);
@@ -596,6 +744,8 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 
 			TextView talentLabel = (TextView) row.findViewById(R.id.combat_talent_name);
 			talentLabel.setText(element.getName());
+			talentLabel.setTag(element);
+			registerForContextMenu(talentLabel);
 
 			TextView talentBe = (TextView) row.findViewById(R.id.combat_talent_be);
 			talentBe.setText(element.getBe());
@@ -607,9 +757,7 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 			TextView talentValuePa = (TextView) row.findViewById(R.id.combat_talent_pa);
 			talentValuePa.setVisibility(View.INVISIBLE);
 
-			if (rowCount % 2 == 1) {
-				row.setBackgroundResource(R.color.RowOdd);
-			}
+			Util.applyRowStyle(element, row, rowCount);
 
 			currentTable.addView(row, tableLayout);
 		}

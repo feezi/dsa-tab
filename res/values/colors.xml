@@ -6,7 +6,13 @@
 	<color name="Brighter">#AAFFFFFF</color>
 	
 	<color name="RowOdd">#11000000</color>
-	<color name="RowEven">#AAFFFFFF</color>	
+	<color name="RowEven">#11FFFFFF</color>	
+	
+	<color name="RowFavoriteOdd">#22005500</color>
+	<color name="RowFavoriteEven">#22AAFFAA</color>
+	
+	<color name="RowUnusedOdd">#22550000</color>
+	<color name="RowUnusedEven">#22FFAAAA</color>
 	
 	<color name="ValueRed">#FFAA0000</color>
 	<color name="ValueGreen">#FF00AA00</color>

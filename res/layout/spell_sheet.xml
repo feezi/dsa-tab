@@ -12,20 +12,13 @@
 	<include android:layout_width="wrap_content"
 		android:layout_height="wrap_content" layout="@layout/attributes_list"
 		android:id="@+id/inc_spell_attributes_list"></include>
-	<ScrollView android:id="@+id/ScrollView01"
-		android:layout_height="fill_parent" android:layout_width="fill_parent"
-		style="@style/BorderPanel"
-		android:layout_below="@+id/inc_spell_attributes_list">
-		<TableLayout android:layout_height="fill_parent"
-				android:id="@+id/gen_spell_table1" android:layout_width="fill_parent"
-				android:shrinkColumns="0" android:stretchColumns="0">
+	<ListView android:id="@+id/spell_list" android:layout_below="@+id/inc_spell_attributes_list"
+		android:layout_height="fill_parent" style="@style/BorderPanel"
+		android:layout_width="fill_parent" android:fadingEdgeLength="0dip"
+		android:cacheColorHint="#00000000" android:childDivider="#00000000"
+		android:choiceMode="singleChoice" android:dividerHeight="0dip"></ListView>
 
 
-
-			</TableLayout>
-		
-
-	</ScrollView>
 
 
 

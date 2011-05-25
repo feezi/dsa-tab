@@ -14,19 +14,21 @@
  *  You should have received a copy of the GNU General Public License
  *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.dsatab.view.listener;
+package com.dsatab.data;
 
-import com.dsatab.data.items.EquippedItem;
-import com.dsatab.data.items.Item;
+/**
+ * @author Ganymede
+ * 
+ */
+public interface Markable {
 
-public interface InventoryChangedListener {
-	public void onItemAdded(Item item);
+	public String getName();
 
-	public void onItemRemoved(Item item);
+	public boolean isFavorite();
 
-	public void onItemChanged(EquippedItem item);
+	public boolean isUnused();
 
-	public void onItemEquipped(EquippedItem item);
+	public void setFavorite(boolean value);
 
-	public void onItemUnequipped(EquippedItem item);
+	public void setUnused(boolean value);
 }

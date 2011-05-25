@@ -15,6 +15,8 @@
  */
 package com.dsatab.activity;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,9 +32,15 @@ import android.webkit.WebView;
 import com.dsatab.R;
 import com.dsatab.activity.DsaTabConfiguration.ArmorType;
 import com.dsatab.view.VersionInfoDialog;
+import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.util.Downloader;
 
 public class DsaPreferenceActivity extends PreferenceActivity {
+
+	public static final String INTENT_PREF_SCREEN = "com.dsatab.prefScreen";
+
+	public static final int SCREEN_HOME = 0;
+	public static final int SCREEN_EXCHANGE = 1;
 
 	public static final String KEY_PROBE_PROBABILITY = "probeProbability";
 
@@ -58,7 +66,11 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 
 	public static final String KEY_INFOS = "infos";
 
+	public static final String KEY_FULL_VERSION = "fullVersion";
+
 	public static final String KEY_NEWS_VERSION = "newsversion";
+
+	public static final String KEY_EXCHANGE = "heldenAustauschScreen";
 
 	public static final String KEY_EXCHANGE_PROVIDER = "exchange_provider";
 
@@ -68,7 +80,6 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 	public static final String DEFAULT_EXCHANGE_PROVIDER = "http://helden.draschenfels.de/";
 
 	public static final String PATH_MAPS = "http://dl.dropbox.com/u/15750588/dsatab-maps.zip";
-	public static final String PATH_ITEMS = "http://dl.dropbox.com/u/15750588/dsatab-items.zip";
 	public static final String PATH_RANG_PORTRAITS = "http://dl.dropbox.com/u/15750588/dsatab-rang-portraits.zip";
 	public static final String PATH_WESNOTH_PORTRAITS = "http://dl.dropbox.com/u/15750588/dsatab-wesnoth-portraits.zip";
 
@@ -92,6 +103,17 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 
 		listPreference.setEntries(themeNames.toArray(new String[0]));
 		listPreference.setEntryValues(themeValues.toArray(new String[0]));
+
+		int screen = getIntent().getIntExtra(INTENT_PREF_SCREEN, SCREEN_HOME);
+
+		switch (screen) {
+		case SCREEN_HOME:
+			break;
+		case SCREEN_EXCHANGE:
+			PreferenceScreen preference = (PreferenceScreen) findPreference(KEY_EXCHANGE);
+			setPreferenceScreen(preference);
+			break;
+		}
 	}
 
 	/*
@@ -103,9 +125,9 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 	@Override
 	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
 		if (preference.getKey().equals(KEY_DOWNLOAD_ALL)) {
-
+			cleanOldFiles();
 			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
-			downloader.addPath(PATH_ITEMS);
+			downloader.addPath(getString(R.string.path_items));
 			// downloader.addPath(Downloader.PATH_MAPS);
 			// downloader.addPath(Downloader.PATH_RANG_PORTRAITS);
 			downloader.addPath(PATH_WESNOTH_PORTRAITS);
@@ -115,8 +137,9 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 			downloader.addPath(PATH_MAPS);
 			downloader.downloadZip();
 		} else if (preference.getKey().equals(KEY_DOWNLOAD_ITEMS)) {
+			cleanOldFiles();
 			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
-			downloader.addPath(PATH_ITEMS);
+			downloader.addPath(getString(R.string.path_items));
 			downloader.downloadZip();
 		} else if (preference.getKey().equals(KEY_DOWNLOAD_RANG_PORTRAITS)) {
 			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
@@ -150,5 +173,22 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 		}
 
 		return super.onPreferenceTreeClick(preferenceScreen, preference);
+	}
+
+	private void cleanOldFiles() {
+		File cardsDir = new File(DSATabApplication.getDsaTabPath(), "cards");
+
+		File[] dirs = cardsDir.listFiles(new FileFilter() {
+
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.isDirectory();
+			}
+		});
+
+		for (File f : dirs) {
+			f.delete();
+			Debug.verbose("Deleting " + f.getAbsolutePath());
+		}
 	}
 }

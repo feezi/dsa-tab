@@ -53,6 +53,7 @@ import com.dsatab.data.adapter.GalleryImageAdapter;
 import com.dsatab.data.enums.Position;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
+import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.view.CardView;
 import com.dsatab.view.FastAnimationSet;
@@ -69,9 +70,12 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 	public static final String INTENT_EXTRA_ITEM_Y = "itemY";
 	public static final String INTENT_EXTRA_ITEM_NAME = "itemName";
 	public static final String INTENT_EXTRA_ITEM_ID = "itemID";
+	public static final String INTENT_EXTRA_EQUIPPED_ITEM_ID = "equippedItemID";
 	public static final String INTENT_EXTRA_ITEM_TYPE = "itemType";
 	public static final String INTENT_EXTRA_ITEM_CATEGORY = "itemCategory";
 	public static final String INTENT_EXTRA_ITEM = "item";
+	public static final String INTENT_EXTRA_SEARCHABLE = "searchable";
+	public static final String INTENT_EXTRA_CATEGORY_SELECTABLE = "categorySelectale";
 
 	public static final String INTENT_EXTRA_ARMOR_POSITION = "position";
 
@@ -90,6 +94,8 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 
 	private Item selectedCard = null;
 
+	private ItemSpecification selectedItemSpecification = null;
+
 	private ItemType cardType;
 
 	private AnimationSet mInAnimation;
@@ -101,6 +107,7 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 	private static final int ANIMATION_DURATION = 200;
 
 	boolean categorySelectable = true;
+	boolean searchable = true;
 
 	/*
 	 * (non-Javadoc)
@@ -118,10 +125,13 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		foundItem = (Item) getIntent().getSerializableExtra(INTENT_EXTRA_ITEM);
 		itemX = getIntent().getIntExtra(INTENT_EXTRA_ITEM_X, ItemLocationInfo.INVALID_POSITION);
 		itemY = getIntent().getIntExtra(INTENT_EXTRA_ITEM_Y, ItemLocationInfo.INVALID_POSITION);
+		categorySelectable = getIntent().getBooleanExtra(INTENT_EXTRA_CATEGORY_SELECTABLE, true);
+		searchable = getIntent().getBooleanExtra(INTENT_EXTRA_SEARCHABLE, true);
 
 		if (foundItem == null) {
 			String itemName = getIntent().getStringExtra(INTENT_EXTRA_ITEM_NAME);
 			UUID itemId = (UUID) getIntent().getSerializableExtra(INTENT_EXTRA_ITEM_ID);
+			UUID equippedItemId = (UUID) getIntent().getSerializableExtra(INTENT_EXTRA_EQUIPPED_ITEM_ID);
 
 			String itemType = getIntent().getStringExtra(INTENT_EXTRA_ITEM_TYPE);
 			itemCategory = getIntent().getStringExtra(INTENT_EXTRA_ITEM_CATEGORY);
@@ -135,17 +145,31 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 				Hero hero = DSATabApplication.getInstance().getHero();
 				foundItem = hero.getItem(itemId);
 			}
+
+			if (equippedItemId != null) {
+				Hero hero = DSATabApplication.getInstance().getHero();
+				EquippedItem selectedEquippedItem = hero.getEquippedItem(equippedItemId);
+				foundItem = selectedEquippedItem.getItem();
+				selectedItemSpecification = selectedEquippedItem.getItemSpecification();
+			}
 			if (foundItem == null && !TextUtils.isEmpty(itemName)) {
 				foundItem = DataManager.getItemByName(itemName);
 			}
 
 			if (foundItem != null) {
-				cardType = foundItem.getType();
+				if (selectedItemSpecification == null) {
+					selectedItemSpecification = foundItem.getSpecifications().get(0);
+				}
+
+				cardType = selectedItemSpecification.getType();
 				itemCategory = foundItem.getCategory();
 				Debug.verbose("Displaying " + itemName + " " + cardType + "/" + itemCategory + " : " + foundItem);
 			}
 		} else {
-			cardType = foundItem.getType();
+			if (selectedItemSpecification == null) {
+				selectedItemSpecification = foundItem.getSpecifications().get(0);
+			}
+			cardType = selectedItemSpecification.getType();
 			itemCategory = foundItem.getCategory();
 		}
 
@@ -159,7 +183,6 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		imageView.setOnLongClickListener(this);
 
 		if (getIntent().hasExtra(INTENT_EXTRA_ARMOR_POSITION)) {
-			categorySelectable = false;
 			Position pos = (Position) getIntent().getSerializableExtra(INTENT_EXTRA_ARMOR_POSITION);
 			Hero hero = DSATabApplication.getInstance().getHero();
 
@@ -170,14 +193,22 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 			}
 			imageAdapter = new GalleryImageAdapter(this, null, null, items);
 		} else {
-			imageAdapter = new GalleryImageAdapter(this, cardType, itemCategory, null);
+
+			if (searchable)
+				imageAdapter = new GalleryImageAdapter(this, cardType, itemCategory, null);
+			else {
+				if (foundItem != null)
+					imageAdapter = new GalleryImageAdapter(this, null, null, new Item[] { foundItem });
+				else
+					imageAdapter = new GalleryImageAdapter(this, null, null, new Item[0]);
+			}
 		}
 		gallery.setAdapter(imageAdapter);
 		gallery.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Item card = (Item) gallery.getItemAtPosition(position);
-				showCard(card, false);
+				showCard(card, null, false);
 			}
 		});
 
@@ -198,10 +229,11 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		} else {
 			int index = 0;
 			if (foundItem != null) {
-				index = imageAdapter.getPosition(foundItem);
+				index = imageAdapter.getPositionByName(foundItem);
 			}
 			Debug.verbose("Showing index " + index);
-			gallery.setSelection(index);
+			gallery.setSelection(index, false);
+
 		}
 
 		// imagebuttons
@@ -273,29 +305,35 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 						imm.hideSoftInputFromWindow(searchText.getWindowToken(), 0);
 
-						chooseType(item.getType(), item.getCategory(), item);
+						chooseType(item.getSpecifications().get(0).getType(), item.getCategory(), item);
 					}
 				}
 			});
 
 		} else {
-			weaponButton.setVisibility(View.INVISIBLE);
-			shieldButton.setVisibility(View.INVISIBLE);
-			distanceButton.setVisibility(View.INVISIBLE);
-			armorButton.setVisibility(View.INVISIBLE);
-			itemsButton.setVisibility(View.INVISIBLE);
-			clothButton.setVisibility(View.INVISIBLE);
-			specialButton.setVisibility(View.INVISIBLE);
-			bagsButton.setVisibility(View.INVISIBLE);
+			weaponButton.setVisibility(View.GONE);
+			shieldButton.setVisibility(View.GONE);
+			distanceButton.setVisibility(View.GONE);
+			armorButton.setVisibility(View.GONE);
+			itemsButton.setVisibility(View.GONE);
+			clothButton.setVisibility(View.GONE);
+			specialButton.setVisibility(View.GONE);
+			bagsButton.setVisibility(View.GONE);
 
-			searchButton.setVisibility(View.INVISIBLE);
-			searchText.setVisibility(View.INVISIBLE);
+			searchButton.setVisibility(View.GONE);
+			searchText.setVisibility(View.GONE);
+		}
+
+		if (searchable && imageAdapter.getCount() > 1) {
+			gallery.setVisibility(View.VISIBLE);
+		} else {
+			gallery.setVisibility(View.GONE);
 		}
 
 		if (foundItem != null)
-			showCard(foundItem, true);
+			showCard(foundItem, selectedItemSpecification, true);
 		else {
-			showCard((Item) gallery.getSelectedItem(), true);
+			showCard((Item) gallery.getSelectedItem(), null, true);
 		}
 
 	}
@@ -373,7 +411,8 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 				@Override
 				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 					Item selectedItem = (Item) parent.getAdapter().getItem(position);
-					chooseType(selectedItem.getType(), selectedItem.getCategory(), selectedItem);
+					chooseType(selectedItem.getSpecifications().get(0).getType(), selectedItem.getCategory(),
+							selectedItem);
 					itemChooserDialog.dismiss();
 				}
 			});
@@ -446,13 +485,13 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		return false;
 	}
 
-	private void selectCard(Item card) {
-		Debug.verbose("Selected " + card.getName());
+	private void selectCard(Item item) {
+		Debug.verbose("Selected " + item.getName());
 		Intent intent = new Intent();
-		intent.putExtra(INTENT_EXTRA_ITEM_TYPE, card.getType().name());
-		intent.putExtra(INTENT_EXTRA_ITEM_NAME, card.getName());
-		intent.putExtra(INTENT_EXTRA_ITEM_ID, card.getId());
-		intent.putExtra(INTENT_EXTRA_ITEM_CATEGORY, card.getCategory());
+		intent.putExtra(INTENT_EXTRA_ITEM_TYPE, item.getSpecifications().get(0).getType().name());
+		intent.putExtra(INTENT_EXTRA_ITEM_NAME, item.getName());
+		intent.putExtra(INTENT_EXTRA_ITEM_ID, item.getId());
+		intent.putExtra(INTENT_EXTRA_ITEM_CATEGORY, item.getCategory());
 
 		intent.putExtra(INTENT_EXTRA_ITEM_X, itemX);
 		intent.putExtra(INTENT_EXTRA_ITEM_Y, itemY);
@@ -460,9 +499,13 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		setResult(RESULT_OK, intent);
 	}
 
-	private void showCard(Item card, boolean animate) {
+	private void showCard(Item card, ItemSpecification itemSpecification, boolean animate) {
 
 		selectedCard = card;
+		if (itemSpecification != null)
+			selectedItemSpecification = itemSpecification;
+		else
+			selectedItemSpecification = selectedCard.getSpecifications().get(0);
 
 		File hqFile = card.getHQFile();
 
@@ -478,9 +521,9 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 		}
 
 		imageView.setImageBitmap(bitmap);
-		imageView.setItem(card);
+		imageView.setItem(selectedCard);
 
-		itemView.setItem(card);
+		itemView.setItem(selectedCard, selectedItemSpecification);
 		itemView.setVisibility(View.VISIBLE);
 
 		if (animate) {
@@ -510,7 +553,7 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 			item = imageAdapter.getItem(0);
 
 		if (item != null) {
-			showCard(item, true);
+			showCard(item, null, true);
 		}
 	}
 

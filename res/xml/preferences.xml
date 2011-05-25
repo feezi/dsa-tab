@@ -89,6 +89,14 @@
                 android:key="downloadItems" />
         </PreferenceScreen>
         
+        <CheckBoxPreference
+                        android:title="Vollversion verwenden"
+                        android:defaultValue="false"
+                        android:summary="Die lästigen Popups deaktivieren und zur Vollversion umsteigen."
+                        android:summaryOn="Popups sind deaktiviert und du verwendest die Vollversion."
+                        android:summaryOff="Du verwendest die Lite-Version mit Popups und eingeschränkten Funktionen"
+                        android:key="fullVersion" />
+                        
         <Preference
                 android:title="Credits, Copyright"
                 android:summary="Hinweise zu verwendeten Inhalten, Copyright Informationen"                

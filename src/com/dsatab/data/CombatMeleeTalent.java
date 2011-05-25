@@ -8,7 +8,7 @@ import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
 import com.dsatab.xml.Xml;
 
-public class CombatMeleeTalent implements CombatTalent {
+public class CombatMeleeTalent implements CombatTalent, Markable {
 
 	private Element element;
 
@@ -42,6 +42,36 @@ public class CombatMeleeTalent implements CombatTalent {
 
 	public CombatTalentType getType() {
 		return type;
+	}
+
+	public boolean isFavorite() {
+		if (element.hasAttribute(Xml.KEY_FAVORITE)) {
+			return Boolean.valueOf(element.getAttribute(Xml.KEY_FAVORITE));
+		} else {
+			return false;
+		}
+	}
+
+	public boolean isUnused() {
+		if (element.hasAttribute(Xml.KEY_UNUSED)) {
+			return Boolean.valueOf(element.getAttribute(Xml.KEY_UNUSED));
+		} else {
+			return false;
+		}
+	}
+
+	public void setFavorite(boolean value) {
+		if (value)
+			element.setAttribute(Xml.KEY_FAVORITE, Boolean.TRUE.toString());
+		else
+			element.removeAttribute(Xml.KEY_FAVORITE);
+	}
+
+	public void setUnused(boolean value) {
+		if (value)
+			element.setAttribute(Xml.KEY_UNUSED, Boolean.TRUE.toString());
+		else
+			element.removeAttribute(Xml.KEY_UNUSED);
 	}
 
 	public CombatMeleeAttribute getAttack() {

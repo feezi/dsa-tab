@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.dsatab" android:versionCode="12" android:versionName="1.5">
+	package="com.dsatab" android:versionCode="13" android:versionName="1.6">
 	<application android:debuggable="false" android:label="@string/app_name" android:icon="@drawable/icon" android:name="com.dsatab.activity.DSATabApplication">
 		<activity android:theme="@style/Theme.MapBackground"
 			android:windowSoftInputMode="adjustResize" android:name="com.dsatab.activity.MainCharacterActivity">
@@ -33,18 +33,22 @@
 			android:name="com.dsatab.activity.MainFightActivity" android:windowSoftInputMode="stateHidden|adjustResize"></activity>
 		<activity android:theme="@style/Theme.MapBackground"
 			android:name="com.dsatab.activity.MainBodyActivity"></activity>
-		<meta-data android:name="lite" android:value="false"></meta-data>
+			
+		<activity android:name="com.paypal.android.MEP.PayPalActivity" android:theme="@android:style/Theme"></activity>
 	</application>
 	<uses-sdk android:minSdkVersion="5" android:targetSdkVersion="8" />
 
-	<supports-screens android:smallScreens="false"
+	<supports-screens android:smallScreens="false" 
 		android:largeScreens="true" android:resizeable="true"
-		android:anyDensity="true" android:normalScreens="true"></supports-screens>
+		android:anyDensity="true" android:normalScreens="true"/>
 
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
-	<uses-permission android:name="android.permission.VIBRATE"></uses-permission>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="android.permission.VIBRATE"/>
 	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 	<uses-permission android:name="android.permission.RECORD_AUDIO" />
+	<uses-permission android:name="com.paypal.android.MEP.PayPalActivity" />
+	
 	<uses-feature android:required="false"
 		android:name="android.hardware.microphone"></uses-feature>
 	<uses-feature android:required="false"
