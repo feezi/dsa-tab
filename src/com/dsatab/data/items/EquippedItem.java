@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.text.TextUtils;
+import android.util.AndroidRuntimeException;
 import android.widget.Toast;
 
 import com.dsatab.common.Util;
@@ -78,6 +80,29 @@ public class EquippedItem implements ItemCard {
 
 	}
 
+	public String getItemSpecificationLabel() {
+		if (element != null) {
+			String value = element.getAttributeValue(Xml.KEY_BEZEICHNER);
+			if (TextUtils.isEmpty(value))
+				return null;
+			else
+				return value;
+		} else {
+			return null;
+		}
+	}
+
+	public void setItemSpecificationLabel(String specLabel) {
+		if (element != null) {
+			if (specLabel != null)
+				element.setAttribute(Xml.KEY_BEZEICHNER, specLabel);
+			else
+				element.setAttribute(Xml.KEY_BEZEICHNER, "");
+		} else
+			throw new AndroidRuntimeException("Setting SpecificationLabel without a DOM element");
+
+	}
+
 	public ItemSpecification getItemSpecification() {
 		if (itemSpecification == null) {
 
@@ -86,21 +111,34 @@ public class EquippedItem implements ItemCard {
 				itemSpecification = item.getSpecifications().get(0);
 			} else {
 
-				// r.g. wurfspeers can be used as distance and closecombat
-				// weapons
-				if (isDistanceWeapon() && item.hasSpecification(DistanceWeapon.class)) {
-					itemSpecification = item.getSpecification(DistanceWeapon.class);
-				} else if (!isDistanceWeapon() && item.hasSpecification(Weapon.class)) {
-					itemSpecification = item.getSpecification(Weapon.class);
+				String specLabel = getItemSpecificationLabel();
+				// search for a spec with this name
+				if (specLabel != null) {
+					for (ItemSpecification itemSpec : item.getSpecifications()) {
+						if (specLabel.equals(itemSpec.getSpecificationLabel())) {
+							itemSpecification = itemSpec;
+							break;
+						}
+					}
+				}
+
+				if (itemSpecification == null) {
+					// r.g. wurfspeers can be used as distance and closecombat
+					// weapons
+					if (isDistanceWeapon() && item.hasSpecification(DistanceWeapon.class)) {
+						itemSpecification = item.getSpecification(DistanceWeapon.class);
+					} else if (!isDistanceWeapon() && item.hasSpecification(Weapon.class)) {
+						itemSpecification = item.getSpecification(Weapon.class);
+					}
 				}
 			}
 
 			// find a version that fits the talent
-			if (getTalent() != null) {
+			if (itemSpecification == null && getTalent() != null) {
 				for (ItemSpecification specification : item.getSpecifications()) {
 					if (specification instanceof Weapon) {
 						Weapon weapon = (Weapon) specification;
-						if (weapon.getCombatTalentTypes().contains(getTalent().getType())) {
+						if (weapon.getCombatTalentTypes().contains(getTalent().getCombatTalentType())) {
 							itemSpecification = specification;
 							break;
 						}
@@ -108,9 +146,19 @@ public class EquippedItem implements ItemCard {
 				}
 			}
 
-			// still nothing found, just take the first one :-)
+			// still nothing found, just take the first one without a specLabel
 			if (itemSpecification == null && !item.getSpecifications().isEmpty()) {
-				itemSpecification = item.getSpecifications().get(0);
+				for (ItemSpecification itemSpec : item.getSpecifications()) {
+					if (itemSpec.getSpecificationLabel() == null) {
+						itemSpecification = itemSpec;
+						break;
+					}
+				}
+				// if there is not itemspec without a specLabel take the first
+				// one atall
+				if (itemSpecification == null) {
+					itemSpecification = item.getSpecifications().get(0);
+				}
 			}
 
 		}
@@ -120,10 +168,15 @@ public class EquippedItem implements ItemCard {
 
 	public void setItemSpecification(Context context, ItemSpecification itemSpecification) {
 		this.itemSpecification = itemSpecification;
+		if (itemSpecification != null)
+			setItemSpecificationLabel(itemSpecification.getSpecificationLabel());
+		else {
+			setItemSpecificationLabel(null);
+		}
 
 		if (itemSpecification instanceof Weapon) {
 			Weapon weapon = (Weapon) itemSpecification;
-			if (getTalent() != null && weapon.getCombatTalentTypes().contains(getTalent().getType())) {
+			if (getTalent() != null && weapon.getCombatTalentTypes().contains(getTalent().getCombatTalentType())) {
 				// talentOk
 			} else {
 
@@ -161,7 +214,7 @@ public class EquippedItem implements ItemCard {
 			}
 		} else if (itemSpecification instanceof DistanceWeapon) {
 			DistanceWeapon distanceweapon = (DistanceWeapon) itemSpecification;
-			if (getTalent() != null && distanceweapon.getCombatTalentType() == getTalent().getType()) {
+			if (getTalent() != null && distanceweapon.getCombatTalentType() == getTalent().getCombatTalentType()) {
 				// talentOk
 			} else {
 				CombatTalent talent = hero.getCombatTalent(distanceweapon.getCombatTalentType().name());
@@ -181,8 +234,8 @@ public class EquippedItem implements ItemCard {
 	}
 
 	public UsageType getUsageType() {
-		if (usageType == null && element != null && element.hasAttribute(Xml.KEY_VERWENDUNGSART))
-			usageType = UsageType.valueOf(element.getAttribute(Xml.KEY_VERWENDUNGSART));
+		if (usageType == null && element != null && element.getAttribute(Xml.KEY_VERWENDUNGSART) != null)
+			usageType = UsageType.valueOf(element.getAttributeValue(Xml.KEY_VERWENDUNGSART));
 		return usageType;
 	}
 
@@ -200,8 +253,8 @@ public class EquippedItem implements ItemCard {
 	}
 
 	public Hand getHand() {
-		if (element.hasAttribute(Xml.KEY_HAND))
-			return Hand.valueOf(element.getAttribute(Xml.KEY_HAND));
+		if (element.getAttribute(Xml.KEY_HAND) != null)
+			return Hand.valueOf(element.getAttributeValue(Xml.KEY_HAND));
 		else
 			return null;
 	}
@@ -211,8 +264,8 @@ public class EquippedItem implements ItemCard {
 	}
 
 	public int getSet() {
-		if (element.hasAttribute(Xml.KEY_SET))
-			return Util.parseInt(element.getAttribute(Xml.KEY_SET));
+		if (element.getAttribute(Xml.KEY_SET) != null)
+			return Util.parseInt(element.getAttributeValue(Xml.KEY_SET));
 		else
 			return 0;
 	}
@@ -228,7 +281,7 @@ public class EquippedItem implements ItemCard {
 		if (element == null)
 			return;
 
-		if (!element.hasAttribute(Xml.KEY_SLOT))
+		if (element.getAttribute(Xml.KEY_SLOT) == null)
 			element.setAttribute(Xml.KEY_SLOT, "0");
 		if (getName().startsWith(NAME_PREFIX_NK)) {
 			itemNameField = WAFFENNAME;
@@ -276,7 +329,7 @@ public class EquippedItem implements ItemCard {
 	}
 
 	public String getName() {
-		return element.getAttribute(Xml.KEY_NAME);
+		return element.getAttributeValue(Xml.KEY_NAME);
 	}
 
 	/*
@@ -308,7 +361,7 @@ public class EquippedItem implements ItemCard {
 	}
 
 	public String getItemName() {
-		return element.getAttribute(itemNameField);
+		return element.getAttributeValue(itemNameField);
 	}
 
 	public void setItem(Item item) {
@@ -323,7 +376,7 @@ public class EquippedItem implements ItemCard {
 				element.setAttribute(RUESTUNGSNAME, item.getName());
 			}
 
-			if (element != null && !element.hasAttribute(Xml.KEY_NAME)) {
+			if (element != null && element.getAttribute(Xml.KEY_NAME) == null) {
 				String namePrefix = null;
 
 				if (item.hasSpecification(Weapon.class)) {
@@ -359,8 +412,8 @@ public class EquippedItem implements ItemCard {
 
 	public EquippedItem getSecondaryItem() {
 		if (secondaryEquippedItem == null) {
-			if (getItem().hasSpecification(Weapon.class) && element.hasAttribute(Xml.KEY_SCHILD)) {
-				int schild = Util.parseInt(element.getAttribute(Xml.KEY_SCHILD));
+			if (getItem().hasSpecification(Weapon.class) && element.getAttribute(Xml.KEY_SCHILD) != null) {
+				int schild = Util.parseInt(element.getAttributeValue(Xml.KEY_SCHILD));
 				if (schild > 0) {
 					secondaryEquippedItem = hero.getEquippedItem(NAME_PREFIX_SCHILD + schild);
 				}
@@ -368,8 +421,8 @@ public class EquippedItem implements ItemCard {
 
 				int mySchildIndex = getNameId();
 				for (EquippedItem equippedItem : hero.getEquippedItems()) {
-					if (equippedItem.getElement().hasAttribute(Xml.KEY_SCHILD)) {
-						int schild = Util.parseInt(equippedItem.getElement().getAttribute(Xml.KEY_SCHILD));
+					if (equippedItem.getElement().getAttribute(Xml.KEY_SCHILD) != null) {
+						int schild = Util.parseInt(equippedItem.getElement().getAttributeValue(Xml.KEY_SCHILD));
 						if (mySchildIndex == schild) {
 							secondaryEquippedItem = equippedItem;
 						}
@@ -404,8 +457,8 @@ public class EquippedItem implements ItemCard {
 	}
 
 	private String getTalentName() {
-		if (element.hasAttribute(Xml.KEY_TALENT))
-			return element.getAttribute(Xml.KEY_TALENT);
+		if (element.getAttribute(Xml.KEY_TALENT) != null)
+			return element.getAttributeValue(Xml.KEY_TALENT);
 		else
 			return null;
 	}
@@ -427,7 +480,7 @@ public class EquippedItem implements ItemCard {
 	}
 
 	public String getSlot() {
-		return element.getAttribute(Xml.KEY_SLOT);
+		return element.getAttributeValue(Xml.KEY_SLOT);
 	}
 
 	public void setSlot(String slot) {

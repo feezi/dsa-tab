@@ -3,15 +3,13 @@ package com.dsatab.data.items;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.jdom.Element;
 
 import android.text.TextUtils;
 
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.CombatTalentType;
-import com.dsatab.xml.DomUtil;
 import com.dsatab.xml.Xml;
 
 public class Weapon extends ItemSpecification {
@@ -49,21 +47,21 @@ public class Weapon extends ItemSpecification {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.dsatab.data.items.Item#setElement(org.w3c.dom.Element)
+	 * @see com.dsatab.data.items.Item#setElement(org.jdom.Element)
 	 */
 	@Override
 	public void setElement(Element element) {
-		NodeList waffeList = element.getElementsByTagName(Xml.KEY_NAHKAMPWAFFE);
 
-		int count = waffeList.getLength();
-		for (int i = 0; i < count; i++) {
-			Element waffe = (Element) waffeList.item(i);
+		@SuppressWarnings("unchecked")
+		List<Element> waffen = element.getChildren(Xml.KEY_NAHKAMPWAFFE);
 
-			if (waffe.hasAttribute(Xml.KEY_VARIANTE)) {
+		for (Element waffe : waffen) {
 
-				int variante = Util.parseInt(waffe.getAttribute(Xml.KEY_VARIANTE));
+			if (waffe.getAttribute(Xml.KEY_VARIANTE) != null) {
+
+				int variante = Util.parseInt(waffe.getAttributeValue(Xml.KEY_VARIANTE));
 				if (variante == version) {
-					Element trefferpunkte = DomUtil.getChildByTagName(waffe, Xml.KEY_TREFFERPUNKTE);
+					Element trefferpunkte = waffe.getChild(Xml.KEY_TREFFERPUNKTE);
 					if (trefferpunkte != null) {
 						String tp = trefferpunkte.getAttribute(Xml.KEY_TREFFERPUNKTE_MUL) + "W"
 								+ trefferpunkte.getAttribute(Xml.KEY_TREFFERPUNKTE_DICE) + "+"
@@ -71,23 +69,23 @@ public class Weapon extends ItemSpecification {
 						setTp(tp);
 					}
 
-					Element tpKK = DomUtil.getChildByTagName(waffe, Xml.KEY_TREFFERPUNKTE_KK);
+					Element tpKK = waffe.getChild(Xml.KEY_TREFFERPUNKTE_KK);
 					if (tpKK != null) {
-						setTpKKMin(Util.parseInt(tpKK.getAttribute(Xml.KEY_TREFFERPUNKTE_KK_MIN)));
-						setTpKKStep(Util.parseInt(tpKK.getAttribute(Xml.KEY_TREFFERPUNKTE_KK_STEP)));
+						setTpKKMin(Util.parseInt(tpKK.getAttributeValue(Xml.KEY_TREFFERPUNKTE_KK_MIN)));
+						setTpKKStep(Util.parseInt(tpKK.getAttributeValue(Xml.KEY_TREFFERPUNKTE_KK_STEP)));
 					}
-					Element wm = DomUtil.getChildByTagName(waffe, Xml.KEY_WAFFENMODIF);
+					Element wm = waffe.getChild(Xml.KEY_WAFFENMODIF);
 					if (wm != null) {
-						setWmAt(Util.parseInt(wm.getAttribute(Xml.KEY_WAFFENMODIF_AT)));
-						setWmPa(Util.parseInt(wm.getAttribute(Xml.KEY_WAFFENMODIF_PA)));
+						setWmAt(Util.parseInt(wm.getAttributeValue(Xml.KEY_WAFFENMODIF_AT)));
+						setWmPa(Util.parseInt(wm.getAttributeValue(Xml.KEY_WAFFENMODIF_PA)));
 					}
-					Element bf = DomUtil.getChildByTagName(waffe, Xml.KEY_BRUCHFAKTOR);
+					Element bf = waffe.getChild(Xml.KEY_BRUCHFAKTOR);
 					if (bf != null) {
-						setBf(Util.parseInt(bf.getAttribute(Xml.KEY_BRUCHFAKTOR_AKT)));
+						setBf(Util.parseInt(bf.getAttributeValue(Xml.KEY_BRUCHFAKTOR_AKT)));
 					}
-					Element ini = DomUtil.getChildByTagName(waffe, Xml.KEY_INI_MOD);
+					Element ini = waffe.getChild(Xml.KEY_INI_MOD);
 					if (ini != null) {
-						setIni(Util.parseInt(ini.getAttribute(Xml.KEY_INI_MOD_INI)));
+						setIni(Util.parseInt(ini.getAttributeValue(Xml.KEY_INI_MOD_INI)));
 					}
 				}
 			}

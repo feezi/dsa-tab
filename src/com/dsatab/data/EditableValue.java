@@ -16,13 +16,13 @@
  */
 package com.dsatab.data;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 import com.dsatab.common.Util;
 import com.dsatab.xml.Xml;
 
 /**
- * @author Ganymede
+ * 
  * 
  */
 public class EditableValue implements Value {
@@ -63,8 +63,8 @@ public class EditableValue implements Value {
 	 */
 	@Override
 	public Integer getValue() {
-		if (element.hasAttribute(Xml.KEY_VALUE))
-			return Util.parseInt(element.getAttribute(Xml.KEY_VALUE));
+		if (element.getAttribute(Xml.KEY_VALUE) !=null)
+			return Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
 		else
 			return null;
 	}

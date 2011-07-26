@@ -16,6 +16,13 @@
                         android:defaultValue="false"
                         android:summary="Durch das Schüttel des Handies wird ein Würfel geworfen"
                         android:key="shakeRollDice" />
+                        
+                        <CheckBoxPreference
+                        android:title="Wurfanimation anzeigen"
+                        android:defaultValue="true"
+                        android:summaryOff="Das Würfelergebnis wird sofort ohne Verzögerung angezeigt."
+                        android:summaryOn="Es wird bei jeden Wurf eine kurze Animation angezeigt"
+                        android:key="animRollDice" />
 
 				<ListPreference
                         android:title="Rüstungsschutzart"
@@ -29,7 +36,7 @@
                 <CheckBoxPreference
                         android:title="Rüstungen anzeigen"
                         android:defaultValue="true"
-                        android:summary="Zeige Rüstungen in der Kampfüberischt an"
+                        android:summary="Zeige Rüstungen in der Kampfübersicht an"
                         android:key="showArmor" />
         </PreferenceCategory>
         
@@ -90,10 +97,17 @@
         </PreferenceScreen>
         
         <CheckBoxPreference
+                        android:title="Usage Statistics sammeln"
+                        android:defaultValue="true"                        
+                        android:summaryOn="Flurry sammelt anonyme Statistiken über die Verwendungsart von DsaTab"
+                        android:summaryOff="Das Sammeln von Statistiken ist derzeit leider deaktiviert"
+                        android:key="usage_stats" />
+                        
+        <CheckBoxPreference
                         android:title="Vollversion verwenden"
                         android:defaultValue="false"
-                        android:summary="Die lästigen Popups deaktivieren und zur Vollversion umsteigen."
-                        android:summaryOn="Popups sind deaktiviert und du verwendest die Vollversion."
+                        android:summary="Die lästigen Popups deaktivieren und zur Vollversion umsteigen"
+                        android:summaryOn="Popups sind deaktiviert und du verwendest die Vollversion"
                         android:summaryOff="Du verwendest die Lite-Version mit Popups und eingeschränkten Funktionen"
                         android:key="fullVersion" />
                         

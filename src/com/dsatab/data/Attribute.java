@@ -1,6 +1,6 @@
 package com.dsatab.data;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
@@ -39,7 +39,7 @@ public class Attribute implements Probe, Value {
 		this.hero = hero;
 
 		if (type == null)
-			type = AttributeType.valueOf(element.getAttribute(Xml.KEY_NAME));
+			type = AttributeType.valueOf(element.getAttributeValue(Xml.KEY_NAME));
 
 		this.type = type;
 
@@ -74,7 +74,7 @@ public class Attribute implements Probe, Value {
 		case Karmaenergie:
 			return "Karmaenergie aktuell";
 		default:
-			return element.getAttribute(Xml.KEY_NAME);
+			return element.getAttributeValue(Xml.KEY_NAME);
 		}
 
 	}
@@ -97,8 +97,8 @@ public class Attribute implements Probe, Value {
 	}
 
 	public Integer getValue() {
-		if (isDSATabValue() && element.hasAttribute(Xml.KEY_DSATAB_VALUE)) {
-			return Integer.parseInt(element.getAttribute(Xml.KEY_DSATAB_VALUE));
+		if (isDSATabValue() && element.getAttribute(Xml.KEY_DSATAB_VALUE) != null) {
+			return Integer.parseInt(element.getAttributeValue(Xml.KEY_DSATAB_VALUE));
 		} else {
 			return getCoreValue();
 		}
@@ -108,11 +108,11 @@ public class Attribute implements Probe, Value {
 	private Integer getCoreValue() {
 		Integer value = null;
 
-		if (element.hasAttribute(Xml.KEY_VALUE)) {
-			value = Integer.parseInt(element.getAttribute(Xml.KEY_VALUE));
+		if (element.getAttribute(Xml.KEY_VALUE) != null) {
+			value = Integer.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
 			int mod = 0;
-			if (element.hasAttribute(Xml.KEY_MOD) && Util.isNotBlank(element.getAttribute(Xml.KEY_MOD)))
-				mod = Integer.parseInt(element.getAttribute(Xml.KEY_MOD));
+			if (element.getAttribute(Xml.KEY_MOD) != null && Util.isNotBlank(element.getAttributeValue(Xml.KEY_MOD)))
+				mod = Integer.parseInt(element.getAttributeValue(Xml.KEY_MOD));
 
 			// value and mod of 0 means not able to use it
 			if ((type == AttributeType.Karmaenergie || type == AttributeType.Astralenergie) && value == 0 && mod == 0)
@@ -150,15 +150,15 @@ public class Attribute implements Probe, Value {
 			if (isDSATabValue()) {
 				element.setAttribute(Xml.KEY_DSATAB_VALUE, value.toString());
 			} else {
-				if (element.hasAttribute(Xml.KEY_MOD))
-					value -= Integer.parseInt(element.getAttribute(Xml.KEY_MOD));
-
+				if (element.getAttribute(Xml.KEY_MOD) != null) {
+					value -= Integer.parseInt(element.getAttributeValue(Xml.KEY_MOD));
+				}
 				element.setAttribute(Xml.KEY_VALUE, Integer.toString(value - getBaseValue()));
 			}
 
-		} else
+		} else {
 			element.removeAttribute(Xml.KEY_VALUE);
-
+		}
 		hero.fireValueChangedEvent(this);
 	}
 
@@ -246,7 +246,6 @@ public class Attribute implements Probe, Value {
 		case Behinderung:
 			return hero.getArmorBe();
 		default:
-
 			if (referenceValue == null)
 				referenceValue = getCoreValue();
 

@@ -2,11 +2,8 @@ package com.dsatab.xml;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,14 +16,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
 import org.xml.sax.InputSource;
 
 import android.text.TextUtils;
 import android.text.TextUtils.StringSplitter;
+import android.util.AndroidRuntimeException;
 
 import com.dsatab.activity.DSATabApplication;
 import com.dsatab.common.Util;
@@ -59,8 +56,8 @@ public class XmlParserNew {
 				readItems("items_armor.txt", items);
 			}
 		} catch (IOException e) {
-			Debug.error(e);
 			ErrorHandler.handleError(e, DSATabApplication.getInstance().getBaseContext());
+			throw new AndroidRuntimeException(e);
 		}
 
 		return items;
@@ -78,15 +75,39 @@ public class XmlParserNew {
 
 			List<Position> armorPositions = DSATabApplication.getInstance().getConfiguration().getArmorPositions();
 
+			Iterator<String> i = null;
+			ItemType type = null;
+			Item item = null;
+			String specLabel, name;
 			while ((line = r.readLine()) != null) {
 
 				if (TextUtils.isEmpty(line) || line.startsWith("#"))
 					continue;
 
-				Item item = new Item();
+				item = new Item();
 				splitter.setString(line);
-				Iterator<String> i = splitter.iterator();
-				ItemType type = parseBase(item, i);
+				i = splitter.iterator();
+				type = parseBase(item, i);
+
+				specLabel = null;
+				name = item.getName();
+				// we have a encoded specLabel added to the item name e.g.
+				// [einhändig]
+				if (name.contains("[")) {
+					int startSpec = name.indexOf('[');
+					int endSpec = name.indexOf(']', startSpec);
+					if (endSpec == -1) {
+						throw new AndroidRuntimeException(
+								"Malformed items.txt file: Opening item specificaton '[' without closing bracket found at item "
+										+ name);
+					}
+					specLabel = name.substring(startSpec + 1, endSpec);
+					name = name.substring(0, startSpec);
+
+					item.setName(name);
+				} else {
+					specLabel = null;
+				}
 
 				if (items.containsKey(item.getName())) {
 					item = items.get(item.getName());
@@ -97,21 +118,23 @@ public class XmlParserNew {
 				// Debug.verbose(line);
 				if (line.startsWith("W;")) {
 					Weapon w = readWeapon(item, i);
+					w.setSpecificationLabel(specLabel);
 					item.addSpecification(w);
 				} else if (line.startsWith("D;")) {
 					DistanceWeapon w = readDistanceWeapon(item, i);
+					w.setSpecificationLabel(specLabel);
 					item.addSpecification(w);
-
 				} else if (line.startsWith("A;")) {
 					Armor w = readArmor(item, i, armorPositions);
-					if (w != null) {
-						item.addSpecification(w);
-					}
+					w.setSpecificationLabel(specLabel);
+					item.addSpecification(w);
 				} else if (line.startsWith("S;")) {
 					Shield w = readShield(item, i);
+					w.setSpecificationLabel(specLabel);
 					item.addSpecification(w);
 				} else {
 					MiscSpecification m = new MiscSpecification(item, type);
+					m.setSpecificationLabel(specLabel);
 					item.addSpecification(m);
 				}
 
@@ -435,7 +458,8 @@ public class XmlParserNew {
 		if (!TextUtils.isEmpty(typeString))
 			type = ItemType.fromCharacter(typeString.charAt(0)); // type
 
-		item.setName(i.next().replace('_', ' ').trim());
+		String name = i.next().replace('_', ' ').trim();
+		item.setName(name);
 
 		item.setPath(i.next().trim()); // path
 
@@ -473,71 +497,27 @@ public class XmlParserNew {
 
 	}
 
-	public static void normalize(File f) {
-
-		try {
-			FileReader reader = new FileReader(f);
-			BufferedReader r = new BufferedReader(reader);
-
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			OutputStreamWriter out = new OutputStreamWriter(outputStream, "UTF-8");
-			BufferedWriter writer = new BufferedWriter(out);
-
-			String line = null;
-			boolean intag = false;
-
-			while ((line = r.readLine()) != null) {
-
-				char[] chars = line.toCharArray();
-
-				for (int i = 0; i < chars.length; i++) {
-
-					if (chars[i] == '<' && (i < chars.length - 2 && chars[i + 1] != '!'))
-						intag = true;
-					else if (chars[i] == '>')
-						intag = false;
-					else if (chars[i] == ' ')
-						intag = false;
-					else if (chars[i] == 'ü' && intag) {
-						writer.write("ue");
-						continue;
-					}
-
-					writer.write(chars[i]);
-				}
-
-				writer.write("\n");
-
-			}
-			writer.close();
-			r.close();
-
-			OutputStreamWriter fileOut = new OutputStreamWriter(new FileOutputStream(f), "UTF-8");
-			fileOut.write(new String(outputStream.toByteArray()));
-			fileOut.close();
-		} catch (FileNotFoundException e) {
-			Debug.error(e);
-			ErrorHandler.handleError(e, DSATabApplication.getInstance().getBaseContext());
-		} catch (IOException e) {
-			Debug.error(e);
-			ErrorHandler.handleError(e, DSATabApplication.getInstance().getBaseContext());
-		}
-
-	}
-
-	public static Hero readHero(String path, InputStream in) throws Exception {
+	public static Hero readHero(String path, InputStream in) throws JDOMException, IOException {
 
 		Hero hero = null;
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		Debug.verbose("DomFactory created:" + factory.getClass().getName());
 
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		Debug.verbose("DocumentBuilder created:" + builder.getClass().getName());
+		SAXBuilder saxBuilder = new SAXBuilder();
+
+		// DocumentBuilderFactory factory =
+		// DocumentBuilderFactory.newInstance();
+		// Debug.verbose("DomFactory created:" + factory.getClass().getName());
+		//
+		// DocumentBuilder builder = factory.newDocumentBuilder();
+		// Debug.verbose("DocumentBuilder created:" +
+		// builder.getClass().getName());
+
 		InputStreamReader isr = new InputStreamReader(in, "UTF-8");
 		InputSource is = new InputSource();
 		is.setCharacterStream(isr);
 		is.setEncoding("UTF-8");
-		Document dom = builder.parse(is);
+
+		org.jdom.Document dom = saxBuilder.build(is);
+
 		if (dom != null)
 			Debug.verbose("Document sucessfully parsed");
 		else {
@@ -549,15 +529,13 @@ public class XmlParserNew {
 		return hero;
 	}
 
-	public static void writeHero(Hero hero, OutputStream out) {
+	public static void writeHero(Hero hero, OutputStream out) throws IOException {
 		if (hero == null)
 			return;
 
-		LegacyXmlWriter.writeHero(hero, out);
-		// if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ECLAIR_MR1)
-		// LegacyXmlWriter.writeHero(hero, out);
-		// else
-		// NativeXmlWriter.writeHero(hero, out);
+		// Create an output formatter, and have it write the doc.
+		XMLOutputter output = new XMLOutputter();
+		output.output(hero.getDocument(), out);
 
 	}
 

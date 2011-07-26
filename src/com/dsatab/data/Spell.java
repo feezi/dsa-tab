@@ -2,7 +2,7 @@ package com.dsatab.data;
 
 import java.util.Comparator;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
@@ -35,24 +35,24 @@ public class Spell implements Probe, Value, Markable {
 	}
 
 	public String getName() {
-		return element.getAttribute(Xml.KEY_NAME);
+		return element.getAttributeValue(Xml.KEY_NAME);
 	}
 
 	public String getProbe() {
-		return element.getAttribute(Xml.KEY_PROBE);
+		return element.getAttributeValue(Xml.KEY_PROBE);
 	}
 
 	public boolean isFavorite() {
-		if (element.hasAttribute(Xml.KEY_FAVORITE)) {
-			return Boolean.valueOf(element.getAttribute(Xml.KEY_FAVORITE));
+		if (element.getAttribute(Xml.KEY_FAVORITE) !=null) {
+			return Boolean.valueOf(element.getAttributeValue(Xml.KEY_FAVORITE));
 		} else {
 			return false;
 		}
 	}
 
 	public boolean isUnused() {
-		if (element.hasAttribute(Xml.KEY_UNUSED)) {
-			return Boolean.valueOf(element.getAttribute(Xml.KEY_UNUSED));
+		if (element.getAttribute(Xml.KEY_UNUSED) !=null) {
+			return Boolean.valueOf(element.getAttributeValue(Xml.KEY_UNUSED));
 		} else {
 			return false;
 		}
@@ -104,8 +104,8 @@ public class Spell implements Probe, Value, Markable {
 	}
 
 	public Integer getValue() {
-		if (element.hasAttribute(Xml.KEY_VALUE))
-			return Integer.parseInt(element.getAttribute(Xml.KEY_VALUE));
+		if (element.getAttribute(Xml.KEY_VALUE) !=null)
+			return Integer.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
 		else
 			return null;
 	}
@@ -140,39 +140,39 @@ public class Spell implements Probe, Value, Markable {
 	}
 
 	public String getNotes() {
-		return element.getAttribute(Xml.KEY_ANMERKUNGEN);
+		return element.getAttributeValue(Xml.KEY_ANMERKUNGEN);
 	}
 
 	public String getComments() {
-		return element.getAttribute(Xml.KEY_ZAUBERKOMMENTAR);
+		return element.getAttributeValue(Xml.KEY_ZAUBERKOMMENTAR);
 	}
 
 	public boolean isHouseSpell() {
-		return Boolean.valueOf(element.getAttribute(Xml.KEY_HAUSZAUBER));
+		return Boolean.valueOf(element.getAttributeValue(Xml.KEY_HAUSZAUBER));
 	}
 
 	public String getCosts() {
-		return element.getAttribute(Xml.KEY_KOSTEN);
+		return element.getAttributeValue(Xml.KEY_KOSTEN);
 	}
 
 	public String getRange() {
-		return element.getAttribute(Xml.KEY_REICHWEITE);
+		return element.getAttributeValue(Xml.KEY_REICHWEITE);
 	}
 
 	public String getRepresantation() {
-		return element.getAttribute(Xml.KEY_REPRESENTATION);
+		return element.getAttributeValue(Xml.KEY_REPRESENTATION);
 	}
 
 	public String getVariant() {
-		return element.getAttribute(Xml.KEY_VARIANTE);
+		return element.getAttributeValue(Xml.KEY_VARIANTE);
 	}
 
 	public String getSpellDuration() {
-		return element.getAttribute(Xml.KEY_WIRKUNGSDAUER);
+		return element.getAttributeValue(Xml.KEY_WIRKUNGSDAUER);
 	}
 
 	public String getCastDuration() {
-		return element.getAttribute(Xml.KEY_ZAUBERDAUER);
+		return element.getAttributeValue(Xml.KEY_ZAUBERDAUER);
 	}
 
 }

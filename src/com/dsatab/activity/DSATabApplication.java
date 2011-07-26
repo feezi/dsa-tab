@@ -28,10 +28,9 @@ import java.util.List;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Typeface;
 import android.preference.PreferenceManager;
+import android.util.AndroidRuntimeException;
 import android.widget.Toast;
 
 import com.dsatab.R;
@@ -44,11 +43,15 @@ import com.gandulf.guilib.util.ErrorHandler;
 
 public class DSATabApplication extends Application {
 
-	public static String FULL_PACKAGE_NAME = "com.dsatab";
+	public static final String FLURRY_APP_ID = "AK17DSVJZBNH35G554YR";
 
-	public static String DEFAULT_SD_CARD = "/sdcard/dsatab/";
+	public static final String FULL_PACKAGE_NAME = "com.dsatab";
 
-	public static String TAG = "DSATab";
+	public static final String DEFAULT_SD_CARD = "/sdcard/dsatab/";
+
+	public static final String PAYPAL_DONATION_URL = "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=gandulf%2ek%40gmx%2enet&lc=DE&item_name=Gandulf&item_number=DsaTab&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted";
+
+	public static final String TAG = "DSATab";
 
 	// instance
 	private static DSATabApplication instance = null;
@@ -62,8 +65,6 @@ public class DSATabApplication extends Application {
 	private Typeface poorRichFont;
 
 	public boolean liteShown = false;
-
-	public boolean newsShown = false;
 
 	/**
 	 * Convenient accessor, saves having to call and cast
@@ -92,18 +93,6 @@ public class DSATabApplication extends Application {
 		return configuration;
 	}
 
-	public int getPackageVersion() {
-		int version = 0;
-		try {
-			PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
-			version = info.versionCode;
-		} catch (NameNotFoundException e) {
-			Debug.error(e);
-		}
-
-		return version;
-	}
-
 	/**
 	 * Accessor for some resource that depends on a context
 	 */
@@ -125,6 +114,10 @@ public class DSATabApplication extends Application {
 
 		poorRichFont = Typeface.createFromAsset(this.getAssets(), "fonts/poorich.ttf");
 		Debug.setDebugTag(TAG);
+
+		AnalyticsManager.setEnabled(getPreferences().getBoolean(DsaPreferenceActivity.KEY_USAGE_STATS, true));
+
+		Debug.verbose("AnalytisManager enabled = " + AnalyticsManager.isEnabled());
 
 		liteShown = false;
 	}
@@ -223,6 +216,8 @@ public class DSATabApplication extends Application {
 		}
 
 		FileInputStream fis = null;
+		SharedPreferences preferences = getPreferences();
+
 		try {
 			File file = new File(path);
 			if (!file.exists()) {
@@ -231,8 +226,6 @@ public class DSATabApplication extends Application {
 				Debug.error("Error: Hero file not found at " + file.getAbsolutePath());
 				return null;
 			}
-
-			XmlParserNew.normalize(file);
 
 			Debug.verbose("Opening inputstream for hero at " + path);
 			fis = new FileInputStream(file);
@@ -243,7 +236,6 @@ public class DSATabApplication extends Application {
 			if (hero != null) {
 				Debug.verbose("Hero successfully parsed");
 
-				SharedPreferences preferences = getPreferences();
 				Editor editor = preferences.edit();
 				editor.putString(MainCharacterActivity.PREF_LAST_HERO, hero.getPath());
 				editor.commit();
@@ -258,10 +250,15 @@ public class DSATabApplication extends Application {
 
 			return hero;
 		} catch (Exception e) {
-			Debug.error(e);
+
 			Toast.makeText(this, "Held konnte nicht geladen werden.", Toast.LENGTH_LONG);
 			ErrorHandler.handleError(e, this);
-			return null;
+
+			// clear last hero since loading resulted in an error
+			Editor editor = preferences.edit();
+			editor.remove(MainCharacterActivity.PREF_LAST_HERO);
+			editor.commit();
+			throw new AndroidRuntimeException(e);
 		} finally {
 			if (fis != null) {
 				Debug.verbose("Closing inputstream");
@@ -282,8 +279,10 @@ public class DSATabApplication extends Application {
 			hero.onHeroSaved();
 			Toast.makeText(this, getString(R.string.hero_saved, hero.getName()), Toast.LENGTH_SHORT).show();
 		} catch (IOException e) {
-			Debug.error(e);
+			Toast.makeText(this, "Held konnte nicht gespeichert werden.", Toast.LENGTH_LONG);
+
 			ErrorHandler.handleError(e, this);
+			throw new AndroidRuntimeException(e);
 		} finally {
 			if (out != null) {
 				Debug.verbose("Closing outputstream");

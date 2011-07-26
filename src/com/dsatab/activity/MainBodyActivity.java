@@ -34,7 +34,7 @@ import com.dsatab.view.BodyLayout;
 import com.gandulf.guilib.util.Debug;
 
 /**
- * @author Ganymede
+ * 
  * 
  */
 public class MainBodyActivity extends BaseMainActivity implements OnLongClickListener {

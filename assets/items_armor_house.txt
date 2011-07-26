@@ -1,4 +1,7 @@
 #;NAME                                                                  ;BE;KO;KS;KG;Hl;SL;OL;UL;SR;OR;UR;Br,Rü;Ba;Rü;Be;OS;US;
+A;Cyclopeische Tuchrüstung;;Torso										; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 2; 2; 2; 0; 0; 0; 0;
+A;Legionärshelm;;Helm													; 1; 9; 9; 9; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0;
+
 A;Armschiene (links), Leder;lederzeug_arme_links00_LQ.gif;Arme          ; 5; 0; 0; 0; 0; 0; 3; 3; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0;
 A;Armschiene (rechts), Leder;lederzeug_arme_rechts00_LQ.gif;Arme        ; 5; 0; 0; 0; 0; 0; 0; 0; 0; 3; 3; 0; 0; 0; 0; 0; 0; 0;
 A;Armschiene links, Bronze;plattenzeug_links00_LQ.gif;Arme              ; 5; 0; 0; 0; 0; 0; 3; 3; 0; 3; 3; 0; 0; 0; 0; 0; 0; 0;
@@ -47,6 +50,8 @@ A;Gestechrüstung;;Komplettrüstung                           ;10; 0; 0; 0; 0; 0
 A;Horasischer Reiterharnisch;;Komplettrüstung               ; 5; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0;
 A;Brigantina;;Torso                                         ; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0;
 A;Bronzeharnisch;;Torso                                     ; 3; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0;
+A;Torsoharnisch (Bronze);;Torso                                     ; 3; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0;
+A;Torsoharnisch (Stahl);;Torso                                     ; 3; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0;
 A;Brustplatte, Leder;;Torso                                 ; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 9; 9; 0; 0; 0; 0; 0;
 A;Brustplatte, Stahl;;Torso                                 ; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 9; 9; 0; 0; 0; 0; 0;
 A;Brustschalen;;Torso                                       ; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0;

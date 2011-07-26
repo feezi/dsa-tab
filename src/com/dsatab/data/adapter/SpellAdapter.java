@@ -62,7 +62,6 @@ public class SpellAdapter extends BaseAdapter {
 		this.hero = hero;
 
 		this.spells = filter(hero.getSpells());
-
 	}
 
 	public void setFilter(boolean showFavorite, boolean showNormal, boolean showUnused) {
@@ -185,12 +184,6 @@ public class SpellAdapter extends BaseAdapter {
 			value.setText(Integer.toString(spell.getValue()));
 		} else {
 			Debug.warning(spell.getName() + " has no value");
-		}
-
-		if (position % 2 == 1) {
-			convertView.setBackgroundResource(R.color.RowOdd);
-		} else {
-			convertView.setBackgroundResource(R.color.RowEven);
 		}
 
 		Util.applyRowStyle(spell, convertView, position);

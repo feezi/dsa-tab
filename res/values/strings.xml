@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="path_items">http://dl.dropbox.com/u/15750588/dsatab-items2.zip</string>
+	<string name="path_items">http://dsa-tab.googlecode.com/files/dsatab-items2.zip</string>
 
     <string name="label_haar_augen_farbe">Haar,Augen</string>
     <string name="label_alter">Alter</string>
@@ -43,7 +43,6 @@
     <string name="menu_assign_secondary_weapon">Zweitwaffe zuweisen</string>
     
     <string name="app_name">DsaTab</string>
-    <string name="app_name_lite">DsaTab Lite</string>
     
     <string name="offensive">Offensive</string>
     <string name="defensive">Defensive</string>
@@ -113,15 +112,15 @@ Extern herunterladbarer Inhalt:
 </string>
 
 <string name="lite_title">DsaTab Donationware</string>
-<string name="lite_info">
+<string name="lite_info" >
 <![CDATA[
 <p style="text-align:justify">DsaTab ist kostenlos, du kannst jederzeit in den Einstellungen zur Vollversion wechseln. Mit der Lite Version kannst du dir die Wert deines Helden ansehen und Proben ohne Modifikatoren w&uuml;rfeln.</p>
 
 <p style="text-align:justify">Falls du mich bei der Entwicklung von DsaTab unterstützen willst, lass mir doch eine kleine Spende via Paypal zukommen. Ich verspreche dir, dass sie nur für Motivations-fördernde Maßnahmen verwendet wird (Kaffee, Bier, ....)</p>
 
-<div align="center">
-<img src="file:///android_asset/beer.png">
-</div> 
+<a href="%1$s">
+<img src="file:///android_asset/beer.png" alt="Donate" border="0"/>
+</a>
 ]]>
 </string>
 
@@ -134,7 +133,9 @@ Extern herunterladbarer Inhalt:
 <p style="text-align:justify">Falls du mich bei der Entwicklung von DsaTab unterstützen willst, lass mir doch eine kleine Spende via Paypal zukommen. Ich verspreche dir, dass sie nur für Motivations-fördernde Maßnahmen verwendet wird (Kaffee, Bier, ....).</p>
 
 <div align="center">
-<img src="file:///android_asset/beer.png">
+<a href="%2$s">
+<img src="file:///android_asset/beer.png" alt="Donate" border="0"/>
+</a>
 </div> 
 ]]>
 </string>

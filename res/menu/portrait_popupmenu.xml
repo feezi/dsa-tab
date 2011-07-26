@@ -1,0 +1,8 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+ 	<item android:id="@+id/option_pick_avatar"          
+          android:title="Portrait auswählen" />
+	<item android:id="@+id/option_view_portrait"          
+          android:title="Portrait anzeigen" />                    
+    <item android:id="@+id/option_take_photo"          
+          android:title="Photo aufnehmen" />    
+</menu>

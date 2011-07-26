@@ -15,30 +15,34 @@
  */
 package com.dsatab.activity;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -47,9 +51,6 @@ import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.common.Util;
 import com.dsatab.data.Advantage;
 import com.dsatab.data.Attribute;
-import com.dsatab.data.CombatDistanceTalent;
-import com.dsatab.data.CombatMeleeTalent;
-import com.dsatab.data.CombatProbe;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Markable;
 import com.dsatab.data.Value;
@@ -58,9 +59,11 @@ import com.dsatab.data.modifier.Modificator;
 import com.dsatab.view.FilterSettings;
 import com.dsatab.view.LiteInfoDialog;
 import com.dsatab.view.PortraitChooserDialog;
-import com.dsatab.view.VersionInfoDialog;
+import com.dsatab.view.PortraitViewDialog;
 import com.dsatab.view.listener.ModifierChangedListener;
 import com.dsatab.view.listener.ValueChangedListener;
+import com.gandulf.guilib.util.Debug;
+import com.gandulf.guilib.view.VersionInfoDialog;
 
 public class MainCharacterActivity extends BaseMainActivity implements ValueChangedListener, ModifierChangedListener,
 		DialogInterface.OnDismissListener {
@@ -71,14 +74,13 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 	private static final String PREF_KEY_SHOW_NORMAL = "SHOW_NORMAL";
 	private static final String PREF_KEY_SHOW_UNUSED = "SHOW_UNUSED";
 
+	private static final int ACTION_PHOTO = 1;
 	private static final int CONTEXTMENU_COMMENTS_TOGGLE = 14;
 
 	private TextView tfSpecialFeatures, tfExperience, tfLabelAe, tfLabelKe, tfTotalLp, tfTotalAu, tfTotalAe, tfTotalKe,
 			tfGs, tfWs;
 
 	private View charAttributesList;
-
-	private TableLayout tblCombatAttributes;
 
 	private LiteInfoDialog liteDialog;
 
@@ -87,6 +89,8 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 	private Markable selectedTalent;
 
 	private FilterSettings filterSettings;
+
+	private ImageView portraitView;
 
 	private Map<Value, TextView[]> tfValues = new HashMap<Value, TextView[]>(50);
 
@@ -105,8 +109,6 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 		tfExperience.setOnClickListener(editListener);
 		tfExperience.setOnLongClickListener(editListener);
 
-		tblCombatAttributes = (TableLayout) findViewById(R.id.gen_combat_attributes);
-
 		tfLabelAe = (TextView) findViewById(R.id.gen_label_ae);
 		tfLabelKe = (TextView) findViewById(R.id.gen_label_ke);
 
@@ -121,6 +123,9 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 		tfSpecialFeatures = (TextView) findViewById(R.id.gen_specialfeatures);
 
 		charAttributesList = findViewById(R.id.gen_attributes);
+		portraitView = (ImageView) findViewById(R.id.gen_portrait);
+
+		registerForContextMenu(portraitView);
 
 		SharedPreferences pref = getPreferences(MODE_PRIVATE);
 
@@ -190,7 +195,7 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 						edit.commit();
 
 						filterSettings.set(fav.isChecked(), normal.isChecked(), unused.isChecked());
-						loadCombatTalents(getHero());
+
 					} else if (which == DialogInterface.BUTTON_NEUTRAL) {
 						// do nothing
 					}
@@ -212,30 +217,21 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 
 		switch (v.getId()) {
-		case R.id.combat_talent_name:
-
-			if (v.getTag() instanceof CombatMeleeTalent) {
-				selectedTalent = (CombatMeleeTalent) v.getTag();
-			} else if (v.getTag() instanceof CombatDistanceTalent) {
-				selectedTalent = (CombatDistanceTalent) v.getTag();
-			}
-
-			if (selectedTalent != null) {
-
-				getMenuInflater().inflate(R.menu.talent_popupmenu, menu);
-
-				menu.setHeaderTitle(selectedTalent.getName());
-				menu.findItem(R.id.option_unmark).setVisible(selectedTalent.isFavorite() || selectedTalent.isUnused());
-				menu.findItem(R.id.option_mark_favorite).setVisible(!selectedTalent.isFavorite());
-				menu.findItem(R.id.option_mark_unused).setVisible(!selectedTalent.isUnused());
-
-				menu.findItem(R.id.option_view_details).setVisible(false);
-				menu.findItem(R.id.option_edit_value).setVisible(false);
-			}
+		case R.id.gen_specialfeatures:
+			MenuItem item = menu.add(0, CONTEXTMENU_COMMENTS_TOGGLE, 0, R.string.menu_show_hide_comments);
+			item.setEnabled(getHero() != null);
 			break;
 
-		case R.id.gen_specialfeatures:
-			menu.add(0, CONTEXTMENU_COMMENTS_TOGGLE, 0, R.string.menu_show_hide_comments);
+		case R.id.gen_portrait:
+			if (getHero() != null) {
+				menu.setHeaderTitle(getHero().getName());
+
+				getMenuInflater().inflate(R.menu.portrait_popupmenu, menu);
+
+				if (getHero().getPortrait() == null) {
+					menu.findItem(R.id.option_view_portrait).setVisible(false);
+				}
+			}
 			break;
 		}
 
@@ -281,24 +277,18 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 
 	private boolean showNewsInfoPopup() {
 
-		if (DSATabApplication.getInstance().newsShown)
+		if (VersionInfoDialog.newsShown)
 			return false;
 
-		int seenVersion = preferences.getInt(DsaPreferenceActivity.KEY_NEWS_VERSION, 0);
-
 		newsDialog = new VersionInfoDialog(this);
-		newsDialog.setSeenVersion(seenVersion);
+		newsDialog.setDonateContentId(R.raw.donate);
+		newsDialog.setDonateVersion(DSATabApplication.getInstance().isLiteVersion());
+		newsDialog.setTitle(R.string.news_title);
+		newsDialog.setRawClass(R.raw.class);
+		newsDialog.setIcon(R.drawable.icon);
 		newsDialog.setOnDismissListener(this);
 		if (newsDialog.hasContent()) {
 			newsDialog.show();
-
-			int version = DSATabApplication.getInstance().getPackageVersion();
-
-			Editor edit = preferences.edit();
-			edit.putInt(DsaPreferenceActivity.KEY_NEWS_VERSION, version);
-			edit.commit();
-			DSATabApplication.getInstance().newsShown = true;
-
 			return true;
 		} else {
 			return false;
@@ -323,28 +313,109 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 		case R.id.option_mark_favorite:
 			if (selectedTalent != null) {
 				selectedTalent.setFavorite(true);
-				loadCombatTalents(getHero());
+				// combatTalentAdapter.notifyDataSetChanged();
 				selectedTalent = null;
 			}
 			return true;
 		case R.id.option_mark_unused:
 			if (selectedTalent != null) {
 				selectedTalent.setUnused(true);
-				loadCombatTalents(getHero());
+				// combatTalentAdapter.notifyDataSetChanged();
+				selectedTalent = null;
 			}
-			selectedTalent = null;
 			return true;
 		case R.id.option_unmark:
 			if (selectedTalent != null) {
 				selectedTalent.setFavorite(false);
 				selectedTalent.setUnused(false);
-				loadCombatTalents(getHero());
+				// combatTalentAdapter.notifyDataSetChanged();
+				selectedTalent = null;
 			}
-			selectedTalent = null;
 			return true;
+		case R.id.option_take_photo:
+			Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+			startActivityForResult(camera, ACTION_PHOTO);
+			break;
+		case R.id.option_view_portrait:
+			showPortrait();
+			break;
+		case R.id.option_pick_avatar:
+			PortraitChooserDialog pdialog = new PortraitChooserDialog(MainCharacterActivity.this);
+			pdialog.show();
+			break;
+		// case R.id.option_edit_value:
+		// int position = ((AdapterContextMenuInfo)
+		// item.getMenuInfo()).position;
+		// BaseCombatTalent talent = combatTalentAdapter.getItem(position);
+		// showEditPopup(talent);
+		// break;
 		}
 
 		return super.onContextItemSelected(item);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.activity.BaseMainActivity#onActivityResult(int, int,
+	 * android.content.Intent)
+	 */
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+		switch (requestCode) {
+		case ACTION_PHOTO:
+
+			if (resultCode == Activity.RESULT_OK) {
+
+				// Retrieve image taking in camera activity
+				Bundle b = data.getExtras();
+				Bitmap pic = (Bitmap) b.get("data");
+
+				if (pic != null) {
+					// Store the image on the phone for later retrieval
+					FileOutputStream fOut = null;
+					try {
+						String photoName = "photo" + getHero().getName();
+						fOut = openFileOutput(photoName, MODE_PRIVATE);
+						pic.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
+						fOut.flush();
+
+						File outputfile = getFileStreamPath(photoName);
+
+						// set uri for currently selected player
+						getHero().setPortraitUri(outputfile.toURI());
+
+						updatePortrait(getHero());
+					} catch (FileNotFoundException e) {
+						Debug.error(e);
+					} catch (IOException e) {
+						Debug.error(e);
+					} finally {
+						if (fOut != null) {
+							try {
+								fOut.close();
+							} catch (IOException e) {
+							}
+						}
+					}
+				}
+			}
+		}
+
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	private void showPortrait() {
+		Bitmap portrait = getHero().getPortrait();
+
+		if (portrait != null) {
+			PortraitViewDialog viewDialog = new PortraitViewDialog(MainCharacterActivity.this);
+			viewDialog.show();
+		} else {
+			PortraitChooserDialog pdialog = new PortraitChooserDialog(MainCharacterActivity.this);
+			pdialog.show();
+		}
 	}
 
 	public void onClick(View v) {
@@ -354,41 +425,13 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 		case R.id.gen_name:
 		case R.id.gen_portrait:
 
-			Drawable portrait = getHero().getPortrait();
+			if (getHero() == null)
+				return;
 
-			if (portrait != null) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-				builder.setTitle(getHero().getName());
-
-				ImageView iv = new ImageView(this);
-				iv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-				iv.setImageDrawable(portrait);
-				iv.setScaleType(ScaleType.CENTER_INSIDE);
-				builder.setView(iv);
-
-				DialogInterface.OnClickListener clickListener = new OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-
-						if (which == DialogInterface.BUTTON_NEGATIVE) {
-							dialog.dismiss();
-							PortraitChooserDialog pdialog = new PortraitChooserDialog(MainCharacterActivity.this);
-							pdialog.show();
-						} else if (which == DialogInterface.BUTTON_POSITIVE) {
-							dialog.dismiss();
-						}
-
-					}
-				};
-
-				builder.setNegativeButton(R.string.label_edit, clickListener);
-				builder.setPositiveButton(R.string.label_ok, clickListener);
-				builder.show();
+			if (getHero().getPortrait() == null) {
+				v.showContextMenu();
 			} else {
-				PortraitChooserDialog pdialog = new PortraitChooserDialog(MainCharacterActivity.this);
-				pdialog.show();
+				showPortrait();
 			}
 			break;
 
@@ -579,8 +622,20 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 		fillSpecialFeatures(hero);
 		registerForContextMenu(tfSpecialFeatures);
 
-		loadCombatTalents(hero);
+		// --
+		// combatTalentAdapter = new CombatTalentAdapter(this, hero,
+		// preferences.getBoolean(PREF_KEY_SHOW_FAVORITE, true),
+		// preferences.getBoolean(PREF_KEY_SHOW_NORMAL, true),
+		// preferences.getBoolean(PREF_KEY_SHOW_UNUSED, false));
+		//
+		// combatTalentAdapter.setProbeListener(probeListener);
+		// combatTalentAdapter.setEditListener(editListener);
+		//
+		// tblCombatAttributes.removeAllAdapter();
+		// tblCombatAttributes.addAdapter(combatTalentAdapter);
+		// registerForContextMenu(tblCombatAttributes);
 
+		// --
 		ImageView portrait = (ImageView) findViewById(R.id.gen_portrait);
 		portrait.setOnClickListener(this);
 		updatePortrait(hero);
@@ -590,13 +645,12 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 	}
 
 	protected void updatePortrait(Hero hero) {
-		ImageView portrait = (ImageView) findViewById(R.id.gen_portrait);
 
-		Drawable drawable = hero.getPortrait();
+		Bitmap drawable = hero.getPortrait();
 		if (drawable != null)
-			portrait.setImageDrawable(drawable);
+			portraitView.setImageBitmap(drawable);
 		else
-			portrait.setImageResource(R.drawable.profile_blank);
+			portraitView.setImageResource(R.drawable.profile_blank);
 	}
 
 	/*
@@ -674,101 +728,8 @@ public class MainCharacterActivity extends BaseMainActivity implements ValueChan
 		tfSpecialFeatures.setText(stringBuilder.toString());
 	}
 
-	private void loadCombatTalents(Hero hero2) {
-
-		TableLayout.LayoutParams tableLayout = new TableLayout.LayoutParams(LayoutParams.FILL_PARENT,
-				LayoutParams.WRAP_CONTENT);
-
-		// fill combat attributes
-		tblCombatAttributes.removeAllViews();
-		int rowCount = 0;
-		TableLayout currentTable = tblCombatAttributes;
-
-		for (CombatMeleeTalent meleeTalent : getHero().getCombatMeleeTalents()) {
-
-			if (!filterSettings.isVisible(meleeTalent))
-				continue;
-			rowCount++;
-
-			TableRow row = (TableRow) getLayoutInflater().inflate(R.layout.combat_talent_row, null);
-
-			TextView talentLabel = (TextView) row.findViewById(R.id.combat_talent_name);
-			talentLabel.setText(meleeTalent.getName());
-			talentLabel.setTag(meleeTalent);
-			registerForContextMenu(talentLabel);
-
-			TextView talentBe = (TextView) row.findViewById(R.id.combat_talent_be);
-			talentBe.setText(meleeTalent.getType().getBe());
-
-			TextView talentValueAt = (TextView) row.findViewById(R.id.combat_talent_at);
-			if (meleeTalent.getAttack() != null || meleeTalent.getAttack().getValue() != null) {
-				talentValueAt.setText(Integer.toString(meleeTalent.getAttack().getValue()));
-				talentValueAt.setOnClickListener(probeListener);
-				talentValueAt.setOnLongClickListener(editListener);
-
-				talentValueAt.setTag(R.id.TAG_KEY_VALUE, meleeTalent.getAttack());
-				talentValueAt.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(getHero(), meleeTalent, true));
-			}
-
-			tfValues.put(meleeTalent.getAttack(), new TextView[] { talentValueAt });
-
-			TextView talentValuePa = (TextView) row.findViewById(R.id.combat_talent_pa);
-
-			if (meleeTalent.getDefense() != null && meleeTalent.getDefense().getValue() != null) {
-				talentValuePa.setText(Integer.toString(meleeTalent.getDefense().getValue()));
-				talentValuePa.setOnClickListener(probeListener);
-				talentValuePa.setOnLongClickListener(editListener);
-				talentValuePa.setTag(R.id.TAG_KEY_VALUE, meleeTalent.getDefense());
-				talentValuePa.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(getHero(), meleeTalent, false));
-			}
-			tfValues.put(meleeTalent.getDefense(), new TextView[] { talentValuePa });
-
-			Util.applyRowStyle(meleeTalent, row, rowCount);
-
-			currentTable.addView(row, tableLayout);
-		}
-
-		for (CombatDistanceTalent element : getHero().getCombatDistanceTalents()) {
-
-			if (!filterSettings.isVisible(element))
-				continue;
-
-			rowCount++;
-
-			TableRow row = (TableRow) getLayoutInflater().inflate(R.layout.combat_talent_row, null);
-
-			row.setOnClickListener(probeListener);
-			row.setOnLongClickListener(editListener);
-			row.setTag(R.id.TAG_KEY_VALUE, element);
-			row.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(getHero(), element, true));
-
-			TextView talentLabel = (TextView) row.findViewById(R.id.combat_talent_name);
-			talentLabel.setText(element.getName());
-			talentLabel.setTag(element);
-			registerForContextMenu(talentLabel);
-
-			TextView talentBe = (TextView) row.findViewById(R.id.combat_talent_be);
-			talentBe.setText(element.getBe());
-
-			TextView talentValueAt = (TextView) row.findViewById(R.id.combat_talent_at);
-			talentValueAt.setText(Integer.toString(element.getValue()));
-			tfValues.put(element, new TextView[] { talentValueAt });
-
-			TextView talentValuePa = (TextView) row.findViewById(R.id.combat_talent_pa);
-			talentValuePa.setVisibility(View.INVISIBLE);
-
-			Util.applyRowStyle(element, row, rowCount);
-
-			currentTable.addView(row, tableLayout);
-		}
-
-	}
-
-	public void setPortraitFile(String drawableName) {
-		Editor editor = preferences.edit();
-		editor.putString(getHero().getPath(), drawableName);
-		editor.commit();
-
+	public void setPortraitFile(URI uri) {
+		getHero().setPortraitUri(uri);
 		updatePortrait(getHero());
 	}
 

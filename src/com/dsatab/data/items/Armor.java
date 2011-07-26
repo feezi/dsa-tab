@@ -3,8 +3,7 @@ package com.dsatab.data.items;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.jdom.Element;
 
 import com.dsatab.R;
 import com.dsatab.common.Util;
@@ -142,10 +141,17 @@ public class Armor extends ItemSpecification {
 
 	public void setElement(Element element) {
 
-		NodeList ruestungList = element.getElementsByTagName(Xml.KEY_RUESTUNG);
+		Element ruestung = element.getChild(Xml.KEY_RUESTUNG);
 
-		if (ruestungList.getLength() > 0) {
-			Element ruestung = (Element) ruestungList.item(0);
+		// revert changes made due to harmony parsing bug of umlauts
+		if (ruestung == null) {
+			ruestung = element.getChild(Xml.KEY_RUESTUNG_UE);
+			if (ruestung != null) {
+				ruestung.setName(Xml.KEY_RUESTUNG);
+			}
+		}
+
+		if (ruestung != null) {
 
 			String be = Hero.getChildValue(ruestung, Xml.KEY_GESAMT_BE, Xml.KEY_VALUE);
 			if (be != null) {

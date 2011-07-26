@@ -46,7 +46,7 @@ import com.dsatab.data.adapter.SpellAdapter;
 import com.dsatab.view.SpellInfoDialog;
 
 /**
- * @author Ganymede
+ * 
  * 
  */
 public class MainSpellActivity extends BaseMainActivity implements OnItemClickListener {
@@ -266,7 +266,7 @@ public class MainSpellActivity extends BaseMainActivity implements OnItemClickLi
 		if (item.getItemId() == R.id.option_filter) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-			builder.setTitle("Zeuberspürche filtern");
+			builder.setTitle("Zaubersprüche filtern");
 			builder.setIcon(android.R.drawable.ic_menu_view);
 			View content = getLayoutInflater().inflate(R.layout.popup_filter, null);
 

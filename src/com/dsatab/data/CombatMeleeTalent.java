@@ -1,16 +1,14 @@
 package com.dsatab.data;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import java.util.List;
+
+import org.jdom.Element;
 
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
 import com.dsatab.xml.Xml;
 
-public class CombatMeleeTalent implements CombatTalent, Markable {
-
-	private Element element;
+public class CombatMeleeTalent extends BaseCombatTalent {
 
 	private CombatMeleeAttribute pa;
 
@@ -18,60 +16,24 @@ public class CombatMeleeTalent implements CombatTalent, Markable {
 
 	private CombatTalentType type;
 
-	public CombatMeleeTalent(Hero hero, Element element) {
-		this.element = element;
+	public CombatMeleeTalent(Hero hero, Element element, Element combatElement) {
+		super(hero, element, combatElement);
 		this.type = CombatTalentType.byName(getName());
 
-		NodeList n = element.getChildNodes();
-		for (int i = 0; i < n.getLength(); i++) {
-			Node node = (Node) n.item(i);
+		@SuppressWarnings("unchecked")
+		List<Element> nodes = combatElement.getChildren();
 
-			if (node instanceof Element) {
-				Element item = (Element) node;
-				if (item.getNodeName().equals(Xml.KEY_ATTACKE))
-					at = new CombatMeleeAttribute(hero, this, item);
-				else if (item.getNodeName().equals(Xml.KEY_PARADE))
-					pa = new CombatMeleeAttribute(hero, this, item);
-			}
+		for (Element node : nodes) {
+			Element item = (Element) node;
+			if (item.getName().equals(Xml.KEY_ATTACKE))
+				at = new CombatMeleeAttribute(hero, this, item);
+			else if (item.getName().equals(Xml.KEY_PARADE))
+				pa = new CombatMeleeAttribute(hero, this, item);
 		}
 	}
 
-	public String getName() {
-		return element.getAttribute(Xml.KEY_NAME);
-	}
-
-	public CombatTalentType getType() {
+	public CombatTalentType getCombatTalentType() {
 		return type;
-	}
-
-	public boolean isFavorite() {
-		if (element.hasAttribute(Xml.KEY_FAVORITE)) {
-			return Boolean.valueOf(element.getAttribute(Xml.KEY_FAVORITE));
-		} else {
-			return false;
-		}
-	}
-
-	public boolean isUnused() {
-		if (element.hasAttribute(Xml.KEY_UNUSED)) {
-			return Boolean.valueOf(element.getAttribute(Xml.KEY_UNUSED));
-		} else {
-			return false;
-		}
-	}
-
-	public void setFavorite(boolean value) {
-		if (value)
-			element.setAttribute(Xml.KEY_FAVORITE, Boolean.TRUE.toString());
-		else
-			element.removeAttribute(Xml.KEY_FAVORITE);
-	}
-
-	public void setUnused(boolean value) {
-		if (value)
-			element.setAttribute(Xml.KEY_UNUSED, Boolean.TRUE.toString());
-		else
-			element.removeAttribute(Xml.KEY_UNUSED);
 	}
 
 	public CombatMeleeAttribute getAttack() {
@@ -82,9 +44,19 @@ public class CombatMeleeTalent implements CombatTalent, Markable {
 		return pa;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.BaseCombatTalent#getBe()
+	 */
+	@Override
+	public String getBe() {
+		return type.getBe();
+	}
+
 	public Position getPosition(int w20) {
 
-		switch (getType()) {
+		switch (type) {
 
 		case Dolche:
 		case Fechtwaffen:

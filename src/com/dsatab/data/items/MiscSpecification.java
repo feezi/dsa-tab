@@ -16,12 +16,12 @@
  */
 package com.dsatab.data.items;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 import com.dsatab.R;
 
 /**
- * @author Ganymede
+ * 
  * 
  */
 public class MiscSpecification extends ItemSpecification {
@@ -57,7 +57,7 @@ public class MiscSpecification extends ItemSpecification {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.dsatab.data.items.ItemSpecification#setElement(org.w3c.dom.Element)
+	 * com.dsatab.data.items.ItemSpecification#setElement(org.jdom.Element)
 	 */
 	@Override
 	public void setElement(Element element) {

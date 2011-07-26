@@ -44,7 +44,7 @@ import com.dsatab.data.HeroInfo;
 import com.gandulf.guilib.util.Debug;
 
 /**
- * @author Ganymede
+ * 
  * 
  */
 public class HeroChooserActivity extends Activity implements AdapterView.OnItemClickListener {

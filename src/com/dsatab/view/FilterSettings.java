@@ -19,7 +19,7 @@ package com.dsatab.view;
 import com.dsatab.data.Markable;
 
 /**
- * @author Ganymede
+ * 
  * 
  */
 public class FilterSettings {

@@ -16,7 +16,7 @@
  */
 package com.dsatab.data;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.Position;
@@ -42,12 +42,13 @@ public class ArmorAttribute implements Value {
 	}
 
 	public Position getPosition() {
-		return Position.valueOf(element.getAttribute(Xml.KEY_NAME));
+		return Position.valueOf(element.getAttributeValue(Xml.KEY_NAME));
 	}
 
 	public Integer getValue() {
-		if (element.hasAttribute(Xml.KEY_VALUE)) {
-			return Util.parseInt(element.getAttribute(Xml.KEY_VALUE));
+
+		if (element.getAttribute(Xml.KEY_VALUE) != null) {
+			return Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
 		} else {
 			return 0;
 		}

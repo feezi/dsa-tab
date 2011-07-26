@@ -31,9 +31,9 @@ import android.webkit.WebView;
 
 import com.dsatab.R;
 import com.dsatab.activity.DsaTabConfiguration.ArmorType;
-import com.dsatab.view.VersionInfoDialog;
 import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.util.Downloader;
+import com.gandulf.guilib.view.VersionInfoDialog;
 
 public class DsaPreferenceActivity extends PreferenceActivity {
 
@@ -50,6 +50,8 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 
 	public static final String KEY_PROBE_SHAKE_ROLL_DICE = "shakeRollDice";
 
+	public static final String KEY_PROBE_ANIM_ROLL_DICE = "animRollDice";
+
 	public static final String KEY_HOUSE_RULES = "houseRules";
 
 	public static final String KEY_ARMOR_TYPE = "armorType";
@@ -57,9 +59,8 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 	public static final String KEY_SETUP_SDCARD_PATH = "sdcardPath";
 
 	public static final String KEY_DOWNLOAD_ALL = "downloadAll";
-	public static final String KEY_DOWNLOAD_RANG_PORTRAITS = "downloadRangPortraits";
 	public static final String KEY_DOWNLOAD_WESNOTH_PORTRAITS = "downloadWesnothPortraits";
-	public static final String KEY_DOWNLOAD_MAPS = "downloadMaps";
+
 	public static final String KEY_DOWNLOAD_ITEMS = "downloadItems";
 
 	public static final String KEY_CREDITS = "credits";
@@ -68,8 +69,6 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 
 	public static final String KEY_FULL_VERSION = "fullVersion";
 
-	public static final String KEY_NEWS_VERSION = "newsversion";
-
 	public static final String KEY_EXCHANGE = "heldenAustauschScreen";
 
 	public static final String KEY_EXCHANGE_PROVIDER = "exchange_provider";
@@ -77,11 +76,12 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 	public static final String KEY_EXCHANGE_USERNAME = "exchange_username";
 	public static final String KEY_EXCHANGE_PASSWORD = "exchange_password";
 
+	public static final String KEY_USAGE_STATS = "usage_stats";
+
 	public static final String DEFAULT_EXCHANGE_PROVIDER = "http://helden.draschenfels.de/";
 
-	public static final String PATH_MAPS = "http://dl.dropbox.com/u/15750588/dsatab-maps.zip";
-	public static final String PATH_RANG_PORTRAITS = "http://dl.dropbox.com/u/15750588/dsatab-rang-portraits.zip";
-	public static final String PATH_WESNOTH_PORTRAITS = "http://dl.dropbox.com/u/15750588/dsatab-wesnoth-portraits.zip";
+	// http://dl.dropbox.com/u/15750588/dsatab-wesnoth-portraits.zip
+	public static final String PATH_WESNOTH_PORTRAITS = "http://dsa-tab.googlecode.com/files/dsatab-wesnoth-portraits.zip";
 
 	private Downloader downloader;
 
@@ -128,22 +128,12 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 			cleanOldFiles();
 			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
 			downloader.addPath(getString(R.string.path_items));
-			// downloader.addPath(Downloader.PATH_MAPS);
-			// downloader.addPath(Downloader.PATH_RANG_PORTRAITS);
 			downloader.addPath(PATH_WESNOTH_PORTRAITS);
-			downloader.downloadZip();
-		} else if (preference.getKey().equals(KEY_DOWNLOAD_MAPS)) {
-			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
-			downloader.addPath(PATH_MAPS);
 			downloader.downloadZip();
 		} else if (preference.getKey().equals(KEY_DOWNLOAD_ITEMS)) {
 			cleanOldFiles();
 			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
 			downloader.addPath(getString(R.string.path_items));
-			downloader.downloadZip();
-		} else if (preference.getKey().equals(KEY_DOWNLOAD_RANG_PORTRAITS)) {
-			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
-			downloader.addPath(PATH_RANG_PORTRAITS);
 			downloader.downloadZip();
 		} else if (preference.getKey().equals(KEY_DOWNLOAD_WESNOTH_PORTRAITS)) {
 			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
@@ -168,8 +158,12 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 			builder.show();
 		} else if (preference.getKey().equals(KEY_INFOS)) {
 			VersionInfoDialog newsDialog = new VersionInfoDialog(this);
-			newsDialog.setSeenVersion(-1);
-			newsDialog.show();
+			newsDialog.setDonateContentId(R.raw.donate);
+			newsDialog.setDonateVersion(DSATabApplication.getInstance().isLiteVersion());
+			newsDialog.setRawClass(R.raw.class);
+			newsDialog.setTitle(R.string.news_title);
+			newsDialog.setIcon(R.drawable.icon);
+			newsDialog.show(true);
 		}
 
 		return super.onPreferenceTreeClick(preferenceScreen, preference);
@@ -186,9 +180,11 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 			}
 		});
 
-		for (File f : dirs) {
-			f.delete();
-			Debug.verbose("Deleting " + f.getAbsolutePath());
+		if (dirs != null) {
+			for (File f : dirs) {
+				f.delete();
+				Debug.verbose("Deleting " + f.getAbsolutePath());
+			}
 		}
 	}
 }

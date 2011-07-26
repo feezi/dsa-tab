@@ -32,13 +32,16 @@ import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 
 import com.dsatab.R;
 import com.dsatab.data.Attribute;
+import com.dsatab.data.BaseCombatTalent;
+import com.dsatab.data.CombatMeleeAttribute;
+import com.dsatab.data.CombatTalent;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Talent;
 import com.dsatab.data.Value;
 import com.dsatab.data.adapter.ExpandableTalentAdapter;
 
 /**
- * @author Ganymede
+ * 
  * 
  */
 public class MainTalentActivity extends BaseMainActivity {
@@ -73,7 +76,6 @@ public class MainTalentActivity extends BaseMainActivity {
 		super.onCreate(savedInstanceState);
 
 		talentList = (ExpandableListView) findViewById(R.id.talent_list);
-
 		talentAttributeList = findViewById(R.id.inc_talent_attributes_list);
 
 	}
@@ -115,7 +117,7 @@ public class MainTalentActivity extends BaseMainActivity {
 
 		}
 
-		if (value instanceof Talent) {
+		if (value instanceof Talent || value instanceof CombatMeleeAttribute || value instanceof CombatTalent) {
 			talentAdapter.notifyDataSetChanged();
 		}
 	}
@@ -127,6 +129,8 @@ public class MainTalentActivity extends BaseMainActivity {
 		talentAdapter = new ExpandableTalentAdapter(getHero(), pref.getBoolean(PREF_KEY_SHOW_FAVORITE, true),
 				pref.getBoolean(PREF_KEY_SHOW_NORMAL, true), pref.getBoolean(PREF_KEY_SHOW_UNUSED, false));
 
+		talentAdapter.setProbeListener(probeListener);
+		talentAdapter.setEditListener(editListener);
 		talentList.setAdapter(talentAdapter);
 		talentList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 
@@ -290,11 +294,15 @@ public class MainTalentActivity extends BaseMainActivity {
 		Talent talent = null;
 		if (position >= 0 && group >= 0) {
 			talent = talentAdapter.getChild(group, position);
+			BaseCombatTalent combatTalent = getHero().getCombatTalent(talent.getName());
 
 			switch (item.getItemId()) {
 
 			case R.id.option_edit_value:
-				showEditPopup(talent);
+				if (combatTalent != null)
+					showEditPopup(combatTalent);
+				else
+					showEditPopup(talent);
 				return true;
 			case R.id.option_mark_favorite:
 				talent.setFavorite(true);

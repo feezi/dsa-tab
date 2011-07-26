@@ -16,7 +16,7 @@
  */
 package com.dsatab.data;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 public class Experience extends EditableValue {
 

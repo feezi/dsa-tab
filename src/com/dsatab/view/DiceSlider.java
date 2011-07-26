@@ -85,14 +85,18 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 
 	private ProbeInfo probeInfo;
 
+	private SharedPreferences preferences;
+
 	public DiceSlider(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		effectFormat.setMaximumFractionDigits(1);
+		preferences = DSATabApplication.getPreferences();
 	}
 
 	public DiceSlider(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		effectFormat.setMaximumFractionDigits(1);
+		preferences = DSATabApplication.getPreferences();
 	}
 
 	public void onClick(View v) {
@@ -598,12 +602,17 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 
 		int dice = rnd.nextInt(20) + 1;
 
-		if (dice20Count == 1) {
-			shakeDice20.reset();
-			tfDice20.startAnimation(shakeDice20);
-		}
+		if (preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_ANIM_ROLL_DICE, true)) {
 
-		mHandler.sendMessageDelayed(Message.obtain(mHandler, HANDLE_DICE_20, dice), delay);
+			if (dice20Count == 1) {
+				shakeDice20.reset();
+				tfDice20.startAnimation(shakeDice20);
+			}
+
+			mHandler.sendMessageDelayed(Message.obtain(mHandler, HANDLE_DICE_20, dice), delay);
+		} else {
+			showDice20(dice);
+		}
 		return dice;
 	}
 
@@ -618,11 +627,16 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 		dice6Count++;
 
 		int dice = rnd.nextInt(6) + 1;
-		if (dice6Count == 1) {
-			shakeDice6.reset();
-			tfDice6.startAnimation(shakeDice6);
+
+		if (preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_ANIM_ROLL_DICE, true)) {
+			if (dice6Count == 1) {
+				shakeDice6.reset();
+				tfDice6.startAnimation(shakeDice6);
+			}
+			mHandler.sendMessageDelayed(Message.obtain(mHandler, HANDLE_DICE_6, dice), delay);
+		} else {
+			showDice6(dice);
 		}
-		mHandler.sendMessageDelayed(Message.obtain(mHandler, HANDLE_DICE_6, dice), delay);
 		return dice;
 	}
 
@@ -651,8 +665,9 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 		res.setGravity(Gravity.CENTER);
 		res.setPadding(padding, 0, padding, 0);
 		linDiceResult.addView(res, width, width);
-
-		res.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.flip_in));
+		if (preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_ANIM_ROLL_DICE, true)) {
+			res.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.flip_in));
+		}
 
 		if (linDiceResult.getWidth() > 0 && linDiceResult.getChildCount() * width > linDiceResult.getWidth()) {
 			linDiceResult.removeViewAt(0);
@@ -668,7 +683,9 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 		res.setImageResource(Util.getDrawableByName("w6_" + value));
 		res.setPadding(padding, 0, padding, 0);
 		linDiceResult.addView(res, width, width);
-		res.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.flip_in));
+		if (preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_ANIM_ROLL_DICE, true)) {
+			res.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.flip_in));
+		}
 
 		if (linDiceResult.getWidth() > 0 && linDiceResult.getChildCount() * width > linDiceResult.getWidth()) {
 			linDiceResult.removeViewAt(0);

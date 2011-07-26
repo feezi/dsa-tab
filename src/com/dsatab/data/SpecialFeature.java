@@ -1,7 +1,6 @@
 package com.dsatab.data;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.jdom.Element;
 
 import com.dsatab.xml.Xml;
 
@@ -50,18 +49,16 @@ public class SpecialFeature {
 	private String name, kultur, gegenstand;
 
 	public SpecialFeature(Element element) {
-		this.name = element.getAttribute(Xml.KEY_NAME);
+		this.name = element.getAttributeValue(Xml.KEY_NAME);
 
-		NodeList nodeList = element.getElementsByTagName(Xml.KEY_KULTUR);
-		if (nodeList.getLength() > 0) {
-			Element gegenstand = (Element) nodeList.item(0);
-			this.kultur = gegenstand.getAttribute(Xml.KEY_NAME);
+		Element gegenstand = element.getChild(Xml.KEY_KULTUR);
+		if (gegenstand != null) {
+			this.kultur = gegenstand.getAttributeValue(Xml.KEY_NAME);
 		}
 
-		nodeList = element.getElementsByTagName(Xml.KEY_GEGENSTAND);
-		if (nodeList.getLength() > 0) {
-			Element gegenstand = (Element) nodeList.item(0);
-			this.gegenstand = gegenstand.getAttribute(Xml.KEY_NAME);
+		gegenstand = element.getChild(Xml.KEY_GEGENSTAND);
+		if (gegenstand != null) {
+			this.gegenstand = gegenstand.getAttributeValue(Xml.KEY_NAME);
 		}
 	}
 

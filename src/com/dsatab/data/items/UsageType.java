@@ -17,7 +17,7 @@
 package com.dsatab.data.items;
 
 /**
- * @author Ganymede
+ * 
  * 
  */
 public enum UsageType {

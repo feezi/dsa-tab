@@ -19,7 +19,7 @@ package com.dsatab.data;
 import java.io.File;
 
 /**
- * @author Ganymede
+ * 
  * 
  */
 public class HeroInfo {

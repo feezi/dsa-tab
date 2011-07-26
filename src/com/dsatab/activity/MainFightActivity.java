@@ -17,7 +17,6 @@
 package com.dsatab.activity;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import android.app.AlertDialog;
@@ -65,7 +64,7 @@ import com.gandulf.guilib.view.NumberPicker;
 import com.gandulf.guilib.view.OnViewChangedListener;
 
 /**
- * @author Ganymede
+ * 
  * 
  */
 public class MainFightActivity extends BaseMainActivity implements ModifierChangedListener, OnLongClickListener,
@@ -301,18 +300,15 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 		} else if (item.getItemId() == CONTEXTMENU_SELECT_VERSION) {
 
 			if (selectedEquippedItemView != null) {
-				final EquippedItem equippedPrimaryWeapon = (EquippedItem) selectedEquippedItemView.getTag();
+				final EquippedItem equippedItem = (EquippedItem) selectedEquippedItemView.getTag();
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-				List<String> specInfo = new LinkedList<String>();
-				for (ItemSpecification itemSpec : equippedPrimaryWeapon.getItem().getSpecifications()) {
-					specInfo.add(itemSpec.getName() + ": " + itemSpec.getInfo());
-				}
+				List<String> specInfo = equippedItem.getItem().getSpecificationNames();
 
 				builder.setItems(specInfo.toArray(new String[0]), new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						equippedPrimaryWeapon.setItemSpecification(MainFightActivity.this, equippedPrimaryWeapon
+						equippedItem.setItemSpecification(MainFightActivity.this, equippedItem
 								.getItem().getSpecifications().get(which));
 						dialog.dismiss();
 					}
