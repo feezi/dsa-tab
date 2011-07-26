@@ -30,7 +30,6 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -312,11 +311,8 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 			Toast.makeText(context, Html.fromHtml(EncodingUtils.getString(bos2.toByteArray(), "UTF-8")),
 					Toast.LENGTH_LONG).show();
 
-		} catch (ClientProtocolException e) {
-			Debug.error(e);
-			ErrorHandler.handleError(e, context);
-		} catch (IOException e) {
-			Debug.error(e);
+		} catch (Exception e) {
+			Toast.makeText(context, "Held konnte nicht exportiert werden.", Toast.LENGTH_LONG);
 			ErrorHandler.handleError(e, context);
 		}
 	}

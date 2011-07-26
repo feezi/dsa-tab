@@ -44,7 +44,10 @@ public interface Xml {
 	public static final String KEY_ABENTEUERPUNKTE = "abenteuerpunkte";
 	public static final String KEY_FREIE_ABENTEUERPUNKTE = "freieabenteuerpunkte";
 
+	public static final String KEY_SONDERFERTIGKEITEN = "sf";
 	public static final String KEY_SONDERFERTIGKEIT = "sonderfertigkeit";
+
+	public static final String KEY_VORTEILE = "vt";
 	public static final String KEY_VORTEIL = "vorteil";
 	public static final String KEY_NACHTEIL = "nachteil";
 	public static final String KEY_EREIGNIS = "ereignis";
@@ -53,6 +56,8 @@ public interface Xml {
 	public static final String KEY_OBJ = "obj";
 	public static final String KEY_TALENT = "talent";
 	public static final String KEY_COMBATSTYLE = "combatStyle";
+
+	public static final String KEY_KAMPF = "kampf";
 	public static final String KEY_KAMPFWERTE = "kampfwerte";
 	public static final String KEY_ZAUBER = "zauber";
 	public static final String KEY_MUENZE = "muenze";
@@ -81,13 +86,15 @@ public interface Xml {
 	public static final String KEY_SPAN_X = "spanX";
 	public static final String KEY_SPAN_Y = "spanY";
 
-	public static final String KEY_RUESTUNG = "Ruestung";
+	public static final String KEY_RUESTUNG = "Rüstung";
+	public static final String KEY_RUESTUNG_UE = "Ruestung";
 	public static final String KEY_GESAMT_BE = "gesbe";
 	public static final String KEY_RS = "rs";
 	public static final String KEY_STERNE = "sterne";
 	public static final String KEY_TEILE = "teile";
 	public static final String KEY_PROFESSION = "profession";
 	public static final String KEY_STRING = "string";
+	public static final String KEY_AUSBILDUNGEN = "ausbildungen";
 	public static final String KEY_AUSBILDUNG = "ausbildung";
 	public static final String KEY_RASSE = "rasse";
 
@@ -120,4 +127,15 @@ public interface Xml {
 
 	public static final String KEY_FAVORITE = "fav";
 	public static final String KEY_UNUSED = "unused";
+	public static final String KEY_PORTRAIT_PATH = "portrait_path";
+
+	public static final String KEY_EIGENSCHAFTEN = "eigenschaften";
+	public static final String KEY_AUSRUESTUNGEN_UE = "ausruestungen";
+	public static final String KEY_AUSRUESTUNGEN = "ausrüstungen";
+	public static final String KEY_GEGENSTAENDE_AE = "gegenstaende";
+	public static final String KEY_GEGENSTAENDE = "gegenstände";
+	public static final String KEY_ZAUBERLISTE = "zauberliste";
+	public static final String KEY_TALENTLISTE = "talentliste";
+	public static final String KEY_BASIS = "basis";
+	public static final String KEY_BEZEICHNER = "bezeichner";
 }

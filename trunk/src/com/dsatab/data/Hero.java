@@ -1,6 +1,10 @@
 package com.dsatab.data;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,17 +14,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.jdom.Element;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -68,7 +70,7 @@ public class Hero {
 
 	private String path;
 
-	private Document dom;
+	private org.jdom.Document dom;
 
 	private Element ereignisse;
 
@@ -85,10 +87,8 @@ public class Hero {
 	private Map<TalentGroupType, TalentGroup> talentGroups;
 	private Map<String, Talent> talentByName;
 
-	private List<CombatMeleeTalent> combatTalents;
 	private CombatShieldTalent shieldTalent;
 	private List<Spell> spells;
-	private List<CombatDistanceTalent> combatDistanceTalents;
 	private List<Event> events;
 	private List<Item> items;
 
@@ -116,8 +116,10 @@ public class Hero {
 
 	private Integer oldAuRatioLevel, oldLeRatioLevel;
 
+	private Element talentsNode, spellsNode, equippmentNode, itemsNode, basisNode, attributesNode;
+
 	@SuppressWarnings("unchecked")
-	public Hero(String path, Document dom) {
+	public Hero(String path, org.jdom.Document dom) {
 		this.path = path;
 		this.dom = dom;
 		this.attributes = new HashMap<AttributeType, Attribute>(AttributeType.values().length);
@@ -135,19 +137,65 @@ public class Hero {
 			if (attr.getValue() > 0)
 				modifiers.add(attr);
 		}
-	}
 
-	public Drawable getPortrait() {
+		talentsNode = getHeldElement().getChild(Xml.KEY_TALENTLISTE);
+		spellsNode = getHeldElement().getChild(Xml.KEY_ZAUBERLISTE);
 
-		SharedPreferences preferences = DSATabApplication.getPreferences();
-		String profileName = preferences.getString(getPath(), null);
-
-		Drawable drawable = null;
-		if (profileName != null) {
-			drawable = Drawable.createFromPath(DSATabApplication.getDsaTabPath() + "portraits/" + profileName);
+		equippmentNode = getHeldElement().getChild(Xml.KEY_AUSRUESTUNGEN_UE);
+		if (equippmentNode != null) {
+			equippmentNode.setName(Xml.KEY_AUSRUESTUNGEN);
+		} else {
+			equippmentNode = getHeldElement().getChild(Xml.KEY_AUSRUESTUNGEN);
 		}
 
-		return drawable;
+		itemsNode = getHeldElement().getChild(Xml.KEY_GEGENSTAENDE_AE);
+		if (itemsNode != null) {
+			itemsNode.setName(Xml.KEY_GEGENSTAENDE);
+		} else {
+			itemsNode = getHeldElement().getChild(Xml.KEY_GEGENSTAENDE);
+		}
+
+		attributesNode = getHeldElement().getChild(Xml.KEY_EIGENSCHAFTEN);
+		basisNode = getHeldElement().getChild(Xml.KEY_BASIS);
+	}
+
+	public void setPortraitUri(Uri uri) {
+		getHeldElement().setAttribute(Xml.KEY_PORTRAIT_PATH, uri.toString());
+	}
+
+	public void setPortraitUri(URI uri) {
+		getHeldElement().setAttribute(Xml.KEY_PORTRAIT_PATH, uri.toString());
+	}
+
+	public Uri getPortraitUri() {
+
+		Uri uri = null;
+		if (getHeldElement().getAttribute(Xml.KEY_PORTRAIT_PATH) != null) {
+			uri = Uri.parse(getHeldElement().getAttributeValue(Xml.KEY_PORTRAIT_PATH));
+		}
+
+		return uri;
+
+	}
+
+	public Bitmap getPortrait() {
+
+		Bitmap portraitBitmap = null;
+
+		if (getPortraitUri() != null) {
+			try {
+
+				InputStream is = DSATabApplication.getInstance().getBaseContext().getContentResolver()
+						.openInputStream(getPortraitUri());
+				BufferedInputStream bis = new BufferedInputStream(is);
+				portraitBitmap = BitmapFactory.decodeStream(bis);
+				bis.close();
+				is.close();
+			} catch (IOException e) {
+				Debug.error("Error getting bitmap", e);
+			}
+		}
+		return portraitBitmap;
 
 	}
 
@@ -184,14 +232,12 @@ public class Hero {
 	public Purse getPurse() {
 		if (purse == null) {
 
-			NodeList purseElements = getHeldElement().getElementsByTagName(Xml.KEY_GELDBOERSE);
-
-			if (purseElements.getLength() > 0) {
-				Element purseElement = (Element) purseElements.item(0);
+			Element purseElement = getHeldElement().getChild(Xml.KEY_GELDBOERSE);
+			if (purseElement != null) {
 				purse = new Purse(purseElement);
 			} else {
-				Element purseElement = dom.createElement(Xml.KEY_GELDBOERSE);
-				getHeldElement().appendChild(purseElement);
+				purseElement = new Element(Xml.KEY_GELDBOERSE);
+				getHeldElement().addContent(purseElement);
 				purse = new Purse(purseElement);
 			}
 		}
@@ -234,22 +280,23 @@ public class Hero {
 		if (equippedItems[selectedSet] == null) {
 			equippedItems[selectedSet] = new LinkedList<EquippedItem>();
 
-			List<Node> equippedElements = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_HELDENAUSRUESTUNG);
+			List<Element> equippedElements = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_AUSRUESTUNGEN,
+					Xml.KEY_HELDENAUSRUESTUNG);
 
 			for (int i = 0; i < equippedElements.size(); i++) {
 				Element element = (Element) equippedElements.get(i);
 
-				if (element.getAttribute(Xml.KEY_NAME).equals("jagtwaffe"))
+				if (element.getAttributeValue(Xml.KEY_NAME).equals("jagtwaffe"))
 					continue;
 
 				int set = 0;
-				if (element.hasAttribute(Xml.KEY_SET)) {
-					set = Util.parseInt(element.getAttribute(Xml.KEY_SET));
+				if (element.getAttribute(Xml.KEY_SET) != null) {
+					set = Util.parseInt(element.getAttributeValue(Xml.KEY_SET));
 					if (set != selectedSet)
 						continue;
 				}
 
-				if (element.getAttribute(Xml.KEY_NAME).startsWith(PREFIX_BK)) {
+				if (element.getAttributeValue(Xml.KEY_NAME).startsWith(PREFIX_BK)) {
 					beidhaendigerKampfElements.add(element);
 					continue;
 				}
@@ -272,14 +319,14 @@ public class Hero {
 			for (Element element : beidhaendigerKampfElements) {
 
 				int set = 0;
-				if (element.hasAttribute(Xml.KEY_SET)) {
-					set = Util.parseInt(element.getAttribute(Xml.KEY_SET));
+				if (element.getAttribute(Xml.KEY_SET) != null) {
+					set = Util.parseInt(element.getAttributeValue(Xml.KEY_SET));
 					if (set != selectedSet)
 						continue;
 				}
 
-				if (element.getAttribute(Xml.KEY_NAME).startsWith(PREFIX_BK)) {
-					String bk = element.getAttribute(Xml.KEY_NAME);
+				if (element.getAttributeValue(Xml.KEY_NAME).startsWith(PREFIX_BK)) {
+					String bk = element.getAttributeValue(Xml.KEY_NAME);
 					int bk1 = Util.parseInt(bk.substring(2, 3));
 					int bk2 = Util.parseInt(bk.substring(3, 4));
 
@@ -291,7 +338,7 @@ public class Hero {
 						item2.setSecondaryItem(item1);
 					} else {
 						Debug.warning("Incorrect BeidhaengierKampf setting " + bk);
-						getHeldElement().removeChild(element);
+						getHeldElement().removeContent(element);
 						beidhaendigerKampfElements.remove(element);
 					}
 				}
@@ -308,7 +355,7 @@ public class Hero {
 
 		for (Element element : beidhaendigerKampfElements) {
 
-			String bk = element.getAttribute(Xml.KEY_NAME);
+			String bk = element.getAttributeValue(Xml.KEY_NAME);
 
 			if (bk.equals(PREFIX_BK + item1.getNameId() + item2.getNameId()))
 				return true;
@@ -324,7 +371,7 @@ public class Hero {
 		if (hasBeidhaendigerKampf(item1, item2))
 			return;
 
-		Element bk = dom.createElement(Xml.KEY_HELDENAUSRUESTUNG);
+		Element bk = new Element(Xml.KEY_HELDENAUSRUESTUNG);
 		bk.setAttribute(Xml.KEY_SET, Util.toString(activeSet));
 
 		if (item1.getNameId() < item2.getNameId())
@@ -333,21 +380,28 @@ public class Hero {
 			bk.setAttribute(Xml.KEY_NAME, PREFIX_BK + item2.getNameId() + item1.getNameId());
 
 		beidhaendigerKampfElements.add(bk);
-		getHeldElement().appendChild(bk);
 
+		if (equippmentNode == null)
+			getHeldElement().addContent(bk);
+		else
+			equippmentNode.addContent(bk);
 	}
 
 	public void removeBeidhaendigerKampf(EquippedItem item1, EquippedItem item2) {
 
 		for (Element element : beidhaendigerKampfElements) {
 
-			String bk = element.getAttribute(Xml.KEY_NAME);
+			String bk = element.getAttributeValue(Xml.KEY_NAME);
 
 			if (bk.equals(PREFIX_BK + item1.getNameId() + item2.getNameId())
 					|| bk.equals(PREFIX_BK + item2.getNameId() + item1.getNameId())) {
 
 				beidhaendigerKampfElements.remove(bk);
-				getHeldElement().removeChild(element);
+
+				if (equippmentNode == null)
+					getHeldElement().removeContent(element);
+				else
+					equippmentNode.removeContent(element);
 			}
 
 		}
@@ -355,7 +409,7 @@ public class Hero {
 	}
 
 	public String getKey() {
-		return getHeldElement().getAttribute(Xml.KEY_KEY);
+		return getHeldElement().getAttributeValue(Xml.KEY_KEY);
 	}
 
 	public int getActiveSet() {
@@ -410,20 +464,47 @@ public class Hero {
 
 			Attribute attribute = (Attribute) value;
 
-			if (attribute.getType() == AttributeType.Ausdauer) {
+			switch (attribute.getType()) {
+			case Mut:
+			case Klugheit:
+			case Intuition:
+			case Charisma:
+			case Fingerfertigkeit:
+			case Gewandtheit:
+			case Konstitution:
+			case Körperkraft:
+				Attribute attr = getAttribute(AttributeType.at);
+				attr.setValue(attr.getReferenceValue());
+
+				attr = getAttribute(AttributeType.pa);
+				attr.setValue(attr.getReferenceValue());
+
+				attr = getAttribute(AttributeType.fk);
+				attr.setValue(attr.getReferenceValue());
+
+				attr = getAttribute(AttributeType.ini);
+				attr.setValue(attr.getReferenceValue());
+				break;
+			case Ausdauer:
 				postAuRatioCheck();
-			} else if (attribute.getType() == AttributeType.Lebensenergie) {
+				break;
+			case Lebensenergie:
 				postLeRatioCheck();
-			} else if (attribute.getType() == AttributeType.Lebensenergie_Total) {
+				break;
+			case Lebensenergie_Total:
 				getAttribute(AttributeType.Lebensenergie).setReferenceValue(value.getValue());
 				postLeRatioCheck();
-			} else if (attribute.getType() == AttributeType.Ausdauer_Total) {
+				break;
+			case Ausdauer_Total:
 				getAttribute(AttributeType.Ausdauer).setReferenceValue(value.getValue());
 				postAuRatioCheck();
-			} else if (attribute.getType() == AttributeType.Astralenergie_Total) {
+				break;
+			case Astralenergie_Total:
 				getAttribute(AttributeType.Astralenergie).setReferenceValue(value.getValue());
-			} else if (attribute.getType() == AttributeType.Karmaenergie_Total) {
+				break;
+			case Karmaenergie_Total:
 				getAttribute(AttributeType.Karmaenergie).setReferenceValue(value.getValue());
+				break;
 			}
 		}
 
@@ -499,15 +580,7 @@ public class Hero {
 	public void removeItem(Item item) {
 		List<Item> items = getItems();
 		items.remove(item);
-		try {
-			getHeldElement().removeChild(item.getElement());
-		} catch (DOMException e) {
-			if (e.code == DOMException.NOT_FOUND_ERR) {
-				Debug.error("Trying to remove item that was not there " + item);
-			}
-			Debug.error(e);
-		}
-
+		getHeldElement().removeContent(item.getElement());
 		fireItemRemovedEvent(item);
 
 		List<EquippedItem> toremove = new ArrayList<EquippedItem>();
@@ -566,19 +639,18 @@ public class Hero {
 
 		if (itemSpecification == null) {
 			if (item.getSpecifications().size() > 1) {
-				List<String> specNames = new ArrayList<String>(item.getSpecifications().size());
-				for (ItemSpecification itemSpec : item.getSpecifications()) {
-					specNames.add(itemSpec.getName() + ": " + itemSpec.getInfo());
-				}
+
 				AlertDialog.Builder builder = new AlertDialog.Builder(context);
 				builder.setTitle("Wähle ein Variante...");
-				builder.setItems(specNames.toArray(new String[0]), new DialogInterface.OnClickListener() {
+				builder.setItems(item.getSpecificationNames().toArray(new String[0]),
+						new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						addItem(context, item, item.getSpecifications().get(which), currentTalent, set, callback);
-					}
-				});
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								addItem(context, item, item.getSpecifications().get(which), currentTalent, set,
+										callback);
+							}
+						});
 
 				builder.show().setCanceledOnTouchOutside(true);
 				return;
@@ -661,15 +733,17 @@ public class Hero {
 					+ " cannot be added since it already has a dom element");
 		}
 
-		Element element = dom.createElement(Xml.KEY_GEGENSTAND);
+		Element element = new Element(Xml.KEY_GEGENSTAND);
 		element.setAttribute(Xml.KEY_NAME, item.getName());
 		element.setAttribute(Xml.KEY_ANZAHL, "1");
 		element.setAttribute(Xml.KEY_SLOT, "0");
 		item.setElement(element);
 
 		items.add(item);
-
-		getHeldElement().appendChild(element);
+		if (itemsNode == null)
+			getHeldElement().addContent(element);
+		else
+			itemsNode.addContent(element);
 
 		return true;
 	}
@@ -691,9 +765,14 @@ public class Hero {
 			addItem(item);
 		}
 
-		Element element = dom.createElement(Xml.KEY_HELDENAUSRUESTUNG);
+		Element element = new Element(Xml.KEY_HELDENAUSRUESTUNG);
 		element.setAttribute(Xml.KEY_SET, Util.toString(set));
-		getHeldElement().appendChild(element);
+
+		if (equippmentNode == null)
+			getHeldElement().addContent(element);
+		else
+			equippmentNode.addContent(element);
+
 		EquippedItem equippedItem = new EquippedItem(this, element, item);
 		if (talent != null)
 			equippedItem.setTalent(talent);
@@ -715,13 +794,13 @@ public class Hero {
 		return path;
 	}
 
-	public Document getDocument() {
+	public org.jdom.Document getDocument() {
 		return dom;
 	}
 
 	private Element getHeldElement() {
 		if (held == null)
-			held = (Element) dom.getElementsByTagName(Xml.KEY_HELD).item(0);
+			held = (Element) dom.getRootElement().getChild(Xml.KEY_HELD);
 
 		return held;
 	}
@@ -731,7 +810,8 @@ public class Hero {
 
 		if (attribute == null) {
 
-			List<Node> attributes = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_EIGENSCHAFT);
+			List<Element> attributes = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_EIGENSCHAFTEN,
+					Xml.KEY_EIGENSCHAFT);
 			for (int i = 0; i < attributes.size(); i++) {
 				Element attributeElement = (Element) attributes.get(i);
 
@@ -754,33 +834,44 @@ public class Hero {
 			}
 
 			if (type == AttributeType.Behinderung && !this.attributes.containsKey(AttributeType.Behinderung)) {
-				Element element = dom.createElement(Xml.KEY_EIGENSCHAFT);
+				Element element = new Element(Xml.KEY_EIGENSCHAFT);
 				element.setAttribute(Xml.KEY_NAME, AttributeType.Behinderung.name());
 				element.setAttribute(Xml.KEY_VALUE, "0");
-				getHeldElement().appendChild(element);
+
+				if (attributesNode == null)
+					getHeldElement().addContent(element);
+				else
+					attributesNode.addContent(element);
 
 				Attribute be = new Attribute(element, this);
 				be.setValue(getArmorBe());
 				this.attributes.put(AttributeType.Behinderung, be);
 			}
 			if (type == AttributeType.Ausweichen && !this.attributes.containsKey(AttributeType.Ausweichen)) {
-				Element element = dom.createElement(Xml.KEY_EIGENSCHAFT);
+				Element element = new Element(Xml.KEY_EIGENSCHAFT);
 				element.setAttribute(Xml.KEY_NAME, AttributeType.Ausweichen.name());
-				getHeldElement().appendChild(element);
+				if (attributesNode == null)
+					getHeldElement().addContent(element);
+				else
+					attributesNode.addContent(element);
+
 				this.attributes.put(AttributeType.Ausweichen, new Attribute(element, this));
 			}
 
 			if (type == AttributeType.Initiative_Aktuell
 					&& !this.attributes.containsKey(AttributeType.Initiative_Aktuell)) {
-				Element element = dom.createElement(Xml.KEY_EIGENSCHAFT);
+				Element element = new Element(Xml.KEY_EIGENSCHAFT);
 				element.setAttribute(Xml.KEY_NAME, AttributeType.Initiative_Aktuell.name());
 				element.setAttribute(Xml.KEY_VALUE, "0");
-				getHeldElement().appendChild(element);
+				if (attributesNode == null)
+					getHeldElement().addContent(element);
+				else
+					attributesNode.addContent(element);
 				this.attributes.put(AttributeType.Initiative_Aktuell, new Attribute(element, this));
 			}
 
 			if (type == AttributeType.fk && !this.attributes.containsKey(AttributeType.fk)) {
-				Element element = dom.createElement(Xml.KEY_EIGENSCHAFT);
+				Element element = new Element(Xml.KEY_EIGENSCHAFT);
 				element.setAttribute(Xml.KEY_NAME, AttributeType.fk.name());
 
 				int basefk = getAttributeValue(AttributeType.Intuition)
@@ -789,12 +880,15 @@ public class Hero {
 				basefk = Math.round(basefk / 5.0F);
 				element.setAttribute(Xml.KEY_VALUE, Util.toString(basefk));
 				element.setAttribute(Xml.KEY_MOD, "0");
-				getHeldElement().appendChild(element);
+				if (attributesNode == null)
+					getHeldElement().addContent(element);
+				else
+					attributesNode.addContent(element);
 				this.attributes.put(AttributeType.fk, new Attribute(element, this));
 			}
 
 			if (type == AttributeType.pa && !this.attributes.containsKey(AttributeType.pa)) {
-				Element element = dom.createElement(Xml.KEY_EIGENSCHAFT);
+				Element element = new Element(Xml.KEY_EIGENSCHAFT);
 				element.setAttribute(Xml.KEY_NAME, AttributeType.pa.name());
 
 				int basefk = getAttributeValue(AttributeType.Intuition) + getAttributeValue(AttributeType.Gewandtheit)
@@ -802,12 +896,15 @@ public class Hero {
 				basefk = Math.round(basefk / 5.0F);
 				element.setAttribute(Xml.KEY_VALUE, Util.toString(basefk));
 				element.setAttribute(Xml.KEY_MOD, "0");
-				getHeldElement().appendChild(element);
+				if (attributesNode == null)
+					getHeldElement().addContent(element);
+				else
+					attributesNode.addContent(element);
 				this.attributes.put(AttributeType.pa, new Attribute(element, this));
 			}
 
 			if (type == AttributeType.at && !this.attributes.containsKey(AttributeType.at)) {
-				Element element = dom.createElement(Xml.KEY_EIGENSCHAFT);
+				Element element = new Element(Xml.KEY_EIGENSCHAFT);
 				element.setAttribute(Xml.KEY_NAME, AttributeType.at.name());
 
 				int basefk = getAttributeValue(AttributeType.Mut) + getAttributeValue(AttributeType.Gewandtheit)
@@ -815,12 +912,15 @@ public class Hero {
 				basefk = Math.round(basefk / 5.0F);
 				element.setAttribute(Xml.KEY_VALUE, Util.toString(basefk));
 				element.setAttribute(Xml.KEY_MOD, "0");
-				getHeldElement().appendChild(element);
+				if (attributesNode == null)
+					getHeldElement().addContent(element);
+				else
+					attributesNode.addContent(element);
 				this.attributes.put(AttributeType.at, new Attribute(element, this));
 			}
 
 			if (type == AttributeType.ini && !this.attributes.containsKey(AttributeType.ini)) {
-				Element element = dom.createElement(Xml.KEY_EIGENSCHAFT);
+				Element element = new Element(Xml.KEY_EIGENSCHAFT);
 				element.setAttribute(Xml.KEY_NAME, AttributeType.ini.name());
 
 				int basefk = getAttributeValue(AttributeType.Mut) + getAttributeValue(AttributeType.Mut)
@@ -828,7 +928,10 @@ public class Hero {
 				basefk = Math.round(basefk / 5.0F);
 				element.setAttribute(Xml.KEY_VALUE, Util.toString(basefk));
 				element.setAttribute(Xml.KEY_MOD, "0");
-				getHeldElement().appendChild(element);
+				if (attributesNode == null)
+					getHeldElement().addContent(element);
+				else
+					attributesNode.addContent(element);
 				this.attributes.put(AttributeType.ini, new Attribute(element, this));
 			}
 
@@ -842,25 +945,27 @@ public class Hero {
 		if (armorAttributes == null) {
 			armorAttributes = new HashMap<Position, ArmorAttribute>(Position.values().length);
 
-			NodeList rsNodes = getHeldElement().getElementsByTagName(Xml.KEY_RUESTUNGSSCHUTZ);
+			@SuppressWarnings("unchecked")
+			List<Element> rsNodes = getHeldElement().getChildren(Xml.KEY_RUESTUNGSSCHUTZ);
+			List<Element> remove = new LinkedList<Element>();
 
 			final List<Position> armorPositions = DSATabApplication.getInstance().getConfiguration()
 					.getArmorPositions();
-			for (int i = 0; i < rsNodes.getLength(); i++) {
-				Element rsNode = null;
+			for (Element rsNode : rsNodes) {
 				try {
-					rsNode = (Element) rsNodes.item(i);
-
 					ArmorAttribute rs = new ArmorAttribute(rsNode, this);
 
 					if (armorPositions.contains(rs.getPosition())) {
 						armorAttributes.put(rs.getPosition(), rs);
 					}
 				} catch (Exception e) {
-					getHeldElement().removeChild(rsNode);
+					remove.add(rsNode);
 					Debug.warn(e);
 				}
 			}
+
+			for (Element node : remove)
+				getHeldElement().removeContent(node);
 
 			// fill not existing values with 0
 			for (Position pos : armorPositions) {
@@ -868,10 +973,10 @@ public class Hero {
 				ArmorAttribute rs = armorAttributes.get(pos);
 
 				if (rs == null) {
-					Element rsNode = dom.createElement(Xml.KEY_RUESTUNGSSCHUTZ);
+					Element rsNode = new Element(Xml.KEY_RUESTUNGSSCHUTZ);
 					rsNode.setAttribute(Xml.KEY_NAME, pos.name());
 					rsNode.setAttribute(Xml.KEY_VALUE, Integer.toString(getArmorRs(pos)));
-					getHeldElement().appendChild(rsNode);
+					getHeldElement().addContent(rsNode);
 					rs = new ArmorAttribute(rsNode, this);
 					armorAttributes.put(pos, rs);
 				}
@@ -885,18 +990,22 @@ public class Hero {
 		if (wounds == null) {
 			wounds = new HashMap<Position, WoundAttribute>(5);
 
-			NodeList rsNodes = getHeldElement().getElementsByTagName(Xml.KEY_WUNDE);
+			@SuppressWarnings("unchecked")
+			List<Element> rsNodes = getHeldElement().getChildren(Xml.KEY_WUNDE);
 
-			for (int i = 0; i < rsNodes.getLength(); i++) {
-				Element rsNode = null;
+			List<Element> remove = new LinkedList<Element>();
+			for (Element rsNode : rsNodes) {
 				try {
-					rsNode = (Element) rsNodes.item(i);
 					WoundAttribute rs = new WoundAttribute(this, rsNode);
 					wounds.put(rs.getPosition(), rs);
 				} catch (Exception e) {
-					getHeldElement().removeChild(rsNode);
+					remove.add(rsNode);
 					Debug.warn(e);
 				}
+			}
+
+			for (Element node : remove) {
+				getHeldElement().removeContent(node);
 			}
 
 			// fill not existing values with 0
@@ -906,10 +1015,10 @@ public class Hero {
 
 				if (rs == null) {
 
-					Element rsNode = dom.createElement(Xml.KEY_WUNDE);
+					Element rsNode = new Element(Xml.KEY_WUNDE);
 					rsNode.setAttribute(Xml.KEY_NAME, pos.name());
 					rsNode.setAttribute(Xml.KEY_VALUE, "0");
-					getHeldElement().appendChild(rsNode);
+					getHeldElement().addContent(rsNode);
 					rs = new WoundAttribute(this, rsNode);
 					wounds.put(pos, rs);
 				}
@@ -942,63 +1051,88 @@ public class Hero {
 
 	public Integer getGewicht() {
 
-		NodeList gewicht = getHeldElement().getElementsByTagName(Xml.KEY_GROESSE);
+		Element rasse = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_RASSE);
+		if (rasse != null) {
+			Element groesse = rasse.getChild(Xml.KEY_GROESSE);
+			if (groesse != null) {
+				return Util.parseInt(groesse.getAttributeValue(Xml.KEY_GEWICHT));
+			}
+		}
 
-		if (gewicht.getLength() > 0) {
-			return Util.parseInt(((Element) gewicht.item(0)).getAttribute(Xml.KEY_GEWICHT));
-		} else
-			return null;
+		return null;
 	}
 
 	public Integer getGroesse() {
 
-		NodeList rasse = getHeldElement().getElementsByTagName(Xml.KEY_GROESSE);
-
-		if (rasse.getLength() > 0) {
-			return Util.parseInt(((Element) rasse.item(0)).getAttribute(Xml.KEY_VALUE));
-		} else
-			return null;
+		Element rasse = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_RASSE);
+		if (rasse != null) {
+			Element groesse = rasse.getChild(Xml.KEY_GROESSE);
+			if (groesse != null) {
+				return Util.parseInt(groesse.getAttributeValue(Xml.KEY_VALUE));
+			}
+		}
+		return null;
 	}
 
 	public Integer getAlter() {
-		NodeList rasse = getHeldElement().getElementsByTagName(Xml.KEY_AUSSEHEN);
+		Element rasse = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_RASSE);
+		if (rasse != null) {
+			Element aussehen = rasse.getChild(Xml.KEY_AUSSEHEN);
+			if (aussehen != null) {
+				return Util.parseInt(aussehen.getAttributeValue(Xml.KEY_ALTER));
+			}
+		}
+		return null;
 
-		if (rasse.getLength() > 0) {
-			return Util.parseInt(((Element) rasse.item(0)).getAttribute(Xml.KEY_ALTER));
-		} else
-			return null;
 	}
 
 	public String getAugenFarbe() {
-		NodeList rasse = getHeldElement().getElementsByTagName(Xml.KEY_AUSSEHEN);
-
-		if (rasse.getLength() > 0) {
-			return ((Element) rasse.item(0)).getAttribute(Xml.KEY_EYECOLOR);
-		} else
-			return null;
+		Element rasse = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_RASSE);
+		if (rasse != null) {
+			Element aussehen = rasse.getChild(Xml.KEY_AUSSEHEN);
+			if (aussehen != null) {
+				return aussehen.getAttributeValue(Xml.KEY_EYECOLOR);
+			}
+		}
+		return null;
 	}
 
 	public String getHaarFarbe() {
-		NodeList rasse = getHeldElement().getElementsByTagName(Xml.KEY_AUSSEHEN);
-
-		if (rasse.getLength() > 0) {
-			return ((Element) rasse.item(0)).getAttribute(Xml.KEY_HAIRCOLOR);
-		} else
-			return null;
+		Element rasse = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_RASSE);
+		if (rasse != null) {
+			Element aussehen = rasse.getChild(Xml.KEY_AUSSEHEN);
+			if (aussehen != null) {
+				return aussehen.getAttributeValue(Xml.KEY_HAIRCOLOR);
+			}
+		}
+		return null;
 	}
 
 	public String getAusbildung() {
 
-		NodeList ausbildung = getHeldElement().getElementsByTagName(Xml.KEY_AUSBILDUNG);
-		if (ausbildung.getLength() > 0) {
-			String value = ((Element) ausbildung.item(0)).getAttribute(Xml.KEY_STRING);
+		Element ausbildungen = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_AUSBILDUNGEN);
+
+		if (ausbildungen != null) {
+			@SuppressWarnings("unchecked")
+			List<Element> ausbildungElements = ausbildungen.getChildren();
+
+			for (Element ausbildung : ausbildungElements) {
+				String value = ausbildung.getAttributeValue(Xml.KEY_STRING);
+				if (!TextUtils.isEmpty(value))
+					return value;
+			}
+		}
+
+		Element ausbildung = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_AUSBILDUNG);
+		if (ausbildung != null) {
+			String value = ausbildung.getAttributeValue(Xml.KEY_STRING);
 			if (!TextUtils.isEmpty(value))
 				return value;
 		}
 
-		NodeList profession = getHeldElement().getElementsByTagName(Xml.KEY_PROFESSION);
-		if (profession.getLength() > 0) {
-			String value = ((Element) profession.item(0)).getAttribute(Xml.KEY_STRING);
+		Element profession = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_PROFESSION);
+		if (profession != null) {
+			String value = profession.getAttributeValue(Xml.KEY_STRING);
 			if (!TextUtils.isEmpty(value))
 				return value;
 		}
@@ -1008,22 +1142,23 @@ public class Hero {
 	}
 
 	public String getHerkunft() {
-		NodeList rasse = getHeldElement().getElementsByTagName(Xml.KEY_RASSE);
 
-		if (rasse.getLength() > 0) {
-			return ((Element) rasse.item(0)).getAttribute(Xml.KEY_STRING);
+		Element rasse = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_RASSE);
+
+		if (rasse != null) {
+			return rasse.getAttributeValue(Xml.KEY_STRING);
 		} else
 			return null;
 	}
 
 	public String getName() {
-		return getHeldElement().getAttribute(Xml.KEY_NAME);
+		return getHeldElement().getAttributeValue(Xml.KEY_NAME);
 	}
 
 	public EditableValue getExperience() {
 		if (experience == null) {
 			experience = new Experience(this, "Abenteuerpunkte", DomUtil.getChildByTagName(getHeldElement(),
-					Xml.KEY_ABENTEUERPUNKTE));
+					Xml.KEY_BASIS, Xml.KEY_ABENTEUERPUNKTE));
 			experience.setMaximum(100000);
 		}
 		return experience;
@@ -1040,7 +1175,7 @@ public class Hero {
 	public EditableValue getFreeExperience() {
 		if (freeExperience == null) {
 			freeExperience = new EditableValue(this, "Freie Abenteuerpunkte", DomUtil.getChildByTagName(
-					getHeldElement(), Xml.KEY_FREIE_ABENTEUERPUNKTE));
+					getHeldElement(), Xml.KEY_BASIS, Xml.KEY_FREIE_ABENTEUERPUNKTE));
 			experience.setMaximum(100000);
 		}
 
@@ -1142,9 +1277,9 @@ public class Hero {
 			CombatProbe combatProbe = (CombatProbe) probe;
 			EquippedItem equippedItem = combatProbe.getEquippedItem();
 
-			if (equippedItem != null && equippedItem.getItem().hasSpecification(Weapon.class)) {
-				Item item = combatProbe.getEquippedItem().getItem();
-				Weapon weapon = item.getSpecification(Weapon.class);
+			if (equippedItem != null && equippedItem.getItemSpecification() instanceof Weapon) {
+				Item item = equippedItem.getItem();
+				Weapon weapon = (Weapon) equippedItem.getItemSpecification();
 
 				if (combatProbe.isAttack()) {
 					Debug.verbose("Hauptwaffe Wm Attack is " + weapon.getWmAt());
@@ -1249,8 +1384,8 @@ public class Hero {
 					}
 				}
 			}
-			if (equippedItem != null && equippedItem.getItem().hasSpecification(Shield.class)) {
-				Shield shield = (Shield) combatProbe.getEquippedItem().getItem().getSpecification(Shield.class);
+			if (equippedItem != null && equippedItem.getItemSpecification() instanceof Shield) {
+				Shield shield = (Shield) equippedItem.getItemSpecification();
 
 				if (combatProbe.isAttack()) {
 					Debug.verbose("Shield Wm Attack is " + shield.getWmAt());
@@ -1321,15 +1456,14 @@ public class Hero {
 
 	public List<SpecialFeature> getSpecialFeatures() {
 		if (specialFeatures == null) {
-			NodeList specialFeaturesNodes = getHeldElement().getElementsByTagName(Xml.KEY_SONDERFERTIGKEIT);
+
+			List<Element> sfs = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_SONDERFERTIGKEITEN,
+					Xml.KEY_SONDERFERTIGKEIT);
 
 			specialFeatures = new LinkedList<SpecialFeature>();
 
-			for (int i = 0; i < specialFeaturesNodes.getLength(); i++) {
-				Element feat = (Element) specialFeaturesNodes.item(i);
-
+			for (Element feat : sfs) {
 				specialFeatures.add(new SpecialFeature(feat));
-
 			}
 		}
 
@@ -1339,15 +1473,13 @@ public class Hero {
 
 	public List<Advantage> getAdvantages() {
 		if (advantages == null) {
-			NodeList specialFeaturesNodes = getHeldElement().getElementsByTagName(Xml.KEY_VORTEIL);
+
+			List<Element> sfs = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_VORTEILE, Xml.KEY_VORTEIL);
 
 			advantages = new LinkedList<Advantage>();
 
-			for (int i = 0; i < specialFeaturesNodes.getLength(); i++) {
-				Element feat = (Element) specialFeaturesNodes.item(i);
-
+			for (Element feat : sfs) {
 				advantages.add(new Advantage(feat));
-
 			}
 		}
 
@@ -1356,13 +1488,11 @@ public class Hero {
 
 	public List<Advantage> getDisadvantages() {
 		if (disadvantages == null) {
-			NodeList specialFeaturesNodes = getHeldElement().getElementsByTagName(Xml.KEY_NACHTEIL);
+			List<Element> sfs = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_VORTEILE, Xml.KEY_NACHTEIL);
 
 			disadvantages = new LinkedList<Advantage>();
 
-			for (int i = 0; i < specialFeaturesNodes.getLength(); i++) {
-				Element feat = (Element) specialFeaturesNodes.item(i);
-
+			for (Element feat : sfs) {
 				disadvantages.add(new Advantage(feat));
 			}
 		}
@@ -1408,8 +1538,8 @@ public class Hero {
 
 	public Event addEvent(EventCategory category, String message, String audioPath) {
 
-		Element element = dom.createElement(Xml.KEY_EREIGNIS);
-		getEventsElement().appendChild(element);
+		Element element = new Element(Xml.KEY_EREIGNIS);
+		getEventsElement().addContent(element);
 		Event event = new Event(element);
 		event.setCategory(category);
 		event.setComment(message);
@@ -1421,13 +1551,11 @@ public class Hero {
 	public Element getEventsElement() {
 		if (ereignisse == null) {
 
-			NodeList eventsList = getHeldElement().getElementsByTagName(Xml.KEY_EREIGNISSE);
+			ereignisse = getHeldElement().getChild(Xml.KEY_EREIGNISSE);
 
-			if (eventsList.getLength() == 0) {
-				ereignisse = dom.createElement(Xml.KEY_EREIGNISSE);
-				getHeldElement().appendChild(ereignisse);
-			} else {
-				ereignisse = (Element) eventsList.item(0);
+			if (events == null) {
+				ereignisse = new Element(Xml.KEY_EREIGNISSE);
+				getHeldElement().addContent(ereignisse);
 			}
 		}
 		return ereignisse;
@@ -1437,15 +1565,16 @@ public class Hero {
 		if (events == null) {
 			events = new LinkedList<Event>();
 
-			NodeList eventElements = getEventsElement().getElementsByTagName(Xml.KEY_EREIGNIS);
+			@SuppressWarnings("unchecked")
+			List<Element> eventElements = getEventsElement().getChildren(Xml.KEY_EREIGNIS);
 
-			for (int i = 0; i < eventElements.getLength(); i++) {
-				Element element = (Element) eventElements.item(i);
+			for (Element element : eventElements) {
 
-				if (element.hasAttribute(Xml.KEY_ABENTEUERPUNKTE_UPPER) || element.hasAttribute(Xml.KEY_OBJ))
+				if (element.getAttribute(Xml.KEY_ABENTEUERPUNKTE_UPPER) != null
+						|| element.getAttribute(Xml.KEY_OBJ) != null)
 					continue;
 
-				if ("Sonstiges Ereignis (Hinzugewinn)".equals(element.getAttribute(Xml.KEY_TEXT))) {
+				if ("Sonstiges Ereignis (Hinzugewinn)".equals(element.getAttributeValue(Xml.KEY_TEXT))) {
 					events.add(new Event(element));
 				}
 			}
@@ -1732,14 +1861,14 @@ public class Hero {
 
 			items = new LinkedList<Item>();
 
-			List<Node> itemsElements = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_GEGENSTAND);
+			List<Element> itemsElements = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_GEGENSTAENDE,
+					Xml.KEY_GEGENSTAND);
 
-			for (int i = 0; i < itemsElements.size(); i++) {
-				Element element = (Element) itemsElements.get(i);
+			for (Element element : itemsElements) {
 
-				if (element.hasAttribute(Xml.KEY_NAME)) {
+				if (element.getAttribute(Xml.KEY_NAME) != null) {
 
-					Item item = DataManager.getItemByName(element.getAttribute(Xml.KEY_NAME));
+					Item item = DataManager.getItemByName(element.getAttributeValue(Xml.KEY_NAME));
 
 					if (item != null) {
 
@@ -1748,10 +1877,10 @@ public class Hero {
 						items.add(item);
 
 					} else {
-						Debug.warning("Item not found generating it:" + element.getAttribute(Xml.KEY_NAME));
+						Debug.warning("Item not found generating it:" + element.getAttributeValue(Xml.KEY_NAME));
 
 						item = new Item();
-						item.setName(element.getAttribute(Xml.KEY_NAME));
+						item.setName(element.getAttributeValue(Xml.KEY_NAME));
 						item.addSpecification(new MiscSpecification(item, ItemType.Sonstiges));
 						item.setElement(element);
 						item.setId(UUID.randomUUID());
@@ -1767,16 +1896,13 @@ public class Hero {
 	}
 
 	public static String getChildValue(Element node, String childTagName, String childParamName) {
-		NodeList childList = node.getElementsByTagName(childTagName);
+		Element child = node.getChild(childTagName);
 
-		if (childList.getLength() > 0) {
-			Element child = (Element) childList.item(0);
-
-			if (child.hasAttribute(childParamName)) {
-				return child.getAttribute(childParamName);
-			}
+		if (child != null) {
+			return child.getAttributeValue(childParamName);
+		} else {
+			return null;
 		}
-		return null;
 	}
 
 	public Talent getTalent(String talentName) {
@@ -1787,19 +1913,38 @@ public class Hero {
 		return talentByName.get(talentName);
 	}
 
+	private void replaceTalent(Talent oldTalent, Talent newTalent) {
+
+		TalentGroup tg;
+
+		if (oldTalent != null) {
+			talentByName.remove(oldTalent.getName());
+			tg = talentGroups.get(oldTalent.getType());
+			tg.getTalents().remove(oldTalent);
+		}
+
+		if (newTalent != null) {
+			talentByName.put(newTalent.getName(), newTalent);
+			tg = talentGroups.get(newTalent.getType());
+			tg.getTalents().add(newTalent);
+		}
+
+	}
+
 	public Map<TalentGroupType, TalentGroup> getTalentGroups() {
 		if (talentGroups == null) {
 			talentGroups = new HashMap<TalentGroupType, TalentGroup>();
 
 			talentByName = new HashMap<String, Talent>();
 
-			List<Node> talentList = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_TALENT);
+			List<Element> talentList = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_TALENTLISTE,
+					Xml.KEY_TALENT);
 			Talent talent;
 			boolean found = false;
 			for (int i = 0; i < talentList.size(); i++) {
 				Element element = (Element) talentList.get(i);
 
-				if (!element.hasAttribute(Xml.KEY_VALUE))
+				if (element.getAttribute(Xml.KEY_VALUE) == null)
 					continue;
 
 				talent = new Talent(this, element);
@@ -1807,7 +1952,15 @@ public class Hero {
 				for (TalentGroupType type : TalentGroupType.values()) {
 					if (type.contains(talent.getName())) {
 
+						CombatTalentType combatType = CombatTalentType.byName(talent.getName());
+
+						if (combatType != null) {
+							if (combatType.isFk()) {
+								talent = new CombatDistanceTalent(this, talent.getElement());
+							}
+						}
 						found = true;
+						talent.setType(type);
 						TalentGroup tg = talentGroups.get(type);
 						if (tg != null) {
 							tg.getTalents().add(talent);
@@ -1816,6 +1969,7 @@ public class Hero {
 							tg.getTalents().add(talent);
 							talentGroups.put(type, tg);
 						}
+
 						break;
 					}
 				}
@@ -1826,13 +1980,42 @@ public class Hero {
 				talentByName.put(talent.getName(), talent);
 			}
 
+			// now replace regular talents with combattalents
+			List<Element> combatAttributesList = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_KAMPF,
+					Xml.KEY_KAMPFWERTE);
+
+			List<CombatTalentType> missingTypes = new ArrayList<CombatTalentType>(Arrays.asList(CombatTalentType
+					.values()));
+
+			for (Element element : combatAttributesList) {
+
+				String talentName = element.getAttributeValue(Xml.KEY_NAME);
+				talent = talentByName.get(talentName);
+				Element talentElement;
+				if (talent == null) {
+					// create a fake element
+					talentElement = new Element(Xml.KEY_TALENT);
+					talentElement.setAttribute(Xml.KEY_NAME, talentName);
+
+				} else {
+					talentElement = talent.getElement();
+				}
+
+				CombatMeleeTalent combatTalent = new CombatMeleeTalent(this, talentElement, element);
+				combatTalent.setType(TalentGroupType.Kampf);
+				replaceTalent(talent, combatTalent);
+
+				missingTypes.remove(combatTalent.getType());
+
+			}
+
 		}
 		return talentGroups;
 	}
 
 	public CombatStyle getCombatStyle() {
-		if (getHeldElement().hasAttribute(Xml.KEY_COMBATSTYLE))
-			return CombatStyle.valueOf(getHeldElement().getAttribute(Xml.KEY_COMBATSTYLE));
+		if (getHeldElement().getAttribute(Xml.KEY_COMBATSTYLE) != null)
+			return CombatStyle.valueOf(getHeldElement().getAttributeValue(Xml.KEY_COMBATSTYLE));
 		else
 			return CombatStyle.Offensive;
 	}
@@ -1842,54 +2025,6 @@ public class Hero {
 			getHeldElement().setAttribute(Xml.KEY_COMBATSTYLE, style.name());
 		else
 			getHeldElement().removeAttribute(Xml.KEY_COMBATSTYLE);
-	}
-
-	public List<CombatMeleeTalent> getCombatMeleeTalents() {
-		if (combatTalents == null) {
-			NodeList combatAttributesList = getHeldElement().getElementsByTagName(Xml.KEY_KAMPFWERTE);
-
-			combatTalents = new ArrayList<CombatMeleeTalent>(combatAttributesList.getLength());
-
-			List<CombatTalentType> missingTypes = new ArrayList<CombatTalentType>(Arrays.asList(CombatTalentType
-					.values()));
-
-			for (int i = 0; i < combatAttributesList.getLength(); i++) {
-				Element element = (Element) combatAttributesList.item(i);
-				CombatMeleeTalent talent = new CombatMeleeTalent(this, element);
-				combatTalents.add(talent);
-
-				missingTypes.remove(talent.getType());
-			}
-
-			// add missing combat talents with a value of base.
-			for (CombatTalentType talentType : missingTypes) {
-
-				// skip fernkampf talent
-				if (talentType.isFk())
-					continue;
-
-				String talentName = talentType.getName();
-
-				Element element = dom.createElement(Xml.KEY_KAMPFWERTE);
-				element.setAttribute(Xml.KEY_NAME, talentName);
-
-				Element attacke = dom.createElement(Xml.KEY_ATTACKE);
-				attacke.setAttribute(Xml.KEY_VALUE, Util.toString(getAttributeValue(AttributeType.at)));
-				Element parade = dom.createElement(Xml.KEY_PARADE);
-				parade.setAttribute(Xml.KEY_VALUE, Util.toString(getAttributeValue(AttributeType.pa)));
-
-				element.appendChild(attacke);
-				element.appendChild(parade);
-				getHeldElement().appendChild(element);
-
-				CombatMeleeTalent talent = new CombatMeleeTalent(this, element);
-				combatTalents.add(talent);
-			}
-
-		}
-
-		return combatTalents;
-
 	}
 
 	public CombatShieldTalent getCombatShieldTalent() {
@@ -1905,7 +2040,8 @@ public class Hero {
 
 	public List<Spell> getSpells() {
 		if (spells == null) {
-			List<Node> spellList = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_ZAUBER);
+			List<Element> spellList = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_ZAUBERLISTE,
+					Xml.KEY_ZAUBER);
 
 			spells = new ArrayList<Spell>(spellList.size());
 
@@ -1939,38 +2075,51 @@ public class Hero {
 		return null;
 	}
 
-	public CombatTalent getCombatTalent(String name) {
-		for (CombatTalent talent : getCombatMeleeTalents()) {
-			if (talent.getName().equals(name)) {
-				return talent;
-			}
-		}
-		for (CombatTalent talent : getCombatDistanceTalents()) {
-			if (talent.getName().equals(name)) {
-				return talent;
-			}
-		}
-		return null;
-	}
+	public BaseCombatTalent getCombatTalent(String name) {
 
-	public List<CombatDistanceTalent> getCombatDistanceTalents() {
-
-		if (combatDistanceTalents == null) {
-
-			combatDistanceTalents = new ArrayList<CombatDistanceTalent>(10);
-			for (Talent talent : getTalentGroups().get(TalentGroupType.Kampf).getTalents()) {
-
-				CombatTalentType type = CombatTalentType.byName(talent.getName());
-				if (!type.isFk())
-					continue;
-
-				combatDistanceTalents.add(new CombatDistanceTalent(this, talent.getElement()));
-			}
-
+		// init talents
+		if (talentByName == null) {
+			getTalentGroups();
 		}
 
-		return combatDistanceTalents;
+		Talent talent = talentByName.get(name);
 
+		if (talent == null) {
+
+			// add missing combat talents with a value of base.
+			CombatTalentType talentType = CombatTalentType.byName(name);
+
+			Element element = new Element(Xml.KEY_KAMPFWERTE);
+			element.setAttribute(Xml.KEY_NAME, name);
+
+			if (talentType.isFk()) {
+				// TODO what shall be do in such a case???
+			} else {
+				Element attacke = new Element(Xml.KEY_ATTACKE);
+				Element parade = new Element(Xml.KEY_PARADE);
+
+				Element talentElement = new Element(Xml.KEY_TALENT);
+				talentElement.setAttribute(Xml.KEY_NAME, name);
+				talentElement.setAttribute(Xml.KEY_BE, talentType.getBe());
+				// TODO what value do i have for a talent if i do not know it?
+				talentElement.setAttribute(Xml.KEY_VALUE, "0");
+
+				attacke.setAttribute(Xml.KEY_VALUE, Util.toString(getAttributeValue(AttributeType.at)));
+				parade.setAttribute(Xml.KEY_VALUE, Util.toString(getAttributeValue(AttributeType.pa)));
+
+				element.addContent(attacke);
+				element.addContent(parade);
+
+				talent = new CombatMeleeTalent(this, talentElement, element);
+				talent.setType(TalentGroupType.Kampf);
+			}
+
+		}
+
+		if (talent instanceof BaseCombatTalent)
+			return (BaseCombatTalent) talent;
+		else
+			return null;
 	}
 
 	public void setName(String name) {
@@ -1986,7 +2135,7 @@ public class Hero {
 		}
 
 		getEvents().remove(event);
-		getEventsElement().removeChild(event.getElement());
+		getEventsElement().removeContent(event.getElement());
 	}
 
 	public void removeEquippedItem(EquippedItem equippedItem) {
@@ -1995,7 +2144,7 @@ public class Hero {
 			equippedItem.getSecondaryItem().setSecondaryItem(null);
 		}
 
-		getHeldElement().removeChild(equippedItem.getElement());
+		getHeldElement().removeContent(equippedItem.getElement());
 
 		for (int i = 0; i < MAXIMUM_SET_NUMBER; i++) {
 			getEquippedItems(i).remove(equippedItem);

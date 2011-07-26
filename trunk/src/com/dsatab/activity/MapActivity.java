@@ -49,6 +49,8 @@ public class MapActivity extends BaseMainActivity implements OnTouchListener {
 	private static final String PREF_KEY_LAST_MAP_COORDINATES = "lastMapCoordinates";
 	private static final String PREF_KEY_LAST_MAP = "lastMap";
 
+	private static final String MAP_DIR = "maps";
+
 	public enum TouchMode {
 		None, Drag, Zoom;
 	}
@@ -93,7 +95,7 @@ public class MapActivity extends BaseMainActivity implements OnTouchListener {
 
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-		File mapDir = new File(DSATabApplication.getDsaTabPath(), "maps");
+		File mapDir = new File(DSATabApplication.getDsaTabPath(), MAP_DIR);
 		if (!mapDir.exists())
 			mapDir.mkdirs();
 

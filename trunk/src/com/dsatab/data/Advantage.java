@@ -1,6 +1,6 @@
 package com.dsatab.data;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 import android.text.TextUtils;
 
@@ -15,16 +15,16 @@ public class Advantage {
 
 	public Advantage(Element element) {
 
-		this.name = element.getAttribute(Xml.KEY_NAME);
+		this.name = element.getAttributeValue(Xml.KEY_NAME);
 
 		if (name.startsWith("Begabung für ") && getValueAsString() != null) {
 			this.name = "Begabung für " + getValueAsString();
 		}
 
-		this.comment = element.getAttribute(Xml.KEY_COMMENT);
+		this.comment = element.getAttributeValue(Xml.KEY_COMMENT);
 
-		if (element.hasAttribute(Xml.KEY_VALUE))
-			this.valueString = element.getAttribute(Xml.KEY_VALUE);
+		if (element.getAttribute(Xml.KEY_VALUE) != null)
+			this.valueString = element.getAttributeValue(Xml.KEY_VALUE);
 
 	}
 

@@ -4,7 +4,7 @@ import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
 
-public class CombatShieldTalent implements Probe, CombatTalent {
+public class CombatShieldTalent extends BaseCombatTalent implements Probe {
 
 	protected Hero hero;
 
@@ -13,6 +13,7 @@ public class CombatShieldTalent implements Probe, CombatTalent {
 	protected Integer value;
 
 	public CombatShieldTalent(Hero hero) {
+		super(hero, null, null);
 		this.hero = hero;
 		this.type = CombatTalentType.Raufen;
 
@@ -34,6 +35,50 @@ public class CombatShieldTalent implements Probe, CombatTalent {
 		return "Schildparade";
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.BaseCombatTalent#isFavorite()
+	 */
+	@Override
+	public boolean isFavorite() {
+		// TODO Auto-generated method stub
+		return super.isFavorite();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.BaseCombatTalent#setFavorite(boolean)
+	 */
+	@Override
+	public void setFavorite(boolean value) {
+		// TODO Auto-generated method stub
+		super.setFavorite(value);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.BaseCombatTalent#isUnused()
+	 */
+	@Override
+	public boolean isUnused() {
+		// TODO Auto-generated method stub
+		return super.isUnused();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.BaseCombatTalent#setUnused(boolean)
+	 */
+	@Override
+	public void setUnused(boolean value) {
+		// TODO Auto-generated method stub
+		super.setUnused(value);
+	}
+
 	@Override
 	public Integer getErschwernis() {
 		return null;
@@ -47,7 +92,7 @@ public class CombatShieldTalent implements Probe, CombatTalent {
 		return this;
 	}
 
-	public CombatTalentType getType() {
+	public CombatTalentType getCombatTalentType() {
 		return type;
 	}
 

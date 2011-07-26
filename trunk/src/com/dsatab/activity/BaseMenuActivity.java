@@ -22,7 +22,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
@@ -35,7 +34,6 @@ import com.dsatab.common.HeroExchange;
 import com.dsatab.data.Hero;
 import com.dsatab.view.LiteInfoDialog;
 import com.gandulf.guilib.util.Debug;
-import com.paypal.android.MEP.PayPalActivity;
 
 public abstract class BaseMenuActivity extends Activity {
 
@@ -44,7 +42,6 @@ public abstract class BaseMenuActivity extends Activity {
 	public static final int ACTION_PREFERENCES = 1000;
 	protected static final int ACTION_INVENTORY = 1003;
 	protected static final int ACTION_CHOOSE_HERO = 1004;
-	public static final int ACTION_PAYPAL = 1005;
 
 	protected SharedPreferences preferences;
 
@@ -107,28 +104,6 @@ public abstract class BaseMenuActivity extends Activity {
 			String heroPath = data.getStringExtra(HeroChooserActivity.INTENT_NAME_HERO_PATH);
 			Debug.verbose("HeroChooserActivity returned with path:" + heroPath);
 			loadHero(heroPath);
-		} else if (requestCode == ACTION_PAYPAL) {
-
-			switch (resultCode) {
-			case Activity.RESULT_OK:
-
-				SharedPreferences preferences = DSATabApplication.getPreferences();
-
-				Editor edit = preferences.edit();
-				edit.putBoolean(DsaPreferenceActivity.KEY_FULL_VERSION, true);
-				edit.commit();
-
-				Toast.makeText(this, "Vielen dank für deine Spende", Toast.LENGTH_SHORT).show();
-				break;
-
-			case Activity.RESULT_CANCELED:
-
-				break;
-
-			case PayPalActivity.RESULT_FAILURE:
-				Toast.makeText(this, "Deine Spende konnte leider nicht erfolgreich verbucht werden", Toast.LENGTH_LONG)
-						.show();
-			}
 		}
 	}
 
@@ -144,6 +119,28 @@ public abstract class BaseMenuActivity extends Activity {
 		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onStart()
+	 */
+	@Override
+	protected void onStart() {
+		AnalyticsManager.startSession(this);
+		super.onStart();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onStop()
+	 */
+	@Override
+	protected void onStop() {
+		AnalyticsManager.endSession(this);
+		super.onStop();
 	}
 
 	/*
@@ -245,6 +242,7 @@ public abstract class BaseMenuActivity extends Activity {
 				tease("<strong>Nie wieder nach einer bestimmten Karte suchen.</strong> Schau dir all deine Karten bequem über DsaTab an. <br/><br/> <em>Achtung:</em> Das Kartenmaterial selbst ist nicht in DsaTab enthalten und muss eingescannt oder aus dem Internet heruntergeladen werden.");
 			else {
 				startActivity(new Intent(this, MapActivity.class));
+				AnalyticsManager.onEvent(AnalyticsManager.PAGE_MAP);
 				finish();
 			}
 		}
@@ -260,6 +258,7 @@ public abstract class BaseMenuActivity extends Activity {
 				tease("<strong>Mal eben schnell deine Ausrüstung wechseln?.</strong> Hier kannst du deine gesamte Ausrüstung bequem verwalten. Einen neuen Gegenstand hinzufügen? Kein Problem DsaTab verfügt über die wichtigsten Daten des gesamten Aventurischen Arsenals und noch viele zusätzliche nützliche Gegenstände mehr.");
 			else {
 				startActivity(new Intent(this, ItemsActivity.class));
+				AnalyticsManager.onEvent(AnalyticsManager.PAGE_ITEMS);
 				finish();
 			}
 		}
@@ -273,6 +272,7 @@ public abstract class BaseMenuActivity extends Activity {
 				tease("<strong>Nie wieder einen wichtigen Hinweis vergessen.</strong> Du kannst jetzt Notizen entweder aufschreiben, oder noch bequemer einfach über das eingebaute Mikrofon aufnehmen und dann abspielen.");
 			else {
 				startActivity(new Intent(this, NotesActivity.class));
+				AnalyticsManager.onEvent(AnalyticsManager.PAGE_NOTES);
 				finish();
 			}
 

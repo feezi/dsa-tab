@@ -26,7 +26,7 @@ public class CombatProbe implements Probe {
 		if (combatTalent instanceof CombatShieldTalent && equippedItem.getSecondaryItem() != null) {
 
 			// shields and paradeweapons use the BE from their main weapon
-			type = equippedItem.getSecondaryItem().getTalent().getType();
+			type = equippedItem.getSecondaryItem().getTalent().getCombatTalentType();
 		}
 	}
 
@@ -66,7 +66,12 @@ public class CombatProbe implements Probe {
 
 	@Override
 	public String getProbe() {
-		return probe.getProbe();
+		// distance talents actually have probe values (MU/FF/KK) but they are
+		// not used in case of a attack
+		if (probe instanceof CombatDistanceTalent)
+			return null;
+		else
+			return probe.getProbe();
 	}
 
 	@Override

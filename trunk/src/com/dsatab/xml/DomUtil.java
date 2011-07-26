@@ -19,44 +19,50 @@ package com.dsatab.xml;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.jdom.Element;
 
 /**
- * @author Ganymede
+ * 
  * 
  */
 public class DomUtil {
 
-	public static Element getChildByTagName(Element parent, String tagName) {
+	public static Element getChildByTagName(Element parent, String subParentTagName, String tagName) {
 
-		NodeList nodeList = parent.getElementsByTagName(tagName);
+		if (subParentTagName != null) {
+			Element subParent = parent.getChild(subParentTagName);
 
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			Node element = (Node) nodeList.item(i);
-
-			if (element.getParentNode().equals(parent))
-				return (Element) element;
+			if (subParent != null) {
+				parent = subParent;
+			}
 		}
 
-		return null;
+		return parent.getChild(tagName);
 	}
 
-	public static List<Node> getChildrenByTagName(Element parent, String tagName) {
+	public static List<Element> getChildrenByTagName(Element parent, String subParentTagName, String tagName) {
 
-		List<Node> children = new LinkedList<Node>();
+		List<Element> children = new LinkedList<Element>();
+		List<Element> parentList = null;
 
-		NodeList spellList = parent.getElementsByTagName(tagName);
+		if (subParentTagName != null) {
 
-		for (int i = 0; i < spellList.getLength(); i++) {
-			Node element = (Node) spellList.item(i);
+			@SuppressWarnings("unchecked")
+			List<Element> subParents = parent.getChildren(subParentTagName);
 
-			if (element.getParentNode().equals(parent))
-				children.add(element);
+			if (!subParents.isEmpty())
+				parentList = subParents;
+
+		}
+
+		if (parentList != null && !parentList.isEmpty()) {
+			for (Element subParent : parentList) {
+				children.addAll(subParent.getChildren(tagName));
+			}
+		} else {
+			children = parent.getChildren(tagName);
 		}
 
 		return children;
-
 	}
 }

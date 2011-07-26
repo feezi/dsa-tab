@@ -17,7 +17,7 @@ package com.dsatab.view.drag;
 
 import java.io.Serializable;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 import com.dsatab.common.Util;
 import com.dsatab.xml.Xml;
@@ -104,16 +104,16 @@ public class ItemLocationInfo implements Serializable, Cloneable {
 		if (element == null)
 			return;
 
-		if (element.hasAttribute(Xml.KEY_CELL_X))
-			setCellX(Util.parseInt(element.getAttribute(Xml.KEY_CELL_X)));
-		if (element.hasAttribute(Xml.KEY_CELL_Y))
-			setCellY(Util.parseInt(element.getAttribute(Xml.KEY_CELL_Y)));
-		if (element.hasAttribute(Xml.KEY_SCREEN))
-			setScreen(Util.parseInt(element.getAttribute(Xml.KEY_SCREEN)));
-		if (element.hasAttribute(Xml.KEY_SPAN_X))
-			setSpanX(Util.parseInt(element.getAttribute(Xml.KEY_SPAN_X)));
-		if (element.hasAttribute(Xml.KEY_SPAN_Y))
-			setSpanY(Util.parseInt(element.getAttribute(Xml.KEY_SPAN_Y)));
+		if (element.getAttribute(Xml.KEY_CELL_X) !=null)
+			setCellX(Util.parseInt(element.getAttributeValue(Xml.KEY_CELL_X)));
+		if (element.getAttribute(Xml.KEY_CELL_Y) !=null)
+			setCellY(Util.parseInt(element.getAttributeValue(Xml.KEY_CELL_Y)));
+		if (element.getAttribute(Xml.KEY_SCREEN) !=null)
+			setScreen(Util.parseInt(element.getAttributeValue(Xml.KEY_SCREEN)));
+		if (element.getAttribute(Xml.KEY_SPAN_X) !=null)
+			setSpanX(Util.parseInt(element.getAttributeValue(Xml.KEY_SPAN_X)));
+		if (element.getAttribute(Xml.KEY_SPAN_Y) !=null)
+			setSpanY(Util.parseInt(element.getAttributeValue(Xml.KEY_SPAN_Y)));
 	}
 
 	/*

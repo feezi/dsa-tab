@@ -2,17 +2,17 @@ package com.dsatab.data.items;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 import android.text.TextUtils;
 
 import com.dsatab.activity.DSATabApplication;
 import com.dsatab.view.drag.ItemLocationInfo;
-import com.dsatab.xml.DomUtil;
 import com.dsatab.xml.Xml;
 import com.gandulf.guilib.util.Debug;
 
@@ -75,6 +75,18 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		return itemSpecs;
 	}
 
+	public List<String> getSpecificationNames() {
+		List<String> specInfo = new ArrayList<String>(getSpecifications().size());
+
+		for (ItemSpecification itemSpec : getSpecifications()) {
+			specInfo.add(itemSpec.getName()
+					+ (itemSpec.getSpecificationLabel() != null ? "(" + itemSpec.getSpecificationLabel() + ")" : "")
+					+ ": " + itemSpec.getInfo());
+		}
+
+		return specInfo;
+	}
+
 	public boolean hasSpecification(Class<? extends ItemSpecification> type) {
 		for (ItemSpecification itemSpecification : itemSpecs) {
 			if (itemSpecification.getClass() == type)
@@ -124,11 +136,11 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		this.element = element;
 		this.itemInfo.setElement(element);
 
-		Element domallgemein = DomUtil.getChildByTagName(element, Xml.KEY_MOD_ALLGEMEIN);
+		Element domallgemein = element.getChild(Xml.KEY_MOD_ALLGEMEIN);
 		if (domallgemein != null) {
-			Element name = DomUtil.getChildByTagName(domallgemein, Xml.KEY_NAME);
+			Element name = domallgemein.getChild(Xml.KEY_NAME);
 			if (name != null) {
-				title = name.getAttribute(Xml.KEY_VALUE);
+				title = name.getAttributeValue(Xml.KEY_VALUE);
 			}
 		}
 

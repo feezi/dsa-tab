@@ -16,13 +16,15 @@
  */
 package com.dsatab.data.items;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 public abstract class ItemSpecification {
 
 	protected Item item;
 
 	protected ItemType type;
+
+	protected String specificationLabel;
 
 	protected int version;
 
@@ -35,6 +37,14 @@ public abstract class ItemSpecification {
 	public abstract String getInfo();
 
 	public abstract String getName();
+
+	public String getSpecificationLabel() {
+		return specificationLabel;
+	}
+
+	public void setSpecificationLabel(String specificationLabel) {
+		this.specificationLabel = specificationLabel;
+	}
 
 	public abstract void setElement(Element element);
 

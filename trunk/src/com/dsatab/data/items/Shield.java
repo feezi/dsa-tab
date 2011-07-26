@@ -3,7 +3,7 @@ package com.dsatab.data.items;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 import com.dsatab.R;
 import com.dsatab.common.Util;
@@ -96,7 +96,7 @@ public class Shield extends ItemSpecification {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.dsatab.data.items.ItemSpecification#setElement(org.w3c.dom.Element)
+	 * com.dsatab.data.items.ItemSpecification#setElement(org.jdom.Element)
 	 */
 	@Override
 	public void setElement(Element element) {

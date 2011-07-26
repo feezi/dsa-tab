@@ -1,7 +1,8 @@
 package com.dsatab.data;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
+import com.dsatab.data.enums.AttributeType;
 import com.dsatab.xml.Xml;
 
 public class CombatMeleeAttribute implements Probe, Value {
@@ -24,19 +25,30 @@ public class CombatMeleeAttribute implements Probe, Value {
 		this.hero = hero;
 		this.talent = talent;
 		this.element = element;
-		this.referenceValue = getValue();
-		if (Xml.KEY_ATTACKE.equals(element.getNodeName()))
+		if (Xml.KEY_ATTACKE.equals(element.getName()))
 			this.name = ATTACKE;
-		else if (Xml.KEY_PARADE.equals(element.getNodeName()))
+		else if (Xml.KEY_PARADE.equals(element.getName()))
 			this.name = PARADE;
+
+		this.referenceValue = getValue();
+	}
+
+	public Integer getBaseValue() {
+		int base = 0;
+		if (isAttack()) {
+			base = hero.getAttributeValue(AttributeType.at);
+		} else {
+			base = hero.getAttributeValue(AttributeType.pa);
+		}
+		return base;
 	}
 
 	public String getBe() {
-		return talent.getType().getBe();
+		return talent.getCombatTalentType().getBe();
 	}
 
 	public int getMinimum() {
-		return 0;
+		return getBaseValue();
 	}
 
 	@Override
@@ -45,7 +57,7 @@ public class CombatMeleeAttribute implements Probe, Value {
 	}
 
 	public int getMaximum() {
-		return 25;
+		return getBaseValue() + talent.getValue();
 	}
 
 	public String getName() {
@@ -75,10 +87,15 @@ public class CombatMeleeAttribute implements Probe, Value {
 	}
 
 	public Integer getValue() {
-		if (element.hasAttribute(Xml.KEY_VALUE))
-			return Integer.parseInt(element.getAttribute(Xml.KEY_VALUE));
-		else
-			return null;
+		if (element.getAttribute(Xml.KEY_VALUE) != null)
+			return Integer.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
+		else {
+			// TODO implement Verwandte Talente
+
+			// talent not known MbK S.73 Ableiten von Talenten: At Basis -2, Pa
+			// Basis -3
+			return getBaseValue() - (isAttack() ? 2 : 3);
+		}
 	}
 
 	public void setValue(Integer value) {

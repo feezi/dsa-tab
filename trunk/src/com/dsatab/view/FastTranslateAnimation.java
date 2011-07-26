@@ -18,7 +18,7 @@ package com.dsatab.view;
 import android.view.animation.TranslateAnimation;
 
 /**
- * @author Ganymede
+ * 
  * 
  */
 public class FastTranslateAnimation extends TranslateAnimation {

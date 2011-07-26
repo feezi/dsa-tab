@@ -1,12 +1,13 @@
 package com.dsatab.view;
 
 import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +28,7 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 
 	private MainCharacterActivity main;
 
-	private List<File> portraitPaths;
+	private List<URI> portraitPaths;
 
 	public PortraitChooserDialog(MainCharacterActivity context) {
 		super(context);
@@ -51,11 +52,11 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 
 		File[] files = mapDir.listFiles();
 		if (files != null) {
-			portraitPaths = new ArrayList<File>(files.length);
+			portraitPaths = new ArrayList<URI>(files.length);
 
 			for (File file : files) {
 				if (file.isFile()) {
-					portraitPaths.add(file);
+					portraitPaths.add(file.toURI());
 				}
 			}
 		}
@@ -81,17 +82,17 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		getMain().setPortraitFile(portraitPaths.get(position).getName());
+		getMain().setPortraitFile(portraitPaths.get(position));
 		dismiss();
 	}
 
-	class PortraitAdapter extends ArrayAdapter<File> {
+	class PortraitAdapter extends ArrayAdapter<URI> {
 
-		public PortraitAdapter(Context context, int resource, int textViewResourceId, List<File> objects) {
+		public PortraitAdapter(Context context, int resource, int textViewResourceId, List<URI> objects) {
 			super(context, resource, textViewResourceId, objects);
 		}
 
-		public PortraitAdapter(Context context, int resource, int textViewResourceId, File[] objects) {
+		public PortraitAdapter(Context context, int resource, int textViewResourceId, URI[] objects) {
 			super(context, resource, textViewResourceId, objects);
 		}
 
@@ -99,11 +100,11 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 			super(context, resource, textViewResourceId);
 		}
 
-		public PortraitAdapter(Context context, int textViewResourceId, List<File> objects) {
+		public PortraitAdapter(Context context, int textViewResourceId, List<URI> objects) {
 			super(context, textViewResourceId, objects);
 		}
 
-		public PortraitAdapter(Context context, int textViewResourceId, File[] objects) {
+		public PortraitAdapter(Context context, int textViewResourceId, URI[] objects) {
 			super(context, textViewResourceId, objects);
 		}
 
@@ -121,9 +122,8 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 				tv = (ImageView) getLayoutInflater().inflate(R.layout.popup_portrait_chooser_item, null);
 			}
 
-			File file = getItem(position);
-			Drawable drawable = Drawable.createFromPath(file.getAbsolutePath());
-			tv.setImageDrawable(drawable);
+			URI file = getItem(position);
+			tv.setImageURI(Uri.parse(file.toString()));
 
 			return tv;
 		}

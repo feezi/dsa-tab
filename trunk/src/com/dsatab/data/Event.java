@@ -1,6 +1,6 @@
 package com.dsatab.data;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 import com.dsatab.data.enums.EventCategory;
 import com.dsatab.xml.Xml;
@@ -22,13 +22,13 @@ public class Event {
 	public Event(Element element) {
 		this.element = element;
 
-		if (!element.hasAttribute(Xml.KEY_TEXT)) {
+		if (element.getAttribute(Xml.KEY_TEXT) == null) {
 			element.setAttribute(Xml.KEY_TEXT, "Sonstiges Ereignis (Hinzugewinn)");
 		}
 
-		if (element.hasAttribute(Xml.KEY_KOMMENTAR)) {
+		if (element.getAttribute(Xml.KEY_KOMMENTAR) != null) {
 
-			String s = element.getAttribute(Xml.KEY_KOMMENTAR);
+			String s = element.getAttributeValue(Xml.KEY_KOMMENTAR);
 
 			if (s.startsWith(PREFIX_CATEGORY)) {
 				this.category = EventCategory.valueOf(s.substring(9, s.indexOf(SEPERATOR)));
@@ -75,15 +75,15 @@ public class Event {
 	}
 
 	public String getType() {
-		return element.getAttribute(Xml.KEY_TEXT);
+		return element.getAttributeValue(Xml.KEY_TEXT);
 	}
 
 	public String getTime() {
-		return element.getAttribute(Xml.KEY_TIME);
+		return element.getAttributeValue(Xml.KEY_TIME);
 	}
 
 	public String getVersion() {
-		return element.getAttribute(Xml.KEY_VERSION);
+		return element.getAttributeValue(Xml.KEY_VERSION);
 	}
 
 	public Element getElement() {

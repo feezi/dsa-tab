@@ -40,12 +40,14 @@ import android.widget.Toast;
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.Attribute;
+import com.dsatab.data.CombatMeleeTalent;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Probe;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.view.DiceSlider;
 import com.dsatab.view.InlineEditDialog;
+import com.dsatab.view.InlineEditFightDialog;
 import com.dsatab.view.PurseDialog;
 import com.dsatab.view.listener.ShakeListener;
 import com.dsatab.view.listener.ValueChangedListener;
@@ -67,7 +69,7 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 
 	protected boolean tabFlingEnabled = true;
 
-	class EditListener implements View.OnClickListener, View.OnLongClickListener {
+	public class EditListener implements View.OnClickListener, View.OnLongClickListener {
 
 		public void onClick(View v) {
 
@@ -102,7 +104,7 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 
 	}
 
-	class ProbeListener implements View.OnClickListener, View.OnLongClickListener {
+	public class ProbeListener implements View.OnClickListener, View.OnLongClickListener {
 
 		public void onClick(View v) {
 
@@ -342,35 +344,41 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 		case R.id.gen_tab_char:
 			if (!getClass().equals(MainCharacterActivity.class)) {
 				startActivity(new Intent(this, MainCharacterActivity.class));
+				AnalyticsManager.onEvent(AnalyticsManager.PAGE_CHARACTER);
 				finish();
 			}
 			break;
 		case R.id.gen_tab_talents:
 			if (!getClass().equals(MainTalentActivity.class)) {
 				startActivity(new Intent(this, MainTalentActivity.class));
+				AnalyticsManager.onEvent(AnalyticsManager.PAGE_TALENTS);
 				finish();
 			}
 			break;
 		case R.id.gen_tab_magic:
 			if (!getClass().equals(MainSpellActivity.class)) {
 				startActivity(new Intent(this, MainSpellActivity.class));
+				AnalyticsManager.onEvent(AnalyticsManager.PAGE_SPELLS);
 				finish();
 			}
 			break;
 		case R.id.gen_tab_fight:
 			if (!getClass().equals(MainFightActivity.class)) {
 				startActivity(new Intent(this, MainFightActivity.class));
+				AnalyticsManager.onEvent(AnalyticsManager.PAGE_FIGHT);
 				finish();
 			}
 			break;
 		case R.id.gen_tab_body:
 			if (!getClass().equals(MainBodyActivity.class)) {
 				startActivity(new Intent(this, MainBodyActivity.class));
+				AnalyticsManager.onEvent(AnalyticsManager.PAGE_ARMOR_WOUNDS);
 				finish();
 			}
 			break;
 		case R.id.gen_tab_coins:
 			PurseDialog dialog = new PurseDialog(this, getHero());
+			AnalyticsManager.onEvent(AnalyticsManager.PAGE_PURSE);
 			dialog.show();
 			break;
 
@@ -504,9 +512,29 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 		if (DSATabApplication.getInstance().isLiteVersion()) {
 			tease("<strong>Mal eben schnell einen Wert steigern?</strong> Mit der Vollversion von DsaTab können Eigenschaften, Talente, Zauber, Rüstungsschutz und noch vieles mehr einfach und bequem editiert werden. Getätigte Änderungen werden in der XML Datei nachgezogen und können somit auch wieder in die Helden-Software importiert werden, falls notwendig. ");
 		} else {
-			InlineEditDialog inlineEditdialog = new InlineEditDialog(this, value);
-			inlineEditdialog.setTitle(value.getName());
-			inlineEditdialog.show();
+
+			if (value instanceof CombatMeleeTalent) {
+				InlineEditFightDialog inlineEditFightdialog = new InlineEditFightDialog(this, (CombatMeleeTalent) value);
+				inlineEditFightdialog.setTitle(value.getName());
+				inlineEditFightdialog.show();
+			} else {
+				InlineEditDialog inlineEditdialog = new InlineEditDialog(this, value);
+				inlineEditdialog.setTitle(value.getName());
+				inlineEditdialog.show();
+			}
+		}
+	}
+
+	public void showEditPopup(CombatMeleeTalent value) {
+
+		if (DSATabApplication.getInstance().isLiteVersion()) {
+			tease("<strong>Mal eben schnell einen Wert steigern?</strong> Mit der Vollversion von DsaTab können Eigenschaften, Talente, Zauber, Rüstungsschutz und noch vieles mehr einfach und bequem editiert werden. Getätigte Änderungen werden in der XML Datei nachgezogen und können somit auch wieder in die Helden-Software importiert werden, falls notwendig. ");
+		} else {
+
+			InlineEditFightDialog inlineEditFightdialog = new InlineEditFightDialog(this, value);
+			inlineEditFightdialog.setTitle(value.getName());
+			inlineEditFightdialog.show();
+
 		}
 	}
 

@@ -1,8 +1,9 @@
 package com.dsatab.data;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 import com.dsatab.common.Util;
+import com.dsatab.data.TalentGroup.TalentGroupType;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.xml.Xml;
 
@@ -16,30 +17,40 @@ public class Talent implements Probe, Value, Markable {
 
 	private Hero hero;
 
+	private TalentGroupType type;
+
 	public Talent(Hero hero, Element element) {
 		this.element = element;
 		this.hero = hero;
 	}
 
 	public String getName() {
-		return element.getAttribute(Xml.KEY_NAME);
+		return element.getAttributeValue(Xml.KEY_NAME);
 	}
 
 	public String getProbe() {
-		return element.getAttribute(Xml.KEY_PROBE);
+		return element.getAttributeValue(Xml.KEY_PROBE);
 	}
 
 	public boolean isFavorite() {
-		if (element.hasAttribute(Xml.KEY_FAVORITE)) {
-			return Boolean.valueOf(element.getAttribute(Xml.KEY_FAVORITE));
+		if (element != null && element.getAttribute(Xml.KEY_FAVORITE) !=null) {
+			return Boolean.valueOf(element.getAttributeValue(Xml.KEY_FAVORITE));
 		} else {
 			return false;
 		}
 	}
 
+	public TalentGroupType getType() {
+		return type;
+	}
+
+	public void setType(TalentGroupType type) {
+		this.type = type;
+	}
+
 	public boolean isUnused() {
-		if (element.hasAttribute(Xml.KEY_UNUSED)) {
-			return Boolean.valueOf(element.getAttribute(Xml.KEY_UNUSED));
+		if (element != null && element.getAttribute(Xml.KEY_UNUSED) !=null) {
+			return Boolean.valueOf(element.getAttributeValue(Xml.KEY_UNUSED));
 		} else {
 			return false;
 		}
@@ -61,7 +72,6 @@ public class Talent implements Probe, Value, Markable {
 
 	@Override
 	public Integer getErschwernis() {
-
 		return null;
 	}
 
@@ -93,8 +103,8 @@ public class Talent implements Probe, Value, Markable {
 	}
 
 	public Integer getValue() {
-		if (element.hasAttribute(Xml.KEY_VALUE))
-			return Integer.parseInt(element.getAttribute(Xml.KEY_VALUE));
+		if (element.getAttribute(Xml.KEY_VALUE) !=null)
+			return Integer.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
 		else
 			return null;
 	}
@@ -121,8 +131,8 @@ public class Talent implements Probe, Value, Markable {
 	}
 
 	public String getBe() {
-		if (element.hasAttribute(Xml.KEY_BE) && Util.isNotBlank(element.getAttribute(Xml.KEY_BE)))
-			return element.getAttribute(Xml.KEY_BE);
+		if (element.getAttribute(Xml.KEY_BE) !=null && Util.isNotBlank(element.getAttributeValue(Xml.KEY_BE)))
+			return element.getAttributeValue(Xml.KEY_BE);
 		else
 			return null;
 	}

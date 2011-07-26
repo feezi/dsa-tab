@@ -15,8 +15,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.dsatab.R;
+import com.dsatab.activity.BaseMainActivity.EditListener;
+import com.dsatab.activity.BaseMainActivity.ProbeListener;
 import com.dsatab.activity.DSATabApplication;
 import com.dsatab.common.Util;
+import com.dsatab.data.BaseCombatTalent;
+import com.dsatab.data.CombatDistanceTalent;
+import com.dsatab.data.CombatMeleeTalent;
+import com.dsatab.data.CombatProbe;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Talent;
 import com.dsatab.data.TalentGroup;
@@ -30,6 +36,9 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 	private Hero hero;
 
 	private FilterSettings filterSettings;
+
+	private ProbeListener probeListener;
+	private EditListener editListener;
 
 	private Map<TalentGroupType, List<Talent>> groupsMap;
 
@@ -115,6 +124,10 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 			ViewGroup parent) {
 
 		View listItem = null;
+
+		Talent talent = getChild(groupPosition, childPosition);
+		BaseCombatTalent combatTalent = hero.getCombatTalent(talent.getName());
+
 		if (convertView instanceof LinearLayout) {
 			listItem = convertView;
 		} else {
@@ -128,27 +141,116 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 		TextView text2 = (TextView) listItem.findViewById(R.id.talent_list_item_text2);
 		// probe
 		TextView text3 = (TextView) listItem.findViewById(R.id.talent_list_item_text3);
-		// value
+		// value / at
 		TextView text4 = (TextView) listItem.findViewById(R.id.talent_list_item_text4);
-
-		Talent talent = getChild(groupPosition, childPosition);
+		// pa
+		TextView text5 = (TextView) listItem.findViewById(R.id.talent_list_item_text5);
 
 		text1.setText(talent.getName());
-		if (TextUtils.isEmpty(talent.getBe())) {
-			((LinearLayout.LayoutParams) text1.getLayoutParams()).weight = 0.6f;
-			text2.setVisibility(View.GONE);
+
+		String be = talent.getBe();
+		if (combatTalent != null) {
+			be = combatTalent.getBe();
+		}
+
+		if (TextUtils.isEmpty(be)) {
+			setVisibility(text2, false, text1);
 		} else {
-			((LinearLayout.LayoutParams) text1.getLayoutParams()).weight = 0.45f;
-			text2.setVisibility(View.VISIBLE);
-			text2.setText(talent.getBe());
+			setVisibility(text2, true, text1);
+			text2.setText(be);
 		}
 		text3.setText(talent.getProbe());
-		text4.setText(Util.toString(talent.getValue()));
 
+		if (combatTalent != null) {
+
+			// make text5 visible
+			setVisibility(text5, true, text1);
+
+			if (combatTalent instanceof CombatMeleeTalent) {
+				CombatMeleeTalent meleeTalent = (CombatMeleeTalent) combatTalent;
+
+				if (meleeTalent.getAttack() != null || meleeTalent.getAttack().getValue() != null) {
+					text4.setText(Integer.toString(meleeTalent.getAttack().getValue()));
+					text4.setOnClickListener(probeListener);
+					text4.setTag(R.id.TAG_KEY_VALUE, meleeTalent.getAttack());
+					text4.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(hero, meleeTalent, true));
+					setVisibility(text4, true, text1);
+				} else {
+					text4.setText("");
+					text4.setTag(R.id.TAG_KEY_VALUE, null);
+					text4.setTag(R.id.TAG_KEY_PROBE, null);
+					text4.setOnClickListener(null);
+					setVisibility(text4, false, text1);
+				}
+
+				if (meleeTalent.getDefense() != null && meleeTalent.getDefense().getValue() != null) {
+					text5.setText(Integer.toString(meleeTalent.getDefense().getValue()));
+					text5.setOnClickListener(probeListener);
+					text5.setTag(R.id.TAG_KEY_VALUE, meleeTalent.getDefense());
+					text5.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(hero, meleeTalent, false));
+					setVisibility(text5, true, text1);
+				} else {
+					text5.setText("");
+					text5.setTag(R.id.TAG_KEY_VALUE, null);
+					text5.setTag(R.id.TAG_KEY_PROBE, null);
+					text5.setOnClickListener(null);
+					setVisibility(text5, false, text1);
+				}
+
+			} else if (combatTalent instanceof CombatDistanceTalent) {
+				CombatDistanceTalent distanceTalent = (CombatDistanceTalent) combatTalent;
+
+				if (distanceTalent.getAttack() != null || distanceTalent.getAttack().getValue() != null) {
+					text4.setText(Integer.toString(distanceTalent.getAttack().getValue()));
+					text4.setOnClickListener(probeListener);
+					text4.setTag(R.id.TAG_KEY_VALUE, distanceTalent.getAttack());
+					text4.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(hero, distanceTalent, true));
+					setVisibility(text4, true, text1);
+				} else {
+					text4.setText("");
+					text4.setTag(R.id.TAG_KEY_VALUE, null);
+					text4.setTag(R.id.TAG_KEY_PROBE, null);
+					text4.setOnClickListener(null);
+					setVisibility(text4, false, text1);
+				}
+				text5.setText("");
+				text5.setTag(R.id.TAG_KEY_VALUE, null);
+				text5.setTag(R.id.TAG_KEY_PROBE, null);
+				text5.setOnClickListener(null);
+				setVisibility(text5, false, text1);
+			}
+
+		} else {
+			text4.setText(Util.toString(talent.getValue()));
+			text4.setTag(R.id.TAG_KEY_VALUE, null);
+			text4.setTag(R.id.TAG_KEY_PROBE, null);
+			text4.setOnClickListener(null);
+			text4.setClickable(false);
+			// hide text5 and expand text1 with its width
+			setVisibility(text5, false, text1);
+
+		}
 		Util.applyRowStyle(talent, listItem, childPosition);
 
 		listItem.setTag(talent);
 		return listItem;
+	}
+
+	private void setVisibility(View view, boolean visible, View expander) {
+		if (visible && view.getVisibility() != View.VISIBLE) {
+
+			view.setVisibility(View.VISIBLE);
+			// weight of text5 is added to text1 if invisible
+			((LinearLayout.LayoutParams) expander.getLayoutParams()).weight -= ((LinearLayout.LayoutParams) view
+					.getLayoutParams()).weight;
+		}
+
+		if (!visible && view.getVisibility() == View.VISIBLE) {
+			view.setVisibility(View.GONE);
+			// weight of text5 is added to text1 if invisible
+			((LinearLayout.LayoutParams) expander.getLayoutParams()).weight += ((LinearLayout.LayoutParams) view
+					.getLayoutParams()).weight;
+		}
 	}
 
 	public TalentGroupType getGroup(int groupPosition) {
@@ -185,6 +287,22 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 
 	public boolean hasStableIds() {
 		return false;
+	}
+
+	public ProbeListener getProbeListener() {
+		return probeListener;
+	}
+
+	public void setProbeListener(ProbeListener probeListener) {
+		this.probeListener = probeListener;
+	}
+
+	public EditListener getEditListener() {
+		return editListener;
+	}
+
+	public void setEditListener(EditListener editListener) {
+		this.editListener = editListener;
 	}
 
 }

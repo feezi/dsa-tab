@@ -1,6 +1,6 @@
 package com.dsatab.data;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
@@ -8,7 +8,7 @@ import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
 import com.dsatab.xml.Xml;
 
-public class CombatDistanceTalent implements Probe, Value, CombatTalent, Markable {
+public class CombatDistanceTalent extends BaseCombatTalent implements Probe, Value {
 
 	private Element element;
 
@@ -19,14 +19,11 @@ public class CombatDistanceTalent implements Probe, Value, CombatTalent, Markabl
 	private Integer referenceValue;
 
 	public CombatDistanceTalent(Hero hero, Element element) {
+		super(hero, element, null);
 		this.hero = hero;
 		this.element = element;
 		this.type = CombatTalentType.byName(getName());
 		this.referenceValue = getValue();
-	}
-
-	public String getName() {
-		return element.getAttribute(Xml.KEY_NAME);
 	}
 
 	@Override
@@ -42,38 +39,8 @@ public class CombatDistanceTalent implements Probe, Value, CombatTalent, Markabl
 		return null;
 	}
 
-	public CombatTalentType getType() {
+	public CombatTalentType getCombatTalentType() {
 		return type;
-	}
-
-	public boolean isFavorite() {
-		if (element.hasAttribute(Xml.KEY_FAVORITE)) {
-			return Boolean.valueOf(element.getAttribute(Xml.KEY_FAVORITE));
-		} else {
-			return false;
-		}
-	}
-
-	public boolean isUnused() {
-		if (element.hasAttribute(Xml.KEY_UNUSED)) {
-			return Boolean.valueOf(element.getAttribute(Xml.KEY_UNUSED));
-		} else {
-			return false;
-		}
-	}
-
-	public void setFavorite(boolean value) {
-		if (value)
-			element.setAttribute(Xml.KEY_FAVORITE, Boolean.TRUE.toString());
-		else
-			element.removeAttribute(Xml.KEY_FAVORITE);
-	}
-
-	public void setUnused(boolean value) {
-		if (value)
-			element.setAttribute(Xml.KEY_UNUSED, Boolean.TRUE.toString());
-		else
-			element.removeAttribute(Xml.KEY_UNUSED);
 	}
 
 	public String getBe() {
@@ -86,10 +53,6 @@ public class CombatDistanceTalent implements Probe, Value, CombatTalent, Markabl
 
 	public int getMaximum() {
 		return 32;
-	}
-
-	public String getProbe() {
-		return null;
 	}
 
 	@Override
@@ -111,9 +74,8 @@ public class CombatDistanceTalent implements Probe, Value, CombatTalent, Markabl
 	}
 
 	public Integer getValue() {
-
-		if (element.hasAttribute(Xml.KEY_VALUE)) {
-			return Util.parseInt(element.getAttribute(Xml.KEY_VALUE)) + getBaseValue();
+		if (element.getAttribute(Xml.KEY_VALUE) !=null) {
+			return Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE)) + getBaseValue();
 		} else
 			return null;
 	}

@@ -18,7 +18,7 @@ package com.dsatab.view;
 import android.view.animation.AnimationSet;
 
 /**
- * @author Ganymede
+ * 
  * 
  */
 

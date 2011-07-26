@@ -1,6 +1,6 @@
 package com.dsatab.data;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
@@ -22,7 +22,7 @@ public class WoundAttribute extends AbstractModifier {
 	}
 
 	public String getName() {
-		return element.getAttribute(Xml.KEY_NAME);
+		return element.getAttributeValue(Xml.KEY_NAME);
 	}
 
 	@Override
@@ -62,8 +62,8 @@ public class WoundAttribute extends AbstractModifier {
 	}
 
 	public Integer getValue() {
-		if (element.hasAttribute(Xml.KEY_VALUE)) {
-			return Util.parseInt(element.getAttribute(Xml.KEY_VALUE));
+		if (element.getAttribute(Xml.KEY_VALUE) !=null) {
+			return Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
 		} else {
 			return null;
 		}

@@ -17,7 +17,7 @@
 package com.dsatab.data;
 
 /**
- * @author Ganymede
+ * 
  * 
  */
 public interface Markable {

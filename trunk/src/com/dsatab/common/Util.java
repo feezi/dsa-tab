@@ -97,19 +97,19 @@ public class Util {
 	public static void applyRowStyle(Markable markable, View row, int position) {
 		if (position % 2 == 1) {
 			if (markable.isFavorite())
-				row.setBackgroundResource(R.color.RowFavoriteOdd);
+				row.setBackgroundResource(R.drawable.list_row_odd_fav);
 			else if (markable.isUnused()) {
-				row.setBackgroundResource(R.color.RowUnusedOdd);
+				row.setBackgroundResource(R.drawable.list_row_odd_unused);
 			} else {
-				row.setBackgroundResource(R.color.RowOdd);
+				row.setBackgroundResource(R.drawable.list_row_odd);
 			}
 		} else {
 			if (markable.isFavorite())
-				row.setBackgroundResource(R.color.RowFavoriteEven);
+				row.setBackgroundResource(R.drawable.list_row_even_fav);
 			else if (markable.isUnused()) {
-				row.setBackgroundResource(R.color.RowUnusedEven);
+				row.setBackgroundResource(R.drawable.list_row_even_unused);
 			} else {
-				row.setBackgroundResource(R.color.RowEven);
+				row.setBackgroundResource(R.drawable.list_row_even);
 			}
 		}
 	}

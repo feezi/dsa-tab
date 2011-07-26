@@ -1,10 +1,10 @@
 package com.dsatab.data;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.jdom.Element;
 
 import com.dsatab.common.Util;
 import com.dsatab.xml.Xml;
@@ -95,11 +95,11 @@ public class Purse {
 		this.element = element;
 		coins = new HashMap<PurseUnit, Element>(4);
 
-		NodeList nodes = element.getElementsByTagName(Xml.KEY_MUENZE);
+		List<?> nodes = element.getChildren(Xml.KEY_MUENZE);
 
-		for (int i = 0; i < nodes.getLength(); i++) {
-			Element m = (Element) nodes.item(i);
-			PurseUnit w = PurseUnit.getByXmlName(m.getAttribute(Xml.KEY_NAME));
+		for (int i = 0; i < nodes.size(); i++) {
+			Element m = (Element) nodes.get(i);
+			PurseUnit w = PurseUnit.getByXmlName(m.getAttributeValue(Xml.KEY_NAME));
 			coins.put(w, m);
 		}
 	}
@@ -117,10 +117,10 @@ public class Purse {
 		Element m = coins.get(w);
 
 		if (m == null) {
-			m = element.getOwnerDocument().createElement(Xml.KEY_MUENZE);
+			m = new Element(Xml.KEY_MUENZE);
 			m.setAttribute(Xml.KEY_WAEHRUNG, activeCurrency.xmlName());
 			m.setAttribute(Xml.KEY_NAME, w.xmlName());
-			element.appendChild(m);
+			element.addContent(m);
 
 			coins.put(w, m);
 		}
@@ -130,7 +130,7 @@ public class Purse {
 	public int getCoins(PurseUnit w) {
 		Element m = coins.get(w);
 		if (m != null)
-			return Util.parseInt(m.getAttribute(Xml.KEY_ANZAHL));
+			return Util.parseInt(m.getAttributeValue(Xml.KEY_ANZAHL));
 		else
 			return 0;
 	}
