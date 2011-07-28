@@ -10,6 +10,7 @@ import java.util.StringTokenizer;
 
 import android.view.Gravity;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.dsatab.R;
@@ -111,6 +112,23 @@ public class Util {
 			} else {
 				row.setBackgroundResource(R.drawable.list_row_even);
 			}
+		}
+	}
+
+	public static void setVisibility(View view, boolean visible, View expander) {
+		if (visible && view.getVisibility() != View.VISIBLE) {
+
+			view.setVisibility(View.VISIBLE);
+			// weight of text5 is added to text1 if invisible
+			((LinearLayout.LayoutParams) expander.getLayoutParams()).weight -= ((LinearLayout.LayoutParams) view
+					.getLayoutParams()).weight;
+		}
+
+		if (!visible && view.getVisibility() == View.VISIBLE) {
+			view.setVisibility(View.GONE);
+			// weight of text5 is added to text1 if invisible
+			((LinearLayout.LayoutParams) expander.getLayoutParams()).weight += ((LinearLayout.LayoutParams) view
+					.getLayoutParams()).weight;
 		}
 	}
 

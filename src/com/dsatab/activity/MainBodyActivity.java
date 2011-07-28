@@ -17,6 +17,7 @@
 package com.dsatab.activity;
 
 import android.content.Intent;
+import android.graphics.drawable.LevelListDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnLongClickListener;
@@ -53,9 +54,7 @@ public class MainBodyActivity extends BaseMainActivity implements OnLongClickLis
 
 		bodyLayout = (BodyLayout) findViewById(R.id.body_layout);
 
-		findViewById(R.id.body_set1).setOnClickListener(this);
-		findViewById(R.id.body_set2).setOnClickListener(this);
-		findViewById(R.id.body_set3).setOnClickListener(this);
+		findViewById(R.id.fight_set).setOnClickListener(this);
 
 		bodyLayout.setOnArmorClickListener(this);
 		bodyLayout.setOnArmorLongClickListener(this);
@@ -92,16 +91,9 @@ public class MainBodyActivity extends BaseMainActivity implements OnLongClickLis
 		super.onClick(v);
 
 		switch (v.getId()) {
-		case R.id.body_set1:
-			selectItemSet(0);
+		case R.id.fight_set:
+			selectItemSet(getHero().getNextActiveSet());
 			break;
-		case R.id.body_set2:
-			selectItemSet(1);
-			break;
-		case R.id.body_set3:
-			selectItemSet(2);
-			break;
-
 		}
 
 		// wounds
@@ -145,9 +137,9 @@ public class MainBodyActivity extends BaseMainActivity implements OnLongClickLis
 			getHero().setActiveSet(i);
 			getHero().resetArmorAttributes();
 
-			findViewById(R.id.body_set1).setSelected(i == 0);
-			findViewById(R.id.body_set2).setSelected(i == 1);
-			findViewById(R.id.body_set3).setSelected(i == 2);
+			ImageButton fightSet = (ImageButton) findViewById(R.id.fight_set);
+			LevelListDrawable drawable = (LevelListDrawable) fightSet.getDrawable();
+			drawable.setLevel(getHero().getActiveSet());
 		}
 	}
 
@@ -185,9 +177,9 @@ public class MainBodyActivity extends BaseMainActivity implements OnLongClickLis
 		bodyLayout.setWoundAttributes(hero.getWounds());
 		bodyLayout.setArmorAttributes(hero.getArmorAttributes());
 
-		findViewById(R.id.body_set1).setSelected(hero.getActiveSet() == 0);
-		findViewById(R.id.body_set2).setSelected(hero.getActiveSet() == 1);
-		findViewById(R.id.body_set3).setSelected(hero.getActiveSet() == 2);
+		ImageButton fightSet = (ImageButton) findViewById(R.id.fight_set);
+		LevelListDrawable drawable = (LevelListDrawable) fightSet.getDrawable();
+		drawable.setLevel(getHero().getActiveSet());
 
 		((TextView) findViewById(R.id.body_total_rs)).setText(Util.toString(hero.getArmorRs()));
 		((TextView) findViewById(R.id.body_total_be)).setText(Util.toString(hero.getArmorBe()));

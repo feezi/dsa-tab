@@ -5,7 +5,7 @@
 	android:id="@+id/popup_edit_layout">
 
 
-	<include android:layout_height="wrap_content" layout="@layout/fight_sheet_item"
+	<include android:layout_height="wrap_content" layout="@layout/item_listitem"
 		android:id="@+id/inc_archery_item" android:layout_width="fill_parent"></include>
 	<TextView android:layout_below="@+id/inc_archery_item"
 		android:layout_height="wrap_content" android:layout_width="wrap_content"

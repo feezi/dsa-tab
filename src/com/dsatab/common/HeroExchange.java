@@ -63,7 +63,7 @@ import com.dsatab.activity.BaseMenuActivity;
 import com.dsatab.activity.DSATabApplication;
 import com.dsatab.activity.DsaPreferenceActivity;
 import com.dsatab.data.Hero;
-import com.dsatab.xml.XmlParserNew;
+import com.dsatab.xml.XmlParser;
 import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.util.ErrorHandler;
 
@@ -259,7 +259,7 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 			ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile));
 
 			ByteArrayOutputStream fos = new ByteArrayOutputStream();
-			XmlParserNew.writeHero(hero, fos);
+			XmlParser.writeHero(hero, fos);
 
 			String filename = null;
 			if (hero.getPath() != null) {

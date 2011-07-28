@@ -37,7 +37,7 @@ import com.dsatab.R;
 import com.dsatab.data.Hero;
 import com.dsatab.data.HeroInfo;
 import com.dsatab.view.drag.IconCache;
-import com.dsatab.xml.XmlParserNew;
+import com.dsatab.xml.XmlParser;
 import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.util.ErrorHandler;
 
@@ -232,7 +232,7 @@ public class DSATabApplication extends Application {
 
 			Debug.verbose("Opened inputstream for hero at " + path);
 
-			hero = XmlParserNew.readHero(path, fis);
+			hero = XmlParser.readHero(path, fis);
 			if (hero != null) {
 				Debug.verbose("Hero successfully parsed");
 
@@ -275,7 +275,7 @@ public class DSATabApplication extends Application {
 		OutputStream out = null;
 		try {
 			out = new FileOutputStream(new File(hero.getPath()));
-			XmlParserNew.writeHero(hero, out);
+			XmlParser.writeHero(hero, out);
 			hero.onHeroSaved();
 			Toast.makeText(this, getString(R.string.hero_saved, hero.getName()), Toast.LENGTH_SHORT).show();
 		} catch (IOException e) {

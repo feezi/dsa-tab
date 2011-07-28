@@ -25,8 +25,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
 import com.dsatab.R;
 import com.dsatab.data.Hero;
@@ -45,19 +48,20 @@ import com.gandulf.guilib.drag.DragController;
 import com.gandulf.guilib.drag.DragLayer;
 import com.gandulf.guilib.drag.DragSource;
 import com.gandulf.guilib.util.Debug;
+import com.gandulf.guilib.view.adapter.SpinnerSimpleAdapter;
 
 public class ItemsActivity extends BaseMainActivity implements View.OnLongClickListener, View.OnClickListener,
-		DragController.DragListener<ItemCard>, OnScreenChangeListener, InventoryChangedListener {
+		DragController.DragListener<ItemCard>, OnScreenChangeListener, InventoryChangedListener, OnItemSelectedListener {
 
 	private static final int ACTION_CHOOSE_CARD = 2;
 
 	private DragController<ItemCard> mDragController;
-	private Workspace mWorkspace;
-	private DeleteZone mDeleteZone;
 
-	private ImageView mPreviousView;
-	private ImageView mNextView;
-	private TextView mScreenTextView;
+	private DragLayer mDragLayer;
+
+	private Workspace mWorkspace;
+
+	private Spinner mScreenBtn;
 
 	private ItemCard selectedItem = null;
 
@@ -214,7 +218,7 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 	}
 
 	private boolean isSetIndex(int index) {
-		return index >= 0 && index < 3;
+		return index >= 0 && index < Hero.MAXIMUM_SET_NUMBER;
 	}
 
 	private int getActiveSet() {
@@ -235,7 +239,19 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 		super.onCreate(savedInstanceState);
 		tabFlingEnabled = false;
 		mDragController = new DragController<ItemCard>(this);
-		mScreenTextView = (TextView) findViewById(R.id.screen_set_text);
+		mScreenBtn = (Spinner) findViewById(R.id.screen_set_button);
+		mScreenBtn.setOnItemSelectedListener(this);
+
+		List<String> items = new LinkedList<String>();
+		for (int i = 1; i <= Hero.MAXIMUM_SET_NUMBER; i++) {
+			items.add("Set " + i);
+		}
+
+		for (int i = 1; i <= 2; i++) {
+			items.add("Ausrüstung " + i);
+		}
+		SpinnerAdapter adapter = new SpinnerSimpleAdapter<String>(this, items);
+		mScreenBtn.setAdapter(adapter);
 
 		setupViews();
 	}
@@ -248,17 +264,17 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 		// 192*288
 		// 120*180
 
-		DragLayer dragLayer = (DragLayer) findViewById(R.id.drag_layer);
-		dragLayer.setDragController(mDragController);
+		mDragLayer = (DragLayer) findViewById(R.id.drag_layer);
+		mDragLayer.setDragController(mDragController);
 
-		mWorkspace = (Workspace) dragLayer.findViewById(R.id.workspace);
+		mWorkspace = (Workspace) mDragLayer.findViewById(R.id.workspace);
 		mWorkspace.setHapticFeedbackEnabled(false);
 
-		mDeleteZone = (DeleteZone) dragLayer.findViewById(R.id.delete_zone);
+		DeleteZone mDeleteZone = (DeleteZone) mDragLayer.findViewById(R.id.delete_zone);
 		mDeleteZone.setOrientation(DeleteZone.ORIENTATION_HORIZONTAL);
 
-		mPreviousView = (ImageView) dragLayer.findViewById(R.id.previous_screen);
-		mNextView = (ImageView) dragLayer.findViewById(R.id.next_screen);
+		ImageView mPreviousView = (ImageView) mDragLayer.findViewById(R.id.previous_screen);
+		ImageView mNextView = (ImageView) mDragLayer.findViewById(R.id.next_screen);
 
 		Drawable previous = mPreviousView.getDrawable();
 		Drawable next = mNextView.getDrawable();
@@ -279,14 +295,13 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 		mDragController.setDragScoller(mWorkspace);
 		mDragController.addDragListener(mDeleteZone);
 		mDragController.addDragListener(this);
-		mDragController.setScrollView(dragLayer);
 		mDragController.setMoveTarget(mWorkspace);
 
 		// The order here is bottom to top.
 		mDragController.addDropTarget(mWorkspace);
 		mDragController.addDropTarget(mDeleteZone);
 
-		updateTextView(mWorkspace.getCurrentScreen());
+		updateSpinner(mWorkspace.getCurrentScreen());
 
 	}
 
@@ -301,14 +316,11 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 	public void onScreenChange(int oldScreen, int newScreen) {
 		if (isSetIndex(newScreen))
 			getHero().setActiveSet(newScreen);
-		updateTextView(newScreen);
+		updateSpinner(newScreen);
 	}
 
-	private void updateTextView(int newScreen) {
-		if (isSetIndex(newScreen))
-			mScreenTextView.setText("Set " + (newScreen + 1));
-		else
-			mScreenTextView.setText("Ausrüstung");
+	private void updateSpinner(int newScreen) {
+		mScreenBtn.setSelection(newScreen);
 	}
 
 	/*
@@ -320,7 +332,8 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 	 */
 	@Override
 	public void onDragStart(DragSource<ItemCard> source, ItemCard info, int dragAction) {
-		mScreenTextView.setVisibility(View.INVISIBLE);
+		mDragController.setScrollView(mDragLayer);
+		mScreenBtn.setVisibility(View.INVISIBLE);
 	}
 
 	/*
@@ -396,7 +409,8 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 	 */
 	@Override
 	public void onDragEnd() {
-		mScreenTextView.setVisibility(View.VISIBLE);
+		mScreenBtn.setVisibility(View.VISIBLE);
+		mDragController.setScrollView(null);
 	}
 
 	private void fillBodyItems(Hero hero) {
@@ -486,8 +500,11 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 	}
 
 	private void showScreen(int i) {
-		mWorkspace.setCurrentScreen(i);
-		updateTextView(i);
+
+		if (i != mWorkspace.getCurrentScreen()) {
+			mWorkspace.setCurrentScreen(i);
+			updateSpinner(i);
+		}
 	}
 
 	private void selectItem(ItemCard itemCard, CellLayout.CellInfo cellInfo) {
@@ -521,20 +538,51 @@ public class ItemsActivity extends BaseMainActivity implements View.OnLongClickL
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see
+	 * android.widget.AdapterView.OnItemSelectedListener#onItemSelected(android
+	 * .widget.AdapterView, android.view.View, int, long)
+	 */
+	@Override
+	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+		if (position != AdapterView.INVALID_POSITION)
+			showScreen(position);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.widget.AdapterView.OnItemSelectedListener#onNothingSelected(android
+	 * .widget.AdapterView)
+	 */
+	@Override
+	public void onNothingSelected(AdapterView<?> parent) {
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.view.View.OnClickListener#onClick(android.view.View)
 	 */
 	@Override
 	public void onClick(View v) {
 		super.onClick(v);
-		if (v == mNextView) {
+
+		switch (v.getId()) {
+		case R.id.next_screen:
 			mWorkspace.scrollRight();
-		} else if (v == mPreviousView) {
+			return;
+		case R.id.previous_screen:
 			mWorkspace.scrollLeft();
-		} else if (v.getTag() instanceof ItemCard) {
+			return;
+		}
+
+		if (v.getTag() instanceof ItemCard) {
 			ItemCard item = (ItemCard) v.getTag();
 			selectItem(item, null);
 		} else {
-			// click on empt cell open browser for items
+			// click on empty cell open browser for items
 			if (!(v instanceof CellLayout)) {
 				v = (View) v.getParent();
 			}

@@ -75,7 +75,6 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 		}
 		iconLeft.setImageResource(item.getResourceId());
 		iconLeft.setOnClickListener(this);
-		iconRight.setVisibility(View.GONE);
 	}
 
 	public void onClick(View v) {
@@ -177,8 +176,12 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 		text1.setTextColor(Color.parseColor("#dddddd"));
 		text2.setTextColor(Color.parseColor("#dddddd"));
 
-		iconLeft = (ImageButton) popupcontent.findViewById(R.id.icon_left);
-		iconRight = (ImageButton) popupcontent.findViewById(R.id.icon_right);
+		iconLeft = (ImageButton) popupcontent.findViewById(android.R.id.icon1);
+		iconLeft.setVisibility(View.VISIBLE);
+		iconLeft.setFocusable(true);
+		iconLeft.setClickable(true);
+		iconRight = (ImageButton) popupcontent.findViewById(android.R.id.icon2);
+		iconRight.setVisibility(View.GONE);
 
 		btnOthers = (Button) popupcontent.findViewById(R.id.archery_others);
 		btnOthers.setOnClickListener(this);

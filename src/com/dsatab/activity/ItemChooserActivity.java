@@ -117,7 +117,7 @@ public class ItemChooserActivity extends Activity implements View.OnClickListene
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.items_details);
+		setContentView(R.layout.sheet_item);
 
 		Item foundItem = null;
 		String itemCategory;

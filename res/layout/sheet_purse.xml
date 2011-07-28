@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="fill_parent"
+	android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
+	android:alwaysDrawnWithCache="false" android:padding="5dip">
+    <Spinner android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentLeft="true" android:layout_alignParentRight="true" android:id="@+id/sp_currency"></Spinner>
+		<TableLayout android:layout_width="wrap_content" android:id="@+id/tableLayout1" android:layout_height="wrap_content" android:layout_alignParentBottom="true" android:layout_below="@+id/sp_currency" android:weightSum="1.0" android:stretchColumns="0,1,2,3" android:shrinkColumns="0,1,2,3">
+			<TableRow android:id="@+id/tableRow1" android:layout_width="wrap_content" android:layout_height="wrap_content">
+				<TextView android:textSize="12dp" android:text="Dukaten" android:layout_height="wrap_content" android:gravity="center_horizontal" android:layout_width="wrap_content" android:ellipsize="end" android:layout_weight="1.0" android:id="@+id/tv_currency1" style="@style/TextLabelSmall"></TextView>
+				<TextView android:textSize="12dp" android:text="Silber" android:layout_height="wrap_content" android:gravity="center_horizontal" android:layout_width="wrap_content" android:ellipsize="end" android:layout_weight="1.0" android:id="@+id/tv_currency2" style="@style/TextLabelSmall"></TextView>
+				<TextView android:textSize="12dp" android:text="Heller" android:layout_height="wrap_content" android:gravity="center_horizontal" android:layout_width="wrap_content" android:ellipsize="end" android:layout_weight="1.0" android:id="@+id/tv_currency3" style="@style/TextLabelSmall"></TextView>
+				<TextView android:textSize="12dp" android:text="Kreuzer" android:layout_height="wrap_content" android:gravity="center_horizontal" android:layout_width="wrap_content" android:ellipsize="end" android:layout_weight="1.0" android:id="@+id/tv_currency4" style="@style/TextLabelSmall"></TextView>
+			</TableRow>
+			<TableRow android:id="@+id/tableRow2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1.0">
+				<com.gandulf.guilib.view.NumberPicker android:layout_width="wrap_content" android:orientation="vertical" android:layout_weight="1.0" android:id="@+id/popup_purse_dukat" android:layout_height="fill_parent"></com.gandulf.guilib.view.NumberPicker>
+				<com.gandulf.guilib.view.NumberPicker android:layout_width="wrap_content" android:orientation="vertical" android:layout_weight="1.0" android:id="@+id/popup_purse_silver" android:layout_height="fill_parent"></com.gandulf.guilib.view.NumberPicker>
+				<com.gandulf.guilib.view.NumberPicker android:layout_width="wrap_content" android:orientation="vertical" android:layout_weight="1.0" android:id="@+id/popup_purse_heller" android:layout_height="fill_parent"></com.gandulf.guilib.view.NumberPicker>
+				<com.gandulf.guilib.view.NumberPicker android:layout_width="wrap_content" android:orientation="vertical" android:layout_weight="1.0" android:id="@+id/popup_purse_kreuzer" android:layout_height="fill_parent"></com.gandulf.guilib.view.NumberPicker>
+			</TableRow>
+		</TableLayout>
+		
+
+
+</RelativeLayout>

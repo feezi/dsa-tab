@@ -48,7 +48,6 @@ import com.dsatab.data.enums.AttributeType;
 import com.dsatab.view.DiceSlider;
 import com.dsatab.view.InlineEditDialog;
 import com.dsatab.view.InlineEditFightDialog;
-import com.dsatab.view.PurseDialog;
 import com.dsatab.view.listener.ShakeListener;
 import com.dsatab.view.listener.ValueChangedListener;
 import com.gandulf.guilib.util.Debug;
@@ -250,6 +249,7 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 
 		tab = findViewById(R.id.gen_tab_coins);
 		tab.setOnClickListener(this);
+		tab.setSelected(getClass().equals(PurseActivity.class));
 
 		tab = findViewById(R.id.gen_tab_items);
 		tab.setSelected(getClass().equals(ItemsActivity.class));
@@ -377,11 +377,12 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 			}
 			break;
 		case R.id.gen_tab_coins:
-			PurseDialog dialog = new PurseDialog(this, getHero());
-			AnalyticsManager.onEvent(AnalyticsManager.PAGE_PURSE);
-			dialog.show();
+			if (!getClass().equals(PurseActivity.class)) {
+				startActivity(new Intent(this, PurseActivity.class));
+				AnalyticsManager.onEvent(AnalyticsManager.PAGE_PURSE);
+				finish();
+			}
 			break;
-
 		case R.id.gen_tab_items:
 			startItems();
 			break;
