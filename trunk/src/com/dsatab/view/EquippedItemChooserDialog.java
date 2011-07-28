@@ -44,7 +44,7 @@ public class EquippedItemChooserDialog extends AlertDialog implements AdapterVie
 
 		selectedItem = null;
 
-		itemAdapter = new EquippedItemAdapter(getContext(), R.layout.popup_item_chooser_item, equippedItems);
+		itemAdapter = new EquippedItemAdapter(getContext(), R.layout.item_listitem, equippedItems);
 		itemList.setAdapter(itemAdapter);
 	}
 

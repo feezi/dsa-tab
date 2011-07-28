@@ -16,6 +16,7 @@
 package com.dsatab.xml;
 
 import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,7 +39,7 @@ import com.dsatab.data.items.ItemType;
  */
 public class DataManager {
 
-	private static SoftReference<Map<String, Item>> itemsMap;
+	private static WeakReference<Map<String, Item>> itemsMap;
 
 	private static SoftReference<Map<String, List<Item>>> cardsCategoryMap;
 
@@ -52,7 +53,7 @@ public class DataManager {
 
 	public static Map<String, Item> getItemsMap() {
 		if (itemsMap == null || itemsMap.get() == null) {
-			itemsMap = new SoftReference<Map<String, Item>>(XmlParserNew.readItems());
+			itemsMap = new WeakReference<Map<String, Item>>(XmlParser.readItems());
 		}
 
 		return itemsMap.get();

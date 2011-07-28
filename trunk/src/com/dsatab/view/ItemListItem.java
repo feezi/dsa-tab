@@ -20,6 +20,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TwoLineListItem;
 
@@ -47,6 +48,7 @@ public class ItemListItem extends TwoLineListItem {
 
 	public ItemListItem(Context context) {
 		super(context);
+		init(null);
 	}
 
 	/**
@@ -68,10 +70,14 @@ public class ItemListItem extends TwoLineListItem {
 	 * @param attrs
 	 */
 	private void init(AttributeSet attrs) {
-		TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.ItemListItem);
-		textColor = a.getColor(R.styleable.ItemListItem_android_textColor, Color.TRANSPARENT);
-		// Don't forget this
-		a.recycle();
+
+		if (!isInEditMode() && attrs != null) {
+			TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.ItemListItem);
+			textColor = a.getColor(R.styleable.ItemListItem_android_textColor, Color.TRANSPARENT);
+			// Don't forget this
+			a.recycle();
+		}
+
 	}
 
 	/*
@@ -87,11 +93,26 @@ public class ItemListItem extends TwoLineListItem {
 		if (getText2() != null && (textColor != Color.TRANSPARENT)) {
 			getText2().setTextColor(textColor);
 		}
+
+		if (getIcon1() != null) {
+			getIcon1().setFocusable(false);
+			getIcon1().setClickable(false);
+		}
+		if (getIcon2() != null) {
+			getIcon2().setVisibility(View.GONE);
+			getIcon2().setFocusable(false);
+			getIcon2().setClickable(false);
+		}
+
 		super.onFinishInflate();
 	}
 
-	public ImageView getIcon1() {
-		return (ImageView) findViewById(android.R.id.icon1);
+	public ImageButton getIcon1() {
+		return (ImageButton) findViewById(android.R.id.icon1);
+	}
+
+	public ImageButton getIcon2() {
+		return (ImageButton) findViewById(android.R.id.icon2);
 	}
 
 	public void setItem(Item e) {

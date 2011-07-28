@@ -7,10 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.TwoLineListItem;
 
-import com.dsatab.data.modifier.Modificator;
 import com.dsatab.R;
+import com.dsatab.data.modifier.Modificator;
+import com.dsatab.view.ItemListItem;
 
 public class ModifierAdapter extends ArrayAdapter<Modificator> {
 
@@ -46,15 +46,15 @@ public class ModifierAdapter extends ArrayAdapter<Modificator> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
-		TwoLineListItem view;
+		ItemListItem view;
 
-		if (!(convertView instanceof TwoLineListItem)) {
+		if (!(convertView instanceof ItemListItem)) {
 			// We need the layoutinflater to pick up the view from xml
 			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			// Pick up the TwoLineListItem defined in the xml file
-			view = (TwoLineListItem) inflater.inflate(R.layout.popup_item_chooser_item, parent, false);
+			view = (ItemListItem) inflater.inflate(R.layout.item_listitem, parent, false);
 		} else {
-			view = (TwoLineListItem) convertView;
+			view = (ItemListItem) convertView;
 		}
 
 		Modificator e = getItem(position);

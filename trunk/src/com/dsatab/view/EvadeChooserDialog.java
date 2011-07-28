@@ -99,10 +99,6 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 			text2.setText(getContext().getString(R.string.ausweichen_info, ausweichen.getValue(),
 					ausweichen.getErschwernis()));
 		}
-		iconLeft.setImageResource(R.drawable.icon_ausweichen);
-		iconLeft.setOnClickListener(this);
-		iconRight.setVisibility(View.GONE);
-
 		super.onStart();
 	}
 
@@ -157,9 +153,16 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 		text1.setTextColor(Color.parseColor("#dddddd"));
 		text2.setTextColor(Color.parseColor("#dddddd"));
 
-		iconLeft = (ImageButton) popupcontent.findViewById(R.id.icon_left);
-		iconRight = (ImageButton) popupcontent.findViewById(R.id.icon_right);
+		iconLeft = (ImageButton) popupcontent.findViewById(android.R.id.icon1);
+		iconRight = (ImageButton) popupcontent.findViewById(android.R.id.icon2);
+
 		iconLeft.setOnClickListener(this);
+		iconLeft.setVisibility(View.VISIBLE);
+		iconLeft.setClickable(true);
+		iconLeft.setFocusable(true);
+		iconLeft.setImageResource(R.drawable.icon_ausweichen);
+
+		iconRight.setVisibility(View.GONE);
 
 		setOnDismissListener(this);
 

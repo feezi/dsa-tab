@@ -5,7 +5,7 @@
 	
 	
 			
-	<include layout="@layout/map" android:layout_height="fill_parent"
+	<include layout="@layout/sheet_map" android:layout_height="fill_parent"
 			android:layout_width="fill_parent" android:id="@+id/inc_map_sheet" android:layout_above="@+id/inc_tabs" android:layout_marginBottom="-20dp"></include>		
 
 <include layout="@layout/hero_tabs" android:layout_alignParentBottom="true" android:gravity="bottom|left"

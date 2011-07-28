@@ -63,10 +63,6 @@ import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.view.NumberPicker;
 import com.gandulf.guilib.view.OnViewChangedListener;
 
-/**
- * 
- * 
- */
 public class MainFightActivity extends BaseMainActivity implements ModifierChangedListener, OnLongClickListener,
 		InventoryChangedListener {
 
@@ -308,8 +304,8 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 				builder.setItems(specInfo.toArray(new String[0]), new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						equippedItem.setItemSpecification(MainFightActivity.this, equippedItem
-								.getItem().getSpecifications().get(which));
+						equippedItem.setItemSpecification(MainFightActivity.this, equippedItem.getItem()
+								.getSpecifications().get(which));
 						dialog.dismiss();
 					}
 				});
@@ -335,7 +331,7 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 			fightausweichen.setBackgroundResource(R.color.RowOdd);
 		}
 
-		ImageButton iconLeft = (ImageButton) fightausweichen.findViewById(R.id.icon_left);
+		ImageButton iconLeft = (ImageButton) fightausweichen.findViewById(android.R.id.icon1);
 		iconLeft.setTag(ausweichen);
 
 	}
@@ -368,18 +364,8 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 		super.onClick(v);
 
 		switch (v.getId()) {
-		case R.id.body_set1:
-			selectItemSet(0);
-			break;
-		case R.id.body_set2:
-			selectItemSet(1);
-			break;
-		case R.id.body_set3:
-			selectItemSet(2);
-			break;
 		case R.id.fight_set:
-			int set = getHero().getActiveSet();
-			selectItemSet((set + 1) % 3);
+			selectItemSet(getHero().getNextActiveSet());
 			break;
 
 		case R.id.fight_btn_picker:
@@ -424,12 +410,16 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 		fightSet.setOnClickListener(this);
 
 		View fightausweichen = findViewById(R.id.inc_fight_ausweichen);
-		ImageButton iconLeft = (ImageButton) fightausweichen.findViewById(R.id.icon_left);
+		ImageButton iconLeft = (ImageButton) fightausweichen.findViewById(android.R.id.icon1);
 		iconLeft.setOnClickListener(probeListener);
 		iconLeft.setOnLongClickListener(editListener);
 		iconLeft.setImageResource(R.drawable.icon_ausweichen);
-		ImageButton iconRight = (ImageButton) fightausweichen.findViewById(R.id.icon_right);
+		iconLeft.setVisibility(View.VISIBLE);
+		iconLeft.setFocusable(true);
+		ImageButton iconRight = (ImageButton) fightausweichen.findViewById(android.R.id.icon2);
 		iconRight.setImageResource(R.drawable.icon_target);
+		iconRight.setVisibility(View.VISIBLE);
+		iconRight.setFocusable(true);
 		iconRight.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -662,7 +652,7 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 		if (itemLayout == null) {
 			LayoutInflater layoutInflater = getLayoutInflater();
 
-			itemLayout = layoutInflater.inflate(R.layout.fight_sheet_item, fightItems, false);
+			itemLayout = layoutInflater.inflate(R.layout.item_listitem, fightItems, false);
 			itemLayout.setTag(equippedItem);
 			itemLayout.setOnClickListener(this);
 			if (fightItemsOdd) {
@@ -676,8 +666,8 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 		TextView text1 = (TextView) itemLayout.findViewById(android.R.id.text1);
 		TextView text2 = (TextView) itemLayout.findViewById(android.R.id.text2);
 
-		ImageButton iconLeft = (ImageButton) itemLayout.findViewById(R.id.icon_left);
-		ImageButton iconRight = (ImageButton) itemLayout.findViewById(R.id.icon_right);
+		ImageButton iconLeft = (ImageButton) itemLayout.findViewById(android.R.id.icon1);
+		ImageButton iconRight = (ImageButton) itemLayout.findViewById(android.R.id.icon2);
 
 		if (equippedItem.getSecondaryItem() != null
 				&& (equippedItem.getSecondaryItem().getItem().hasSpecification(Shield.class) || (equippedItem
@@ -692,7 +682,11 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 		if (itemSpecification instanceof DistanceWeapon) {
 			DistanceWeapon distanceWeapon = (DistanceWeapon) itemSpecification;
 			iconLeft.setImageResource(distanceWeapon.getResourceId());
+			iconLeft.setVisibility(View.VISIBLE);
+			iconLeft.setFocusable(true);
 			iconRight.setImageResource(R.drawable.icon_target);
+			iconRight.setVisibility(View.VISIBLE);
+			iconRight.setFocusable(true);
 
 			if (equippedItem.getTalent() != null) {
 				CombatProbe probe = new CombatProbe(getHero(), equippedItem, true);
@@ -708,6 +702,8 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 			}
 		} else if (itemSpecification instanceof Shield) {
 			iconRight.setImageResource(item.getResourceId());
+			iconRight.setVisibility(View.VISIBLE);
+			iconRight.setFocusable(true);
 			iconLeft.setVisibility(View.INVISIBLE);
 			if (equippedItem.getTalent() != null) {
 				iconRight.setEnabled(true);
@@ -721,7 +717,11 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 		} else if (itemSpecification instanceof Weapon) {
 			Weapon weapon = (Weapon) itemSpecification;
 			iconLeft.setImageResource(weapon.getResourceId());
+			iconLeft.setVisibility(View.VISIBLE);
+			iconLeft.setFocusable(true);
 			iconRight.setImageResource(R.drawable.icon_shield);
+			iconRight.setVisibility(View.VISIBLE);
+			iconRight.setFocusable(true);
 			if (equippedItem.getTalent() != null) {
 				iconRight.setEnabled(true);
 				iconLeft.setEnabled(true);
@@ -737,6 +737,8 @@ public class MainFightActivity extends BaseMainActivity implements ModifierChang
 		} else if (itemSpecification instanceof Armor) {
 			Armor armor = (Armor) itemSpecification;
 			iconLeft.setImageResource(armor.getResourceId());
+			iconLeft.setVisibility(View.VISIBLE);
+			iconLeft.setFocusable(true);
 			iconLeft.setFocusable(false);
 			iconRight.setVisibility(View.GONE);
 		}

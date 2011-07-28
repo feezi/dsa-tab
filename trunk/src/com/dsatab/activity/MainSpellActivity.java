@@ -16,9 +16,6 @@
  */
 package com.dsatab.activity;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -34,10 +31,8 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckBox;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.common.Util;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Spell;
@@ -60,8 +55,6 @@ public class MainSpellActivity extends BaseMainActivity implements OnItemClickLi
 	private SpellAdapter spellAdapter;
 
 	private View spellAttributeList;
-
-	private Map<Value, TextView[]> tfValues = new HashMap<Value, TextView[]>(50);
 
 	private SpellInfoDialog spellInfo;
 
@@ -136,14 +129,10 @@ public class MainSpellActivity extends BaseMainActivity implements OnItemClickLi
 				break;
 			}
 
+		} else if (value instanceof Spell) {
+			spellAdapter.notifyDataSetChanged();
 		}
 
-		TextView[] tvs = tfValues.get(value);
-		if (tvs != null) {
-			for (TextView tf : tvs) {
-				Util.setText(tf, value);
-			}
-		}
 	}
 
 	/*

@@ -154,9 +154,9 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 		}
 
 		if (TextUtils.isEmpty(be)) {
-			setVisibility(text2, false, text1);
+			Util.setVisibility(text2, false, text1);
 		} else {
-			setVisibility(text2, true, text1);
+			Util.setVisibility(text2, true, text1);
 			text2.setText(be);
 		}
 		text3.setText(talent.getProbe());
@@ -164,7 +164,7 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 		if (combatTalent != null) {
 
 			// make text5 visible
-			setVisibility(text5, true, text1);
+			Util.setVisibility(text5, true, text1);
 
 			if (combatTalent instanceof CombatMeleeTalent) {
 				CombatMeleeTalent meleeTalent = (CombatMeleeTalent) combatTalent;
@@ -174,13 +174,13 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 					text4.setOnClickListener(probeListener);
 					text4.setTag(R.id.TAG_KEY_VALUE, meleeTalent.getAttack());
 					text4.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(hero, meleeTalent, true));
-					setVisibility(text4, true, text1);
+					Util.setVisibility(text4, true, text1);
 				} else {
 					text4.setText("");
 					text4.setTag(R.id.TAG_KEY_VALUE, null);
 					text4.setTag(R.id.TAG_KEY_PROBE, null);
 					text4.setOnClickListener(null);
-					setVisibility(text4, false, text1);
+					Util.setVisibility(text4, false, text1);
 				}
 
 				if (meleeTalent.getDefense() != null && meleeTalent.getDefense().getValue() != null) {
@@ -188,13 +188,13 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 					text5.setOnClickListener(probeListener);
 					text5.setTag(R.id.TAG_KEY_VALUE, meleeTalent.getDefense());
 					text5.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(hero, meleeTalent, false));
-					setVisibility(text5, true, text1);
+					Util.setVisibility(text5, true, text1);
 				} else {
 					text5.setText("");
 					text5.setTag(R.id.TAG_KEY_VALUE, null);
 					text5.setTag(R.id.TAG_KEY_PROBE, null);
 					text5.setOnClickListener(null);
-					setVisibility(text5, false, text1);
+					Util.setVisibility(text5, false, text1);
 				}
 
 			} else if (combatTalent instanceof CombatDistanceTalent) {
@@ -205,19 +205,19 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 					text4.setOnClickListener(probeListener);
 					text4.setTag(R.id.TAG_KEY_VALUE, distanceTalent.getAttack());
 					text4.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(hero, distanceTalent, true));
-					setVisibility(text4, true, text1);
+					Util.setVisibility(text4, true, text1);
 				} else {
 					text4.setText("");
 					text4.setTag(R.id.TAG_KEY_VALUE, null);
 					text4.setTag(R.id.TAG_KEY_PROBE, null);
 					text4.setOnClickListener(null);
-					setVisibility(text4, false, text1);
+					Util.setVisibility(text4, false, text1);
 				}
 				text5.setText("");
 				text5.setTag(R.id.TAG_KEY_VALUE, null);
 				text5.setTag(R.id.TAG_KEY_PROBE, null);
 				text5.setOnClickListener(null);
-				setVisibility(text5, false, text1);
+				Util.setVisibility(text5, false, text1);
 			}
 
 		} else {
@@ -227,30 +227,13 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 			text4.setOnClickListener(null);
 			text4.setClickable(false);
 			// hide text5 and expand text1 with its width
-			setVisibility(text5, false, text1);
+			Util.setVisibility(text5, false, text1);
 
 		}
 		Util.applyRowStyle(talent, listItem, childPosition);
 
 		listItem.setTag(talent);
 		return listItem;
-	}
-
-	private void setVisibility(View view, boolean visible, View expander) {
-		if (visible && view.getVisibility() != View.VISIBLE) {
-
-			view.setVisibility(View.VISIBLE);
-			// weight of text5 is added to text1 if invisible
-			((LinearLayout.LayoutParams) expander.getLayoutParams()).weight -= ((LinearLayout.LayoutParams) view
-					.getLayoutParams()).weight;
-		}
-
-		if (!visible && view.getVisibility() == View.VISIBLE) {
-			view.setVisibility(View.GONE);
-			// weight of text5 is added to text1 if invisible
-			((LinearLayout.LayoutParams) expander.getLayoutParams()).weight += ((LinearLayout.LayoutParams) view
-					.getLayoutParams()).weight;
-		}
 	}
 
 	public TalentGroupType getGroup(int groupPosition) {

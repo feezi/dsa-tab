@@ -167,28 +167,40 @@ public class SpellAdapter extends BaseAdapter {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
+		View listItem = null;
+
 		if (convertView == null) {
-			convertView = (View) LayoutInflater.from(context).inflate(R.layout.spell_row, null);
+			listItem = LayoutInflater.from(context).inflate(R.layout.talent_list_item, null, false);
+		} else {
+			listItem = convertView;
 		}
 
-		TextView name = (TextView) convertView.findViewById(R.id.spell_row_name);
-		TextView probe = (TextView) convertView.findViewById(R.id.spell_row_probe);
-		TextView value = (TextView) convertView.findViewById(R.id.spell_row_value);
+		// name
+		TextView text1 = (TextView) listItem.findViewById(R.id.talent_list_item_text1);
+		// be
+		TextView text2 = (TextView) listItem.findViewById(R.id.talent_list_item_text2);
+		// probe
+		TextView text3 = (TextView) listItem.findViewById(R.id.talent_list_item_text3);
+		// value / at
+		TextView text4 = (TextView) listItem.findViewById(R.id.talent_list_item_text4);
+		// pa
+		TextView text5 = (TextView) listItem.findViewById(R.id.talent_list_item_text5);
 
 		Spell spell = getItem(position);
 
-		name.setText(spell.getName());
-		probe.setText(spell.getProbe());
-
+		text1.setText(spell.getName());
+		Util.setVisibility(text2, false, text1);
+		text3.setText(spell.getProbe());
 		if (spell.getValue() != null) {
-			value.setText(Integer.toString(spell.getValue()));
+			text4.setText(Util.toString(spell.getValue()));
 		} else {
 			Debug.warning(spell.getName() + " has no value");
 		}
+		Util.setVisibility(text5, false, text1);
 
-		Util.applyRowStyle(spell, convertView, position);
+		Util.applyRowStyle(spell, listItem, position);
 
-		return convertView;
+		return listItem;
 	}
 
 }

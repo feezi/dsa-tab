@@ -36,16 +36,7 @@
         <item name="android:paddingRight">3dp</item>
         <item name="android:paddingBottom">3dp</item>
         <item name="android:textColor">#FFFFFF</item>
-    </style>
-    
-    <style name="Icon">
-    	<item name="android:background">@drawable/button_patch</item>
-    	<item name="android:scaleType">fitCenter</item>
-        <item name="android:paddingTop">3dp</item>
-        <item name="android:paddingLeft">3dp</item>
-        <item name="android:paddingRight">3dp</item>
-        <item name="android:paddingBottom">3dp</item>
-    </style>
+    </style>    
             
     <style name="TextValue" parent="@android:style/Widget.TextView">
     	<item name="android:textSize">20sp</item>

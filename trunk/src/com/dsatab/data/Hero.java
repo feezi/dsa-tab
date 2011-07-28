@@ -416,6 +416,11 @@ public class Hero {
 		return activeSet;
 	}
 
+	public int getNextActiveSet() {
+		int set = getActiveSet();
+		return (set + 1) % MAXIMUM_SET_NUMBER;
+	}
+
 	public void setActiveSet(int activeSet) {
 		// if (activeSet != this.activeSet)
 		// equippedItems = null;

@@ -55,7 +55,7 @@
 		android:id="@+id/body_special_button" android:layout_below="@+id/body_items_button" style="@style/IconButton"
 		android:layout_alignParentRight="true"></ImageButton>
 	<include android:layout_height="wrap_content"
-		layout="@layout/popup_item_chooser_item" android:id="@+id/inc_gal_item_view"
+		layout="@layout/item_listitem" android:id="@+id/inc_gal_item_view"
 		android:layout_width="fill_parent" android:layout_alignParentBottom="true"></include>
 
 

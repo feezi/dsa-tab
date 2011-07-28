@@ -8,6 +8,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
@@ -42,11 +43,10 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 		super.onStart();
 
 		if (showOwnItems) {
-			itemAdapter = new ItemAdapter(getContext(), R.layout.popup_item_chooser_item, hero.getItems(itemType));
+			itemAdapter = new ItemAdapter(getContext(), R.layout.item_listitem, hero.getItems(itemType));
 			btnOtherItems.setVisibility(View.VISIBLE);
 		} else {
-			itemAdapter = new ItemAdapter(getContext(), R.layout.popup_item_chooser_item,
-					DataManager.getItemsByType(itemType));
+			itemAdapter = new ItemAdapter(getContext(), R.layout.item_listitem, DataManager.getItemsByType(itemType));
 			btnOtherItems.setVisibility(View.GONE);
 		}
 		itemList.setAdapter(itemAdapter);
@@ -77,8 +77,8 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(
 				R.layout.popup_item_chooser, null, false);
 
-		popupcontent.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.FILL_PARENT,
-				android.widget.LinearLayout.LayoutParams.WRAP_CONTENT));
+		popupcontent.setLayoutParams(new LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
+				LinearLayout.LayoutParams.WRAP_CONTENT));
 
 		setView(popupcontent);
 
@@ -94,8 +94,7 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 		if (v == btnOtherItems) {
 			showOwnItems = false;
 
-			itemAdapter = new ItemAdapter(getContext(), R.layout.popup_item_chooser_item,
-					DataManager.getItemsByType(itemType));
+			itemAdapter = new ItemAdapter(getContext(), R.layout.item_listitem, DataManager.getItemsByType(itemType));
 			itemList.setAdapter(itemAdapter);
 
 			btnOtherItems.setVisibility(View.GONE);

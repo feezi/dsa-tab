@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:padding="5dip"
 	android:id="@+id/popup_edit_layout" android:layout_height="wrap_content" android:layout_width="wrap_content" android:background="@android:drawable/screen_background_light">
-    <CheckBox android:layout_alignParentLeft="true" android:layout_height="wrap_content" android:id="@+id/cb_show_unused" android:layout_below="@+id/cb_show_normal" android:layout_width="match_parent" android:text="Ungenützte anzeigen"></CheckBox>
-    <CheckBox android:layout_height="wrap_content" android:id="@+id/cb_show_normal" android:layout_below="@+id/cb_show_favorites" android:layout_width="match_parent" android:text="Normale anzeigen"></CheckBox>
-    <CheckBox android:text="Favoriten anzeigen" android:layout_height="wrap_content" android:id="@+id/cb_show_favorites" android:layout_width="match_parent"></CheckBox>
+    <CheckBox android:layout_alignParentLeft="true" android:layout_height="wrap_content" android:id="@+id/cb_show_unused" android:layout_below="@+id/cb_show_normal" android:layout_width="fill_parent" android:text="Ungenützte anzeigen"></CheckBox>
+    <CheckBox android:layout_height="wrap_content" android:id="@+id/cb_show_normal" android:layout_below="@+id/cb_show_favorites" android:layout_width="fill_parent" android:text="Normale anzeigen"></CheckBox>
+    <CheckBox android:text="Favoriten anzeigen" android:layout_height="wrap_content" android:id="@+id/cb_show_favorites" android:layout_width="fill_parent"></CheckBox>
 </RelativeLayout>

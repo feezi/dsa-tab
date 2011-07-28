@@ -3,12 +3,10 @@
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:id="@+id/gen_main_layout">
 	
-	<include layout="@layout/sheet_map" android:layout_height="fill_parent"
-			android:layout_width="fill_parent" android:id="@+id/inc_map_sheet" android:layout_toLeftOf="@+id/inc_tabs" android:layout_marginRight="-20dp"></include>		
-	
-	
 	<include layout="@layout/hero_tabs" android:layout_height="fill_parent" android:layout_alignParentBottom="true" android:gravity="bottom|right"
 			android:id="@+id/inc_tabs" android:layout_alignParentRight="true" android:layout_width="@dimen/tab_size"></include>
 			
-	
+	<include layout="@layout/sheet_purse" android:layout_height="fill_parent"
+			android:layout_width="fill_parent" android:id="@+id/inc_purse_sheet" android:layout_toLeftOf="@+id/inc_tabs"></include>		
+
 </RelativeLayout>

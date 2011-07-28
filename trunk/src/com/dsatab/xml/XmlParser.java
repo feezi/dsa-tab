@@ -41,7 +41,7 @@ import com.dsatab.data.items.Weapon;
 import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.util.ErrorHandler;
 
-public class XmlParserNew {
+public class XmlParser {
 
 	public static Map<String, Item> readItems() {
 
