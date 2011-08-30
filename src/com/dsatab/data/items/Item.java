@@ -3,6 +3,7 @@ package com.dsatab.data.items;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -11,7 +12,8 @@ import org.jdom.Element;
 
 import android.text.TextUtils;
 
-import com.dsatab.activity.DSATabApplication;
+import com.dsatab.DSATabApplication;
+import com.dsatab.common.Util;
 import com.dsatab.view.drag.ItemLocationInfo;
 import com.dsatab.xml.Xml;
 import com.gandulf.guilib.util.Debug;
@@ -19,6 +21,18 @@ import com.gandulf.guilib.util.Debug;
 public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard {
 
 	private static final long serialVersionUID = 7011220901677479470L;
+
+	public static Comparator<Item> NAME_COMPARATOR = new Comparator<Item>() {
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+		 */
+		@Override
+		public int compare(Item object1, Item object2) {
+			return object1.getName().compareToIgnoreCase(object2.getName());
+		}
+	};
 
 	static final String POSTFIX_LQ = "_LQ.gif";
 	static final String POSTFIX_HQ = "_HQ.jpg";
@@ -41,6 +55,8 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 
 	private List<ItemSpecification> itemSpecs;
 
+	private List<EquippedItem> equippedItems;
+
 	public Item() {
 		id = UUID.randomUUID();
 		itemInfo = new ItemLocationInfo();
@@ -54,6 +70,12 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 				return (T) itemSpecification;
 		}
 		return null;
+	}
+
+	public List<EquippedItem> getEquippedItems() {
+		if (equippedItems == null)
+			equippedItems = new LinkedList<EquippedItem>();
+		return equippedItems;
 	}
 
 	public void addSpecification(ItemSpecification itemSpecification) {
@@ -153,6 +175,18 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		return category;
 	}
 
+	public int getCount() {
+		Integer count = 1;
+
+		if (element != null) {
+			count = Util.parseInt(element.getAttributeValue(Xml.KEY_ANZAHL));
+			if (count == null)
+				count = 1;
+		}
+
+		return count;
+	}
+
 	public String getPath() {
 		if (path != null)
 			return path;
@@ -201,9 +235,12 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	}
 
 	public String getInfo() {
-		if (itemSpecs.isEmpty())
-			return "";
-		else
+		if (itemSpecs.isEmpty()) {
+			if (getCount() > 1)
+				return getCount() + " Stück";
+			else
+				return "";
+		} else
 			return itemSpecs.get(0).getInfo();
 	}
 

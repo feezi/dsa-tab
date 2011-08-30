@@ -28,14 +28,22 @@ public class HeroInfo {
 
 	public File file;
 
-	public HeroInfo(String name, File file) {
+	public String portraitUri;
+
+	public HeroInfo(String name, File file, String portrait) {
 		super();
 		this.name = name;
 		this.file = file;
+		this.portraitUri = portrait;
+
 	}
 
 	public String getName() {
 		return name;
+	}
+
+	public String getPortraitUri() {
+		return portraitUri;
 	}
 
 	public File getFile() {

@@ -11,6 +11,8 @@ public class Talent implements Probe, Value, Markable {
 
 	public static final String ATHLETIK = "Athletik";
 
+	public static final String LITURGIE_KENNTNIS_PREFIX = "Liturgiekenntnis";
+
 	private Element element;
 
 	private AttributeType[] probes;
@@ -33,7 +35,7 @@ public class Talent implements Probe, Value, Markable {
 	}
 
 	public boolean isFavorite() {
-		if (element != null && element.getAttribute(Xml.KEY_FAVORITE) !=null) {
+		if (element != null && element.getAttribute(Xml.KEY_FAVORITE) != null) {
 			return Boolean.valueOf(element.getAttributeValue(Xml.KEY_FAVORITE));
 		} else {
 			return false;
@@ -49,7 +51,7 @@ public class Talent implements Probe, Value, Markable {
 	}
 
 	public boolean isUnused() {
-		if (element != null && element.getAttribute(Xml.KEY_UNUSED) !=null) {
+		if (element != null && element.getAttribute(Xml.KEY_UNUSED) != null) {
 			return Boolean.valueOf(element.getAttributeValue(Xml.KEY_UNUSED));
 		} else {
 			return false;
@@ -94,7 +96,6 @@ public class Talent implements Probe, Value, Markable {
 			return hero.getModifiedValue(probes[i]) + (-leMod);
 		} else
 			return null;
-
 	}
 
 	@Override
@@ -103,7 +104,7 @@ public class Talent implements Probe, Value, Markable {
 	}
 
 	public Integer getValue() {
-		if (element.getAttribute(Xml.KEY_VALUE) !=null)
+		if (element.getAttribute(Xml.KEY_VALUE) != null)
 			return Integer.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
 		else
 			return null;
@@ -131,7 +132,7 @@ public class Talent implements Probe, Value, Markable {
 	}
 
 	public String getBe() {
-		if (element.getAttribute(Xml.KEY_BE) !=null && Util.isNotBlank(element.getAttributeValue(Xml.KEY_BE)))
+		if (element.getAttribute(Xml.KEY_BE) != null && Util.isNotBlank(element.getAttributeValue(Xml.KEY_BE)))
 			return element.getAttributeValue(Xml.KEY_BE);
 		else
 			return null;

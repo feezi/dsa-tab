@@ -25,10 +25,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.VelocityTracker;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.Interpolator;
@@ -56,12 +53,6 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 
 	private static final int INVALID_SCREEN = -1;
 
-	/**
-	 * The velocity at which a fling gesture will cause us to snap to the next
-	 * screen
-	 */
-	private static final int SNAP_VELOCITY = 600;
-
 	private int mDefaultScreen;
 
 	private boolean mFirstLayout = true;
@@ -69,7 +60,6 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 	private int mCurrentScreen;
 	private int mNextScreen = INVALID_SCREEN;
 	private Scroller mScroller;
-	private VelocityTracker mVelocityTracker;
 
 	/**
 	 * CellInfo for the cell that is currently being dragged
@@ -80,14 +70,6 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 	 * Target drop area calculated during last acceptDrop call.
 	 */
 	private int[] mTargetCell = null;
-
-	private float mLastMotionX;
-	private float mLastMotionY;
-
-	private final static int TOUCH_STATE_REST = 0;
-	private final static int TOUCH_STATE_SCROLLING = 1;
-
-	private int mTouchState = TOUCH_STATE_REST;
 
 	private OnLongClickListener mLongClickListener;
 
@@ -105,21 +87,8 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 
 	private boolean mAllowLongPress = true;
 
-	private int mTouchSlop;
-	private int mMaximumVelocity;
-
-	private static final int INVALID_POINTER = -1;
-
-	private int mActivePointerId = INVALID_POINTER;
-
 	private Drawable mPreviousIndicator;
 	private Drawable mNextIndicator;
-
-	private static final float NANOTIME_DIV = 1000000000.0f;
-	private static final float SMOOTHING_SPEED = 0.75f;
-	private static final float SMOOTHING_CONSTANT = (float) (0.016 / Math.log(SMOOTHING_SPEED));
-	private float mSmoothingTime;
-	private float mTouchX;
 
 	private WorkspaceOvershootInterpolator mScrollInterpolator;
 
@@ -182,10 +151,6 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		mScroller = new Scroller(context, mScrollInterpolator);
 
 		mCurrentScreen = mDefaultScreen;
-
-		final ViewConfiguration configuration = ViewConfiguration.get(getContext());
-		mTouchSlop = configuration.getScaledTouchSlop();
-		mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
 	}
 
 	@Override
@@ -456,8 +421,6 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 	@Override
 	public void scrollTo(int x, int y) {
 		super.scrollTo(x, y);
-		mTouchX = x;
-		mSmoothingTime = System.nanoTime() / NANOTIME_DIV;
 	}
 
 	@Override
@@ -466,8 +429,6 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		int mScrollX = getScrollX(), mScrollY = getScrollY();
 
 		if (mScroller.computeScrollOffset()) {
-			mTouchX = mScrollX = mScroller.getCurrX();
-			mSmoothingTime = System.nanoTime() / NANOTIME_DIV;
 			mScrollY = mScroller.getCurrY();
 			postInvalidate();
 
@@ -480,20 +441,6 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 			mNextIndicator.setLevel(mCurrentScreen);
 			mNextScreen = INVALID_SCREEN;
 			clearChildrenCache();
-		} else if (mTouchState == TOUCH_STATE_SCROLLING) {
-			final float now = System.nanoTime() / NANOTIME_DIV;
-			final float e = (float) Math.exp((now - mSmoothingTime) / SMOOTHING_CONSTANT);
-			final float dx = mTouchX - getScrollX();
-			mScrollX += dx * e;
-			mSmoothingTime = now;
-
-			// Keep generating points as long as we're more than 1px away from
-			// the target
-			if (dx > 1.f || dx < -1.f) {
-				postInvalidate();
-			}
-			if (Math.abs(mScrollX - getScrollX()) > 0 || Math.abs(mScrollY - getScrollY()) > 0)
-				super.scrollTo(mScrollX, mScrollY);
 		}
 
 	}
@@ -508,7 +455,7 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		// children, etc. The following implementation attempts to fast-track
 		// the drawing dispatch by drawing only what we know needs to be drawn.
 
-		boolean fastDraw = mTouchState != TOUCH_STATE_SCROLLING && mNextScreen == INVALID_SCREEN;
+		boolean fastDraw = mNextScreen == INVALID_SCREEN;
 		// If we are not scrolling or flinging, draw only the current screen
 		if (fastDraw) {
 			drawChild(canvas, getChildAt(mCurrentScreen), getDrawingTime());
@@ -542,15 +489,18 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
 		final int width = MeasureSpec.getSize(widthMeasureSpec);
-		final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-		if (widthMode != MeasureSpec.EXACTLY) {
-			throw new IllegalStateException("Workspace can only be used in EXACTLY mode.");
-		}
+		// final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
 
-		final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-		if (heightMode != MeasureSpec.EXACTLY) {
-			throw new IllegalStateException("Workspace can only be used in EXACTLY mode.");
-		}
+		// if (widthMode != MeasureSpec.EXACTLY) {
+		// throw new
+		// IllegalStateException("Workspace can only be used in EXACTLY mode.");
+		// }
+
+		// final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+		// if (heightMode != MeasureSpec.EXACTLY) {
+		// throw new
+		// IllegalStateException("Workspace can only be used in EXACTLY mode.");
+		// }
 
 		// The children are given the same width and height as the workspace
 		final int count = getChildCount();
@@ -586,9 +536,7 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 	public boolean requestChildRectangleOnScreen(View child, Rect rectangle, boolean immediate) {
 		int screen = indexOfChild(child);
 		if (screen != mCurrentScreen || !mScroller.isFinished()) {
-			if (!isWorkspaceLocked()) {
-				snapToScreen(screen);
-			}
+			snapToScreen(screen);
 			return true;
 		}
 		return false;
@@ -638,155 +586,6 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 			}
 		}
 
-	}
-
-	@Override
-	public boolean dispatchTouchEvent(MotionEvent ev) {
-		if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-			if (isWorkspaceLocked()) {
-				return false;
-			}
-		}
-		return super.dispatchTouchEvent(ev);
-	}
-
-	@Override
-	public boolean onInterceptTouchEvent(MotionEvent ev) {
-		final boolean workspaceLocked = isWorkspaceLocked();
-
-		if (workspaceLocked) {
-			return false; // We don't want the events. Let them fall through to
-			// the all apps view.
-		}
-
-		/*
-		 * This method JUST determines whether we want to intercept the motion.
-		 * If we return true, onTouchEvent will be called and we do the actual
-		 * scrolling there.
-		 */
-
-		/*
-		 * Shortcut the most recurring case: the user is in the dragging state
-		 * and he is moving his finger. We want to intercept this motion.
-		 */
-		final int action = ev.getAction();
-		if ((action == MotionEvent.ACTION_MOVE) && (mTouchState != TOUCH_STATE_REST)) {
-			return true;
-		}
-
-		if (mVelocityTracker == null) {
-			mVelocityTracker = VelocityTracker.obtain();
-		}
-		mVelocityTracker.addMovement(ev);
-
-		switch (action & MotionEvent.ACTION_MASK) {
-		case MotionEvent.ACTION_MOVE: {
-			/*
-			 * mIsBeingDragged == false, otherwise the shortcut would have
-			 * caught it. Check whether the user has moved far enough from his
-			 * original down touch.
-			 */
-
-			/*
-			 * Locally do absolute value. mLastMotionX is set to the y value of
-			 * the down event.
-			 */
-			final int pointerIndex = ev.findPointerIndex(mActivePointerId);
-			final float x = ev.getX(pointerIndex);
-			final float y = ev.getY(pointerIndex);
-			final int xDiff = (int) Math.abs(x - mLastMotionX);
-			final int yDiff = (int) Math.abs(y - mLastMotionY);
-
-			final int touchSlop = mTouchSlop;
-			boolean xMoved = xDiff > touchSlop;
-			boolean yMoved = yDiff > touchSlop;
-
-			if (xMoved || yMoved) {
-
-				if (xMoved) {
-					// Scroll if the user moved far enough along the X axis
-					mTouchState = TOUCH_STATE_SCROLLING;
-					mLastMotionX = x;
-					mTouchX = getScrollX();
-					mSmoothingTime = System.nanoTime() / NANOTIME_DIV;
-					enableChildrenCache(mCurrentScreen - 1, mCurrentScreen + 1);
-				}
-				// Either way, cancel any pending longpress
-				if (mAllowLongPress) {
-					mAllowLongPress = false;
-					// Try canceling the long press. It could also have been
-					// scheduled
-					// by a distant descendant, so use the mAllowLongPress flag
-					// to block
-					// everything
-					final View currentScreen = getChildAt(mCurrentScreen);
-					currentScreen.cancelLongPress();
-				}
-			}
-			break;
-		}
-
-		case MotionEvent.ACTION_DOWN: {
-			final float x = ev.getX();
-			final float y = ev.getY();
-			// Remember location of down touch
-			mLastMotionX = x;
-			mLastMotionY = y;
-			mActivePointerId = ev.getPointerId(0);
-			mAllowLongPress = true;
-
-			/*
-			 * If being flinged and user touches the screen, initiate drag;
-			 * otherwise don't. mScroller.isFinished should be false when being
-			 * flinged.
-			 */
-			mTouchState = mScroller.isFinished() ? TOUCH_STATE_REST : TOUCH_STATE_SCROLLING;
-			break;
-		}
-
-		case MotionEvent.ACTION_CANCEL:
-		case MotionEvent.ACTION_UP:
-
-			// Release the drag
-			clearChildrenCache();
-			mTouchState = TOUCH_STATE_REST;
-			mActivePointerId = INVALID_POINTER;
-			mAllowLongPress = false;
-
-			if (mVelocityTracker != null) {
-				mVelocityTracker.recycle();
-				mVelocityTracker = null;
-			}
-
-			break;
-
-		case MotionEvent.ACTION_POINTER_UP:
-			onSecondaryPointerUp(ev);
-			break;
-		}
-
-		/*
-		 * The only time we want to intercept motion events is if we are in the
-		 * drag mode.
-		 */
-		return mTouchState != TOUCH_STATE_REST;
-	}
-
-	private void onSecondaryPointerUp(MotionEvent ev) {
-		final int pointerIndex = (ev.getAction() & MotionEvent.ACTION_POINTER_ID_MASK) >> MotionEvent.ACTION_POINTER_ID_SHIFT;
-		final int pointerId = ev.getPointerId(pointerIndex);
-		if (pointerId == mActivePointerId) {
-			// This was our active pointer going up. Choose a new
-			// active pointer and adjust accordingly.
-			// TODO: Make this decision more intelligent.
-			final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
-			mLastMotionX = ev.getX(newPointerIndex);
-			mLastMotionY = ev.getY(newPointerIndex);
-			mActivePointerId = ev.getPointerId(newPointerIndex);
-			if (mVelocityTracker != null) {
-				mVelocityTracker.clear();
-			}
-		}
 	}
 
 	/**
@@ -842,114 +641,6 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 			final CellLayout layout = (CellLayout) getChildAt(i);
 			layout.setChildrenDrawnWithCacheEnabled(false);
 		}
-	}
-
-	boolean isWorkspaceLocked() {
-		return false;
-	}
-
-	@Override
-	public boolean onTouchEvent(MotionEvent ev) {
-
-		if (isWorkspaceLocked()) {
-			return false; // We don't want the events. Let them fall through to
-			// the all apps view.
-		}
-
-		if (mVelocityTracker == null) {
-			mVelocityTracker = VelocityTracker.obtain();
-		}
-		mVelocityTracker.addMovement(ev);
-
-		final int action = ev.getAction();
-
-		switch (action & MotionEvent.ACTION_MASK) {
-		case MotionEvent.ACTION_DOWN:
-			/*
-			 * If being flinged and user touches, stop the fling. isFinished
-			 * will be false if being flinged.
-			 */
-			if (!mScroller.isFinished()) {
-				mScroller.abortAnimation();
-			}
-
-			// Remember where the motion event started
-			mLastMotionX = ev.getX();
-			mActivePointerId = ev.getPointerId(0);
-			if (mTouchState == TOUCH_STATE_SCROLLING) {
-				enableChildrenCache(mCurrentScreen - 1, mCurrentScreen + 1);
-			}
-			break;
-		case MotionEvent.ACTION_MOVE:
-			if (mTouchState == TOUCH_STATE_SCROLLING) {
-				// Scroll to follow the motion event
-				final int pointerIndex = ev.findPointerIndex(mActivePointerId);
-				final float x = ev.getX(pointerIndex);
-				final float deltaX = mLastMotionX - x;
-				mLastMotionX = x;
-
-				if (deltaX < 0) {
-					if (mTouchX > 0) {
-						mTouchX += Math.max(-mTouchX, deltaX);
-						mSmoothingTime = System.nanoTime() / NANOTIME_DIV;
-						invalidate();
-					}
-				} else if (deltaX > 0) {
-					final float availableToScroll = getChildAt(getChildCount() - 1).getRight() - mTouchX - getWidth();
-					if (availableToScroll > 0) {
-						mTouchX += Math.min(availableToScroll, deltaX);
-						mSmoothingTime = System.nanoTime() / NANOTIME_DIV;
-						invalidate();
-					}
-				} else {
-					awakenScrollBars();
-				}
-			}
-			break;
-		case MotionEvent.ACTION_UP:
-			if (mTouchState == TOUCH_STATE_SCROLLING) {
-				final VelocityTracker velocityTracker = mVelocityTracker;
-				velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
-				// final int velocityX = (int)
-				// velocityTracker.getXVelocity(mActivePointerId);
-				final int velocityX = (int) velocityTracker.getXVelocity();
-
-				final int screenWidth = getWidth();
-				final int whichScreen = (getScrollX() + (screenWidth / 2)) / screenWidth;
-				final float scrolledPos = (float) getScrollX() / screenWidth;
-
-				if (velocityX > SNAP_VELOCITY && mCurrentScreen > 0) {
-					// Fling hard enough to move left.
-					// Don't fling across more than one screen at a time.
-					final int bound = scrolledPos < whichScreen ? mCurrentScreen - 1 : mCurrentScreen;
-					snapToScreen(Math.min(whichScreen, bound), velocityX, true);
-				} else if (velocityX < -SNAP_VELOCITY && mCurrentScreen < getChildCount() - 1) {
-					// Fling hard enough to move right
-					// Don't fling across more than one screen at a time.
-					final int bound = scrolledPos > whichScreen ? mCurrentScreen + 1 : mCurrentScreen;
-					snapToScreen(Math.max(whichScreen, bound), velocityX, true);
-				} else {
-					snapToScreen(whichScreen, 0, true);
-				}
-
-				if (mVelocityTracker != null) {
-					mVelocityTracker.recycle();
-					mVelocityTracker = null;
-				}
-			}
-			mTouchState = TOUCH_STATE_REST;
-			mActivePointerId = INVALID_POINTER;
-			break;
-		case MotionEvent.ACTION_CANCEL:
-			mTouchState = TOUCH_STATE_REST;
-			mActivePointerId = INVALID_POINTER;
-			break;
-		case MotionEvent.ACTION_POINTER_UP:
-			onSecondaryPointerUp(ev);
-			break;
-		}
-
-		return true;
 	}
 
 	public void snapToScreen(int whichScreen) {

@@ -31,7 +31,7 @@ public class TalentGroup {
 
 	public static String[] SPACHEN_TALENTS = { "Sprachen kennen", "Lesen/Schreiben" };
 
-	public static String[] GABEN_TALENTS = { "Ritualkenntnis", "Gefahreninstinkt" };
+	public static String[] GABEN_TALENTS = { "Ritualkenntnis", "Gefahreninstinkt", "Liturgiekenntnis" };
 
 	public static String[] HANDWERK_TALENTS = { "Heilkunde: Wunden", "Holzbearbeitung", "Kochen", "Lederarbeiten",
 			"Malen/Zeichnen", "Schneidern", "Abrichten", "Boote fahren", "Eissegler fahren", "Fahrzeug lenken",

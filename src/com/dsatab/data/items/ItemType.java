@@ -17,7 +17,7 @@ package com.dsatab.data.items;
 
 public enum ItemType {
 	Waffen('W', "weapons", true), Fernwaffen('D', "weapons", true), Rüstung('A', "weapons", true), Schilde('S',
-			"weapons", true), Sonstiges('M', "misc"), Behälter('B', "bags"), Kleidung('C', "cloths"), Special('X',
+			"weapons", true), Sonstiges('M', "misc"), Behälter('B', "bags"), Kleidung('C', "cloths"), Schmuck('X',
 			"special");
 
 	private final String path;
@@ -25,10 +25,6 @@ public enum ItemType {
 	private final char character;
 
 	private final boolean equipable;
-
-	/**
-	 * 
-	 */
 
 	private ItemType(char c, String path, boolean equipable) {
 		this.path = path;
@@ -54,23 +50,6 @@ public enum ItemType {
 		return equipable;
 	}
 
-	public static ItemType fromColor(String s) {
-
-		if ("gruen".equalsIgnoreCase(s)) {
-			return Behälter;
-		} else if ("gelb".equalsIgnoreCase(s)) {
-			return Waffen;
-		} else if ("grau".equalsIgnoreCase(s)) {
-			return Kleidung;
-		} else if ("rot".equalsIgnoreCase(s)) {
-			return Sonstiges;
-		} else if ("blau".equalsIgnoreCase(s)) {
-			return Special;
-		} else {
-			return null;
-		}
-	}
-
 	public static ItemType fromCharacter(char c) {
 
 		switch (c) {
@@ -89,7 +68,7 @@ public enum ItemType {
 		case 'C':
 			return Kleidung;
 		case 'X':
-			return Special;
+			return Schmuck;
 		default:
 			return null;
 		}

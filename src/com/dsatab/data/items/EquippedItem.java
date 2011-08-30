@@ -17,7 +17,9 @@ import android.widget.Toast;
 import com.dsatab.common.Util;
 import com.dsatab.data.CombatTalent;
 import com.dsatab.data.Hero;
+import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.view.drag.ItemLocationInfo;
+import com.dsatab.xml.DataManager;
 import com.dsatab.xml.Xml;
 
 public class EquippedItem implements ItemCard {
@@ -296,8 +298,11 @@ public class EquippedItem implements ItemCard {
 		} else if (getName().startsWith(NAME_PREFIX_SCHILD)) {
 			itemNameField = SCHILDNAME;
 			nameId = Util.parseInt(getName().substring(NAME_PREFIX_SCHILD.length()));
-			if (getItem().hasSpecification(Shield.class)) {
-				Shield shield = getItem().getSpecification(Shield.class);
+
+			Item item = DataManager.getItemByName(getItemName());
+
+			if (item != null && item.hasSpecification(Shield.class)) {
+				Shield shield = item.getSpecification(Shield.class);
 
 				if (getUsageType() == null) {
 					if (shield.isShield())
@@ -466,6 +471,27 @@ public class EquippedItem implements ItemCard {
 	public CombatTalent getTalent() {
 		if (talent == null && getTalentName() != null) {
 			talent = hero.getCombatTalent(getTalentName());
+		} else {
+			// search for the default talents of the items
+			if (getItemSpecification() instanceof Weapon) {
+				Weapon weapon = (Weapon) getItemSpecification();
+				for (CombatTalentType type : weapon.getCombatTalentTypes()) {
+					talent = hero.getCombatTalent(type.getName());
+					if (talent != null)
+						break;
+				}
+			} else if (getItemSpecification() instanceof DistanceWeapon) {
+				DistanceWeapon weapon = (DistanceWeapon) getItemSpecification();
+				talent = hero.getCombatTalent(weapon.getCombatTalentType().getName());
+			} else if (getItemSpecification() instanceof Shield) {
+				Shield shield = (Shield) getItemSpecification();
+				for (CombatTalentType type : shield.getCombatTalentTypes()) {
+					talent = hero.getCombatTalent(type.getName());
+					if (talent != null)
+						break;
+				}
+			}
+
 		}
 		return talent;
 	}

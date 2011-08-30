@@ -16,7 +16,7 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.activity.MainFightActivity;
+import com.dsatab.activity.BaseMainActivity;
 import com.dsatab.common.Util;
 import com.dsatab.data.CombatProbe;
 import com.dsatab.data.SpecialFeature;
@@ -49,15 +49,15 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 
 	private int otherErschwernis = 0;
 
-	private MainFightActivity main;
+	private BaseMainActivity main;
 
-	public ArcheryChooserDialog(MainFightActivity context) {
+	public ArcheryChooserDialog(BaseMainActivity context) {
 		super(context);
 		this.main = context;
 		init();
 	}
 
-	protected MainFightActivity getMain() {
+	protected BaseMainActivity getMain() {
 		return main;
 	}
 
@@ -110,11 +110,20 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 		if (equippedItem != null && equippedItem.getItem().hasSpecification(DistanceWeapon.class)) {
 			DistanceWeapon item = (DistanceWeapon) equippedItem.getItem().getSpecification(DistanceWeapon.class);
 
+			String from, to;
+
 			for (int i = 0; i < distances.length; i++) {
-				distances[i] += " (";
-				if (i > 0)
-					distances[i] += item.getDistance(i - 1);
-				distances[i] += " bis " + item.getDistance(i) + "m)";
+				to = item.getDistance(i);
+
+				if (to != null) {
+					distances[i] += " (";
+					if (i > 0) {
+						from = item.getDistance(i - 1);
+						distances[i] += from;
+					}
+
+					distances[i] += " bis " + to + "m)";
+				}
 			}
 		}
 
@@ -190,7 +199,7 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 	private void initOthersDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		builder.setTitle(R.string.modifikatoren);
-		builder.setPositiveButton("Ok", new OnClickListener() {
+		builder.setPositiveButton(R.string.label_ok, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();

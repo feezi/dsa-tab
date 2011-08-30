@@ -74,7 +74,7 @@ public class MiscSpecification extends ItemSpecification {
 		switch (type) {
 		case Behälter:
 			return R.drawable.icon_bags;
-		case Special:
+		case Schmuck:
 			return R.drawable.icon_special;
 		case Kleidung:
 			return R.drawable.icon_armor_cloth;

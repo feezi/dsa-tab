@@ -2,7 +2,7 @@ package com.dsatab.common;
 
 import android.content.SharedPreferences;
 
-import com.dsatab.activity.DSATabApplication;
+import com.dsatab.DSATabApplication;
 import com.dsatab.activity.DsaPreferenceActivity;
 
 public class DsaMath {
@@ -42,21 +42,32 @@ public class DsaMath {
 	}
 
 	public static double testEigen(int e1, int taw) {
-
+		double result;
 		SharedPreferences preferences = DSATabApplication.getPreferences();
 
 		if (preferences.getBoolean(DsaPreferenceActivity.KEY_HOUSE_RULES, false) == false) {
-			return Math.min(1.0, (e1 + taw) / 20.0);
+			result = Math.min(1.0, (e1 + taw) / 20.0);
+
 		} else {
 
 			e1 = e1 + taw;
 
+			// negative values don't work and an one is always successful.
+			if (e1 < 0)
+				e1 = 0;
+
 			int a = Math.min(20, e1) * Math.min(20, e1) * (20 - Math.min(20, e1));
 			int d = Math.min(20, e1) * Math.min(20, e1) * Math.min(20, e1);
 
-			return (3 * a + d) / 8000.0;
+			result = (3 * a + d) / 8000.0;
 
 		}
+
+		// an 1 is always successful no matter how small the taw
+		if (result < 0.05)
+			result = 0.05;
+
+		return result;
 	}
 
 	public static double testTalent(int e1, int e2, int e3, int taw) {

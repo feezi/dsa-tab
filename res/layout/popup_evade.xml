@@ -33,16 +33,6 @@
 		android:layout_height="wrap_content" android:id="@+id/evade_others"
 		android:layout_alignRight="@+id/evade_distance" android:text="Sonstige Modifikatoren"
 		android:layout_alignParentLeft="true" android:layout_below="@+id/evade_enemy"></Button>
-	<TextView android:layout_height="wrap_content"
-		android:layout_width="wrap_content" android:id="@+id/evade_probe"
-		android:layout_marginRight="5dip" android:textSize="30dip"
-		android:text="Erschwernis:" android:layout_below="@+id/evade_others"
-		android:textColor="#ddd"></TextView>
-	<TextView android:layout_height="wrap_content"
-		android:layout_width="wrap_content" android:id="@+id/evade_probe_value"
-		android:layout_toRightOf="@+id/evade_probe" style="@style/TextValue"
-		android:textSize="30dip" android:text="+8" android:layout_below="@+id/evade_others"
-		android:textColor="#ddd"></TextView>
 
 
 

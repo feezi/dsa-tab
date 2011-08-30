@@ -29,8 +29,12 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 import android.webkit.WebView;
 
+import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabConfiguration;
+import com.dsatab.DsaTabConfiguration.ArmorType;
 import com.dsatab.R;
-import com.dsatab.activity.DsaTabConfiguration.ArmorType;
+import com.dsatab.view.TipOfTheDayDialog;
+import com.dsatab.xml.XmlParser;
 import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.util.Downloader;
 import com.gandulf.guilib.view.VersionInfoDialog;
@@ -45,8 +49,6 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 	public static final String KEY_PROBE_PROBABILITY = "probeProbability";
 
 	public static final String KEY_NOTES_VISIBILITY = "showNotes";
-
-	public static final String KEY_FIGHT_ARMOR_VISIBILITY = "showArmor";
 
 	public static final String KEY_PROBE_SHAKE_ROLL_DICE = "shakeRollDice";
 
@@ -78,8 +80,17 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 
 	public static final String KEY_USAGE_STATS = "usage_stats";
 
+	public static final String KEY_SCREEN_ORIENTATION = "screen_orientation";
+
+	public static final String KEY_TIP_TODAY = "tipToday";
+
 	public static final String DEFAULT_EXCHANGE_PROVIDER = "http://helden.draschenfels.de/";
 
+	public static final String SCREEN_ORIENTATION_AUTO = "auto";
+	public static final String SCREEN_ORIENTATION_LANDSCAPE = "landscape";
+	public static final String SCREEN_ORIENTATION_PORTRAIT = "portrait";
+
+	public static final String DEFAULT_SCREEN_ORIENTATION = SCREEN_ORIENTATION_AUTO;
 	// http://dl.dropbox.com/u/15750588/dsatab-wesnoth-portraits.zip
 	public static final String PATH_WESNOTH_PORTRAITS = "http://dsa-tab.googlecode.com/files/dsatab-wesnoth-portraits.zip";
 
@@ -146,7 +157,7 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 			WebView webView = new WebView(this);
 
 			String summary = getResources().getString(R.string.credits);
-			webView.loadData(summary, "text/html", "utf-8");
+			webView.loadData(summary, "text/html", XmlParser.ENCODING.toLowerCase());
 			builder.setView(webView);
 			builder.setNeutralButton(R.string.label_ok, new DialogInterface.OnClickListener() {
 
@@ -164,6 +175,9 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 			newsDialog.setTitle(R.string.news_title);
 			newsDialog.setIcon(R.drawable.icon);
 			newsDialog.show(true);
+		} else if (preference.getKey().equals(KEY_TIP_TODAY)) {
+			TipOfTheDayDialog newsDialog = new TipOfTheDayDialog(this);
+			newsDialog.show();
 		}
 
 		return super.onPreferenceTreeClick(preferenceScreen, preference);

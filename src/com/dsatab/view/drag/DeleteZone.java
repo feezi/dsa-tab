@@ -34,8 +34,8 @@ import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.DSATabApplication;
 import com.dsatab.data.Hero;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
@@ -107,7 +107,7 @@ public class DeleteZone extends ImageView implements DropTarget<ItemCard>, DragC
 	public boolean onDrop(DragSource<ItemCard> source, int x, int y, int xOffset, int yOffset, DragView dragView,
 			ItemCard dragInfo) {
 
-		Hero hero = DSATabApplication.getInstance().getHero();
+		final Hero hero = DSATabApplication.getInstance().getHero();
 
 		if (dragInfo instanceof Item) {
 			final Item item = (Item) dragInfo;
@@ -120,7 +120,6 @@ public class DeleteZone extends ImageView implements DropTarget<ItemCard>, DragC
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						if (which == DialogInterface.BUTTON_POSITIVE) {
-							Hero hero = DSATabApplication.getInstance().getHero();
 							hero.removeItem(item);
 						}
 					}
@@ -132,12 +131,15 @@ public class DeleteZone extends ImageView implements DropTarget<ItemCard>, DragC
 				builder.show();
 
 				return false;
+			} else {
+				hero.removeItem(item);
 			}
 
-		} else if (dragInfo instanceof EquippedItem)
+		} else if (dragInfo instanceof EquippedItem) {
 			hero.removeEquippedItem((EquippedItem) dragInfo);
-		else
+		} else {
 			hero.removeItem(dragInfo.getItem());
+		}
 
 		return true;
 	}

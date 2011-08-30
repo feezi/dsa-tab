@@ -16,7 +16,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.activity.MainFightActivity;
+import com.dsatab.activity.BaseMainActivity;
+import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.common.Util;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.enums.AttributeType;
@@ -30,7 +31,7 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 
 	private Spinner distanceSpinner, enemySpinner;
 
-	private TextView text1, text2, probeValue;
+	private TextView text1, text2;
 
 	private Button btnOthers;
 
@@ -44,15 +45,15 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 
 	private boolean doubleDK = false;
 
-	private MainFightActivity main;
+	private BaseMainActivity main;
 
-	public EvadeChooserDialog(MainFightActivity context) {
+	public EvadeChooserDialog(BaseMainActivity context) {
 		super(context);
 		this.main = context;
 		init();
 	}
 
-	protected MainFightActivity getMain() {
+	protected BaseMainActivity getMain() {
 		return main;
 	}
 
@@ -63,7 +64,6 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 			ausweichen.setErschwernis(erschwernis + otherErschwernis);
 
 			dismiss();
-			main.fillAusweichen();
 			main.checkProbe(ausweichen);
 		} else if (v == btnOthers) {
 			if (othersDialog == null)
@@ -84,7 +84,7 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 		if (enemySpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION)
 			erschwernis += enemyValues[enemySpinner.getSelectedItemPosition()];
 
-		probeValue.setText(Util.toProbe(erschwernis)
+		text2.setText("Modifikator " + Util.toProbe(erschwernis)
 				+ (otherErschwernis != 0 ? " " + Util.toProbe(otherErschwernis) : ""));
 	}
 
@@ -95,9 +95,11 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 		ausweichen.setErschwernis(0);
 
 		if (ausweichen != null) {
-			text1.setText(ausweichen.getName());
-			text2.setText(getContext().getString(R.string.ausweichen_info, ausweichen.getValue(),
-					ausweichen.getErschwernis()));
+			StyleableSpannableStringBuilder title = new StyleableSpannableStringBuilder();
+			title.append(ausweichen.getName());
+			Util.appendValue(main.getHero(), title, ausweichen, null);
+			text1.setText(title);
+			text2.setText("Modifikator " + ausweichen.getErschwernis());
 		}
 		super.onStart();
 	}
@@ -146,8 +148,6 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 
 		});
 
-		probeValue = (TextView) popupcontent.findViewById(R.id.evade_probe_value);
-
 		text1 = (TextView) popupcontent.findViewById(android.R.id.text1);
 		text2 = (TextView) popupcontent.findViewById(android.R.id.text2);
 		text1.setTextColor(Color.parseColor("#dddddd"));
@@ -176,7 +176,6 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 		ausweichen.setErschwernis(erschwernis + otherErschwernis);
 
 		dismiss();
-		main.fillAusweichen();
 	}
 
 	private void initOthersDialog() {

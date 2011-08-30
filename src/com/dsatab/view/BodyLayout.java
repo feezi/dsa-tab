@@ -1,6 +1,7 @@
 package com.dsatab.view;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
@@ -17,10 +18,13 @@ import com.dsatab.data.ArmorAttribute;
 import com.dsatab.data.Value;
 import com.dsatab.data.WoundAttribute;
 import com.dsatab.data.enums.Position;
-import com.dsatab.view.listener.ValueChangedListener;
+import com.dsatab.data.items.EquippedItem;
+import com.dsatab.data.items.Item;
+import com.dsatab.data.modifier.Modificator;
+import com.dsatab.view.listener.HeroChangedListener;
 import com.gandulf.guilib.util.Debug;
 
-public class BodyLayout extends FrameLayout implements ValueChangedListener {
+public class BodyLayout extends FrameLayout implements HeroChangedListener {
 
 	private static final double OFFSET_LOWER_LEG_X = 0.70;
 	private static final double OFFSET_UPPER_LEG_X = 0.35;
@@ -522,6 +526,67 @@ public class BodyLayout extends FrameLayout implements ValueChangedListener {
 		} else {
 			return false;
 		}
+
+	}
+
+	@Override
+	public void onModifierAdded(Modificator value) {
+
+	}
+
+	@Override
+	public void onModifierRemoved(Modificator value) {
+
+	}
+
+	@Override
+	public void onModifierChanged(Modificator value) {
+
+	}
+
+	@Override
+	public void onModifiersChanged(List<Modificator> values) {
+
+	}
+
+	@Override
+	public void onPortraitChanged() {
+
+	}
+
+	@Override
+	public void onItemAdded(Item item) {
+
+	}
+
+	@Override
+	public void onItemRemoved(Item item) {
+
+	}
+
+	@Override
+	public void onItemChanged(EquippedItem item) {
+
+	}
+
+	@Override
+	public void onItemEquipped(EquippedItem item) {
+
+	}
+
+	@Override
+	public void onItemUnequipped(EquippedItem item) {
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.view.listener.HeroChangedListener#onActiveSetChanged(int,
+	 * int)
+	 */
+	@Override
+	public void onActiveSetChanged(int newSet, int oldSet) {
 
 	}
 

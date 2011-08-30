@@ -44,12 +44,10 @@ public class CellLayout extends ViewGroup {
 
 	private int mShortAxisStartPadding;
 	private int mShortAxisEndPadding;
+	private int mCellPadding;
 
 	private int mShortAxisCells;
 	private int mLongAxisCells;
-
-	private int mWidthGap;
-	private int mHeightGap;
 
 	private final Rect mRect = new Rect();
 	private final CellInfo mCellInfo = new CellInfo();
@@ -80,6 +78,8 @@ public class CellLayout extends ViewGroup {
 		mLongAxisEndPadding = 0;
 		mShortAxisStartPadding = getResources().getDimensionPixelSize(R.dimen.workspace_cell_padding);
 		mShortAxisEndPadding = getResources().getDimensionPixelSize(R.dimen.workspace_cell_padding);
+
+		mCellPadding = getResources().getDimensionPixelSize(R.dimen.workspace_cell_padding);
 
 		mShortAxisCells = 4;
 		mLongAxisCells = 4;
@@ -112,11 +112,8 @@ public class CellLayout extends ViewGroup {
 		for (int i = 0; i < cellsX; i++) {
 			for (int j = 0; j < cellsY; j++) {
 
-				bounds.left = getLeftPadding() + mCellWidth * i;
-				bounds.left += (mWidthGap * i);
-
-				bounds.top = getTopPadding() + mCellHeight * j;
-				bounds.top += (mHeightGap * j);
+				bounds.left = getLeftPadding() + (mCellWidth + mCellPadding) * i;
+				bounds.top = getTopPadding() + (mCellHeight + mCellPadding) * j;
 
 				bounds.right = bounds.left + mCellWidth;
 				bounds.bottom = bounds.top + mCellHeight;
@@ -430,8 +427,8 @@ public class CellLayout extends ViewGroup {
 		final int hStartPadding = portrait ? mShortAxisStartPadding : mLongAxisStartPadding;
 		final int vStartPadding = portrait ? mLongAxisStartPadding : mShortAxisStartPadding;
 
-		result[0] = (x - hStartPadding) / (mCellWidth + mWidthGap);
-		result[1] = (y - vStartPadding) / (mCellHeight + mHeightGap);
+		result[0] = (x - hStartPadding) / (mCellWidth + mCellPadding);
+		result[1] = (y - vStartPadding) / (mCellHeight + mCellPadding);
 
 		final int xAxis = portrait ? mShortAxisCells : mLongAxisCells;
 		final int yAxis = portrait ? mLongAxisCells : mShortAxisCells;
@@ -478,8 +475,8 @@ public class CellLayout extends ViewGroup {
 		final int hStartPadding = portrait ? mShortAxisStartPadding : mLongAxisStartPadding;
 		final int vStartPadding = portrait ? mLongAxisStartPadding : mShortAxisStartPadding;
 
-		result[0] = hStartPadding + cellX * (mCellWidth + mWidthGap);
-		result[1] = vStartPadding + cellY * (mCellHeight + mHeightGap);
+		result[0] = hStartPadding + cellX * (mCellWidth + mCellPadding);
+		result[1] = vStartPadding + cellY * (mCellHeight + mCellPadding);
 	}
 
 	int getCellWidth() {
@@ -526,36 +523,30 @@ public class CellLayout extends ViewGroup {
 		final int longAxisEndPadding = mLongAxisEndPadding;
 		final int shortAxisStartPadding = mShortAxisStartPadding;
 		final int shortAxisEndPadding = mShortAxisEndPadding;
-		final int cellWidth = mCellWidth;
-		final int cellHeight = mCellHeight;
 
 		mPortrait = heightSpecSize > widthSpecSize;
 
-		int numShortGaps = shortAxisCells - 1;
-		int numLongGaps = longAxisCells - 1;
+		// int numShortGaps = shortAxisCells - 1;
+		// int numLongGaps = longAxisCells - 1;
+
+		int maxCardWidth, maxCardHeight;
 
 		if (mPortrait) {
-			int vSpaceLeft = heightSpecSize - longAxisStartPadding - longAxisEndPadding - (cellHeight * longAxisCells);
-			mHeightGap = vSpaceLeft / numLongGaps;
+			int vSpaceLeft = heightSpecSize - longAxisStartPadding - longAxisEndPadding;
+			maxCardHeight = vSpaceLeft / longAxisCells;
 
-			int hSpaceLeft = widthSpecSize - shortAxisStartPadding - shortAxisEndPadding - (cellWidth * shortAxisCells);
-			if (numShortGaps > 0) {
-				mWidthGap = hSpaceLeft / numShortGaps;
-			} else {
-				mWidthGap = 0;
-			}
+			int hSpaceLeft = widthSpecSize - shortAxisStartPadding - shortAxisEndPadding;
+			maxCardWidth = hSpaceLeft / shortAxisCells;
 		} else {
-			int hSpaceLeft = widthSpecSize - longAxisStartPadding - longAxisEndPadding - (cellWidth * longAxisCells);
-			mWidthGap = hSpaceLeft / numLongGaps;
+			int hSpaceLeft = widthSpecSize - longAxisStartPadding - longAxisEndPadding;
+			maxCardWidth = hSpaceLeft / longAxisCells;
 
-			int vSpaceLeft = heightSpecSize - shortAxisStartPadding - shortAxisEndPadding
-					- (cellHeight * shortAxisCells);
-			if (numShortGaps > 0) {
-				mHeightGap = vSpaceLeft / numShortGaps;
-			} else {
-				mHeightGap = 0;
-			}
+			int vSpaceLeft = heightSpecSize - shortAxisStartPadding - shortAxisEndPadding;
+			maxCardHeight = vSpaceLeft / shortAxisCells;
 		}
+
+		mCellWidth = maxCardWidth - mCellPadding;
+		mCellHeight = maxCardHeight - mCellPadding;
 
 		int count = getChildCount();
 
@@ -564,9 +555,11 @@ public class CellLayout extends ViewGroup {
 			LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
 			if (mPortrait) {
-				lp.setup(cellWidth, cellHeight, mWidthGap, mHeightGap, shortAxisStartPadding, longAxisStartPadding);
+				lp.setup(mCellWidth, mCellHeight, mCellPadding, mCellPadding, shortAxisStartPadding,
+						longAxisStartPadding);
 			} else {
-				lp.setup(cellWidth, cellHeight, mWidthGap, mHeightGap, longAxisStartPadding, shortAxisStartPadding);
+				lp.setup(mCellWidth, mCellHeight, mCellPadding, mCellPadding, longAxisStartPadding,
+						shortAxisStartPadding);
 			}
 
 			if (lp.regenerateId) {
@@ -602,13 +595,7 @@ public class CellLayout extends ViewGroup {
 
 	@Override
 	protected void setChildrenDrawingCacheEnabled(boolean enabled) {
-		final int count = getChildCount();
-		for (int i = 0; i < count; i++) {
-			final View view = getChildAt(i);
-			view.setDrawingCacheEnabled(enabled);
-			// Update the drawing caches
-			view.buildDrawingCache(true);
-		}
+		super.setChildrenDrawingCacheEnabled(enabled);
 	}
 
 	@Override
@@ -746,23 +733,21 @@ public class CellLayout extends ViewGroup {
 	 * @param cellVSpan
 	 *            Height in cells
 	 * @param dragRect
-	 *            Rectnagle into which to put the results
+	 *            Rectangle into which to put the results
 	 */
 	public void cellToRect(int cellX, int cellY, int cellHSpan, int cellVSpan, RectF dragRect) {
 		final boolean portrait = mPortrait;
 		final int cellWidth = mCellWidth;
 		final int cellHeight = mCellHeight;
-		final int widthGap = mWidthGap;
-		final int heightGap = mHeightGap;
 
 		final int hStartPadding = portrait ? mShortAxisStartPadding : mLongAxisStartPadding;
 		final int vStartPadding = portrait ? mLongAxisStartPadding : mShortAxisStartPadding;
 
-		int width = cellHSpan * cellWidth + ((cellHSpan - 1) * widthGap);
-		int height = cellVSpan * cellHeight + ((cellVSpan - 1) * heightGap);
+		int width = cellHSpan * cellWidth + ((cellHSpan - 1) * mCellPadding);
+		int height = cellVSpan * cellHeight + ((cellVSpan - 1) * mCellPadding);
 
-		int x = hStartPadding + cellX * (cellWidth + widthGap);
-		int y = vStartPadding + cellY * (cellHeight + heightGap);
+		int x = hStartPadding + cellX * (cellWidth + mCellPadding);
+		int y = vStartPadding + cellY * (cellHeight + mCellPadding);
 
 		dragRect.set(x, y, x + width, y + height);
 	}

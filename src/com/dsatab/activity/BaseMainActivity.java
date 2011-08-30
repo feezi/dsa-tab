@@ -1,58 +1,101 @@
-/**
- *  This file is part of DsaTab.
+/*
+ * Copyright (C) 2010 Gandulf Kohlweiss
+ * 
+ * This program is free software; you can redistribute it and/or modify it under the terms
+ * of the GNU General Public License as published by the Free Software Foundation;
+ * either version 3 of the License, or (at your option) any later version.
  *
- *  DsaTab is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
  *
- *  DsaTab is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with this program;
+ * if not, see <http://www.gnu.org/licenses/>.
+ * 
  */
 package com.dsatab.activity;
 
-import java.util.Arrays;
+import java.io.File;
+import java.util.LinkedList;
 import java.util.List;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
-import android.view.GestureDetector;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.AnimationUtils;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dsatab.AnalyticsManager;
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
+import com.dsatab.TabConfiguration;
+import com.dsatab.TabInfo;
+import com.dsatab.common.HeroExchange;
 import com.dsatab.common.Util;
-import com.dsatab.data.Attribute;
 import com.dsatab.data.CombatMeleeTalent;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Probe;
 import com.dsatab.data.Value;
-import com.dsatab.data.enums.AttributeType;
+import com.dsatab.fragment.BaseFragment;
 import com.dsatab.view.DiceSlider;
+import com.dsatab.view.FlingableLinearLayout;
+import com.dsatab.view.FlingableLinearLayout.OnFlingListener;
 import com.dsatab.view.InlineEditDialog;
 import com.dsatab.view.InlineEditFightDialog;
+import com.dsatab.view.LiteInfoDialog;
+import com.dsatab.view.TipOfTheDayDialog;
 import com.dsatab.view.listener.ShakeListener;
-import com.dsatab.view.listener.ValueChangedListener;
 import com.gandulf.guilib.util.Debug;
+import com.gandulf.guilib.view.VersionInfoDialog;
 
-public abstract class BaseMainActivity extends BaseMenuActivity implements OnClickListener, ValueChangedListener {
+public class BaseMainActivity extends FragmentActivity implements OnClickListener, OnSharedPreferenceChangeListener,
+		OnDismissListener, OnFlingListener {
+
+	protected static final String INTENT_TAB_INFO = "tabInfo";
+
+	public static final String PREF_LAST_HERO = "LAST_HERO";
+
+	public static final int ACTION_PREFERENCES = 1000;
+
+	private static final int ACTION_EDIT_TAB = 1001;
+
+	private static final int ACTION_ADD_TAB = 1002;
+
+	protected static final int ACTION_CHOOSE_HERO = 1004;
+
+	private static final String KEY_TAB_INFO = "tabInfo";
+
+	protected SharedPreferences preferences;
+
+	protected LiteInfoDialog liteFeatureTeaser;
+
+	protected List<BaseFragment> fragments;
 
 	private DiceSlider diceSlider;
 
@@ -60,13 +103,19 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 
 	private LinearLayout tabLayout;
 
+	private RelativeLayout relMainLayout;
+
+	private TabInfo tabInfo;
+
+	private ImageButton selectedTab;
+
+	private FlingableLinearLayout tabStub;
+
 	private static int tabScrollOffset = 0;
 
-	private List<Class<? extends BaseMainActivity>> tabActivities = Arrays.asList(MainCharacterActivity.class,
-			MainTalentActivity.class, MainSpellActivity.class, MainBodyActivity.class, MainFightActivity.class,
-			ItemsActivity.class, NotesActivity.class, MapActivity.class);
-
 	protected boolean tabFlingEnabled = true;
+
+	private VersionInfoDialog newsDialog;
 
 	public class EditListener implements View.OnClickListener, View.OnLongClickListener {
 
@@ -143,44 +192,178 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 
 	protected EditListener editListener = new EditListener();
 
-	protected GestureDetector gestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
+	// protected GestureDetector gestureDetector = new GestureDetector(new
+	// GestureDetector.SimpleOnGestureListener() {
 
-		private static final int SWIPE_MIN_DISTANCE = 120;
-		private static final int SWIPE_MAX_OFF_PATH = 250;
-		private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+	// private static final int SWIPE_MIN_DISTANCE = 120;
+	// private static final int SWIPE_MAX_OFF_PATH = 250;
+	// private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			try {
-				if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
-					return false;
-				if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-					showNextTab();
-					return true;
-				} else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-					showPreviousTab();
-					return true;
-				}
-			} catch (Exception e) {
-				Debug.error(e);
-			}
-			return false;
+	// public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+	// float velocityY) {
+	// try {
+	// if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+	// return false;
+	// if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE &&
+	// Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+	// showNextTab();
+	// return true;
+	// } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE &&
+	// Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+	// showPreviousTab();
+	// return true;
+	// }
+	// } catch (Exception e) {
+	// Debug.error(e);
+	// }
+	// return false;
 
-		};
+	// 10 = fudge by experimentation
 
-	});
+	// };
+	//
+	// });
+
+	/**
+	 * 
+	 */
+	public BaseMainActivity() {
+		fragments = new LinkedList<BaseFragment>();
+	}
+
+	public Hero getHero() {
+		return DSATabApplication.getInstance().getHero();
+	}
+
+	public final void loadHero(String heroPath) {
+
+		Hero oldHero = DSATabApplication.getInstance().getHero();
+		if (oldHero != null)
+			onHeroUnloaded(oldHero);
+
+		Hero hero = DSATabApplication.getInstance().getHero(heroPath);
+		if (hero != null) {
+			onHeroLoaded(hero);
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.dsatab.activity.BaseMenuActivity#onActivityResult(int, int,
+	 * @see
+	 * com.dsatab.view.FlingableLinearLayout.OnFlingListener#onFling(boolean)
+	 */
+	@Override
+	public void onFling(boolean right) {
+		if (right)
+			showNextTab();
+		else
+			showPreviousTab();
+
+	}
+
+	public void showDiceSlider() {
+		if (diceSlider.getParent() == null) {
+			relMainLayout.addView(diceSlider);
+			diceSlider.getHandle().startAnimation(AnimationUtils.makeInChildBottomAnimation(this));
+
+		}
+	}
+
+	public void hideDiceSlider() {
+		if (diceSlider.getParent() != null) {
+			relMainLayout.removeView(diceSlider);
+			diceSlider.getHandle().startAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_out));
+
+		}
+	}
+
+	private void loadHero() {
+		if (getLastNonConfigurationInstance() instanceof Hero) {
+			onHeroLoaded((Hero) getLastNonConfigurationInstance());
+		} else if (DSATabApplication.getInstance().getHero() != null) {
+			onHeroLoaded(DSATabApplication.getInstance().getHero());
+		} else {
+			String heroPath = preferences.getString(PREF_LAST_HERO, null);
+			if (heroPath != null && new File(heroPath).exists()) {
+				loadHero(heroPath);
+			} else {
+				showHeroChooser();
+			}
+		}
+	}
+
+	public void addFragment(BaseFragment fragment) {
+		fragments.add(fragment);
+	}
+
+	public void removeFragment(BaseFragment fragment) {
+		fragments.remove(fragment);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onActivityResult(int, int,
 	 * android.content.Intent)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-		Debug.verbose("onActivityResult request=" + requestCode + " result=" + resultCode);
+		if (requestCode == ACTION_EDIT_TAB && resultCode == RESULT_OK) {
+			int icon = data.getIntExtra(TabEditActivity.INTENT_ICON, 0);
+			Class<? extends BaseFragment> class1 = (Class<? extends BaseFragment>) data
+					.getSerializableExtra(TabEditActivity.INTENT_PRIMARY_CLASS);
+			Class<? extends BaseFragment> class2 = (Class<? extends BaseFragment>) data
+					.getSerializableExtra(TabEditActivity.INTENT_SECONDARY_CLASS);
+			TabInfo info = (TabInfo) selectedTab.getTag();
+			info.setTabResourceId(icon);
+			info.setPrimaryActivityClazz(class1);
+			info.setSecondaryActivityClazz(class2);
+			info.setDiceSlider(data.getBooleanExtra(TabEditActivity.INTENT_DICE_SLIDER, true));
 
-		if (requestCode == ACTION_PREFERENCES && resultCode == RESULT_OK) {
+			selectedTab.setImageResource(icon);
+
+			// update view if current tab was changed
+			if (info == tabInfo) {
+				showTab(tabInfo);
+			}
+			selectedTab = null;
+
+		} else if (requestCode == ACTION_ADD_TAB && resultCode == RESULT_OK) {
+
+			int index = -1;
+			if (selectedTab != null) {
+				TabInfo info = (TabInfo) selectedTab.getTag();
+				index = getTabConfiguration().getTabs().indexOf(info);
+			}
+
+			int icon = data.getIntExtra(TabEditActivity.INTENT_ICON, 0);
+			Class<? extends BaseFragment> class1 = (Class<? extends BaseFragment>) data
+					.getSerializableExtra(TabEditActivity.INTENT_PRIMARY_CLASS);
+			Class<? extends BaseFragment> class2 = (Class<? extends BaseFragment>) data
+					.getSerializableExtra(TabEditActivity.INTENT_SECONDARY_CLASS);
+
+			TabInfo newInfo = new TabInfo(class1, class2, icon);
+			newInfo.setDiceSlider(data.getBooleanExtra(TabEditActivity.INTENT_DICE_SLIDER, true));
+			LayoutInflater inflater = LayoutInflater.from(this);
+			View tab = createTab(inflater, newInfo);
+			tab.setEnabled(true);
+			if (index >= 0) {
+				tabLayout.addView(tab, index);
+				getTabConfiguration().getTabs().add(index, newInfo);
+			} else {
+				tabLayout.addView(tab);
+				getTabConfiguration().getTabs().add(newInfo);
+			}
+
+			selectedTab = null;
+		} else if (requestCode == ACTION_CHOOSE_HERO && resultCode == RESULT_OK) {
+			String heroPath = data.getStringExtra(HeroChooserActivity.INTENT_NAME_HERO_PATH);
+			Debug.verbose("HeroChooserActivity returned with path:" + heroPath);
+			loadHero(heroPath);
+		} else if (requestCode == ACTION_PREFERENCES) {
 
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -190,25 +373,57 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 				unregisterShakeDice();
 			}
 
+			String orientation = preferences.getString(DsaPreferenceActivity.KEY_SCREEN_ORIENTATION,
+					DsaPreferenceActivity.DEFAULT_SCREEN_ORIENTATION);
+			if (DsaPreferenceActivity.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)) {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+			} else if (DsaPreferenceActivity.SCREEN_ORIENTATION_PORTRAIT.equals(orientation)) {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			} else if (DsaPreferenceActivity.SCREEN_ORIENTATION_AUTO.equals(orientation)) {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+			}
+
 			if (getHero() == null) {
 				showHeroChooser();
 			}
-
 		}
 
+		for (BaseFragment fragment : fragments) {
+			fragment.onActivityResult(requestCode, resultCode, data);
+		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#
+	 * onSharedPreferenceChanged(android.content.SharedPreferences,
+	 * java.lang.String)
+	 */
 	@Override
-	public boolean dispatchTouchEvent(MotionEvent ev) {
-		if (tabFlingEnabled) {
-			super.dispatchTouchEvent(ev);
-			return gestureDetector.onTouchEvent(ev);
-		} else {
-			return super.dispatchTouchEvent(ev);
-		}
-
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		// Debug.verbose(key + " changed");
 	}
+
+	public ProbeListener getProbeListener() {
+		return probeListener;
+	}
+
+	public EditListener getEditListener() {
+		return editListener;
+	}
+
+	// @Override
+	// public boolean dispatchTouchEvent(MotionEvent ev) {
+	// if (tabFlingEnabled) {
+	// super.dispatchTouchEvent(ev);
+	// return gestureDetector.onTouchEvent(ev);
+	// } else {
+	// return super.dispatchTouchEvent(ev);
+	// }
+	//
+	// }
 
 	/*
 	 * (non-Javadoc)
@@ -218,52 +433,178 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main_tab_view);
+
+		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+
+		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		if (preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_SHAKE_ROLL_DICE, false)) {
 			registerShakeDice();
 		}
 
-		setupDiceSilder();
+		Configuration configuration = getResources().getConfiguration();
+
+		String orientation = preferences.getString(DsaPreferenceActivity.KEY_SCREEN_ORIENTATION,
+				DsaPreferenceActivity.DEFAULT_SCREEN_ORIENTATION);
+
+		if (DsaPreferenceActivity.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)
+				&& configuration.orientation != Configuration.ORIENTATION_LANDSCAPE) {
+			Debug.verbose("Setting landscape");
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		} else if (DsaPreferenceActivity.SCREEN_ORIENTATION_PORTRAIT.equals(orientation)
+				&& configuration.orientation != Configuration.ORIENTATION_PORTRAIT) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			Debug.verbose("Setting portrait");
+		} else if (DsaPreferenceActivity.SCREEN_ORIENTATION_AUTO.equals(orientation)
+				&& getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_SENSOR) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+			Debug.verbose("Setting sensor");
+		}
 
 		tabLayout = (LinearLayout) findViewById(R.id.gen_tab_layout);
 
-		View tab = findViewById(R.id.gen_tab_char);
-		tab.setOnClickListener(this);
-		tab.setSelected(getClass().equals(MainCharacterActivity.class));
+		LinearLayout tabStubs = (LinearLayout) findViewById(R.id.inc_stub);
+		if (tabStubs instanceof FlingableLinearLayout) {
+			tabStub = (FlingableLinearLayout) tabStubs;
+			tabStub.setOnFlingListener(this);
+		}
 
-		tab = findViewById(R.id.gen_tab_talents);
-		tab.setOnClickListener(this);
-		tab.setSelected(getClass().equals(MainTalentActivity.class));
+		if (savedInstanceState != null) {
+			tabInfo = savedInstanceState.getParcelable(KEY_TAB_INFO);
+		}
 
-		tab = findViewById(R.id.gen_tab_magic);
-		tab.setOnClickListener(this);
-		tab.setSelected(getClass().equals(MainSpellActivity.class));
+		if (tabInfo == null && getIntent() != null) {
+			tabInfo = getIntent().getParcelableExtra(INTENT_TAB_INFO);
+		}
 
-		tab = findViewById(R.id.gen_tab_body);
-		tab.setOnClickListener(this);
-		tab.setSelected(getClass().equals(MainBodyActivity.class));
+		setupDiceSilder();
+		setupTabs();
 
-		tab = findViewById(R.id.gen_tab_fight);
-		tab.setOnClickListener(this);
-		tab.setSelected(getClass().equals(MainFightActivity.class));
+		if (savedInstanceState == null) {
+			Debug.verbose("New instance setup tabs");
+			showTab(tabInfo);
+		} else {
+			Debug.verbose("Old instance keep tabs");
+			showTab(tabInfo);
+		}
 
-		tab = findViewById(R.id.gen_tab_coins);
-		tab.setOnClickListener(this);
-		tab.setSelected(getClass().equals(PurseActivity.class));
+		preferences.registerOnSharedPreferenceChangeListener(this);
 
-		tab = findViewById(R.id.gen_tab_items);
-		tab.setSelected(getClass().equals(ItemsActivity.class));
-		tab.setOnClickListener(this);
+		if (!showNewsInfoPopup())
+			showTipPopup();
 
-		tab = findViewById(R.id.gen_tab_notes);
-		tab.setSelected(getClass().equals(NotesActivity.class));
-		tab.setOnClickListener(this);
+	}
 
-		tab = findViewById(R.id.gen_tab_maps);
-		tab.setSelected(getClass().equals(MapActivity.class));
-		tab.setOnClickListener(this);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.content.DialogInterface.OnDismissListener#onDismiss(android.content
+	 * .DialogInterface)
+	 */
+	@Override
+	public void onDismiss(DialogInterface dialog) {
 
-		setTabsEnabled(false);
+		if (dialog == newsDialog) {
+			newsDialog = null;
+			showTipPopup();
+		}
+	}
+
+	private boolean showNewsInfoPopup() {
+
+		if (VersionInfoDialog.newsShown)
+			return false;
+
+		newsDialog = new VersionInfoDialog(this);
+		newsDialog.setDonateContentId(R.raw.donate);
+		newsDialog.setDonateVersion(DSATabApplication.getInstance().isLiteVersion());
+		newsDialog.setTitle(R.string.news_title);
+		newsDialog.setRawClass(R.raw.class);
+		newsDialog.setIcon(R.drawable.icon);
+		newsDialog.setOnDismissListener(this);
+		if (newsDialog.hasContent()) {
+			newsDialog.show();
+			return true;
+		} else {
+			return false;
+		}
+
+	}
+
+	private boolean showTipPopup() {
+
+		if (TipOfTheDayDialog.tipShown)
+			return false;
+
+		TipOfTheDayDialog dialog = new TipOfTheDayDialog(this);
+		dialog.setOnDismissListener(this);
+		dialog.show();
+
+		TipOfTheDayDialog.tipShown = true;
+		return true;
+
+	}
+
+	private void updateTab(ImageButton tabButton, TabInfo tabInfo) {
+		tabButton.setOnClickListener(this);
+		tabButton.setTag(tabInfo);
+		tabButton.setImageResource(tabInfo.getTabResourceId());
+		registerForContextMenu(tabButton);
+	}
+
+	private ImageButton createTab(LayoutInflater inflater, TabInfo tabInfo) {
+		ImageButton tabButton = (ImageButton) inflater.inflate(R.layout.hero_tab, tabLayout, false);
+		updateTab(tabButton, tabInfo);
+		return tabButton;
+	}
+
+	private TabConfiguration getTabConfiguration() {
+		TabConfiguration tabConfig = null;
+		if (getHero() != null) {
+			tabConfig = getHero().getTabConfiguration();
+		}
+
+		return tabConfig;
+	}
+
+	/**
+	 * 
+	 */
+	private void setupTabs() {
+
+		if (getTabConfiguration() == null) {
+			tabLayout.removeAllViews();
+			return;
+		}
+
+		LayoutInflater inflater = LayoutInflater.from(this);
+
+		List<TabInfo> tabs = getTabConfiguration().getTabs();
+		int tabCount = tabs.size();
+
+		for (int i = 0; i < tabCount; i++) {
+			ImageButton tabButton = (ImageButton) tabLayout.getChildAt(i);
+			TabInfo tabInfo = tabs.get(i);
+
+			if (tabButton != null) {
+				updateTab(tabButton, tabInfo);
+			} else {
+				tabButton = createTab(inflater, tabInfo);
+				tabLayout.addView(tabButton, i);
+			}
+			tabButton.setEnabled(getHero() != null);
+			tabButton.setSelected(tabInfo == this.tabInfo);
+		}
+
+		// remove tabs if there are too much
+		for (int i = tabLayout.getChildCount() - 1; i >= tabCount; i--) {
+			tabLayout.removeViewAt(i);
+		}
+
+		return;
+
 	}
 
 	/*
@@ -295,7 +636,7 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 	}
 
 	protected void setupDiceSilder() {
-		RelativeLayout relMainLayout = (RelativeLayout) findViewById(R.id.gen_main_layout);
+		relMainLayout = (RelativeLayout) findViewById(R.id.gen_main_layout);
 		diceSlider = (DiceSlider) LayoutInflater.from(this).inflate(R.layout.dice_slider, relMainLayout, false);
 		RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) diceSlider.getLayoutParams();
 		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
@@ -303,96 +644,179 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 	}
 
 	protected boolean showNextTab() {
-		int index = tabActivities.indexOf(getClass());
-		int nextIndex = (index + 1) % tabActivities.size();
-
-		Class<?> activity = tabActivities.get(nextIndex);
-
-		if (activity == MainSpellActivity.class && getHero().getSpells().isEmpty()) {
-			nextIndex = (nextIndex + 1) % tabActivities.size();
-			activity = tabActivities.get(nextIndex);
+		if (tabInfo != null) {
+			int index = getTabConfiguration().getTabs().indexOf(tabInfo);
+			return showTab(index + 1);
+		} else {
+			return false;
 		}
-
-		startActivity(new Intent(this, activity));
-		finish();
-
-		return true;
 	}
 
 	protected boolean showPreviousTab() {
-		int index = tabActivities.indexOf(getClass());
-		int prevIndex = (index - 1) % tabActivities.size();
-		if (prevIndex < 0)
-			prevIndex = tabActivities.size() - prevIndex;
+		if (tabInfo != null) {
+			int index = getTabConfiguration().getTabs().indexOf(tabInfo);
+			return showTab(index - 1);
+		} else {
+			return false;
+		}
+	}
 
-		Class<?> activity = tabActivities.get(prevIndex);
+	/**
+	 * 
+	 */
+	private TabInfo refreshTabInfo() {
 
-		if (activity == MainSpellActivity.class && getHero().getSpells().isEmpty()) {
-			prevIndex = (prevIndex - 1) % tabActivities.size();
-			activity = tabActivities.get(prevIndex);
+		if (getTabConfiguration() == null || getTabConfiguration().getTabs().isEmpty()) {
+			tabInfo = null;
+			return null;
 		}
 
-		startActivity(new Intent(this, activity));
-		finish();
+		// if we have an existing tabinfo check if it's upto date
+		if (tabInfo != null) {
+			// check wether tabinfo is uptodate (within current tabconfig
+			if (getTabConfiguration().getTabs().contains(tabInfo))
+				return tabInfo;
 
-		return true;
+			// look for tabinfo with same activities
+			for (TabInfo tab : getTabConfiguration().getTabs()) {
+
+				if (Util.equalsOrNull(tab.getPrimaryActivityClazz(), tabInfo.getPrimaryActivityClazz())
+						&& Util.equalsOrNull(tab.getSecondaryActivityClazz(), tabInfo.getSecondaryActivityClazz())) {
+					return tab;
+				}
+			}
+
+			// if we have portraitmode and a secondary clazz this means we
+			// switched from landscape here, in this case we look for a tabinfo
+			// with the primary ctivityclass and use this one
+			if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT
+					&& tabInfo.getSecondaryActivityClazz() != null) {
+
+				Class<? extends BaseFragment> activityClazz = tabInfo.getPrimaryActivityClazz();
+				if (activityClazz != null) {
+					for (TabInfo tab : getTabConfiguration().getTabs()) {
+						if (activityClazz.equals(tab.getPrimaryActivityClazz())) {
+							return tab;
+						}
+					}
+				}
+			}
+
+			// if we have landscape mode and a empty secondary activity look for
+			// one with one
+			if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE
+					&& tabInfo.getSecondaryActivityClazz() == null) {
+
+				Class<? extends BaseFragment> activityClazz = tabInfo.getPrimaryActivityClazz();
+				if (activityClazz != null) {
+					for (TabInfo tab : getTabConfiguration().getTabs()) {
+						if (activityClazz.equals(tab.getPrimaryActivityClazz())
+								|| activityClazz.equals(tab.getSecondaryActivityClazz())) {
+							return tab;
+
+						}
+					}
+				}
+			}
+		}
+
+		// last resort set tabinfo to first one if no matching one is found
+		return getTabConfiguration().getTab(0);
+	}
+
+	protected boolean showTab(int index) {
+
+		if (index >= 0 && index < getTabConfiguration().getTabs().size()) {
+			TabInfo tabInfo = getTabConfiguration().getTab(index);
+			return showTab(tabInfo);
+		} else {
+			return false;
+		}
+	}
+
+	protected boolean showTab(TabInfo newTabInfo) {
+
+		if (newTabInfo != null) {
+			// unselect old tab
+			if (tabInfo != null) {
+				View oldTab = tabLayout.findViewWithTag(tabInfo);
+				if (oldTab != null) {
+					oldTab.setSelected(false);
+				}
+			}
+			setFragments(newTabInfo.getPrimaryActivityClazz(), newTabInfo.getSecondaryActivityClazz());
+			tabInfo = newTabInfo;
+
+			// select new one
+			View newTab = tabLayout.findViewWithTag(newTabInfo);
+			if (newTab != null) {
+				newTab.setSelected(true);
+			}
+
+			if (tabInfo.isDiceSlider())
+				showDiceSlider();
+			else
+				hideDiceSlider();
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private void setFragments(Class<? extends BaseFragment> primaryFragmentClazz,
+			Class<? extends BaseFragment> secondaryFragmentClazz) {
+
+		BaseFragment primary = null;
+		BaseFragment secondary = null;
+		try {
+			if (primaryFragmentClazz != null) {
+				primary = primaryFragmentClazz.newInstance();
+			}
+			if (secondaryFragmentClazz != null) {
+				secondary = secondaryFragmentClazz.newInstance();
+			}
+			setFragments(primary, secondary);
+		} catch (InstantiationException e) {
+			Debug.error(e);
+		} catch (IllegalAccessException e) {
+			Debug.error(e);
+		}
+
+	}
+
+	protected void setFragments(BaseFragment primaryFragment, BaseFragment secondaryFragment) {
+
+		FragmentManager fragmentManager = getSupportFragmentManager();
+
+		FragmentTransaction transaction = fragmentManager.beginTransaction();
+		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+
+		Fragment oldPrimary = fragmentManager.findFragmentByTag("primary");
+		if (oldPrimary != null) {
+			transaction.remove(oldPrimary);
+		}
+		if (primaryFragment != null) {
+			transaction.add(R.id.inc_stub, primaryFragment, "primary");
+			AnalyticsManager.onEvent(primaryFragment.getClass().getName());
+		}
+
+		Fragment oldSecondary = fragmentManager.findFragmentByTag("secondary");
+		if (oldSecondary != null) {
+			transaction.remove(oldSecondary);
+		}
+		if (secondaryFragment != null) {
+			transaction.add(R.id.inc_stub, secondaryFragment, "secondary");
+			AnalyticsManager.onEvent(secondaryFragment.getClass().getName());
+		}
+
+		transaction.commitAllowingStateLoss();
 	}
 
 	public void onClick(View v) {
 
-		switch (v.getId()) {
-		case R.id.gen_tab_char:
-			if (!getClass().equals(MainCharacterActivity.class)) {
-				startActivity(new Intent(this, MainCharacterActivity.class));
-				AnalyticsManager.onEvent(AnalyticsManager.PAGE_CHARACTER);
-				finish();
-			}
-			break;
-		case R.id.gen_tab_talents:
-			if (!getClass().equals(MainTalentActivity.class)) {
-				startActivity(new Intent(this, MainTalentActivity.class));
-				AnalyticsManager.onEvent(AnalyticsManager.PAGE_TALENTS);
-				finish();
-			}
-			break;
-		case R.id.gen_tab_magic:
-			if (!getClass().equals(MainSpellActivity.class)) {
-				startActivity(new Intent(this, MainSpellActivity.class));
-				AnalyticsManager.onEvent(AnalyticsManager.PAGE_SPELLS);
-				finish();
-			}
-			break;
-		case R.id.gen_tab_fight:
-			if (!getClass().equals(MainFightActivity.class)) {
-				startActivity(new Intent(this, MainFightActivity.class));
-				AnalyticsManager.onEvent(AnalyticsManager.PAGE_FIGHT);
-				finish();
-			}
-			break;
-		case R.id.gen_tab_body:
-			if (!getClass().equals(MainBodyActivity.class)) {
-				startActivity(new Intent(this, MainBodyActivity.class));
-				AnalyticsManager.onEvent(AnalyticsManager.PAGE_ARMOR_WOUNDS);
-				finish();
-			}
-			break;
-		case R.id.gen_tab_coins:
-			if (!getClass().equals(PurseActivity.class)) {
-				startActivity(new Intent(this, PurseActivity.class));
-				AnalyticsManager.onEvent(AnalyticsManager.PAGE_PURSE);
-				finish();
-			}
-			break;
-		case R.id.gen_tab_items:
-			startItems();
-			break;
-		case R.id.gen_tab_maps:
-			startMap();
-			break;
-
-		case R.id.gen_tab_notes:
-			startNotes();
-			break;
+		if (v.getTag() instanceof TabInfo) {
+			TabInfo tabInfo = (TabInfo) v.getTag();
+			showTab(tabInfo);
 		}
 	}
 
@@ -428,83 +852,23 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 			setTabsEnabled(true);
 		}
 
-		if (hero.getSpells().isEmpty()) {
-			findViewById(R.id.gen_tab_magic).setVisibility(View.GONE);
-		} else {
-			findViewById(R.id.gen_tab_magic).setVisibility(View.VISIBLE);
+		TabInfo oldInfo = tabInfo;
+		tabInfo = refreshTabInfo();
+		setupTabs();
+
+		if (tabInfo != oldInfo) {
+			showTab(tabInfo);
 		}
 
-		hero.addValueChangedListener(this);
+		for (BaseFragment fragment : fragments) {
+			fragment.loadHero(hero);
+		}
+
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.activity.BaseMenuActivity#onHeroUnloaded(com.dsatab.data.Hero)
-	 */
-	@Override
 	protected void onHeroUnloaded(Hero hero) {
-		if (hero != null)
-			hero.removeValueChangeListener(this);
-	}
-
-	protected void fillAttributesList(View view) {
-
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_mu), AttributeType.Mut);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_kl), AttributeType.Klugheit);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_in), AttributeType.Intuition);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_ch), AttributeType.Charisma);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_ff), AttributeType.Fingerfertigkeit);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_ge), AttributeType.Gewandtheit);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_ko), AttributeType.Konstitution);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_kk), AttributeType.Körperkraft);
-
-		fillAttributeLabel((TextView) view.findViewById(R.id.talent_mu_label), AttributeType.Mut);
-		fillAttributeLabel((TextView) view.findViewById(R.id.talent_kl_label), AttributeType.Klugheit);
-		fillAttributeLabel((TextView) view.findViewById(R.id.talent_in_label), AttributeType.Intuition);
-		fillAttributeLabel((TextView) view.findViewById(R.id.talent_ch_label), AttributeType.Charisma);
-		fillAttributeLabel((TextView) view.findViewById(R.id.talent_ff_label), AttributeType.Fingerfertigkeit);
-		fillAttributeLabel((TextView) view.findViewById(R.id.talent_ge_label), AttributeType.Gewandtheit);
-		fillAttributeLabel((TextView) view.findViewById(R.id.talent_ko_label), AttributeType.Konstitution);
-		fillAttributeLabel((TextView) view.findViewById(R.id.talent_kk_label), AttributeType.Körperkraft);
-
-	}
-
-	protected void fillAttribute(View view, Attribute attr) {
-		switch (attr.getType()) {
-		case Mut:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_mu), AttributeType.Mut);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_mu_label), AttributeType.Mut);
-			break;
-		case Klugheit:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_kl), AttributeType.Klugheit);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_kl_label), AttributeType.Klugheit);
-			break;
-		case Intuition:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_in), AttributeType.Intuition);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_in_label), AttributeType.Intuition);
-			break;
-		case Charisma:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_ch), AttributeType.Charisma);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_ch_label), AttributeType.Charisma);
-			break;
-		case Fingerfertigkeit:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_ff), AttributeType.Fingerfertigkeit);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_ff_label), AttributeType.Fingerfertigkeit);
-			break;
-		case Gewandtheit:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_ge), AttributeType.Gewandtheit);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_ge_label), AttributeType.Gewandtheit);
-			break;
-		case Konstitution:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_ko), AttributeType.Konstitution);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_ko_label), AttributeType.Konstitution);
-			break;
-		case Körperkraft:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_kk), AttributeType.Körperkraft);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_kk_label), AttributeType.Körperkraft);
-			break;
+		for (BaseFragment fragment : fragments) {
+			fragment.unloadHero(hero);
 		}
 	}
 
@@ -539,57 +903,15 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 		}
 	}
 
-	protected void fillAttributeValue(TextView tv, AttributeType type) {
-		fillAttributeValue(tv, type, null);
-	}
-
-	protected void fillAttributeValue(TextView tv, AttributeType type, String prefix) {
-		if (getHero() == null)
-			return;
-		Attribute attribute = getHero().getAttribute(type);
-		if (attribute != null) {
-
-			Util.setText(tv, attribute, prefix);
-			tv.setTag(attribute);
-
-			if (!tv.isLongClickable()) {
-
-				if (type == AttributeType.Lebensenergie || type == AttributeType.Lebensenergie_Total
-						|| type == AttributeType.Karmaenergie || type == AttributeType.Karmaenergie_Total
-						|| type == AttributeType.Astralenergie || type == AttributeType.Astralenergie_Total
-						|| type == AttributeType.Ausdauer || type == AttributeType.Ausdauer_Total
-						|| type == AttributeType.Behinderung) {
-					tv.setOnClickListener(editListener);
-				} else if (type.probable()) {
-					tv.setOnClickListener(probeListener);
-				}
-				tv.setOnLongClickListener(editListener);
-			}
-		}
-	}
-
 	public boolean checkProbe(Probe probe) {
-		if (diceSlider != null)
-			diceSlider.checkProbe(getHero(), probe);
-		return true;
-	}
-
-	protected void fillAttributeLabel(TextView tv, AttributeType type) {
-
-		if (!tv.isLongClickable()) {
-			if (type == AttributeType.Lebensenergie || type == AttributeType.Karmaenergie
-					|| type == AttributeType.Astralenergie || type == AttributeType.Ausdauer
-					|| type == AttributeType.Behinderung) {
-				tv.setOnClickListener(editListener);
-			} else if (type.probable()) {
-				tv.setOnClickListener(probeListener);
+		if (diceSlider != null) {
+			if (probe != null) {
+				diceSlider.checkProbe(getHero(), probe);
+				return true;
 			}
-			tv.setOnClickListener(probeListener);
-			tv.setOnLongClickListener(editListener);
 		}
-		if (getHero() != null) {
-			tv.setTag(getHero().getAttribute(type));
-		}
+		return false;
+
 	}
 
 	private void unregisterShakeDice() {
@@ -616,6 +938,17 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 				}
 			});
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onStart()
+	 */
+	@Override
+	protected void onStart() {
+		AnalyticsManager.startSession(this);
+		super.onStart();
 	}
 
 	/*
@@ -660,4 +993,208 @@ public abstract class BaseMainActivity extends BaseMenuActivity implements OnCli
 		super.onResume();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onStop()
+	 */
+	@Override
+	protected void onStop() {
+		AnalyticsManager.endSession(this);
+		super.onStop();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onPostCreate(android.os.Bundle)
+	 */
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+		loadHero();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onCreateContextMenu(android.view.ContextMenu,
+	 * android.view.View, android.view.ContextMenu.ContextMenuInfo)
+	 */
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+
+		if (v.getTag() instanceof TabInfo) {
+			// TabInfo info = (TabInfo) v.getTag();
+			MenuInflater inflater = getMenuInflater();
+			inflater.inflate(R.menu.tab_menu, menu);
+
+			selectedTab = (ImageButton) v;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onContextItemSelected(android.view.MenuItem)
+	 */
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+
+		switch (item.getItemId()) {
+		case R.id.option_add:
+			startActivityForResult(new Intent(this, TabEditActivity.class), ACTION_ADD_TAB);
+			return true;
+		case R.id.option_delete:
+			if (selectedTab != null) {
+				tabLayout.removeView(selectedTab);
+				TabInfo selectedInfo = (TabInfo) selectedTab.getTag();
+				getTabConfiguration().getTabs().remove(selectedInfo);
+			}
+			return true;
+		case R.id.option_icon:
+			if (selectedTab != null) {
+
+				TabInfo selectedInfo = (TabInfo) selectedTab.getTag();
+				Intent intent = new Intent(this, TabEditActivity.class);
+				intent.putExtra(TabEditActivity.INTENT_ICON, selectedInfo.getTabResourceId());
+				intent.putExtra(TabEditActivity.INTENT_PRIMARY_CLASS, selectedInfo.getPrimaryActivityClazz());
+				intent.putExtra(TabEditActivity.INTENT_SECONDARY_CLASS, selectedInfo.getSecondaryActivityClazz());
+
+				startActivityForResult(intent, ACTION_EDIT_TAB);
+			}
+			return true;
+
+		case R.id.option_tab_reset:
+			getTabConfiguration().reset();
+			setupTabs();
+			break;
+		}
+
+		return super.onContextItemSelected(item);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main_menu, menu);
+		return true;
+	}
+
+	public void tease(String feature) {
+		if (liteFeatureTeaser == null) {
+			liteFeatureTeaser = new LiteInfoDialog(this);
+			liteFeatureTeaser.setOwnerActivity(this);
+		}
+		liteFeatureTeaser.setFeature(feature);
+		liteFeatureTeaser.show();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
+	 */
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+
+		Hero hero = getHero();
+		menu.findItem(R.id.option_save_hero).setEnabled(hero != null);
+
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		switch (item.getItemId()) {
+		case R.id.option_load_hero:
+			showHeroChooser();
+			return true;
+		case R.id.option_save_hero:
+			DSATabApplication.getInstance().saveHero();
+			return true;
+		case R.id.option_settings:
+			startActivityForResult(new Intent(this, DsaPreferenceActivity.class), ACTION_PREFERENCES);
+			return true;
+		case R.id.option_import_hero: {
+			HeroExchange exchange = new HeroExchange(this);
+
+			if (!exchange.isConfigured()) {
+
+				Toast.makeText(this, "Bitte zuerst die Logindaten bei den Heldenaustausch Einstellungen angeben.",
+						Toast.LENGTH_LONG).show();
+
+				Intent intent = new Intent(this, DsaPreferenceActivity.class);
+				intent.putExtra(DsaPreferenceActivity.INTENT_PREF_SCREEN, DsaPreferenceActivity.SCREEN_EXCHANGE);
+				startActivityForResult(intent, BaseMainActivity.ACTION_PREFERENCES);
+			}
+			exchange.importHero();
+			return true;
+		}
+		case R.id.option_export_hero: {
+			HeroExchange exchange = new HeroExchange(this);
+
+			if (!exchange.isConfigured()) {
+
+				Toast.makeText(this, "Bitte zuerst die Logindaten bei den Heldenaustausch Einstellungen angeben.",
+						Toast.LENGTH_LONG).show();
+
+				Intent intent = new Intent(this, DsaPreferenceActivity.class);
+				intent.putExtra(DsaPreferenceActivity.INTENT_PREF_SCREEN, DsaPreferenceActivity.SCREEN_EXCHANGE);
+				startActivityForResult(intent, BaseMainActivity.ACTION_PREFERENCES);
+			}
+			exchange.exportHero(getHero());
+			return true;
+		}
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.support.v4.app.FragmentActivity#onSaveInstanceState(android.os
+	 * .Bundle)
+	 */
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+
+		outState.putParcelable(KEY_TAB_INFO, tabInfo);
+	}
+
+	protected void showHeroChooser() {
+
+		if (!DSATabApplication.getInstance().hasHeroes()) {
+			// --
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle("Keine Helden gefunden");
+			builder.setMessage("Auf der SD-Karte wurden keine Helden-Dateien gefunden. Stell sicher, dass sich unter "
+					+ DSATabApplication.getDsaTabPath()
+					+ " die als XML Datei exportierten Helden der Helden-Software befinden.");
+
+			builder.setPositiveButton(R.string.settings, new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					startActivityForResult(new Intent(BaseMainActivity.this, DsaPreferenceActivity.class),
+							ACTION_PREFERENCES);
+				}
+			});
+			builder.setNegativeButton(R.string.label_cancel, new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					BaseMainActivity.this.finish();
+				}
+
+			});
+			builder.show();
+		} else {
+			startActivityForResult(new Intent(BaseMainActivity.this, HeroChooserActivity.class), ACTION_CHOOSE_HERO);
+		}
+	}
 }

@@ -14,10 +14,10 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.BaseMainActivity.EditListener;
 import com.dsatab.activity.BaseMainActivity.ProbeListener;
-import com.dsatab.activity.DSATabApplication;
 import com.dsatab.common.Util;
 import com.dsatab.data.BaseCombatTalent;
 import com.dsatab.data.CombatDistanceTalent;
@@ -170,7 +170,8 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 				CombatMeleeTalent meleeTalent = (CombatMeleeTalent) combatTalent;
 
 				if (meleeTalent.getAttack() != null || meleeTalent.getAttack().getValue() != null) {
-					text4.setText(Integer.toString(meleeTalent.getAttack().getValue()));
+					int modifier = hero.getModificator(meleeTalent.getAttack());
+					Util.setText(text4, meleeTalent.getAttack().getValue(), modifier, null);
 					text4.setOnClickListener(probeListener);
 					text4.setTag(R.id.TAG_KEY_VALUE, meleeTalent.getAttack());
 					text4.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(hero, meleeTalent, true));
@@ -184,7 +185,8 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 				}
 
 				if (meleeTalent.getDefense() != null && meleeTalent.getDefense().getValue() != null) {
-					text5.setText(Integer.toString(meleeTalent.getDefense().getValue()));
+					int modifier = hero.getModificator(meleeTalent.getDefense());
+					Util.setText(text5, meleeTalent.getDefense().getValue(), modifier, null);
 					text5.setOnClickListener(probeListener);
 					text5.setTag(R.id.TAG_KEY_VALUE, meleeTalent.getDefense());
 					text5.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(hero, meleeTalent, false));
@@ -201,7 +203,8 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 				CombatDistanceTalent distanceTalent = (CombatDistanceTalent) combatTalent;
 
 				if (distanceTalent.getAttack() != null || distanceTalent.getAttack().getValue() != null) {
-					text4.setText(Integer.toString(distanceTalent.getAttack().getValue()));
+					int modifier = hero.getModificator(distanceTalent.getAttack());
+					Util.setText(text4, distanceTalent.getAttack().getValue(), modifier, null);
 					text4.setOnClickListener(probeListener);
 					text4.setTag(R.id.TAG_KEY_VALUE, distanceTalent.getAttack());
 					text4.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(hero, distanceTalent, true));
@@ -221,7 +224,8 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 			}
 
 		} else {
-			text4.setText(Util.toString(talent.getValue()));
+			int modifier = hero.getModificator(talent);
+			Util.setText(text4, talent.getValue(), modifier, null);
 			text4.setTag(R.id.TAG_KEY_VALUE, null);
 			text4.setTag(R.id.TAG_KEY_PROBE, null);
 			text4.setOnClickListener(null);

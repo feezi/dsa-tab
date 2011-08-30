@@ -1,28 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-        <PreferenceCategory android:title="Proben">
+        <PreferenceCategory android:title="Regeln">
                 <CheckBoxPreference
                         android:title="Hausregeln verwenden"
                         android:defaultValue="false"
                         android:summary="Spezielle Hausregeln verwenden: Eigenschafts-/Kampfproben besten 2 von 3 Würfen"
                         android:key="houseRules" />
-                <CheckBoxPreference
-                        android:title="Wahrscheinlichkeit anzeigen"
-                        android:defaultValue="false"
-                        android:summary="Die Wahrscheinlichkeit mit der eine Probe gelingt wird angezeigt"
-                        android:key="probeProbability" />
+                
 				<CheckBoxPreference
                         android:title="Schüttel Wurf"
                         android:defaultValue="false"
-                        android:summary="Durch das Schüttel des Handies wird ein Würfel geworfen"
+                        android:summary="Durch das Schütteln des Handies wird ein Würfel geworfen"
                         android:key="shakeRollDice" />
-                        
-                        <CheckBoxPreference
-                        android:title="Wurfanimation anzeigen"
-                        android:defaultValue="true"
-                        android:summaryOff="Das Würfelergebnis wird sofort ohne Verzögerung angezeigt."
-                        android:summaryOn="Es wird bei jeden Wurf eine kurze Animation angezeigt"
-                        android:key="animRollDice" />
+                                        
 
 				<ListPreference
                         android:title="Rüstungsschutzart"
@@ -32,12 +22,28 @@
                                                 
         </PreferenceCategory>        
                 
-        <PreferenceCategory android:title="Seiten">                                      
-                <CheckBoxPreference
-                        android:title="Rüstungen anzeigen"
+        <PreferenceCategory android:title="Darstellung">                                                      
+                        
+				<ListPreference
+                        android:title="Bildschirmausrichtung"
+                        android:summary="Definiere die Ausrichtung deiner Oberfläche."
+                        android:key="screen_orientation"
+                        android:defaultValue="auto"
+                        android:entries="@array/screenOrientation"
+                        android:entryValues="@array/screenOrientationValues"/>
+
+				<CheckBoxPreference
+                        android:title="Wahrscheinlichkeit anzeigen"
+                        android:defaultValue="false"
+                        android:summary="Die Wahrscheinlichkeit mit der eine Probe gelingt wird angezeigt"
+                        android:key="probeProbability" />
+				<CheckBoxPreference
+                        android:title="Wurfanimation anzeigen"
                         android:defaultValue="true"
-                        android:summary="Zeige Rüstungen in der Kampfübersicht an"
-                        android:key="showArmor" />
+                        android:summaryOff="Das Würfelergebnis wird sofort ohne Verzögerung angezeigt."
+                        android:summaryOn="Es wird bei jeden Wurf eine kurze Animation angezeigt"
+                        android:key="animRollDice" />
+                                                                                        
         </PreferenceCategory>
         
         <PreferenceCategory android:title="Setup">
@@ -66,7 +72,7 @@
         	<EditTextPreference
                 android:name="SDCard: Pfad zu DsaTab"
                 android:summary="Pfad auf der SD Karte zu den DsaTab Daten (Helden Profile, Karten Material, ...)"
-                android:defaultValue="/sdcard/dsatab/"
+                android:defaultValue="dsatab/"
                 android:title="SD Karten Pfad"
                 android:key="sdcardPath" />
                 
@@ -110,7 +116,9 @@
                         android:summaryOn="Popups sind deaktiviert und du verwendest die Vollversion"
                         android:summaryOff="Du verwendest die Lite-Version mit Popups und eingeschränkten Funktionen"
                         android:key="fullVersion" />
-                        
+
+</PreferenceCategory>
+<PreferenceCategory android:title="Info">                        
         <Preference
                 android:title="Credits, Copyright"
                 android:summary="Hinweise zu verwendeten Inhalten, Copyright Informationen"                
@@ -120,6 +128,11 @@
                 android:title="Version Infos"
                 android:summary="Hinweise zu den Veränderungen der aktuellen Version"                
                 android:key="infos" />
+                
+                <Preference
+                android:title="Tip des Tages anzeigen"
+                android:summary="Nützliche Tips über Features, die du vielleicht bisher übersehen hast."                
+                android:key="tipToday" />
                 
         </PreferenceCategory>
         

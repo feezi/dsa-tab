@@ -16,13 +16,13 @@
 package com.dsatab.data.adapter;
 
 import java.io.File;
+import java.util.List;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.Gallery;
 
 import com.dsatab.R;
@@ -31,31 +31,16 @@ import com.dsatab.data.items.ItemType;
 import com.dsatab.view.CardView;
 import com.dsatab.xml.DataManager;
 
-public class GalleryImageAdapter extends BaseAdapter {
-
-	private Item[] items;
-
-	private Context context;
+public class GalleryImageAdapter extends OpenArrayAdapter<Item> {
 
 	private int mGalleryItemBackground;
 
 	private int width, height;
 
-	public GalleryImageAdapter(Context context, ItemType cardType, String category, Item[] items) {
+	private ItemListFilter filter;
 
-		this.context = context;
-
-		if (items == null) {
-			if (category != null) {
-				this.items = DataManager.getItemsByCategory(category).toArray(new Item[0]);
-			} else if (cardType != null) {
-				this.items = DataManager.getItemsByType(cardType).toArray(new Item[0]);
-			} else {
-				this.items = DataManager.getItemsMap().values().toArray(new Item[0]);
-			}
-		} else {
-			this.items = items;
-		}
+	public GalleryImageAdapter(Context context, List<Item> items) {
+		super(context, 0, items);
 
 		TypedArray a = context.obtainStyledAttributes(R.styleable.Gallery);
 		mGalleryItemBackground = a.getResourceId(R.styleable.Gallery_android_galleryItemBackground, 0);
@@ -65,54 +50,33 @@ public class GalleryImageAdapter extends BaseAdapter {
 		a.recycle();
 	}
 
+	public void filter(ItemType type, String category, String constraint) {
+		getFilter().setType(type);
+		filter.setCategory(category);
+		filter.filter(constraint);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.widget.ArrayAdapter#getFilter()
+	 */
+	@Override
+	public ItemListFilter getFilter() {
+		if (filter == null)
+			filter = new ItemListFilter(this);
+
+		return filter;
+	}
+
 	public int getPositionByName(Item item) {
 		if (item != null) {
-			for (int i = 0; i < items.length; i++) {
-				if (item.getName().equals(items[i].getName()))
+			for (int i = 0; i < mObjects.size(); i++) {
+				if (item.getName().equals(mObjects.get(i).getName()))
 					return i;
 			}
 		}
 		return -1;
-	}
-
-	public int getPosition(Item item) {
-		if (item != null) {
-			for (int i = 0; i < items.length; i++) {
-				if (item.equals(items[i]))
-					return i;
-			}
-		}
-		return -1;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.widget.Adapter#getCount()
-	 */
-	@Override
-	public int getCount() {
-		return items.length;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.widget.Adapter#getItem(int)
-	 */
-	@Override
-	public Item getItem(int position) {
-		return items[position];
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.widget.Adapter#getItemId(int)
-	 */
-	@Override
-	public long getItemId(int position) {
-		return position;
 	}
 
 	/*
@@ -131,7 +95,7 @@ public class GalleryImageAdapter extends BaseAdapter {
 			i = (CardView) convertView;
 			i.setItem(item);
 		} else {
-			i = new CardView(context, item);
+			i = new CardView(getContext(), item);
 			/* Set the Width/Height of the ImageView. */
 			i.setMaxWidth(width);
 			i.setMaxHeight(height);

@@ -60,7 +60,7 @@
 <string name="menu_equipment_set">Ausrüstungsset %s</string>
 <string name="advantages">Vorteile</string>
 <string name="disadvantages">Nachteile</string>
-<string name="ausweichen_info">Wert %1$s - Mod %2$s</string>
+<string name="specialfeatures">Sonderfertigkeiten</string>
 <string name="label_ok">Ok</string>
 <string name="label_edit">Ändern</string>
 <string name="label_cancel">Abbrechen</string>

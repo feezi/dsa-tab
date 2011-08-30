@@ -18,6 +18,7 @@ package com.dsatab.xml;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +30,8 @@ import java.util.Set;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.dsatab.common.Util;
+import com.dsatab.data.LiturgieInfo;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.ItemType;
@@ -41,15 +44,15 @@ public class DataManager {
 
 	private static WeakReference<Map<String, Item>> itemsMap;
 
-	private static SoftReference<Map<String, List<Item>>> cardsCategoryMap;
+	private static WeakReference<List<Item>> items;
 
-	private static SoftReference<Map<ItemType, List<Item>>> cardsTypeMap;
+	private static WeakReference<Map<String, LiturgieInfo>> liturgieMap;
 
-	private static SoftReference<List<String>> cardCategories;
-
-	private static SoftReference<Map<ItemType, List<String>>> cardTypeCategories;
+	private static List<String> cardCategories;
 
 	private static SoftReference<Map<String, SoftReference<Bitmap>>> bitmapsMap;
+
+	private static Map<ItemType, List<String>> cardTypeCategories;
 
 	public static Map<String, Item> getItemsMap() {
 		if (itemsMap == null || itemsMap.get() == null) {
@@ -57,6 +60,32 @@ public class DataManager {
 		}
 
 		return itemsMap.get();
+	}
+
+	public static List<Item> getItems() {
+
+		if (items == null || items.get() == null) {
+			Collection<Item> itemsList = getItemsMap().values();
+
+			if (!(itemsList instanceof List))
+				itemsList = new ArrayList<Item>(itemsList);
+
+			Collections.sort((List<Item>) itemsList, Item.NAME_COMPARATOR);
+
+			items = new WeakReference<List<Item>>((List<Item>) itemsList);
+
+		}
+
+		return items.get();
+
+	}
+
+	public static Map<String, LiturgieInfo> getLiturgieMap() {
+		if (liturgieMap == null || liturgieMap.get() == null) {
+			liturgieMap = new WeakReference<Map<String, LiturgieInfo>>(XmlParser.readLiturige());
+		}
+
+		return liturgieMap.get();
 	}
 
 	public static Bitmap getBitmap(String path) {
@@ -92,9 +121,17 @@ public class DataManager {
 		return getItemsMap().get(name);
 	}
 
+	public static LiturgieInfo getLiturgieByName(String name, int grade) {
+		return getLiturgieMap().get(name + " " + Util.intToGrade(grade));
+	}
+
+	public static LiturgieInfo getLiturgieByName(String name) {
+		return getLiturgieMap().get(name);
+	}
+
 	public static List<String> getCardCategories() {
 
-		if (cardCategories == null || cardCategories.get() == null) {
+		if (cardCategories == null) {
 
 			Set<String> categoryMap = new HashSet<String>();
 
@@ -102,27 +139,26 @@ public class DataManager {
 				categoryMap.add(card.getCategory());
 			}
 
-			List<String> categoryList = new ArrayList<String>(categoryMap);
-			cardCategories = new SoftReference<List<String>>(categoryList);
+			cardCategories = new ArrayList<String>(categoryMap);
+
 		}
 
-		List<String> list = cardCategories.get();
-		return list;
+		return cardCategories;
 	}
 
 	public static List<String> getCardCategories(ItemType cardType) {
 
-		if (cardTypeCategories == null || cardTypeCategories.get() == null) {
+		if (cardTypeCategories == null) {
 
-			Map<ItemType, List<String>> categoriesMap = new HashMap<ItemType, List<String>>();
+			cardTypeCategories = new HashMap<ItemType, List<String>>();
 
 			for (Item item : getItemsMap().values()) {
 
 				for (ItemSpecification spec : item.getSpecifications()) {
-					List<String> categoryList = categoriesMap.get(spec.getType());
+					List<String> categoryList = cardTypeCategories.get(spec.getType());
 					if (categoryList == null) {
 						categoryList = new LinkedList<String>();
-						categoriesMap.put(spec.getType(), categoryList);
+						cardTypeCategories.put(spec.getType(), categoryList);
 					}
 
 					if (!categoryList.contains(item.getCategory()))
@@ -130,78 +166,9 @@ public class DataManager {
 
 				}
 			}
-
-			cardTypeCategories = new SoftReference<Map<ItemType, List<String>>>(categoriesMap);
 		}
 
-		List<String> result = cardTypeCategories.get().get(cardType);
-		if (result == null)
-			result = Collections.emptyList();
-		return result;
-	}
-
-	public static List<Item> getItemsByCategory(String itemCategory) {
-
-		if (itemCategory == null)
-			return Collections.emptyList();
-
-		if (cardsCategoryMap == null || cardsCategoryMap.get() == null) {
-
-			Map<String, List<Item>> categoryMap = new HashMap<String, List<Item>>();
-			cardsCategoryMap = new SoftReference<Map<String, List<Item>>>(categoryMap);
-
-			for (Item card : getItemsMap().values()) {
-				List<Item> nameCards = categoryMap.get(card.getCategory());
-				if (nameCards == null) {
-					nameCards = new LinkedList<Item>();
-					categoryMap.put(card.getCategory(), nameCards);
-				}
-				nameCards.add(card);
-			}
-
-		}
-
-		Map<String, List<Item>> nameMap = cardsCategoryMap.get();
-
-		List<Item> result = nameMap.get(itemCategory);
-
-		if (result == null)
-			result = Collections.emptyList();
-		return result;
-	}
-
-	public static List<Item> getItemsByType(ItemType itemCategory) {
-
-		if (itemCategory == null)
-			return Collections.emptyList();
-
-		if (cardsTypeMap == null || cardsTypeMap.get() == null) {
-
-			Map<ItemType, List<Item>> categoryMap = new HashMap<ItemType, List<Item>>();
-			cardsTypeMap = new SoftReference<Map<ItemType, List<Item>>>(categoryMap);
-
-			for (Item item : getItemsMap().values()) {
-
-				for (ItemSpecification spec : item.getSpecifications()) {
-					List<Item> nameCards = categoryMap.get(spec.getType());
-					if (nameCards == null) {
-						nameCards = new LinkedList<Item>();
-						categoryMap.put(spec.getType(), nameCards);
-					}
-					nameCards.add(item);
-				}
-			}
-
-			for (List<Item> items : categoryMap.values()) {
-				Collections.sort(items);
-			}
-
-		}
-
-		Map<ItemType, List<Item>> nameMap = cardsTypeMap.get();
-
-		List<Item> result = nameMap.get(itemCategory);
-
+		List<String> result = cardTypeCategories.get(cardType);
 		if (result == null)
 			result = Collections.emptyList();
 		return result;

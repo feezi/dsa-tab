@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="label_ini">Initiative</string>
+    <string name="label_ini">Ini</string>
     <string name="label_fk">Fernkampf</string>
     <string name="label_pa">Parade</string>
     <string name="label_at">Attacke</string>

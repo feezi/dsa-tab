@@ -13,9 +13,11 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.DSATabApplication;
+import com.dsatab.data.Hero;
 import com.dsatab.data.Markable;
+import com.dsatab.data.Probe;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
@@ -30,9 +32,17 @@ import com.gandulf.guilib.util.Debug;
 
 public class Util {
 
+	/**
+	 * 
+	 */
+	private static final String DRAWABLE = "drawable";
+
 	private static final String PLUS = "+";
 	private static final String MINUS = "-";
 	private static final String NULL = "null";
+
+	private static final List<String> ROMANS = Arrays.asList("", "I", "II", "III", "IV", "V", "VI", "VII", "VIII",
+			"IX", "X");
 
 	private static NumberFormat effectFormat = NumberFormat.getNumberInstance();
 	static {
@@ -40,12 +50,9 @@ public class Util {
 	}
 
 	public static int getDrawableByName(String name) {
-		try {
-			return R.drawable.class.getDeclaredField(name).getInt(null);
-		} catch (Exception e) {
-			Debug.error(e);
-			return -1;
-		}
+		return DSATabApplication.getInstance().getResources()
+				.getIdentifier(name, DRAWABLE, DSATabApplication.getInstance().getPackageName());
+
 	}
 
 	public static boolean isBlank(String str) {
@@ -213,12 +220,12 @@ public class Util {
 		}
 	}
 
-	public static void setTextColor(TextView tf, Value value) {
+	public static void setTextColor(TextView tf, Value value, int modifier) {
 		if (value.getValue() != null && value.getReferenceValue() != null) {
 
-			if (value.getValue() < value.getReferenceValue())
+			if (value.getValue() < value.getReferenceValue() || modifier < 0)
 				tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed));
-			else if (value.getValue() > value.getReferenceValue())
+			else if (value.getValue() > value.getReferenceValue() || modifier > 0)
 				tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen));
 			else
 				tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueBlack));
@@ -227,20 +234,123 @@ public class Util {
 		}
 	}
 
+	public static void setTextColor(TextView tf, int modifier) {
+
+		if (modifier == 0) {
+			tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueBlack));
+		} else if (modifier < 0)
+			tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed));
+		else if (modifier > 0)
+			tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen));
+
+	}
+
 	public static void setText(TextView tf, Value value) {
 		setText(tf, value, null);
 	}
 
 	public static void setText(TextView tf, Value value, String prefix) {
+		setText(tf, value, 0, prefix);
+	}
+
+	public static void setText(TextView tf, Value value, int modifier, String prefix) {
 		if (value.getValue() != null) {
 			if (prefix != null)
-				tf.setText(prefix + Util.toString(value.getValue()));
+				tf.setText(prefix + Util.toString(value.getValue() + modifier));
 			else
-				tf.setText(Util.toString(value.getValue()));
+				tf.setText(Util.toString(value.getValue() + modifier));
 		} else {
 			tf.setText("");
 		}
-		setTextColor(tf, value);
+		setTextColor(tf, value, modifier);
+	}
+
+	public static void setText(TextView tf, Integer value, int modifier, String prefix) {
+		if (value != null) {
+
+			value += modifier;
+
+			if (prefix != null)
+				tf.setText(prefix + Util.toString(value));
+			else
+				tf.setText(Util.toString(value));
+		} else {
+			tf.setText("");
+		}
+		setTextColor(tf, modifier);
+	}
+
+	public static void appendValue(Hero hero, StyleableSpannableStringBuilder title, AttributeType type) {
+
+		Integer value1 = hero.getAttributeValue(type);
+		if (value1 != null) {
+			int modifier = hero.getModificator(type);
+
+			int color;
+			if (modifier < 0)
+				color = R.color.ValueRed;
+			else if (modifier > 0)
+				color = R.color.ValueGreen;
+			else
+				color = R.color.ValueBlack;
+
+			title.append(" (");
+			title.appendColor(DSATabApplication.getInstance().getResources().getColor(color),
+					Util.toString(value1 + modifier));
+			title.append(")");
+		}
+
+	}
+
+	public static void appendValue(Hero hero, StyleableSpannableStringBuilder title, Probe probe1, Probe probe2) {
+
+		Integer value1 = null, value2 = null;
+
+		if (probe1 != null)
+			value1 = probe1.getValue();
+
+		if (probe2 != null)
+			value2 = probe2.getValue();
+
+		if (value1 != null || value2 != null)
+			title.append(" (");
+
+		if (value1 != null) {
+			int modifier = hero.getModificator(probe1);
+
+			int color;
+			if (modifier < 0)
+				color = R.color.ValueRed;
+			else if (modifier > 0)
+				color = R.color.ValueGreen;
+			else
+				color = R.color.ValueBlack;
+
+			title.appendColor(DSATabApplication.getInstance().getResources().getColor(color),
+					Util.toString(value1 + modifier));
+		}
+
+		if (value2 != null) {
+
+			if (value1 != null)
+				title.append("/");
+
+			int modifier = hero.getModificator(probe2);
+
+			int color;
+			if (modifier < 0)
+				color = R.color.ValueRed;
+			else if (modifier > 0)
+				color = R.color.ValueGreen;
+			else
+				color = R.color.ValueBlack;
+
+			title.appendColor(DSATabApplication.getInstance().getResources().getColor(color),
+					Util.toString(value2 + modifier));
+		}
+
+		if (value1 != null || value2 != null)
+			title.append(")");
 	}
 
 	public static void applyTextValueStyle(TextView tv) {
@@ -284,6 +394,9 @@ public class Util {
 	 */
 
 	public static AttributeType[] splitProbeString(String probe) {
+		if (probe == null)
+			return null;
+
 		probe = probe.trim();
 		if (probe.startsWith("("))
 			probe = probe.substring(1);
@@ -302,6 +415,8 @@ public class Util {
 	}
 
 	public static String[] splitDistanceString(String distance) {
+		if (distance == null)
+			return null;
 		distance = distance.trim();
 		if (distance.startsWith("("))
 			distance = distance.substring(1);
@@ -336,9 +451,9 @@ public class Util {
 			return MINUS;
 	}
 
-	public static String toProbe(Integer wmAt) {
-		if (wmAt != null)
-			return (wmAt > 0 ? "+" : "") + Integer.toString(wmAt);
+	public static String toProbe(Integer value) {
+		if (value != null)
+			return (value >= 0 ? "+" : "") + Integer.toString(value);
 		else
 			return "";
 
@@ -429,5 +544,28 @@ public class Util {
 
 	public static void sortItems(List<Item> items) {
 		Collections.sort(items, new ItemComparator());
+	}
+
+	/**
+	 * @param next
+	 * @return
+	 */
+	public static int gradeToInt(String next) {
+		if (next != null)
+			return ROMANS.indexOf(next.toUpperCase());
+		else
+			return -1;
+	}
+
+	public static String intToGrade(int grade) {
+		if (grade >= 0 && grade < ROMANS.size()) {
+			return ROMANS.get(grade);
+		} else {
+			return Util.toString(grade);
+		}
+	}
+
+	public static boolean equalsOrNull(Object o1, Object o2) {
+		return (o1 == null && o2 == null) || (o1 != null && o1.equals(o2));
 	}
 }

@@ -26,8 +26,8 @@ import android.graphics.Path;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.DSATabApplication;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
 
@@ -80,8 +80,9 @@ public class CardView extends ImageView {
 		paint.setTextAlign(Align.CENTER);
 		paint.setTextSize(20);
 		paint.setAntiAlias(true);
-		paint.setTypeface(DSATabApplication.getInstance().getPoorRichardFont());
-
+		if (!isInEditMode()) {
+			paint.setTypeface(DSATabApplication.getInstance().getPoorRichardFont());
+		}
 		TEXT_PADDING = getResources().getDimensionPixelOffset(R.dimen.card_text_padding);
 	}
 
@@ -98,11 +99,16 @@ public class CardView extends ImageView {
 	private boolean hasCardImage() {
 
 		if (hasCardImage == null) {
-			File lqFile = item.getFile();
-			if (lqFile == null || !lqFile.isFile())
+
+			if (item != null) {
+				File lqFile = item.getFile();
+				if (lqFile == null || !lqFile.isFile())
+					hasCardImage = false;
+				else
+					hasCardImage = (!lqFile.getName().equals(Item.BLANK_PATH));
+			} else {
 				hasCardImage = false;
-			else
-				hasCardImage = (!lqFile.getName().equals(Item.BLANK_PATH));
+			}
 		}
 		return hasCardImage;
 
@@ -116,11 +122,13 @@ public class CardView extends ImageView {
 		int maxWidth = (int) Math.sqrt((w - TEXT_PADDING * 2) * (w - TEXT_PADDING * 2) + (h - TEXT_PADDING * 2)
 				* (h - TEXT_PADDING * 2));
 
-		float width = paint.measureText(item.getTitle());
+		final String title = item != null ? item.getTitle() : "";
+
+		float width = paint.measureText(title);
 
 		while (width > maxWidth) {
 			paint.setTextSize(paint.getTextSize() - 2);
-			width = paint.measureText(item.getTitle());
+			width = paint.measureText(title);
 		}
 
 		calculated = true;
@@ -153,7 +161,8 @@ public class CardView extends ImageView {
 			Path path = new Path();
 			path.moveTo(TEXT_PADDING, TEXT_PADDING);
 			path.lineTo(getWidth() - TEXT_PADDING, getHeight() - TEXT_PADDING);
-			canvas.drawTextOnPath(item.getTitle(), path, 0, paint.getTextSize() / 2, paint);
+			if (item != null)
+				canvas.drawTextOnPath(item.getTitle(), path, 0, paint.getTextSize() / 2, paint);
 		}
 	}
 }

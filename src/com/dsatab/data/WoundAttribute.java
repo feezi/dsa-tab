@@ -62,7 +62,7 @@ public class WoundAttribute extends AbstractModifier {
 	}
 
 	public Integer getValue() {
-		if (element.getAttribute(Xml.KEY_VALUE) !=null) {
+		if (element.getAttribute(Xml.KEY_VALUE) != null) {
 			return Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
 		} else {
 			return null;
@@ -97,24 +97,35 @@ public class WoundAttribute extends AbstractModifier {
 		switch (getPosition()) {
 		case Kopf:
 			if (type == AttributeType.Mut || type == AttributeType.Klugheit || type == AttributeType.Intuition
-					|| type == AttributeType.ini || type == AttributeType.Initiative_Aktuell)
+					|| type == AttributeType.ini || type == AttributeType.Initiative_Aktuell) {
 				modifier += -2 * getValue();
+			}
 			break;
 		case Bauch:
-		case Brust:
-			if (type == AttributeType.Konstitution || type == AttributeType.Körperkraft)
+			if (type == AttributeType.Körperkraft || type == AttributeType.at || type == AttributeType.fk
+					|| type == AttributeType.pa) {
 				modifier += -1 * getValue();
+			}
+		case Brust:
+			if (type == AttributeType.Konstitution || type == AttributeType.Körperkraft || type == AttributeType.at
+					|| type == AttributeType.fk || type == AttributeType.pa) {
+				modifier += -1 * getValue();
+			}
 			break;
 		case LeftLowerArm:
 		case RightLowerArm:
-			if (type == AttributeType.Fingerfertigkeit || type == AttributeType.Körperkraft)
+			if (type == AttributeType.Fingerfertigkeit || type == AttributeType.Körperkraft || type == AttributeType.at
+					|| type == AttributeType.fk || type == AttributeType.pa) {
 				modifier += -2 * getValue();
+			}
 			break;
 		case UpperLeg:
 		case LowerLeg:
 			if (type == AttributeType.Gewandtheit || type == AttributeType.ini
-					|| type == AttributeType.Initiative_Aktuell)
+					|| type == AttributeType.Initiative_Aktuell || type == AttributeType.at || type == AttributeType.pa
+					|| type == AttributeType.fk) {
 				modifier += -2 * getValue();
+			}
 			break;
 		}
 		return new Modifier(modifier, getModifierName(), getModifierInfo());
@@ -126,27 +137,8 @@ public class WoundAttribute extends AbstractModifier {
 
 		if (probe instanceof Attribute) {
 			Attribute attr = (Attribute) probe;
-			if (attr.getType() == AttributeType.ini) {
-				switch (getPosition()) {
-				case Kopf:
-					modifier += -2 * getValue();
-					break;
-				case Bauch:
-					modifier += -1 * getValue();
-					break;
-				case UpperLeg:
-				case LowerLeg:
-					modifier += -2 * getValue();
-					break;
-				case Brust:
-				case LeftLowerArm:
-				case RightLowerArm:
-					break;
-				}
-			}
-		}
-
-		if (probe instanceof CombatDistanceTalent || probe instanceof CombatShieldTalent
+			return getModifier(attr.getType());
+		} else if (probe instanceof CombatDistanceTalent || probe instanceof CombatShieldTalent
 				|| probe instanceof CombatMeleeAttribute || probe instanceof CombatProbe) {
 			switch (getPosition()) {
 			case Kopf:
