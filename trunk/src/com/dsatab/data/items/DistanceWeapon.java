@@ -41,7 +41,11 @@ public class DistanceWeapon extends ItemSpecification {
 		if (distance == null) {
 			distance = Util.splitDistanceString(distances);
 		}
-		return distance[index];
+
+		if (distance != null)
+			return distance[index];
+		else
+			return null;
 	}
 
 	public void setDistances(String distances) {
@@ -81,8 +85,7 @@ public class DistanceWeapon extends ItemSpecification {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.dsatab.data.items.ItemSpecification#setElement(org.jdom.Element)
+	 * @see com.dsatab.data.items.ItemSpecification#setElement(org.jdom.Element)
 	 */
 	@Override
 	public void setElement(Element element) {

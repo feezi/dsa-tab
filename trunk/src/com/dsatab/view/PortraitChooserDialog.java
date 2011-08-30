@@ -17,26 +17,26 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.ImageView.ScaleType;
 import android.widget.Toast;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.DSATabApplication;
-import com.dsatab.activity.MainCharacterActivity;
+import com.dsatab.activity.BaseMainActivity;
 
 public class PortraitChooserDialog extends AlertDialog implements AdapterView.OnItemClickListener {
 
-	private MainCharacterActivity main;
+	private BaseMainActivity main;
 
 	private List<URI> portraitPaths;
 
-	public PortraitChooserDialog(MainCharacterActivity context) {
+	public PortraitChooserDialog(BaseMainActivity context) {
 		super(context);
 		this.main = context;
 		init();
 	}
 
-	protected MainCharacterActivity getMain() {
+	protected BaseMainActivity getMain() {
 		return main;
 	}
 
@@ -62,54 +62,38 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 		}
 
 		if (portraitPaths == null || portraitPaths.isEmpty()) {
-			Toast.makeText(getContext(),
-					"Keine Portraits gefunden. Kopiere sie auf deine SD-Karte unter dsatab/portraits",
+			Toast.makeText(
+					getContext(),
+					"Keine Portraits gefunden. Kopiere deine eigenen auf deine SD-Karte unter \"dsatab/portraits\" oder lade die Standardportraits in den Einstellungen herunter.",
 					Toast.LENGTH_LONG).show();
 			dismiss();
 		}
 
 		setCanceledOnTouchOutside(true);
 
-		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(
-				R.layout.popup_portrait_chooser, null, false);
-		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		View popupcontent = LayoutInflater.from(getContext()).inflate(R.layout.popup_portrait_chooser, null, false);
+		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		setView(popupcontent);
 
 		final GridView list = (GridView) popupcontent.findViewById(R.id.popup_portrait_chooser_list);
-		PortraitAdapter adapter = new PortraitAdapter(getContext(), R.layout.popup_portrait_chooser_item, portraitPaths);
+		PortraitAdapter adapter = new PortraitAdapter(getContext(), portraitPaths);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
 	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		getMain().setPortraitFile(portraitPaths.get(position));
+		getMain().getHero().setPortraitUri(portraitPaths.get(position));
 		dismiss();
 	}
 
 	class PortraitAdapter extends ArrayAdapter<URI> {
 
-		public PortraitAdapter(Context context, int resource, int textViewResourceId, List<URI> objects) {
-			super(context, resource, textViewResourceId, objects);
+		public PortraitAdapter(Context context, List<URI> objects) {
+			super(context, 0, objects);
 		}
 
-		public PortraitAdapter(Context context, int resource, int textViewResourceId, URI[] objects) {
-			super(context, resource, textViewResourceId, objects);
-		}
-
-		public PortraitAdapter(Context context, int resource, int textViewResourceId) {
-			super(context, resource, textViewResourceId);
-		}
-
-		public PortraitAdapter(Context context, int textViewResourceId, List<URI> objects) {
-			super(context, textViewResourceId, objects);
-		}
-
-		public PortraitAdapter(Context context, int textViewResourceId, URI[] objects) {
-			super(context, textViewResourceId, objects);
-		}
-
-		public PortraitAdapter(Context context, int textViewResourceId) {
-			super(context, textViewResourceId);
+		public PortraitAdapter(Context context, URI[] objects) {
+			super(context, 0, objects);
 		}
 
 		@Override
@@ -119,7 +103,8 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 			if (convertView instanceof ImageView) {
 				tv = (ImageView) convertView;
 			} else {
-				tv = (ImageView) getLayoutInflater().inflate(R.layout.popup_portrait_chooser_item, null);
+				tv = new ImageView(getContext());
+				tv.setScaleType(ScaleType.CENTER_INSIDE);
 			}
 
 			URI file = getItem(position);

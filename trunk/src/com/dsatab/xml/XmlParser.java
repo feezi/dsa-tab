@@ -25,9 +25,10 @@ import android.text.TextUtils;
 import android.text.TextUtils.StringSplitter;
 import android.util.AndroidRuntimeException;
 
-import com.dsatab.activity.DSATabApplication;
+import com.dsatab.DSATabApplication;
 import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
+import com.dsatab.data.LiturgieInfo;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
 import com.dsatab.data.items.Armor;
@@ -42,6 +43,8 @@ import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.util.ErrorHandler;
 
 public class XmlParser {
+
+	public static final String ENCODING = "UTF-8";
 
 	public static Map<String, Item> readItems() {
 
@@ -64,11 +67,75 @@ public class XmlParser {
 
 	}
 
+	public static Map<String, LiturgieInfo> readLiturige() {
+		Map<String, LiturgieInfo> items = new HashMap<String, LiturgieInfo>();
+
+		BufferedReader r = null;
+		try {
+			r = new BufferedReader(new InputStreamReader(DSATabApplication.getInstance().getAssets()
+					.open("liturgien.txt"), ENCODING), 1024 * 8);
+
+			String line;
+			StringSplitter splitter = new TextUtils.SimpleStringSplitter(';');
+
+			Iterator<String> i = null;
+
+			LiturgieInfo item = null;
+			while ((line = r.readLine()) != null) {
+
+				if (TextUtils.isEmpty(line) || line.startsWith("#"))
+					continue;
+
+				try {
+					item = new LiturgieInfo();
+					splitter.setString(line);
+					i = splitter.iterator();
+
+					item.setName(i.next().trim());
+					item.setGrade(Util.gradeToInt(i.next().trim()));
+					item.setTarget(i.next().trim());
+					item.setRange(i.next().trim());
+					item.setCastDuration(i.next().trim());
+					item.setEffect(i.next().trim());
+					item.setEffectDuration(i.next().trim());
+					item.setOrigin(i.next().trim());
+					item.setSource(i.next().trim());
+
+					if (items.containsKey(item.getName())) {
+						items.put(item.getName() + " " + Util.intToGrade(item.getGrade()), item);
+					} else {
+						// to liturgies with the lowest grad are stored without
+						// grade
+						// info too (heldensoftware does not add a grade to
+						// their
+						// name
+						items.put(item.getName(), item);
+						items.put(item.getName() + " " + Util.intToGrade(item.getGrade()), item);
+					}
+				} catch (StringIndexOutOfBoundsException e) {
+					Debug.warning("Could not parse:" + line);
+				}
+
+			}
+		} catch (IOException e) {
+			ErrorHandler.handleError(e, DSATabApplication.getInstance().getBaseContext());
+			throw new AndroidRuntimeException(e);
+		} finally {
+			try {
+				if (r != null)
+					r.close();
+			} catch (IOException e) {
+			}
+		}
+
+		return items;
+	}
+
 	private static void readItems(String file, Map<String, Item> items) throws IOException {
 		BufferedReader r = null;
 		try {
 			r = new BufferedReader(new InputStreamReader(DSATabApplication.getInstance().getAssets().open(file),
-					"UTF-8"), 1024 * 8);
+					ENCODING), 1024 * 8);
 
 			String line;
 			StringSplitter splitter = new TextUtils.SimpleStringSplitter(';');
@@ -282,7 +349,7 @@ public class XmlParser {
 		try {
 
 			File itemsFile = new File(DSATabApplication.getDsaTabPath(), "items_new.txt");
-			OutputStreamWriter itemsWriter = new OutputStreamWriter(new FileOutputStream(itemsFile), "UTF-8");
+			OutputStreamWriter itemsWriter = new OutputStreamWriter(new FileOutputStream(itemsFile), ENCODING);
 			BufferedWriter itemsW = new BufferedWriter(itemsWriter, 1024 * 8);
 
 			List<Item> its = new ArrayList<Item>(items.values());
@@ -511,10 +578,10 @@ public class XmlParser {
 		// Debug.verbose("DocumentBuilder created:" +
 		// builder.getClass().getName());
 
-		InputStreamReader isr = new InputStreamReader(in, "UTF-8");
+		InputStreamReader isr = new InputStreamReader(in, ENCODING);
 		InputSource is = new InputSource();
 		is.setCharacterStream(isr);
-		is.setEncoding("UTF-8");
+		is.setEncoding(ENCODING);
 
 		org.jdom.Document dom = saxBuilder.build(is);
 

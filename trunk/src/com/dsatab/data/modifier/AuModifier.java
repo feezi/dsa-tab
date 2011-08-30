@@ -38,9 +38,9 @@ public class AuModifier extends AbstractModifier {
 		String info = "";
 		double ratio = hero.getAuRatio();
 		if (ratio < LEVEL_2) {
-			info = "AT,PA,INI +2";
+			info = "AT,PA,INI -2";
 		} else if (ratio < LEVEL_1) {
-			info = "AT,PA,INI +1";
+			info = "AT,PA,INI -1";
 		}
 		return info;
 	}
@@ -49,11 +49,10 @@ public class AuModifier extends AbstractModifier {
 	public Modifier getModifier(Probe probe) {
 
 		int modifier = 0;
-		double ratio = hero.getAuRatio();
 
 		if (probe instanceof CombatProbe || probe instanceof CombatShieldTalent
 				|| probe instanceof CombatDistanceTalent || probe instanceof CombatMeleeAttribute) {
-
+			double ratio = hero.getAuRatio();
 			if (ratio < LEVEL_2) {
 				modifier = -2;
 			} else if (ratio < LEVEL_1) {
@@ -61,13 +60,7 @@ public class AuModifier extends AbstractModifier {
 			}
 		} else if (probe instanceof Attribute) {
 			Attribute attr = (Attribute) probe;
-			if (attr.getType() == AttributeType.ini) {
-				if (ratio < LEVEL_2) {
-					modifier = -2;
-				} else if (ratio < LEVEL_1) {
-					modifier = -1;
-				}
-			}
+			return getModifier(attr.getType());
 		}
 
 		return new Modifier(modifier, getModifierName(), getModifierInfo());
@@ -79,11 +72,11 @@ public class AuModifier extends AbstractModifier {
 		double ratio = hero.getAuRatio();
 
 		if (ratio < LEVEL_2) {
-			if (type == AttributeType.ini || type == AttributeType.Initiative_Aktuell) {
+			if (type == AttributeType.ini || type == AttributeType.Initiative_Aktuell || AttributeType.isFight(type)) {
 				modifier = -2;
 			}
 		} else if (ratio < LEVEL_1) {
-			if (type == AttributeType.ini || type == AttributeType.Initiative_Aktuell) {
+			if (type == AttributeType.ini || type == AttributeType.Initiative_Aktuell || AttributeType.isFight(type)) {
 				modifier = -1;
 			}
 		}

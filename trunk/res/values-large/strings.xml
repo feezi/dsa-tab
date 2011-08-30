@@ -2,7 +2,7 @@
 <resources>
 	<string name="path_items">http://dl.dropbox.com/u/15750588/dsatab-items2.zip</string>
 
-    <string name="label_ini">Initiative</string>
+    <string name="label_ini">Ini</string>
     <string name="label_fk">Fernkampf</string>
     <string name="label_pa">Parade</string>
     <string name="label_at">Attacke</string>

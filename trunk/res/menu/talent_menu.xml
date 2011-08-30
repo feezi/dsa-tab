@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     
-	<item android:id="@+id/option_filter"
+	<item android:id="@+id/option_filter_talent"
           android:icon="@android:drawable/ic_menu_view"
-          android:title="Filter" />
+          android:title="Talente Filter" />
               
 </menu>

@@ -6,63 +6,42 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 
 import com.dsatab.R;
 import com.dsatab.data.items.Item;
+import com.dsatab.data.items.ItemType;
 import com.dsatab.view.ItemListItem;
 
-public class ItemAdapter extends ArrayAdapter<Item> {
+public class ItemAdapter extends OpenArrayAdapter<Item> {
 
-	public ItemAdapter(Context context, int textViewResourceId, Item[] objects) {
-		super(context, textViewResourceId, objects);
+	private ItemListFilter filter;
+
+	public ItemAdapter(Context context, Item[] objects) {
+		super(context, 0, objects);
 	}
 
-	public ItemAdapter(Context context, int resource, int textViewResourceId, Item[] objects) {
-		super(context, resource, textViewResourceId, objects);
-
+	public ItemAdapter(Context context, List<Item> objects) {
+		super(context, 0, objects);
 	}
 
-	public ItemAdapter(Context context, int resource, int textViewResourceId, List<Item> objects) {
-		super(context, resource, textViewResourceId, objects);
-
+	public void filter(ItemType type, String category, String constraint) {
+		getFilter().setType(type);
+		filter.setCategory(category);
+		filter.filter(constraint);
 	}
 
-	public ItemAdapter(Context context, int resource, int textViewResourceId) {
-		super(context, resource, textViewResourceId);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.widget.ArrayAdapter#getFilter()
+	 */
+	@Override
+	public ItemListFilter getFilter() {
+		if (filter == null)
+			filter = new ItemListFilter(this);
 
+		return filter;
 	}
-
-	public ItemAdapter(Context context, int textViewResourceId, List<Item> objects) {
-		super(context, textViewResourceId, objects);
-
-	}
-
-	public ItemAdapter(Context context, int textViewResourceId) {
-		super(context, textViewResourceId);
-
-	}
-
-	// @Override
-	// public View getDropDownView(int position, View convertView, ViewGroup
-	// parent) {
-	// View view = super.getDropDownView(position, convertView, parent);
-	//
-	// if (view instanceof TwoLineListItem) {
-	// TwoLineListItem view = (TwoLineListItem) view;
-	//
-	// TextView text1 = view.getText1();
-	// TextView text2 = view.getText2();
-	//
-	// Item e = getItem(position);
-	//
-	// //
-	// textView.setCompoundDrawablePadding(getContext().getResources().getDimensionPixelSize(R.dimen.dices_padding));
-	// text1.setText(e.getName());
-	// }
-	//
-	// return view;
-	// }
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -82,4 +61,5 @@ public class ItemAdapter extends ArrayAdapter<Item> {
 
 		return view;
 	}
+
 }

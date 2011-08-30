@@ -4,16 +4,16 @@
 	android:layout_width="fill_parent" android:layout_height="wrap_content">
 
 	<ImageButton android:layout_alignParentLeft="true"
-		android:id="@android:id/icon1" android:layout_height="50dip"
-		android:layout_width="50dip" android:visibility="gone" style="@style/IconButton"
-		android:layout_marginRight="10dip">
+		android:id="@android:id/icon1" style="@style/IconButton" android:layout_marginRight="5dip" android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:visibility="visible">
 	</ImageButton>
 
 	<TextView android:id="@android:id/text1"
 		android:layout_marginTop="1dip" android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:layout_toRightOf="@android:id/icon1"
-		android:layout_toLeftOf="@android:id/icon2" android:lines="1"
-		android:layout_alignWithParentIfMissing="true" android:textSize="15sp"
+		android:layout_toLeftOf="@android:id/icon2" android:lines="1" android:singleLine="true"
+		android:marqueeRepeatLimit="marquee_forever" android:ellipsize="marquee"
+		android:scrollHorizontally="true"
+    	android:layout_alignWithParentIfMissing="true" android:textSize="15sp"
 		android:textStyle="bold" />
 
 	<TextView android:id="@android:id/text2" android:layout_width="wrap_content"
@@ -25,7 +25,7 @@
 	<ImageButton android:layout_alignParentRight="true"
 		android:id="@android:id/icon2" android:layout_height="@dimen/icon_button_size"
 		android:layout_width="@dimen/icon_button_size" style="@style/IconButton"
-		android:layout_marginLeft="10dip" android:visibility="gone">
+		android:visibility="gone" android:layout_marginLeft="5dip">
 	</ImageButton>
 
 </com.dsatab.view.ItemListItem>

@@ -7,8 +7,11 @@ import org.jdom.Element;
 
 import android.text.TextUtils;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
+import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.common.Util;
+import com.dsatab.data.Dice;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.xml.Xml;
 
@@ -63,9 +66,9 @@ public class Weapon extends ItemSpecification {
 				if (variante == version) {
 					Element trefferpunkte = waffe.getChild(Xml.KEY_TREFFERPUNKTE);
 					if (trefferpunkte != null) {
-						String tp = trefferpunkte.getAttribute(Xml.KEY_TREFFERPUNKTE_MUL) + "W"
-								+ trefferpunkte.getAttribute(Xml.KEY_TREFFERPUNKTE_DICE) + "+"
-								+ trefferpunkte.getAttribute(Xml.KEY_TREFFERPUNKTE_SUM);
+						String tp = trefferpunkte.getAttributeValue(Xml.KEY_TREFFERPUNKTE_MUL) + "W"
+								+ trefferpunkte.getAttributeValue(Xml.KEY_TREFFERPUNKTE_DICE) + "+"
+								+ trefferpunkte.getAttributeValue(Xml.KEY_TREFFERPUNKTE_SUM);
 						setTp(tp);
 					}
 
@@ -219,7 +222,10 @@ public class Weapon extends ItemSpecification {
 		}
 	}
 
-	public String getInfo(int kk) {
+	public CharSequence getInfo(int kk) {
+
+		StyleableSpannableStringBuilder info = new StyleableSpannableStringBuilder();
+
 		String tp = getTp();
 
 		kk = kk - getTpKKMin();
@@ -229,11 +235,33 @@ public class Weapon extends ItemSpecification {
 		}
 
 		if (tpPlus > 0) {
-			tp += "+" + tpPlus;
+			Dice dice = Dice.parseDice(tp);
+			if (dice != null) {
+				dice.constant += tpPlus;
+				info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen),
+						dice.toString());
+			} else {
+				info.append(tp);
+				info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen), "+"
+						+ tpPlus);
+			}
+		} else {
+			info.append(tp);
 		}
-		return TextUtils.expandTemplate("^1 ^2/^3 ^4/^5 Ini ^6 ^7 ^8", tp, Util.toString(getTpKKMin()),
-				Util.toString(getTpKKStep()), Util.toString(getWmAt()), Util.toString(getWmPa()),
-				Util.toString(getIni()), getDistance(), isTwoHanded() ? "2H" : "").toString();
+
+		info.append(" ");
+		info.append(Util.toString(getTpKKMin()) + "/" + Util.toString(getTpKKStep()));
+		info.append(" ");
+		info.append(Util.toString(getWmAt()) + "/" + Util.toString(getWmPa()));
+		info.append(" ");
+		info.append("Ini " + Util.toString(getIni()));
+		info.append(" ");
+		info.append(getDistance());
+		if (isTwoHanded()) {
+			info.append(" 2H");
+		}
+
+		return info;
 	}
 
 	/*

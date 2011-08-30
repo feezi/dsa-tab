@@ -26,6 +26,8 @@ public class Attribute implements Probe, Value {
 
 	private Integer erschwernis;
 
+	private Integer baseValue;
+
 	public Attribute(Element element) {
 		this(element, null);
 	}
@@ -145,6 +147,8 @@ public class Attribute implements Probe, Value {
 	}
 
 	public void setValue(Integer value) {
+
+		Integer oldValue = getValue();
 		if (value != null) {
 
 			if (isDSATabValue()) {
@@ -159,13 +163,27 @@ public class Attribute implements Probe, Value {
 		} else {
 			element.removeAttribute(Xml.KEY_VALUE);
 		}
-		hero.fireValueChangedEvent(this);
+
+		if (oldValue != value)
+			hero.fireValueChangedEvent(this);
 	}
 
 	private boolean isDSATabValue() {
 		return type == AttributeType.Lebensenergie || type == AttributeType.Karmaenergie
 				|| type == AttributeType.Astralenergie || type == AttributeType.Ausdauer
 				|| type == AttributeType.Ausweichen;
+	}
+
+	public boolean checkBaseValue() {
+		int baseValue = getBaseValue();
+
+		if (baseValue != this.baseValue) {
+			this.baseValue = baseValue;
+			hero.fireValueChangedEvent(this);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public int getBaseValue() {
@@ -202,6 +220,9 @@ public class Attribute implements Probe, Value {
 				baseValue = (int) hero.getAttributeValue(AttributeType.pa);
 			}
 		}
+
+		if (this.baseValue == null)
+			this.baseValue = baseValue;
 
 		return baseValue;
 	}
@@ -318,6 +339,8 @@ public class Attribute implements Probe, Value {
 
 	public void setErschwernis(Integer erschwernis) {
 		this.erschwernis = erschwernis;
+
+		hero.fireValueChangedEvent(this);
 	}
 
 	@Override

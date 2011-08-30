@@ -2,16 +2,17 @@ package com.dsatab.data.enums;
 
 public enum AttributeType {
 	Mut("MU", false, true), Klugheit("KL", false, true), Intuition("IN", false, true), Charisma("CH", false, true), Fingerfertigkeit(
-			"FF", true, true), Gewandtheit("GE", true, true), Konstitution("KO", false, true), Körperkraft("KK", false,
-			true), Sozialstatus("SO"), Lebensenergie("LE"), Lebensenergie_Total("LE Total"), Ausdauer("AU"), Ausdauer_Total(
+			"FF", false, true), Gewandtheit("GE", true, true), Konstitution("KO", false, true), Körperkraft("KK",
+			false, true), Sozialstatus("SO"), Lebensenergie("LE"), Lebensenergie_Total("LE Total"), Ausdauer("AU"), Ausdauer_Total(
 			"AU Total"), Astralenergie("AE"), Astralenergie_Total("AE"), Karmaenergie("KE"), Karmaenergie_Total(
 			"KE Total"), Magieresistenz("MR"), ini("INI", true, true), Initiative_Aktuell("INI", true, false), at("AT",
-			true, true), pa("PA", true, true), fk("FK", true, true), Behinderung("BE", false), Ausweichen("AW", true,
-			true);
+			true, true, false), pa("PA", true, true, false), fk("FK", true, true, false), Behinderung("BE", false), Ausweichen(
+			"AW", true, true);
 
 	private String code = null;
 	private boolean be;
 	private boolean probable = false;
+	private boolean editable = true;
 
 	private AttributeType() {
 		this(null, false, false);
@@ -26,9 +27,28 @@ public enum AttributeType {
 	}
 
 	private AttributeType(String code, boolean be, boolean probe) {
+		this(code, be, probe, true);
+	}
+
+	private AttributeType(String code, boolean be, boolean probe, boolean editable) {
 		this.code = code;
 		this.be = be;
 		this.probable = probe;
+		this.editable = editable;
+	}
+
+	public static boolean isFight(AttributeType type) {
+
+		switch (type) {
+		case at:
+		case pa:
+		case fk:
+		case ini:
+		case Initiative_Aktuell:
+			return true;
+		default:
+			return false;
+		}
 	}
 
 	public static boolean isEigenschaft(AttributeType type) {
@@ -67,6 +87,10 @@ public enum AttributeType {
 
 	public boolean probable() {
 		return probable;
+	}
+
+	public boolean editable() {
+		return editable;
 	}
 
 	public String code() {

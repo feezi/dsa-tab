@@ -10,19 +10,19 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.dsatab.R;
-import com.dsatab.activity.MainCharacterActivity;
+import com.dsatab.activity.BaseMainActivity;
 
 public class PortraitViewDialog extends AlertDialog implements DialogInterface.OnClickListener {
 
-	private MainCharacterActivity main;
+	private BaseMainActivity main;
 
-	public PortraitViewDialog(MainCharacterActivity context) {
+	public PortraitViewDialog(BaseMainActivity context) {
 		super(context);
 		this.main = context;
 		init();
 	}
 
-	protected MainCharacterActivity getMain() {
+	protected BaseMainActivity getMain() {
 		return main;
 	}
 

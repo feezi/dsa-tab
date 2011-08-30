@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.dsatab" android:installLocation="auto" android:versionCode="22" android:versionName="1.7.6">
-	<application android:debuggable="false" android:label="DsaTab" android:icon="@drawable/icon" android:name="com.dsatab.activity.DSATabApplication">
+	package="com.dsatab" android:installLocation="auto" android:versionName="2.1.3" android:versionCode="28">
+	<application android:debuggable="false" android:label="DsaTab" android:icon="@drawable/icon" android:name="DSATabApplication">
 		<activity android:theme="@style/Theme.MapBackground"
-			android:windowSoftInputMode="adjustResize" android:name="com.dsatab.activity.MainCharacterActivity">
+			android:windowSoftInputMode="stateHidden|adjustResize" android:name="com.dsatab.activity.BaseMainActivity">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
@@ -12,34 +12,24 @@
 
 		<activity android:name="com.dsatab.activity.DsaPreferenceActivity"
 			android:label="Einstellungen" android:theme="@style/Theme.NoTitle"></activity>
-		<activity android:name="com.dsatab.activity.MapActivity" android:label="Karten"
-			android:theme="@style/Theme.WhiteBackground"></activity>
-		<activity android:name="com.dsatab.activity.NotesActivity"
-			android:label="Notizen" android:theme="@style/Theme.MapBackground"></activity>
+		
 		<activity android:name="com.dsatab.activity.ItemChooserActivity"
 			android:label="Inventar" android:theme="@style/Theme.ItemsBackground"></activity>
-		<activity android:label="Inventar" android:theme="@style/Theme.MapBackground"
-			android:name="com.dsatab.activity.ItemsActivity"></activity>
+				
 		<activity android:name="com.dsatab.activity.NotesEditActivity"
 			android:label="Notizen" android:theme="@style/Theme.MapBackground"
 			android:windowSoftInputMode="stateVisible|adjustResize"></activity>
+			
+			<activity android:windowSoftInputMode="stateVisible|adjustResize" android:name=".activity.TabEditActivity" android:theme="@android:style/Theme.Dialog" android:label="Tab bearbeiten"></activity>
+
 		<activity android:name="com.dsatab.activity.HeroChooserActivity"
 			android:theme="@style/Theme.MapBackground" android:label="Held auswählen"></activity>
-		<activity android:theme="@style/Theme.MapBackground"
-			android:label="Talente" android:name="com.dsatab.activity.MainTalentActivity"></activity>
-		<activity android:theme="@style/Theme.MapBackground"
-			android:name="com.dsatab.activity.MainSpellActivity" android:label="Zaubersprüche"></activity>
-		<activity android:theme="@style/Theme.MapBackground"
-			android:name="com.dsatab.activity.PurseActivity" android:label="Geldbörse"></activity>
-		<activity android:theme="@style/Theme.MapBackground"
-			android:name="com.dsatab.activity.MainFightActivity" android:windowSoftInputMode="stateHidden|adjustResize"></activity>
-		<activity android:theme="@style/Theme.MapBackground"
-			android:name="com.dsatab.activity.MainBodyActivity"></activity>
+			
 	</application>
-	<uses-sdk android:minSdkVersion="7" android:targetSdkVersion="8" />
+	<uses-sdk android:minSdkVersion="7" android:targetSdkVersion="10" />
 
 	<supports-screens android:largeScreens="true" android:resizeable="true"
-		android:anyDensity="true" android:normalScreens="true" android:smallScreens="true"/>
+		android:anyDensity="true" android:normalScreens="true" android:smallScreens="true" android:xlargeScreens="true"/>
 
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.VIBRATE"/>

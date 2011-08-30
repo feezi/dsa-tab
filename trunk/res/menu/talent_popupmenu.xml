@@ -3,7 +3,7 @@
           android:icon="@drawable/m_icon_misc"
           android:title="Wert bearbeiten" />
 
-<item android:id="@+id/option_view_details"
+	<item android:id="@+id/option_view_details"
           android:icon="@android:drawable/ic_menu_view"
           android:title="Details anzeigen" />          
           

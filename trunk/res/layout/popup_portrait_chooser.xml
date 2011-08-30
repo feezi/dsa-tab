@@ -1,4 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?><RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android" android:alwaysDrawnWithCache="false" android:padding="5dip" android:id="@+id/popup_portrait_chooser_layout">
+<?xml version="1.0" encoding="utf-8"?>
 
-<GridView android:layout_height="fill_parent" android:layout_width="fill_parent" android:clickable="true" android:focusable="true" android:focusableInTouchMode="true" android:id="@+id/popup_portrait_chooser_list" android:verticalSpacing="5dip" android:stretchMode="columnWidth" android:numColumns="2"></GridView>
-</RelativeLayout>
+
+
+	<GridView android:layout_height="fill_parent"
+		android:layout_width="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android" 
+		android:id="@+id/popup_portrait_chooser_list" android:padding="5dip"
+		android:verticalSpacing="5dip" android:numColumns="auto_fit" android:columnWidth="90dp"></GridView>
+

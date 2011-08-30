@@ -15,18 +15,13 @@
  */
 package com.dsatab.activity;
 
-import java.lang.ref.WeakReference;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
@@ -39,6 +34,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.data.HeroInfo;
 import com.gandulf.guilib.util.Debug;
@@ -71,7 +67,7 @@ public class HeroChooserActivity extends Activity implements AdapterView.OnItemC
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.hero_chooser);
+		setContentView(R.layout.popup_hero_chooser);
 
 		list = (GridView) findViewById(R.id.popup_hero_chooser_list);
 		adapter = new HeroAdapter(this, R.layout.hero_chooser_item, DSATabApplication.getInstance().getHeroes());
@@ -118,14 +114,8 @@ public class HeroChooserActivity extends Activity implements AdapterView.OnItemC
 
 	class HeroAdapter extends ArrayAdapter<HeroInfo> {
 
-		private Map<String, WeakReference<Drawable>> imageCache = new HashMap<String, WeakReference<Drawable>>();
-
-		private SharedPreferences preferences = null;
-
 		public HeroAdapter(Context context, int textViewResourceId, List<HeroInfo> objects) {
 			super(context, textViewResourceId, objects);
-
-			preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 		}
 
 		@Override
@@ -143,22 +133,9 @@ public class HeroChooserActivity extends Activity implements AdapterView.OnItemC
 
 			HeroInfo hero = getItem(position);
 			tv.setText(hero.getName());
-			String profileName = preferences.getString(hero.getFile().getAbsolutePath(), null);
 
-			if (profileName != null) {
-				Drawable drawable = null;
-
-				if (imageCache.containsKey(profileName))
-					drawable = imageCache.get(profileName).get();
-
-				if (drawable == null) {
-					drawable = Drawable.createFromPath(DSATabApplication.getDsaTabPath() + "portraits/" + profileName);
-
-					imageCache.put(profileName, new WeakReference<Drawable>(drawable));
-				}
-
-				iv.setImageDrawable(drawable);
-				iv.invalidate();
+			if (hero.getPortraitUri() != null) {
+				iv.setImageURI(Uri.parse(hero.getPortraitUri()));
 			} else {
 				iv.setImageResource(R.drawable.profile_blank);
 			}
@@ -170,7 +147,7 @@ public class HeroChooserActivity extends Activity implements AdapterView.OnItemC
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		HeroInfo hero = (HeroInfo) parent.getItemAtPosition(position);
 		Intent intent = new Intent();
-		intent.putExtra(INTENT_NAME_HERO_PATH, hero.getFile().getAbsolutePath());
+		intent.putExtra(INTENT_NAME_HERO_PATH, hero.getFile().toString());
 		setResult(RESULT_OK, intent);
 		finish();
 	}

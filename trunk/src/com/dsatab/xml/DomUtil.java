@@ -40,6 +40,7 @@ public class DomUtil {
 		return parent.getChild(tagName);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static List<Element> getChildrenByTagName(Element parent, String subParentTagName, String tagName) {
 
 		List<Element> children = new LinkedList<Element>();
@@ -47,7 +48,6 @@ public class DomUtil {
 
 		if (subParentTagName != null) {
 
-			@SuppressWarnings("unchecked")
 			List<Element> subParents = parent.getChildren(subParentTagName);
 
 			if (!subParents.isEmpty())

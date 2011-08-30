@@ -58,9 +58,9 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.Toast;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.BaseMenuActivity;
-import com.dsatab.activity.DSATabApplication;
+import com.dsatab.activity.BaseMainActivity;
 import com.dsatab.activity.DsaPreferenceActivity;
 import com.dsatab.data.Hero;
 import com.dsatab.xml.XmlParser;
@@ -79,7 +79,7 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 
 	private static final String DEFAULT_USERNAME = "gastlogin";
 	private static final String DEFAULT_PASSWORD = "gastlogin";
-	private BaseMenuActivity context;
+	private BaseMainActivity context;
 
 	private ProgressDialog progressDialog;
 	private Dialog importDialog;
@@ -88,7 +88,7 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 
 	private Exception caughtException = null;
 
-	public HeroExchange(BaseMenuActivity context) {
+	public HeroExchange(BaseMainActivity context) {
 		this.context = context;
 	}
 

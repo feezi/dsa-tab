@@ -46,6 +46,8 @@ public class SpecialFeature {
 	public static final String KAMPFREFLEXE = "Kampfreflexe";
 	public static final String KAMPFGESPUER = "Kampfgespür";
 
+	public static final String LITURGIE_PREFIX = "Liturgie: ";
+
 	private String name, kultur, gegenstand;
 
 	public SpecialFeature(Element element) {

@@ -30,8 +30,8 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.DSATabApplication;
 import com.dsatab.activity.DsaPreferenceActivity;
 import com.dsatab.common.DsaMath;
 import com.dsatab.common.StyleableSpannableStringBuilder;
@@ -329,16 +329,10 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 			break;
 		}
 
-		modifiers = hero.getModificator(probe);
+		modifiers = hero.getModificators(probe);
 
 		if (probe.getErschwernis() != null) {
 			modifiers.add(new Modifier(-1 * probe.getErschwernis(), "Probenerschwernis", null));
-		}
-
-		int heroBe = hero.getBe(probe);
-
-		if (heroBe != 0 && !DSATabApplication.getInstance().isLiteVersion()) {
-			modifiers.add(new Modifier(-1 * heroBe, "Behinderung " + probe.getBe(), null));
 		}
 
 		manualModifer = null;
@@ -346,7 +340,6 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 		probeInfo.hero = hero;
 		probeInfo.probe = probe;
 		probeInfo.value = new Integer[] { value1, value2, value3 };
-		probeInfo.be = heroBe;
 
 		return checkProbe(probeInfo);
 	}
@@ -453,13 +446,13 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 				Debug.verbose("Change for success is :" + probability);
 
 				if (info.dice[0] == null)
-					info.dice[0] = rollDice20(500);
+					info.dice[0] = rollDice20(500, info.value[0] + valueModifier);
 
 				if (info.dice[1] == null)
-					info.dice[1] = rollDice20(1000);
+					info.dice[1] = rollDice20(1000, info.value[1] + valueModifier);
 
 				if (info.dice[2] == null)
-					info.dice[2] = rollDice20(1500);
+					info.dice[2] = rollDice20(1500, info.value[2] + valueModifier);
 
 				int effect1 = (info.value[0] + valueModifier) - info.dice[0];
 				int effect2 = (info.value[1] + valueModifier) - info.dice[1];
@@ -485,29 +478,29 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 				Debug.verbose("Change for success is :" + probability);
 
 				if (info.dice[0] == null) {
-					info.dice[0] = rollDice20(500);
+					info.dice[0] = rollDice20(500, info.value[0] + taw);
 
 					if (info.dice[0] == 1) {
 						sucessOne = true;
-						info.dice[0] = rollDice20(2000);
+						info.dice[0] = rollDice20(2000, info.value[0] + taw);
 					} else if (info.dice[0] == 20) {
 						failureTwenty = true;
-						info.dice[0] = rollDice20(2000);
+						info.dice[0] = rollDice20(2000, info.value[0] + taw);
 					}
 				}
 				if (info.dice[1] == null)
-					info.dice[1] = rollDice20(1000);
+					info.dice[1] = rollDice20(1000, info.value[1] + taw);
 
 				if (info.dice[2] == null)
-					info.dice[2] = rollDice20(1500);
+					info.dice[2] = rollDice20(1500, info.value[2] + taw);
 
 				if (info.dice[0] == 1) {
 					if (info.successOne == null) {
 						info.successOne = true;
-						info.dice[0] = rollDice20(2000);
+						info.dice[0] = rollDice20(2000, info.value[0] + taw);
 					} else if (info.dice[0] == 20) {
 						info.failureTwenty = true;
-						info.dice[0] = rollDice20(2000);
+						info.dice[0] = rollDice20(2000, info.value[0] + taw);
 					}
 				}
 
@@ -545,20 +538,21 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 				if (effect >= 0) {
 					erschwernis = Math.min(effect1, effect2);
 				}
+
 				break;
 			}
 			case One: {
 
 				if (info.dice[0] == null) {
-					info.dice[0] = rollDice20(500);
+					info.dice[0] = rollDice20(500, info.value[0] + taw);
 				}
 				if (info.dice[0] == 1) {
 					if (info.successOne == null) {
 						info.successOne = true;
-						info.dice[0] = rollDice20(2000);
+						info.dice[0] = rollDice20(2000, info.value[0] + taw);
 					} else if (info.dice[0] == 20) {
 						info.failureTwenty = true;
-						info.dice[0] = rollDice20(2000);
+						info.dice[0] = rollDice20(2000, info.value[0] + taw);
 					}
 				}
 
@@ -594,7 +588,7 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 		return effect;
 	}
 
-	public int rollDice20(int delay) {
+	public int rollDice20(int delay, int referenceValue) {
 		if (!isOpened())
 			animateOpen();
 
@@ -609,15 +603,15 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 				tfDice20.startAnimation(shakeDice20);
 			}
 
-			mHandler.sendMessageDelayed(Message.obtain(mHandler, HANDLE_DICE_20, dice), delay);
+			mHandler.sendMessageDelayed(Message.obtain(mHandler, HANDLE_DICE_20, dice, referenceValue), delay);
 		} else {
-			showDice20(dice);
+			showDice20(dice, referenceValue);
 		}
 		return dice;
 	}
 
 	public int rollDice20() {
-		return rollDice20(1000);
+		return rollDice20(1000, -1);
 	}
 
 	public int rollDice6(int delay) {
@@ -633,7 +627,7 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 				shakeDice6.reset();
 				tfDice6.startAnimation(shakeDice6);
 			}
-			mHandler.sendMessageDelayed(Message.obtain(mHandler, HANDLE_DICE_6, dice), delay);
+			mHandler.sendMessageDelayed(Message.obtain(mHandler, HANDLE_DICE_6, dice, 0), delay);
 		} else {
 			showDice6(dice);
 		}
@@ -644,16 +638,17 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 		return rollDice6(1000);
 	}
 
-	private void showDice20(int value) {
+	private TextView showDice20(int value, int referenceValue) {
 		TextView res = new TextView(getContext());
 
 		int width = getResources().getDimensionPixelSize(R.dimen.dices_size);
 		int padding = getResources().getDimensionPixelSize(R.dimen.dices_padding);
 
+		Debug.verbose("Adding dice with ref " + referenceValue);
 		res.setWidth((int) width);
 		res.setHeight((int) width);
 
-		if (rnd.nextBoolean())
+		if (referenceValue < 0 || value <= referenceValue)
 			res.setBackgroundResource(R.drawable.w20_empty);
 		else
 			res.setBackgroundResource(R.drawable.w20_red_empty);
@@ -672,9 +667,11 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 		if (linDiceResult.getWidth() > 0 && linDiceResult.getChildCount() * width > linDiceResult.getWidth()) {
 			linDiceResult.removeViewAt(0);
 		}
+
+		return res;
 	}
 
-	private void showDice6(int value) {
+	private ImageView showDice6(int value) {
 		ImageView res = new ImageView(getContext());
 
 		int width = getResources().getDimensionPixelSize(R.dimen.dices_size);
@@ -690,6 +687,8 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 		if (linDiceResult.getWidth() > 0 && linDiceResult.getChildCount() * width > linDiceResult.getWidth()) {
 			linDiceResult.removeViewAt(0);
 		}
+
+		return res;
 	}
 
 	private String getFailureMelee() {
@@ -749,17 +748,19 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 		@Override
 		public void handleMessage(Message msg) {
 
-			Integer result = (Integer) msg.obj;
+			int result = msg.arg1;
 
 			switch (msg.what) {
-			case HANDLE_DICE_6:
+			case HANDLE_DICE_6: {
 				showDice6(result);
 				dice6Count--;
 				break;
-			case HANDLE_DICE_20:
-				showDice20(result);
+			}
+			case HANDLE_DICE_20: {
+				showDice20(result, msg.arg2);
 				dice20Count--;
 				break;
+			}
 			case HANDLE_DISTANCE_FAILURE:
 				Toast.makeText(getContext(), getFailureDistance(), Toast.LENGTH_LONG).show();
 				break;
@@ -778,8 +779,6 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 		Hero hero;
 
 		Probe probe;
-
-		Integer be;
 
 		Boolean successOne, failureTwenty;
 

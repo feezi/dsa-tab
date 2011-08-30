@@ -26,8 +26,8 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.DSATabApplication;
 
 public class LiteInfoDialog extends AlertDialog implements DialogInterface.OnClickListener {
 

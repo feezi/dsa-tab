@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"        
+    android:layout_width="wrap_content" android:layout_weight="1"
+    android:layout_height="fill_parent">
+    
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/items_buttons" android:orientation="horizontal" android:layout_marginBottom="2.5dp">
+    
+    <ImageButton android:src="@android:drawable/ic_input_add" android:id="@+id/items_add" android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:scaleType="fitCenter" style="@style/IconButton"></ImageButton>
+        
+    <ImageButton android:id="@+id/body_attack_button"
+		android:layout_height="@dimen/icon_button_size"
+		android:layout_width="@dimen/icon_button_size" android:src="@drawable/body_longsword"
+		style="@style/IconButton"></ImageButton>
+	<ImageButton android:id="@+id/body_defense_button"
+		android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size"
+		android:src="@drawable/body_shield" style="@style/IconButton"
+		></ImageButton>
+	<ImageButton android:id="@+id/body_distance_button"
+		android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size"
+		android:src="@drawable/body_longbow" style="@style/IconButton"
+		></ImageButton>
+	<ImageButton android:id="@+id/body_armor_button"
+		android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size"
+		android:src="@drawable/body_steel_armor" style="@style/IconButton"
+		></ImageButton>
+	<ImageButton android:layout_height="@dimen/icon_button_size"
+		android:layout_width="@dimen/icon_button_size" 
+		style="@style/IconButton" android:id="@+id/body_misc_button" android:src="@drawable/icon_misc_multi"></ImageButton>
+		</LinearLayout>
+    
+    
+    <ListView android:layout_width="fill_parent" android:id="@android:id/list" android:layout_height="fill_parent" style="@style/BorderPanel" android:layout_below="@+id/items_buttons" android:paddingLeft="2.5dp" android:paddingRight="2.5dp" android:cacheColorHint="#00000000">
+	</ListView>
+
+</RelativeLayout>

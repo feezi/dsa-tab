@@ -61,7 +61,10 @@ public class CombatProbe implements Probe {
 
 	@Override
 	public String getName() {
-		return probe.getName();
+		if (probe != null)
+			return probe.getName();
+		else
+			return null;
 	}
 
 	@Override
@@ -76,12 +79,18 @@ public class CombatProbe implements Probe {
 
 	@Override
 	public Integer getProbeBonus() {
-		return probe.getProbeBonus();
+		if (probe != null)
+			return probe.getProbeBonus();
+		else
+			return null;
 	}
 
 	@Override
 	public ProbeType getProbeType() {
-		return probe.getProbeType();
+		if (probe != null)
+			return probe.getProbeType();
+		else
+			return ProbeType.TwoOfThree;
 	}
 
 	@Override
@@ -91,7 +100,10 @@ public class CombatProbe implements Probe {
 
 	@Override
 	public Integer getValue() {
-		return probe.getValue();
+		if (probe != null)
+			return probe.getValue();
+		else
+			return null;
 	}
 
 	public EquippedItem getEquippedItem() {
@@ -110,8 +122,8 @@ public class CombatProbe implements Probe {
 	public String toString() {
 
 		return (isAttack() ? "Angriff mit " : "Parade mit ")
-				+ (getEquippedItem() != null ? (getEquippedItem().getItem().getTitle() + "(" + probe.getName() + ")")
-						: probe.getName());
+				+ (getEquippedItem() != null ? (getEquippedItem().getItem().getTitle() + "(" + getName() + ")") : probe
+						.getName());
 	}
 
 }

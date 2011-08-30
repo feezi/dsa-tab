@@ -138,4 +138,8 @@ public interface Xml {
 	public static final String KEY_TALENTLISTE = "talentliste";
 	public static final String KEY_BASIS = "basis";
 	public static final String KEY_BEZEICHNER = "bezeichner";
+
+	public static final String KEY_DAUER = "dauer";
+	public static final String KEY_WIRKUNG = "wirkung";
+	public static final String TAB_CONFIG = "tabConfig";
 }

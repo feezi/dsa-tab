@@ -16,8 +16,6 @@
  */
 package com.dsatab.data.adapter;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import android.content.Context;
@@ -25,7 +23,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.dsatab.R;
@@ -39,115 +36,59 @@ import com.gandulf.guilib.util.Debug;
  * 
  *
  */
-public class SpellAdapter extends BaseAdapter {
+public class SpellAdapter extends OpenArrayAdapter<Spell> {
 
 	private OnClickListener onClickListener;
 
-	private Hero hero;
-
-	private List<Spell> spells;
-
-	private Context context;
+	private FilterableListFilter<Spell> filter;
 
 	private FilterSettings filterSettings;
+
+	private Hero hero;
 
 	/**
 	 * @param context
 	 * @param textViewResourceId
 	 * @param objects
 	 */
-	public SpellAdapter(Context context, Hero hero, boolean showFavorite, boolean showNormal, boolean showUnused) {
-		this.context = context;
-		this.filterSettings = new FilterSettings(showFavorite, showNormal, showUnused);
+	public SpellAdapter(Context context, Hero hero, List<Spell> spells, boolean showFavorite, boolean showNormal,
+			boolean showUnused) {
+		super(context, 0, 0, spells);
+
 		this.hero = hero;
 
-		this.spells = filter(hero.getSpells());
+		this.filterSettings = new FilterSettings(showFavorite, showNormal, showUnused);
+		if (!filterSettings.isAllVisible())
+			filter(filterSettings, null);
 	}
 
-	public void setFilter(boolean showFavorite, boolean showNormal, boolean showUnused) {
+	public void filter(FilterSettings settings, String constraint) {
+		getFilter().setSettings(settings);
+		filter.filter(constraint);
+	}
+
+	public void filter(boolean showFavorite, boolean showNormal, boolean showUnused) {
 
 		boolean hasChanged = !filterSettings.equals(showFavorite, showNormal, showUnused);
 
 		filterSettings.set(showFavorite, showNormal, showUnused);
 
 		if (hasChanged) {
-			spells = filter(hero.getSpells());
-			notifyDataSetChanged();
-		}
-	}
-
-	public void updateItem(Spell spell) {
-
-		if (spells.contains(spell)) {
-			if (spell.isFavorite() && !filterSettings.isShowFavorite())
-				spells.remove(spell);
-
-			if (spell.isUnused() && !filterSettings.isShowUnused())
-				spells.remove(spell);
-
-			if (!spell.isFavorite() && !spell.isUnused() && !filterSettings.isShowNormal())
-				spells.remove(spell);
-
-		} else {
-
-			if (spell.isFavorite() && filterSettings.isShowFavorite())
-				spells.add(spell);
-
-			if (spell.isUnused() && filterSettings.isShowUnused())
-				spells.add(spell);
-
-			if (!spell.isUnused() && !spell.isFavorite() && filterSettings.isShowNormal())
-				spells.add(spell);
-
-			Collections.sort(spells, Spell.NAME_COMPARATOR);
-		}
-	}
-
-	private List<Spell> filter(List<Spell> in) {
-
-		if (filterSettings.isAllVisible()) {
-			return in;
-		} else {
-			List<Spell> result = new ArrayList<Spell>();
-
-			for (Spell t : in) {
-				if (filterSettings.isVisible(t)) {
-					result.add(t);
-				}
-			}
-
-			return result;
+			filter(filterSettings, null);
 		}
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.widget.Adapter#getCount()
+	 * @see android.widget.ArrayAdapter#getFilter()
 	 */
 	@Override
-	public int getCount() {
-		return spells.size();
-	}
+	public FilterableListFilter<Spell> getFilter() {
+		if (filter == null)
+			filter = new FilterableListFilter<Spell>(this);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.widget.Adapter#getItem(int)
-	 */
-	@Override
-	public Spell getItem(int position) {
-		return spells.get(position);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.widget.Adapter#getItemId(int)
-	 */
-	@Override
-	public long getItemId(int position) {
-		return position;
+		return filter;
 	}
 
 	public OnClickListener getOnClickListener() {
@@ -170,7 +111,7 @@ public class SpellAdapter extends BaseAdapter {
 		View listItem = null;
 
 		if (convertView == null) {
-			listItem = LayoutInflater.from(context).inflate(R.layout.talent_list_item, null, false);
+			listItem = LayoutInflater.from(getContext()).inflate(R.layout.talent_list_item, null, false);
 		} else {
 			listItem = convertView;
 		}
@@ -191,8 +132,10 @@ public class SpellAdapter extends BaseAdapter {
 		text1.setText(spell.getName());
 		Util.setVisibility(text2, false, text1);
 		text3.setText(spell.getProbe());
+
 		if (spell.getValue() != null) {
-			text4.setText(Util.toString(spell.getValue()));
+			int modifier = hero.getModificator(spell);
+			Util.setText(text4, spell.getValue(), modifier, null);
 		} else {
 			Debug.warning(spell.getName() + " has no value");
 		}

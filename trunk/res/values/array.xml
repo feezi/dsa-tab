@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+
+<array name="screenOrientation">
+	<item>Automatisch</item>
+	<item>Portrait</item>
+	<item>Landschaft</item>
+</array>
+<array name="screenOrientationValues">
+	<item>auto</item>
+	<item>portrait</item>
+	<item>landscape</item>
+</array>
+
 <array name="heldenAustauschProvider">
 	<item>Orkenspalter.de</item>
 	<item>Draschenfels.de</item>

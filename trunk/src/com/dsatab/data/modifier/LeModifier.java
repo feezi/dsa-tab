@@ -43,11 +43,11 @@ public class LeModifier extends AbstractModifier {
 		String info = "";
 		double ratio = hero.getLeRatio();
 		if (ratio < LEVEL_3) {
-			info = "Eigenschaft, Kampf +3; Talent-/Zauberproben +9; GS-3";
+			info = "Eigenschaften, Kampf -3; Talente,Zauber -9; GS -3";
 		} else if (ratio < LEVEL_2) {
-			info = "Eigenschaft, Kampf +2; Talent-/Zauberproben +6; GS-2";
+			info = "Eigenschaften, Kampf -2; Talente,Zauber -6; GS -2";
 		} else if (ratio < LEVEL_1) {
-			info = "Eigenschaft, Kampf +1; Talent-/Zauberproben +3; GS-1";
+			info = "Eigenschaften, Kampf -1; Talente,Zauber -3; GS -1";
 		}
 		return info;
 	}
@@ -58,7 +58,10 @@ public class LeModifier extends AbstractModifier {
 		int modifier = 0;
 		double ratio = hero.getLeRatio();
 
-		if (probe instanceof Talent || probe instanceof Spell) {
+		if (probe instanceof Attribute) {
+			Attribute attribute = (Attribute) probe;
+			return getModifier(attribute.getType());
+		} else if (probe instanceof Talent || probe instanceof Spell) {
 
 			if (ratio < LEVEL_3) {
 				modifier = -9;
@@ -68,8 +71,7 @@ public class LeModifier extends AbstractModifier {
 				modifier = -3;
 			}
 		} else if (probe instanceof CombatProbe || probe instanceof CombatShieldTalent
-				|| probe instanceof CombatDistanceTalent || probe instanceof CombatMeleeAttribute
-				|| probe instanceof Attribute) {
+				|| probe instanceof CombatDistanceTalent || probe instanceof CombatMeleeAttribute) {
 			if (ratio < LEVEL_3) {
 				modifier = -3;
 			} else if (ratio < LEVEL_2) {
@@ -88,15 +90,15 @@ public class LeModifier extends AbstractModifier {
 		double ratio = hero.getLeRatio();
 
 		if (ratio < LEVEL_3) {
-			if (AttributeType.isEigenschaft(type)) {
+			if (AttributeType.isEigenschaft(type) || AttributeType.isFight(type)) {
 				modifier = -3;
 			}
 		} else if (ratio < LEVEL_2) {
-			if (AttributeType.isEigenschaft(type)) {
+			if (AttributeType.isEigenschaft(type) || AttributeType.isFight(type)) {
 				modifier = -2;
 			}
 		} else if (ratio < LEVEL_1) {
-			if (AttributeType.isEigenschaft(type)) {
+			if (AttributeType.isEigenschaft(type) || AttributeType.isFight(type)) {
 				modifier = -1;
 			}
 		}
