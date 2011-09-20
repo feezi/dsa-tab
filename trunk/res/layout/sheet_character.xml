@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_height="fill_parent" android:layout_weight="1"
-	android:scrollbarStyle="outsideOverlay" android:layout_marginLeft="2.5dp"
-	android:layout_marginRight="2.5dp" android:layout_marginTop="2.5dp" android:layout_width="0dp">
+	android:scrollbarStyle="outsideOverlay" android:layout_width="0dp">
 	<RelativeLayout android:layout_height="fill_parent"
 		android:layout_width="fill_parent" android:id="@+id/gen_char_sheet">
 		<ImageView android:id="@+id/gen_portrait" android:src="@drawable/profile_blank"
@@ -12,8 +11,7 @@
 			android:layout_alignBottom="@+id/gen_description" style="@style/BorderPanel"
 			android:layout_marginRight="5dp" android:scaleType="centerCrop"
 			android:cropToPadding="true"></ImageView>
-		<TableLayout android:layout_height="wrap_content"
-			android:layout_below="@id/gen_name" android:layout_width="fill_parent"
+		<TableLayout android:layout_height="wrap_content" android:layout_width="fill_parent"
 			android:id="@+id/gen_description" style="@style/BorderPanel"
 			android:layout_marginBottom="5dip" android:stretchColumns="1,3"
 			android:layout_alignParentRight="true" android:shrinkColumns="1"
@@ -86,88 +84,88 @@
 				android:layout_width="wrap_content" android:layout_height="match_parent">
 				<TableRow android:layout_width="wrap_content"
 					android:layout_height="wrap_content">
-					<TextView android:id="@+id/talent_mu_label"
+					<TextView android:id="@+id/attr_mu_label"
 						android:layout_width="wrap_content" android:gravity="center_vertical"
 						style="@style/TextLabel" android:text="@string/label_mu"
 						android:ellipsize="end" android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/talent_mu"
+					<TextView android:id="@+id/attr_mu"
 						android:layout_width="wrap_content" style="@style/TextValue"
 						android:layout_gravity="center" android:text="10"
 						android:layout_height="wrap_content"></TextView>
 				</TableRow>
 				<TableRow android:layout_width="wrap_content"
 					android:layout_height="wrap_content">
-					<TextView android:id="@+id/talent_kl_label"
+					<TextView android:id="@+id/attr_kl_label"
 						android:layout_width="wrap_content" android:gravity="center_vertical"
 						style="@style/TextLabel" android:text="@string/label_kl"
 						android:ellipsize="end" android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/talent_kl"
+					<TextView android:id="@+id/attr_kl"
 						android:layout_width="wrap_content" style="@style/TextValue"
 						android:layout_gravity="center" android:text="10"
 						android:layout_height="wrap_content"></TextView>
 				</TableRow>
 				<TableRow android:layout_width="wrap_content"
 					android:layout_height="wrap_content">
-					<TextView android:id="@+id/talent_in_label"
+					<TextView android:id="@+id/attr_in_label"
 						android:layout_width="wrap_content" android:gravity="center_vertical"
 						style="@style/TextLabel" android:text="@string/label_in"
 						android:ellipsize="end" android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/talent_in"
+					<TextView android:id="@+id/attr_in"
 						android:layout_width="wrap_content" style="@style/TextValue"
 						android:layout_gravity="center" android:text="10"
 						android:layout_height="wrap_content"></TextView>
 				</TableRow>
 				<TableRow android:layout_width="wrap_content"
 					android:layout_height="wrap_content">
-					<TextView android:id="@+id/talent_ch_label"
+					<TextView android:id="@+id/attr_ch_label"
 						android:layout_width="wrap_content" android:gravity="center_vertical"
 						style="@style/TextLabel" android:text="@string/label_ch"
 						android:ellipsize="end" android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/talent_ch"
+					<TextView android:id="@+id/attr_ch"
 						android:layout_width="wrap_content" style="@style/TextValue"
 						android:layout_gravity="center" android:text="10"
 						android:layout_height="wrap_content"></TextView>
 				</TableRow>
 				<TableRow android:layout_width="wrap_content"
 					android:layout_height="wrap_content">
-					<TextView android:id="@+id/talent_ff_label"
+					<TextView android:id="@+id/attr_ff_label"
 						android:layout_width="wrap_content" android:gravity="center_vertical"
 						style="@style/TextLabel" android:text="@string/label_ff"
 						android:ellipsize="end" android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/talent_ff"
+					<TextView android:id="@+id/attr_ff"
 						android:layout_width="wrap_content" style="@style/TextValue"
 						android:layout_gravity="center" android:text="10"
 						android:layout_height="wrap_content"></TextView>
 				</TableRow>
 				<TableRow android:layout_width="wrap_content"
 					android:layout_height="wrap_content">
-					<TextView android:id="@+id/talent_ge_label"
+					<TextView android:id="@+id/attr_ge_label"
 						android:layout_width="wrap_content" android:gravity="center_vertical"
 						style="@style/TextLabel" android:text="@string/label_ge"
 						android:ellipsize="end" android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/talent_ge"
+					<TextView android:id="@+id/attr_ge"
 						android:layout_width="wrap_content" style="@style/TextValue"
 						android:layout_gravity="center" android:text="10"
 						android:layout_height="wrap_content"></TextView>
 				</TableRow>
 				<TableRow android:layout_width="wrap_content"
 					android:layout_height="wrap_content">
-					<TextView android:id="@+id/talent_ko_label"
+					<TextView android:id="@+id/attr_ko_label"
 						android:layout_width="wrap_content" android:gravity="center_vertical"
 						style="@style/TextLabel" android:text="@string/label_ko"
 						android:ellipsize="end" android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/talent_ko"
+					<TextView android:id="@+id/attr_ko"
 						android:layout_width="wrap_content" style="@style/TextValue"
 						android:layout_gravity="center" android:text="10"
 						android:layout_height="wrap_content"></TextView>
 				</TableRow>
 				<TableRow android:layout_width="wrap_content"
 					android:paddingBottom="5dp" android:layout_height="wrap_content">
-					<TextView android:id="@+id/talent_kk_label"
+					<TextView android:id="@+id/attr_kk_label"
 						android:layout_width="wrap_content" android:gravity="center_vertical"
 						style="@style/TextLabel" android:text="@string/label_kk"
 						android:ellipsize="end" android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/talent_kk"
+					<TextView android:id="@+id/attr_kk"
 						android:layout_width="wrap_content" style="@style/TextValue"
 						android:layout_gravity="center" android:text="10"
 						android:layout_height="wrap_content"></TextView>
@@ -184,11 +182,11 @@
 						android:gravity="center_vertical" style="@style/TextLabel"
 						android:layout_gravity="center_vertical" android:text="@string/label_le"
 						android:ellipsize="end" android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/gen_lp" android:layout_width="wrap_content"
+					<TextView android:id="@+id/attr_lp" android:layout_width="wrap_content"
 						style="@style/TextValue" android:text="10" android:layout_height="wrap_content"></TextView>
 					<TextView android:layout_width="wrap_content" style="@style/TextValue"
 						android:text="/" android:layout_height="wrap_content"></TextView>
-					<TextView android:id="@+id/gen_total_lp"
+					<TextView android:id="@+id/attr_total_lp"
 						android:layout_width="wrap_content" android:gravity="right|center_vertical"
 						style="@style/TextValue" android:text="10" android:layout_height="wrap_content"></TextView>
 				</TableRow>
@@ -198,41 +196,41 @@
 						android:gravity="center_vertical" style="@style/TextLabel"
 						android:layout_gravity="center_vertical" android:text="@string/label_au"
 						android:ellipsize="end" android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/gen_au" android:layout_width="wrap_content"
+					<TextView android:id="@+id/attr_au" android:layout_width="wrap_content"
 						style="@style/TextValue" android:text="10" android:layout_height="wrap_content"></TextView>
 					<TextView android:layout_width="wrap_content" style="@style/TextValue"
 						android:text="/" android:layout_height="wrap_content"></TextView>
-					<TextView android:id="@+id/gen_total_au"
+					<TextView android:id="@+id/attr_total_au"
 						android:layout_width="wrap_content" android:gravity="right|center_vertical"
 						style="@style/TextValue" android:text="10" android:layout_height="wrap_content"></TextView>
 				</TableRow>
 				<TableRow android:id="@+id/row_ae" android:layout_width="wrap_content"
 					android:layout_height="wrap_content">
-					<TextView android:id="@+id/gen_label_ae"
+					<TextView android:id="@+id/attr_label_ae"
 						android:layout_width="wrap_content" android:gravity="center_vertical"
 						style="@style/TextLabel" android:layout_gravity="center_vertical"
 						android:text="@string/label_ae" android:ellipsize="end"
 						android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/gen_ae" android:layout_width="wrap_content"
+					<TextView android:id="@+id/attr_ae" android:layout_width="wrap_content"
 						style="@style/TextValue" android:text="10" android:layout_height="wrap_content"></TextView>
 					<TextView android:layout_width="wrap_content" style="@style/TextValue"
 						android:text="/" android:layout_height="wrap_content"></TextView>
-					<TextView android:id="@+id/gen_total_ae"
+					<TextView android:id="@+id/attr_total_ae"
 						android:layout_width="wrap_content" android:gravity="right|center_vertical"
 						style="@style/TextValue" android:text="10" android:layout_height="wrap_content"></TextView>
 				</TableRow>
 				<TableRow android:id="@+id/row_ke" android:layout_width="wrap_content"
 					android:layout_height="wrap_content">
-					<TextView android:id="@+id/gen_label_ke"
+					<TextView android:id="@+id/attr_label_ke"
 						android:layout_width="wrap_content" android:gravity="center_vertical"
 						style="@style/TextLabel" android:layout_gravity="center_vertical"
 						android:text="@string/label_ke" android:ellipsize="end"
 						android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/gen_ke" android:layout_width="wrap_content"
+					<TextView android:id="@+id/attr_ke" android:layout_width="wrap_content"
 						style="@style/TextValue" android:text="10" android:layout_height="wrap_content"></TextView>
 					<TextView android:layout_width="wrap_content" style="@style/TextValue"
 						android:text="/" android:layout_height="wrap_content"></TextView>
-					<TextView android:id="@+id/gen_total_ke"
+					<TextView android:id="@+id/attr_total_ke"
 						android:layout_width="wrap_content" android:gravity="right|center_vertical"
 						style="@style/TextValue" android:text="10" android:layout_height="wrap_content"></TextView>
 				</TableRow>
@@ -242,7 +240,7 @@
 						android:gravity="center_vertical" style="@style/TextLabel"
 						android:layout_gravity="center_vertical" android:text="@string/label_mr"
 						android:ellipsize="end" android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/gen_mr" android:layout_width="wrap_content"
+					<TextView android:id="@+id/attr_mr" android:layout_width="wrap_content"
 						android:gravity="right|center_vertical" style="@style/TextValue"
 						android:text="10" android:layout_height="wrap_content"></TextView>
 				</TableRow>
@@ -252,7 +250,7 @@
 						android:gravity="center_vertical" style="@style/TextLabel"
 						android:layout_gravity="center_vertical" android:text="@string/label_so"
 						android:ellipsize="end" android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/gen_so" android:layout_width="wrap_content"
+					<TextView android:id="@+id/attr_so" android:layout_width="wrap_content"
 						android:gravity="right|center_vertical" style="@style/TextValue"
 						android:text="10" android:layout_height="wrap_content"></TextView>
 				</TableRow>
@@ -262,7 +260,7 @@
 						android:gravity="center_vertical" style="@style/TextLabel"
 						android:layout_gravity="center_vertical" android:text="@string/label_st"
 						android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/gen_st" android:layout_width="wrap_content"
+					<TextView android:id="@+id/attr_st" android:layout_width="wrap_content"
 						android:gravity="right|center_vertical" style="@style/TextLabel"
 						android:text="10" android:layout_height="wrap_content"></TextView>
 				</TableRow>
@@ -272,40 +270,40 @@
 						android:gravity="center_vertical" style="@style/TextLabel"
 						android:layout_gravity="center_vertical" android:text="@string/label_ap"
 						android:ellipsize="end" android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/gen_abp" android:layout_width="wrap_content" android:layout_span="3"
+					<TextView android:id="@+id/attr_abp" android:layout_width="wrap_content" android:layout_span="3"
 						android:gravity="right|center_vertical" style="@style/TextLabel"
 						android:layout_height="wrap_content" android:text="10000"></TextView>
 				</TableRow>
 				<TableRow android:layout_width="wrap_content"
 					android:layout_height="wrap_content">
-					<TextView android:id="@+id/gen_gs_label"
+					<TextView android:id="@+id/attr_gs_label"
 						android:layout_width="wrap_content" android:layout_span="3" android:gravity="center_vertical"
 						style="@style/TextLabel" android:layout_gravity="center_vertical"
 						android:text="@string/label_gs" android:ellipsize="end"
 						android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/gen_gs" android:layout_width="wrap_content"
+					<TextView android:id="@+id/attr_gs" android:layout_width="wrap_content"
 						android:gravity="right|center_vertical" style="@style/TextLabel"
 						android:text="10" android:layout_height="wrap_content"></TextView>
 				</TableRow>
 				<TableRow android:layout_width="wrap_content"
 					android:layout_height="wrap_content">
-					<TextView android:id="@+id/gen_ws_label"
+					<TextView android:id="@+id/attr_ws_label"
 						android:layout_width="wrap_content" android:gravity="center_vertical"
 						style="@style/TextLabel" android:layout_gravity="center_vertical"
 						android:text="@string/label_ws" android:ellipsize="end"
 						android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/gen_ws" android:layout_width="wrap_content" android:layout_span="3"
+					<TextView android:id="@+id/attr_ws" android:layout_width="wrap_content" android:layout_span="3"
 						android:gravity="right|center_vertical" style="@style/TextLabel"
 						android:singleLine="true" android:layout_height="wrap_content" android:text="10/12/13"></TextView>
 				</TableRow>
 				<TableRow android:layout_width="wrap_content"
 					android:layout_height="wrap_content">
-					<TextView android:id="@+id/gen_be_label"
+					<TextView android:id="@+id/attr_be_label"
 						android:layout_width="wrap_content"  android:layout_span="3" android:gravity="center_vertical"
 						style="@style/TextLabel" android:layout_gravity="center_vertical"
 						android:text="@string/label_be" android:ellipsize="end"
 						android:layout_height="fill_parent"></TextView>
-					<TextView android:id="@+id/gen_be" android:layout_width="wrap_content"
+					<TextView android:id="@+id/attr_be" android:layout_width="wrap_content"
 						android:gravity="right|center_vertical" style="@style/TextValue"
 						android:text="10" android:layout_height="wrap_content"></TextView>
 				</TableRow>
@@ -318,36 +316,36 @@
 			android:background="@color/Brighter" android:layout_below="@+id/gen_attributes_layout">
 
 			<TextView android:layout_width="wrap_content" style="@style/TextLabelSmall"
-				android:id="@+id/gen_at_label" android:layout_height="fill_parent"
+				android:id="@+id/attr_at_label" android:layout_height="fill_parent"
 				android:gravity="center_vertical" android:ellipsize="end"
 				android:layout_gravity="center_vertical" android:text="@string/label_at"></TextView>
 			<TextView android:layout_height="wrap_content"
 				android:layout_width="wrap_content" android:layout_weight="1"
-				android:text="10" style="@style/TextValue" android:id="@+id/gen_at"
+				android:text="10" style="@style/TextValue" android:id="@+id/attr_at"
 				android:singleLine="true" android:ellipsize="none" android:gravity="center"></TextView>
 			<TextView android:layout_width="wrap_content" style="@style/TextLabelSmall"
-				android:id="@+id/gen_pa_label" android:layout_height="fill_parent"
+				android:id="@+id/attr_pa_label" android:layout_height="fill_parent"
 				android:gravity="center_vertical" android:ellipsize="end"
 				android:layout_gravity="center_vertical" android:text="@string/label_pa"></TextView>
 			<TextView android:layout_height="wrap_content"
 				android:layout_width="wrap_content" android:layout_weight="1"
-				android:text="10" style="@style/TextValue" android:id="@+id/gen_pa"
+				android:text="10" style="@style/TextValue" android:id="@+id/attr_pa"
 				android:singleLine="true" android:ellipsize="none" android:gravity="center"></TextView>
 			<TextView android:layout_width="wrap_content" style="@style/TextLabelSmall"
-				android:id="@+id/gen_fk_label" android:layout_height="fill_parent"
+				android:id="@+id/attr_fk_label" android:layout_height="fill_parent"
 				android:gravity="center_vertical" android:ellipsize="end"
 				android:layout_gravity="center_vertical" android:text="@string/label_fk"></TextView>
 			<TextView android:layout_height="wrap_content"
 				android:layout_width="wrap_content" android:layout_weight="1"
-				android:text="10" style="@style/TextValue" android:id="@+id/gen_fk"
+				android:text="10" style="@style/TextValue" android:id="@+id/attr_fk"
 				android:singleLine="true" android:ellipsize="none" android:gravity="center"></TextView>
-			<TextView android:layout_width="wrap_content" android:id="@+id/gen_ini_label"
+			<TextView android:layout_width="wrap_content" android:id="@+id/attr_ini_label"
 				android:layout_height="fill_parent" android:gravity="center_vertical"
 				android:ellipsize="end" style="@style/TextLabelSmall"
 				android:layout_gravity="center_vertical" android:text="@string/label_ini"></TextView>
 			<TextView android:layout_height="wrap_content"
 				android:layout_width="wrap_content" android:layout_weight="1"
-				android:text="10" style="@style/TextValue" android:id="@+id/gen_ini"
+				android:text="10" style="@style/TextValue" android:id="@+id/attr_ini"
 				android:paddingRight="10dp" android:singleLine="true"
 				android:ellipsize="none" android:gravity="center"></TextView>
 		</LinearLayout>

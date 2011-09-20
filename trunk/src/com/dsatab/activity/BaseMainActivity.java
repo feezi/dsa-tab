@@ -19,7 +19,6 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
@@ -32,10 +31,8 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -68,14 +65,13 @@ import com.dsatab.view.FlingableLinearLayout;
 import com.dsatab.view.FlingableLinearLayout.OnFlingListener;
 import com.dsatab.view.InlineEditDialog;
 import com.dsatab.view.InlineEditFightDialog;
-import com.dsatab.view.LiteInfoDialog;
 import com.dsatab.view.TipOfTheDayDialog;
 import com.dsatab.view.listener.ShakeListener;
 import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.view.VersionInfoDialog;
 
-public class BaseMainActivity extends FragmentActivity implements OnClickListener, OnSharedPreferenceChangeListener,
-		OnDismissListener, OnFlingListener {
+public class BaseMainActivity extends BaseFragmentActivity implements OnClickListener,
+		OnSharedPreferenceChangeListener, OnDismissListener, OnFlingListener {
 
 	protected static final String INTENT_TAB_INFO = "tabInfo";
 
@@ -92,8 +88,6 @@ public class BaseMainActivity extends FragmentActivity implements OnClickListene
 	private static final String KEY_TAB_INFO = "tabInfo";
 
 	protected SharedPreferences preferences;
-
-	protected LiteInfoDialog liteFeatureTeaser;
 
 	protected List<BaseFragment> fragments;
 
@@ -359,10 +353,17 @@ public class BaseMainActivity extends FragmentActivity implements OnClickListene
 			}
 
 			selectedTab = null;
-		} else if (requestCode == ACTION_CHOOSE_HERO && resultCode == RESULT_OK) {
-			String heroPath = data.getStringExtra(HeroChooserActivity.INTENT_NAME_HERO_PATH);
-			Debug.verbose("HeroChooserActivity returned with path:" + heroPath);
-			loadHero(heroPath);
+		} else if (requestCode == ACTION_CHOOSE_HERO) {
+
+			if (resultCode == RESULT_OK) {
+				String heroPath = data.getStringExtra(HeroChooserActivity.INTENT_NAME_HERO_PATH);
+				Debug.verbose("HeroChooserActivity returned with path:" + heroPath);
+				loadHero(heroPath);
+			} else if (resultCode == RESULT_CANCELED) {
+				if (getHero() == null) {
+					finish();
+				}
+			}
 		} else if (requestCode == ACTION_PREFERENCES) {
 
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -381,10 +382,6 @@ public class BaseMainActivity extends FragmentActivity implements OnClickListene
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			} else if (DsaPreferenceActivity.SCREEN_ORIENTATION_AUTO.equals(orientation)) {
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-			}
-
-			if (getHero() == null) {
-				showHeroChooser();
 			}
 		}
 
@@ -520,6 +517,7 @@ public class BaseMainActivity extends FragmentActivity implements OnClickListene
 		newsDialog = new VersionInfoDialog(this);
 		newsDialog.setDonateContentId(R.raw.donate);
 		newsDialog.setDonateVersion(DSATabApplication.getInstance().isLiteVersion());
+		newsDialog.setDonateUrl(DSATabApplication.PAYPAL_DONATION_URL);
 		newsDialog.setTitle(R.string.news_title);
 		newsDialog.setRawClass(R.raw.class);
 		newsDialog.setIcon(R.drawable.icon);
@@ -535,7 +533,7 @@ public class BaseMainActivity extends FragmentActivity implements OnClickListene
 
 	private boolean showTipPopup() {
 
-		if (TipOfTheDayDialog.tipShown)
+		if (TipOfTheDayDialog.tipShown || !preferences.getBoolean(TipOfTheDayDialog.PREF_SHOW_TIPS, true))
 			return false;
 
 		TipOfTheDayDialog dialog = new TipOfTheDayDialog(this);
@@ -551,7 +549,7 @@ public class BaseMainActivity extends FragmentActivity implements OnClickListene
 		tabButton.setOnClickListener(this);
 		tabButton.setTag(tabInfo);
 		tabButton.setImageResource(tabInfo.getTabResourceId());
-		registerForContextMenu(tabButton);
+		registerForIconContextMenu(tabButton);
 	}
 
 	private ImageButton createTab(LayoutInflater inflater, TabInfo tabInfo) {
@@ -874,33 +872,24 @@ public class BaseMainActivity extends FragmentActivity implements OnClickListene
 
 	public void showEditPopup(Value value) {
 
-		if (DSATabApplication.getInstance().isLiteVersion()) {
-			tease("<strong>Mal eben schnell einen Wert steigern?</strong> Mit der Vollversion von DsaTab können Eigenschaften, Talente, Zauber, Rüstungsschutz und noch vieles mehr einfach und bequem editiert werden. Getätigte Änderungen werden in der XML Datei nachgezogen und können somit auch wieder in die Helden-Software importiert werden, falls notwendig. ");
+		if (value instanceof CombatMeleeTalent) {
+			InlineEditFightDialog inlineEditFightdialog = new InlineEditFightDialog(this, (CombatMeleeTalent) value);
+			inlineEditFightdialog.setTitle(value.getName());
+			inlineEditFightdialog.show();
 		} else {
-
-			if (value instanceof CombatMeleeTalent) {
-				InlineEditFightDialog inlineEditFightdialog = new InlineEditFightDialog(this, (CombatMeleeTalent) value);
-				inlineEditFightdialog.setTitle(value.getName());
-				inlineEditFightdialog.show();
-			} else {
-				InlineEditDialog inlineEditdialog = new InlineEditDialog(this, value);
-				inlineEditdialog.setTitle(value.getName());
-				inlineEditdialog.show();
-			}
+			InlineEditDialog inlineEditdialog = new InlineEditDialog(this, value);
+			inlineEditdialog.setTitle(value.getName());
+			inlineEditdialog.show();
 		}
+
 	}
 
 	public void showEditPopup(CombatMeleeTalent value) {
 
-		if (DSATabApplication.getInstance().isLiteVersion()) {
-			tease("<strong>Mal eben schnell einen Wert steigern?</strong> Mit der Vollversion von DsaTab können Eigenschaften, Talente, Zauber, Rüstungsschutz und noch vieles mehr einfach und bequem editiert werden. Getätigte Änderungen werden in der XML Datei nachgezogen und können somit auch wieder in die Helden-Software importiert werden, falls notwendig. ");
-		} else {
+		InlineEditFightDialog inlineEditFightdialog = new InlineEditFightDialog(this, value);
+		inlineEditFightdialog.setTitle(value.getName());
+		inlineEditFightdialog.show();
 
-			InlineEditFightDialog inlineEditFightdialog = new InlineEditFightDialog(this, value);
-			inlineEditFightdialog.setTitle(value.getName());
-			inlineEditFightdialog.show();
-
-		}
 	}
 
 	public boolean checkProbe(Probe probe) {
@@ -1018,42 +1007,47 @@ public class BaseMainActivity extends FragmentActivity implements OnClickListene
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.app.Activity#onCreateContextMenu(android.view.ContextMenu,
-	 * android.view.View, android.view.ContextMenu.ContextMenuInfo)
+	 * @see
+	 * com.dsatab.activity.BaseFragmentActivity#onCreateIconContextMenu(android
+	 * .view.Menu, android.view.View, android.view.ContextMenu.ContextMenuInfo)
 	 */
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
+	public Object onCreateIconContextMenu(Menu menu, View v, ContextMenuInfo menuInfo) {
+		Object info = super.onCreateIconContextMenu(menu, v, menuInfo);
 
 		if (v.getTag() instanceof TabInfo) {
-			// TabInfo info = (TabInfo) v.getTag();
-			MenuInflater inflater = getMenuInflater();
-			inflater.inflate(R.menu.tab_menu, menu);
-
-			selectedTab = (ImageButton) v;
+			getMenuInflater().inflate(R.menu.tab_menu, menu);
+			return v;
 		}
+
+		return info;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.app.Activity#onContextItemSelected(android.view.MenuItem)
+	 * @see
+	 * com.dsatab.activity.BaseFragmentActivity#onIconContextItemSelected(android
+	 * .view.MenuItem, java.lang.Object)
 	 */
 	@Override
-	public boolean onContextItemSelected(MenuItem item) {
+	public void onIconContextItemSelected(MenuItem item, Object info) {
 
 		switch (item.getItemId()) {
 		case R.id.option_add:
 			startActivityForResult(new Intent(this, TabEditActivity.class), ACTION_ADD_TAB);
-			return true;
-		case R.id.option_delete:
+			return;
+		case R.id.option_delete: {
+			selectedTab = (ImageButton) info;
 			if (selectedTab != null) {
 				tabLayout.removeView(selectedTab);
 				TabInfo selectedInfo = (TabInfo) selectedTab.getTag();
 				getTabConfiguration().getTabs().remove(selectedInfo);
 			}
-			return true;
-		case R.id.option_icon:
+			return;
+		}
+		case R.id.option_edit: {
+			selectedTab = (ImageButton) info;
 			if (selectedTab != null) {
 
 				TabInfo selectedInfo = (TabInfo) selectedTab.getTag();
@@ -1064,15 +1058,14 @@ public class BaseMainActivity extends FragmentActivity implements OnClickListene
 
 				startActivityForResult(intent, ACTION_EDIT_TAB);
 			}
-			return true;
+			return;
+		}
 
 		case R.id.option_tab_reset:
 			getTabConfiguration().reset();
 			setupTabs();
 			break;
 		}
-
-		return super.onContextItemSelected(item);
 	}
 
 	@Override
@@ -1080,15 +1073,6 @@ public class BaseMainActivity extends FragmentActivity implements OnClickListene
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main_menu, menu);
 		return true;
-	}
-
-	public void tease(String feature) {
-		if (liteFeatureTeaser == null) {
-			liteFeatureTeaser = new LiteInfoDialog(this);
-			liteFeatureTeaser.setOwnerActivity(this);
-		}
-		liteFeatureTeaser.setFeature(feature);
-		liteFeatureTeaser.show();
 	}
 
 	/*
@@ -1118,33 +1102,8 @@ public class BaseMainActivity extends FragmentActivity implements OnClickListene
 		case R.id.option_settings:
 			startActivityForResult(new Intent(this, DsaPreferenceActivity.class), ACTION_PREFERENCES);
 			return true;
-		case R.id.option_import_hero: {
-			HeroExchange exchange = new HeroExchange(this);
-
-			if (!exchange.isConfigured()) {
-
-				Toast.makeText(this, "Bitte zuerst die Logindaten bei den Heldenaustausch Einstellungen angeben.",
-						Toast.LENGTH_LONG).show();
-
-				Intent intent = new Intent(this, DsaPreferenceActivity.class);
-				intent.putExtra(DsaPreferenceActivity.INTENT_PREF_SCREEN, DsaPreferenceActivity.SCREEN_EXCHANGE);
-				startActivityForResult(intent, BaseMainActivity.ACTION_PREFERENCES);
-			}
-			exchange.importHero();
-			return true;
-		}
 		case R.id.option_export_hero: {
 			HeroExchange exchange = new HeroExchange(this);
-
-			if (!exchange.isConfigured()) {
-
-				Toast.makeText(this, "Bitte zuerst die Logindaten bei den Heldenaustausch Einstellungen angeben.",
-						Toast.LENGTH_LONG).show();
-
-				Intent intent = new Intent(this, DsaPreferenceActivity.class);
-				intent.putExtra(DsaPreferenceActivity.INTENT_PREF_SCREEN, DsaPreferenceActivity.SCREEN_EXCHANGE);
-				startActivityForResult(intent, BaseMainActivity.ACTION_PREFERENCES);
-			}
 			exchange.exportHero(getHero());
 			return true;
 		}
@@ -1167,34 +1126,6 @@ public class BaseMainActivity extends FragmentActivity implements OnClickListene
 	}
 
 	protected void showHeroChooser() {
-
-		if (!DSATabApplication.getInstance().hasHeroes()) {
-			// --
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setTitle("Keine Helden gefunden");
-			builder.setMessage("Auf der SD-Karte wurden keine Helden-Dateien gefunden. Stell sicher, dass sich unter "
-					+ DSATabApplication.getDsaTabPath()
-					+ " die als XML Datei exportierten Helden der Helden-Software befinden.");
-
-			builder.setPositiveButton(R.string.settings, new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					startActivityForResult(new Intent(BaseMainActivity.this, DsaPreferenceActivity.class),
-							ACTION_PREFERENCES);
-				}
-			});
-			builder.setNegativeButton(R.string.label_cancel, new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					BaseMainActivity.this.finish();
-				}
-
-			});
-			builder.show();
-		} else {
-			startActivityForResult(new Intent(BaseMainActivity.this, HeroChooserActivity.class), ACTION_CHOOSE_HERO);
-		}
+		startActivityForResult(new Intent(BaseMainActivity.this, HeroChooserActivity.class), ACTION_CHOOSE_HERO);
 	}
 }

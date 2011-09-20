@@ -22,6 +22,8 @@ import java.util.List;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -54,6 +56,10 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 
 	public static final String KEY_PROBE_ANIM_ROLL_DICE = "animRollDice";
 
+	public static final String KEY_PROBE_SOUND_ROLL_DICE = "soundRollDice";
+
+	public static final String KEY_PROBE_SOUND_RESULT_DICE = "soundResultDice";
+
 	public static final String KEY_HOUSE_RULES = "houseRules";
 
 	public static final String KEY_ARMOR_TYPE = "armorType";
@@ -68,6 +74,7 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 	public static final String KEY_CREDITS = "credits";
 
 	public static final String KEY_INFOS = "infos";
+	public static final String KEY_DONATE = "donate";
 
 	public static final String KEY_FULL_VERSION = "fullVersion";
 
@@ -83,6 +90,16 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 	public static final String KEY_SCREEN_ORIENTATION = "screen_orientation";
 
 	public static final String KEY_TIP_TODAY = "tipToday";
+
+	public static final String KEY_HEADER_NAME = "header_name";
+	public static final String KEY_HEADER_LE = "header_le";
+	public static final String KEY_HEADER_AU = "header_au";
+	public static final String KEY_HEADER_KE = "header_ke";
+	public static final String KEY_HEADER_AE = "header_ae";
+	public static final String KEY_HEADER_BE = "header_be";
+	public static final String KEY_HEADER_MR = "header_mr";
+	public static final String KEY_HEADER_GS = "header_gs";
+	public static final String KEY_HEADER_WS = "header_ws";
 
 	public static final String DEFAULT_EXCHANGE_PROVIDER = "http://helden.draschenfels.de/";
 
@@ -171,6 +188,7 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 			VersionInfoDialog newsDialog = new VersionInfoDialog(this);
 			newsDialog.setDonateContentId(R.raw.donate);
 			newsDialog.setDonateVersion(DSATabApplication.getInstance().isLiteVersion());
+			newsDialog.setDonateUrl(DSATabApplication.PAYPAL_DONATION_URL);
 			newsDialog.setRawClass(R.raw.class);
 			newsDialog.setTitle(R.string.news_title);
 			newsDialog.setIcon(R.drawable.icon);
@@ -178,13 +196,17 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 		} else if (preference.getKey().equals(KEY_TIP_TODAY)) {
 			TipOfTheDayDialog newsDialog = new TipOfTheDayDialog(this);
 			newsDialog.show();
+		} else if (preference.getKey().equals(KEY_DONATE)) {
+			Uri uriUrl = Uri.parse(DSATabApplication.PAYPAL_DONATION_URL);
+			final Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uriUrl);
+			startActivity(launchBrowser);
 		}
 
 		return super.onPreferenceTreeClick(preferenceScreen, preference);
 	}
 
 	private void cleanOldFiles() {
-		File cardsDir = new File(DSATabApplication.getDsaTabPath(), "cards");
+		File cardsDir = new File(DSATabApplication.getDsaTabPath(), DSATabApplication.DIR_CARDS);
 
 		File[] dirs = cardsDir.listFiles(new FileFilter() {
 

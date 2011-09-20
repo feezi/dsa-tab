@@ -46,11 +46,11 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 
 		setTitle("Wähle ein Portrait...");
 
-		File mapDir = new File(DSATabApplication.getDsaTabPath(), "portraits");
-		if (!mapDir.exists())
-			mapDir.mkdirs();
+		File portraitDir = new File(DSATabApplication.getDsaTabPath(), DSATabApplication.DIR_PORTRAITS);
+		if (!portraitDir.exists())
+			portraitDir.mkdirs();
 
-		File[] files = mapDir.listFiles();
+		File[] files = portraitDir.listFiles();
 		if (files != null) {
 			portraitPaths = new ArrayList<URI>(files.length);
 
@@ -62,10 +62,14 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 		}
 
 		if (portraitPaths == null || portraitPaths.isEmpty()) {
+
+			String path = portraitDir.getAbsolutePath().replace(DSATabApplication.SD_CARD_PATH_PREFIX, "");
+
 			Toast.makeText(
 					getContext(),
-					"Keine Portraits gefunden. Kopiere deine eigenen auf deine SD-Karte unter \"dsatab/portraits\" oder lade die Standardportraits in den Einstellungen herunter.",
-					Toast.LENGTH_LONG).show();
+					"Keine Portraits gefunden. Kopiere deine eigenen auf deine SD-Karte unter \"" + path
+							+ "\" oder lade die Standardportraits in den Einstellungen herunter.", Toast.LENGTH_LONG)
+					.show();
 			dismiss();
 		}
 

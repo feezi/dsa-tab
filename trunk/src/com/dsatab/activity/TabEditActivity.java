@@ -202,9 +202,12 @@ public class TabEditActivity extends Activity implements OnItemClickListener, On
 	 */
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		if (selectedPosition >= 0)
-			gridView.getChildAt(selectedPosition).setBackgroundResource(R.drawable.icon_btn);
-
+		if (selectedPosition >= 0) {
+			View child = gridView.getChildAt(selectedPosition);
+			if (child != null) {
+				child.setBackgroundResource(R.drawable.icon_btn);
+			}
+		}
 		selectedPosition = position;
 
 		view.setBackgroundResource(R.drawable.button_selected_patch);

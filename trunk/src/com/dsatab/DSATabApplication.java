@@ -31,6 +31,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.util.AndroidRuntimeException;
@@ -45,13 +46,21 @@ import com.dsatab.xml.XmlParser;
 import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.util.ErrorHandler;
 
-public class DSATabApplication extends Application {
+public class DSATabApplication extends Application implements OnSharedPreferenceChangeListener {
 
 	public static final String FLURRY_APP_ID = "AK17DSVJZBNH35G554YR";
 
 	public static final String SD_CARD_PATH_PREFIX = "/sdcard/";
 
 	public static final String DEFAULT_SD_CARD = "dsatab/";
+
+	public static final String DIR_MAPS = "maps";
+
+	public static final String DIR_PORTRAITS = "portraits";
+
+	public static final String DIR_CARDS = "cards";
+
+	public static final String DIR_RECORDINGS = "recordings";
 
 	public static final String PAYPAL_DONATION_URL = "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=gandulf%2ek%40gmx%2enet&lc=DE&item_name=Gandulf&item_number=DsaTab&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted";
 
@@ -60,6 +69,11 @@ public class DSATabApplication extends Application {
 	// instance
 	private static DSATabApplication instance = null;
 
+	/**
+	 * Cache for corrected path
+	 */
+	private static String path;
+
 	private Hero hero = null;
 
 	private DsaTabConfiguration configuration;
@@ -67,8 +81,7 @@ public class DSATabApplication extends Application {
 	private Typeface poorRichFont;
 
 	/**
-	 * Convenient accessor, saves having to call and cast
-	 * getApplicationContext()
+	 * Convenient access, saves having to call and cast getApplicationContext()
 	 */
 	public static DSATabApplication getInstance() {
 		checkInstance();
@@ -76,25 +89,70 @@ public class DSATabApplication extends Application {
 	}
 
 	public boolean isLiteVersion() {
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getInstance().getBaseContext());
-		return !preferences.getBoolean(DsaPreferenceActivity.KEY_FULL_VERSION, false);
+		return !getPreferences().getBoolean(DsaPreferenceActivity.KEY_FULL_VERSION, false);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#
+	 * onSharedPreferenceChanged(android.content.SharedPreferences,
+	 * java.lang.String)
+	 */
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (key.equals(DsaPreferenceActivity.KEY_SETUP_SDCARD_PATH)) {
+			path = null;
+			checkDirectories(getDsaTabPath());
+		}
+
+	}
+
+	public static String getRelativeDsaTabPath() {
+		String path = getDsaTabPath().replace(SD_CARD_PATH_PREFIX, "");
+		return path;
 	}
 
 	public static String getDsaTabPath() {
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getInstance().getBaseContext());
-		String path = preferences.getString(DsaPreferenceActivity.KEY_SETUP_SDCARD_PATH, DEFAULT_SD_CARD);
+		if (path == null) {
+			path = getPreferences().getString(DsaPreferenceActivity.KEY_SETUP_SDCARD_PATH, DEFAULT_SD_CARD);
 
-		if (!path.endsWith("/"))
-			path += "/";
+			if (!path.endsWith("/"))
+				path += "/";
 
-		if (path.startsWith(SD_CARD_PATH_PREFIX))
-			return path;
-		else {
-			if (path.startsWith("/"))
-				return SD_CARD_PATH_PREFIX + path.substring(1);
-			else
-				return SD_CARD_PATH_PREFIX + path;
+			if (!path.startsWith(SD_CARD_PATH_PREFIX)) {
+				if (path.startsWith("/"))
+					path = SD_CARD_PATH_PREFIX + path.substring(1);
+				else
+					path = SD_CARD_PATH_PREFIX + path;
+			}
 		}
+
+		return path;
+	}
+
+	private static void checkDirectories(String path) {
+
+		Debug.verbose("Chekcing path " + path + " for subdirs");
+		File base = new File(path);
+		if (!base.exists())
+			base.mkdirs();
+
+		File recordingsDir = new File(base, DIR_RECORDINGS);
+		if (!recordingsDir.exists())
+			recordingsDir.mkdirs();
+
+		File mapsDir = new File(base, DIR_MAPS);
+		if (!mapsDir.exists())
+			mapsDir.mkdirs();
+
+		File cardsDir = new File(base, DIR_CARDS);
+		if (!cardsDir.exists())
+			cardsDir.mkdirs();
+
+		File portraitsDir = new File(base, DIR_PORTRAITS);
+		if (!portraitsDir.exists())
+			portraitsDir.mkdirs();
 
 	}
 
@@ -130,6 +188,10 @@ public class DSATabApplication extends Application {
 		AnalyticsManager.setEnabled(getPreferences().getBoolean(DsaPreferenceActivity.KEY_USAGE_STATS, true));
 
 		Debug.verbose("AnalytisManager enabled = " + AnalyticsManager.isEnabled());
+
+		checkDirectories(getDsaTabPath());
+
+		getPreferences().registerOnSharedPreferenceChangeListener(this);
 	}
 
 	public Typeface getPoorRichardFont() {
@@ -254,7 +316,6 @@ public class DSATabApplication extends Application {
 
 			Debug.verbose("Opening inputstream for hero at " + path);
 			fis = new FileInputStream(file);
-
 			Debug.verbose("Opened inputstream for hero at " + path);
 
 			hero = XmlParser.readHero(path, fis);

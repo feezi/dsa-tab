@@ -18,17 +18,26 @@ package com.dsatab.view;
 
 import java.util.Random;
 
-import android.app.Dialog;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
+import android.widget.CheckBox;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 
-public class TipOfTheDayDialog extends Dialog implements android.view.View.OnClickListener {
+public class TipOfTheDayDialog extends AlertDialog implements android.view.View.OnClickListener,
+		DialogInterface.OnDismissListener {
 
+	public static final String PREF_SHOW_TIPS = "_showTips";
 	public static boolean tipShown = false;
 
 	private WebView webView;
@@ -39,30 +48,13 @@ public class TipOfTheDayDialog extends Dialog implements android.view.View.OnCli
 
 	private Random rnd;
 
+	private SharedPreferences preferences;
+
 	/**
 	 * @param context
 	 */
 	public TipOfTheDayDialog(Context context) {
 		super(context);
-		init();
-	}
-
-	/**
-	 * @param context
-	 * @param theme
-	 */
-	public TipOfTheDayDialog(Context context, int theme) {
-		super(context, theme);
-		init();
-	}
-
-	/**
-	 * @param context
-	 * @param cancelable
-	 * @param cancelListener
-	 */
-	public TipOfTheDayDialog(Context context, boolean cancelable, OnCancelListener cancelListener) {
-		super(context, cancelable, cancelListener);
 		init();
 	}
 
@@ -80,9 +72,6 @@ public class TipOfTheDayDialog extends Dialog implements android.view.View.OnCli
 		case R.id.tip_prev:
 			previousTip();
 			break;
-		case R.id.tip_ok:
-			this.dismiss();
-			break;
 		}
 
 	}
@@ -93,6 +82,7 @@ public class TipOfTheDayDialog extends Dialog implements android.view.View.OnCli
 	protected void init() {
 
 		rnd = new Random();
+		preferences = DSATabApplication.getPreferences();
 
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
@@ -107,17 +97,54 @@ public class TipOfTheDayDialog extends Dialog implements android.view.View.OnCli
 
 		popupcontent.findViewById(R.id.tip_next).setOnClickListener(this);
 		popupcontent.findViewById(R.id.tip_prev).setOnClickListener(this);
-		popupcontent.findViewById(R.id.tip_ok).setOnClickListener(this);
 
-		// setButton(DialogInterface.BUTTON_NEUTRAL,
-		// getContext().getString(R.string.label_ok), this);
+		CheckBox show = (CheckBox) popupcontent.findViewById(R.id.tip_show);
+		show.setChecked(preferences.getBoolean(PREF_SHOW_TIPS, true));
 
-		setContentView(popupcontent);
+		setView(popupcontent);
 
+		setButton(BUTTON_POSITIVE, getContext().getString(R.string.label_ok), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+
+		if (DSATabApplication.getInstance().isLiteVersion()) {
+			setButton(BUTTON_NEGATIVE, getContext().getString(R.string.label_donate),
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+							Uri uriUrl = Uri.parse(DSATabApplication.PAYPAL_DONATION_URL);
+							final Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uriUrl);
+							getContext().startActivity(launchBrowser);
+						}
+					});
+		}
+
+		setOnDismissListener(this);
 		setCancelable(true);
 		setCanceledOnTouchOutside(true);
 
 		randomTip();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.content.DialogInterface.OnDismissListener#onDismiss(android.content
+	 * .DialogInterface)
+	 */
+	@Override
+	public void onDismiss(DialogInterface dialog) {
+		CheckBox show = (CheckBox) findViewById(R.id.tip_show);
+		if (show.isChecked() != preferences.getBoolean(PREF_SHOW_TIPS, true)) {
+			Editor edit = preferences.edit();
+			edit.putBoolean(PREF_SHOW_TIPS, show.isChecked());
+			edit.commit();
+		}
 	}
 
 	public void randomTip() {
@@ -127,11 +154,15 @@ public class TipOfTheDayDialog extends Dialog implements android.view.View.OnCli
 	public void showTip(int number) {
 
 		currentTip = number;
-		// String content = ResUtil.loadAssestToString("tips/tip_" + number +
-		// ".html", getContext());
-		// webView.loadDataWithBaseURL("file:///android_asset/tips", content,
-		// "text/html", "utf-8", null);
 		webView.loadUrl("file:///android_asset/tips/tip_" + number + ".html");
+
+		int titleId = getContext().getResources().getIdentifier("tip_" + number + "_title", "string",
+				DSATabApplication.getInstance().getPackageName());
+		if (titleId > 0) {
+			setTitle("Tip: " + getContext().getString(titleId));
+		} else {
+			setTitle("Tip des Tages");
+		}
 	}
 
 	public void nextTip() {

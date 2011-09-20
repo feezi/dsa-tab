@@ -19,6 +19,8 @@ package com.dsatab.fragment;
 import java.util.List;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -28,8 +30,10 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.BaseMainActivity;
+import com.dsatab.activity.DsaPreferenceActivity;
 import com.dsatab.common.Util;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero;
@@ -45,8 +49,6 @@ import com.dsatab.view.listener.HeroChangedListener;
  * 
  */
 public class AttributeListFragment extends BaseFragment implements HeroChangedListener, OnClickListener {
-
-	private View attributesList;
 
 	private TextView tfName;
 
@@ -65,18 +67,38 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see
+	 * android.support.v4.app.Fragment#onConfigurationChanged(android.content
+	 * .res.Configuration)
+	 */
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		updateView();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
 	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		attributesList = findViewById(R.id.gen_attributes);
 
-		tfName = (TextView) findViewById(R.id.gen_name);
+		tfName = (TextView) findViewById(R.id.attr_name);
 		if (tfName != null) {
 			Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/harrington.ttf");
 			tfName.setTypeface(tf);
 			tfName.setOnClickListener(this);
 		}
+
+		fillAttributeLabel((TextView) findViewById(R.id.attr_le_label), AttributeType.Lebensenergie);
+		fillAttributeLabel((TextView) findViewById(R.id.attr_au_label), AttributeType.Ausdauer);
+		fillAttributeLabel((TextView) findViewById(R.id.attr_ke_label), AttributeType.Karmaenergie);
+		fillAttributeLabel((TextView) findViewById(R.id.attr_ae_label), AttributeType.Astralenergie);
+
+		updateView();
+
 		super.onActivityCreated(savedInstanceState);
 	}
 
@@ -108,7 +130,7 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.gen_name:
+		case R.id.attr_name:
 
 			if (getHero() == null)
 				return;
@@ -122,6 +144,48 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 
 		}
 
+	}
+
+	private void updateView() {
+		SharedPreferences preferences = DSATabApplication.getPreferences();
+
+		if (preferences.getBoolean(DsaPreferenceActivity.KEY_HEADER_NAME, true)) {
+			findViewById(R.id.attr_name).setVisibility(View.VISIBLE);
+		} else {
+			findViewById(R.id.attr_name).setVisibility(View.GONE);
+		}
+
+		int visible = preferences.getBoolean(DsaPreferenceActivity.KEY_HEADER_LE, true) ? View.VISIBLE : View.GONE;
+		findViewById(R.id.attr_le).setVisibility(visible);
+		findViewById(R.id.attr_le_label).setVisibility(visible);
+
+		visible = preferences.getBoolean(DsaPreferenceActivity.KEY_HEADER_AU, true) ? View.VISIBLE : View.GONE;
+		findViewById(R.id.attr_au).setVisibility(visible);
+		findViewById(R.id.attr_au_label).setVisibility(visible);
+
+		visible = preferences.getBoolean(DsaPreferenceActivity.KEY_HEADER_AE, true) ? View.VISIBLE : View.GONE;
+		findViewById(R.id.attr_ae).setVisibility(visible);
+		findViewById(R.id.attr_ae_label).setVisibility(visible);
+
+		visible = preferences.getBoolean(DsaPreferenceActivity.KEY_HEADER_KE, true) ? View.VISIBLE : View.GONE;
+		findViewById(R.id.attr_ke).setVisibility(visible);
+		findViewById(R.id.attr_ke_label).setVisibility(visible);
+
+		visible = preferences.getBoolean(DsaPreferenceActivity.KEY_HEADER_BE, true) ? View.VISIBLE : View.GONE;
+		findViewById(R.id.attr_be).setVisibility(visible);
+		findViewById(R.id.attr_be_label).setVisibility(visible);
+
+		visible = preferences.getBoolean(DsaPreferenceActivity.KEY_HEADER_MR, true) ? View.VISIBLE : View.GONE;
+		findViewById(R.id.attr_mr).setVisibility(visible);
+		findViewById(R.id.attr_mr_label).setVisibility(visible);
+
+		visible = preferences.getBoolean(DsaPreferenceActivity.KEY_HEADER_GS, true) ? View.VISIBLE : View.GONE;
+		findViewById(R.id.attr_gs).setVisibility(visible);
+		findViewById(R.id.attr_gs_label).setVisibility(visible);
+
+		visible = preferences.getBoolean(DsaPreferenceActivity.KEY_HEADER_WS, true) ? View.VISIBLE : View.GONE;
+		findViewById(R.id.attr_ws).setVisibility(visible);
+		findViewById(R.id.attr_ws_label).setVisibility(visible);
 	}
 
 	private void showPortrait() {
@@ -150,7 +214,7 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 
 			switch (attr.getType()) {
 			case Konstitution:
-				TextView tfWs = (TextView) findViewById(R.id.gen_ws);
+				TextView tfWs = (TextView) findViewById(R.id.attr_ws);
 				if (tfWs != null && getHero() != null) {
 					int[] ws = getHero().getWundschwelle();
 					tfWs.setText(ws[0] + "/" + ws[1] + "/" + ws[2]);
@@ -163,16 +227,22 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 			case Fingerfertigkeit:
 			case Gewandtheit:
 			case Charisma:
-				fillAttribute(attributesList, attr);
+				fillAttribute(getView(), attr);
 				break;
 			case Lebensenergie:
-				fillAttributeValue((TextView) findViewById(R.id.gen_le), AttributeType.Lebensenergie);
+				fillAttributeValue((TextView) findViewById(R.id.attr_le), AttributeType.Lebensenergie);
 				break;
 			case Ausdauer:
-				fillAttributeValue((TextView) findViewById(R.id.gen_au), AttributeType.Ausdauer);
+				fillAttributeValue((TextView) findViewById(R.id.attr_au), AttributeType.Ausdauer);
+				break;
+			case Karmaenergie:
+				fillAttributeValue((TextView) findViewById(R.id.attr_ke), AttributeType.Karmaenergie);
+				break;
+			case Astralenergie:
+				fillAttributeValue((TextView) findViewById(R.id.attr_ae), AttributeType.Astralenergie);
 				break;
 			case Behinderung:
-				fillAttributeValue((TextView) findViewById(R.id.gen_be), AttributeType.Behinderung);
+				fillAttributeValue((TextView) findViewById(R.id.attr_be), AttributeType.Behinderung);
 				break;
 			}
 
@@ -189,7 +259,7 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 	@Override
 	public void onModifierAdded(Modificator value) {
 		super.onModifierAdded(value);
-		fillAttributesList(attributesList);
+		fillAttributesList(findViewById(R.id.gen_attributes));
 	}
 
 	/*
@@ -202,7 +272,7 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 	@Override
 	public void onModifierChanged(Modificator value) {
 		super.onModifierChanged(value);
-		fillAttributesList(attributesList);
+		fillAttributesList(findViewById(R.id.gen_attributes));
 	}
 
 	/*
@@ -215,7 +285,7 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 	@Override
 	public void onModifierRemoved(Modificator value) {
 		super.onModifierRemoved(value);
-		fillAttributesList(attributesList);
+		fillAttributesList(findViewById(R.id.gen_attributes));
 	}
 
 	/*
@@ -226,7 +296,7 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 	@Override
 	public void onModifiersChanged(List<Modificator> values) {
 		super.onModifiersChanged(values);
-		fillAttributesList(attributesList);
+		fillAttributesList(findViewById(R.id.gen_attributes));
 	}
 
 	/*
@@ -240,22 +310,39 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 		if (tfName != null)
 			tfName.setText(hero.getName());
 
-		fillAttributesList(attributesList);
+		fillAttributesList(getView());
 
-		fillAttributeLabel((TextView) findViewById(R.id.talent_mu_label), AttributeType.Mut);
-		fillAttributeLabel((TextView) findViewById(R.id.talent_kl_label), AttributeType.Klugheit);
-		fillAttributeLabel((TextView) findViewById(R.id.talent_in_label), AttributeType.Intuition);
-		fillAttributeLabel((TextView) findViewById(R.id.talent_ch_label), AttributeType.Charisma);
-		fillAttributeLabel((TextView) findViewById(R.id.talent_ff_label), AttributeType.Fingerfertigkeit);
-		fillAttributeLabel((TextView) findViewById(R.id.talent_ge_label), AttributeType.Gewandtheit);
-		fillAttributeLabel((TextView) findViewById(R.id.talent_ko_label), AttributeType.Konstitution);
-		fillAttributeLabel((TextView) findViewById(R.id.talent_kk_label), AttributeType.Körperkraft);
+		fillAttributeValue((TextView) findViewById(R.id.attr_le), AttributeType.Lebensenergie);
+		fillAttributeLabel((TextView) findViewById(R.id.attr_le_label), AttributeType.Lebensenergie);
+		fillAttributeValue((TextView) findViewById(R.id.attr_au), AttributeType.Ausdauer);
+		fillAttributeLabel((TextView) findViewById(R.id.attr_au_label), AttributeType.Ausdauer);
 
-		fillAttributeValue((TextView) findViewById(R.id.gen_le), AttributeType.Lebensenergie);
-		fillAttributeValue((TextView) findViewById(R.id.gen_au), AttributeType.Ausdauer);
-		fillAttributeValue((TextView) findViewById(R.id.gen_be), AttributeType.Behinderung);
+		if (hero.getAttributeValue(AttributeType.Karmaenergie) == null) {
+			findViewById(R.id.attr_ke).setVisibility(View.GONE);
+			findViewById(R.id.attr_ke_label).setVisibility(View.GONE);
+		} else if (preferences.getBoolean(DsaPreferenceActivity.KEY_HEADER_KE, true)) {
+			fillAttributeValue((TextView) findViewById(R.id.attr_ke), AttributeType.Karmaenergie);
+			fillAttributeLabel((TextView) findViewById(R.id.attr_ke_label), AttributeType.Karmaenergie);
+			findViewById(R.id.attr_ke).setVisibility(View.VISIBLE);
+			findViewById(R.id.attr_ke_label).setVisibility(View.VISIBLE);
+		}
 
-		TextView tfWs = (TextView) findViewById(R.id.gen_ws);
+		if (hero.getAttributeValue(AttributeType.Astralenergie) == null) {
+			findViewById(R.id.attr_ae).setVisibility(View.GONE);
+			findViewById(R.id.attr_ae_label).setVisibility(View.GONE);
+		} else if (preferences.getBoolean(DsaPreferenceActivity.KEY_HEADER_AE, true)) {
+			fillAttributeValue((TextView) findViewById(R.id.attr_ae), AttributeType.Astralenergie);
+			fillAttributeLabel((TextView) findViewById(R.id.attr_ae_label), AttributeType.Astralenergie);
+			findViewById(R.id.attr_ae).setVisibility(View.VISIBLE);
+			findViewById(R.id.attr_ae_label).setVisibility(View.VISIBLE);
+		}
+
+		Util.setText((TextView) findViewById(R.id.attr_gs), hero.getGs(), 0, null);
+
+		fillAttributeValue((TextView) findViewById(R.id.attr_be), AttributeType.Behinderung);
+		fillAttributeLabel((TextView) findViewById(R.id.attr_be_label), AttributeType.Behinderung);
+
+		TextView tfWs = (TextView) findViewById(R.id.attr_ws);
 		if (tfWs != null) {
 			int[] ws = hero.getWundschwelle();
 			tfWs.setText(ws[0] + "/" + ws[1] + "/" + ws[2]);
@@ -263,16 +350,23 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 	}
 
 	protected void fillAttributesList(View view) {
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_mu), AttributeType.Mut);
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_kl), AttributeType.Klugheit);
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_in), AttributeType.Intuition);
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_ch), AttributeType.Charisma);
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_ff), AttributeType.Fingerfertigkeit);
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_ge), AttributeType.Gewandtheit);
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_ko), AttributeType.Konstitution);
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_kk), AttributeType.Körperkraft);
 
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_mu), AttributeType.Mut);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_kl), AttributeType.Klugheit);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_in), AttributeType.Intuition);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_ch), AttributeType.Charisma);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_ff), AttributeType.Fingerfertigkeit);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_ge), AttributeType.Gewandtheit);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_ko), AttributeType.Konstitution);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_kk), AttributeType.Körperkraft);
-
+		fillAttributeLabel((TextView) view.findViewById(R.id.attr_mu_label), AttributeType.Mut);
+		fillAttributeLabel((TextView) view.findViewById(R.id.attr_kl_label), AttributeType.Klugheit);
+		fillAttributeLabel((TextView) view.findViewById(R.id.attr_in_label), AttributeType.Intuition);
+		fillAttributeLabel((TextView) view.findViewById(R.id.attr_ch_label), AttributeType.Charisma);
+		fillAttributeLabel((TextView) view.findViewById(R.id.attr_ff_label), AttributeType.Fingerfertigkeit);
+		fillAttributeLabel((TextView) view.findViewById(R.id.attr_ge_label), AttributeType.Gewandtheit);
+		fillAttributeLabel((TextView) view.findViewById(R.id.attr_ko_label), AttributeType.Konstitution);
+		fillAttributeLabel((TextView) view.findViewById(R.id.attr_kk_label), AttributeType.Körperkraft);
 	}
 
 	protected void fillAttributeValue(TextView tv, AttributeType type) {
@@ -308,36 +402,36 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 	protected void fillAttribute(View view, Attribute attr) {
 		switch (attr.getType()) {
 		case Mut:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_mu), AttributeType.Mut);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_mu_label), AttributeType.Mut);
+			fillAttributeValue((TextView) view.findViewById(R.id.attr_mu), AttributeType.Mut);
+			fillAttributeLabel((TextView) view.findViewById(R.id.attr_mu_label), AttributeType.Mut);
 			break;
 		case Klugheit:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_kl), AttributeType.Klugheit);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_kl_label), AttributeType.Klugheit);
+			fillAttributeValue((TextView) view.findViewById(R.id.attr_kl), AttributeType.Klugheit);
+			fillAttributeLabel((TextView) view.findViewById(R.id.attr_kl_label), AttributeType.Klugheit);
 			break;
 		case Intuition:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_in), AttributeType.Intuition);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_in_label), AttributeType.Intuition);
+			fillAttributeValue((TextView) view.findViewById(R.id.attr_in), AttributeType.Intuition);
+			fillAttributeLabel((TextView) view.findViewById(R.id.attr_in_label), AttributeType.Intuition);
 			break;
 		case Charisma:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_ch), AttributeType.Charisma);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_ch_label), AttributeType.Charisma);
+			fillAttributeValue((TextView) view.findViewById(R.id.attr_ch), AttributeType.Charisma);
+			fillAttributeLabel((TextView) view.findViewById(R.id.attr_ch_label), AttributeType.Charisma);
 			break;
 		case Fingerfertigkeit:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_ff), AttributeType.Fingerfertigkeit);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_ff_label), AttributeType.Fingerfertigkeit);
+			fillAttributeValue((TextView) view.findViewById(R.id.attr_ff), AttributeType.Fingerfertigkeit);
+			fillAttributeLabel((TextView) view.findViewById(R.id.attr_ff_label), AttributeType.Fingerfertigkeit);
 			break;
 		case Gewandtheit:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_ge), AttributeType.Gewandtheit);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_ge_label), AttributeType.Gewandtheit);
+			fillAttributeValue((TextView) view.findViewById(R.id.attr_ge), AttributeType.Gewandtheit);
+			fillAttributeLabel((TextView) view.findViewById(R.id.attr_ge_label), AttributeType.Gewandtheit);
 			break;
 		case Konstitution:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_ko), AttributeType.Konstitution);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_ko_label), AttributeType.Konstitution);
+			fillAttributeValue((TextView) view.findViewById(R.id.attr_ko), AttributeType.Konstitution);
+			fillAttributeLabel((TextView) view.findViewById(R.id.attr_ko_label), AttributeType.Konstitution);
 			break;
 		case Körperkraft:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_kk), AttributeType.Körperkraft);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_kk_label), AttributeType.Körperkraft);
+			fillAttributeValue((TextView) view.findViewById(R.id.attr_kk), AttributeType.Körperkraft);
+			fillAttributeLabel((TextView) view.findViewById(R.id.attr_kk_label), AttributeType.Körperkraft);
 			break;
 		}
 	}
@@ -355,7 +449,7 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == BaseMainActivity.ACTION_PREFERENCES) {
-
+			updateView();
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}

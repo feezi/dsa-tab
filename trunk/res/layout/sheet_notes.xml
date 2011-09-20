@@ -10,11 +10,11 @@
 	<ImageButton android:layout_above="@+id/notes_text"
 		android:id="@+id/notes_btn_add" android:layout_alignParentRight="true"
 		android:layout_width="50dip" android:layout_height="50dip"
-		android:src="@drawable/m_icon_edit" android:scaleType="centerInside"></ImageButton>
+		android:src="@android:drawable/ic_menu_edit" android:scaleType="centerInside"></ImageButton>
 	<ImageButton android:layout_above="@+id/notes_text"
 		android:id="@+id/notes_btn_mic_add" android:layout_toLeftOf="@+id/notes_btn_add"
 		android:layout_height="50dip" android:layout_width="50dip"
-		android:src="@drawable/m_icon_mic" android:scaleType="centerInside"></ImageButton>
+		android:src="@drawable/ic_btn_speak_now" android:scaleType="centerInside"></ImageButton>
 	<ListView android:layout_below="@+id/notes_spn_category"
 		android:layout_width="fill_parent" style="@style/BorderPanel"
 		android:cacheColorHint="#00000000" android:id="@android:id/list"

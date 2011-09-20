@@ -3,82 +3,94 @@
 <LinearLayout android:layout_height="wrap_content"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
-	android:id="@+id/gen_attributes"
+	android:id="@+id/attr_attributes"
 	android:paddingTop="2dp" android:paddingLeft="5dp" android:paddingRight="5dp" android:paddingBottom="2dp" android:background="@color/Brighter" android:orientation="vertical">
 
 <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent">
-	<TextView android:text="Character Name" android:layout_height="wrap_content" android:id="@+id/gen_name" android:ellipsize="end" android:singleLine="true" android:layout_width="wrap_content" style="@style/TextLabelSmall" android:layout_marginRight="5dp" android:layout_weight="1"></TextView>
+	<TextView android:text="Character Name" android:layout_height="wrap_content" android:id="@+id/attr_name" android:ellipsize="end" android:singleLine="true" android:layout_width="wrap_content" style="@style/TextLabelSmall" android:layout_marginRight="5dp" android:layout_weight="1"></TextView>
 	
-	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="LE" android:layout_marginRight="1dp"></TextView>
-	<TextView android:id="@+id/gen_le" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10" style="@style/TextLabel" android:layout_marginRight="5dp"></TextView>
+	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="LE" android:layout_marginRight="1dp" android:id="@+id/attr_le_label"></TextView>
+	<TextView android:id="@+id/attr_le" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10" style="@style/TextLabel" android:layout_marginRight="2.5dp"></TextView>
 	
-	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="AU" android:layout_marginRight="1dp"></TextView>
-	<TextView android:id="@+id/gen_au" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10" style="@style/TextLabel" android:layout_marginRight="5dp"></TextView>
+	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="AU" android:layout_marginRight="1dp" android:id="@+id/attr_au_label"></TextView>
+	<TextView android:id="@+id/attr_au" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10" style="@style/TextLabel" android:layout_marginRight="2.5dp"></TextView>
 	
-	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="BE" android:layout_marginRight="1dp"></TextView>
-	<TextView android:id="@+id/gen_be" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5" style="@style/TextLabel" android:layout_marginRight="5dp"></TextView>
+	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="AE" android:layout_marginRight="1dp" android:id="@+id/attr_ae_label"></TextView>
+	<TextView android:id="@+id/attr_ae" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10" style="@style/TextLabel" android:layout_marginRight="2.5dp"></TextView>
+
+	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="KE" android:layout_marginRight="1dp" android:id="@+id/attr_ke_label"></TextView>
+	<TextView android:id="@+id/attr_ke" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10" style="@style/TextLabel" android:layout_marginRight="2.5dp"></TextView>
 	
-	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="WS" android:layout_marginRight="1dp"></TextView>
-	<TextView android:id="@+id/gen_ws" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5" style="@style/TextLabel"></TextView>
+	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="BE" android:layout_marginRight="1dp" android:id="@+id/attr_be_label"></TextView>
+	<TextView android:id="@+id/attr_be" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5" style="@style/TextLabel" android:layout_marginRight="2.5dp"></TextView>
+	
+	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="MR" android:layout_marginRight="1dp" android:id="@+id/attr_mr_label"></TextView>
+	<TextView android:id="@+id/attr_mr" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10" style="@style/TextLabel" android:textColor="@color/ValueBlack" android:layout_marginRight="2.5dp"></TextView>
+	
+	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="GS" android:layout_marginRight="1dp" android:id="@+id/attr_gs_label"></TextView>
+	<TextView android:id="@+id/attr_gs" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10" style="@style/TextLabel" android:textColor="@color/ValueBlack" android:layout_marginRight="2.5dp"></TextView>
+	
+	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="WS" android:layout_marginRight="1dp" android:id="@+id/attr_ws_label"></TextView>
+	<TextView android:id="@+id/attr_ws" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5" style="@style/TextLabel" android:textColor="@color/ValueBlack"></TextView>
 </LinearLayout>
 
 <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent">		
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:text="MU"
 			style="@style/TextLabelSmall" android:paddingRight="1dip"
-			android:id="@+id/talent_mu_label" android:layout_weight="0" android:singleLine="true"></TextView>
+			android:id="@+id/attr_mu_label" android:layout_weight="0" android:singleLine="true"></TextView>
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:text="10" style="@style/TextLabel"
-			android:id="@+id/talent_mu" android:singleLine="true" android:layout_weight="1" android:ellipsize="none"></TextView>
+			android:id="@+id/attr_mu" android:singleLine="true" android:layout_weight="1" android:ellipsize="none"></TextView>
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:text="KL"
 			style="@style/TextLabelSmall" android:paddingRight="1dip"
-			android:id="@+id/talent_kl_label" android:singleLine="true" android:layout_weight="0"></TextView>
+			android:id="@+id/attr_kl_label" android:singleLine="true" android:layout_weight="0"></TextView>
 		<TextView android:layout_height="wrap_content"
-			android:layout_width="wrap_content" android:text="10" android:id="@+id/talent_kl"
+			android:layout_width="wrap_content" android:text="10" android:id="@+id/attr_kl"
 			style="@style/TextLabel" android:singleLine="true" android:layout_weight="1" android:ellipsize="none"></TextView>
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:text="IN"
 			style="@style/TextLabelSmall" android:paddingRight="1dip"
-			android:id="@+id/talent_in_label" android:singleLine="true" android:layout_weight="0"></TextView>
+			android:id="@+id/attr_in_label" android:singleLine="true" android:layout_weight="0"></TextView>
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:text="10" style="@style/TextLabel"
-			android:id="@+id/talent_in" android:layout_weight="1" android:singleLine="true" android:ellipsize="none"></TextView>
+			android:id="@+id/attr_in" android:layout_weight="1" android:singleLine="true" android:ellipsize="none"></TextView>
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:text="CH"
 			style="@style/TextLabelSmall" android:paddingRight="1dip"
-			android:id="@+id/talent_ch_label" android:singleLine="true" android:layout_weight="0"></TextView>
+			android:id="@+id/attr_ch_label" android:singleLine="true" android:layout_weight="0"></TextView>
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:text="10" style="@style/TextLabel"
-			android:id="@+id/talent_ch" android:layout_weight="1" android:singleLine="true" android:ellipsize="none"></TextView>
+			android:id="@+id/attr_ch" android:layout_weight="1" android:singleLine="true" android:ellipsize="none"></TextView>
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:text="FF"
 			style="@style/TextLabelSmall" android:paddingRight="1dip"
-			android:id="@+id/talent_ff_label" android:singleLine="true" android:layout_weight="0"></TextView>
+			android:id="@+id/attr_ff_label" android:singleLine="true" android:layout_weight="0"></TextView>
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:text="10" style="@style/TextLabel"
-			android:id="@+id/talent_ff" android:layout_weight="1" android:singleLine="true" android:ellipsize="none"></TextView>
+			android:id="@+id/attr_ff" android:layout_weight="1" android:singleLine="true" android:ellipsize="none"></TextView>
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:text="GE"
 			style="@style/TextLabelSmall" android:paddingRight="1dip"
-			android:id="@+id/talent_ge_label" android:singleLine="true" android:layout_weight="0"></TextView>
+			android:id="@+id/attr_ge_label" android:singleLine="true" android:layout_weight="0"></TextView>
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:text="10" style="@style/TextLabel"
-			android:id="@+id/talent_ge" android:layout_weight="1" android:singleLine="true" android:ellipsize="none"></TextView>
+			android:id="@+id/attr_ge" android:layout_weight="1" android:singleLine="true" android:ellipsize="none"></TextView>
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:text="KO"
 			style="@style/TextLabelSmall" android:paddingRight="1dip"
-			android:id="@+id/talent_ko_label" android:singleLine="true" android:layout_weight="0"></TextView>
+			android:id="@+id/attr_ko_label" android:singleLine="true" android:layout_weight="0"></TextView>
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:text="10" style="@style/TextLabel"
-			android:id="@+id/talent_ko" android:layout_weight="1" android:singleLine="true" android:ellipsize="none"></TextView>
+			android:id="@+id/attr_ko" android:layout_weight="1" android:singleLine="true" android:ellipsize="none"></TextView>
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:text="KK"
 			style="@style/TextLabelSmall" android:paddingRight="1dip"
-			android:id="@+id/talent_kk_label" android:singleLine="true" android:layout_weight="0"></TextView>
+			android:id="@+id/attr_kk_label" android:singleLine="true" android:layout_weight="0"></TextView>
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:text="10" style="@style/TextLabel"
-			android:id="@+id/talent_kk" android:singleLine="true" android:ellipsize="none" android:layout_weight="0"></TextView>	
+			android:id="@+id/attr_kk" android:singleLine="true" android:ellipsize="none" android:layout_weight="0"></TextView>	
 </LinearLayout>
 
 </LinearLayout>

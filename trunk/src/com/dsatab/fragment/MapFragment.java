@@ -37,7 +37,7 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
@@ -49,8 +49,6 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 
 	private static final String PREF_KEY_LAST_MAP_COORDINATES = "lastMapCoordinates";
 	private static final String PREF_KEY_LAST_MAP = "lastMap";
-
-	private static final String MAP_DIR = "maps";
 
 	public enum TouchMode {
 		None, Drag, Zoom;
@@ -85,17 +83,30 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		setHasOptionsMenu(true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
 	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		ImageView view = (ImageView) findViewById(R.id.imageView);
-		view.setOnTouchListener(this);
+
+		ImageView mapView = (ImageView) findViewById(R.id.imageView);
+		mapView.setOnTouchListener(this);
 
 		List<String> mapFiles = new ArrayList<String>();
 		List<String> mapNames = new ArrayList<String>();
 
-		File mapDir = new File(DSATabApplication.getDsaTabPath(), MAP_DIR);
+		File mapDir = new File(DSATabApplication.getDsaTabPath(), DSATabApplication.DIR_MAPS);
 		if (!mapDir.exists())
 			mapDir.mkdirs();
 
@@ -109,15 +120,26 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 			}
 		}
 
+		TextView empty = (TextView) findViewById(android.R.id.empty);
+
 		if (mapFiles.isEmpty()) {
 			String path = mapDir.getAbsolutePath();
-			path = path.replace("/sdcard/", "");
-			Toast.makeText(
-					getActivity(),
-					"Kein Kartenmaterial gefunden. Scan deine Karten ein und kopiere sie auf deine SD-Karte unter "
-							+ path, Toast.LENGTH_LONG).show();
+			path = path.replace(DSATabApplication.SD_CARD_PATH_PREFIX, "");
+
+			empty.setVisibility(View.VISIBLE);
+			mapView.setVisibility(View.GONE);
+
+			empty.setText("Kein Kartenmaterial gefunden. Scan deine Karten ein und kopiere sie auf deine SD-Karte unter \""
+					+ path + "\"");
+
+			this.mapFiles = null;
+			this.mapNames = null;
 
 		} else {
+
+			empty.setVisibility(View.GONE);
+			mapView.setVisibility(View.VISIBLE);
+
 			this.mapFiles = mapFiles.toArray(new String[0]);
 			this.mapNames = mapNames.toArray(new String[0]);
 
@@ -131,14 +153,14 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 
 			if (lastMap != null) {
 				Bitmap bm = BitmapFactory.decodeFile(DSATabApplication.getDsaTabPath() + "maps/" + lastMap);
-				view.setImageBitmap(bm);
+				mapView.setImageBitmap(bm);
 
 				String coords = preferences.getString(PREF_KEY_LAST_MAP_COORDINATES, null);
 				if (coords != null) {
 					matrix.setValues(Util.parseFloats(coords));
 				}
 			}
-			view.setImageMatrix(matrix);
+			mapView.setImageMatrix(matrix);
 		}
 		super.onActivityCreated(savedInstanceState);
 	}
@@ -147,6 +169,20 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.map_menu, menu);
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.support.v4.app.Fragment#onPrepareOptionsMenu(android.view.Menu)
+	 */
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+
+		menu.findItem(R.id.option_choose_map).setEnabled(mapFiles != null);
 	}
 
 	/*

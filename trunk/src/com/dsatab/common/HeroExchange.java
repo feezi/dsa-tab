@@ -41,8 +41,10 @@ import org.apache.http.util.EncodingUtils;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
@@ -60,7 +62,6 @@ import android.widget.Toast;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.BaseMainActivity;
 import com.dsatab.activity.DsaPreferenceActivity;
 import com.dsatab.data.Hero;
 import com.dsatab.xml.XmlParser;
@@ -79,20 +80,38 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 
 	private static final String DEFAULT_USERNAME = "gastlogin";
 	private static final String DEFAULT_PASSWORD = "gastlogin";
-	private BaseMainActivity context;
+	private Context context;
 
 	private ProgressDialog progressDialog;
 	private Dialog importDialog;
 
-	private ImportHeroTask fileTask;
+	private ImportHeroTask importFileTask;
+	private ExportHeroTask exportFileTask;
 
 	private Exception caughtException = null;
+	private String exportResponse;
 
-	public HeroExchange(BaseMainActivity context) {
+	private OnHeroExchangeListener onHeroExchangeListener;
+
+	public interface OnHeroExchangeListener {
+		public void onHeroLoaded(String path);
+
+		public void onHeroExported();
+	};
+
+	public HeroExchange(Context context) {
 		this.context = context;
 	}
 
-	public boolean isConfigured() {
+	public OnHeroExchangeListener getOnHeroExchangeListener() {
+		return onHeroExchangeListener;
+	}
+
+	public void setOnHeroExchangeListener(OnHeroExchangeListener onHeroExchangeListener) {
+		this.onHeroExchangeListener = onHeroExchangeListener;
+	}
+
+	private boolean isConfigured() {
 		final SharedPreferences preferences = DSATabApplication.getPreferences();
 
 		if (preferences.contains(DsaPreferenceActivity.KEY_EXCHANGE_USERNAME)
@@ -105,13 +124,17 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 
 			return !TextUtils.isEmpty(user) && !TextUtils.isEmpty(password) && !TextUtils.isEmpty(provider);
 		}
-
 		return false;
 	}
 
 	public void importHero() {
 
+		if (!checkSettings())
+			return;
+
 		final SharedPreferences preferences = DSATabApplication.getPreferences();
+
+		final Hero hero = DSATabApplication.getInstance().getHero();
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
@@ -125,6 +148,10 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 		heldenKey.setText(preferences.getString(PREF_LAST_HERO_KEY, ""));
 		heldenOwner.setText(preferences.getString(PREF_LAST_HERO_OWNER, ""));
 
+		if (hero == null) {
+			popupContent.findViewById(R.id.rb_current_hero).setEnabled(hero != null);
+		}
+
 		DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
 
 			@Override
@@ -136,7 +163,6 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 				case DialogInterface.BUTTON_POSITIVE:
 
 					if (importGroup.getCheckedRadioButtonId() == R.id.rb_current_hero) {
-						Hero hero = DSATabApplication.getInstance().getHero();
 						if (hero != null) {
 							importHero(hero.getKey(), null);
 						}
@@ -203,7 +229,7 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 			sb.append(preferences.getString(DsaPreferenceActivity.KEY_EXCHANGE_USERNAME, DEFAULT_USERNAME));
 			sb.append("&password=");
 			sb.append(preferences.getString(DsaPreferenceActivity.KEY_EXCHANGE_PASSWORD, DEFAULT_PASSWORD));
-			sb.append("&action=downloadheld&hkey=");
+			sb.append("&action=downloadheld2&hkey=");
 			sb.append(key);
 
 			if (!TextUtils.isEmpty(owner)) {
@@ -211,7 +237,7 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 				sb.append(owner);
 			}
 
-			downloadHero(sb.toString());
+			downloadHero(sb.toString(), key);
 
 		}
 	}
@@ -224,16 +250,16 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 		importDialog = null;
 	}
 
-	public void downloadHero(String inPath) {
+	private void downloadHero(String inPath, String key) {
 
-		progressDialog = ProgressDialog.show(context, context.getString(R.string.download),
+		progressDialog = ProgressDialog.show(context, "Held importieren",
 				"Daten werden von Helden-Austausch Server geladen");
 
 		progressDialog.setCancelable(true);
 		progressDialog.setCanceledOnTouchOutside(false);
 		progressDialog.setOnCancelListener(this);
-		fileTask = new ImportHeroTask();
-		fileTask.execute(inPath);
+		importFileTask = new ImportHeroTask(key);
+		importFileTask.execute(inPath);
 	}
 
 	/*
@@ -245,76 +271,42 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 	 */
 	@Override
 	public void onCancel(DialogInterface dialog) {
-		if (fileTask != null)
-			fileTask.cancel(true);
+		if (importFileTask != null)
+			importFileTask.cancel(true);
+
+		if (exportFileTask != null)
+			exportFileTask.cancel(true);
+	}
+
+	private boolean checkSettings() {
+		if (!isConfigured()) {
+
+			Toast.makeText(context, "Bitte zuerst die Logindaten bei den Heldenaustausch Einstellungen angeben.",
+					Toast.LENGTH_LONG).show();
+
+			Intent intent = new Intent(context, DsaPreferenceActivity.class);
+			intent.putExtra(DsaPreferenceActivity.INTENT_PREF_SCREEN, DsaPreferenceActivity.SCREEN_EXCHANGE);
+			context.startActivity(intent);
+			return false;
+		} else
+			return true;
 	}
 
 	public void exportHero(Hero hero) {
 
-		SharedPreferences preferences = DSATabApplication.getPreferences();
-		File zipFile = null;
-		try {
-			zipFile = new File(DSATabApplication.getDsaTabPath(), "exchange.zip");
+		Debug.verbose("Exporting " + hero.getName());
 
-			ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile));
+		if (!checkSettings())
+			return;
 
-			ByteArrayOutputStream fos = new ByteArrayOutputStream();
-			XmlParser.writeHero(hero, fos);
+		progressDialog = ProgressDialog.show(context, "Held exportieren",
+				"Daten werden zum Helden-Austausch Server geschickt");
 
-			String filename = null;
-			if (hero.getPath() != null) {
-				File heroPath = new File(hero.getPath());
-				filename = heroPath.getName();
-			} else {
-				filename = hero.getName() + ".xml";
-			}
-
-			ZipEntry entry = new ZipEntry(filename);
-			zos.putNextEntry(entry);
-
-			zos.write(fos.toByteArray());
-
-			zos.closeEntry();
-			zos.close();
-
-			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(preferences.getString(DsaPreferenceActivity.KEY_EXCHANGE_PROVIDER,
-					DsaPreferenceActivity.DEFAULT_EXCHANGE_PROVIDER) + "index.php");
-
-			MultipartEntity entity = new MultipartEntity();
-
-			entity.addPart(
-					"login",
-					new StringBody(preferences.getString(DsaPreferenceActivity.KEY_EXCHANGE_USERNAME, DEFAULT_USERNAME)));
-			entity.addPart(
-					"password",
-					new StringBody(preferences.getString(DsaPreferenceActivity.KEY_EXCHANGE_PASSWORD, DEFAULT_PASSWORD)));
-			entity.addPart("hkey", new StringBody(hero.getKey()));
-			entity.addPart("name", new StringBody(hero.getName()));
-			entity.addPart("data", new FileBody(zipFile, "application/zip"));
-			entity.addPart("nsc", new StringBody("false"));
-			entity.addPart("MAX_FILE_SIZE", new StringBody("5120"));
-
-			entity.addPart("scope", new StringBody("privat"));
-
-			entity.addPart(
-					"masterlogin",
-					new StringBody(preferences.getString(DsaPreferenceActivity.KEY_EXCHANGE_USERNAME, DEFAULT_USERNAME)));
-			entity.addPart("action", new StringBody("uploadheld"));
-			httppost.setEntity(entity);
-
-			HttpResponse response = httpclient.execute(httppost);
-
-			ByteArrayOutputStream bos2 = new ByteArrayOutputStream();
-			response.getEntity().writeTo(bos2);
-
-			Toast.makeText(context, Html.fromHtml(EncodingUtils.getString(bos2.toByteArray(), "UTF-8")),
-					Toast.LENGTH_LONG).show();
-
-		} catch (Exception e) {
-			Toast.makeText(context, "Held konnte nicht exportiert werden.", Toast.LENGTH_LONG);
-			ErrorHandler.handleError(e, context);
-		}
+		progressDialog.setCancelable(true);
+		progressDialog.setCanceledOnTouchOutside(false);
+		progressDialog.setOnCancelListener(this);
+		exportFileTask = new ExportHeroTask();
+		exportFileTask.execute(hero);
 	}
 
 	private InputStream openHttpConnection(String urlString) throws IOException {
@@ -341,9 +333,165 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 		return in;
 	}
 
+	class ExportHeroTask extends AsyncTask<Hero, String, Integer> {
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.os.AsyncTask#doInBackground(Params[])
+		 */
+		@Override
+		protected Integer doInBackground(Hero... params) {
+
+			SharedPreferences preferences = DSATabApplication.getPreferences();
+			File zipFile = null;
+			try {
+				zipFile = new File(DSATabApplication.getDsaTabPath(), "exchange.zip");
+
+				ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile));
+
+				for (Hero hero : params) {
+
+					publishProgress("Erstelle Heldenpaket...");
+
+					ByteArrayOutputStream fos = new ByteArrayOutputStream();
+					XmlParser.writeHero(hero, fos);
+
+					String filename = null;
+					if (hero.getPath() != null) {
+						File heroPath = new File(hero.getPath());
+						filename = heroPath.getName();
+					} else {
+						filename = hero.getName() + ".xml";
+					}
+
+					ZipEntry entry = new ZipEntry(filename);
+					zos.putNextEntry(entry);
+					zos.write(fos.toByteArray());
+					zos.closeEntry();
+					zos.close();
+
+					HttpClient httpclient = new DefaultHttpClient();
+					HttpPost httppost = new HttpPost(preferences.getString(DsaPreferenceActivity.KEY_EXCHANGE_PROVIDER,
+							DsaPreferenceActivity.DEFAULT_EXCHANGE_PROVIDER) + "index.php");
+
+					MultipartEntity entity = new MultipartEntity();
+
+					entity.addPart(
+							"login",
+							new StringBody(preferences.getString(DsaPreferenceActivity.KEY_EXCHANGE_USERNAME,
+									DEFAULT_USERNAME)));
+					entity.addPart(
+							"password",
+							new StringBody(preferences.getString(DsaPreferenceActivity.KEY_EXCHANGE_PASSWORD,
+									DEFAULT_PASSWORD)));
+					entity.addPart("hkey", new StringBody(hero.getKey()));
+					entity.addPart("name", new StringBody(hero.getName()));
+					entity.addPart("data", new FileBody(zipFile, "application/zip"));
+					entity.addPart("nsc", new StringBody("false"));
+					entity.addPart("MAX_FILE_SIZE", new StringBody("5120"));
+
+					entity.addPart("scope", new StringBody("privat"));
+
+					entity.addPart(
+							"masterlogin",
+							new StringBody(preferences.getString(DsaPreferenceActivity.KEY_EXCHANGE_USERNAME,
+									DEFAULT_USERNAME)));
+					entity.addPart("action", new StringBody("uploadheld"));
+					httppost.setEntity(entity);
+
+					if (isCancelled()) {
+						return RESULT_CANCELED;
+					}
+
+					publishProgress("Verbinde mit Server......");
+					HttpResponse response = httpclient.execute(httppost);
+
+					ByteArrayOutputStream bos2 = new ByteArrayOutputStream();
+					response.getEntity().writeTo(bos2);
+
+					exportResponse = Html.fromHtml(EncodingUtils.getString(bos2.toByteArray(), "UTF-8")).toString();
+					return RESULT_OK;
+				}
+
+			} catch (Exception e) {
+				Debug.error(e);
+				caughtException = e;
+				return RESULT_ERROR;
+			}
+
+			return null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+		 */
+		@Override
+		protected void onPostExecute(Integer result) {
+			super.onPostExecute(result);
+
+			if (progressDialog != null) {
+				if (progressDialog.isShowing())
+					progressDialog.dismiss();
+				progressDialog = null;
+			}
+			exportFileTask = null;
+
+			switch (result) {
+			case RESULT_OK:
+
+				if (onHeroExchangeListener != null) {
+					onHeroExchangeListener.onHeroExported();
+				} else {
+					if (TextUtils.isEmpty(exportResponse) || exportResponse.startsWith("OK"))
+						Toast.makeText(context, "Held erfolgreich exportiert.", Toast.LENGTH_SHORT).show();
+					else {
+						Toast.makeText(context, exportResponse, Toast.LENGTH_SHORT).show();
+					}
+				}
+
+				break;
+			case RESULT_CANCELED:
+				Toast.makeText(context, R.string.download_canceled, Toast.LENGTH_SHORT).show();
+				break;
+			case RESULT_EMPTY:
+				Toast.makeText(context, "Konnte keine Heldendatei am Helden-Austausch Server finden.",
+						Toast.LENGTH_SHORT).show();
+				break;
+			case RESULT_ERROR:
+				Toast.makeText(context, "Held konnte nicht exportiert werden.", Toast.LENGTH_LONG);
+				if (caughtException != null) {
+					ErrorHandler.handleError(caughtException, context);
+				}
+				break;
+			}
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.os.AsyncTask#onProgressUpdate(Progress[])
+		 */
+		@Override
+		protected void onProgressUpdate(String... values) {
+			if (progressDialog != null)
+				progressDialog.setMessage(values[0]);
+		}
+
+	}
+
 	class ImportHeroTask extends AsyncTask<String, String, Integer> {
 
+		private String heroKey;
 		private File innerFile = null;
+
+		/**
+		 * 
+		 */
+		public ImportHeroTask(String key) {
+			this.heroKey = key;
+		}
 
 		/*
 		 * (non-Javadoc)
@@ -366,6 +514,8 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 
 				ZipInputStream inputStream = null;
 				try {
+
+					publishProgress("Verbinde mit Server...");
 					// Open the ZipInputStream
 					InputStream is = openHttpConnection(inpath);
 
@@ -387,11 +537,11 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 							return RESULT_CANCELED;
 						}
 
-						publishProgress(entry.getName());
+						publishProgress("Entpacke " + entry.getName() + "...");
 
 						Debug.verbose("Extracting: " + entry.getName() + "...");
 
-						innerFile = new File(baseDir, entry.getName());
+						innerFile = new File(baseDir, heroKey + "-" + entry.getName());
 						// if (innerFile.exists()) {
 						// innerFile.delete();
 						// }
@@ -477,19 +627,23 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 					progressDialog.dismiss();
 				progressDialog = null;
 			}
-			fileTask = null;
+			importFileTask = null;
 
 			switch (result) {
 			case RESULT_OK:
-				Toast.makeText(context, R.string.download_finished, Toast.LENGTH_SHORT).show();
-
-				if (innerFile != null && innerFile.isFile() && innerFile.getName().endsWith(".xml"))
-					context.loadHero(innerFile.getAbsolutePath());
-				else
+				if (innerFile != null && innerFile.isFile() && innerFile.getName().endsWith(".xml")) {
+					if (onHeroExchangeListener != null) {
+						onHeroExchangeListener.onHeroLoaded(innerFile.getAbsolutePath());
+					} else {
+						Toast.makeText(context, "Held erfolgreich importiert.", Toast.LENGTH_SHORT).show();
+					}
+				} else {
 					Toast.makeText(
 							context,
 							"Konnte Heldendatei nicht öffnen, ungültige Datei "
 									+ (innerFile != null ? innerFile.getName() : ""), Toast.LENGTH_SHORT).show();
+				}
+
 				break;
 			case RESULT_CANCELED:
 				Toast.makeText(context, R.string.download_canceled, Toast.LENGTH_SHORT).show();

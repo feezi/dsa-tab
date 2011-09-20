@@ -144,11 +144,24 @@ public class Liturgie implements Probe, Value, Markable {
 	public Integer getErschwernis() {
 		String erschwernis = element.getAttributeValue(Xml.KEY_PROBE);
 
-		if (TextUtils.isEmpty(erschwernis) && info != null) {
-			return info.getGrade() * 2 - 2;
-		} else {
-			return Util.parseInt(erschwernis);
+		Integer e = null;
+		if (!TextUtils.isEmpty(erschwernis)) {
+			try {
+				e = Util.parseInt(erschwernis);
+			} catch (NumberFormatException e1) {
+				Debug.warn(e1);
+				e = null;
+			}
 		}
+
+		if (e == null) {
+			if (info != null) {
+				e = info.getGrade() * 2 - 2;
+			} else {
+				e = null;
+			}
+		}
+		return e;
 	}
 
 	@Override

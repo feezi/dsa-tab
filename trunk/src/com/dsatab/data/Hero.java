@@ -123,7 +123,7 @@ public class Hero {
 
 	private List<File> deletableAudioFiles = new LinkedList<File>();
 
-	private Integer oldAuRatioLevel, oldLeRatioLevel;
+	private Integer oldAuRatioLevel, oldLeRatioLevel, beCache;
 
 	private Element talentsNode, spellsNode, equippmentNode, itemsNode, basisNode, attributesNode;
 
@@ -462,26 +462,12 @@ public class Hero {
 	}
 
 	public void setActiveSet(int activeSet) {
-		// if (activeSet != this.activeSet)
-		// equippedItems = null;
 
 		int oldSet = activeSet;
-
-		int heroBe = getAttributeValue(AttributeType.Behinderung);
-		int armorBe = getArmorBe();
-
-		// determine whether be has been manually changed by user if yes leave
-		// it,
-		// otherwise change it to new automatically calculated value
-		boolean resetBe = (heroBe == armorBe);
-
 		this.activeSet = activeSet;
 
 		resetArmorAttributes();
-		if (resetBe) {
-			getAttribute(AttributeType.Behinderung).setValue(getArmorBe());
-			fireValueChangedEvent(getAttribute(AttributeType.Behinderung));
-		}
+		resetBe();
 
 		fireActiveSetChangedEvent(activeSet, oldSet);
 	}
@@ -615,7 +601,7 @@ public class Hero {
 
 	void fireModifierAddedEvent(Modificator modifier) {
 
-		modifiers.add(modifier);
+		getModifiers().add(modifier);
 
 		for (HeroChangedListener l : listener) {
 			l.onModifierAdded(modifier);
@@ -624,7 +610,7 @@ public class Hero {
 
 	void fireModifierRemovedEvent(Modificator modifier) {
 
-		modifiers.remove(modifier);
+		getModifiers().remove(modifier);
 
 		for (HeroChangedListener l : listener) {
 			l.onModifierRemoved(modifier);
@@ -844,8 +830,9 @@ public class Hero {
 
 		getEquippedItems(set).add(equippedItem);
 
-		if (item.hasSpecification(Armor.class)) {
+		if (item.hasSpecification(Armor.class) && set == activeSet) {
 			resetArmorAttributes();
+			resetBe();
 		}
 
 		fireItemEquippedEvent(equippedItem);
@@ -866,6 +853,26 @@ public class Hero {
 			held = (Element) dom.getRootElement().getChild(Xml.KEY_HELD);
 
 		return held;
+	}
+
+	public void setBeCalculation(boolean auto) {
+
+		if (auto != isBeCalculation()) {
+			Element be = getAttribute(AttributeType.Behinderung).getElement();
+			be.setAttribute(Xml.KEY_BE_CALCULATION, Boolean.toString(auto));
+
+			if (auto) {
+				resetBe();
+			}
+		}
+	}
+
+	public boolean isBeCalculation() {
+		Element be = getAttribute(AttributeType.Behinderung).getElement();
+		if (be.getAttributeValue(Xml.KEY_BE_CALCULATION) != null)
+			return Boolean.valueOf(be.getAttributeValue(Xml.KEY_BE_CALCULATION));
+		else
+			return true;
 	}
 
 	public Attribute getAttribute(AttributeType type) {
@@ -900,6 +907,7 @@ public class Hero {
 				Element element = new Element(Xml.KEY_EIGENSCHAFT);
 				element.setAttribute(Xml.KEY_NAME, AttributeType.Behinderung.name());
 				element.setAttribute(Xml.KEY_VALUE, "0");
+				element.setAttribute(Xml.KEY_BE_CALCULATION, Boolean.toString(true));
 
 				if (attributesNode == null)
 					getHeldElement().addContent(element);
@@ -1308,6 +1316,16 @@ public class Hero {
 		return ((double) au.getValue()) / au.getReferenceValue();
 	}
 
+	public double getAeRatio() {
+		Attribute ae = getAttribute(AttributeType.Astralenergie);
+		return ((double) ae.getValue()) / ae.getReferenceValue();
+	}
+
+	public double getKeRatio() {
+		Attribute ke = getAttribute(AttributeType.Karmaenergie);
+		return ((double) ke.getValue()) / ke.getReferenceValue();
+	}
+
 	public int getModificator(Probe probe) {
 		int modifier = 0;
 		for (Modifier mod : getModificators(probe)) {
@@ -1321,9 +1339,6 @@ public class Hero {
 	public List<Modifier> getModificators(Probe probe) {
 
 		List<Modifier> modifiers = new LinkedList<Modifier>();
-
-		if (DSATabApplication.getInstance().isLiteVersion())
-			return modifiers;
 
 		for (Modificator modificator : getModifiers()) {
 			Modifier mod = modificator.getModifier(probe);
@@ -1505,7 +1520,7 @@ public class Hero {
 
 		int heroBe = getBe(probe);
 
-		if (heroBe != 0 && !DSATabApplication.getInstance().isLiteVersion()) {
+		if (heroBe != 0) {
 			modifiers.add(new Modifier(-1 * heroBe, "Behinderung " + probe.getBe(), null));
 		}
 
@@ -1814,79 +1829,85 @@ public class Hero {
 	}
 
 	public int getArmorBe() {
-		float be = 0.0f;
 
-		Debug.verbose("Start Be calc");
+		if (beCache == null) {
 
-		String rs1Armor = null;
-		if (hasFeature(SpecialFeature.RUESTUNGSGEWOEHNUNG_3)) {
-			be -= 2.0;
-		} else if (hasFeature(SpecialFeature.RUESTUNGSGEWOEHNUNG_2)) {
-			be -= 1.0;
-		} else {
-			SpecialFeature rs1 = getSpecialFeature(SpecialFeature.RUESTUNGSGEWOEHNUNG_1);
-			if (rs1 != null) {
-				rs1Armor = rs1.getGegenstand();
-			}
-		}
+			float be = 0.0f;
 
-		switch (DSATabApplication.getInstance().getConfiguration().getArmorType()) {
+			Debug.verbose("Start Be calc");
 
-		case ZonenRuestung: {
-
-			int stars = 0;
-			float totalRs = 0;
-
-			for (EquippedItem equippedItem : getEquippedItems()) {
-
-				if (equippedItem.getItemSpecification() instanceof Armor) {
-					Armor armor = (Armor) equippedItem.getItemSpecification();
-					stars += armor.getStars();
-
-					if (rs1Armor != null && rs1Armor.equals(equippedItem.getItemName())) {
-						be -= 1.0;
-						rs1Armor = null;
-					}
-
-					for (int i = 0; i < Position.ARMOR_POSITIONS.size(); i++) {
-						float armorRs = armor.getRs(Position.ARMOR_POSITIONS.get(i));
-
-						if (armor.isZonenHalfBe())
-							armorRs = armorRs / 2.0f;
-
-						totalRs += (armorRs * Position.ARMOR_POSITIONS_MULTIPLIER[i]);
-					}
+			String rs1Armor = null;
+			if (hasFeature(SpecialFeature.RUESTUNGSGEWOEHNUNG_3)) {
+				be -= 2.0;
+			} else if (hasFeature(SpecialFeature.RUESTUNGSGEWOEHNUNG_2)) {
+				be -= 1.0;
+			} else {
+				SpecialFeature rs1 = getSpecialFeature(SpecialFeature.RUESTUNGSGEWOEHNUNG_1);
+				if (rs1 != null) {
+					rs1Armor = rs1.getGegenstand();
 				}
 			}
 
-			totalRs = (float) Math.ceil(totalRs / 20);
-			be += (totalRs - stars);
-			break;
+			switch (DSATabApplication.getInstance().getConfiguration().getArmorType()) {
 
-		}
+			case ZonenRuestung: {
 
-		case GesamtRuestung: {
+				int stars = 0;
+				float totalRs = 0;
 
-			for (EquippedItem equippedItem : getEquippedItems()) {
-				ItemSpecification itemSpec = equippedItem.getItemSpecification();
-				if (itemSpec instanceof Armor) {
-					Armor armor = (Armor) itemSpec;
-					be += armor.getBe();
+				for (EquippedItem equippedItem : getEquippedItems()) {
 
-					if (rs1Armor != null && rs1Armor.equals(equippedItem.getItemName())) {
-						be -= 1.0;
-						rs1Armor = null;
+					if (equippedItem.getItemSpecification() instanceof Armor) {
+						Armor armor = (Armor) equippedItem.getItemSpecification();
+						stars += armor.getStars();
+
+						if (rs1Armor != null && rs1Armor.equals(equippedItem.getItemName())) {
+							be -= 1.0;
+							rs1Armor = null;
+						}
+
+						for (int i = 0; i < Position.ARMOR_POSITIONS.size(); i++) {
+							float armorRs = armor.getRs(Position.ARMOR_POSITIONS.get(i));
+
+							if (armor.isZonenHalfBe())
+								armorRs = armorRs / 2.0f;
+
+							totalRs += (armorRs * Position.ARMOR_POSITIONS_MULTIPLIER[i]);
+						}
 					}
 				}
+
+				totalRs = (float) Math.ceil(totalRs / 20);
+				be += (totalRs - stars);
+				break;
+
 			}
-			break;
 
+			case GesamtRuestung: {
+
+				for (EquippedItem equippedItem : getEquippedItems()) {
+					ItemSpecification itemSpec = equippedItem.getItemSpecification();
+					if (itemSpec instanceof Armor) {
+						Armor armor = (Armor) itemSpec;
+						be += armor.getBe();
+
+						if (rs1Armor != null && rs1Armor.equals(equippedItem.getItemName())) {
+							be -= 1.0;
+							rs1Armor = null;
+						}
+					}
+				}
+				break;
+
+			}
+			}
+
+			beCache = Math.max(0, (int) Math.ceil(be));
+
+			Debug.verbose("Finish Be calc " + beCache);
 		}
-		}
+		return beCache;
 
-		Debug.verbose("Finish Be calc");
-
-		return Math.max(0, (int) Math.ceil(be));
 	}
 
 	/**
@@ -2261,38 +2282,54 @@ public class Hero {
 		else
 			getHeldElement().removeContent(equippedItem.getElement());
 
-		for (int i = 0; i < MAXIMUM_SET_NUMBER; i++) {
-			getEquippedItems(i).remove(equippedItem);
-		}
+		int set = equippedItem.getSet();
+		getEquippedItems(set).remove(equippedItem);
 
-		if (equippedItem.getItem().hasSpecification(Armor.class)) {
+		if (equippedItem.getItem().hasSpecification(Armor.class) && set == activeSet) {
 			resetArmorAttributes();
+			resetBe();
 		}
 
 		fireItemUnequippedEvent(equippedItem);
 	}
 
-	public List<Modificator> getModifiers() {
-		if (DSATabApplication.getInstance().isLiteVersion())
-			return Collections.emptyList();
-		else {
-			// init modifiers
-			if (modifiers == null) {
-				modifiers = new LinkedList<Modificator>();
+	/**
+	 * 
+	 */
+	private void resetBe() {
 
-				if (getLeRatio() < LeModifier.LEVEL_1)
-					modifiers.add(leModifier);
+		if (isBeCalculation()) {
+			int oldBe = getAttributeValue(AttributeType.Behinderung);
 
-				if (getAuRatio() < AuModifier.LEVEL_1)
-					modifiers.add(auModifier);
-
-				for (WoundAttribute attr : getWounds().values()) {
-					if (attr.getValue() > 0)
-						modifiers.add(attr);
-				}
+			beCache = null;
+			if (oldBe != getArmorBe()) {
+				getAttribute(AttributeType.Behinderung).setValue(getArmorBe());
 			}
-			return modifiers;
+			Debug.verbose("reseting be");
+		} else {
+			beCache = null;
 		}
+	}
+
+	public List<Modificator> getModifiers() {
+
+		// init modifiers
+		if (modifiers == null) {
+			modifiers = new LinkedList<Modificator>();
+
+			if (getLeRatio() < LeModifier.LEVEL_1)
+				modifiers.add(leModifier);
+
+			if (getAuRatio() < AuModifier.LEVEL_1)
+				modifiers.add(auModifier);
+
+			for (WoundAttribute attr : getWounds().values()) {
+				if (attr.getValue() > 0)
+					modifiers.add(attr);
+			}
+		}
+		return modifiers;
+
 	}
 
 	public void reloadArmorAttributes() {

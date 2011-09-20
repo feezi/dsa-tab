@@ -19,6 +19,7 @@ package com.dsatab.fragment;
 import java.util.ArrayList;
 import java.util.List;
 
+import yuku.iconcontextmenu.IconContextMenu;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -28,7 +29,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.drawable.LevelListDrawable;
 import android.os.Bundle;
-import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -44,7 +44,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.BaseMainActivity;
 import com.dsatab.activity.ItemChooserActivity;
@@ -87,8 +86,6 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 	private boolean fightItemsOdd = false;
 
-	private View selectedEquippedItemView;
-
 	private NumberPicker fightNumberPicker;
 	private LinearLayout fightLpLayout, fightItems, fightModifiers;
 
@@ -97,14 +94,11 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		public void onClick(View v) {
 			if (v.getTag() instanceof EquippedItem) {
 
-				if (DSATabApplication.getInstance().isLiteVersion()) {
-					tease("<strong>Wo ist nochmal schnell die Fernkampftabelle?</strong> Hier! Einfach die Größe und Entfernung eingeben und die Vollversion von DsaTab berechnet dir automatisch für jede Waffe die genaue Erschwernis. Auch bewegliche Ziele oder schlechte Sichtverhältnisse können berücksichtigt werden.");
-				} else {
-					EquippedItem item = (EquippedItem) v.getTag();
-					ArcheryChooserDialog targetChooserDialog = new ArcheryChooserDialog(getBaseActivity());
-					targetChooserDialog.setWeapon(item);
-					targetChooserDialog.show();
-				}
+				EquippedItem item = (EquippedItem) v.getTag();
+				ArcheryChooserDialog targetChooserDialog = new ArcheryChooserDialog(getBaseActivity());
+				targetChooserDialog.setWeapon(item);
+				targetChooserDialog.show();
+
 			}
 		}
 	}
@@ -143,36 +137,58 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		setHasOptionsMenu(true);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.fragment.BaseFragment#onCreateIconContextMenu(android.view
+	 * .Menu, android.view.View, android.view.ContextMenu.ContextMenuInfo)
+	 */
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+	public Object onCreateIconContextMenu(Menu menu, View v, ContextMenuInfo menuInfo) {
 		if (v.getTag() instanceof EquippedItem) {
-			selectedEquippedItemView = v;
-
 			EquippedItem equippedItem = (EquippedItem) v.getTag();
 			if (equippedItem.getItem().hasSpecification(Shield.class)) {
-				menu.add(0, CONTEXTMENU_ASSIGN_PRIMARY, 0, getString(R.string.menu_assign_main_weapon));
+				menu.add(0, CONTEXTMENU_ASSIGN_PRIMARY, 0, getString(R.string.menu_assign_main_weapon)).setIcon(
+						R.drawable.ic_menu_share);
 			}
 			if (equippedItem.getItem().hasSpecification(Weapon.class)) {
 				Weapon weapon = (Weapon) equippedItem.getItem().getSpecification(Weapon.class);
 				if (!weapon.isTwoHanded()) {
-					menu.add(0, CONTEXTMENU_ASSIGN_SECONDARY, 0, getString(R.string.menu_assign_secondary_weapon));
+					menu.add(0, CONTEXTMENU_ASSIGN_SECONDARY, 0, getString(R.string.menu_assign_secondary_weapon))
+							.setIcon(R.drawable.ic_menu_share);
 				}
 			}
 
 			if (equippedItem.getSecondaryItem() != null) {
-				menu.add(0, CONTEXTMENU_UNASSIGN, 1, getString(R.string.menu_unassign_item));
+				menu.add(0, CONTEXTMENU_UNASSIGN, 1, getString(R.string.menu_unassign_item)).setIcon(
+						R.drawable.ic_menu_revert);
 			}
 
 			if (equippedItem.getItem().getSpecifications().size() > 1) {
-				menu.add(0, CONTEXTMENU_SELECT_VERSION, 2, getString(R.string.menu_select_version));
+				menu.add(0, CONTEXTMENU_SELECT_VERSION, 2, getString(R.string.menu_select_version)).setIcon(
+						R.drawable.ic_menu_more);
 			}
 
-			// menu.add(1, CONTEXTMENU_VIEWEQUIPPEDITEM, 3,
-			// getString(R.string.menu_view_item));
-			// menu.add(1, CONTEXTMENU_SORT_EQUIPPED_ITEM, 4,
-			// getString(R.string.menu_sort_items));
+			return equippedItem;
 		} else {
-			super.onCreateContextMenu(menu, v, menuInfo);
+			return super.onCreateIconContextMenu(menu, v, menuInfo);
+		}
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onPrepareIconContextMenu(yuku.
+	 * iconcontextmenu.IconContextMenu, android.view.View)
+	 */
+	@Override
+	public void onPrepareIconContextMenu(IconContextMenu menu, View v) {
+		super.onPrepareIconContextMenu(menu, v);
+		if (menu.getInfo() instanceof EquippedItem) {
+			EquippedItem equippedItem = (EquippedItem) menu.getInfo();
+			menu.setTitle(equippedItem.getItemName());
 		}
 	}
 
@@ -251,23 +267,31 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		inflater.inflate(R.menu.fight_menu, menu);
 	}
 
-	@SuppressWarnings("unchecked")
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.fragment.BaseFragment#onIconContextItemSelected(android.view
+	 * .MenuItem, java.lang.Object)
+	 */
 	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		if (item.getItemId() == CONTEXTMENU_VIEWEQUIPPEDITEM) {
-			if (selectedEquippedItemView != null) {
+	public void onIconContextItemSelected(MenuItem item, Object info) {
 
-				EquippedItem equippedItem = (EquippedItem) selectedEquippedItemView.getTag();
+		if (info instanceof EquippedItem) {
+
+			final EquippedItem equippedItem = (EquippedItem) info;
+
+			if (item.getItemId() == CONTEXTMENU_VIEWEQUIPPEDITEM) {
+
 				Intent intent = new Intent(getActivity(), ItemChooserActivity.class);
 				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_EQUIPPED_ITEM_ID, equippedItem.getId());
 				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_SEARCHABLE, false);
 				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
 				startActivity(intent);
-			}
 
-		} else if (item.getItemId() == CONTEXTMENU_ASSIGN_PRIMARY) {
-			if (selectedEquippedItemView != null) {
-				final EquippedItem equippedShield = (EquippedItem) selectedEquippedItemView.getTag();
+			} else if (item.getItemId() == CONTEXTMENU_ASSIGN_PRIMARY) {
+
+				final EquippedItem equippedShield = equippedItem;
 
 				EquippedItemChooserDialog dialog = new EquippedItemChooserDialog(getActivity());
 				dialog.setEquippedItems(getHero().getEquippedItems(Weapon.class));
@@ -301,10 +325,10 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 						}
 					}
 				});
-			}
-		} else if (item.getItemId() == CONTEXTMENU_ASSIGN_SECONDARY) {
-			if (selectedEquippedItemView != null) {
-				final EquippedItem equippedPrimaryWeapon = (EquippedItem) selectedEquippedItemView.getTag();
+
+			} else if (item.getItemId() == CONTEXTMENU_ASSIGN_SECONDARY) {
+
+				final EquippedItem equippedPrimaryWeapon = equippedItem;
 
 				EquippedItemChooserDialog dialog = new EquippedItemChooserDialog(getActivity());
 				dialog.setEquippedItems(getHero().getEquippedItems(Weapon.class, Shield.class));
@@ -349,23 +373,20 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 				dialog.show();
 
-			}
-		} else if (item.getItemId() == CONTEXTMENU_UNASSIGN) {
-			if (selectedEquippedItemView != null) {
-				final EquippedItem equippedPrimaryWeapon = (EquippedItem) selectedEquippedItemView.getTag();
+			} else if (item.getItemId() == CONTEXTMENU_UNASSIGN) {
+
+				final EquippedItem equippedPrimaryWeapon = equippedItem;
 				EquippedItem equippedSecondaryWeapon = equippedPrimaryWeapon.getSecondaryItem();
 
 				equippedPrimaryWeapon.setSecondaryItem(null);
 				equippedSecondaryWeapon.setSecondaryItem(null);
 
 				fillFightItemDescriptions();
-			}
-		} else if (item.getItemId() == CONTEXTMENU_SORT_EQUIPPED_ITEM) {
-			fillFightItemDescriptions();
-		} else if (item.getItemId() == CONTEXTMENU_SELECT_VERSION) {
 
-			if (selectedEquippedItemView != null) {
-				final EquippedItem equippedItem = (EquippedItem) selectedEquippedItemView.getTag();
+			} else if (item.getItemId() == CONTEXTMENU_SORT_EQUIPPED_ITEM) {
+				fillFightItemDescriptions();
+			} else if (item.getItemId() == CONTEXTMENU_SELECT_VERSION) {
+
 				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
 				List<String> specInfo = equippedItem.getItem().getSpecificationNames();
@@ -381,10 +402,11 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 				builder.setTitle("Wähle eine Variante...");
 				builder.show();
+
 			}
 		}
 
-		return super.onContextItemSelected(item);
+		super.onIconContextItemSelected(item, info);
 	}
 
 	public void fillAusweichen() {
@@ -512,13 +534,8 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 			@Override
 			public void onClick(View v) {
-
-				if (DSATabApplication.getInstance().isLiteVersion()) {
-					tease("<strong>Auf welche Seite sind die Ausweichen Modifikatoren?</strong> Egal, die Vollversion von DsaTab berechnet nicht nur deinen Ausweichenwert, sie berücksichtigt auch sämtliche Modifikatoren (Mehrere Gegner, Distanzklasse, Gezieltes Ausweichen).");
-				} else {
-					EvadeChooserDialog ausweichenModificationDialog = new EvadeChooserDialog(getBaseActivity());
-					ausweichenModificationDialog.show();
-				}
+				EvadeChooserDialog ausweichenModificationDialog = new EvadeChooserDialog(getBaseActivity());
+				ausweichenModificationDialog.show();
 			}
 		});
 
@@ -702,6 +719,12 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 		if (value.getType() == AttributeType.Lebensenergie) {
 			ratio = getHero().getLeRatio();
+		} else if (value.getType() == AttributeType.Ausdauer) {
+			ratio = getHero().getAuRatio();
+		} else if (value.getType() == AttributeType.Karmaenergie) {
+			ratio = getHero().getKeRatio();
+		} else if (value.getType() == AttributeType.Astralenergie) {
+			ratio = getHero().getAeRatio();
 		}
 
 		if (ratio < 0.5)
@@ -763,12 +786,13 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 			itemLayout = layoutInflater.inflate(R.layout.item_listitem, fightItems, false);
 			itemLayout.setOnClickListener(this);
 
-			registerForContextMenu(itemLayout);
+			registerForIconContextMenu(itemLayout);
 
 			fightItems.addView(itemLayout);
 		}
 
 		itemLayout.setTag(equippedItem);
+
 		if (fightItemsOdd) {
 			itemLayout.setBackgroundResource(R.color.RowOdd);
 		}

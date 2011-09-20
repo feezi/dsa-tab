@@ -28,7 +28,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.BaseMainActivity;
 import com.dsatab.activity.ItemChooserActivity;
@@ -93,25 +92,43 @@ public class BodyFragment extends BaseFragment implements OnClickListener, OnLon
 
 		((TextView) getView().findViewById(R.id.body_total_rs)).setText(Util.toString(hero.getArmorRs()));
 		((TextView) getView().findViewById(R.id.body_total_be)).setText(Util.toString(hero.getArmorBe()));
-
-		hero.addHeroChangedListener(bodyLayout);
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.dsatab.fragment.BaseFragment#onDestroyView()
+	 * @see
+	 * com.dsatab.fragment.BaseFragment#onHeroUnloaded(com.dsatab.data.Hero)
 	 */
 	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
+	public void onHeroUnloaded(Hero hero) {
 
-		Hero hero = getHero();
-		if (hero != null)
-			hero.removeHeroChangedListener(bodyLayout);
 	}
 
-	public void onHeroUnloaded(Hero hero) {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.fragment.BaseFragment#onAttachListener(com.dsatab.data.Hero)
+	 */
+	@Override
+	protected void onAttachListener(Hero hero) {
+		super.onAttachListener(hero);
+
+		if (hero != null)
+			hero.addHeroChangedListener(bodyLayout);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.fragment.BaseFragment#onDetachListener(com.dsatab.data.Hero)
+	 */
+	@Override
+	protected void onDetachListener(Hero hero) {
+		super.onDetachListener(hero);
+
 		if (hero != null)
 			hero.removeHeroChangedListener(bodyLayout);
 	}
@@ -126,12 +143,8 @@ public class BodyFragment extends BaseFragment implements OnClickListener, OnLon
 		// armor
 		if (v.getTag() instanceof ArmorAttribute) {
 			ArmorAttribute value = (ArmorAttribute) v.getTag();
-			if (DSATabApplication.getInstance().isLiteVersion()) {
-
-				tease("<strong>Mal eben schnell einen Wert steigern?</strong> Mit der Vollversion von DsaTab können Eigenschaften, Talente, Zauber, Rüstungsschutz und noch vieles mehr einfach und bequem editiert werden. Getätigte Änderungen werden in der XML Datei nachgezogen und können somit auch wieder in die Helden-Software importiert werden, falls notwendig. ");
-			} else {
-				getBaseActivity().showEditPopup(value);
-			}
+			getBaseActivity().showEditPopup(value);
+			return true;
 		}
 		return false;
 	}
@@ -171,15 +184,12 @@ public class BodyFragment extends BaseFragment implements OnClickListener, OnLon
 		// armor
 		else if (v.getTag() instanceof ArmorAttribute) {
 			ArmorAttribute value = (ArmorAttribute) v.getTag();
-			if (DSATabApplication.getInstance().isLiteVersion()) {
 
-				tease("<strong>Was hab ich hier schnell nochmal an?</strong> Ein Klick genug und schon kannst du dir deine Rüstungsgegenstände an dieser Stelle ansehen. ");
-			} else {
-				Intent intent = new Intent(getActivity(), ItemChooserActivity.class);
-				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ARMOR_POSITION, value.getPosition());
-				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
-				startActivity(intent);
-			}
+			Intent intent = new Intent(getActivity(), ItemChooserActivity.class);
+			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ARMOR_POSITION, value.getPosition());
+			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
+			startActivity(intent);
+
 		}
 
 	}
@@ -211,6 +221,9 @@ public class BodyFragment extends BaseFragment implements OnClickListener, OnLon
 		ImageButton fightSet = (ImageButton) getView().findViewById(R.id.fight_set);
 		LevelListDrawable drawable = (LevelListDrawable) fightSet.getDrawable();
 		drawable.setLevel(getHero().getActiveSet());
+
+		((TextView) getView().findViewById(R.id.body_total_rs)).setText(Util.toString(getHero().getArmorRs()));
+		((TextView) getView().findViewById(R.id.body_total_be)).setText(Util.toString(getHero().getArmorBe()));
 	}
 
 }
