@@ -97,6 +97,7 @@ if not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/<
 <ul>
 <li>Waffen, Tab Icons von verschiedenen K&uuml;nstlern f&uuml;r <a href="http://www.wesnoth.org">www.wesnoth.org</a></li>
 <li>Wunden Icon von Everaldo Coelho <a href="http://www.everaldo.com/"> www.everaldo.com</a></li>
+<li>Würfelsounds aufgenommen von Mike Koenig (Ta-da, Shake and Dice) und Joe Lamb (Sad Trombone) <a href="http://soundbible.com/"> www.soundbible.com </a>
 </ul>
 
 Extern herunterladbarer Inhalt:
@@ -142,4 +143,7 @@ Extern herunterladbarer Inhalt:
 
 <string name="news_title">Informationen</string>
 
+<string name="tip_0_title">Tabs anpassen</string>
+<string name="tip_1_title">Varianten auswählen</string>
+<string name="tip_2_title">Zusätzliche Probenzuschläge</string>
 </resources>

@@ -127,6 +127,16 @@ public class LiturgieFragment extends BaseFragment implements OnItemClickListene
 		loadHeroLiturgien(hero);
 
 		fillLiturgieKenntnis(hero);
+
+		if (hero.getLiturgies().isEmpty()) {
+			findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
+			liturigeList.setVisibility(View.GONE);
+			talentView.setVisibility(View.GONE);
+		} else {
+			findViewById(android.R.id.empty).setVisibility(View.GONE);
+			liturigeList.setVisibility(View.VISIBLE);
+			talentView.setVisibility(View.VISIBLE);
+		}
 	}
 
 	/**

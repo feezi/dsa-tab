@@ -31,9 +31,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -90,40 +90,45 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 
 		charAttributesList = findViewById(R.id.gen_attributes);
 
-		tfExperience = (TextView) findViewById(R.id.gen_abp);
+		tfExperience = (TextView) findViewById(R.id.attr_abp);
 		tfExperience.setOnClickListener(getBaseActivity().getEditListener());
 		tfExperience.setOnLongClickListener(getBaseActivity().getEditListener());
 
-		tfTotalAe = (TextView) findViewById(R.id.gen_total_ae);
-		tfTotalKe = (TextView) findViewById(R.id.gen_total_ke);
-		tfTotalLp = (TextView) findViewById(R.id.gen_total_lp);
-		tfTotalAu = (TextView) findViewById(R.id.gen_total_au);
+		tfTotalAe = (TextView) findViewById(R.id.attr_total_ae);
+		tfTotalKe = (TextView) findViewById(R.id.attr_total_ke);
+		tfTotalLp = (TextView) findViewById(R.id.attr_total_lp);
+		tfTotalAu = (TextView) findViewById(R.id.attr_total_au);
 
-		tfGs = (TextView) findViewById(R.id.gen_gs);
-		tfWs = (TextView) findViewById(R.id.gen_ws);
+		tfGs = (TextView) findViewById(R.id.attr_gs);
+		tfWs = (TextView) findViewById(R.id.attr_ws);
 
 		tfSpecialFeatures = (TextView) findViewById(R.id.gen_specialfeatures);
 
 		portraitView = (ImageView) findViewById(R.id.gen_portrait);
 
-		registerForContextMenu(portraitView);
+		registerForIconContextMenu(portraitView);
 
 		super.onActivityCreated(savedInstanceState);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.fragment.BaseFragment#onCreateIconContextMenu(android.view
+	 * .Menu, android.view.View, android.view.ContextMenu.ContextMenuInfo)
+	 */
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-
+	public Object onCreateIconContextMenu(Menu menu, View v, ContextMenuInfo menuInfo) {
 		switch (v.getId()) {
 		case R.id.gen_specialfeatures:
-			MenuItem item = menu.add(0, CONTEXTMENU_COMMENTS_TOGGLE, 0, R.string.menu_show_hide_comments);
+			MenuItem item = menu.add(0, CONTEXTMENU_COMMENTS_TOGGLE, 0, R.string.menu_show_hide_comments).setIcon(
+					R.drawable.ic_menu_view);
 			item.setEnabled(getHero() != null);
 			break;
 
 		case R.id.gen_portrait:
 			if (getHero() != null) {
-				menu.setHeaderTitle(getHero().getName());
-
 				MenuInflater inflater = new MenuInflater(getActivity());
 				inflater.inflate(R.menu.portrait_popupmenu, menu);
 
@@ -134,12 +139,19 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 			break;
 		}
 
-		super.onCreateContextMenu(menu, v, menuInfo);
-
+		return super.onCreateIconContextMenu(menu, v, menuInfo);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.fragment.BaseFragment#onIconContextItemSelected(android.view
+	 * .MenuItem, java.lang.Object)
+	 */
 	@Override
-	public boolean onContextItemSelected(MenuItem item) {
+	public void onIconContextItemSelected(MenuItem item, Object info) {
+
 		switch (item.getItemId()) {
 		case CONTEXTMENU_COMMENTS_TOGGLE: {
 			boolean showComments = preferences.getBoolean(PREF_SHOW_FEATURE_COMMENTS, true);
@@ -150,30 +162,8 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 			edit.commit();
 
 			fillSpecialFeatures(getHero());
-			return true;
+			return;
 		}
-		case R.id.option_mark_favorite:
-			if (selectedTalent != null) {
-				selectedTalent.setFavorite(true);
-				// combatTalentAdapter.notifyDataSetChanged();
-				selectedTalent = null;
-			}
-			return true;
-		case R.id.option_mark_unused:
-			if (selectedTalent != null) {
-				selectedTalent.setUnused(true);
-				// combatTalentAdapter.notifyDataSetChanged();
-				selectedTalent = null;
-			}
-			return true;
-		case R.id.option_unmark:
-			if (selectedTalent != null) {
-				selectedTalent.setFavorite(false);
-				selectedTalent.setUnused(false);
-				// combatTalentAdapter.notifyDataSetChanged();
-				selectedTalent = null;
-			}
-			return true;
 		case R.id.option_take_photo:
 			Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 			startActivityForResult(camera, ACTION_PHOTO);
@@ -193,7 +183,7 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 		// break;
 		}
 
-		return super.onContextItemSelected(item);
+		super.onIconContextItemSelected(item, info);
 	}
 
 	/*
@@ -316,53 +306,53 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 
 			switch (attr.getType()) {
 			case Lebensenergie:
-				fillAttributeValue((TextView) findViewById(R.id.gen_lp), AttributeType.Lebensenergie);
+				fillAttributeValue((TextView) findViewById(R.id.attr_lp), AttributeType.Lebensenergie);
 				break;
 			case Lebensenergie_Total:
-				fillAttributeValue((TextView) findViewById(R.id.gen_lp), AttributeType.Lebensenergie);
+				fillAttributeValue((TextView) findViewById(R.id.attr_lp), AttributeType.Lebensenergie);
 				fillAttributeValue(tfTotalLp, AttributeType.Lebensenergie_Total);
 				break;
 			case Astralenergie:
-				fillAttributeValue((TextView) findViewById(R.id.gen_ae), AttributeType.Astralenergie);
+				fillAttributeValue((TextView) findViewById(R.id.attr_ae), AttributeType.Astralenergie);
 				break;
 			case Astralenergie_Total:
-				fillAttributeValue((TextView) findViewById(R.id.gen_ae), AttributeType.Astralenergie);
+				fillAttributeValue((TextView) findViewById(R.id.attr_ae), AttributeType.Astralenergie);
 				fillAttributeValue(tfTotalAe, AttributeType.Astralenergie_Total);
 				break;
 			case Ausdauer:
-				fillAttributeValue((TextView) findViewById(R.id.gen_au), AttributeType.Ausdauer);
+				fillAttributeValue((TextView) findViewById(R.id.attr_au), AttributeType.Ausdauer);
 				break;
 			case Ausdauer_Total:
-				fillAttributeValue((TextView) findViewById(R.id.gen_au), AttributeType.Ausdauer);
+				fillAttributeValue((TextView) findViewById(R.id.attr_au), AttributeType.Ausdauer);
 				fillAttributeValue(tfTotalAu, AttributeType.Ausdauer_Total);
 				break;
 			case Karmaenergie:
-				fillAttributeValue((TextView) findViewById(R.id.gen_ke), AttributeType.Karmaenergie);
+				fillAttributeValue((TextView) findViewById(R.id.attr_ke), AttributeType.Karmaenergie);
 				break;
 			case Karmaenergie_Total:
-				fillAttributeValue((TextView) findViewById(R.id.gen_ke), AttributeType.Karmaenergie);
+				fillAttributeValue((TextView) findViewById(R.id.attr_ke), AttributeType.Karmaenergie);
 				fillAttributeValue(tfTotalKe, AttributeType.Karmaenergie_Total);
 				break;
 			case Magieresistenz:
-				fillAttributeValue((TextView) findViewById(R.id.gen_mr), AttributeType.Magieresistenz);
+				fillAttributeValue((TextView) findViewById(R.id.attr_mr), AttributeType.Magieresistenz);
 				break;
 			case Sozialstatus:
-				fillAttributeValue((TextView) findViewById(R.id.gen_so), AttributeType.Sozialstatus);
+				fillAttributeValue((TextView) findViewById(R.id.attr_so), AttributeType.Sozialstatus);
 				break;
 			case at:
-				fillAttributeValue((TextView) findViewById(R.id.gen_at), AttributeType.at);
+				fillAttributeValue((TextView) findViewById(R.id.attr_at), AttributeType.at);
 				break;
 			case pa:
-				fillAttributeValue((TextView) findViewById(R.id.gen_pa), AttributeType.pa);
+				fillAttributeValue((TextView) findViewById(R.id.attr_pa), AttributeType.pa);
 				break;
 			case fk:
-				fillAttributeValue((TextView) findViewById(R.id.gen_fk), AttributeType.fk);
+				fillAttributeValue((TextView) findViewById(R.id.attr_fk), AttributeType.fk);
 				break;
 			case ini:
-				fillAttributeValue((TextView) findViewById(R.id.gen_ini), AttributeType.ini);
+				fillAttributeValue((TextView) findViewById(R.id.attr_ini), AttributeType.ini);
 				break;
 			case Behinderung:
-				fillAttributeValue((TextView) findViewById(R.id.gen_be), AttributeType.Behinderung);
+				fillAttributeValue((TextView) findViewById(R.id.attr_be), AttributeType.Behinderung);
 				tfGs.setText(Util.toString(getHero().getGs()));
 				break;
 			case Gewandtheit:
@@ -397,24 +387,24 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 		tfExperience.setTag(hero.getExperience());
 		tfValues.put(hero.getExperience(), new TextView[] { tfExperience });
 
-		fillAttributeValue((TextView) findViewById(R.id.gen_ae), AttributeType.Astralenergie);
-		fillAttributeValue((TextView) findViewById(R.id.gen_au), AttributeType.Ausdauer);
-		fillAttributeValue((TextView) findViewById(R.id.gen_ke), AttributeType.Karmaenergie);
-		fillAttributeValue((TextView) findViewById(R.id.gen_lp), AttributeType.Lebensenergie);
-		fillAttributeValue((TextView) findViewById(R.id.gen_mr), AttributeType.Magieresistenz);
-		fillAttributeValue((TextView) findViewById(R.id.gen_so), AttributeType.Sozialstatus);
+		fillAttributeValue((TextView) findViewById(R.id.attr_ae), AttributeType.Astralenergie);
+		fillAttributeValue((TextView) findViewById(R.id.attr_au), AttributeType.Ausdauer);
+		fillAttributeValue((TextView) findViewById(R.id.attr_ke), AttributeType.Karmaenergie);
+		fillAttributeValue((TextView) findViewById(R.id.attr_lp), AttributeType.Lebensenergie);
+		fillAttributeValue((TextView) findViewById(R.id.attr_mr), AttributeType.Magieresistenz);
+		fillAttributeValue((TextView) findViewById(R.id.attr_so), AttributeType.Sozialstatus);
 
-		fillAttributeValue((TextView) findViewById(R.id.gen_at), AttributeType.at);
-		fillAttributeValue((TextView) findViewById(R.id.gen_pa), AttributeType.pa);
-		fillAttributeValue((TextView) findViewById(R.id.gen_fk), AttributeType.fk);
-		fillAttributeValue((TextView) findViewById(R.id.gen_ini), AttributeType.ini);
-		fillAttributeValue((TextView) findViewById(R.id.gen_be), AttributeType.Behinderung);
+		fillAttributeValue((TextView) findViewById(R.id.attr_at), AttributeType.at);
+		fillAttributeValue((TextView) findViewById(R.id.attr_pa), AttributeType.pa);
+		fillAttributeValue((TextView) findViewById(R.id.attr_fk), AttributeType.fk);
+		fillAttributeValue((TextView) findViewById(R.id.attr_ini), AttributeType.ini);
+		fillAttributeValue((TextView) findViewById(R.id.attr_be), AttributeType.Behinderung);
 
-		fillAttributeLabel((TextView) findViewById(R.id.gen_at_label), AttributeType.at);
-		fillAttributeLabel((TextView) findViewById(R.id.gen_pa_label), AttributeType.pa);
-		fillAttributeLabel((TextView) findViewById(R.id.gen_fk_label), AttributeType.fk);
-		fillAttributeLabel((TextView) findViewById(R.id.gen_ini_label), AttributeType.ini);
-		fillAttributeLabel((TextView) findViewById(R.id.gen_be_label), AttributeType.Behinderung);
+		fillAttributeLabel((TextView) findViewById(R.id.attr_at_label), AttributeType.at);
+		fillAttributeLabel((TextView) findViewById(R.id.attr_pa_label), AttributeType.pa);
+		fillAttributeLabel((TextView) findViewById(R.id.attr_fk_label), AttributeType.fk);
+		fillAttributeLabel((TextView) findViewById(R.id.attr_ini_label), AttributeType.ini);
+		fillAttributeLabel((TextView) findViewById(R.id.attr_be_label), AttributeType.Behinderung);
 
 		fillAttributeValue(tfTotalLp, AttributeType.Lebensenergie_Total);
 		fillAttributeValue(tfTotalAu, AttributeType.Ausdauer_Total);
@@ -428,15 +418,13 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 
 		if (hero.getAttributeValue(AttributeType.Astralenergie) == null) {
 			findViewById(R.id.row_ae).setVisibility(View.GONE);
-
 		} else {
 			fillAttributeValue(tfTotalAe, AttributeType.Astralenergie_Total);
 			findViewById(R.id.row_ae).setVisibility(View.VISIBLE);
 		}
 
-		((TextView) findViewById(R.id.gen_st)).setText(Util.toString(hero.getLevel()));
-
-		tfGs.setText(Util.toString(hero.getGs()));
+		Util.setText((TextView) findViewById(R.id.attr_st), hero.getLevel(), 0, null);
+		Util.setText(tfGs, hero.getGs(), 0, null);
 
 		int[] ws = hero.getWundschwelle();
 		tfWs.setText(ws[0] + "/" + ws[1] + "/" + ws[2]);

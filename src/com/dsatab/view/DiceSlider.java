@@ -12,6 +12,8 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -87,16 +89,34 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 
 	private SharedPreferences preferences;
 
+	private SoundPool sounds;
+
+	private int soundNeutral;
+	private int soundWin;
+	private int soundFail;
+
 	public DiceSlider(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		effectFormat.setMaximumFractionDigits(1);
-		preferences = DSATabApplication.getPreferences();
+		init();
 	}
 
 	public DiceSlider(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		init();
+	}
+
+	/**
+	 * 
+	 */
+	private void init() {
 		effectFormat.setMaximumFractionDigits(1);
 		preferences = DSATabApplication.getPreferences();
+
+		sounds = new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
+		soundNeutral = sounds.load(getContext(), R.raw.dice, 1);
+		soundWin = sounds.load(getContext(), R.raw.dice_win, 1);
+		soundFail = sounds.load(getContext(), R.raw.dice_fail, 1);
+
 	}
 
 	public void onClick(View v) {
@@ -258,6 +278,11 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 	private void showEffect(boolean successOne, boolean failureTwenty, Double effect, Double probability,
 			Integer erschwernis) {
 
+		if (preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_SOUND_ROLL_DICE, true)
+				&& !preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_SOUND_RESULT_DICE, true)) {
+			sounds.play(soundNeutral, 1.0f, 1.0f, 0, 0, 1.0f);
+		}
+
 		if (effect != null) {
 			tfEffectValue.setVisibility(View.VISIBLE);
 			tfEffect.setVisibility(View.VISIBLE);
@@ -265,8 +290,6 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 			tfEffectValue.setText(effectFormat.format(effect));
 			if (erschwernis != null)
 				tfEffectValue.append(" (" + erschwernis + ")");
-
-			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
 			if (probability != null && preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_PROBABILITY, false)) {
 				tfEffectValue.append(" (" + probabilityFormat.format(probability) + ")");
@@ -282,7 +305,15 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 			if ((effect < 0 && !successOne) || failureTwenty) {
 				tfEffectValue.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed));
 
+				if (preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_SOUND_ROLL_DICE, true)
+						&& preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_SOUND_RESULT_DICE, true))
+					sounds.play(soundFail, 1.0f, 1.0f, 0, 0, 1.0f);
 			} else {
+
+				if (preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_SOUND_ROLL_DICE, true)
+						&& preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_SOUND_RESULT_DICE, true))
+					sounds.play(soundWin, 1.0f, 1.0f, 0, 0, 1.0f);
+
 				if (successOne)
 					tfEffectValue.setTextColor(DSATabApplication.getInstance().getResources()
 							.getColor(R.color.ValueGreen));
@@ -310,8 +341,6 @@ public class DiceSlider extends SlidingDrawer implements View.OnClickListener {
 			animateOpen();
 
 		Debug.verbose("Probe:" + probe);
-
-		clearDice();
 
 		Integer value1 = null;
 		Integer value2 = null;

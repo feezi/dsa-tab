@@ -1,8 +1,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
- 	<item android:id="@+id/option_pick_avatar"          
+ 	<item android:id="@+id/option_pick_avatar"
+ 	android:icon="@drawable/ic_menu_my_calendar"          
           android:title="Portrait auswählen" />
-	<item android:id="@+id/option_view_portrait"          
-          android:title="Portrait anzeigen" />                    
-    <item android:id="@+id/option_take_photo"          
+          
+	<item android:id="@+id/option_view_portrait"
+		  android:icon="@drawable/ic_menu_view"          
+          android:title="Portrait anzeigen" />
+                              
+    <item android:id="@+id/option_take_photo"  
+    android:icon="@drawable/ic_menu_camera"        
           android:title="Photo aufnehmen" />    
 </menu>

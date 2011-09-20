@@ -118,6 +118,14 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 	@Override
 	public void onHeroLoaded(Hero hero) {
 		loadHeroSpells(hero);
+
+		if (hero.getSpells().isEmpty()) {
+			findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
+			spellList.setVisibility(View.GONE);
+		} else {
+			findViewById(android.R.id.empty).setVisibility(View.GONE);
+			spellList.setVisibility(View.VISIBLE);
+		}
 	}
 
 	/*

@@ -83,8 +83,10 @@ public class LiturgieInfoDialog extends AlertDialog implements DialogInterface.O
 	}
 
 	private void set(int tfid, String v) {
-		if (popupcontent.findViewById(tfid) != null)
+		if (popupcontent.findViewById(tfid) != null) {
+
 			((TextView) popupcontent.findViewById(tfid)).setText(v);
+		}
 	}
 
 }

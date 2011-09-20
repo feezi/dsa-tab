@@ -142,4 +142,5 @@ public interface Xml {
 	public static final String KEY_DAUER = "dauer";
 	public static final String KEY_WIRKUNG = "wirkung";
 	public static final String TAB_CONFIG = "tabConfig";
+	public static final String KEY_BE_CALCULATION = "be_calc";
 }

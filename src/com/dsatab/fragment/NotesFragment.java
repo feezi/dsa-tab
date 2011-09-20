@@ -56,8 +56,6 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 
 	public static final int ACTION_EDIT = 1;
 
-	private static final String DIR_RECORDINGS = "recordings";
-
 	private static final int CONTEXTMENU_DELETEITEM = 1;
 	private static final int CONTEXTMENU_EDITITEM = 2;
 	private static final int CONTEXTMENU_SORT_NOTES = 3;
@@ -96,7 +94,7 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 	public void onActivityCreated(Bundle savedInstanceState) {
 		getActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-		recordingsDir = new File(DSATabApplication.getDsaTabPath(), DIR_RECORDINGS);
+		recordingsDir = new File(DSATabApplication.getDsaTabPath(), DSATabApplication.DIR_RECORDINGS);
 		if (!recordingsDir.exists())
 			recordingsDir.mkdirs();
 

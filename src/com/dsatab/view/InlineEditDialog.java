@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.RelativeLayout;
@@ -24,9 +25,10 @@ import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
 import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.view.NumberPicker;
+import com.gandulf.guilib.view.OnViewChangedListener;
 
 public class InlineEditDialog extends AlertDialog implements android.view.View.OnClickListener,
-		OnCheckedChangeListener, Dialog.OnDismissListener {
+		OnCheckedChangeListener, Dialog.OnDismissListener, OnViewChangedListener<NumberPicker> {
 
 	private Value value;
 
@@ -35,6 +37,7 @@ public class InlineEditDialog extends AlertDialog implements android.view.View.O
 	private SeekBar editSeek;
 	private Button editReset, editOk;
 	private ToggleButton combatStyleBtn;
+	private CheckBox beCalculation;
 
 	public InlineEditDialog(Context context, Value value) {
 		super(context);
@@ -56,21 +59,39 @@ public class InlineEditDialog extends AlertDialog implements android.view.View.O
 			editText.setRange(value.getMinimum(), value.getMaximum());
 			editText.setCurrent(currentValue);
 			editSeek.setProgress(currentValue - value.getMinimum());
-
+			editText.setEnabled(true);
+			editSeek.setEnabled(true);
+			editText.setOnViewChangedListener(this);
 			int visible = View.GONE;
 			if (value instanceof Attribute) {
 				Attribute attr = (Attribute) value;
 				if (attr.getType() == AttributeType.Behinderung) {
 					visible = View.VISIBLE;
 					combatStyleBtn.setChecked(attr.getHero().getCombatStyle() == CombatStyle.Offensive);
+					beCalculation.setChecked(attr.getHero().isBeCalculation());
+					editText.setEnabled(!beCalculation.isChecked());
+					editSeek.setEnabled(!beCalculation.isChecked());
 				}
 			}
 
 			combatStyleText.setVisibility(visible);
 			combatStyleBtn.setVisibility(visible);
+			beCalculation.setVisibility(visible);
 
 			editReset.setEnabled(value.getReferenceValue() != null);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.gandulf.guilib.view.OnViewChangedListener#onChanged(android.view.
+	 * View, int, int)
+	 */
+	@Override
+	public void onChanged(NumberPicker picker, int oldVal, int newVal) {
+		editSeek.setProgress(newVal - value.getMinimum());
 	}
 
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -83,6 +104,11 @@ public class InlineEditDialog extends AlertDialog implements android.view.View.O
 				else
 					attr.getHero().setCombatStyle(CombatStyle.Defensive);
 			}
+		} else if (buttonView == beCalculation) {
+
+			editText.setEnabled(!isChecked);
+			editSeek.setEnabled(!isChecked);
+
 		}
 
 	}
@@ -157,9 +183,25 @@ public class InlineEditDialog extends AlertDialog implements android.view.View.O
 			}
 		});
 
+		beCalculation = (CheckBox) popupcontent.findViewById(R.id.popup_edit_be_calculation);
+		beCalculation.setOnCheckedChangeListener(this);
+
 	}
 
 	public void onDismiss(DialogInterface dialog) {
+
+		if (value instanceof Attribute) {
+			Attribute attr = (Attribute) value;
+			if (attr.getType() == AttributeType.Behinderung) {
+				attr.getHero().setBeCalculation(beCalculation.isChecked());
+
+				// if we autocalculate the value to not overwrite it with
+				// current value of editText afterwards
+				if (beCalculation.isChecked()) {
+					return;
+				}
+			}
+		}
 
 		try {
 			editText.validate();
@@ -168,6 +210,7 @@ public class InlineEditDialog extends AlertDialog implements android.view.View.O
 		} catch (NumberFormatException e) {
 			Debug.error(e);
 		}
+
 	}
 
 }

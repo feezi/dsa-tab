@@ -32,17 +32,90 @@
                         android:entries="@array/screenOrientation"
                         android:entryValues="@array/screenOrientationValues"/>
 
-				<CheckBoxPreference
-                        android:title="Wahrscheinlichkeit anzeigen"
-                        android:defaultValue="false"
-                        android:summary="Die Wahrscheinlichkeit mit der eine Probe gelingt wird angezeigt"
-                        android:key="probeProbability" />
-				<CheckBoxPreference
-                        android:title="Wurfanimation anzeigen"
-                        android:defaultValue="true"
-                        android:summaryOff="Das Würfelergebnis wird sofort ohne Verzögerung angezeigt."
-                        android:summaryOn="Es wird bei jeden Wurf eine kurze Animation angezeigt"
-                        android:key="animRollDice" />
+				<PreferenceScreen android:key="diceSliderConfig"
+                		android:title="Würfelleiste konfigurieren"
+                		android:summary="Hier kannst du die Würfelleiste konfigurieren.">
+					<CheckBoxPreference
+	                        android:title="Wahrscheinlichkeit anzeigen"
+	                        android:defaultValue="false"
+	                        android:summary="Die Wahrscheinlichkeit mit der eine Probe gelingt wird angezeigt"
+	                        android:key="probeProbability" />
+					<CheckBoxPreference
+	                        android:title="Wurfanimation anzeigen"
+	                        android:defaultValue="true"
+	                        android:summaryOff="Das Würfelergebnis wird sofort ohne Verzögerung angezeigt."
+	                        android:summaryOn="Es wird bei jeden Wurf eine kurze Animation angezeigt"
+	                        android:key="animRollDice" />
+	                        
+	                        <CheckBoxPreference
+	                        android:title="Wurfelgeräusch abspielen"
+	                        android:defaultValue="true"
+	                        android:summaryOff="Es wird kein Geräusch abgespielt."
+	                        android:summaryOn="Jeder Probewurf wird musikalisch untermalt"
+	                        android:key="soundRollDice" />
+	                        
+	                        <CheckBoxPreference
+	                        android:title="Wurfelgeräusch abhängig vom Ergebnis"
+	                        android:defaultValue="true"
+	                        android:summaryOff="Es wird ein neutraler Würfelsound abgespielt."
+	                        android:summaryOn="Es wird je nach Ergebnis der Probe ein anderer Sound abgespielt."
+	                        android:key="soundResultDice"
+	                        android:dependency="soundRollDice" />
+	                        
+				</PreferenceScreen>
+				<PreferenceScreen android:key="headerConfig"
+                		android:title="Kopfzeile konfigurieren"
+                		android:summary="Hier kannst du einstellen was alles in der Kopfzeile angezeigt werden soll.">
+                
+                <CheckBoxPreference
+                        android:title="Name anzeigen"
+                        android:defaultValue="true"                        
+                        android:summaryOn="Zeige den Namen des aktuellen Helden an"
+                        android:summaryOff="Zeige den Namen des aktuellen Helden nicht an"
+                        android:key="header_name" />
+                        
+                        <CheckBoxPreference
+                        android:title="Lebensenergie anzeigen"
+                        android:defaultValue="true"                                                
+                        android:key="header_le" />
+                        
+                        <CheckBoxPreference
+                        android:title="Ausdauer anzeigen"
+                        android:defaultValue="true"                                                
+                        android:key="header_au" />
+                        
+                        <CheckBoxPreference
+                        android:title="Astralenergie anzeigen"
+                        android:defaultValue="true"                                                
+                        android:key="header_ae" />
+                        
+                        <CheckBoxPreference
+                        android:title="Karmaenergie anzeigen"
+                        android:defaultValue="true"                                                
+                        android:key="header_ke" />
+                        
+                        <CheckBoxPreference
+                        android:title="Behinderung anzeigen"
+                        android:defaultValue="true"                                                
+                        android:key="header_be" />
+                        
+                        <CheckBoxPreference
+                        android:title="Magieresistenz anzeigen"
+                        android:defaultValue="true"                                                
+                        android:key="header_mr" />
+                        
+                        <CheckBoxPreference
+                        android:title="Geschwindigkeit anzeigen"
+                        android:defaultValue="true"                                                
+                        android:key="header_gs" />
+                        
+                        <CheckBoxPreference
+                        android:title="Wundschwellen anzeigen"
+                        android:defaultValue="true"                                                
+                        android:key="header_ws" />
+                        
+                </PreferenceScreen>
+
                                                                                         
         </PreferenceCategory>
         
@@ -82,7 +155,7 @@
                 android:summary="Ladet zusätzliche Charakter Portraits, etc. aus dem Internet herunter.">
                 <Preference
                 android:title="Alles herunterladen"
-                android:summary="Portraits, Gegenstände (19 MB)"
+                android:summary="Portraits, Gegenstände (ca. 19 MB)"
                 android:key="downloadAll" />
                 <!--   Preference
                 android:title="Portraits herunterladen"
@@ -98,7 +171,7 @@
                 android:key="downloadMaps" / -->
                 <Preference
                 android:title="Gegenstände herunterladen"
-                android:summary="Bilder aus 'Lanze, Helm und Federvieh' (18 MB)"                
+                android:summary="Bilder aus 'Lanze, Helm und Federvieh' (ca. 18 MB)"                
                 android:key="downloadItems" />
         </PreferenceScreen>
         
@@ -110,15 +183,20 @@
                         android:key="usage_stats" />
                         
         <CheckBoxPreference
-                        android:title="Vollversion verwenden"
-                        android:defaultValue="false"
-                        android:summary="Die lästigen Popups deaktivieren und zur Vollversion umsteigen"
-                        android:summaryOn="Popups sind deaktiviert und du verwendest die Vollversion"
-                        android:summaryOff="Du verwendest die Lite-Version mit Popups und eingeschränkten Funktionen"
+                        android:title="Spendenpopups deaktivieren"
+                        android:defaultValue="false"                        
+                        android:summaryOn="Vielen dank für die Spende, ab jetzt kannst du die App mit guten Gewissen verwenden ;-)"
+                        android:summaryOff="Du hast noch keine Spende abgegeben, dann hol das doch gleich mal nach :-)"
                         android:key="fullVersion" />
+                        
 
 </PreferenceCategory>
 <PreferenceCategory android:title="Info">                        
+		<Preference
+                android:title="Spenden"
+                android:summary="Hier gelangst du direkt zur Paypal Spendenseite"                
+                android:key="donate" />
+                
         <Preference
                 android:title="Credits, Copyright"
                 android:summary="Hinweise zu verwendeten Inhalten, Copyright Informationen"                

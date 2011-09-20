@@ -1,0 +1,15 @@
+<div>
+<h2>Version 2.3</h2>
+
+<h4>Features</h4>
+<ul>
+<li>Kopfzeile kann in den Einstellungen konfiguriert werden.</li>
+<li>Schummelschutz ;-) Beim Würfeln einer Probe kann nun ein Geräusch abgespielt werden.</li>
+<li>Die meisten Kontextmenüs haben nun Icons</li>
+</ul>
+<h4>Bug Fixes</h4>
+<ul>
+<li>Absturz falls bei einer Liturgie unter "Probe" keine Zahl eingegeben wurde.</li>
+</ul>
+
+</div>

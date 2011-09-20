@@ -49,6 +49,10 @@ public class Attribute implements Probe, Value {
 			erschwernis = 0;
 	}
 
+	public Element getElement() {
+		return element;
+	}
+
 	public AttributeType getType() {
 		return type;
 	}
@@ -310,6 +314,7 @@ public class Attribute implements Probe, Value {
 		case Gewandtheit:
 		case Konstitution:
 		case Körperkraft:
+		case Sozialstatus:
 			max = 25;
 			break;
 		case Lebensenergie_Total:

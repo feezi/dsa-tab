@@ -18,12 +18,19 @@ package com.dsatab.fragment;
 
 import java.util.List;
 
+import yuku.androidsdk.com.android.internal.view.menu.MenuBuilder;
+import yuku.iconcontextmenu.IconContextMenu;
+import yuku.iconcontextmenu.IconContextMenu.IconContextItemSelectedListener;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -45,7 +52,7 @@ import com.gandulf.guilib.util.Debug;
  * @author Ganymede
  * 
  */
-public abstract class BaseFragment extends Fragment implements HeroChangedListener {
+public abstract class BaseFragment extends Fragment implements HeroChangedListener, IconContextItemSelectedListener {
 
 	protected SharedPreferences preferences;
 
@@ -118,7 +125,7 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		Debug.verbose(getClass().getName() + " dettached");
+		Debug.verbose(getClass().getName() + " detached");
 
 		if (getActivity() instanceof BaseMainActivity) {
 			((BaseMainActivity) getActivity()).removeFragment(this);
@@ -182,23 +189,23 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 
 	protected void fillAttributesList(View view) {
 
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_mu), AttributeType.Mut);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_kl), AttributeType.Klugheit);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_in), AttributeType.Intuition);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_ch), AttributeType.Charisma);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_ff), AttributeType.Fingerfertigkeit);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_ge), AttributeType.Gewandtheit);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_ko), AttributeType.Konstitution);
-		fillAttributeValue((TextView) view.findViewById(R.id.talent_kk), AttributeType.Körperkraft);
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_mu), AttributeType.Mut);
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_kl), AttributeType.Klugheit);
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_in), AttributeType.Intuition);
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_ch), AttributeType.Charisma);
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_ff), AttributeType.Fingerfertigkeit);
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_ge), AttributeType.Gewandtheit);
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_ko), AttributeType.Konstitution);
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_kk), AttributeType.Körperkraft);
 
-		fillAttributeLabel((TextView) view.findViewById(R.id.talent_mu_label), AttributeType.Mut);
-		fillAttributeLabel((TextView) view.findViewById(R.id.talent_kl_label), AttributeType.Klugheit);
-		fillAttributeLabel((TextView) view.findViewById(R.id.talent_in_label), AttributeType.Intuition);
-		fillAttributeLabel((TextView) view.findViewById(R.id.talent_ch_label), AttributeType.Charisma);
-		fillAttributeLabel((TextView) view.findViewById(R.id.talent_ff_label), AttributeType.Fingerfertigkeit);
-		fillAttributeLabel((TextView) view.findViewById(R.id.talent_ge_label), AttributeType.Gewandtheit);
-		fillAttributeLabel((TextView) view.findViewById(R.id.talent_ko_label), AttributeType.Konstitution);
-		fillAttributeLabel((TextView) view.findViewById(R.id.talent_kk_label), AttributeType.Körperkraft);
+		fillAttributeLabel((TextView) view.findViewById(R.id.attr_mu_label), AttributeType.Mut);
+		fillAttributeLabel((TextView) view.findViewById(R.id.attr_kl_label), AttributeType.Klugheit);
+		fillAttributeLabel((TextView) view.findViewById(R.id.attr_in_label), AttributeType.Intuition);
+		fillAttributeLabel((TextView) view.findViewById(R.id.attr_ch_label), AttributeType.Charisma);
+		fillAttributeLabel((TextView) view.findViewById(R.id.attr_ff_label), AttributeType.Fingerfertigkeit);
+		fillAttributeLabel((TextView) view.findViewById(R.id.attr_ge_label), AttributeType.Gewandtheit);
+		fillAttributeLabel((TextView) view.findViewById(R.id.attr_ko_label), AttributeType.Konstitution);
+		fillAttributeLabel((TextView) view.findViewById(R.id.attr_kk_label), AttributeType.Körperkraft);
 
 	}
 
@@ -212,7 +219,6 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 			} else if (type.probable()) {
 				tv.setOnClickListener(getBaseActivity().getProbeListener());
 			}
-			tv.setOnClickListener(getBaseActivity().getProbeListener());
 			tv.setOnLongClickListener(getBaseActivity().getEditListener());
 		}
 		if (getHero() != null) {
@@ -223,36 +229,36 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 	protected void fillAttribute(View view, Attribute attr) {
 		switch (attr.getType()) {
 		case Mut:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_mu), AttributeType.Mut);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_mu_label), AttributeType.Mut);
+			fillAttributeValue((TextView) view.findViewById(R.id.attr_mu), AttributeType.Mut);
+			fillAttributeLabel((TextView) view.findViewById(R.id.attr_mu_label), AttributeType.Mut);
 			break;
 		case Klugheit:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_kl), AttributeType.Klugheit);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_kl_label), AttributeType.Klugheit);
+			fillAttributeValue((TextView) view.findViewById(R.id.attr_kl), AttributeType.Klugheit);
+			fillAttributeLabel((TextView) view.findViewById(R.id.attr_kl_label), AttributeType.Klugheit);
 			break;
 		case Intuition:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_in), AttributeType.Intuition);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_in_label), AttributeType.Intuition);
+			fillAttributeValue((TextView) view.findViewById(R.id.attr_in), AttributeType.Intuition);
+			fillAttributeLabel((TextView) view.findViewById(R.id.attr_in_label), AttributeType.Intuition);
 			break;
 		case Charisma:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_ch), AttributeType.Charisma);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_ch_label), AttributeType.Charisma);
+			fillAttributeValue((TextView) view.findViewById(R.id.attr_ch), AttributeType.Charisma);
+			fillAttributeLabel((TextView) view.findViewById(R.id.attr_ch_label), AttributeType.Charisma);
 			break;
 		case Fingerfertigkeit:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_ff), AttributeType.Fingerfertigkeit);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_ff_label), AttributeType.Fingerfertigkeit);
+			fillAttributeValue((TextView) view.findViewById(R.id.attr_ff), AttributeType.Fingerfertigkeit);
+			fillAttributeLabel((TextView) view.findViewById(R.id.attr_ff_label), AttributeType.Fingerfertigkeit);
 			break;
 		case Gewandtheit:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_ge), AttributeType.Gewandtheit);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_ge_label), AttributeType.Gewandtheit);
+			fillAttributeValue((TextView) view.findViewById(R.id.attr_ge), AttributeType.Gewandtheit);
+			fillAttributeLabel((TextView) view.findViewById(R.id.attr_ge_label), AttributeType.Gewandtheit);
 			break;
 		case Konstitution:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_ko), AttributeType.Konstitution);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_ko_label), AttributeType.Konstitution);
+			fillAttributeValue((TextView) view.findViewById(R.id.attr_ko), AttributeType.Konstitution);
+			fillAttributeLabel((TextView) view.findViewById(R.id.attr_ko_label), AttributeType.Konstitution);
 			break;
 		case Körperkraft:
-			fillAttributeValue((TextView) view.findViewById(R.id.talent_kk), AttributeType.Körperkraft);
-			fillAttributeLabel((TextView) view.findViewById(R.id.talent_kk_label), AttributeType.Körperkraft);
+			fillAttributeValue((TextView) view.findViewById(R.id.attr_kk), AttributeType.Körperkraft);
+			fillAttributeLabel((TextView) view.findViewById(R.id.attr_kk_label), AttributeType.Körperkraft);
 			break;
 		}
 	}
@@ -284,10 +290,6 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 					tv.setOnLongClickListener(getBaseActivity().getEditListener());
 			}
 		}
-	}
-
-	protected void tease(String msg) {
-		getBaseActivity().tease(msg);
 	}
 
 	protected View findViewById(int id) {
@@ -360,4 +362,39 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 
 	}
 
+	private OnLongClickListener contextMenuListener = new OnLongClickListener() {
+
+		@Override
+		public boolean onLongClick(View v) {
+			Menu menu = new MenuBuilder(getActivity());
+			Object info = onCreateIconContextMenu(menu, v, null);
+
+			if (menu != null && menu.hasVisibleItems()) {
+				IconContextMenu cm = new IconContextMenu(getActivity(), menu);
+				cm.setInfo(info);
+				cm.setOnIconContextItemSelectedListener(BaseFragment.this);
+
+				onPrepareIconContextMenu(cm, v);
+				cm.show();
+				return true;
+			}
+
+			return false;
+		}
+	};
+
+	public void registerForIconContextMenu(View v) {
+		v.setOnLongClickListener(contextMenuListener);
+	}
+
+	public Object onCreateIconContextMenu(Menu menu, View v, ContextMenuInfo menuInfo) {
+		return null;
+	}
+
+	public void onPrepareIconContextMenu(IconContextMenu menu, View v) {
+	}
+
+	public void onIconContextItemSelected(MenuItem item, Object info) {
+
+	}
 }

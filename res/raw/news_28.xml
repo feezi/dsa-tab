@@ -2,8 +2,10 @@
 <h2>Version 2.1.3</h2>
 
 <h4>Features</h4>
+<ul>
 <li>Einstellungen aufgeräumt. Ansichtseinstellungen sind jetzt bei den einzelnen Tabs direkt im Menü konfigurierbar.</li>
 <li>Im Gegenstände-hinzufügen Dialog kann nun gesucht werden.</li>
+</ul>
 
 <h4>Bug Fixes</h4>
 <ul>

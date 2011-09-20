@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-	<ListView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/spell_list" android:layout_height="fill_parent" style="@style/BorderPanel"
-		android:layout_width="0dp" android:layout_weight="1" android:fadingEdgeLength="0dip"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="0dp" android:layout_weight="1" android:layout_height="fill_parent">
+
+		<ListView  android:id="@+id/spell_list" android:layout_height="fill_parent" style="@style/BorderPanel"
+		android:fadingEdgeLength="0dip"
 		android:cacheColorHint="#00000000" android:childDivider="#00000000"
-		android:choiceMode="singleChoice" android:dividerHeight="0dip"></ListView>
+		android:choiceMode="singleChoice" android:dividerHeight="0dip" android:layout_width="fill_parent"></ListView>
+		
+		<TextView android:visibility="gone" android:text="Keine Zaubersprüche gefunden. Um diesen Tab zu entfernen öffne sein Kontextmenü (langer Tap) und wähle 'Tab entfernen'." android:id="@+android:id/empty" android:layout_height="fill_parent" android:gravity="center" style="@style/BorderPanel" android:layout_width="fill_parent"></TextView>
+</FrameLayout>

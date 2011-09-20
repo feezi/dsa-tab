@@ -123,6 +123,17 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see
 	 * android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater,
 	 * android.view.ViewGroup, android.os.Bundle)
