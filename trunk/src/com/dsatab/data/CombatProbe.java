@@ -3,7 +3,7 @@ package com.dsatab.data;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.items.EquippedItem;
 
-public class CombatProbe implements Probe {
+public class CombatProbe extends BaseProbe {
 
 	private EquippedItem equippedItem = null;
 
@@ -12,8 +12,6 @@ public class CombatProbe implements Probe {
 	private Probe probe = null;
 
 	private boolean attack;
-
-	private Integer erschwernis;
 
 	private Hero hero = null;
 
@@ -24,9 +22,12 @@ public class CombatProbe implements Probe {
 		this.equippedItem = item;
 
 		if (combatTalent instanceof CombatShieldTalent && equippedItem.getSecondaryItem() != null) {
-
 			// shields and paradeweapons use the BE from their main weapon
 			type = equippedItem.getSecondaryItem().getTalent().getCombatTalentType();
+
+			if (type != null) {
+				probeInfo.applyBePattern(type.getBe());
+			}
 		}
 	}
 
@@ -40,23 +41,15 @@ public class CombatProbe implements Probe {
 				probe = combatTalent.getAttack();
 			else
 				probe = combatTalent.getDefense();
+
+			this.probeInfo = probe.getProbeInfo().clone();
 		}
-	}
 
-	public Integer getErschwernis() {
-		return erschwernis;
-	}
-
-	public void setErschwernis(Integer erschwernis) {
-		this.erschwernis = erschwernis;
-	}
-
-	@Override
-	public String getBe() {
-		if (type != null)
-			return type.getBe();
-		else
-			return probe.getBe();
+		// distance talents actually have probe values (MU/FF/KK) but they are
+		// not used in case of a attack
+		if (probe instanceof CombatDistanceTalent) {
+			this.probeInfo.setAttributeTypes(null);
+		}
 	}
 
 	@Override
@@ -65,16 +58,6 @@ public class CombatProbe implements Probe {
 			return probe.getName();
 		else
 			return null;
-	}
-
-	@Override
-	public String getProbe() {
-		// distance talents actually have probe values (MU/FF/KK) but they are
-		// not used in case of a attack
-		if (probe instanceof CombatDistanceTalent)
-			return null;
-		else
-			return probe.getProbe();
 	}
 
 	@Override

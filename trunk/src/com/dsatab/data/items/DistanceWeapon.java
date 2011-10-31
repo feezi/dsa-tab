@@ -36,6 +36,26 @@ public class DistanceWeapon extends ItemSpecification {
 		return distances;
 	}
 
+	public int getMaxDistance() {
+		int count = getDistanceCount();
+
+		if (count >= 0)
+			return Util.parseInt(getDistance(count - 1));
+		else
+			return 0;
+
+	}
+
+	public int getDistanceCount() {
+		if (distance == null) {
+			distance = Util.splitDistanceString(distances);
+		}
+		if (distance != null)
+			return distance.length;
+		else
+			return 0;
+	}
+
 	public String getDistance(int index) {
 
 		if (distance == null) {

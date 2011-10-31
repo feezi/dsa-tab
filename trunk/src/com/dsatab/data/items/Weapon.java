@@ -222,28 +222,45 @@ public class Weapon extends ItemSpecification {
 		}
 	}
 
+	public int getKKModifier(int kk) {
+		kk = kk - getTpKKMin();
+		int kkModifier = 0;
+		if (kk > 0)
+			kkModifier = (int) Math.floor((float) kk / getTpKKStep());
+		else
+			kkModifier = (int) Math.ceil((float) kk / getTpKKStep());
+
+		return kkModifier;
+	}
+
 	public CharSequence getInfo(int kk) {
 
 		StyleableSpannableStringBuilder info = new StyleableSpannableStringBuilder();
 
 		String tp = getTp();
 
-		kk = kk - getTpKKMin();
-		int tpPlus = 0;
-		if (kk > 0) {
-			tpPlus = kk / getTpKKStep();
-		}
+		int tpModifier = getKKModifier(kk);
 
-		if (tpPlus > 0) {
+		if (tpModifier != 0) {
 			Dice dice = Dice.parseDice(tp);
 			if (dice != null) {
-				dice.constant += tpPlus;
-				info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen),
-						dice.toString());
+				dice.constant += tpModifier;
+				if (tpModifier > 0) {
+					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen),
+							dice.toString());
+				} else {
+					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed),
+							dice.toString());
+				}
 			} else {
 				info.append(tp);
-				info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen), "+"
-						+ tpPlus);
+				if (tpModifier > 0) {
+					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen),
+							Util.toProbe(tpModifier));
+				} else {
+					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed),
+							Util.toProbe(tpModifier));
+				}
 			}
 		} else {
 			info.append(tp);

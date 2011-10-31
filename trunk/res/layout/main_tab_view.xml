@@ -6,10 +6,16 @@
 	<include layout="@layout/hero_tabs" android:layout_alignParentBottom="true" android:gravity="bottom|left"
 			android:layout_width="fill_parent" android:id="@+id/inc_tabs" android:layout_height="@dimen/tab_size"></include>
 
-	<fragment android:name="com.dsatab.fragment.AttributeListFragment" android:id="@+id/inc_attributes" android:layout_alignParentTop="true" android:layout_height="wrap_content" android:layout_width="fill_parent" class="com.dsatab.fragment.AttributeListFragment">
+	<fragment android:name="com.dsatab.fragment.AttributeListFragment" android:tag="attributeListFragment" android:id="@+id/inc_attributes" android:layout_alignParentTop="true" android:layout_height="wrap_content" android:layout_width="fill_parent" class="com.dsatab.fragment.AttributeListFragment">
 	    <!-- Preview: layout=@layout/attributes_list -->
 	</fragment>
-							
-	<com.dsatab.view.FlingableLinearLayout android:id="@+id/inc_stub" android:layout_height="fill_parent" android:layout_width="fill_parent" android:layout_above="@+id/inc_tabs" android:layout_below="@+id/inc_attributes"/>
+	
+ <com.dsatab.view.MyViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@+id/inc_tabs" android:layout_below="@+id/inc_attributes"
+        android:layout_weight="1" />
+        	
 
 </RelativeLayout>

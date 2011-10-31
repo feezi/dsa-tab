@@ -19,12 +19,20 @@ package com.dsatab.activity;
 import yuku.androidsdk.com.android.internal.view.menu.MenuBuilder;
 import yuku.iconcontextmenu.IconContextMenu;
 import yuku.iconcontextmenu.IconContextMenu.IconContextItemSelectedListener;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnLongClickListener;
+import android.view.WindowManager;
+
+import com.dsatab.DSATabApplication;
+import com.dsatab.common.Util;
 
 /**
  * @author Ganymede
@@ -53,11 +61,87 @@ public class BaseFragmentActivity extends FragmentActivity implements IconContex
 		}
 	};
 
-	/**
+	/*
+	 * (non-Javadoc)
 	 * 
+	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
 	 */
-	public BaseFragmentActivity() {
+	@Override
+	protected void onCreate(Bundle arg0) {
+		super.onCreate(arg0);
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.support.v4.app.FragmentActivity#onPostCreate(android.os.Bundle)
+	 */
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+		SharedPreferences preferences = DSATabApplication.getPreferences();
+		updateFullscreenStatus(preferences.getBoolean(DsaPreferenceActivityHC.KEY_FULLSCREEN, true));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.FragmentActivity#onDestroy()
+	 */
+	@Override
+	protected void onDestroy() {
+		Util.unbindDrawables(getWindow().getDecorView());
+		super.onDestroy();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.FragmentActivity#onActivityResult(int, int,
+	 * android.content.Intent)
+	 */
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == MainActivity.ACTION_PREFERENCES) {
+
+			SharedPreferences preferences = DSATabApplication.getPreferences();
+
+			String orientation = preferences.getString(DsaPreferenceActivityHC.KEY_SCREEN_ORIENTATION,
+					DsaPreferenceActivityHC.DEFAULT_SCREEN_ORIENTATION);
+
+			if (DsaPreferenceActivityHC.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)) {
+				if (getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+					// You need to check if your desired orientation isn't
+					// already set because setting orientation restarts your
+					// Activity which takes long
+					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+				}
+			} else if (DsaPreferenceActivityHC.SCREEN_ORIENTATION_PORTRAIT.equals(orientation)) {
+				if (getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+				}
+			} else if (DsaPreferenceActivityHC.SCREEN_ORIENTATION_AUTO.equals(orientation)) {
+				if (getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_SENSOR) {
+					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+				}
+			}
+
+			updateFullscreenStatus(preferences.getBoolean(DsaPreferenceActivityHC.KEY_FULLSCREEN, true));
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	protected void updateFullscreenStatus(boolean bUseFullscreen) {
+		if (bUseFullscreen) {
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+		} else {
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		}
+
+		getWindow().getDecorView().requestLayout();
 	}
 
 	public void onPrepareIconContextMenu(IconContextMenu cm, View v) {

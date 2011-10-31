@@ -3,7 +3,7 @@ package com.dsatab.common;
 import android.content.SharedPreferences;
 
 import com.dsatab.DSATabApplication;
-import com.dsatab.activity.DsaPreferenceActivity;
+import com.dsatab.activity.DsaPreferenceActivityHC;
 
 public class DsaMath {
 
@@ -45,7 +45,7 @@ public class DsaMath {
 		double result;
 		SharedPreferences preferences = DSATabApplication.getPreferences();
 
-		if (preferences.getBoolean(DsaPreferenceActivity.KEY_HOUSE_RULES, false) == false) {
+		if (preferences.getBoolean(DsaPreferenceActivityHC.KEY_HOUSE_RULES, false) == false) {
 			result = Math.min(1.0, (e1 + taw) / 20.0);
 
 		} else {
@@ -68,6 +68,33 @@ public class DsaMath {
 			result = 0.05;
 
 		return result;
+	}
+
+	public static Integer min(Integer... values) {
+		Integer min = null;
+
+		for (Integer i : values) {
+			if (i != null) {
+				if (min == null)
+					min = i;
+				else
+					min = Math.min(min, i);
+			}
+		}
+
+		return min;
+
+	}
+
+	public static int sum(Integer... values) {
+		int sum = 0;
+
+		for (Integer i : values) {
+			if (i != null)
+				sum += i;
+		}
+
+		return sum;
 	}
 
 	public static double testTalent(int e1, int e2, int e3, int taw) {

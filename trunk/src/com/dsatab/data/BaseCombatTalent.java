@@ -49,6 +49,4 @@ public abstract class BaseCombatTalent extends Talent implements CombatTalent {
 		this.combatElement = combatElement;
 	}
 
-	public abstract String getBe();
-
 }

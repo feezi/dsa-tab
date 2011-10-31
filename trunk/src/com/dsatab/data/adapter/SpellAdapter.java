@@ -19,17 +19,20 @@ package com.dsatab.data.adapter;
 import java.util.List;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Spell;
-import com.dsatab.view.FilterSettings;
+import com.dsatab.view.ListFilterSettings;
 import com.gandulf.guilib.util.Debug;
 
 /**
@@ -42,9 +45,13 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 
 	private FilterableListFilter<Spell> filter;
 
-	private FilterSettings filterSettings;
+	private ListFilterSettings filterSettings;
 
 	private Hero hero;
+
+	private Bitmap indicatorStar, indicatorHouse;
+
+	private LayoutInflater inflater;
 
 	/**
 	 * @param context
@@ -57,24 +64,24 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 
 		this.hero = hero;
 
-		this.filterSettings = new FilterSettings(showFavorite, showNormal, showUnused);
+		this.filterSettings = new ListFilterSettings(showFavorite, showNormal, showUnused);
 		if (!filterSettings.isAllVisible())
-			filter(filterSettings, null);
+			filter(filterSettings);
+
+		indicatorStar = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_star);
+		indicatorHouse = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_house);
+
+		inflater = LayoutInflater.from(getContext());
+
 	}
 
-	public void filter(FilterSettings settings, String constraint) {
-		getFilter().setSettings(settings);
-		filter.filter(constraint);
-	}
-
-	public void filter(boolean showFavorite, boolean showNormal, boolean showUnused) {
-
-		boolean hasChanged = !filterSettings.equals(showFavorite, showNormal, showUnused);
-
-		filterSettings.set(showFavorite, showNormal, showUnused);
+	public void filter(ListFilterSettings settings) {
+		boolean hasChanged = !filterSettings.equals(settings);
 
 		if (hasChanged) {
-			filter(filterSettings, null);
+			filterSettings.set(settings);
+			getFilter().setSettings(filterSettings);
+			filter.filter((String) null);
 		}
 	}
 
@@ -108,42 +115,61 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
-		View listItem = null;
-
+		View listItem;
+		ViewHolder holder;
 		if (convertView == null) {
-			listItem = LayoutInflater.from(getContext()).inflate(R.layout.talent_list_item, null, false);
+			listItem = inflater.inflate(R.layout.talent_list_item, parent, false);
+
+			holder = new ViewHolder();
+			holder.text1 = (TextView) listItem.findViewById(R.id.talent_list_item_text1);
+			// be
+			holder.text2 = (TextView) listItem.findViewById(R.id.talent_list_item_text2);
+			// probe
+			holder.text3 = (TextView) listItem.findViewById(R.id.talent_list_item_text3);
+			// value / at
+			holder.text4 = (TextView) listItem.findViewById(R.id.talent_list_item_text4);
+			// pa
+			holder.text5 = (TextView) listItem.findViewById(R.id.talent_list_item_text5);
+			holder.indicator = (ImageView) listItem.findViewById(R.id.talent_list_item_indicator);
+			listItem.setTag(holder);
 		} else {
 			listItem = convertView;
+			holder = (ViewHolder) convertView.getTag();
 		}
-
 		// name
-		TextView text1 = (TextView) listItem.findViewById(R.id.talent_list_item_text1);
-		// be
-		TextView text2 = (TextView) listItem.findViewById(R.id.talent_list_item_text2);
-		// probe
-		TextView text3 = (TextView) listItem.findViewById(R.id.talent_list_item_text3);
-		// value / at
-		TextView text4 = (TextView) listItem.findViewById(R.id.talent_list_item_text4);
-		// pa
-		TextView text5 = (TextView) listItem.findViewById(R.id.talent_list_item_text5);
 
 		Spell spell = getItem(position);
 
-		text1.setText(spell.getName());
-		Util.setVisibility(text2, false, text1);
-		text3.setText(spell.getProbe());
+		holder.text1.setText(spell.getName());
+
+		Util.setVisibility(holder.text2, false, holder.text1);
+		holder.text3.setText(spell.getProbeInfo().getAttributesString());
 
 		if (spell.getValue() != null) {
-			int modifier = hero.getModificator(spell);
-			Util.setText(text4, spell.getValue(), modifier, null);
+			int modifier = hero.getModifier(spell);
+			Util.setText(holder.text4, spell.getValue(), modifier, null);
 		} else {
 			Debug.warning(spell.getName() + " has no value");
 		}
-		Util.setVisibility(text5, false, text1);
+		Util.setVisibility(holder.text5, false, holder.text1);
 
+		if (holder.indicator != null && spell.isHouseSpell()) {
+			holder.indicator.setVisibility(View.VISIBLE);
+			holder.indicator.setImageBitmap(indicatorHouse);
+		}
+		if (holder.indicator != null && spell.isBegabung()) {
+			holder.indicator.setVisibility(View.VISIBLE);
+			holder.indicator.setImageBitmap(indicatorStar);
+		}
 		Util.applyRowStyle(spell, listItem, position);
 
 		return listItem;
+
+	}
+
+	private static class ViewHolder {
+		TextView text1, text2, text3, text4, text5;
+		ImageView indicator;
 	}
 
 }

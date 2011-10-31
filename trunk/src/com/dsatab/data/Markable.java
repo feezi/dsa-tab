@@ -31,4 +31,5 @@ public interface Markable {
 	public void setFavorite(boolean value);
 
 	public void setUnused(boolean value);
+
 }

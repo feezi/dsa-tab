@@ -27,7 +27,6 @@ import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.CheckBox;
 
@@ -42,7 +41,7 @@ public class TipOfTheDayDialog extends AlertDialog implements android.view.View.
 
 	private WebView webView;
 
-	private static final int TIP_COUNT = 3;
+	private static final int TIP_COUNT = 5;
 
 	private Integer currentTip;
 
@@ -83,9 +82,6 @@ public class TipOfTheDayDialog extends AlertDialog implements android.view.View.
 
 		rnd = new Random();
 		preferences = DSATabApplication.getPreferences();
-
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
 		setTitle("Wusstest du schon?");
 
 		LayoutInflater inflater = LayoutInflater.from(getContext());

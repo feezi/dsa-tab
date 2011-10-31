@@ -21,22 +21,24 @@ import java.util.List;
 import yuku.androidsdk.com.android.internal.view.menu.MenuBuilder;
 import yuku.iconcontextmenu.IconContextMenu;
 import yuku.iconcontextmenu.IconContextMenu.IconContextItemSelectedListener;
+import yuku.iconcontextmenu.IconContextMenu.IconContextMenuInfo;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.BaseMainActivity;
+import com.dsatab.activity.MainActivity;
 import com.dsatab.common.Util;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero;
@@ -45,6 +47,8 @@ import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.modifier.Modificator;
+import com.dsatab.view.FilterSettings;
+import com.dsatab.view.FilterSettings.FilterType;
 import com.dsatab.view.listener.HeroChangedListener;
 import com.gandulf.guilib.util.Debug;
 
@@ -52,7 +56,8 @@ import com.gandulf.guilib.util.Debug;
  * @author Ganymede
  * 
  */
-public abstract class BaseFragment extends Fragment implements HeroChangedListener, IconContextItemSelectedListener {
+public abstract class BaseFragment extends Fragment implements HeroChangedListener, IconContextItemSelectedListener,
+		FilterChangedListener {
 
 	protected SharedPreferences preferences;
 
@@ -63,27 +68,26 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 	 */
 	@Override
 	public void onAttach(Activity activity) {
-		Debug.verbose(getClass().getName() + " attached");
-		if (activity instanceof BaseMainActivity) {
-			((BaseMainActivity) activity).addFragment(this);
+		// Debug.verbose(getClass().getName() + " attached");
+
+		// if we reattach a fragment there is already a view present
+		if (getView() != null) {
+			Hero hero = getHero();
+			if (hero != null) {
+				Debug.verbose(getClass().getName() + " onActivityAttached CALLING HEROLOADED");
+				loadHero(hero);
+			}
 		}
 		super.onAttach(activity);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-	 */
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		Hero hero = getHero();
-		Debug.verbose(getClass().getName() + " activity created");
-		if (hero != null) {
-			onHeroLoaded(hero);
-			onAttachListener(hero);
+	protected boolean isOnScreen() {
+		if (getActivity() instanceof MainActivity) {
+			MainActivity mainActivity = (MainActivity) getActivity();
+			return mainActivity.isOnScreen(this);
 		}
+
+		return false;
 	}
 
 	protected void onAttachListener(Hero hero) {
@@ -101,39 +105,34 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.support.v4.app.Fragment#onDestroyView()
+	 * @see
+	 * com.dsatab.fragment.FilterChangedListener#onFilterChanged(com.dsatab.
+	 * view.FilterSettings.FilterType, com.dsatab.view.FilterSettings)
 	 */
 	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
-		Debug.verbose(getClass().getName() + " destroyView");
-		if (getActivity() instanceof BaseMainActivity) {
-			((BaseMainActivity) getActivity()).removeFragment(this);
-		}
+	public void onFilterChanged(FilterType type, FilterSettings settings) {
 
-		Hero hero = getHero();
-		if (hero != null) {
-			onDetachListener(hero);
-		}
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.support.v4.app.Fragment#onDetach()
+	 * @see android.support.v4.app.Fragment#onDestroyView()
 	 */
 	@Override
-	public void onDetach() {
-		super.onDetach();
-		Debug.verbose(getClass().getName() + " detached");
+	public void onDestroyView() {
+		super.onDestroyView();
 
-		if (getActivity() instanceof BaseMainActivity) {
-			((BaseMainActivity) getActivity()).removeFragment(this);
-		}
+		// if (getView() != null) {
+		// Debug.verbose("Unbinding drawbale to free memory from fragment");
+		// Util.unbindDrawables(getView());
+		// }
+
+		// Debug.verbose(getClass().getName() + " destroyView");
 
 		Hero hero = getHero();
 		if (hero != null) {
-			onDetachListener(hero);
+			unloadHero(hero);
 		}
 	}
 
@@ -146,8 +145,45 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		Debug.verbose(getClass().getName() + " createView");
-		return super.onCreateView(inflater, container, savedInstanceState);
+		// Debug.verbose(getClass().getName() + " createView");
+		View view = super.onCreateView(inflater, container, savedInstanceState);
+		return view;
+	}
+
+	public static View configureContainerView(View view) {
+		LinearLayout.LayoutParams params;
+
+		if (view.getLayoutParams() instanceof LinearLayout.LayoutParams) {
+			params = ((LinearLayout.LayoutParams) view.getLayoutParams());
+		} else {
+			params = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+			view.setLayoutParams(params);
+		}
+
+		if (params.weight > 0)
+			params.width = 0;
+
+		return view;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+		Hero hero = getHero();
+		if (hero != null) {
+			Debug.verbose(getClass().getName() + " onActivity created and ONSCREEN CALLING HEROLOADED");
+			loadHero(hero);
+		}
+
+		// Prepare the loader. Either re-connect with an existing one,
+		// or start a new one.
+
 	}
 
 	/*
@@ -158,7 +194,7 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Debug.verbose(getClass().getName() + " create");
+		// Debug.verbose(getClass().getName() + " create");
 		preferences = DSATabApplication.getPreferences();
 	}
 
@@ -173,16 +209,13 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 
 	public final void unloadHero(Hero hero) {
 		onDetachListener(hero);
-		onHeroUnloaded(hero);
 	}
 
 	public abstract void onHeroLoaded(Hero hero);
 
-	public abstract void onHeroUnloaded(Hero hero);
-
-	protected BaseMainActivity getBaseActivity() {
-		if (getActivity() instanceof BaseMainActivity)
-			return (BaseMainActivity) getActivity();
+	protected MainActivity getBaseActivity() {
+		if (getActivity() instanceof MainActivity)
+			return (MainActivity) getActivity();
 		else
 			return null;
 	}
@@ -194,7 +227,7 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 		fillAttributeValue((TextView) view.findViewById(R.id.attr_in), AttributeType.Intuition);
 		fillAttributeValue((TextView) view.findViewById(R.id.attr_ch), AttributeType.Charisma);
 		fillAttributeValue((TextView) view.findViewById(R.id.attr_ff), AttributeType.Fingerfertigkeit);
-		fillAttributeValue((TextView) view.findViewById(R.id.attr_ge), AttributeType.Gewandtheit);
+		fillAttributeValue((TextView) view.findViewById(R.id.attr_ge), AttributeType.Gewandtheit, false);
 		fillAttributeValue((TextView) view.findViewById(R.id.attr_ko), AttributeType.Konstitution);
 		fillAttributeValue((TextView) view.findViewById(R.id.attr_kk), AttributeType.Körperkraft);
 
@@ -267,14 +300,22 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 		fillAttributeValue(tv, type, null);
 	}
 
+	protected void fillAttributeValue(TextView tv, AttributeType type, boolean includeBe) {
+		fillAttributeValue(tv, type, null, includeBe);
+	}
+
 	protected void fillAttributeValue(TextView tv, AttributeType type, String prefix) {
+		fillAttributeValue(tv, type, prefix, true);
+	}
+
+	protected void fillAttributeValue(TextView tv, AttributeType type, String prefix, boolean includeBe) {
 		if (getHero() == null)
 			return;
 		Attribute attribute = getHero().getAttribute(type);
 
 		if (attribute != null) {
 
-			int modifier = getHero().getModificator(type);
+			int modifier = getHero().getModifier(type, includeBe, true);
 			Util.setText(tv, attribute, modifier, prefix);
 			tv.setTag(attribute);
 
@@ -362,15 +403,17 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 
 	}
 
-	private OnLongClickListener contextMenuListener = new OnLongClickListener() {
+	OnLongClickListener contextMenuListener = new OnLongClickListener() {
 
 		@Override
 		public boolean onLongClick(View v) {
 			Menu menu = new MenuBuilder(getActivity());
-			Object info = onCreateIconContextMenu(menu, v, null);
+
+			IconContextMenuInfo menuInfo = new IconContextMenuInfo();
+			Object info = onCreateIconContextMenu(menu, v, menuInfo);
 
 			if (menu != null && menu.hasVisibleItems()) {
-				IconContextMenu cm = new IconContextMenu(getActivity(), menu);
+				IconContextMenu cm = new IconContextMenu(getActivity(), menu, menuInfo.getTitle());
 				cm.setInfo(info);
 				cm.setOnIconContextItemSelectedListener(BaseFragment.this);
 
@@ -387,7 +430,11 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 		v.setOnLongClickListener(contextMenuListener);
 	}
 
-	public Object onCreateIconContextMenu(Menu menu, View v, ContextMenuInfo menuInfo) {
+	public void unregisterForIconContextMenu(View v) {
+		v.setOnLongClickListener(null);
+	}
+
+	public Object onCreateIconContextMenu(Menu menu, View v, IconContextMenuInfo menuInfo) {
 		return null;
 	}
 

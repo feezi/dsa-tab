@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.gandulf.guilib.drag.DragLayer
     xmlns:android="http://schemas.android.com/apk/res/android"    
-    android:id="@+id/drag_layer"
-    android:layout_width="wrap_content" android:layout_weight="1"
+    android:id="@+id/sheet_items"
+    android:layout_width="0dp" android:layout_weight="1"
+    android:layout_margin="@dimen/page_margin"
     android:layout_height="fill_parent">
 
     <!-- The workspace contains 5 screens of cells -->
@@ -10,26 +11,31 @@
         android:id="@+id/workspace"
         android:background="@drawable/character"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" android:layout_marginBottom="50dp">
+        android:layout_height="fill_parent" android:layout_marginBottom="@dimen/icon_button_size">
 
         <include android:id="@+id/cell1" layout="@layout/workspace_screen" />
         <include android:id="@+id/cell2" layout="@layout/workspace_screen" />
         <include android:id="@+id/cell3" layout="@layout/workspace_screen" />
         <include android:id="@+id/cell4" layout="@layout/workspace_screen" />
-        <include android:id="@+id/cell5" layout="@layout/workspace_screen" />
                 
     </com.dsatab.view.drag.Workspace>
-
-    <ImageView
+    
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/icon_button_size" android:layout_gravity="bottom">
+        
+        <ImageView
         android:id="@+id/previous_screen"
         android:layout_width="93dip"
-        android:layout_gravity="bottom|left"
+        android:layout_gravity="left|center_vertical"
         android:layout_marginLeft="6dip"
         android:scaleType="centerInside"
         android:src="@drawable/home_arrows_left"
         android:focusable="true" android:layout_height="40dip"/>
-
-    <com.dsatab.view.drag.DeleteZone
+        
+        
+        
+            <com.dsatab.view.drag.DeleteZone
         android:id="@+id/delete_zone"
         android:layout_width="56dip"
         android:layout_height="56dip"
@@ -39,16 +45,28 @@
         android:src="@drawable/delete_zone_selector"
         android:visibility="invisible"
     />
-    
-    <Spinner android:layout_width="wrap_content" android:layout_gravity="bottom|center_horizontal" android:id="@+id/screen_set_button" android:layout_height="wrap_content"></Spinner>
-    
-    <ImageView
+        <ImageView
         android:id="@+id/next_screen"
         android:layout_width="93dip"
-        android:layout_gravity="bottom|right"
+        android:layout_gravity="right|center_vertical"
         android:layout_marginRight="6dip"
         android:scaleType="centerInside"
         android:src="@drawable/home_arrows_right"
         android:focusable="true" android:layout_height="40dip"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:layout_gravity="center">
+            
+            <com.dsatab.view.GlossyImageButton android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:id="@+id/fight_set" android:src="@drawable/set" android:layout_gravity="center"/>
+        
+
+            
+        <Spinner android:layout_width="wrap_content" android:id="@+id/screen_set_button" android:layout_height="wrap_content" android:layout_gravity="center"></Spinner>
+        
+            <com.dsatab.view.GlossyImageButton android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:id="@+id/fight_inventory" android:src="@drawable/inventory_selector" android:layout_gravity="center"/>
+        </LinearLayout>
+        
+    </FrameLayout>
 
 </com.gandulf.guilib.drag.DragLayer>

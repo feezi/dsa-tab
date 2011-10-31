@@ -16,32 +16,39 @@
  */
 package com.dsatab.fragment;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
+import java.util.List;
+
 import android.content.SharedPreferences.Editor;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.data.BaseCombatTalent;
+import com.dsatab.activity.MainActivity;
+import com.dsatab.data.Attribute;
 import com.dsatab.data.CombatMeleeAttribute;
 import com.dsatab.data.CombatTalent;
 import com.dsatab.data.Hero;
+import com.dsatab.data.MetaTalent;
 import com.dsatab.data.Talent;
 import com.dsatab.data.Value;
 import com.dsatab.data.adapter.ExpandableTalentAdapter;
+import com.dsatab.data.enums.AttributeType;
+import com.dsatab.data.modifier.Modificator;
+import com.dsatab.view.FilterDialog;
+import com.dsatab.view.FilterSettings;
+import com.dsatab.view.FilterSettings.FilterType;
+import com.dsatab.view.ListFilterSettings;
 import com.dsatab.view.listener.HeroChangedListener;
 
 /**
@@ -52,25 +59,9 @@ public class TalentFragment extends BaseFragment implements HeroChangedListener 
 
 	private static final String PREF_KEY_GROUP_EXPANDED = "GROUP_EXPANDED";
 
-	private static final String PREF_KEY_SHOW_FAVORITE = "SHOW_FAVORITE_TALENT";
-	private static final String PREF_KEY_SHOW_NORMAL = "SHOW_NORMAL_TALENT";
-	private static final String PREF_KEY_SHOW_UNUSED = "SHOW_UNUSED_TALENT";
-
 	private ExpandableListView talentList = null;
 
 	private ExpandableTalentAdapter talentAdapter = null;
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		setHasOptionsMenu(true);
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -81,7 +72,7 @@ public class TalentFragment extends BaseFragment implements HeroChangedListener 
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.sheet_talent, container, false);
+		return configureContainerView(inflater.inflate(R.layout.sheet_talent, container, false));
 	}
 
 	/*
@@ -92,6 +83,16 @@ public class TalentFragment extends BaseFragment implements HeroChangedListener 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		talentList = (ExpandableListView) findViewById(R.id.talent_list);
+		Drawable drawable = getResources().getDrawable(R.drawable.expandable_group_indicator);
+		talentList.setGroupIndicator(drawable);
+
+		talentList
+				.setIndicatorBounds(
+						0,
+						drawable.getIntrinsicWidth()
+								+ DSATabApplication.getInstance().getResources()
+										.getDimensionPixelSize(R.dimen.expandable_icon_padding));
+
 		super.onActivityCreated(savedInstanceState);
 	}
 
@@ -106,33 +107,77 @@ public class TalentFragment extends BaseFragment implements HeroChangedListener 
 		loadHeroTalents(hero);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.fragment.BaseFragment#onHeroUnloaded(com.dsatab.data.Hero)
-	 */
-	@Override
-	public void onHeroUnloaded(Hero hero) {
-
-	}
-
 	public void onValueChanged(Value value) {
 		if (value == null) {
 			return;
 		}
 
-		if (value instanceof Talent || value instanceof CombatMeleeAttribute || value instanceof CombatTalent) {
+		if (value instanceof Attribute) {
+			Attribute attribute = (Attribute) value;
+			if (attribute.getType() == AttributeType.Behinderung) {
+				talentAdapter.notifyDataSetChanged();
+			}
+		} else if (value instanceof Talent || value instanceof CombatMeleeAttribute || value instanceof CombatTalent) {
 			talentAdapter.notifyDataSetChanged();
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.fragment.BaseFragment#onModifierAdded(com.dsatab.data.modifier
+	 * .Modificator)
+	 */
+	@Override
+	public void onModifierAdded(Modificator value) {
+		talentAdapter.notifyDataSetChanged();
+		super.onModifierAdded(value);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.fragment.BaseFragment#onModifierChanged(com.dsatab.data.modifier
+	 * .Modificator)
+	 */
+	@Override
+	public void onModifierChanged(Modificator value) {
+		talentAdapter.notifyDataSetChanged();
+		super.onModifierChanged(value);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.fragment.BaseFragment#onModifierRemoved(com.dsatab.data.modifier
+	 * .Modificator)
+	 */
+	@Override
+	public void onModifierRemoved(Modificator value) {
+		talentAdapter.notifyDataSetChanged();
+		super.onModifierRemoved(value);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onModifiersChanged(java.util.List)
+	 */
+	@Override
+	public void onModifiersChanged(List<Modificator> values) {
+		talentAdapter.notifyDataSetChanged();
+		super.onModifiersChanged(values);
+	}
+
 	private void loadHeroTalents(Hero hero2) {
 
-		SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
-
-		talentAdapter = new ExpandableTalentAdapter(getHero(), pref.getBoolean(PREF_KEY_SHOW_FAVORITE, true),
-				pref.getBoolean(PREF_KEY_SHOW_NORMAL, true), pref.getBoolean(PREF_KEY_SHOW_UNUSED, false));
+		talentAdapter = new ExpandableTalentAdapter(getActivity(), getHero(), preferences.getBoolean(
+				FilterDialog.PREF_KEY_TALENT_FAVORITE, true), preferences.getBoolean(
+				FilterDialog.PREF_KEY_TALENT_NORMAL, true), preferences.getBoolean(FilterDialog.PREF_KEY_TALENT_UNUSED,
+				false));
 
 		talentAdapter.setProbeListener(getBaseActivity().getProbeListener());
 		talentAdapter.setEditListener(getBaseActivity().getEditListener());
@@ -196,13 +241,24 @@ public class TalentFragment extends BaseFragment implements HeroChangedListener 
 				inflater.inflate(R.menu.talent_popupmenu, menu);
 
 				Talent talent = talentAdapter.getChild(group, position);
+				if (TextUtils.isEmpty(talent.getTalentSpezialisierung())) {
+					menu.setHeaderTitle(talent.getName());
+				} else {
+					if (talent.getName().equals(talent.getTalentSpezialisierung())) {
+						menu.setHeaderTitle(talent.getName() + "*");
+					} else {
+						menu.setHeaderTitle(talent.getName() + "* (" + talent.getTalentSpezialisierung() + ")");
+					}
+				}
+				menu.findItem(R.id.option_unmark_talent).setVisible(talent.isFavorite() || talent.isUnused());
+				menu.findItem(R.id.option_mark_favorite_talent).setVisible(!talent.isFavorite());
+				menu.findItem(R.id.option_mark_unused_talent).setVisible(!talent.isUnused());
 
-				menu.setHeaderTitle(talent.getName());
-				menu.findItem(R.id.option_unmark).setVisible(talent.isFavorite() || talent.isUnused());
-				menu.findItem(R.id.option_mark_favorite).setVisible(!talent.isFavorite());
-				menu.findItem(R.id.option_mark_unused).setVisible(!talent.isUnused());
+				if (talent instanceof MetaTalent) {
+					menu.findItem(R.id.option_edit_talent).setVisible(false);
+				}
 
-				menu.findItem(R.id.option_view_details).setVisible(false);
+				menu.findItem(R.id.option_view_talent).setVisible(false);
 			}
 		}
 		super.onCreateContextMenu(menu, v, menuInfo);
@@ -211,76 +267,13 @@ public class TalentFragment extends BaseFragment implements HeroChangedListener 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.dsatab.activity.BaseMenuActivity#onCreateOptionsMenu(android.view
-	 * .Menu)
+	 * @see com.dsatab.fragment.BaseFragment#onFilterChanged(com.dsatab.view.
+	 * FilterSettings.FilterType, com.dsatab.view.FilterSettings)
 	 */
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.talent_menu, menu);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.activity.BaseMenuActivity#onOptionsItemSelected(android.view
-	 * .MenuItem)
-	 */
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-
-		if (item.getItemId() == R.id.option_filter_talent) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-			builder.setTitle("Talente filtern");
-			builder.setIcon(android.R.drawable.ic_menu_view);
-			View content = LayoutInflater.from(getActivity()).inflate(R.layout.popup_filter, null);
-
-			final CheckBox fav = (CheckBox) content.findViewById(R.id.cb_show_favorites);
-			final CheckBox normal = (CheckBox) content.findViewById(R.id.cb_show_normal);
-			final CheckBox unused = (CheckBox) content.findViewById(R.id.cb_show_unused);
-
-			SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
-
-			fav.setChecked(pref.getBoolean(PREF_KEY_SHOW_FAVORITE, true));
-			normal.setChecked(pref.getBoolean(PREF_KEY_SHOW_NORMAL, true));
-			unused.setChecked(pref.getBoolean(PREF_KEY_SHOW_UNUSED, false));
-
-			builder.setView(content);
-
-			DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (which == DialogInterface.BUTTON_POSITIVE) {
-
-						SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
-						Editor edit = pref.edit();
-
-						edit.putBoolean(PREF_KEY_SHOW_FAVORITE, fav.isChecked());
-						edit.putBoolean(PREF_KEY_SHOW_NORMAL, normal.isChecked());
-						edit.putBoolean(PREF_KEY_SHOW_UNUSED, unused.isChecked());
-
-						edit.commit();
-
-						talentAdapter.setFilter(fav.isChecked(), normal.isChecked(), unused.isChecked());
-						talentAdapter.notifyDataSetChanged();
-					} else if (which == DialogInterface.BUTTON_NEUTRAL) {
-						// do nothing
-					}
-
-				}
-			};
-
-			builder.setPositiveButton(R.string.label_ok, clickListener);
-			builder.setNegativeButton(R.string.label_cancel, clickListener);
-
-			builder.show();
-			return true;
-		} else {
-			return super.onOptionsItemSelected(item);
+	public void onFilterChanged(FilterType type, FilterSettings settings) {
+		if (type == FilterType.Talent && settings instanceof ListFilterSettings) {
+			talentAdapter.filter((ListFilterSettings) settings);
 		}
 	}
 
@@ -293,42 +286,58 @@ public class TalentFragment extends BaseFragment implements HeroChangedListener 
 	public boolean onContextItemSelected(MenuItem item) {
 
 		if (item.getMenuInfo() instanceof ExpandableListContextMenuInfo) {
+			ExpandableListContextMenuInfo menuInfo = ((ExpandableListContextMenuInfo) item.getMenuInfo());
+			long packedPosition = menuInfo.packedPosition;
 
-			long packedPosition = ((ExpandableListContextMenuInfo) item.getMenuInfo()).packedPosition;
 			int group = ExpandableListView.getPackedPositionGroup(packedPosition);
 			int position = ExpandableListView.getPackedPositionChild(packedPosition);
 
-			Talent talent = null;
-			if (position >= 0 && group >= 0) {
-				talent = talentAdapter.getChild(group, position);
-				BaseCombatTalent combatTalent = getHero().getCombatTalent(talent.getName());
+			View child = menuInfo.targetView;
 
-				switch (item.getItemId()) {
+			switch (item.getItemId()) {
 
-				case R.id.option_edit_value:
-					if (combatTalent != null)
-						getBaseActivity().showEditPopup(combatTalent);
-					else
-						getBaseActivity().showEditPopup(talent);
-					return true;
-				case R.id.option_mark_favorite:
-					talent.setFavorite(true);
-					talentAdapter.notifyDataSetChanged();
-					return true;
-				case R.id.option_mark_unused:
-					talent.setUnused(true);
-					talentAdapter.notifyDataSetChanged();
-					return true;
-				case R.id.option_unmark:
-					talent.setFavorite(false);
-					talent.setUnused(false);
-					talentAdapter.notifyDataSetChanged();
-					return true;
-				}
+			case R.id.option_edit_talent: {
+				Talent talent = getTalent(child, group, position);
+				MainActivity.showEditPopup(getActivity(), talent);
+				return true;
 			}
+			case R.id.option_mark_favorite_talent: {
+				Talent talent = getTalent(child, group, position);
+				talent.setFavorite(true);
+				talentAdapter.notifyDataSetChanged();
+				return true;
+			}
+			case R.id.option_mark_unused_talent: {
+				Talent talent = getTalent(child, group, position);
+				talent.setUnused(true);
+				talentAdapter.notifyDataSetChanged();
+				return true;
+			}
+			case R.id.option_unmark_talent: {
+				Talent talent = getTalent(child, group, position);
+				talent.setFavorite(false);
+				talent.setUnused(false);
+				talentAdapter.notifyDataSetChanged();
+				return true;
+			}
+			}
+
 		}
 
 		return super.onContextItemSelected(item);
+	}
+
+	private Talent getTalent(View child, int group, int position) {
+		Talent talent = null;
+		if (child != null && child.getTag() instanceof Talent) {
+			talent = (Talent) child.getTag();
+		}
+
+		if (talentAdapter != null && talent == null && position >= 0 && group >= 0) {
+			talent = talentAdapter.getChild(group, position);
+		}
+
+		return talent;
 	}
 
 }

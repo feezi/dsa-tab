@@ -27,8 +27,9 @@ import android.util.AndroidRuntimeException;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.common.Util;
+import com.dsatab.data.ArtInfo;
 import com.dsatab.data.Hero;
-import com.dsatab.data.LiturgieInfo;
+import com.dsatab.data.SpellInfo;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
 import com.dsatab.data.items.Armor;
@@ -67,8 +68,8 @@ public class XmlParser {
 
 	}
 
-	public static Map<String, LiturgieInfo> readLiturige() {
-		Map<String, LiturgieInfo> items = new HashMap<String, LiturgieInfo>();
+	public static Map<String, ArtInfo> readLiturige() {
+		Map<String, ArtInfo> items = new HashMap<String, ArtInfo>();
 
 		BufferedReader r = null;
 		try {
@@ -80,38 +81,119 @@ public class XmlParser {
 
 			Iterator<String> i = null;
 
-			LiturgieInfo item = null;
+			ArtInfo item = null;
 			while ((line = r.readLine()) != null) {
 
 				if (TextUtils.isEmpty(line) || line.startsWith("#"))
 					continue;
 
 				try {
-					item = new LiturgieInfo();
+					item = new ArtInfo();
 					splitter.setString(line);
 					i = splitter.iterator();
 
 					item.setName(i.next().trim());
 					item.setGrade(Util.gradeToInt(i.next().trim()));
-					item.setTarget(i.next().trim());
-					item.setRange(i.next().trim());
-					item.setCastDuration(i.next().trim());
-					item.setEffect(i.next().trim());
-					item.setEffectDuration(i.next().trim());
-					item.setOrigin(i.next().trim());
-					item.setSource(i.next().trim());
+					if (i.hasNext())
+						item.setTarget(i.next().trim());
+					if (i.hasNext())
+						item.setRange(i.next().trim());
+					if (i.hasNext())
+						item.setCastDuration(i.next().trim());
+					if (i.hasNext())
+						item.setEffect(i.next().trim());
+					if (i.hasNext())
+						item.setEffectDuration(i.next().trim());
+					if (i.hasNext())
+						item.setOrigin(i.next().trim());
+					if (i.hasNext())
+						item.setSource(i.next().trim());
 
 					if (items.containsKey(item.getName())) {
-						items.put(item.getName() + " " + Util.intToGrade(item.getGrade()), item);
+						String nameWithGrade = item.getName() + " " + Util.intToGrade(item.getGrade());
+
+						if (items.containsKey(nameWithGrade)) {
+							// liturgie is already stored duplicate skip it
+							Debug.verbose("Duplicate Liturgie info found: " + nameWithGrade);
+						} else {
+							items.put(nameWithGrade, item);
+						}
 					} else {
 						// to liturgies with the lowest grad are stored without
-						// grade
-						// info too (heldensoftware does not add a grade to
-						// their
-						// name
+						// grade info too (heldensoftware does not add a grade
+						// to their name
 						items.put(item.getName(), item);
 						items.put(item.getName() + " " + Util.intToGrade(item.getGrade()), item);
 					}
+				} catch (StringIndexOutOfBoundsException e) {
+					Debug.warning("Could not parse:" + line);
+				}
+
+			}
+		} catch (IOException e) {
+			ErrorHandler.handleError(e, DSATabApplication.getInstance().getBaseContext());
+			throw new AndroidRuntimeException(e);
+		} finally {
+			try {
+				if (r != null)
+					r.close();
+			} catch (IOException e) {
+			}
+		}
+
+		return items;
+	}
+
+	public static Map<String, SpellInfo> readSpells() {
+		Map<String, SpellInfo> items = new HashMap<String, SpellInfo>();
+
+		BufferedReader r = null;
+		try {
+			r = new BufferedReader(new InputStreamReader(
+					DSATabApplication.getInstance().getAssets().open("zauber.txt"), ENCODING), 1024 * 8);
+
+			String line;
+			StringSplitter splitter = new TextUtils.SimpleStringSplitter(';');
+
+			Iterator<String> i = null;
+
+			SpellInfo item = null;
+			while ((line = r.readLine()) != null) {
+
+				if (TextUtils.isEmpty(line) || line.startsWith("#"))
+					continue;
+
+				try {
+					item = new SpellInfo();
+					splitter.setString(line);
+					i = splitter.iterator();
+
+					item.setName(i.next().trim());
+					if (i.hasNext())
+						item.setSource(i.next().trim());
+					if (i.hasNext())
+						item.setProbe(i.next().trim());
+					if (i.hasNext())
+						item.setComplexity(i.next().trim());
+					if (i.hasNext())
+						item.setRepresentation(i.next().trim());
+					if (i.hasNext())
+						item.setMerkmale(i.next().trim());
+					if (i.hasNext())
+						item.setCastDuration(i.next().trim());
+					if (i.hasNext())
+						item.setCosts(i.next().trim());
+					if (i.hasNext())
+						item.setTarget(i.next().trim());
+					if (i.hasNext())
+						item.setRange(i.next().trim());
+					if (i.hasNext())
+						item.setEffectDuration(i.next().trim());
+					if (i.hasNext())
+						item.setEffect(i.next().trim());
+
+					items.put(item.getName(), item);
+
 				} catch (StringIndexOutOfBoundsException e) {
 					Debug.warning("Could not parse:" + line);
 				}

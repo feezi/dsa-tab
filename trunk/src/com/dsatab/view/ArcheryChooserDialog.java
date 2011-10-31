@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -16,7 +15,7 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.activity.BaseMainActivity;
+import com.dsatab.activity.MainActivity;
 import com.dsatab.common.Util;
 import com.dsatab.data.CombatProbe;
 import com.dsatab.data.SpecialFeature;
@@ -25,7 +24,8 @@ import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.gandulf.guilib.view.adapter.SpinnerSimpleAdapter;
 
-public class ArcheryChooserDialog extends AlertDialog implements android.view.View.OnClickListener {
+public class ArcheryChooserDialog extends AlertDialog implements android.view.View.OnClickListener,
+		DialogInterface.OnClickListener {
 
 	private int[] distanceProbe;
 	private int[] sizeProbe;
@@ -49,15 +49,15 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 
 	private int otherErschwernis = 0;
 
-	private BaseMainActivity main;
+	private MainActivity main;
 
-	public ArcheryChooserDialog(BaseMainActivity context) {
+	public ArcheryChooserDialog(MainActivity context) {
 		super(context);
 		this.main = context;
 		init();
 	}
 
-	protected BaseMainActivity getMain() {
+	protected MainActivity getMain() {
 		return main;
 	}
 
@@ -77,12 +77,36 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 		iconLeft.setOnClickListener(this);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.content.DialogInterface.OnClickListener#onClick(android.content
+	 * .DialogInterface, int)
+	 */
+	@Override
+	public void onClick(DialogInterface dialog, int which) {
+		switch (which) {
+		case BUTTON_POSITIVE:
+			accept();
+		case BUTTON_NEGATIVE:
+			dismiss();
+			break;
+		}
+
+	}
+
+	private void accept() {
+		CombatProbe combatProbe = new CombatProbe(main.getHero(), equippedItem, true);
+		combatProbe.getProbeInfo().setErschwernis(erschwernis + otherErschwernis);
+
+		dismiss();
+		main.checkProbe(combatProbe);
+	}
+
 	public void onClick(View v) {
 		if (v == iconLeft) {
-			CombatProbe combatProbe = new CombatProbe(main.getHero(), equippedItem, true);
-			combatProbe.setErschwernis(erschwernis + otherErschwernis);
-			dismiss();
-			main.checkProbe(combatProbe);
+			accept();
 		} else if (v == btnOthers) {
 			if (othersDialog == null)
 				initOthersDialog();
@@ -127,16 +151,13 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 			}
 		}
 
-		SpinnerAdapter distanceAdapter = new SpinnerSimpleAdapter<String>(getContext(),
-				android.R.layout.simple_spinner_item, distances);
+		SpinnerAdapter distanceAdapter = new SpinnerSimpleAdapter<String>(getContext(), distances);
 		distanceSpinner.setAdapter(distanceAdapter);
 
 		super.onStart();
 	}
 
 	private void init() {
-
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		distanceProbe = getContext().getResources().getIntArray(R.array.archeryDistanceValues);
 		sizeProbe = getContext().getResources().getIntArray(R.array.archerySizeValues);
@@ -194,6 +215,9 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 
 		btnOthers = (Button) popupcontent.findViewById(R.id.archery_others);
 		btnOthers.setOnClickListener(this);
+
+		setButton(BUTTON_POSITIVE, "Angreifen", this);
+		setButton(BUTTON_NEGATIVE, getContext().getString(R.string.label_cancel), this);
 	}
 
 	private void initOthersDialog() {

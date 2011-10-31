@@ -20,33 +20,41 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONException;
+import org.osmdroid.tileprovider.tilesource.ITileSource;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.app.Application;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Typeface;
+import android.os.Build;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.AndroidRuntimeException;
 import android.widget.Toast;
 
-import com.dsatab.activity.BaseMainActivity;
-import com.dsatab.activity.DsaPreferenceActivity;
+import com.dsatab.activity.DsaPreferenceActivityHC;
 import com.dsatab.data.Hero;
-import com.dsatab.data.HeroInfo;
+import com.dsatab.data.HeroFileInfo;
+import com.dsatab.map.BitmapTileSource;
 import com.dsatab.xml.Xml;
 import com.dsatab.xml.XmlParser;
 import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.util.ErrorHandler;
 
 public class DSATabApplication extends Application implements OnSharedPreferenceChangeListener {
+
+	/**
+	 * 
+	 */
+	public static final String TILESOURCE_AVENTURIEN = "AVENTURIEN";
 
 	public static final String FLURRY_APP_ID = "AK17DSVJZBNH35G554YR";
 
@@ -55,6 +63,10 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	public static final String DEFAULT_SD_CARD = "dsatab/";
 
 	public static final String DIR_MAPS = "maps";
+
+	public static final String DIR_OSM_MAPS = "osm_map";
+
+	public static final String DIR_PDFS = "pdfs";
 
 	public static final String DIR_PORTRAITS = "portraits";
 
@@ -74,7 +86,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	 */
 	private static String path;
 
-	private Hero hero = null;
+	public Hero hero = null;
 
 	private DsaTabConfiguration configuration;
 
@@ -89,7 +101,19 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	}
 
 	public boolean isLiteVersion() {
-		return !getPreferences().getBoolean(DsaPreferenceActivity.KEY_FULL_VERSION, false);
+		return !getPreferences().getBoolean(DsaPreferenceActivityHC.KEY_FULL_VERSION, false);
+	}
+
+	public static File getDirectory(String name) {
+		File mapfile = new File(Environment.getExternalStoragePublicDirectory(getRelativeDsaTabPath()), name);
+		return mapfile;
+	}
+
+	private void disableConnectionReuseIfNecessary() {
+		// HTTP connection reuse which was buggy pre-froyo
+		if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.FROYO) {
+			System.setProperty("http.keepAlive", "false");
+		}
 	}
 
 	/*
@@ -101,7 +125,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key.equals(DsaPreferenceActivity.KEY_SETUP_SDCARD_PATH)) {
+		if (key.equals(DsaPreferenceActivityHC.KEY_SETUP_SDCARD_PATH)) {
 			path = null;
 			checkDirectories(getDsaTabPath());
 		}
@@ -115,7 +139,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 
 	public static String getDsaTabPath() {
 		if (path == null) {
-			path = getPreferences().getString(DsaPreferenceActivity.KEY_SETUP_SDCARD_PATH, DEFAULT_SD_CARD);
+			path = getPreferences().getString(DsaPreferenceActivityHC.KEY_SETUP_SDCARD_PATH, DEFAULT_SD_CARD);
 
 			if (!path.endsWith("/"))
 				path += "/";
@@ -133,7 +157,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 
 	private static void checkDirectories(String path) {
 
-		Debug.verbose("Chekcing path " + path + " for subdirs");
+		Debug.verbose("Checking path " + path + " for subdirs");
 		File base = new File(path);
 		if (!base.exists())
 			base.mkdirs();
@@ -153,6 +177,10 @@ public class DSATabApplication extends Application implements OnSharedPreference
 		File portraitsDir = new File(base, DIR_PORTRAITS);
 		if (!portraitsDir.exists())
 			portraitsDir.mkdirs();
+
+		File pdfsDir = new File(base, DIR_PDFS);
+		if (!pdfsDir.exists())
+			pdfsDir.mkdirs();
 
 	}
 
@@ -185,13 +213,20 @@ public class DSATabApplication extends Application implements OnSharedPreference
 		poorRichFont = Typeface.createFromAsset(this.getAssets(), "fonts/poorich.ttf");
 		Debug.setDebugTag(TAG);
 
-		AnalyticsManager.setEnabled(getPreferences().getBoolean(DsaPreferenceActivity.KEY_USAGE_STATS, true));
+		AnalyticsManager.setEnabled(getPreferences().getBoolean(DsaPreferenceActivityHC.KEY_USAGE_STATS, true));
 
 		Debug.verbose("AnalytisManager enabled = " + AnalyticsManager.isEnabled());
 
 		checkDirectories(getDsaTabPath());
 
 		getPreferences().registerOnSharedPreferenceChangeListener(this);
+
+		TileSourceFactory.getTileSources().clear();
+		final ITileSource tileSource = new BitmapTileSource(TILESOURCE_AVENTURIEN, null, 2, 5, 256, ".jpg");
+		TileSourceFactory.addTileSource(tileSource);
+
+		disableConnectionReuseIfNecessary();
+
 	}
 
 	public Typeface getPoorRichardFont() {
@@ -216,7 +251,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 		if (files != null) {
 			for (File file : files) {
 				if (file.isFile() && file.getName().toLowerCase().endsWith(".xml")) {
-					HeroInfo info = getHeroInfo(file);
+					HeroFileInfo info = getHeroInfo(file);
 					if (info != null) {
 						result = true;
 						break;
@@ -227,8 +262,8 @@ public class DSATabApplication extends Application implements OnSharedPreference
 		return result;
 	}
 
-	public List<HeroInfo> getHeroes() {
-		List<HeroInfo> heroes = new ArrayList<HeroInfo>();
+	public List<HeroFileInfo> getHeroes() {
+		List<HeroFileInfo> heroes = new ArrayList<HeroFileInfo>();
 
 		File profilesDir = new File(DSATabApplication.getDsaTabPath());
 		if (!profilesDir.exists())
@@ -238,7 +273,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 		if (files != null) {
 			for (File file : files) {
 				if (file.isFile() && file.getName().toLowerCase().endsWith(".xml")) {
-					HeroInfo info = getHeroInfo(file);
+					HeroFileInfo info = getHeroInfo(file);
 					if (info != null) {
 						heroes.add(info);
 					}
@@ -252,7 +287,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 		return heroes;
 	}
 
-	private HeroInfo getHeroInfo(File file) {
+	private HeroFileInfo getHeroInfo(File file) {
 		String path = null, name = null;
 
 		FileInputStream fis = null;
@@ -289,91 +324,46 @@ public class DSATabApplication extends Application implements OnSharedPreference
 			}
 		}
 		if (name != null)
-			return new HeroInfo(name, file, path);
+			return new HeroFileInfo(name, file, path);
 		else
 			return null;
 
 	}
 
-	public Hero getHero(String path) {
-		Debug.verbose("Getting hero from " + path);
-		if (path == null) {
-			Debug.error("Error: Path was null ");
-			return null;
-		}
+	public void saveHeroConfiguration() throws JSONException, IOException {
 
-		FileInputStream fis = null;
-		SharedPreferences preferences = getPreferences();
-
+		FileOutputStream out = null;
 		try {
-			File file = new File(path);
-			if (!file.exists()) {
-				Toast.makeText(this, "Error: Hero file not found at " + file.getAbsolutePath(), Toast.LENGTH_LONG)
-						.show();
-				Debug.error("Error: Hero file not found at " + file.getAbsolutePath());
-				return null;
-			}
-
-			Debug.verbose("Opening inputstream for hero at " + path);
-			fis = new FileInputStream(file);
-			Debug.verbose("Opened inputstream for hero at " + path);
-
-			hero = XmlParser.readHero(path, fis);
-			if (hero != null) {
-				Debug.verbose("Hero successfully parsed");
-
-				Editor editor = preferences.edit();
-				editor.putString(BaseMainActivity.PREF_LAST_HERO, hero.getPath());
-				editor.commit();
-				Debug.verbose("Stored path of current hero in prefs:" + hero.getPath());
-
-				Toast.makeText(this, getString(R.string.hero_loaded, hero.getName()), Toast.LENGTH_SHORT).show();
-
-				Debug.verbose("Hero successfully loaded and return hero: " + hero.getName());
-			} else {
-				Debug.error("Hero could not be parsed, was null after XmlParserNew.readHero.");
-			}
-
-			return hero;
-		} catch (Exception e) {
-
-			Toast.makeText(this, "Held konnte nicht geladen werden.", Toast.LENGTH_LONG);
-			ErrorHandler.handleError(e, this);
-
-			// clear last hero since loading resulted in an error
-			Editor editor = preferences.edit();
-			editor.remove(BaseMainActivity.PREF_LAST_HERO);
-			editor.commit();
-			throw new AndroidRuntimeException(e);
+			out = new FileOutputStream(new File(hero.getPath() + ".dsatab"));
+			out.write(hero.getHeroConfiguration().toJSONObject().toString().getBytes());
 		} finally {
-			if (fis != null) {
-				Debug.verbose("Closing inputstream");
+			if (out != null) {
 				try {
-					fis.close();
+					out.close();
 				} catch (IOException e) {
 					Debug.error(e);
 				}
 			}
 		}
+
 	}
 
 	public void saveHero() {
-		hero.storeTabConfiguration(hero.getTabConfiguration());
-
-		OutputStream out = null;
+		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(new File(hero.getPath()));
+			hero.onPreHeroSaved();
 			XmlParser.writeHero(hero, out);
-			hero.onHeroSaved();
-			Toast.makeText(this, getString(R.string.hero_saved, hero.getName()), Toast.LENGTH_SHORT).show();
-		} catch (IOException e) {
-			Toast.makeText(this, "Held konnte nicht gespeichert werden.", Toast.LENGTH_LONG);
+			hero.onPostHeroSaved();
 
+			saveHeroConfiguration();
+			Toast.makeText(this, getString(R.string.hero_saved, hero.getName()), Toast.LENGTH_SHORT).show();
+		} catch (Exception e) {
+			Toast.makeText(this, "Held konnte nicht gespeichert werden.", Toast.LENGTH_LONG);
 			ErrorHandler.handleError(e, this);
 			throw new AndroidRuntimeException(e);
 		} finally {
 			if (out != null) {
-				Debug.verbose("Closing outputstream");
 				try {
 					out.close();
 				} catch (IOException e) {

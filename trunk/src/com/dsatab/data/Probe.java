@@ -12,9 +12,7 @@ public interface Probe {
 
 	public Integer getValue();
 
-	public String getBe();
-
-	public String getProbe();
+	public ProbeInfo getProbeInfo();
 
 	public Integer getProbeValue(int i);
 
@@ -25,13 +23,5 @@ public interface Probe {
 	 * @return Integer
 	 */
 	public Integer getProbeBonus();
-
-	/**
-	 * Returns the probe modification positive values means the probe is more
-	 * difficult, negative values simplifies the probe
-	 * 
-	 * @return
-	 */
-	public Integer getErschwernis();
 
 }

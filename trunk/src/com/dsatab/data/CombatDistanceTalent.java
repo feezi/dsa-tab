@@ -8,7 +8,7 @@ import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
 import com.dsatab.xml.Xml;
 
-public class CombatDistanceTalent extends BaseCombatTalent implements Probe, Value {
+public class CombatDistanceTalent extends BaseCombatTalent implements Value {
 
 	private Element element;
 
@@ -24,11 +24,8 @@ public class CombatDistanceTalent extends BaseCombatTalent implements Probe, Val
 		this.element = element;
 		this.type = CombatTalentType.byName(getName());
 		this.referenceValue = getValue();
-	}
 
-	@Override
-	public Integer getErschwernis() {
-		return null;
+		probeInfo.applyBePattern(type.getBe());
 	}
 
 	public Probe getAttack() {
@@ -41,10 +38,6 @@ public class CombatDistanceTalent extends BaseCombatTalent implements Probe, Val
 
 	public CombatTalentType getCombatTalentType() {
 		return type;
-	}
-
-	public String getBe() {
-		return type.getBe();
 	}
 
 	public int getMinimum() {
@@ -74,7 +67,7 @@ public class CombatDistanceTalent extends BaseCombatTalent implements Probe, Val
 	}
 
 	public Integer getValue() {
-		if (element.getAttribute(Xml.KEY_VALUE) !=null) {
+		if (element.getAttribute(Xml.KEY_VALUE) != null) {
 			return Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE)) + getBaseValue();
 		} else
 			return null;
@@ -84,7 +77,9 @@ public class CombatDistanceTalent extends BaseCombatTalent implements Probe, Val
 		int baseValue = 0;
 
 		if (hero != null) {
-			if (type.isFk())
+			if (type == CombatTalentType.Lanzenreiten)
+				baseValue = hero.getAttributeValue(AttributeType.at);
+			else if (type.isFk())
 				baseValue = hero.getAttributeValue(AttributeType.fk);
 		}
 

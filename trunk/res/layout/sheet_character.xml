@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+android:id="@+id/sheet_character"
 	android:layout_height="fill_parent" android:layout_weight="1"
-	android:scrollbarStyle="outsideOverlay" android:layout_width="0dp">
+	android:scrollbarStyle="outsideOverlay" android:layout_margin="@dimen/page_margin" android:layout_width="fill_parent">
 	<RelativeLayout android:layout_height="fill_parent"
 		android:layout_width="fill_parent" android:id="@+id/gen_char_sheet">
 		<ImageView android:id="@+id/gen_portrait" android:src="@drawable/profile_blank"
@@ -9,8 +10,8 @@
 			android:layout_width="@dimen/portrait_width_small"
 			android:layout_alignTop="@+id/gen_description"
 			android:layout_alignBottom="@+id/gen_description" style="@style/BorderPanel"
-			android:layout_marginRight="5dp" android:scaleType="centerCrop"
-			android:cropToPadding="true"></ImageView>
+			android:layout_marginRight="5dp" android:cropToPadding="true" android:scaleType="fitCenter"></ImageView>
+		
 		<TableLayout android:layout_height="wrap_content" android:layout_width="fill_parent"
 			android:id="@+id/gen_description" style="@style/BorderPanel"
 			android:layout_marginBottom="5dip" android:stretchColumns="1,3"
@@ -22,18 +23,44 @@
 				<TextView android:layout_width="wrap_content"
 					android:layout_height="wrap_content" android:text="Söldner"
 					android:id="@+id/gen_ausbildung" android:ellipsize="middle"
-					style="@style/TextLabelSmall" android:layout_span="4"></TextView>
+					android:layout_span="4" style="@style/TextValueSmall" android:gravity="left"></TextView>
+			</TableRow>
+			<TableRow android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:id="@+id/row_titel">
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="@string/label_titel"></TextView>
+				<TextView android:layout_height="wrap_content" android:id="@+id/gen_titel"
+					android:layout_span="3" android:paddingLeft="5dip" style="@style/TextValueSmall" android:ellipsize="middle" android:layout_width="wrap_content" android:layout_gravity="left" android:text="DI" android:gravity="left" android:lines="1"></TextView>
+
+
+			</TableRow>
+			<TableRow android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:id="@+id/row_stand">
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="@string/label_stand"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/gen_stand"
+					android:layout_span="3" android:ellipsize="middle" android:paddingLeft="5dip" style="@style/TextValueSmall" android:text="Stand" android:layout_gravity="left" android:gravity="left" android:lines="1"></TextView>
+
 			</TableRow>
 			<TableRow android:layout_width="wrap_content"
 				android:layout_height="wrap_content">
 				<TextView android:layout_width="wrap_content"
-					android:layout_height="wrap_content" android:text="@string/label_herkunft"
-					style="@style/TextLabelSmall"></TextView>
-				<TextView android:layout_width="wrap_content"
-					android:layout_height="wrap_content" android:id="@+id/gen_herkunft"
+					android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="@string/label_rasse"></TextView>
+				<TextView android:layout_height="wrap_content" android:id="@+id/gen_rasse"
 					android:layout_span="3" android:text="Mittelländer"
-					android:ellipsize="middle" style="@style/TextLabelSmall"
-					android:paddingLeft="5dip"></TextView>
+					android:ellipsize="middle" android:paddingLeft="5dip" style="@style/TextValueSmall" android:layout_width="match_parent" android:gravity="left" android:lines="1"></TextView>
+
+
+			</TableRow>
+			<TableRow android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:id="@+id/row_kultur">
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="@string/label_kultur"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/gen_kultur"
+					android:layout_span="3" android:text="Mittelländische Städte"
+					android:ellipsize="middle" android:paddingLeft="5dip" style="@style/TextValueSmall" android:gravity="left" android:lines="1"></TextView>
 
 
 			</TableRow>
@@ -44,15 +71,13 @@
 					style="@style/TextLabelSmall"></TextView>
 				<TextView android:layout_width="wrap_content"
 					android:layout_height="wrap_content" android:text="80 Stein"
-					android:id="@+id/gen_gewicht" style="@style/TextLabelSmall"
-					android:paddingLeft="5dip"></TextView>
+					android:id="@+id/gen_gewicht" android:paddingLeft="5dip" style="@style/TextValueSmall" android:gravity="left" android:lines="1"></TextView>
 				<TextView android:layout_width="wrap_content"
 					android:layout_height="wrap_content" android:text="@string/label_groesse"
 					style="@style/TextLabelSmall"></TextView>
 				<TextView android:layout_width="wrap_content"
 					android:layout_height="wrap_content" android:id="@+id/gen_groesse"
-					android:text="1,80" style="@style/TextLabelSmall"
-					android:paddingLeft="5dip"></TextView>
+					android:text="1,80" android:paddingLeft="5dip" style="@style/TextValueSmall" android:gravity="left" android:lines="1"></TextView>
 			</TableRow>
 			<TableRow android:layout_width="wrap_content"
 				android:layout_height="wrap_content">
@@ -61,17 +86,29 @@
 					style="@style/TextLabelSmall"></TextView>
 				<TextView android:layout_width="wrap_content"
 					android:layout_height="wrap_content" android:id="@+id/gen_haar_augen"
-					android:text="grün / blau" android:lines="1" style="@style/TextLabelSmall"
-					android:paddingLeft="5dip"></TextView>
+					android:text="grün / blau" android:lines="1" android:paddingLeft="5dip" style="@style/TextValueSmall" android:gravity="left"></TextView>
 				<TextView android:layout_width="wrap_content"
 					android:layout_height="wrap_content" android:text="@string/label_alter"
 					style="@style/TextLabelSmall"></TextView>
 				<TextView android:layout_width="wrap_content"
 					android:layout_height="wrap_content" android:ellipsize="middle"
 					android:id="@+id/gen_alter" android:lines="1" android:text="42"
-					style="@style/TextLabelSmall" android:paddingLeft="5dip"></TextView>
+					android:paddingLeft="5dip" style="@style/TextValueSmall" android:gravity="left"></TextView>
+			</TableRow>
+			
+			<TableRow android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:id="@+id/row_aussehen">
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" style="@style/TextLabelSmall" android:text="@string/label_aussehen"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/gen_aussehen"
+					android:layout_span="3" android:text=""
+					android:ellipsize="middle" android:paddingLeft="5dip" style="@style/TextValueSmall" android:gravity="left" android:lines="1"></TextView>
+
+
 			</TableRow>
 		</TableLayout>
+		<ImageButton android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/details_switch" android:layout_alignParentRight="true" android:src="@drawable/expander_ic_maximized" android:background="@null" android:layout_marginRight="5dp" android:layout_marginTop="5dp"/>
 
 
 		
@@ -351,10 +388,9 @@
 		</LinearLayout>
 
 		<TextView android:layout_height="wrap_content" android:text="Beidhändig, Gezielter Stich"
-			android:id="@+id/gen_specialfeatures" android:background="@color/Brighter"
-			android:padding="5dip" android:inputType="textMultiLine"
+			android:id="@+id/gen_specialfeatures" android:inputType="textMultiLine"
 			android:layout_marginTop="5dip" android:layout_width="fill_parent"
-			android:layout_below="@+id/gen_attributes3" style="@style/TextLabelSmall" android:textColor="#000000"></TextView>
+			android:layout_below="@+id/gen_attributes3" style="@style/TextLabelSmall" android:textColor="#000000" android:background="@drawable/border_patch" android:padding="10dip"></TextView>
 
 
 	</RelativeLayout>

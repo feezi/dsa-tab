@@ -1,30 +1,24 @@
 package com.dsatab.view;
 
+import kankan.wheel.widget.OnWheelChangedListener;
+import kankan.wheel.widget.WheelView;
+import kankan.wheel.widget.adapters.NumericWheelAdapter;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.CombatMeleeAttribute;
 import com.dsatab.data.CombatMeleeTalent;
 import com.dsatab.data.Value;
-import com.gandulf.guilib.util.Debug;
-import com.gandulf.guilib.view.NumberPicker;
-import com.gandulf.guilib.view.OnViewChangedListener;
 
-public class InlineEditFightDialog extends AlertDialog implements android.view.View.OnClickListener,
-		Dialog.OnDismissListener, OnViewChangedListener<NumberPicker> {
+public class InlineEditFightDialog extends AlertDialog implements DialogInterface.OnClickListener,
+		OnWheelChangedListener {
 
 	private CombatMeleeTalent talent;
 	private Value valueTotal;
@@ -32,10 +26,10 @@ public class InlineEditFightDialog extends AlertDialog implements android.view.V
 	private CombatMeleeAttribute valueAt;
 	private CombatMeleeAttribute valuePa;
 
-	private NumberPicker editText;
-	private NumberPicker editAt;
-	private NumberPicker editPa;
-	private Button editReset, editOk;
+	private WheelView editText;
+	private NumericWheelAdapter editTextAdapter, editAtAdapter, editPaAdapter;
+	private WheelView editAt;
+	private WheelView editPa;
 
 	private TextView textFreeValue;
 
@@ -56,147 +50,135 @@ public class InlineEditFightDialog extends AlertDialog implements android.view.V
 		valueAt = combatTalent.getAttack();
 		valuePa = combatTalent.getDefense();
 
-		editText.setRange(valueTotal.getMinimum(), valueTotal.getMaximum());
-		editText.setCurrent(valueTotal.getValue());
+		editTextAdapter.setRange(valueTotal.getMinimum(), valueTotal.getMaximum());
+		editText.setCurrentItem(editTextAdapter.getPosition(valueTotal.getValue()));
 
 		if (valueAt != null) {
-			editAt.setCurrent(valueAt.getValue());
-			editAt.setRange(valueAt.getMinimum(), valueAt.getMaximum());
+			editAtAdapter.setRange(valueAt.getMinimum(), valueAt.getMaximum());
+			editAt.setCurrentItem(editAtAdapter.getPosition(valueAt.getValue()));
+
 			editAt.setEnabled(true);
 		} else {
 			editAt.setEnabled(false);
 		}
 
 		if (valuePa != null) {
-			editPa.setCurrent(valuePa.getValue());
-			editPa.setRange(valuePa.getMinimum(), valuePa.getMaximum());
+			editPaAdapter.setRange(valuePa.getMinimum(), valuePa.getMaximum());
+			editPa.setCurrentItem(editPaAdapter.getPosition(valuePa.getValue()));
 			editPa.setEnabled(true);
 		} else {
 			editPa.setEnabled(false);
 		}
-		editReset.setEnabled(valueTotal.getReferenceValue() != null);
+		if (getButton(BUTTON_NEGATIVE) != null)
+			getButton(BUTTON_NEGATIVE).setEnabled(valueTotal.getReferenceValue() != null);
 
 		updateView();
 	}
 
 	private void updateView() {
 
-		int free = editText.getCurrent();
+		int talent = editTextAdapter.getItem(editText.getCurrentItem());
+		int free = talent;
 		if (editAt.isEnabled()) {
-			free -= (editAt.getCurrent() - valueAt.getBaseValue());
+			free -= (editAtAdapter.getItem(editAt.getCurrentItem()) - valueAt.getBaseValue());
 		}
 		if (editPa.isEnabled()) {
-			free -= (editPa.getCurrent() - valuePa.getBaseValue());
+			free -= (editPaAdapter.getItem(editPa.getCurrentItem()) - valuePa.getBaseValue());
 		}
+		if (free < 0)
+			textFreeValue.setTextColor(getContext().getResources().getColor(R.color.ValueRed));
+		else if (free > 0)
+			textFreeValue.setTextColor(getContext().getResources().getColor(R.color.ValueGreen));
+		else
+			textFreeValue.setTextColor(getContext().getResources().getColor(R.color.ValueWhite));
+
 		textFreeValue.setText(Util.toString(free));
-	}
 
-	public void onClick(View v) {
-		if (v == editReset) {
-			valueTotal.setValue(valueTotal.getReferenceValue());
-			editText.setCurrent(valueTotal.getReferenceValue());
-			if (valueAt != null) {
-				valueAt.setValue(valueAt.getReferenceValue());
-				editAt.setCurrent(valueAt.getReferenceValue());
-			}
-			if (valuePa != null) {
-				valuePa.setValue(valuePa.getReferenceValue());
-				editPa.setCurrent(valuePa.getReferenceValue());
-			}
-			dismiss();
-		}
-		if (v == editOk) {
-			dismiss();
-		}
-	}
+		editAtAdapter.setRange(valueAt.getMinimum(), valueAt.getBaseValue() + talent);
+		editPaAdapter.setRange(valuePa.getMinimum(), valuePa.getBaseValue() + talent);
 
-	private void init() {
+		if (getButton(BUTTON_POSITIVE) != null)
+			getButton(BUTTON_POSITIVE).setEnabled(free >= 0);
 
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-		setCanceledOnTouchOutside(true);
-		setOnDismissListener(this);
-
-		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(
-				R.layout.popup_edit_fight, null, false);
-		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-		setView(popupcontent);
-
-		editText = (NumberPicker) popupcontent.findViewById(R.id.popup_edit_text);
-		editAt = (NumberPicker) popupcontent.findViewById(R.id.popup_edit_at);
-		editPa = (NumberPicker) popupcontent.findViewById(R.id.popup_edit_pa);
-
-		editText.setOnViewChangedListener(this);
-		editAt.setOnViewChangedListener(this);
-		editPa.setOnViewChangedListener(this);
-
-		textFreeValue = (TextView) popupcontent.findViewById(R.id.popup_edit_free_value);
-
-		editReset = (Button) popupcontent.findViewById(R.id.popup_edit_reset);
-		editOk = (Button) popupcontent.findViewById(R.id.popup_edit_ok);
-
-		OnEditorActionListener editorActionListener = new TextView.OnEditorActionListener() {
-
-			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-
-				if (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-					InlineEditFightDialog.this.dismiss();
-					return true;
-				}
-
-				if (event != null && event.getKeyCode() == KeyEvent.KEYCODE_DEL) {
-					if (v.getSelectionEnd() == 0) {
-						v.getEditableText().delete(0, 0);
-						return true;
-					}
-				}
-				return false;
-			}
-		};
-		editText.setOnEditorActionListener(editorActionListener);
-		editPa.setOnEditorActionListener(editorActionListener);
-		editAt.setOnEditorActionListener(editorActionListener);
-
-		editReset.setOnClickListener(this);
-		editOk.setOnClickListener(this);
-
-	}
-
-	public void onDismiss(DialogInterface dialog) {
-
-		try {
-			editText.validate();
-			editAt.validate();
-			editPa.validate();
-
-			valueTotal.setValue(editText.getCurrent());
-			if (valueAt != null)
-				valueAt.setValue(editAt.getCurrent());
-			if (valuePa != null)
-				valuePa.setValue(editPa.getCurrent());
-
-		} catch (NumberFormatException e) {
-			Debug.error(e);
-		}
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.gandulf.guilib.view.OnViewChangedListener#onChanged(android.view.
-	 * View, int, int)
+	 * android.content.DialogInterface.OnClickListener#onClick(android.content
+	 * .DialogInterface, int)
 	 */
 	@Override
-	public void onChanged(NumberPicker picker, int oldVal, int newVal) {
-		if (picker == editText && valueTotal != null)
-			valueTotal.setValue(newVal);
-		if (picker == editAt && valueAt != null)
-			valueAt.setValue(newVal);
-		if (picker == editPa && valuePa != null)
-			valuePa.setValue(newVal);
+	public void onClick(DialogInterface dialog, int which) {
+		switch (which) {
+		case BUTTON_POSITIVE:
 
+			valueTotal.setValue(editTextAdapter.getItem(editText.getCurrentItem()));
+			if (valueAt != null)
+				valueAt.setValue(editAtAdapter.getItem(editAt.getCurrentItem()));
+			if (valuePa != null)
+				valuePa.setValue(editPaAdapter.getItem(editPa.getCurrentItem()));
+
+			Util.hideKeyboard(editText);
+			dismiss();
+			break;
+		case BUTTON_NEGATIVE:
+			valueTotal.reset();
+
+			if (valueAt != null) {
+				valueAt.reset();
+			}
+			if (valuePa != null) {
+				valuePa.reset();
+			}
+			Util.hideKeyboard(editText);
+			dismiss();
+			break;
+		}
+
+	}
+
+	private void init() {
+		setCanceledOnTouchOutside(true);
+
+		View popupcontent = LayoutInflater.from(getContext()).inflate(R.layout.popup_edit_fight, null, false);
+		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		setView(popupcontent);
+
+		editText = (WheelView) popupcontent.findViewById(R.id.popup_edit_text);
+		editAt = (WheelView) popupcontent.findViewById(R.id.popup_edit_at);
+		editPa = (WheelView) popupcontent.findViewById(R.id.popup_edit_pa);
+
+		editTextAdapter = new NumericWheelAdapter(getContext());
+		editText.setViewAdapter(editTextAdapter);
+		editAtAdapter = new NumericWheelAdapter(getContext());
+		editAt.setViewAdapter(editAtAdapter);
+		editPaAdapter = new NumericWheelAdapter(getContext());
+		editPa.setViewAdapter(editPaAdapter);
+
+		textFreeValue = (TextView) popupcontent.findViewById(R.id.popup_edit_free_value);
+
+		editText.setOnWheelChangedListeners(this);
+		editPa.setOnWheelChangedListeners(this);
+		editAt.setOnWheelChangedListeners(this);
+
+		setButton(BUTTON_POSITIVE, "Ok", this);
+		setButton(BUTTON_NEGATIVE, "Reset", this);
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * kankan.wheel.widget.OnWheelChangedListener#onChanged(kankan.wheel.widget
+	 * .WheelView, int, int)
+	 */
+	@Override
+	public void onWheelChanged(WheelView wheel, int oldValue, int newValue) {
 		updateView();
+
 	}
 
 }

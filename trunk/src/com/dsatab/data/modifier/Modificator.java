@@ -10,8 +10,8 @@ public interface Modificator {
 
 	public Modifier getModifier(AttributeType type);
 
-	public String getModifierName();
+	public String getModificatorName();
 
-	public String getModifierInfo();
+	public String getModificatorInfo();
 
 }

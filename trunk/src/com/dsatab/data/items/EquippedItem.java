@@ -469,29 +469,35 @@ public class EquippedItem implements ItemCard {
 	}
 
 	public CombatTalent getTalent() {
-		if (talent == null && getTalentName() != null) {
-			talent = hero.getCombatTalent(getTalentName());
-		} else {
-			// search for the default talents of the items
-			if (getItemSpecification() instanceof Weapon) {
-				Weapon weapon = (Weapon) getItemSpecification();
-				for (CombatTalentType type : weapon.getCombatTalentTypes()) {
-					talent = hero.getCombatTalent(type.getName());
-					if (talent != null)
-						break;
-				}
-			} else if (getItemSpecification() instanceof DistanceWeapon) {
-				DistanceWeapon weapon = (DistanceWeapon) getItemSpecification();
-				talent = hero.getCombatTalent(weapon.getCombatTalentType().getName());
-			} else if (getItemSpecification() instanceof Shield) {
-				Shield shield = (Shield) getItemSpecification();
-				for (CombatTalentType type : shield.getCombatTalentTypes()) {
-					talent = hero.getCombatTalent(type.getName());
-					if (talent != null)
-						break;
+		if (talent == null) {
+			if (getTalentName() != null) {
+				talent = hero.getCombatTalent(getTalentName());
+			} else {
+				// search for the default talents of the items
+				if (getItemSpecification() instanceof Weapon) {
+					Weapon weapon = (Weapon) getItemSpecification();
+					for (CombatTalentType type : weapon.getCombatTalentTypes()) {
+						talent = hero.getCombatTalent(type.getName());
+						if (talent != null)
+							break;
+					}
+				} else if (getItemSpecification() instanceof DistanceWeapon) {
+					DistanceWeapon weapon = (DistanceWeapon) getItemSpecification();
+					talent = hero.getCombatTalent(weapon.getCombatTalentType().getName());
+				} else if (getItemSpecification() instanceof Shield) {
+					Shield shield = (Shield) getItemSpecification();
+					if (shield.isShield()) {
+						talent = hero.getCombatShieldTalent();
+					} else {
+						// paradeweapon
+						for (CombatTalentType type : shield.getCombatTalentTypes()) {
+							talent = hero.getCombatTalent(type.getName());
+							if (talent != null)
+								break;
+						}
+					}
 				}
 			}
-
 		}
 		return talent;
 	}

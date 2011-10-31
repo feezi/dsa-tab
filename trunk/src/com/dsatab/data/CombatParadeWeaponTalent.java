@@ -24,14 +24,12 @@ public class CombatParadeWeaponTalent extends CombatShieldTalent {
 
 		this.value = value;
 		this.paradeItem = paradeItem;
+
+		probeInfo.applyBePattern(type.getBe());
 	}
 
 	public String getName() {
 		return "Parierwaffenparade";
-	}
-
-	public String getBe() {
-		return type.getBe();
 	}
 
 	protected int getBaseValue() {

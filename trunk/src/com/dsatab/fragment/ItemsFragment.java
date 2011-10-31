@@ -15,6 +15,7 @@
  */
 package com.dsatab.fragment;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +23,7 @@ import java.util.UUID;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LevelListDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.HapticFeedbackConstants;
@@ -30,9 +32,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 
 import com.dsatab.R;
 import com.dsatab.activity.ItemChooserActivity;
@@ -64,8 +66,11 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	private Workspace mWorkspace;
 
 	private Spinner mScreenBtn;
+	private SpinnerSimpleAdapter<String> mScreenAdapter;
 
 	private ItemCard selectedItem = null;
+
+	private ImageButton inventoryButton, setButton;
 
 	/*
 	 * (non-Javadoc)
@@ -76,17 +81,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	@Override
 	public void onHeroLoaded(Hero hero) {
 		fillBodyItems(hero);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.activity.BaseMenuActivity#onHeroUnloaded(com.dsatab.data.Hero)
-	 */
-	@Override
-	public void onHeroUnloaded(Hero hero) {
-
 	}
 
 	/*
@@ -212,7 +206,14 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.sheet_items, container, false);
+		View root = inflater.inflate(R.layout.sheet_items, container, false);
+
+		inventoryButton = (ImageButton) root.findViewById(R.id.fight_inventory);
+		setButton = (ImageButton) root.findViewById(R.id.fight_set);
+
+		mScreenBtn = (Spinner) root.findViewById(R.id.screen_set_button);
+		mDragLayer = (DragLayer) root.findViewById(R.id.sheet_items);
+		return root;
 	}
 
 	/*
@@ -224,19 +225,11 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	public void onActivityCreated(Bundle savedInstanceState) {
 
 		mDragController = new DragController<ItemCard>(getActivity());
-		mScreenBtn = (Spinner) findViewById(R.id.screen_set_button);
-		mScreenBtn.setOnItemSelectedListener(this);
 
-		List<String> items = new LinkedList<String>();
-		for (int i = 1; i <= Hero.MAXIMUM_SET_NUMBER; i++) {
-			items.add("Set " + i);
-		}
-
-		for (int i = 1; i <= 2; i++) {
-			items.add("Ausrüstung " + i);
-		}
-		SpinnerAdapter adapter = new SpinnerSimpleAdapter<String>(getActivity(), items);
-		mScreenBtn.setAdapter(adapter);
+		inventoryButton.setOnClickListener(this);
+		setButton.setOnClickListener(this);
+		mScreenAdapter = new SpinnerSimpleAdapter<String>(getActivity(), new ArrayList<String>(10));
+		mScreenBtn.setAdapter(mScreenAdapter);
 
 		setupViews();
 
@@ -251,7 +244,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 		// 192*288
 		// 120*180
 
-		mDragLayer = (DragLayer) findViewById(R.id.drag_layer);
 		mDragLayer.setDragController(mDragController);
 
 		mWorkspace = (Workspace) mDragLayer.findViewById(R.id.workspace);
@@ -288,8 +280,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 		mDragController.addDropTarget(mWorkspace);
 		mDragController.addDropTarget(mDeleteZone);
 
-		updateSpinner(mWorkspace.getCurrentScreen());
-
 	}
 
 	/*
@@ -303,11 +293,24 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	public void onScreenChange(int oldScreen, int newScreen) {
 		if (isSetIndex(newScreen))
 			getHero().setActiveSet(newScreen);
-		updateSpinner(newScreen);
+		else
+			updateSpinner(newScreen);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.drag.Workspace.OnScreenChangeListener#onScreenAdded(int)
+	 */
+	@Override
+	public void onScreenAdded(int newScreen) {
+		mScreenAdapter.add("Ausrüstung " + (newScreen + 1 - Hero.MAXIMUM_SET_NUMBER));
 	}
 
 	private void updateSpinner(int newScreen) {
-		mScreenBtn.setSelection(newScreen);
+		if (mScreenBtn.getSelectedItemPosition() != newScreen)
+			mScreenBtn.setSelection(newScreen);
 	}
 
 	/*
@@ -406,6 +409,16 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 
 		mWorkspace.removeAllItems();
 
+		mScreenBtn.setOnItemSelectedListener(null);
+		mScreenAdapter.setNotifyOnChange(false);
+		mScreenAdapter.clear();
+		for (int i = 1; i <= Hero.MAXIMUM_SET_NUMBER; i++) {
+			mScreenAdapter.add("Set " + i);
+		}
+		for (int i = 1; i <= mWorkspace.getChildCount() - Hero.MAXIMUM_SET_NUMBER; i++) {
+			mScreenAdapter.add("Ausrüstung " + i);
+		}
+
 		List<Item> skipItems = new LinkedList<Item>();
 
 		int screen = Hero.MAXIMUM_SET_NUMBER;
@@ -473,6 +486,16 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 					success = mWorkspace.addItemInScreen(screen, item);
 				}
 
+				if (!success && screen == mWorkspace.getChildCount() - 1) {
+					screen++;
+
+					Debug.verbose("Unable to add item " + item.getTitle()
+							+ " workspace seems to be full adding new screen " + screen);
+					LayoutInflater.from(getActivity()).inflate(R.layout.workspace_screen, mWorkspace);
+
+					success = mWorkspace.addItemInScreen(screen, item);
+				}
+
 				// unable to add item, stop here the inventory is probably
 				// full
 				if (!success) {
@@ -482,15 +505,33 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 			}
 		}
 
-		showScreen(hero.getActiveSet());
+		mScreenAdapter.setNotifyOnChange(true);
+		mScreenAdapter.notifyDataSetChanged();
 
+		showScreen(hero.getActiveSet());
+		mScreenBtn.setOnItemSelectedListener(this);
 	}
 
 	private void showScreen(int i) {
 
-		if (i != mWorkspace.getCurrentScreen()) {
-			mWorkspace.setCurrentScreen(i);
-			updateSpinner(i);
+		Debug.verbose("Show screen " + i);
+
+		mWorkspace.setCurrentScreen(i);
+		updateSpinner(i);
+
+		if (i < Hero.MAXIMUM_SET_NUMBER) {
+			LevelListDrawable drawable = (LevelListDrawable) setButton.getDrawable();
+			drawable.setLevel(i);
+
+			inventoryButton.setSelected(false);
+			setButton.setSelected(true);
+
+		} else {
+			LevelListDrawable drawable = (LevelListDrawable) inventoryButton.getDrawable();
+			drawable.setLevel(i - Hero.MAXIMUM_SET_NUMBER);
+
+			inventoryButton.setSelected(true);
+			setButton.setSelected(false);
 		}
 	}
 
@@ -531,8 +572,14 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	 */
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-		if (position != AdapterView.INVALID_POSITION)
-			showScreen(position);
+		if (position != AdapterView.INVALID_POSITION) {
+			Debug.verbose("Screen OnItem Selected " + position);
+			if (isSetIndex(position))
+				getHero().setActiveSet(position);
+			else {
+				showScreen(position);
+			}
+		}
 	}
 
 	/*
@@ -550,6 +597,17 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onActiveSetChanged(int, int)
+	 */
+	@Override
+	public void onActiveSetChanged(int newSet, int oldSet) {
+		super.onActiveSetChanged(newSet, oldSet);
+		showScreen(newSet);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.view.View.OnClickListener#onClick(android.view.View)
 	 */
 	@Override
@@ -561,6 +619,24 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 			return;
 		case R.id.previous_screen:
 			mWorkspace.scrollLeft();
+			return;
+		case R.id.fight_set:
+			if (isSetIndex(mWorkspace.getCurrentScreen()))
+				getHero().setActiveSet(getHero().getNextActiveSet());
+			else {
+				showScreen(getHero().getActiveSet());
+			}
+			return;
+		case R.id.fight_inventory:
+			LevelListDrawable drawable = (LevelListDrawable) inventoryButton.getDrawable();
+			int nextInventory = drawable.getLevel();
+			if (!isSetIndex(mWorkspace.getCurrentScreen()))
+				nextInventory++;
+
+			if (nextInventory >= mWorkspace.getChildCount() - Hero.MAXIMUM_SET_NUMBER)
+				nextInventory = 0;
+
+			showScreen(Hero.MAXIMUM_SET_NUMBER + nextInventory);
 			return;
 		}
 

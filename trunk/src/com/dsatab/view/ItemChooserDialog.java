@@ -7,7 +7,6 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
@@ -19,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 
 import com.dsatab.R;
+import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.adapter.ItemAdapter;
 import com.dsatab.data.items.ItemType;
@@ -89,9 +89,10 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 	}
 
 	private void toggleSearch() {
-		if (searchText.getVisibility() == View.VISIBLE)
+		if (searchText.getVisibility() == View.VISIBLE) {
 			closeSearch();
-		else
+			Util.hideKeyboard(searchText);
+		} else
 			openSearch();
 	}
 
@@ -128,9 +129,6 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 	private void init() {
 
 		itemType = ItemType.Waffen;
-
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
 		setTitle("Wähle einen Gegenstand...");
 
 		setCanceledOnTouchOutside(true);
@@ -149,7 +147,7 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 		btnOtherItems.setOnClickListener(this);
 
 		categorySpinner = (Spinner) popupcontent.findViewById(R.id.popup_item_category);
-		categoryAdapter = new SpinnerSimpleAdapter<ItemType>(this.getContext(), 0, ItemType.values());
+		categoryAdapter = new SpinnerSimpleAdapter<ItemType>(this.getContext(), ItemType.values());
 		categorySpinner.setAdapter(categoryAdapter);
 		categorySpinner.setSelection(categoryAdapter.getPosition(itemType));
 		categorySpinner.setOnItemSelectedListener(this);

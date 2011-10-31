@@ -9,6 +9,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
 import com.dsatab.R;
+import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
@@ -69,28 +70,28 @@ public class EquippedItemListAdapter extends OpenArrayAdapter<Item> implements O
 
 		if (item.isEquipable()) {
 
-			view.getSet1().setBackgroundResource(R.drawable.button_disabled_patch);
+			view.getSet1().setSelected(false);
 			view.getSet1().setOnClickListener(this);
 			view.getSet1().setTag(item);
-			view.getSet2().setBackgroundResource(R.drawable.button_disabled_patch);
+			view.getSet2().setSelected(false);
 			view.getSet2().setOnClickListener(this);
 			view.getSet2().setTag(item);
-			view.getSet3().setBackgroundResource(R.drawable.button_disabled_patch);
+			view.getSet3().setSelected(false);
 			view.getSet3().setOnClickListener(this);
 			view.getSet3().setTag(item);
 
 			for (EquippedItem equippedItem : item.getEquippedItems()) {
 				switch (equippedItem.getSet()) {
 				case 0:
-					view.getSet1().setBackgroundResource(R.drawable.icon_btn);
+					view.getSet1().setSelected(true);
 					view.getSet1().setTag(equippedItem);
 					break;
 				case 1:
-					view.getSet2().setBackgroundResource(R.drawable.icon_btn);
+					view.getSet2().setSelected(true);
 					view.getSet2().setTag(equippedItem);
 					break;
 				case 2:
-					view.getSet3().setBackgroundResource(R.drawable.icon_btn);
+					view.getSet3().setSelected(true);
 					view.getSet3().setTag(equippedItem);
 					break;
 				}
@@ -101,11 +102,7 @@ public class EquippedItemListAdapter extends OpenArrayAdapter<Item> implements O
 			view.getSet3().setTag(null);
 		}
 
-		if (position % 2 == 1) {
-			view.setBackgroundResource(R.drawable.list_row_odd);
-		} else {
-			view.setBackgroundResource(R.drawable.list_row_even);
-		}
+		Util.applyRowStyle(view, position);
 
 		return view;
 	}

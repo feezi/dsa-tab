@@ -4,17 +4,21 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.dsatab.data.MetaTalent.MetaTalentType;
+
 public class TalentGroup {
 
-	public static String[] KAMPF_TALENTS = { "Dolche", "Hiebwaffen", "Raufen", "Ringen", "Säbel", "Wurfmesser",
-			"Anderthalbhänder", "Armbrust", "Blasrohr", "Bogen", "Diskus", "Fechtwaffen", "Infanteriewaffen",
-			"Kettenstäbe", "Kettenwaffen", "Lanzenreiten", "Peitsche", "Schleuder", "Schwerter", "Speere", "Stäbe",
-			"Wurfbeile", "Wurfspeere", "Zweihandflegel", "Zweihandhiebwaffen", "Zweihandschwerter/-säbel",
-			"Bastardstäbe", "Belagerungswaffen" };
+	public static String[] NAHKAMPF_TALENTS = { "Dolche", "Hiebwaffen", "Raufen", "Ringen", "Säbel",
+			"Anderthalbhänder", "Fechtwaffen", "Infanteriewaffen", "Kettenstäbe", "Kettenwaffen", "Lanzenreiten",
+			"Peitsche", "Schwerter", "Speere", "Stäbe", "Zweihandflegel", "Zweihandhiebwaffen",
+			"Zweihandschwerter/-säbel", "Bastardstäbe" };
+
+	public static String[] FERNKAMPF_TALENTS = { "Wurfmesser", "Armbrust", "Blasrohr", "Bogen", "Diskus", "Schleuder",
+			"Wurfbeile", "Wurfspeere", "Belagerungswaffen" };
 
 	public static String[] KÖRPER_TALENTS = { "Athletik", "Klettern", "Körperbeherrschung", "Schleichen", "Schwimmen",
-			"Selbstbeherrschung", "Sich verstecken", "Singen", "Sinnenschärfe", "Tanzen", "Zechen", "Akrobatik",
-			"Fliegen", "Gaukeleien", "Reiten", "Skifahren", "Stimmen imitieren", "Taschendiebstahl" };
+			Talent.SELBSTBEHERRSCHUNG, Talent.SICH_VERSTECKEN, "Singen", Talent.SINNENSCHÄRFE, "Tanzen", "Zechen",
+			"Akrobatik", "Fliegen", "Gaukeleien", "Reiten", "Skifahren", "Stimmen imitieren", "Taschendiebstahl" };
 
 	public static String[] GESELLSCHAFT_TALENTS = { "Menschenkenntnis", "Überreden", "Betören", "Etikette",
 			"Gassenwissen", "Lehren", "Sich verkleiden", "Überzeugen", "Galanterie", "Schauspielerei",
@@ -31,7 +35,9 @@ public class TalentGroup {
 
 	public static String[] SPACHEN_TALENTS = { "Sprachen kennen", "Lesen/Schreiben" };
 
-	public static String[] GABEN_TALENTS = { "Ritualkenntnis", "Gefahreninstinkt", "Liturgiekenntnis" };
+	public static String[] GABEN_TALENTS = { "Ritualkenntnis", Talent.GEFAHRENINSTINKT,
+			Talent.LITURGIE_KENNTNIS_PREFIX, Talent.GEISTER_ANRUFEN, Talent.GEISTER_BANNEN, Talent.GEISTER_BINDEN,
+			Talent.GEISTER_RUFEN };
 
 	public static String[] HANDWERK_TALENTS = { "Heilkunde: Wunden", "Holzbearbeitung", "Kochen", "Lederarbeiten",
 			"Malen/Zeichnen", "Schneidern", "Abrichten", "Boote fahren", "Eissegler fahren", "Fahrzeug lenken",
@@ -39,13 +45,18 @@ public class TalentGroup {
 			"Kartographie", "Musizieren", "Schlösser knacken", "Stoffe Färben", "Tätowieren", "Töpfern", "Webkunst",
 			"Ackerbau", "Alchimie", "Bergbau", "Bogenbau", "Brauer", "Drucker", "Feinmechanik",
 			"Feuersteinbearbeitung", "Fleischer", "Gerber/Kürschner", "Glaskunst", "Handel", "Hauswirtschaft",
-			"Heilkunde: Seele", "Instrumentenbauer", "Kapellmeister", "Kristallzucht", "Maurer", "Metallguss",
-			"Schnaps brennen", "Seefahrt", "Seiler", "Steinmetz", "Steinschneider/Juwelier", "Stellmacher",
-			"Steuermann", "Viehzucht", "Winzer", "Zimmermann" };
+			"Heilkunde: Seele", "Instrumentenbauer", "Kapellmeister", "Kartografie", "Kristallzucht", "Maurer",
+			"Metallguss", "Schnaps brennen", "Seefahrt", "Seiler", "Steinmetz", "Steinschneider/Juwelier",
+			"Stellmacher", "Steuermann", "Viehzucht", "Winzer", "Zimmermann" };
+
+	public static String[] META_TALENTS = { MetaTalentType.PirschAnsitzJagd.getName(),
+			MetaTalentType.NahrungSammeln.getName(), MetaTalentType.Kräutersuchen.getName(),
+			MetaTalentType.Wache.getName() };
 
 	public enum TalentGroupType {
-		Kampf(KAMPF_TALENTS), Körperlich(KÖRPER_TALENTS), Gesellschaft(GESELLSCHAFT_TALENTS), Natur(NATUR_TALENTS), Wissen(
-				WISSEN_TALENTS), Handwerk(HANDWERK_TALENTS), Sprachen(SPACHEN_TALENTS), Gaben(GABEN_TALENTS);
+		Nahkampf(NAHKAMPF_TALENTS), Fernkampf(FERNKAMPF_TALENTS), Körperlich(KÖRPER_TALENTS), Gesellschaft(
+				GESELLSCHAFT_TALENTS), Natur(NATUR_TALENTS), Wissen(WISSEN_TALENTS), Handwerk(HANDWERK_TALENTS), Sprachen(
+				SPACHEN_TALENTS), Gaben(GABEN_TALENTS), Meta(META_TALENTS);
 
 		private String[] talents;
 
@@ -72,12 +83,22 @@ public class TalentGroup {
 
 	private TalentGroupType type;
 
+	private boolean begabung;
+
 	public TalentGroup(TalentGroupType name) {
 		this.type = name;
 	}
 
 	public void setTalents(List<Talent> talents) {
 		this.talents = talents;
+	}
+
+	public boolean isBegabung() {
+		return begabung;
+	}
+
+	public void setBegabung(boolean begabung) {
+		this.begabung = begabung;
 	}
 
 	public List<Talent> getTalents() {

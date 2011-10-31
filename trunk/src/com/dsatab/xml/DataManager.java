@@ -30,8 +30,6 @@ import java.util.Set;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.dsatab.common.Util;
-import com.dsatab.data.LiturgieInfo;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.ItemType;
@@ -45,8 +43,6 @@ public class DataManager {
 	private static WeakReference<Map<String, Item>> itemsMap;
 
 	private static WeakReference<List<Item>> items;
-
-	private static WeakReference<Map<String, LiturgieInfo>> liturgieMap;
 
 	private static List<String> cardCategories;
 
@@ -80,14 +76,6 @@ public class DataManager {
 
 	}
 
-	public static Map<String, LiturgieInfo> getLiturgieMap() {
-		if (liturgieMap == null || liturgieMap.get() == null) {
-			liturgieMap = new WeakReference<Map<String, LiturgieInfo>>(XmlParser.readLiturige());
-		}
-
-		return liturgieMap.get();
-	}
-
 	public static Bitmap getBitmap(String path) {
 
 		Map<String, SoftReference<Bitmap>> b = null;
@@ -119,14 +107,6 @@ public class DataManager {
 
 	public static Item getItemByName(String name) {
 		return getItemsMap().get(name);
-	}
-
-	public static LiturgieInfo getLiturgieByName(String name, int grade) {
-		return getLiturgieMap().get(name + " " + Util.intToGrade(grade));
-	}
-
-	public static LiturgieInfo getLiturgieByName(String name) {
-		return getLiturgieMap().get(name);
 	}
 
 	public static List<String> getCardCategories() {

@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
@@ -22,28 +21,25 @@ import android.widget.Toast;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.BaseMainActivity;
+import com.dsatab.activity.MainActivity;
 
 public class PortraitChooserDialog extends AlertDialog implements AdapterView.OnItemClickListener {
 
-	private BaseMainActivity main;
+	private MainActivity main;
 
 	private List<URI> portraitPaths;
 
-	public PortraitChooserDialog(BaseMainActivity context) {
+	public PortraitChooserDialog(MainActivity context) {
 		super(context);
 		this.main = context;
 		init();
 	}
 
-	protected BaseMainActivity getMain() {
+	protected MainActivity getMain() {
 		return main;
 	}
 
 	private void init() {
-
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
 		setTitle("Wähle ein Portrait...");
 
 		File portraitDir = new File(DSATabApplication.getDsaTabPath(), DSATabApplication.DIR_PORTRAITS);

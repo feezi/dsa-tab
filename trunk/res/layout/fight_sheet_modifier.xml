@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TwoLineListItem xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:padding="2.5dp"
     android:background="@color/Brighter"
     android:layout_height="wrap_content">
 
-    <TextView android:id="@android:id/text1"
-        android:layout_marginTop="1dip"
+    <TextView android:id="@android:id/text1"        
         android:layout_width="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/active"
+        android:layout_alignWithParentIfMissing="true"        
         android:layout_height="wrap_content"
-        android:textSize="15sp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         android:textStyle="bold" />
 
     <TextView android:id="@android:id/text2"
@@ -16,9 +20,12 @@
         android:layout_height="wrap_content"
         android:layout_below="@android:id/text1"
         android:layout_alignLeft="@android:id/text1"
-        android:paddingBottom="4dip"
-        android:includeFontPadding="false"
-        android:textSize="15sp"
+        android:layout_alignRight="@android:id/text1"        
+        android:textAppearance="?android:attr/textAppearanceMedium"
         android:textStyle="normal" />
+        
+    <CheckBox android:id="@+id/active" android:layout_width="wrap_content" android:layout_alignParentRight="true" 
+        android:layout_centerVertical="true"
+        android:layout_height="wrap_content"></CheckBox>
 
 </TwoLineListItem>

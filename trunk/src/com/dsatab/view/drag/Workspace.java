@@ -25,12 +25,14 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
+import com.dsatab.R;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
@@ -99,6 +101,8 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 
 	public interface OnScreenChangeListener {
 		public void onScreenChange(int oldScreen, int newScreen);
+
+		public void onScreenAdded(int newScreen);
 	}
 
 	private static class WorkspaceOvershootInterpolator implements Interpolator {
@@ -158,6 +162,10 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		if (!(child instanceof CellLayout)) {
 			throw new IllegalArgumentException("A Workspace can only have CellLayout children.");
 		}
+		if (mClickListener != null)
+			child.setOnClickListener(mClickListener);
+		if (mLongClickListener != null)
+			child.setOnLongClickListener(mLongClickListener);
 		super.addView(child, index, params);
 	}
 
@@ -175,6 +183,12 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		if (!(child instanceof CellLayout)) {
 			throw new IllegalArgumentException("A Workspace can only have CellLayout children.");
 		}
+
+		if (mClickListener != null)
+			child.setOnClickListener(mClickListener);
+		if (mLongClickListener != null)
+			child.setOnLongClickListener(mLongClickListener);
+
 		super.addView(child);
 	}
 
@@ -183,6 +197,11 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		if (!(child instanceof CellLayout)) {
 			throw new IllegalArgumentException("A Workspace can only have CellLayout children.");
 		}
+		if (mClickListener != null)
+			child.setOnClickListener(mClickListener);
+		if (mLongClickListener != null)
+			child.setOnLongClickListener(mLongClickListener);
+
 		super.addView(child, index);
 	}
 
@@ -191,6 +210,11 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		if (!(child instanceof CellLayout)) {
 			throw new IllegalArgumentException("A Workspace can only have CellLayout children.");
 		}
+		if (mClickListener != null)
+			child.setOnClickListener(mClickListener);
+		if (mLongClickListener != null)
+			child.setOnLongClickListener(mLongClickListener);
+
 		super.addView(child, width, height);
 	}
 
@@ -261,6 +285,10 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		if (!(child instanceof CellLayout)) {
 			throw new IllegalArgumentException("A Workspace can only have CellLayout children.");
 		}
+		if (mClickListener != null)
+			child.setOnClickListener(mClickListener);
+		if (mLongClickListener != null)
+			child.setOnLongClickListener(mLongClickListener);
 		super.addView(child, params);
 	}
 
@@ -364,7 +392,23 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 			mDragController.addDropTarget((DropTarget<ItemCard>) child);
 		}
 
+		if (screen == getChildCount() - 1 && isScreenFull(screen)) {
+			Debug.verbose("Adding new screen since the last one was full");
+			LayoutInflater.from(getContext()).inflate(R.layout.workspace_screen, this);
+			if (onScreenChangeListener != null)
+				onScreenChangeListener.onScreenAdded(screen + 1);
+		}
+
 		return true;
+	}
+
+	public boolean isScreenFull(int screen) {
+		CellLayout.CellInfo info2 = findAllVacantCells(screen, null);
+		if (info2.vacantCells.isEmpty()) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	CellLayout.CellInfo findAllVacantCells(int screen, boolean[] occupied) {
@@ -717,6 +761,7 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		current.onDragChild(child);
 		mDragController.startDrag(child, this, (ItemCard) child.getTag(), DragController.DRAG_ACTION_MOVE);
 		invalidate();
+
 	}
 
 	@Override

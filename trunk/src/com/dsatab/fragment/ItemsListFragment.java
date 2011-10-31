@@ -76,17 +76,6 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.dsatab.activity.BaseMenuActivity#onHeroUnloaded(com.dsatab.data.Hero)
-	 */
-	@Override
-	public void onHeroUnloaded(Hero hero) {
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see android.app.Activity#onActivityResult(int, int,
 	 * android.content.Intent)
 	 */
@@ -129,6 +118,7 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 
 						@Override
 						public void onItemAdded(Item item) {
+							itemAdpater.add(item);
 							itemAdpater.notifyDataSetChanged();
 						}
 
@@ -165,6 +155,7 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 		switch (item.getItemId()) {
 		case CONTEXTMENU_REMOVE:
 			if (selectedItem != null) {
+				itemAdpater.remove(selectedItem);
 				getHero().removeItem(selectedItem);
 				selectedItem = null;
 			}
@@ -196,8 +187,9 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 
 			selectedItem = item;
 
-			menu.add(0, CONTEXTMENU_SHOW, 0, getString(R.string.menu_view_item));
-
+			if (selectedItem.hasImage()) {
+				menu.add(0, CONTEXTMENU_SHOW, 0, getString(R.string.menu_view_item));
+			}
 			menu.add(0, CONTEXTMENU_REMOVE, 1, getString(R.string.menu_delete_item));
 
 		}
@@ -213,7 +205,7 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.sheet_items_list, container, false);
+		return configureContainerView(inflater.inflate(R.layout.sheet_items_list, container, false));
 	}
 
 	/*
@@ -355,7 +347,9 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 					Item item = (Item) parent.getAdapter().getItem(position);
 
 					if (item != null) {
-						getHero().addItem(getActivity(), item.duplicate(), null);
+						item = item.duplicate();
+						getHero().addItem(getActivity(), item, null);
+						itemAdpater.add(item);
 					}
 
 					itemChooserDialog.dismiss();
@@ -380,7 +374,6 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 	@Override
 	public void onItemAdded(Item item) {
 		itemAdpater.refilter();
-		itemAdpater.notifyDataSetChanged();
 	}
 
 	/*
@@ -405,7 +398,6 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 	@Override
 	public void onItemRemoved(Item item) {
 		itemAdpater.refilter();
-		itemAdpater.notifyDataSetChanged();
 	}
 
 	/*

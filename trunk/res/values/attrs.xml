@@ -8,9 +8,12 @@
         <!-- Horizontal widget. -->
         <enum name="horizontal" value="1" />
     </attr>
-
-    <skip />
                 
+    <declare-styleable name="Theme">
+        <attr name="glossyImageButtonStyle" format="reference"/>
+        <attr name="glossyButtonStyle" format="reference"/>
+    </declare-styleable>
+    
     <declare-styleable name="Gallery">
         <attr name="android:galleryItemBackground" />
     </declare-styleable>

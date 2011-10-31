@@ -24,7 +24,6 @@ import android.text.TextUtils;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.ItemType;
-import com.gandulf.guilib.util.Debug;
 
 /**
  * @author Ganymede
@@ -92,8 +91,6 @@ public class ItemListFilter extends OpenFilter<Item> {
 		if (constraint != null) {
 			valid &= m.getName().toLowerCase().startsWith(constraint);
 		}
-
-		Debug.verbose(valid + "filter with cons:" + constraint + " item:" + m.getName());
 
 		return valid;
 	}

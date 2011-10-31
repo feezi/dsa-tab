@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.dsatab.view.DiceSlider xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:gravity="bottom"
+              android:orientation="vertical">
+<com.dsatab.view.DiceSlider 
 	android:id="@+id/SlidingDrawer" android:handle="@+id/SlidingHandle"
 	android:content="@+id/inc_dice_slider_content" android:layout_width="fill_parent"
-	android:layout_height="@dimen/dice_slider_height"
+	android:layout_height="wrap_content"
 	android:layout_marginBottom="@dimen/tab_icon_size">
 	<LinearLayout android:layout_height="wrap_content"
 		android:id="@+id/SlidingHandle" android:orientation="horizontal"
@@ -13,9 +17,8 @@
 			android:layout_width="50dip"></ImageButton>
 	</LinearLayout>
 
-
-
-	<include android:layout_width="wrap_content"
-		android:layout_height="wrap_content" layout="@layout/dice_slider_content"
+	<include android:layout_width="fill_parent"
+		android:layout_height="fill_parent" layout="@layout/dice_slider_content"
 		android:id="@+id/inc_dice_slider_content"></include>
 </com.dsatab.view.DiceSlider>
+</LinearLayout>

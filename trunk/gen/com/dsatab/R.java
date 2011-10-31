@@ -13,6 +13,10 @@ public final class R {
         public static final int flip_in=0x7f040001;
         public static final int flip_out=0x7f040002;
         public static final int shake=0x7f040003;
+        public static final int slide_in_left=0x7f040004;
+        public static final int slide_in_right=0x7f040005;
+        public static final int slide_out_left=0x7f040006;
+        public static final int slide_out_right=0x7f040007;
     }
     public static final class array {
         public static final int archeryDistance=0x7f080006;
@@ -33,6 +37,10 @@ public final class R {
         public static final int screenOrientationValues=0x7f080001;
     }
     public static final class attr {
+        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+         */
+        public static final int borderDrawable=0x7f010006;
         /**  The first screen the workspace should display. 
          <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
@@ -41,7 +49,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int current=0x7f010000;
+        public static final int current=0x7f010002;
         /**  Orientation of a widget. 
          <p>Must be one of the following constant values.</p>
 <table>
@@ -53,7 +61,19 @@ containing a value of this type.
 <tr><td><code>horizontal</code></td><td>1</td><td> Horizontal widget. </td></tr>
 </table>
          */
-        public static final int direction=0x7f010003;
+        public static final int direction=0x7f010007;
+        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+         */
+        public static final int glossyButtonStyle=0x7f010009;
+        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+         */
+        public static final int glossyImageButtonStyle=0x7f010008;
+        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+         */
+        public static final int maskDrawable=0x7f010005;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -61,7 +81,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int maximum=0x7f010002;
+        public static final int maximum=0x7f010004;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -69,7 +89,26 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int minimum=0x7f010001;
+        public static final int minimum=0x7f010003;
+        /**  Should the layout be a column or a row?  Use "horizontal"
+             for a row, "vertical" for a column.  The default is
+             vertical. 
+         <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int orientation=0x7f010000;
+        /** <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int visibleItems=0x7f010001;
     }
     public static final class color {
         public static final int Brighter=0x7f0a0002;
@@ -82,735 +121,938 @@ containing a value of this type.
         public static final int RowUnusedEven=0x7f0a0008;
         public static final int RowUnusedOdd=0x7f0a0007;
         public static final int ValueBlack=0x7f0a000b;
+        public static final int ValueGray=0x7f0a000d;
         public static final int ValueGreen=0x7f0a000a;
         public static final int ValueRed=0x7f0a0009;
         public static final int ValueWhite=0x7f0a000c;
         public static final int delete_color_filter=0x7f0a000e;
-        public static final int window_background=0x7f0a000d;
     }
     public static final class dimen {
-        public static final int card_text_padding=0x7f0c0012;
-        public static final int dice_size=0x7f0c0008;
-        public static final int dice_slider_height=0x7f0c0007;
-        public static final int dices_padding=0x7f0c000a;
-        public static final int dices_size=0x7f0c0009;
-        public static final int gallery_thumb_height=0x7f0c0011;
-        public static final int gallery_thumb_width=0x7f0c0010;
-        public static final int icon_button_size=0x7f0c0003;
-        public static final int portrait_height=0x7f0c0000;
-        public static final int portrait_height_small=0x7f0c0001;
-        public static final int portrait_width_small=0x7f0c0002;
-        public static final int rs_icon_size=0x7f0c000e;
-        public static final int rs_icon_text_size=0x7f0c000f;
-        public static final int tab_icon_padding=0x7f0c0006;
-        public static final int tab_icon_size=0x7f0c0005;
-        public static final int tab_size=0x7f0c0004;
-        public static final int table_cell_padding=0x7f0c000b;
-        public static final int text_value_width=0x7f0c000c;
-        public static final int workspace_cell_height=0x7f0c0014;
-        public static final int workspace_cell_padding=0x7f0c0015;
-        public static final int workspace_cell_width=0x7f0c0013;
-        public static final int wound_icon_size=0x7f0c000d;
+        public static final int card_text_padding=0x7f0b0010;
+        public static final int dice_size=0x7f0b0006;
+        public static final int dice_slider_height=0x7f0b0015;
+        public static final int dices_padding=0x7f0b0008;
+        public static final int dices_size=0x7f0b0007;
+        public static final int expandable_icon_padding=0x7f0b0014;
+        public static final int gallery_thumb_height=0x7f0b000f;
+        public static final int gallery_thumb_width=0x7f0b000e;
+        public static final int icon_button_size=0x7f0b0003;
+        /**   margin of the tab pages 
+         */
+        public static final int page_margin=0x7f0b0000;
+        public static final int portrait_height_small=0x7f0b0001;
+        public static final int portrait_width_small=0x7f0b0002;
+        public static final int rs_icon_size=0x7f0b000c;
+        public static final int rs_icon_text_size=0x7f0b000d;
+        public static final int tab_icon_size=0x7f0b0005;
+        public static final int tab_size=0x7f0b0004;
+        public static final int table_cell_padding=0x7f0b0009;
+        public static final int text_value_width=0x7f0b000a;
+        public static final int workspace_cell_height=0x7f0b0012;
+        public static final int workspace_cell_padding=0x7f0b0013;
+        public static final int workspace_cell_width=0x7f0b0011;
+        public static final int wound_icon_size=0x7f0b000b;
     }
     public static final class drawable {
         public static final int arrow_left=0x7f020000;
         public static final int arrow_right=0x7f020001;
         public static final int bg_map=0x7f020002;
-        public static final int bg_map_land=0x7f020003;
-        public static final int bg_tab_dice=0x7f020004;
-        public static final int bg_tab_land=0x7f020005;
-        public static final int bg_tab_nonland=0x7f020006;
-        public static final int body_longbow=0x7f020007;
-        public static final int body_longsword=0x7f020008;
-        public static final int body_shield=0x7f020009;
-        public static final int body_steel_armor=0x7f02000a;
-        public static final int border_patch=0x7f02000b;
-        public static final int button_disabled_patch=0x7f02000c;
-        public static final int button_patch=0x7f02000d;
-        public static final int button_pressed_patch=0x7f02000e;
-        public static final int button_selected_patch=0x7f02000f;
-        public static final int character=0x7f020010;
-        public static final int delete_zone_selector=0x7f020011;
-        public static final int focused_application_background=0x7f020012;
-        public static final int home_arrows_left=0x7f020013;
-        public static final int home_arrows_left_1=0x7f020014;
-        public static final int home_arrows_left_2=0x7f020015;
-        public static final int home_arrows_left_3=0x7f020016;
-        public static final int home_arrows_left_4=0x7f020017;
-        public static final int home_arrows_right=0x7f020018;
-        public static final int home_arrows_right_1=0x7f020019;
-        public static final int home_arrows_right_2=0x7f02001a;
-        public static final int home_arrows_right_3=0x7f02001b;
-        public static final int home_arrows_right_4=0x7f02001c;
-        public static final int ic_btn_search=0x7f02001d;
-        public static final int ic_btn_speak_now=0x7f02001e;
-        public static final int ic_home_arrows_1_focus=0x7f02001f;
-        public static final int ic_home_arrows_1_focus_right=0x7f020020;
-        public static final int ic_home_arrows_1_normal=0x7f020021;
-        public static final int ic_home_arrows_1_normal_right=0x7f020022;
-        public static final int ic_home_arrows_1_press=0x7f020023;
-        public static final int ic_home_arrows_1_press_right=0x7f020024;
-        public static final int ic_home_arrows_2_focus=0x7f020025;
-        public static final int ic_home_arrows_2_focus_right=0x7f020026;
-        public static final int ic_home_arrows_2_normal=0x7f020027;
-        public static final int ic_home_arrows_2_normal_right=0x7f020028;
-        public static final int ic_home_arrows_2_press=0x7f020029;
-        public static final int ic_home_arrows_2_press_right=0x7f02002a;
-        public static final int ic_home_arrows_3_focus=0x7f02002b;
-        public static final int ic_home_arrows_3_focus_right=0x7f02002c;
-        public static final int ic_home_arrows_3_normal=0x7f02002d;
-        public static final int ic_home_arrows_3_normal_right=0x7f02002e;
-        public static final int ic_home_arrows_3_press=0x7f02002f;
-        public static final int ic_home_arrows_3_press_right=0x7f020030;
-        public static final int ic_home_arrows_4_focus=0x7f020031;
-        public static final int ic_home_arrows_4_focus_right=0x7f020032;
-        public static final int ic_home_arrows_4_normal=0x7f020033;
-        public static final int ic_home_arrows_4_normal_right=0x7f020034;
-        public static final int ic_home_arrows_4_press=0x7f020035;
-        public static final int ic_home_arrows_4_press_right=0x7f020036;
-        public static final int ic_menu_add=0x7f020037;
-        public static final int ic_menu_allfriends=0x7f020038;
-        public static final int ic_menu_archive=0x7f020039;
-        public static final int ic_menu_camera=0x7f02003a;
-        public static final int ic_menu_close_clear_cancel=0x7f02003b;
-        public static final int ic_menu_delete=0x7f02003c;
-        public static final int ic_menu_edit=0x7f02003d;
-        public static final int ic_menu_info_details=0x7f02003e;
-        public static final int ic_menu_mapmode=0x7f02003f;
-        public static final int ic_menu_more=0x7f020040;
-        public static final int ic_menu_my_calendar=0x7f020041;
-        public static final int ic_menu_preferences=0x7f020042;
-        public static final int ic_menu_revert=0x7f020043;
-        public static final int ic_menu_save=0x7f020044;
-        public static final int ic_menu_share=0x7f020045;
-        public static final int ic_menu_star=0x7f020046;
-        public static final int ic_menu_stop=0x7f020047;
-        public static final int ic_menu_upload=0x7f020048;
-        public static final int ic_menu_view=0x7f020049;
-        public static final int icon=0x7f02004a;
-        public static final int icon_2hieb=0x7f02004b;
-        public static final int icon_2schwert=0x7f02004c;
-        public static final int icon_armor=0x7f02004d;
-        public static final int icon_armor_btn=0x7f02004e;
-        public static final int icon_armor_chain=0x7f02004f;
-        public static final int icon_armor_cloth=0x7f020050;
-        public static final int icon_armor_metal=0x7f020051;
-        public static final int icon_attack=0x7f020052;
-        public static final int icon_ausweichen=0x7f020053;
-        public static final int icon_bags=0x7f020054;
-        public static final int icon_bow=0x7f020055;
-        public static final int icon_btn=0x7f020056;
-        public static final int icon_crossbow=0x7f020057;
-        public static final int icon_diskus=0x7f020058;
-        public static final int icon_dummy=0x7f020059;
-        public static final int icon_fecht=0x7f02005a;
-        public static final int icon_fist=0x7f02005b;
-        public static final int icon_greaves=0x7f02005c;
-        public static final int icon_halberd=0x7f02005d;
-        public static final int icon_hammer=0x7f02005e;
-        public static final int icon_helm=0x7f02005f;
-        public static final int icon_helm_full=0x7f020060;
-        public static final int icon_helm_half=0x7f020061;
-        public static final int icon_hieb=0x7f020062;
-        public static final int icon_kettenwaffen=0x7f020063;
-        public static final int icon_lite=0x7f020064;
-        public static final int icon_messer=0x7f020065;
-        public static final int icon_misc=0x7f020066;
-        public static final int icon_misc_multi=0x7f020067;
-        public static final int icon_net=0x7f020068;
-        public static final int icon_other=0x7f020069;
-        public static final int icon_rs_disabled=0x7f02006a;
-        public static final int icon_rs_disabled_focused=0x7f02006b;
-        public static final int icon_rs_normal=0x7f02006c;
-        public static final int icon_rs_pressed=0x7f02006d;
-        public static final int icon_rs_selected=0x7f02006e;
-        public static final int icon_search=0x7f02006f;
-        public static final int icon_shield=0x7f020070;
-        public static final int icon_sling=0x7f020071;
-        public static final int icon_special=0x7f020072;
-        public static final int icon_speer=0x7f020073;
-        public static final int icon_stab=0x7f020074;
-        public static final int icon_sword=0x7f020075;
-        public static final int icon_target=0x7f020076;
-        public static final int icon_whip=0x7f020077;
-        public static final int icon_wound_btn=0x7f020078;
-        public static final int icon_wound_disabled=0x7f020079;
-        public static final int icon_wound_disabled_focused=0x7f02007a;
-        public static final int icon_wound_normal=0x7f02007b;
-        public static final int icon_wound_old=0x7f02007c;
-        public static final int icon_wound_pressed=0x7f02007d;
-        public static final int icon_wound_s=0x7f02007e;
-        public static final int icon_wound_selected=0x7f02007f;
-        public static final int icon_wurfbeil=0x7f020080;
-        public static final int icon_wurfdolch=0x7f020081;
-        public static final int list_highlight_shape=0x7f020082;
-        public static final int list_row_even=0x7f020083;
-        public static final int list_row_even_fav=0x7f020084;
-        public static final int list_row_even_unused=0x7f020085;
-        public static final int list_row_odd=0x7f020086;
-        public static final int list_row_odd_fav=0x7f020087;
-        public static final int list_row_odd_unused=0x7f020088;
-        public static final int m_icon_abenteuer=0x7f020089;
-        public static final int m_icon_bekanntschaft=0x7f02008a;
-        public static final int m_icon_freundschaft=0x7f02008b;
-        public static final int m_icon_held=0x7f02008c;
-        public static final int m_icon_misc=0x7f02008d;
-        public static final int m_icon_natur=0x7f02008e;
-        public static final int m_icon_ort=0x7f02008f;
-        public static final int m_icon_tat=0x7f020090;
-        public static final int pressed_application_background=0x7f020091;
-        public static final int profile_blank=0x7f020092;
-        public static final int set=0x7f020093;
-        public static final int set1=0x7f020094;
-        public static final int set2=0x7f020095;
-        public static final int set3=0x7f020096;
-        public static final int shortcut_selector=0x7f020097;
-        public static final int tab_character=0x7f020098;
-        public static final int tab_coins=0x7f020099;
-        public static final int tab_fight=0x7f02009a;
-        public static final int tab_items=0x7f02009b;
-        public static final int tab_liturige=0x7f02009c;
-        public static final int tab_magic=0x7f02009d;
-        public static final int tab_map=0x7f02009e;
-        public static final int tab_notes=0x7f02009f;
-        public static final int tab_talents=0x7f0200a0;
-        public static final int tab_wound=0x7f0200a1;
-        public static final int timepicker_down_btn=0x7f0200a2;
-        public static final int timepicker_down_disabled=0x7f0200a3;
-        public static final int timepicker_down_disabled_focused=0x7f0200a4;
-        public static final int timepicker_down_normal=0x7f0200a5;
-        public static final int timepicker_down_pressed=0x7f0200a6;
-        public static final int timepicker_down_selected=0x7f0200a7;
-        public static final int timepicker_input=0x7f0200a8;
-        public static final int timepicker_input_disabled=0x7f0200a9;
-        public static final int timepicker_input_normal=0x7f0200aa;
-        public static final int timepicker_input_pressed=0x7f0200ab;
-        public static final int timepicker_input_selected=0x7f0200ac;
-        public static final int timepicker_land_down_btn=0x7f0200ad;
-        public static final int timepicker_land_down_disabled=0x7f0200ae;
-        public static final int timepicker_land_down_disabled_focused=0x7f0200af;
-        public static final int timepicker_land_down_normal=0x7f0200b0;
-        public static final int timepicker_land_down_pressed=0x7f0200b1;
-        public static final int timepicker_land_down_selected=0x7f0200b2;
-        public static final int timepicker_land_input=0x7f0200b3;
-        public static final int timepicker_land_input_disabled=0x7f0200b4;
-        public static final int timepicker_land_input_normal=0x7f0200b5;
-        public static final int timepicker_land_input_pressed=0x7f0200b6;
-        public static final int timepicker_land_input_selected=0x7f0200b7;
-        public static final int timepicker_land_up_btn=0x7f0200b8;
-        public static final int timepicker_land_up_disabled=0x7f0200b9;
-        public static final int timepicker_land_up_disabled_focused=0x7f0200ba;
-        public static final int timepicker_land_up_normal=0x7f0200bb;
-        public static final int timepicker_land_up_pressed=0x7f0200bc;
-        public static final int timepicker_land_up_selected=0x7f0200bd;
-        public static final int timepicker_up_btn=0x7f0200be;
-        public static final int timepicker_up_disabled=0x7f0200bf;
-        public static final int timepicker_up_disabled_focused=0x7f0200c0;
-        public static final int timepicker_up_normal=0x7f0200c1;
-        public static final int timepicker_up_pressed=0x7f0200c2;
-        public static final int timepicker_up_selected=0x7f0200c3;
-        public static final int trashcan=0x7f0200c4;
-        public static final int trashcan_hover=0x7f0200c5;
-        public static final int w20=0x7f0200c6;
-        public static final int w20_empty=0x7f0200c7;
-        public static final int w20_red_empty=0x7f0200c8;
-        public static final int w6_1=0x7f0200c9;
-        public static final int w6_2=0x7f0200ca;
-        public static final int w6_3=0x7f0200cb;
-        public static final int w6_4=0x7f0200cc;
-        public static final int w6_5=0x7f0200cd;
-        public static final int w6_6=0x7f0200ce;
+        public static final int bg_paper=0x7f020003;
+        public static final int bg_paper_selector=0x7f020004;
+        public static final int bg_tab_dice=0x7f020005;
+        public static final int bg_tab_land=0x7f020006;
+        public static final int bg_tab_nonland=0x7f020007;
+        public static final int bg_white=0x7f020008;
+        public static final int border_patch=0x7f020009;
+        public static final int border_patch_black=0x7f02000a;
+        public static final int btn_glossy=0x7f02000b;
+        public static final int btn_glossy_bg_normal=0x7f02000c;
+        public static final int btn_glossy_bg_pressed=0x7f02000d;
+        public static final int btn_glossy_bg_selected=0x7f02000e;
+        public static final int btn_glossy_gloss=0x7f02000f;
+        public static final int btn_glossy_mask=0x7f020010;
+        public static final int button_disabled_patch=0x7f020011;
+        public static final int button_patch=0x7f020012;
+        public static final int button_pressed_patch=0x7f020013;
+        public static final int button_selected_patch=0x7f020014;
+        public static final int character=0x7f020015;
+        public static final int character_kopie=0x7f020016;
+        public static final int delete_zone_selector=0x7f020017;
+        public static final int expandable_group_indicator=0x7f020018;
+        public static final int expander_ic_maximized=0x7f020019;
+        public static final int expander_ic_minimized=0x7f02001a;
+        public static final int home_arrows_left=0x7f02001b;
+        public static final int home_arrows_left_1=0x7f02001c;
+        public static final int home_arrows_left_2=0x7f02001d;
+        public static final int home_arrows_left_3=0x7f02001e;
+        public static final int home_arrows_left_4=0x7f02001f;
+        public static final int home_arrows_right=0x7f020020;
+        public static final int home_arrows_right_1=0x7f020021;
+        public static final int home_arrows_right_2=0x7f020022;
+        public static final int home_arrows_right_3=0x7f020023;
+        public static final int home_arrows_right_4=0x7f020024;
+        public static final int ic_btn_speak_now=0x7f020025;
+        public static final int ic_home_arrows_1_focus=0x7f020026;
+        public static final int ic_home_arrows_1_focus_right=0x7f020027;
+        public static final int ic_home_arrows_1_normal=0x7f020028;
+        public static final int ic_home_arrows_1_normal_right=0x7f020029;
+        public static final int ic_home_arrows_1_press=0x7f02002a;
+        public static final int ic_home_arrows_1_press_right=0x7f02002b;
+        public static final int ic_home_arrows_2_focus=0x7f02002c;
+        public static final int ic_home_arrows_2_focus_right=0x7f02002d;
+        public static final int ic_home_arrows_2_normal=0x7f02002e;
+        public static final int ic_home_arrows_2_normal_right=0x7f02002f;
+        public static final int ic_home_arrows_2_press=0x7f020030;
+        public static final int ic_home_arrows_2_press_right=0x7f020031;
+        public static final int ic_home_arrows_3_focus=0x7f020032;
+        public static final int ic_home_arrows_3_focus_right=0x7f020033;
+        public static final int ic_home_arrows_3_normal=0x7f020034;
+        public static final int ic_home_arrows_3_normal_right=0x7f020035;
+        public static final int ic_home_arrows_3_press=0x7f020036;
+        public static final int ic_home_arrows_3_press_right=0x7f020037;
+        public static final int ic_home_arrows_4_focus=0x7f020038;
+        public static final int ic_home_arrows_4_focus_right=0x7f020039;
+        public static final int ic_home_arrows_4_normal=0x7f02003a;
+        public static final int ic_home_arrows_4_normal_right=0x7f02003b;
+        public static final int ic_home_arrows_4_press=0x7f02003c;
+        public static final int ic_home_arrows_4_press_right=0x7f02003d;
+        public static final int ic_input_add=0x7f02003e;
+        public static final int ic_lock_silent_mode_off=0x7f02003f;
+        public static final int ic_menu_account_list=0x7f020040;
+        public static final int ic_menu_add=0x7f020041;
+        public static final int ic_menu_agenda=0x7f020042;
+        public static final int ic_menu_allfriends=0x7f020043;
+        public static final int ic_menu_always_landscape_portrait=0x7f020044;
+        public static final int ic_menu_archive=0x7f020045;
+        public static final int ic_menu_barcode=0x7f020046;
+        public static final int ic_menu_camera=0x7f020047;
+        public static final int ic_menu_clear_playlist=0x7f020048;
+        public static final int ic_menu_close_clear_cancel=0x7f020049;
+        public static final int ic_menu_contrast=0x7f02004a;
+        public static final int ic_menu_database=0x7f02004b;
+        public static final int ic_menu_delete=0x7f02004c;
+        public static final int ic_menu_dice=0x7f02004d;
+        public static final int ic_menu_download=0x7f02004e;
+        public static final int ic_menu_edit=0x7f02004f;
+        public static final int ic_menu_friendslist=0x7f020050;
+        public static final int ic_menu_home=0x7f020051;
+        public static final int ic_menu_info_details=0x7f020052;
+        public static final int ic_menu_laptop=0x7f020053;
+        public static final int ic_menu_light=0x7f020054;
+        public static final int ic_menu_love=0x7f020055;
+        public static final int ic_menu_mapmode=0x7f020056;
+        public static final int ic_menu_monitor=0x7f020057;
+        public static final int ic_menu_more=0x7f020058;
+        public static final int ic_menu_my_calendar=0x7f020059;
+        public static final int ic_menu_preferences=0x7f02005a;
+        public static final int ic_menu_revert=0x7f02005b;
+        public static final int ic_menu_save=0x7f02005c;
+        public static final int ic_menu_search=0x7f02005d;
+        public static final int ic_menu_search_small=0x7f02005e;
+        public static final int ic_menu_settings=0x7f02005f;
+        public static final int ic_menu_share=0x7f020060;
+        public static final int ic_menu_sound=0x7f020061;
+        public static final int ic_menu_star=0x7f020062;
+        public static final int ic_menu_stop=0x7f020063;
+        public static final int ic_menu_tag=0x7f020064;
+        public static final int ic_menu_upload=0x7f020065;
+        public static final int ic_menu_view=0x7f020066;
+        public static final int ic_menu_wizard=0x7f020067;
+        public static final int icon=0x7f020068;
+        public static final int icon_2hieb=0x7f020069;
+        public static final int icon_2schwert=0x7f02006a;
+        public static final int icon_armor=0x7f02006b;
+        public static final int icon_armor_btn=0x7f02006c;
+        public static final int icon_armor_chain=0x7f02006d;
+        public static final int icon_armor_cloth=0x7f02006e;
+        public static final int icon_armor_metal=0x7f02006f;
+        public static final int icon_attack=0x7f020070;
+        public static final int icon_ausweichen=0x7f020071;
+        public static final int icon_bags=0x7f020072;
+        public static final int icon_bow=0x7f020073;
+        public static final int icon_btn=0x7f020074;
+        public static final int icon_crossbow=0x7f020075;
+        public static final int icon_diskus=0x7f020076;
+        public static final int icon_dummy=0x7f020077;
+        public static final int icon_fecht=0x7f020078;
+        public static final int icon_fist=0x7f020079;
+        public static final int icon_greaves=0x7f02007a;
+        public static final int icon_halberd=0x7f02007b;
+        public static final int icon_hammer=0x7f02007c;
+        public static final int icon_helm=0x7f02007d;
+        public static final int icon_helm_full=0x7f02007e;
+        public static final int icon_helm_half=0x7f02007f;
+        public static final int icon_hieb=0x7f020080;
+        public static final int icon_kettenwaffen=0x7f020081;
+        public static final int icon_longbow=0x7f020082;
+        public static final int icon_longsword=0x7f020083;
+        public static final int icon_messer=0x7f020084;
+        public static final int icon_metal_shield=0x7f020085;
+        public static final int icon_misc=0x7f020086;
+        public static final int icon_misc_multi=0x7f020087;
+        public static final int icon_net=0x7f020088;
+        public static final int icon_other=0x7f020089;
+        public static final int icon_rs_disabled=0x7f02008a;
+        public static final int icon_rs_normal=0x7f02008b;
+        public static final int icon_rs_pressed=0x7f02008c;
+        public static final int icon_rs_selected=0x7f02008d;
+        public static final int icon_search=0x7f02008e;
+        public static final int icon_shield=0x7f02008f;
+        public static final int icon_sling=0x7f020090;
+        public static final int icon_special=0x7f020091;
+        public static final int icon_speer=0x7f020092;
+        public static final int icon_stab=0x7f020093;
+        public static final int icon_steel_armor=0x7f020094;
+        public static final int icon_sword=0x7f020095;
+        public static final int icon_target=0x7f020096;
+        public static final int icon_whip=0x7f020097;
+        public static final int icon_wound_btn=0x7f020098;
+        public static final int icon_wound_disabled=0x7f020099;
+        public static final int icon_wound_normal=0x7f02009a;
+        public static final int icon_wound_old=0x7f02009b;
+        public static final int icon_wound_pressed=0x7f02009c;
+        public static final int icon_wound_selected=0x7f02009d;
+        public static final int icon_wurfbeil=0x7f02009e;
+        public static final int icon_wurfdolch=0x7f02009f;
+        public static final int indicator_flash=0x7f0200a0;
+        public static final int indicator_house=0x7f0200a1;
+        public static final int indicator_star=0x7f0200a2;
+        public static final int inventory=0x7f0200a3;
+        public static final int inventory1=0x7f0200a4;
+        public static final int inventory10=0x7f0200a5;
+        public static final int inventory2=0x7f0200a6;
+        public static final int inventory3=0x7f0200a7;
+        public static final int inventory4=0x7f0200a8;
+        public static final int inventory5=0x7f0200a9;
+        public static final int inventory6=0x7f0200aa;
+        public static final int inventory7=0x7f0200ab;
+        public static final int inventory8=0x7f0200ac;
+        public static final int inventory9=0x7f0200ad;
+        public static final int inventory_selector=0x7f0200ae;
+        public static final int item_card=0x7f0200af;
+        public static final int list_background_selector=0x7f0200b0;
+        public static final int list_highlight_shape=0x7f0200b1;
+        public static final int m_icon_abenteuer=0x7f0200b2;
+        public static final int m_icon_bekanntschaft=0x7f0200b3;
+        public static final int m_icon_freundschaft=0x7f0200b4;
+        public static final int m_icon_held=0x7f0200b5;
+        public static final int m_icon_heldensoftware=0x7f0200b6;
+        public static final int m_icon_misc=0x7f0200b7;
+        public static final int m_icon_natur=0x7f0200b8;
+        public static final int m_icon_ort=0x7f0200b9;
+        public static final int m_icon_tat=0x7f0200ba;
+        public static final int profile_blank=0x7f0200bb;
+        public static final int set=0x7f0200bc;
+        public static final int set1=0x7f0200bd;
+        public static final int set2=0x7f0200be;
+        public static final int set3=0x7f0200bf;
+        public static final int tab_art=0x7f0200c0;
+        public static final int tab_character=0x7f0200c1;
+        public static final int tab_coins=0x7f0200c2;
+        public static final int tab_fight=0x7f0200c3;
+        public static final int tab_items=0x7f0200c4;
+        public static final int tab_liturige=0x7f0200c5;
+        public static final int tab_magic=0x7f0200c6;
+        public static final int tab_map=0x7f0200c7;
+        public static final int tab_notes=0x7f0200c8;
+        public static final int tab_pdf=0x7f0200c9;
+        public static final int tab_talents=0x7f0200ca;
+        public static final int tab_wound=0x7f0200cb;
+        public static final int timepicker_down_btn=0x7f0200cc;
+        public static final int timepicker_down_disabled=0x7f0200cd;
+        public static final int timepicker_down_disabled_focused=0x7f0200ce;
+        public static final int timepicker_down_normal=0x7f0200cf;
+        public static final int timepicker_down_pressed=0x7f0200d0;
+        public static final int timepicker_down_selected=0x7f0200d1;
+        public static final int timepicker_input=0x7f0200d2;
+        public static final int timepicker_input_disabled=0x7f0200d3;
+        public static final int timepicker_input_normal=0x7f0200d4;
+        public static final int timepicker_input_pressed=0x7f0200d5;
+        public static final int timepicker_input_selected=0x7f0200d6;
+        public static final int timepicker_land_down_btn=0x7f0200d7;
+        public static final int timepicker_land_down_disabled=0x7f0200d8;
+        public static final int timepicker_land_down_disabled_focused=0x7f0200d9;
+        public static final int timepicker_land_down_normal=0x7f0200da;
+        public static final int timepicker_land_down_pressed=0x7f0200db;
+        public static final int timepicker_land_down_selected=0x7f0200dc;
+        public static final int timepicker_land_input=0x7f0200dd;
+        public static final int timepicker_land_input_disabled=0x7f0200de;
+        public static final int timepicker_land_input_normal=0x7f0200df;
+        public static final int timepicker_land_input_pressed=0x7f0200e0;
+        public static final int timepicker_land_input_selected=0x7f0200e1;
+        public static final int timepicker_land_up_btn=0x7f0200e2;
+        public static final int timepicker_land_up_disabled=0x7f0200e3;
+        public static final int timepicker_land_up_disabled_focused=0x7f0200e4;
+        public static final int timepicker_land_up_normal=0x7f0200e5;
+        public static final int timepicker_land_up_pressed=0x7f0200e6;
+        public static final int timepicker_land_up_selected=0x7f0200e7;
+        public static final int timepicker_up_btn=0x7f0200e8;
+        public static final int timepicker_up_disabled=0x7f0200e9;
+        public static final int timepicker_up_disabled_focused=0x7f0200ea;
+        public static final int timepicker_up_normal=0x7f0200eb;
+        public static final int timepicker_up_pressed=0x7f0200ec;
+        public static final int timepicker_up_selected=0x7f0200ed;
+        public static final int trashcan=0x7f0200ee;
+        public static final int trashcan_hover=0x7f0200ef;
+        public static final int w20=0x7f0200f0;
+        public static final int w20_empty=0x7f0200f1;
+        public static final int w20_red_empty=0x7f0200f2;
+        public static final int w6_1=0x7f0200f3;
+        public static final int w6_2=0x7f0200f4;
+        public static final int w6_3=0x7f0200f5;
+        public static final int w6_4=0x7f0200f6;
+        public static final int w6_5=0x7f0200f7;
+        public static final int w6_6=0x7f0200f8;
+        public static final int wheel_bg=0x7f0200f9;
+        public static final int wheel_bg_disabled=0x7f0200fa;
+        public static final int wheel_bg_horizontal=0x7f0200fb;
+        public static final int wheel_bg_horizontal_disabled=0x7f0200fc;
+        public static final int wheel_bg_horizontal_normal=0x7f0200fd;
+        public static final int wheel_bg_normal=0x7f0200fe;
+        public static final int wheel_val=0x7f0200ff;
+        public static final int wheel_val_horizontal=0x7f020100;
     }
     public static final class id {
-        public static final int LinearLayout01=0x7f0900d0;
-        public static final int SlidingDrawer=0x7f090029;
-        public static final int SlidingHandle=0x7f09002a;
-        public static final int TAG_CARD_POSITION=0x7f090005;
-        public static final int TAG_CARD_TYPE=0x7f090004;
-        public static final int TAG_KEY_PROBE=0x7f090003;
-        public static final int TAG_KEY_VALUE=0x7f090002;
-        public static final int TableLayout01=0x7f090031;
-        public static final int TableRow01=0x7f090032;
-        public static final int TableRow02=0x7f090036;
-        public static final int archery_distance=0x7f090053;
-        public static final int archery_distance_text=0x7f090052;
-        public static final int archery_others=0x7f090056;
-        public static final int archery_probe=0x7f090057;
-        public static final int archery_probe_value=0x7f090058;
-        public static final int archery_size=0x7f090055;
-        public static final int archery_size_text=0x7f090054;
-        public static final int attr_abp=0x7f0900c2;
-        public static final int attr_ae=0x7f09000d;
-        public static final int attr_ae_label=0x7f09000c;
-        public static final int attr_at=0x7f0900c5;
-        public static final int attr_at_label=0x7f0900c4;
-        public static final int attr_attributes=0x7f090006;
-        public static final int attr_au=0x7f09000b;
-        public static final int attr_au_label=0x7f09000a;
-        public static final int attr_be=0x7f090011;
-        public static final int attr_be_label=0x7f090010;
-        public static final int attr_ch=0x7f09001f;
-        public static final int attr_ch_label=0x7f09001e;
-        public static final int attr_ff=0x7f090021;
-        public static final int attr_ff_label=0x7f090020;
-        public static final int attr_fk=0x7f0900c9;
-        public static final int attr_fk_label=0x7f0900c8;
-        public static final int attr_ge=0x7f090023;
-        public static final int attr_ge_label=0x7f090022;
-        public static final int attr_gs=0x7f090015;
-        public static final int attr_gs_label=0x7f090014;
-        public static final int attr_in=0x7f09001d;
-        public static final int attr_in_label=0x7f09001c;
-        public static final int attr_ini=0x7f0900cb;
-        public static final int attr_ini_label=0x7f0900ca;
-        public static final int attr_ke=0x7f09000f;
-        public static final int attr_ke_label=0x7f09000e;
-        public static final int attr_kk=0x7f090027;
-        public static final int attr_kk_label=0x7f090026;
-        public static final int attr_kl=0x7f09001b;
-        public static final int attr_kl_label=0x7f09001a;
-        public static final int attr_ko=0x7f090025;
-        public static final int attr_ko_label=0x7f090024;
-        public static final int attr_label_ae=0x7f0900bb;
-        public static final int attr_label_ke=0x7f0900be;
-        public static final int attr_le=0x7f090009;
-        public static final int attr_le_label=0x7f090008;
-        public static final int attr_lp=0x7f0900b7;
-        public static final int attr_mr=0x7f090013;
-        public static final int attr_mr_label=0x7f090012;
-        public static final int attr_mu=0x7f090019;
-        public static final int attr_mu_label=0x7f090018;
-        public static final int attr_name=0x7f090007;
-        public static final int attr_pa=0x7f0900c7;
-        public static final int attr_pa_label=0x7f0900c6;
-        public static final int attr_so=0x7f0900c0;
-        public static final int attr_st=0x7f0900c1;
-        public static final int attr_total_ae=0x7f0900bc;
-        public static final int attr_total_au=0x7f0900b9;
-        public static final int attr_total_ke=0x7f0900bf;
-        public static final int attr_total_lp=0x7f0900b8;
-        public static final int attr_ws=0x7f090017;
-        public static final int attr_ws_label=0x7f090016;
-        public static final int body_armor_button=0x7f0900dd;
-        public static final int body_attack_button=0x7f0900d8;
-        public static final int body_autosearch=0x7f0900e1;
-        public static final int body_bags_button=0x7f0900de;
-        public static final int body_cloth_button=0x7f0900d9;
-        public static final int body_defense_button=0x7f0900db;
-        public static final int body_distance_button=0x7f0900dc;
-        public static final int body_items_button=0x7f0900df;
-        public static final int body_layout=0x7f0900a8;
-        public static final int body_misc_button=0x7f0900ef;
-        public static final int body_search_button=0x7f0900da;
-        public static final int body_special_button=0x7f0900e0;
-        public static final int body_total_be=0x7f0900a9;
-        public static final int body_total_rs=0x7f0900ab;
-        public static final int cb_show_armor=0x7f090077;
-        public static final int cb_show_evade=0x7f090078;
-        public static final int cb_show_favorites=0x7f090075;
-        public static final int cb_show_modifier=0x7f090076;
-        public static final int cb_show_normal=0x7f090074;
-        public static final int cb_show_unused=0x7f090073;
-        public static final int cell1=0x7f0900e4;
-        public static final int cell2=0x7f0900e5;
-        public static final int cell3=0x7f0900e6;
-        public static final int cell4=0x7f0900e7;
-        public static final int cell5=0x7f0900e8;
-        public static final int contentLayout=0x7f09002d;
-        public static final int decrement=0x7f09004f;
-        public static final int delete_zone=0x7f0900ea;
-        public static final int dice_area=0x7f09003c;
-        public static final int dice_dice_result=0x7f09003d;
-        public static final int dice_dices=0x7f090030;
-        public static final int dice_effect=0x7f090035;
-        public static final int dice_effect_value=0x7f090039;
-        public static final int dice_info=0x7f09002f;
-        public static final int dice_probe=0x7f090034;
-        public static final int dice_probe_table=0x7f09002e;
-        public static final int dice_talent=0x7f090033;
-        public static final int dice_talent_value=0x7f090037;
-        public static final int dice_value=0x7f090038;
-        public static final int dice_w20=0x7f09003a;
-        public static final int dice_w6=0x7f09003b;
-        public static final int drag_layer=0x7f0900e2;
-        public static final int et_heldenkey=0x7f090081;
-        public static final int et_heldenowner=0x7f090083;
-        public static final int evade_distance=0x7f09006f;
-        public static final int evade_distance_text=0x7f09006e;
-        public static final int evade_enemy=0x7f090071;
-        public static final int evade_enemy_text=0x7f090070;
-        public static final int evade_others=0x7f090072;
-        public static final int fight_btn_picker=0x7f0900ce;
-        public static final int fight_items=0x7f0900d1;
-        public static final int fight_le_layout=0x7f0900cd;
-        public static final int fight_modifiers=0x7f0900d3;
-        public static final int fight_modifiers_title=0x7f0900d4;
-        public static final int fight_picker=0x7f0900cf;
-        public static final int fight_set=0x7f0900aa;
-        public static final int fragment_item_chooser=0x7f090047;
-        public static final int fragment_notes_edit=0x7f090048;
-        public static final int gal_gallery=0x7f0900d5;
-        public static final int gal_imageView=0x7f0900d6;
-        public static final int gen_alter=0x7f0900b4;
-        public static final int gen_attributes=0x7f090028;
-        public static final int gen_attributes2=0x7f0900b6;
-        public static final int gen_attributes3=0x7f0900c3;
-        public static final int gen_attributes_layout=0x7f0900b5;
-        public static final int gen_ausbildung=0x7f0900af;
-        public static final int gen_char_sheet=0x7f0900ac;
-        public static final int gen_description=0x7f0900ae;
-        public static final int gen_gewicht=0x7f0900b1;
-        public static final int gen_groesse=0x7f0900b2;
-        public static final int gen_haar_augen=0x7f0900b3;
-        public static final int gen_herkunft=0x7f0900b0;
-        public static final int gen_main_layout=0x7f090049;
-        public static final int gen_portrait=0x7f0900ad;
-        public static final int gen_specialfeatures=0x7f0900cc;
-        public static final int gen_tab=0x7f090045;
-        public static final int gen_tab_layout=0x7f090046;
-        public static final int gen_talent_sheet=0x7f0900f2;
+        public static final int LinearLayout01=0x7f09010e;
+        public static final int SlidingDrawer=0x7f090039;
+        public static final int SlidingHandle=0x7f09003a;
+        public static final int TAG_CARD_POSITION=0x7f090015;
+        public static final int TAG_CARD_TYPE=0x7f090014;
+        public static final int TAG_KEY_PROBE=0x7f090013;
+        public static final int TAG_KEY_VALUE=0x7f090012;
+        public static final int TableLayout01=0x7f090045;
+        public static final int TableRow01=0x7f090046;
+        public static final int TableRow02=0x7f09004a;
+        public static final int active=0x7f090056;
+        public static final int archery_distance=0x7f090069;
+        public static final int archery_distance_text=0x7f090068;
+        public static final int archery_others=0x7f09006c;
+        public static final int archery_probe=0x7f09006d;
+        public static final int archery_probe_value=0x7f09006e;
+        public static final int archery_size=0x7f09006b;
+        public static final int archery_size_text=0x7f09006a;
+        public static final int art_list=0x7f0900d8;
+        public static final int art_talents=0x7f0900d7;
+        public static final int attr_abp=0x7f0900fe;
+        public static final int attr_ae=0x7f09001d;
+        public static final int attr_ae_label=0x7f09001c;
+        public static final int attr_at=0x7f090101;
+        public static final int attr_at_label=0x7f090100;
+        public static final int attr_attributes=0x7f090016;
+        public static final int attr_au=0x7f09001b;
+        public static final int attr_au_label=0x7f09001a;
+        public static final int attr_be=0x7f090021;
+        public static final int attr_be_label=0x7f090020;
+        public static final int attr_ch=0x7f09002f;
+        public static final int attr_ch_label=0x7f09002e;
+        public static final int attr_ff=0x7f090031;
+        public static final int attr_ff_label=0x7f090030;
+        public static final int attr_fk=0x7f090105;
+        public static final int attr_fk_label=0x7f090104;
+        public static final int attr_ge=0x7f090033;
+        public static final int attr_ge_label=0x7f090032;
+        public static final int attr_gs=0x7f090025;
+        public static final int attr_gs_label=0x7f090024;
+        public static final int attr_in=0x7f09002d;
+        public static final int attr_in_label=0x7f09002c;
+        public static final int attr_ini=0x7f090107;
+        public static final int attr_ini_label=0x7f090106;
+        public static final int attr_ke=0x7f09001f;
+        public static final int attr_ke_label=0x7f09001e;
+        public static final int attr_kk=0x7f090037;
+        public static final int attr_kk_label=0x7f090036;
+        public static final int attr_kl=0x7f09002b;
+        public static final int attr_kl_label=0x7f09002a;
+        public static final int attr_ko=0x7f090035;
+        public static final int attr_ko_label=0x7f090034;
+        public static final int attr_label_ae=0x7f0900f7;
+        public static final int attr_label_ke=0x7f0900fa;
+        public static final int attr_le=0x7f090019;
+        public static final int attr_le_label=0x7f090018;
+        public static final int attr_lp=0x7f0900f3;
+        public static final int attr_mr=0x7f090023;
+        public static final int attr_mr_label=0x7f090022;
+        public static final int attr_mu=0x7f090029;
+        public static final int attr_mu_label=0x7f090028;
+        public static final int attr_name=0x7f090017;
+        public static final int attr_pa=0x7f090103;
+        public static final int attr_pa_label=0x7f090102;
+        public static final int attr_so=0x7f0900fc;
+        public static final int attr_st=0x7f0900fd;
+        public static final int attr_total_ae=0x7f0900f8;
+        public static final int attr_total_au=0x7f0900f5;
+        public static final int attr_total_ke=0x7f0900fb;
+        public static final int attr_total_lp=0x7f0900f4;
+        public static final int attr_ws=0x7f090027;
+        public static final int attr_ws_label=0x7f090026;
+        public static final int body_armor_button=0x7f09011d;
+        public static final int body_attack_button=0x7f090118;
+        public static final int body_autosearch=0x7f090122;
+        public static final int body_bags_button=0x7f09011e;
+        public static final int body_cloth_button=0x7f090119;
+        public static final int body_defense_button=0x7f09011b;
+        public static final int body_distance_button=0x7f09011c;
+        public static final int body_items_button=0x7f09011f;
+        public static final int body_layout=0x7f0900da;
+        public static final int body_misc_button=0x7f090131;
+        public static final int body_search_button=0x7f09011a;
+        public static final int body_search_container=0x7f090121;
+        public static final int body_special_button=0x7f090120;
+        public static final int body_total_be=0x7f0900db;
+        public static final int body_total_rs=0x7f0900dd;
+        public static final int cb_liturgie_favorites=0x7f0900a7;
+        public static final int cb_liturgie_normal=0x7f0900a4;
+        public static final int cb_liturgie_unused=0x7f0900a1;
+        public static final int cb_show_armor=0x7f0900a9;
+        public static final int cb_show_evade=0x7f0900aa;
+        public static final int cb_show_modifier=0x7f0900a8;
+        public static final int cb_spell_favorites=0x7f0900a6;
+        public static final int cb_spell_normal=0x7f0900a3;
+        public static final int cb_spell_unused=0x7f0900a0;
+        public static final int cb_talent_favorites=0x7f0900a5;
+        public static final int cb_talent_normal=0x7f0900a2;
+        public static final int cb_talent_unused=0x7f09009f;
+        public static final int cell1=0x7f090125;
+        public static final int cell2=0x7f090126;
+        public static final int cell3=0x7f090127;
+        public static final int cell4=0x7f090128;
+        public static final int contentLayout=0x7f09003d;
+        public static final int decrement=0x7f090065;
+        public static final int delete_zone=0x7f09012a;
+        public static final int details_switch=0x7f0900f0;
+        public static final int dice_area=0x7f090050;
+        public static final int dice_dice_result=0x7f090052;
+        public static final int dice_dices=0x7f090044;
+        public static final int dice_effect=0x7f090049;
+        public static final int dice_effect_value=0x7f09004d;
+        public static final int dice_execute=0x7f090051;
+        public static final int dice_info=0x7f090043;
+        public static final int dice_info_layout=0x7f090041;
+        public static final int dice_probe=0x7f090048;
+        public static final int dice_probe_table=0x7f090042;
+        public static final int dice_talent=0x7f09003e;
+        public static final int dice_talent_value=0x7f09004b;
+        public static final int dice_taw=0x7f090047;
+        public static final int dice_value=0x7f09004c;
+        public static final int dice_w20=0x7f09004e;
+        public static final int dice_w6=0x7f09004f;
+        public static final int et_heldenkey=0x7f0900b2;
+        public static final int et_heldenowner=0x7f0900b4;
+        public static final int evade_distance=0x7f090098;
+        public static final int evade_distance_text=0x7f090097;
+        public static final int evade_enemy=0x7f09009a;
+        public static final int evade_enemy_text=0x7f090099;
+        public static final int evade_others=0x7f09009b;
+        public static final int fight_btn_picker=0x7f09010c;
+        public static final int fight_inventory=0x7f09012d;
+        public static final int fight_items=0x7f09010f;
+        public static final int fight_le_layout=0x7f09010b;
+        public static final int fight_modifiers=0x7f090111;
+        public static final int fight_modifiers_add=0x7f090113;
+        public static final int fight_modifiers_title=0x7f090112;
+        public static final int fight_picker=0x7f09010d;
+        public static final int fight_set=0x7f0900dc;
+        public static final int fragmentContainer0=0x7f090002;
+        public static final int fragmentContainer1=0x7f090003;
+        public static final int fragmentContainer10=0x7f09000c;
+        public static final int fragmentContainer11=0x7f09000d;
+        public static final int fragmentContainer12=0x7f09000e;
+        public static final int fragmentContainer13=0x7f09000f;
+        public static final int fragmentContainer14=0x7f090010;
+        public static final int fragmentContainer15=0x7f090011;
+        public static final int fragmentContainer2=0x7f090004;
+        public static final int fragmentContainer3=0x7f090005;
+        public static final int fragmentContainer4=0x7f090006;
+        public static final int fragmentContainer5=0x7f090007;
+        public static final int fragmentContainer6=0x7f090008;
+        public static final int fragmentContainer7=0x7f090009;
+        public static final int fragmentContainer8=0x7f09000a;
+        public static final int fragmentContainer9=0x7f09000b;
+        public static final int fragment_item_chooser=0x7f09005d;
+        public static final int fragment_notes_edit=0x7f09005e;
+        public static final int gal_gallery=0x7f090115;
+        public static final int gal_imageView=0x7f090116;
+        public static final int gen_alter=0x7f0900ed;
+        public static final int gen_attributes=0x7f090038;
+        public static final int gen_attributes2=0x7f0900f2;
+        public static final int gen_attributes3=0x7f0900ff;
+        public static final int gen_attributes_layout=0x7f0900f1;
+        public static final int gen_ausbildung=0x7f0900e2;
+        public static final int gen_aussehen=0x7f0900ef;
+        public static final int gen_char_sheet=0x7f0900df;
+        public static final int gen_description=0x7f0900e1;
+        public static final int gen_gewicht=0x7f0900ea;
+        public static final int gen_groesse=0x7f0900eb;
+        public static final int gen_haar_augen=0x7f0900ec;
+        public static final int gen_kultur=0x7f0900e9;
+        public static final int gen_main_layout=0x7f09005f;
+        public static final int gen_portrait=0x7f0900e0;
+        public static final int gen_rasse=0x7f0900e7;
+        public static final int gen_specialfeatures=0x7f090108;
+        public static final int gen_stand=0x7f0900e6;
+        public static final int gen_tab=0x7f09005b;
+        public static final int gen_tab_layout=0x7f09005c;
+        public static final int gen_titel=0x7f0900e4;
+        public static final int header_liturgie=0x7f09009e;
+        public static final int header_spell=0x7f09009d;
+        public static final int header_talent=0x7f09009c;
         public static final int horizontal=0x7f090001;
-        public static final int imageView=0x7f090043;
-        public static final int inc_archery_item=0x7f090051;
-        public static final int inc_attributes=0x7f09004b;
-        public static final int inc_dice_slider_content=0x7f09002b;
-        public static final int inc_evade_item=0x7f09006d;
-        public static final int inc_fight_ausweichen=0x7f0900d2;
-        public static final int inc_gal_item_view=0x7f0900d7;
-        public static final int inc_stub=0x7f09004c;
-        public static final int inc_tabs=0x7f09004a;
-        public static final int increment=0x7f09004d;
-        public static final int items_add=0x7f0900ee;
-        public static final int items_buttons=0x7f0900ed;
-        public static final int lbl_heldenkey=0x7f090080;
-        public static final int lbl_heldenowner=0x7f090082;
-        public static final int liturgie_list=0x7f0900f1;
-        public static final int liturgie_talent=0x7f0900f0;
-        public static final int ll_newhero=0x7f09007f;
-        public static final int next_screen=0x7f0900ec;
-        public static final int notes_btn_add=0x7f0900f6;
-        public static final int notes_btn_mic_add=0x7f0900f5;
-        public static final int notes_spn_category=0x7f0900f4;
-        public static final int notes_text=0x7f0900f3;
-        public static final int option_add=0x7f090120;
-        public static final int option_choose_map=0x7f09011a;
-        public static final int option_delete=0x7f090121;
-        public static final int option_edit=0x7f09011f;
-        public static final int option_edit_value=0x7f090124;
-        public static final int option_export_hero=0x7f090119;
-        public static final int option_filter_fight=0x7f09010f;
-        public static final int option_filter_liturgie=0x7f090112;
-        public static final int option_filter_spell=0x7f09011e;
-        public static final int option_filter_talent=0x7f090123;
-        public static final int option_load_hero=0x7f090117;
-        public static final int option_load_subtype=0x7f090110;
-        public static final int option_mark_favorite=0x7f090114;
-        public static final int option_mark_unused=0x7f090115;
-        public static final int option_pick_avatar=0x7f09011b;
-        public static final int option_save_hero=0x7f090118;
-        public static final int option_settings=0x7f090111;
-        public static final int option_tab_reset=0x7f090122;
-        public static final int option_take_photo=0x7f09011d;
-        public static final int option_unmark=0x7f090116;
-        public static final int option_view_details=0x7f090113;
-        public static final int option_view_portrait=0x7f09011c;
-        public static final int popup_autosearch=0x7f090089;
-        public static final int popup_edit_at=0x7f090062;
-        public static final int popup_edit_be_calculation=0x7f090059;
-        public static final int popup_edit_buttons=0x7f090064;
-        public static final int popup_edit_cancel=0x7f09006a;
-        public static final int popup_edit_combat_style=0x7f09005f;
-        public static final int popup_edit_combat_style_label=0x7f09005e;
-        public static final int popup_edit_diceslider=0x7f090065;
-        public static final int popup_edit_free_label=0x7f090061;
-        public static final int popup_edit_free_value=0x7f090060;
-        public static final int popup_edit_layout=0x7f090050;
-        public static final int popup_edit_ok=0x7f09005c;
-        public static final int popup_edit_pa=0x7f090063;
-        public static final int popup_edit_primary=0x7f090066;
-        public static final int popup_edit_primary_label=0x7f090068;
-        public static final int popup_edit_reset=0x7f09005a;
-        public static final int popup_edit_secondary=0x7f090069;
-        public static final int popup_edit_secondary_label=0x7f090067;
-        public static final int popup_edit_seek=0x7f09005d;
-        public static final int popup_edit_text=0x7f09005b;
-        public static final int popup_equipped_item_chooser_layout=0x7f09006b;
-        public static final int popup_equipped_item_list=0x7f09006c;
-        public static final int popup_hero_chooser_layout=0x7f090041;
-        public static final int popup_hero_chooser_list=0x7f090042;
-        public static final int popup_hero_empty=0x7f09007b;
-        public static final int popup_hero_import=0x7f09007a;
-        public static final int popup_item_all=0x7f090086;
-        public static final int popup_item_category=0x7f090087;
-        public static final int popup_item_category_list=0x7f0900a2;
-        public static final int popup_item_chooser_layout=0x7f090084;
-        public static final int popup_item_list=0x7f090085;
-        public static final int popup_liturgie_castduration=0x7f09008d;
-        public static final int popup_liturgie_costs=0x7f090091;
-        public static final int popup_liturgie_effect=0x7f09008e;
-        public static final int popup_liturgie_effectduration=0x7f09008f;
-        public static final int popup_liturgie_origin=0x7f090092;
-        public static final int popup_liturgie_probe=0x7f090090;
-        public static final int popup_liturgie_range=0x7f09008c;
-        public static final int popup_liturgie_table=0x7f09008a;
-        public static final int popup_liturgie_target=0x7f09008b;
-        public static final int popup_notes_cancel=0x7f0900f9;
-        public static final int popup_notes_edit_text=0x7f0900f8;
-        public static final int popup_notes_save=0x7f0900fa;
-        public static final int popup_notes_spn_category=0x7f0900f7;
-        public static final int popup_portrait_chooser_layout=0x7f090094;
-        public static final int popup_portrait_chooser_list=0x7f090093;
-        public static final int popup_probe_layout=0x7f090096;
-        public static final int popup_probelist_item_text1=0x7f090097;
-        public static final int popup_probelist_item_text2=0x7f090098;
-        public static final int popup_purse_dukat=0x7f090103;
-        public static final int popup_purse_heller=0x7f090105;
-        public static final int popup_purse_kreuzer=0x7f090106;
-        public static final int popup_purse_silver=0x7f090104;
-        public static final int popup_search_button=0x7f090088;
-        public static final int popup_spell_castduration=0x7f09009a;
-        public static final int popup_spell_comment=0x7f09009f;
-        public static final int popup_spell_costs=0x7f09009b;
-        public static final int popup_spell_notes=0x7f09009e;
-        public static final int popup_spell_range=0x7f09009c;
-        public static final int popup_spell_representation=0x7f0900a0;
-        public static final int popup_spell_spellduration=0x7f09009d;
-        public static final int popup_spell_table=0x7f090099;
-        public static final int popup_spell_variant=0x7f0900a1;
-        public static final int portrait_view=0x7f090095;
-        public static final int previous_screen=0x7f0900e9;
-        public static final int rb_current_hero=0x7f09007d;
-        public static final int rb_new_hero=0x7f09007e;
-        public static final int rg_import=0x7f09007c;
-        public static final int row_ae=0x7f0900ba;
-        public static final int row_ke=0x7f0900bd;
-        public static final int screen_set_button=0x7f0900eb;
-        public static final int set1=0x7f09003e;
-        public static final int set2=0x7f09003f;
-        public static final int set3=0x7f090040;
-        public static final int slideHandleButton=0x7f09002c;
-        public static final int sp_currency=0x7f0900fb;
-        public static final int spell_list=0x7f090107;
-        public static final int tableLayout1=0x7f0900fc;
-        public static final int tableRow1=0x7f0900fd;
-        public static final int tableRow2=0x7f090102;
-        public static final int talent_list=0x7f090108;
-        public static final int talent_list_headeritem=0x7f090109;
-        public static final int talent_list_item_text1=0x7f09010a;
-        public static final int talent_list_item_text2=0x7f09010b;
-        public static final int talent_list_item_text3=0x7f09010c;
-        public static final int talent_list_item_text4=0x7f09010d;
-        public static final int talent_list_item_text5=0x7f09010e;
-        public static final int textView=0x7f090044;
-        public static final int textView1=0x7f090079;
-        public static final int timepicker_input=0x7f09004e;
-        public static final int tip_next=0x7f0900a5;
-        public static final int tip_ok=0x7f0900a7;
-        public static final int tip_prev=0x7f0900a6;
-        public static final int tip_show=0x7f0900a4;
-        public static final int tip_web=0x7f0900a3;
-        public static final int tv_currency1=0x7f0900fe;
-        public static final int tv_currency2=0x7f0900ff;
-        public static final int tv_currency3=0x7f090100;
-        public static final int tv_currency4=0x7f090101;
+        public static final int imageView=0x7f090059;
+        public static final int inc_archery_item=0x7f090067;
+        public static final int inc_attributes=0x7f090061;
+        public static final int inc_dice_slider_content=0x7f09003b;
+        public static final int inc_evade_item=0x7f090096;
+        public static final int inc_fight_ausweichen=0x7f090110;
+        public static final int inc_gal_item_view=0x7f090117;
+        public static final int inc_tabs=0x7f090060;
+        public static final int increment=0x7f090063;
+        public static final int items_add=0x7f090130;
+        public static final int items_buttons=0x7f09012f;
+        public static final int lbl_heldenkey=0x7f0900b1;
+        public static final int lbl_heldenowner=0x7f0900b3;
+        public static final int ll_newhero=0x7f0900b0;
+        public static final int map_progress=0x7f090133;
+        public static final int map_progress_text=0x7f090134;
+        public static final int modifier_container=0x7f090040;
+        public static final int modifier_container_stub=0x7f09003f;
+        public static final int next_screen=0x7f09012b;
+        public static final int notes_btn_add=0x7f09013a;
+        public static final int notes_btn_mic_add=0x7f090138;
+        public static final int notes_spn_category=0x7f090137;
+        public static final int notes_text=0x7f090139;
+        public static final int open_map=0x7f090135;
+        public static final int option_add=0x7f090168;
+        public static final int option_choose_map=0x7f090165;
+        public static final int option_delete=0x7f090169;
+        public static final int option_edit=0x7f090167;
+        public static final int option_edit_spell=0x7f09016e;
+        public static final int option_edit_talent=0x7f090174;
+        public static final int option_export_hero=0x7f090163;
+        public static final int option_filter=0x7f090164;
+        public static final int option_load_hero=0x7f090161;
+        public static final int option_load_subtype=0x7f09015f;
+        public static final int option_map_license=0x7f090166;
+        public static final int option_mark_favorite_art=0x7f09015c;
+        public static final int option_mark_favorite_spell=0x7f090170;
+        public static final int option_mark_favorite_talent=0x7f090176;
+        public static final int option_mark_unused_art=0x7f09015d;
+        public static final int option_mark_unused_spell=0x7f090171;
+        public static final int option_mark_unused_talent=0x7f090177;
+        public static final int option_pick_avatar=0x7f09016a;
+        public static final int option_pick_image=0x7f09016d;
+        public static final int option_save_hero=0x7f090162;
+        public static final int option_settings=0x7f090160;
+        public static final int option_tab_reset=0x7f090173;
+        public static final int option_take_photo=0x7f09016c;
+        public static final int option_unmark_art=0x7f09015e;
+        public static final int option_unmark_spell=0x7f090172;
+        public static final int option_unmark_talent=0x7f090178;
+        public static final int option_view_art=0x7f09015b;
+        public static final int option_view_portrait=0x7f09016b;
+        public static final int option_view_spell=0x7f09016f;
+        public static final int option_view_talent=0x7f090175;
+        public static final int popup_autosearch=0x7f0900ba;
+        public static final int popup_edit_active=0x7f09008d;
+        public static final int popup_edit_at=0x7f09007f;
+        public static final int popup_edit_be_calculation=0x7f090079;
+        public static final int popup_edit_buttons=0x7f090084;
+        public static final int popup_edit_cancel=0x7f09008f;
+        public static final int popup_edit_combat_style=0x7f09007b;
+        public static final int popup_edit_comment=0x7f09008b;
+        public static final int popup_edit_diceslider=0x7f090093;
+        public static final int popup_edit_duration_label=0x7f09008c;
+        public static final int popup_edit_free_label=0x7f09007c;
+        public static final int popup_edit_free_value=0x7f09007d;
+        public static final int popup_edit_info=0x7f090087;
+        public static final int popup_edit_info_help=0x7f09008a;
+        public static final int popup_edit_info_label=0x7f090088;
+        public static final int popup_edit_layout=0x7f090066;
+        public static final int popup_edit_name=0x7f090085;
+        public static final int popup_edit_name_label=0x7f090086;
+        public static final int popup_edit_ok=0x7f09008e;
+        public static final int popup_edit_pa=0x7f090080;
+        public static final int popup_edit_primary=0x7f090090;
+        public static final int popup_edit_primary_label=0x7f090089;
+        public static final int popup_edit_reset=0x7f09007e;
+        public static final int popup_edit_secondary=0x7f090092;
+        public static final int popup_edit_secondary_label=0x7f090091;
+        public static final int popup_edit_text=0x7f09007a;
+        public static final int popup_equipped_item_chooser_layout=0x7f090094;
+        public static final int popup_equipped_item_list=0x7f090095;
+        public static final int popup_hero_chooser_layout=0x7f090057;
+        public static final int popup_hero_chooser_list=0x7f090058;
+        public static final int popup_hero_empty=0x7f0900ac;
+        public static final int popup_hero_import=0x7f0900ab;
+        public static final int popup_item_all=0x7f0900b7;
+        public static final int popup_item_category=0x7f0900b8;
+        public static final int popup_item_category_list=0x7f0900d0;
+        public static final int popup_item_chooser_layout=0x7f0900b5;
+        public static final int popup_item_list=0x7f0900b6;
+        public static final int popup_liturgie_castduration=0x7f090073;
+        public static final int popup_liturgie_costs=0x7f090077;
+        public static final int popup_liturgie_effect=0x7f090074;
+        public static final int popup_liturgie_effectduration=0x7f090075;
+        public static final int popup_liturgie_origin=0x7f090078;
+        public static final int popup_liturgie_probe=0x7f090076;
+        public static final int popup_liturgie_range=0x7f090072;
+        public static final int popup_liturgie_table=0x7f09006f;
+        public static final int popup_liturgie_target=0x7f090071;
+        public static final int popup_liturgie_type=0x7f090070;
+        public static final int popup_notes_buttons=0x7f09013c;
+        public static final int popup_notes_cancel=0x7f090142;
+        public static final int popup_notes_edit_name=0x7f09013e;
+        public static final int popup_notes_edit_so=0x7f09013f;
+        public static final int popup_notes_edit_text=0x7f090140;
+        public static final int popup_notes_save=0x7f090141;
+        public static final int popup_notes_spn_category=0x7f09013d;
+        public static final int popup_portrait_chooser_layout=0x7f0900bc;
+        public static final int popup_portrait_chooser_list=0x7f0900bb;
+        public static final int popup_probe_layout=0x7f0900be;
+        public static final int popup_probelist_item_text1=0x7f0900bf;
+        public static final int popup_probelist_item_text2=0x7f0900c0;
+        public static final int popup_purse_dukat=0x7f09014b;
+        public static final int popup_purse_heller=0x7f09014d;
+        public static final int popup_purse_kreuzer=0x7f09014e;
+        public static final int popup_purse_silver=0x7f09014c;
+        public static final int popup_search_button=0x7f0900b9;
+        public static final int popup_spell_castduration=0x7f0900c2;
+        public static final int popup_spell_comment=0x7f0900c9;
+        public static final int popup_spell_complexity=0x7f0900cf;
+        public static final int popup_spell_costs=0x7f0900c3;
+        public static final int popup_spell_effect=0x7f0900c7;
+        public static final int popup_spell_effectduration=0x7f0900c6;
+        public static final int popup_spell_merkmal=0x7f0900ca;
+        public static final int popup_spell_range=0x7f0900c5;
+        public static final int popup_spell_representation=0x7f0900cb;
+        public static final int popup_spell_row_comment=0x7f0900c8;
+        public static final int popup_spell_row_variant=0x7f0900cc;
+        public static final int popup_spell_source=0x7f0900ce;
+        public static final int popup_spell_table=0x7f0900c1;
+        public static final int popup_spell_target=0x7f0900c4;
+        public static final int popup_spell_variant=0x7f0900cd;
+        public static final int portrait_view=0x7f0900bd;
+        public static final int previous_screen=0x7f090129;
+        public static final int rb_current_hero=0x7f0900ae;
+        public static final int rb_new_hero=0x7f0900af;
+        public static final int rg_import=0x7f0900ad;
+        public static final int row_ae=0x7f0900f6;
+        public static final int row_aussehen=0x7f0900ee;
+        public static final int row_ke=0x7f0900f9;
+        public static final int row_kultur=0x7f0900e8;
+        public static final int row_stand=0x7f0900e5;
+        public static final int row_titel=0x7f0900e3;
+        public static final int screen_set_button=0x7f09012c;
+        public static final int set1=0x7f090053;
+        public static final int set2=0x7f090054;
+        public static final int set3=0x7f090055;
+        public static final int sheet_art=0x7f0900d6;
+        public static final int sheet_body=0x7f0900d9;
+        public static final int sheet_character=0x7f0900de;
+        public static final int sheet_documents=0x7f090109;
+        public static final int sheet_fight=0x7f09010a;
+        public static final int sheet_item=0x7f090114;
+        public static final int sheet_items=0x7f090123;
+        public static final int sheet_items_list=0x7f09012e;
+        public static final int sheet_map=0x7f090132;
+        public static final int sheet_notes=0x7f090136;
+        public static final int sheet_notes_edit=0x7f09013b;
+        public static final int sheet_spell=0x7f090150;
+        public static final int sheet_talent=0x7f090152;
+        public static final int slideHandleButton=0x7f09003c;
+        public static final int sp_currency=0x7f090143;
+        public static final int spell_list=0x7f090151;
+        public static final int tableLayout1=0x7f090144;
+        public static final int tableRow1=0x7f090145;
+        public static final int tableRow2=0x7f09014a;
+        public static final int talent_list=0x7f090153;
+        public static final int talent_list_headeritem=0x7f090154;
+        public static final int talent_list_item_indicator=0x7f090155;
+        public static final int talent_list_item_text1=0x7f090156;
+        public static final int talent_list_item_text2=0x7f090157;
+        public static final int talent_list_item_text3=0x7f090158;
+        public static final int talent_list_item_text4=0x7f090159;
+        public static final int talent_list_item_text5=0x7f09015a;
+        public static final int textView=0x7f09005a;
+        public static final int textView1=0x7f090081;
+        public static final int textView2=0x7f090082;
+        public static final int textView3=0x7f090083;
+        public static final int timepicker_input=0x7f090064;
+        public static final int tip_next=0x7f0900d3;
+        public static final int tip_ok=0x7f0900d5;
+        public static final int tip_prev=0x7f0900d4;
+        public static final int tip_show=0x7f0900d2;
+        public static final int tip_web=0x7f0900d1;
+        public static final int tv_currency1=0x7f090146;
+        public static final int tv_currency2=0x7f090147;
+        public static final int tv_currency3=0x7f090148;
+        public static final int tv_currency4=0x7f090149;
         public static final int vertical=0x7f090000;
-        public static final int workspace=0x7f0900e3;
+        public static final int viewpager=0x7f090062;
+        public static final int web=0x7f09014f;
+        public static final int workspace=0x7f090124;
     }
     public static final class integer {
-        public static final int dices_font_size=0x7f0b0000;
+        public static final int dices_font_size=0x7f0c0000;
+        public static final int fight_wheel_items=0x7f0c0001;
     }
     public static final class layout {
         public static final int attributes_list=0x7f030000;
         public static final int dice_slider=0x7f030001;
         public static final int dice_slider_content=0x7f030002;
         public static final int equippeditem_listitem=0x7f030003;
-        public static final int fight_sheet_modifier=0x7f030004;
-        public static final int hero_chooser=0x7f030005;
-        public static final int hero_chooser_item=0x7f030006;
-        public static final int hero_tab=0x7f030007;
-        public static final int hero_tabs=0x7f030008;
-        public static final int item_listitem=0x7f030009;
-        public static final int main_item_chooser=0x7f03000a;
-        public static final int main_notes_edit=0x7f03000b;
-        public static final int main_tab_view=0x7f03000c;
-        public static final int number_picker=0x7f03000d;
-        public static final int popup_archery=0x7f03000e;
-        public static final int popup_edit=0x7f03000f;
-        public static final int popup_edit_fight=0x7f030010;
-        public static final int popup_edit_tab=0x7f030011;
-        public static final int popup_equipped_item_chooser=0x7f030012;
-        public static final int popup_evade=0x7f030013;
-        public static final int popup_filter=0x7f030014;
-        public static final int popup_filter_fight=0x7f030015;
-        public static final int popup_hero_chooser=0x7f030016;
-        public static final int popup_import=0x7f030017;
-        public static final int popup_item_chooser=0x7f030018;
-        public static final int popup_liturgie_info=0x7f030019;
-        public static final int popup_portrait_chooser=0x7f03001a;
-        public static final int popup_portrait_view=0x7f03001b;
-        public static final int popup_probe_info=0x7f03001c;
-        public static final int popup_probe_list_item=0x7f03001d;
-        public static final int popup_probe_manual_list_item=0x7f03001e;
-        public static final int popup_spell_info=0x7f03001f;
-        public static final int popup_talent_chooser=0x7f030020;
-        public static final int popup_tip_today=0x7f030021;
-        public static final int sheet_body=0x7f030022;
-        public static final int sheet_character=0x7f030023;
-        public static final int sheet_fight=0x7f030024;
-        public static final int sheet_item=0x7f030025;
-        public static final int sheet_items=0x7f030026;
-        public static final int sheet_items_list=0x7f030027;
-        public static final int sheet_liturige=0x7f030028;
-        public static final int sheet_map=0x7f030029;
-        public static final int sheet_notes=0x7f03002a;
-        public static final int sheet_notes_edit=0x7f03002b;
-        public static final int sheet_purse=0x7f03002c;
-        public static final int sheet_spell=0x7f03002d;
-        public static final int sheet_talent=0x7f03002e;
-        public static final int talent_list_headeritem=0x7f03002f;
-        public static final int talent_list_item=0x7f030030;
-        public static final int workspace_screen=0x7f030031;
+        public static final int event_list_item=0x7f030004;
+        public static final int fight_sheet_modifier=0x7f030005;
+        public static final int hero_chooser=0x7f030006;
+        public static final int hero_chooser_item=0x7f030007;
+        public static final int hero_tab=0x7f030008;
+        public static final int hero_tabs=0x7f030009;
+        public static final int item_listitem=0x7f03000a;
+        public static final int main_item_chooser=0x7f03000b;
+        public static final int main_notes_edit=0x7f03000c;
+        public static final int main_tab_view=0x7f03000d;
+        public static final int number_picker=0x7f03000e;
+        public static final int popup_archery=0x7f03000f;
+        public static final int popup_art_info=0x7f030010;
+        public static final int popup_edit=0x7f030011;
+        public static final int popup_edit_fight=0x7f030012;
+        public static final int popup_edit_modificator=0x7f030013;
+        public static final int popup_edit_tab=0x7f030014;
+        public static final int popup_equipped_item_chooser=0x7f030015;
+        public static final int popup_evade=0x7f030016;
+        public static final int popup_filter=0x7f030017;
+        public static final int popup_hero_chooser=0x7f030018;
+        public static final int popup_import=0x7f030019;
+        public static final int popup_item_chooser=0x7f03001a;
+        public static final int popup_portrait_chooser=0x7f03001b;
+        public static final int popup_portrait_view=0x7f03001c;
+        public static final int popup_probe_info=0x7f03001d;
+        public static final int popup_probe_list_item=0x7f03001e;
+        public static final int popup_probe_manual_list_item=0x7f03001f;
+        public static final int popup_spell_info=0x7f030020;
+        public static final int popup_talent_chooser=0x7f030021;
+        public static final int popup_tip_today=0x7f030022;
+        public static final int sheet_art=0x7f030023;
+        public static final int sheet_body=0x7f030024;
+        public static final int sheet_character=0x7f030025;
+        public static final int sheet_documents=0x7f030026;
+        public static final int sheet_fight=0x7f030027;
+        public static final int sheet_item=0x7f030028;
+        public static final int sheet_items=0x7f030029;
+        public static final int sheet_items_list=0x7f03002a;
+        public static final int sheet_map=0x7f03002b;
+        public static final int sheet_notes=0x7f03002c;
+        public static final int sheet_notes_edit=0x7f03002d;
+        public static final int sheet_purse=0x7f03002e;
+        public static final int sheet_search=0x7f03002f;
+        public static final int sheet_spell=0x7f030030;
+        public static final int sheet_talent=0x7f030031;
+        public static final int simple_list_item_2_icon=0x7f030032;
+        public static final int talent_list_headeritem=0x7f030033;
+        public static final int talent_list_item=0x7f030034;
+        public static final int workspace_screen=0x7f030035;
     }
     public static final class menu {
-        public static final int fight_menu=0x7f0e0000;
+        public static final int art_popupmenu=0x7f0e0000;
         public static final int gallery_menu=0x7f0e0001;
         public static final int hero_chooser_menu=0x7f0e0002;
-        public static final int liturgie_menu=0x7f0e0003;
-        public static final int liturgie_popupmenu=0x7f0e0004;
-        public static final int main_menu=0x7f0e0005;
-        public static final int map_menu=0x7f0e0006;
-        public static final int portrait_popupmenu=0x7f0e0007;
-        public static final int spell_menu=0x7f0e0008;
-        public static final int tab_menu=0x7f0e0009;
-        public static final int talent_menu=0x7f0e000a;
-        public static final int talent_popupmenu=0x7f0e000b;
+        public static final int main_menu=0x7f0e0003;
+        public static final int map_menu=0x7f0e0004;
+        public static final int modifikator_menu=0x7f0e0005;
+        public static final int portrait_popupmenu=0x7f0e0006;
+        public static final int spell_popupmenu=0x7f0e0007;
+        public static final int tab_menu=0x7f0e0008;
+        public static final int talent_popupmenu=0x7f0e0009;
     }
     public static final class raw {
-        public static final int dice=0x7f060000;
-        public static final int dice_fail=0x7f060001;
-        public static final int dice_win=0x7f060002;
-        public static final int donate=0x7f060003;
-        public static final int license=0x7f060004;
-        public static final int news_10=0x7f060005;
-        public static final int news_11=0x7f060006;
-        public static final int news_12=0x7f060007;
-        public static final int news_13=0x7f060008;
-        public static final int news_14=0x7f060009;
-        public static final int news_15=0x7f06000a;
-        public static final int news_16=0x7f06000b;
-        public static final int news_22=0x7f06000c;
-        public static final int news_23=0x7f06000d;
-        public static final int news_24=0x7f06000e;
-        public static final int news_25=0x7f06000f;
-        public static final int news_26=0x7f060010;
-        public static final int news_27=0x7f060011;
-        public static final int news_28=0x7f060012;
-        public static final int news_29=0x7f060013;
-        public static final int news_30=0x7f060014;
-        public static final int news_31=0x7f060015;
-        public static final int news_9=0x7f060016;
+        public static final int credits=0x7f060000;
+        public static final int dice=0x7f060001;
+        public static final int dice_fail=0x7f060002;
+        public static final int dice_win=0x7f060003;
+        public static final int donate=0x7f060004;
+        public static final int license=0x7f060005;
+        public static final int news_10=0x7f060006;
+        public static final int news_11=0x7f060007;
+        public static final int news_12=0x7f060008;
+        public static final int news_13=0x7f060009;
+        public static final int news_14=0x7f06000a;
+        public static final int news_15=0x7f06000b;
+        public static final int news_16=0x7f06000c;
+        public static final int news_22=0x7f06000d;
+        public static final int news_23=0x7f06000e;
+        public static final int news_24=0x7f06000f;
+        public static final int news_25=0x7f060010;
+        public static final int news_26=0x7f060011;
+        public static final int news_27=0x7f060012;
+        public static final int news_28=0x7f060013;
+        public static final int news_29=0x7f060014;
+        public static final int news_30=0x7f060015;
+        public static final int news_31=0x7f060016;
+        public static final int news_32=0x7f060017;
+        public static final int news_33=0x7f060018;
+        public static final int news_34=0x7f060019;
+        public static final int news_35=0x7f06001a;
+        public static final int news_36=0x7f06001b;
+        public static final int news_37=0x7f06001c;
+        public static final int news_39=0x7f06001d;
+        public static final int news_9=0x7f06001e;
+        public static final int ulisses_license=0x7f06001f;
     }
     public static final class string {
-        public static final int advantages=0x7f070037;
-        public static final int app_name=0x7f07002e;
-        public static final int credits=0x7f070045;
-        public static final int defensive=0x7f070030;
-        public static final int disadvantages=0x7f070038;
+        public static final int advantages=0x7f07003e;
+        public static final int app_name=0x7f070033;
+        public static final int defensive=0x7f070035;
+        public static final int disadvantages=0x7f07003f;
         public static final int download=0x7f070003;
         public static final int download_canceled=0x7f070006;
         public static final int download_error=0x7f070005;
         public static final int download_finished=0x7f070002;
         public static final int download_message=0x7f070004;
-        public static final int hero_loaded=0x7f07002a;
-        public static final int hero_saved=0x7f07002b;
-        public static final int label_ae=0x7f070026;
+        public static final int hero_loaded=0x7f07002f;
+        public static final int hero_saved=0x7f070030;
+        public static final int label_ae=0x7f07002b;
         public static final int label_alter=0x7f07000d;
-        public static final int label_ap=0x7f070021;
-        public static final int label_at=0x7f070016;
-        public static final int label_au=0x7f070027;
+        public static final int label_ap=0x7f070026;
+        public static final int label_at=0x7f07001b;
+        public static final int label_au=0x7f07002c;
         public static final int label_ausbildung=0x7f07000e;
-        public static final int label_be=0x7f07001f;
-        public static final int label_cancel=0x7f07003b;
-        public static final int label_ch=0x7f07001b;
+        public static final int label_aussehen=0x7f070013;
+        public static final int label_be=0x7f070024;
+        public static final int label_cancel=0x7f070042;
+        public static final int label_ch=0x7f070020;
         public static final int label_donate=0x7f070001;
-        public static final int label_edit=0x7f07003a;
-        public static final int label_ff=0x7f07001a;
-        public static final int label_fk=0x7f070014;
-        public static final int label_ge=0x7f070019;
+        public static final int label_edit=0x7f070041;
+        public static final int label_familie=0x7f070014;
+        public static final int label_ff=0x7f07001f;
+        public static final int label_fk=0x7f070019;
+        public static final int label_ge=0x7f07001e;
         public static final int label_gewicht=0x7f07000f;
         public static final int label_groesse=0x7f070010;
-        public static final int label_gs=0x7f070020;
+        public static final int label_gs=0x7f070025;
         public static final int label_haar_augen_farbe=0x7f07000c;
-        public static final int label_herkunft=0x7f070011;
-        public static final int label_in=0x7f07001c;
-        public static final int label_ini=0x7f070013;
-        public static final int label_ke=0x7f070025;
-        public static final int label_kk=0x7f070017;
-        public static final int label_kl=0x7f07001d;
-        public static final int label_ko=0x7f070018;
-        public static final int label_le=0x7f070028;
-        public static final int label_mr=0x7f070024;
-        public static final int label_mu=0x7f07001e;
-        public static final int label_no_thanks=0x7f070029;
+        public static final int label_in=0x7f070021;
+        public static final int label_ini=0x7f070018;
+        public static final int label_ke=0x7f07002a;
+        public static final int label_kk=0x7f07001c;
+        public static final int label_kl=0x7f070022;
+        public static final int label_ko=0x7f07001d;
+        public static final int label_kultur=0x7f070012;
+        public static final int label_le=0x7f07002d;
+        public static final int label_mr=0x7f070029;
+        public static final int label_mu=0x7f070023;
+        public static final int label_no_thanks=0x7f07002e;
         public static final int label_ok=0x7f070000;
-        public static final int label_pa=0x7f070015;
+        public static final int label_pa=0x7f07001a;
         public static final int label_pick_a_color=0x7f070007;
-        public static final int label_save=0x7f070040;
+        public static final int label_rasse=0x7f070011;
+        public static final int label_save=0x7f070047;
         public static final int label_send_error_report=0x7f070008;
-        public static final int label_so=0x7f070023;
-        public static final int label_st=0x7f070022;
-        public static final int label_ws=0x7f070012;
-        public static final int lite_feature_teaser=0x7f070049;
-        public static final int lite_feature_teaser_title=0x7f070048;
-        public static final int lite_info=0x7f070047;
-        public static final int lite_title=0x7f070046;
-        public static final int menu_assign_main_weapon=0x7f07002c;
-        public static final int menu_assign_secondary_weapon=0x7f07002d;
-        public static final int menu_delete_item=0x7f070032;
-        public static final int menu_edit_item=0x7f07003d;
-        public static final int menu_equipment_set=0x7f070036;
-        public static final int menu_reset_values=0x7f070035;
-        public static final int menu_select_version=0x7f070034;
-        public static final int menu_show_hide_comments=0x7f070043;
-        public static final int menu_sort_items=0x7f070033;
-        public static final int menu_unassign_item=0x7f070031;
-        public static final int menu_view_item=0x7f070042;
+        public static final int label_so=0x7f070028;
+        public static final int label_st=0x7f070027;
+        public static final int label_stand=0x7f070015;
+        public static final int label_titel=0x7f070016;
+        public static final int label_ws=0x7f070017;
+        public static final int lite_info=0x7f070054;
+        public static final int lite_title=0x7f070053;
+        public static final int menu_assign_hunting_weapon=0x7f070038;
+        public static final int menu_assign_main_weapon=0x7f070031;
+        public static final int menu_assign_secondary_weapon=0x7f070032;
+        public static final int menu_delete_item=0x7f070037;
+        public static final int menu_edit_item=0x7f070044;
+        public static final int menu_equipment_set=0x7f07003d;
+        public static final int menu_hide_comments=0x7f07004b;
+        public static final int menu_reset_values=0x7f07003c;
+        public static final int menu_select_talent=0x7f07003b;
+        public static final int menu_select_version=0x7f07003a;
+        public static final int menu_show_comments=0x7f07004a;
+        public static final int menu_sort_items=0x7f070039;
+        public static final int menu_unassign_item=0x7f070036;
+        public static final int menu_view_item=0x7f070049;
+        public static final int message_art_empty=0x7f07004d;
+        public static final int message_documents_empty=0x7f07004e;
         public static final int message_error_report=0x7f070009;
-        public static final int modifikatoren=0x7f07003c;
+        public static final int message_heroes_empty=0x7f070050;
+        public static final int message_map_empty=0x7f07004f;
+        public static final int message_spell_empty=0x7f07004c;
+        public static final int modifikatoren=0x7f070043;
         public static final int news_title=0x7f07000a;
-        public static final int offensive=0x7f07002f;
+        public static final int offensive=0x7f070034;
         public static final int path_items=0x7f07000b;
-        public static final int recording=0x7f07003e;
-        public static final int recording_message=0x7f07003f;
-        public static final int settings=0x7f070041;
-        public static final int specialfeatures=0x7f070039;
-        public static final int tip_0_title=0x7f07004a;
-        public static final int tip_1_title=0x7f07004b;
-        public static final int tip_2_title=0x7f07004c;
-        public static final int title_credits=0x7f070044;
+        public static final int recording=0x7f070045;
+        public static final int recording_message=0x7f070046;
+        public static final int search_hint=0x7f070051;
+        public static final int settings=0x7f070048;
+        public static final int specialfeatures=0x7f070040;
+        public static final int tip_0_title=0x7f070055;
+        public static final int tip_1_title=0x7f070056;
+        public static final int tip_2_title=0x7f070057;
+        public static final int tip_3_title=0x7f070058;
+        public static final int tip_4_title=0x7f070059;
+        public static final int title_credits=0x7f070052;
     }
     public static final class style {
-        public static final int BodyItemImage=0x7f0d000c;
-        public static final int BorderPanel=0x7f0d0004;
-        public static final int IconButton=0x7f0d0005;
-        public static final int TextLabel=0x7f0d0008;
+        public static final int BodyItemImage=0x7f0d000b;
+        public static final int BorderPanel=0x7f0d0000;
+        public static final int BorderPanel_Black=0x7f0d0001;
+        public static final int TextLabel=0x7f0d0007;
         public static final int TextLabelPopup=0x7f0d0009;
-        public static final int TextLabelSmall=0x7f0d000a;
-        public static final int TextValue=0x7f0d0006;
-        public static final int TextValuePopup=0x7f0d0007;
-        public static final int TextViewTitle=0x7f0d000b;
-        public static final int Theme_ItemsBackground=0x7f0d0001;
-        public static final int Theme_MapBackground=0x7f0d0000;
-        public static final int Theme_NoTitle=0x7f0d0003;
-        public static final int Theme_WhiteBackground=0x7f0d0002;
-        public static final int WorkspaceIcon=0x7f0d000d;
-        public static final int WorkspaceIcon_Landscape=0x7f0d000f;
-        public static final int WorkspaceIcon_Portrait=0x7f0d000e;
+        public static final int TextLabelSmall=0x7f0d0008;
+        public static final int TextValue=0x7f0d0004;
+        public static final int TextValuePopup=0x7f0d0006;
+        public static final int TextValueSmall=0x7f0d0005;
+        public static final int TextViewTitle=0x7f0d000a;
+        public static final int Theme=0x7f0d000e;
+        public static final int Theme_Dialog=0x7f0d0010;
+        public static final int Theme_Map=0x7f0d000f;
+        public static final int Theme_Paper=0x7f0d0011;
+        public static final int Widget_Button_Glossy=0x7f0d0003;
+        public static final int Widget_ExpandableListView_Probe=0x7f0d000d;
+        public static final int Widget_ImageButton_Glossy=0x7f0d0002;
+        public static final int Widget_ListView_Probe=0x7f0d000c;
     }
     public static final class xml {
-        public static final int preferences=0x7f050000;
+        public static final int preferences_display=0x7f050000;
+        public static final int preferences_headers=0x7f050001;
+        public static final int preferences_info=0x7f050002;
+        public static final int preferences_rules=0x7f050003;
+        public static final int preferences_setup=0x7f050004;
+        public static final int searchable=0x7f050005;
     }
     public static final class styleable {
+        /** Attributes that can be used with a BezelImageView.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #BezelImageView_borderDrawable com.dsatab:borderDrawable}</code></td><td></td></tr>
+           <tr><td><code>{@link #BezelImageView_maskDrawable com.dsatab:maskDrawable}</code></td><td></td></tr>
+           </table>
+           @see #BezelImageView_borderDrawable
+           @see #BezelImageView_maskDrawable
+         */
+        public static final int[] BezelImageView = {
+            0x7f010005, 0x7f010006
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.dsatab.R.attr#borderDrawable}
+          attribute's value can be found in the {@link #BezelImageView} array.
+
+
+          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+          @attr name android:borderDrawable
+        */
+        public static final int BezelImageView_borderDrawable = 1;
+        /**
+          <p>This symbol is the offset where the {@link com.dsatab.R.attr#maskDrawable}
+          attribute's value can be found in the {@link #BezelImageView} array.
+
+
+          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+          @attr name android:maskDrawable
+        */
+        public static final int BezelImageView_maskDrawable = 0;
         /** Attributes that can be used with a Gallery.
            <p>Includes the following attributes:</p>
            <table>
@@ -880,7 +1122,7 @@ containing a value of this type.
            @see #NumberPicker_minimum
          */
         public static final int[] NumberPicker = {
-            0x7f010000, 0x7f010001, 0x7f010002
+            0x7f010002, 0x7f010003, 0x7f010004
         };
         /**
           <p>
@@ -926,5 +1168,88 @@ containing a value of this type.
           @attr name android:minimum
         */
         public static final int NumberPicker_minimum = 1;
+        /** Attributes that can be used with a Theme.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #Theme_glossyButtonStyle com.dsatab:glossyButtonStyle}</code></td><td></td></tr>
+           <tr><td><code>{@link #Theme_glossyImageButtonStyle com.dsatab:glossyImageButtonStyle}</code></td><td></td></tr>
+           </table>
+           @see #Theme_glossyButtonStyle
+           @see #Theme_glossyImageButtonStyle
+         */
+        public static final int[] Theme = {
+            0x7f010008, 0x7f010009
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.dsatab.R.attr#glossyButtonStyle}
+          attribute's value can be found in the {@link #Theme} array.
+
+
+          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+          @attr name android:glossyButtonStyle
+        */
+        public static final int Theme_glossyButtonStyle = 1;
+        /**
+          <p>This symbol is the offset where the {@link com.dsatab.R.attr#glossyImageButtonStyle}
+          attribute's value can be found in the {@link #Theme} array.
+
+
+          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+          @attr name android:glossyImageButtonStyle
+        */
+        public static final int Theme_glossyImageButtonStyle = 0;
+        /** Attributes that can be used with a WheelView.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #WheelView_orientation com.dsatab:orientation}</code></td><td> Should the layout be a column or a row?  Use "horizontal"
+             for a row, "vertical" for a column.</td></tr>
+           <tr><td><code>{@link #WheelView_visibleItems com.dsatab:visibleItems}</code></td><td></td></tr>
+           </table>
+           @see #WheelView_orientation
+           @see #WheelView_visibleItems
+         */
+        public static final int[] WheelView = {
+            0x7f010000, 0x7f010001
+        };
+        /**
+          <p>
+          @attr description
+           Should the layout be a column or a row?  Use "horizontal"
+             for a row, "vertical" for a column.  The default is
+             vertical. 
+
+
+          <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          <p>This is a private symbol.
+          @attr name android:orientation
+        */
+        public static final int WheelView_orientation = 0;
+        /**
+          <p>This symbol is the offset where the {@link com.dsatab.R.attr#visibleItems}
+          attribute's value can be found in the {@link #WheelView} array.
+
+
+          <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name android:visibleItems
+        */
+        public static final int WheelView_visibleItems = 1;
     };
 }

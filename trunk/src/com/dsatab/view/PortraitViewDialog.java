@@ -5,31 +5,27 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.dsatab.R;
-import com.dsatab.activity.BaseMainActivity;
+import com.dsatab.activity.MainActivity;
 
 public class PortraitViewDialog extends AlertDialog implements DialogInterface.OnClickListener {
 
-	private BaseMainActivity main;
+	private MainActivity main;
 
-	public PortraitViewDialog(BaseMainActivity context) {
+	public PortraitViewDialog(MainActivity context) {
 		super(context);
 		this.main = context;
 		init();
 	}
 
-	protected BaseMainActivity getMain() {
+	protected MainActivity getMain() {
 		return main;
 	}
 
 	private void init() {
-
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
 		setTitle(main.getHero().getName());
 
 		setCanceledOnTouchOutside(true);

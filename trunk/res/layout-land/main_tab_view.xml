@@ -5,13 +5,16 @@
 	
 	<include layout="@layout/hero_tabs" android:layout_height="fill_parent" android:layout_alignParentBottom="true" android:gravity="bottom|right"
 			android:id="@+id/inc_tabs" android:layout_alignParentRight="true" android:layout_width="@dimen/tab_size"></include>
-			
-	<com.dsatab.view.FlingableLinearLayout android:id="@+id/inc_stub"
-	android:layout_height="fill_parent" android:layout_width="fill_parent"
-	android:layout_toLeftOf="@+id/inc_tabs" android:layout_below="@+id/inc_attributes" android:orientation="horizontal"/>
 	
 	
-	<fragment android:id="@+id/inc_attributes" android:layout_width="wrap_content" android:layout_height="wrap_content" class="com.dsatab.fragment.AttributeListFragment" android:name="com.dsatab.fragment.AttributeListFragment" android:layout_alignParentTop="true" android:layout_alignParentLeft="true" android:layout_alignRight="@+id/inc_stub">
+	<com.dsatab.view.MyViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_toLeftOf="@+id/inc_tabs" android:layout_below="@+id/inc_attributes"
+        android:layout_weight="1" />
+    
+	<fragment android:id="@+id/inc_attributes" android:tag="attributeListFragment" android:layout_width="wrap_content" android:layout_height="wrap_content" class="com.dsatab.fragment.AttributeListFragment" android:name="com.dsatab.fragment.AttributeListFragment" android:layout_alignParentTop="true" android:layout_alignParentLeft="true" android:layout_alignRight="@+id/viewpager">
 	    <!-- Preview: layout=@layout/attributes_list -->
 	</fragment>		
 

@@ -13,8 +13,8 @@
 		android:text="andere">
 	</Button>
 	<Spinner android:layout_height="wrap_content" android:layout_alignParentTop="true" android:layout_width="fill_parent" android:id="@+id/popup_item_category" android:layout_toLeftOf="@+id/popup_search_button" android:layout_alignBottom="@+id/popup_search_button"></Spinner>
-	<ImageButton style="@style/IconButton" android:layout_height="@dimen/icon_button_size" android:scaleType="centerInside" android:layout_width="@dimen/icon_button_size" android:src="@drawable/icon_search" android:layout_alignParentRight="true" android:id="@+id/popup_search_button" android:layout_marginLeft="2.5dp"></ImageButton>
-	<EditText android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/popup_autosearch" android:layout_toLeftOf="@+id/popup_search_button" android:layout_alignBottom="@+id/popup_search_button" android:visibility="invisible">
+	<com.dsatab.view.GlossyImageButton android:layout_height="@dimen/icon_button_size" android:scaleType="centerInside" android:layout_width="@dimen/icon_button_size" android:src="@drawable/icon_search" android:layout_alignParentRight="true" android:id="@+id/popup_search_button" android:layout_marginLeft="2.5dp"/>
+	<EditText android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/popup_autosearch" android:layout_toLeftOf="@+id/popup_search_button" android:layout_alignBottom="@+id/popup_search_button" android:visibility="invisible" android:layout_alignTop="@+id/popup_search_button">
 		
 	</EditText>
 </RelativeLayout>

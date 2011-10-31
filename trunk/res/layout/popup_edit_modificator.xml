@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:padding="5dip" android:layout_width="wrap_content" android:layout_height="wrap_content">
+	
+	<ScrollView android:layout_height="match_parent" android:layout_width="match_parent" android:layout_above="@+id/popup_edit_buttons" android:fillViewport="true">
+		<RelativeLayout
+			android:id="@+id/popup_edit_layout"
+			android:layout_height="match_parent" android:layout_width="match_parent">
+			
+			<TextView android:layout_height="wrap_content"
+				android:layout_width="wrap_content" android:gravity="left|center_vertical" android:text="Name" android:layout_alignBottom="@+id/popup_edit_name" android:layout_alignTop="@+id/popup_edit_name" android:id="@+id/popup_edit_name_label" android:layout_alignParentLeft="true"></TextView>	
+			<EditText android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentTop="true" android:layout_alignParentRight="true" android:id="@+id/popup_edit_name" android:layout_alignLeft="@+id/popup_edit_info">
+				<requestFocus></requestFocus>
+			</EditText>
+			
+			<TextView android:layout_height="wrap_content"
+				android:layout_width="wrap_content" android:gravity="left|center_vertical" android:layout_alignTop="@+id/popup_edit_info" android:id="@+id/popup_edit_info_label" android:layout_alignBottom="@+id/popup_edit_info" android:layout_alignRight="@+id/popup_edit_primary_label" android:text="Regeln" android:layout_alignParentLeft="true"></TextView>
+			
+			<EditText android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/popup_edit_info" android:layout_alignParentRight="true" android:layout_below="@+id/popup_edit_name" android:inputType="textMultiLine" android:lines="3" android:layout_toRightOf="@+id/popup_edit_info_label"></EditText>
+			<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" android:id="@+id/popup_edit_info_help" android:layout_alignLeft="@+id/popup_edit_info" android:layout_alignRight="@+id/popup_edit_info" android:layout_below="@+id/popup_edit_info" android:text='Regeln im Format "MU+2, KL-1, Zauber+1, Talente+2, AT+1, PA+1, INI+2, AW+2, MR+1" eingeben. Kein Leerzeichen zwischen Eigenschaft und +/-.'></TextView>
+			
+			
+			<EditText android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_below="@+id/popup_edit_info_help" android:layout_alignLeft="@+id/popup_edit_info_help" android:layout_alignParentRight="true" android:id="@+id/popup_edit_comment" android:layout_marginTop="5dp"></EditText>
+			<TextView android:text="Info" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/popup_edit_duration_label" android:gravity="left|center_vertical" android:layout_alignTop="@+id/popup_edit_comment" android:layout_toLeftOf="@+id/popup_edit_comment" android:layout_alignBottom="@+id/popup_edit_comment" android:layout_alignParentLeft="true"></TextView>
+			<CheckBox android:id="@+id/popup_edit_active" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Aktiv" android:layout_below="@+id/popup_edit_comment" android:layout_alignLeft="@+id/popup_edit_comment" android:layout_alignParentRight="true"></CheckBox>
+			
+			
+	</RelativeLayout>
+	</ScrollView>
+	
+	
+	
+	<LinearLayout android:background="@android:drawable/bottom_bar" android:layout_height="wrap_content" android:layout_alignParentBottom="true" android:layout_alignParentRight="true" android:layout_alignParentLeft="true" android:layout_width="fill_parent" android:id="@+id/popup_edit_buttons" android:paddingTop="5dp">
+		<Button android:layout_height="wrap_content" android:id="@+id/popup_edit_ok" android:layout_weight="1" android:layout_width="0dp" android:text="@string/label_ok"></Button>
+		<Button android:layout_height="wrap_content" android:id="@+id/popup_edit_cancel" android:layout_weight="1" android:layout_width="0dp" android:text="@string/label_cancel"></Button>
+	</LinearLayout>
+	
+	
+	
+</RelativeLayout>

@@ -19,7 +19,6 @@ package com.dsatab.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 
 import com.dsatab.R;
 import com.dsatab.data.items.Item;
@@ -27,7 +26,7 @@ import com.dsatab.fragment.ItemChooserFragment;
 import com.dsatab.fragment.ItemChooserFragment.OnItemChooserListener;
 import com.gandulf.guilib.util.Debug;
 
-public class ItemChooserActivity extends FragmentActivity implements OnItemChooserListener {
+public class ItemChooserActivity extends BaseFragmentActivity implements OnItemChooserListener {
 
 	/*
 	 * (non-Javadoc)

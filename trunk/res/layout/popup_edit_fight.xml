@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:padding="5dip" android:id="@+id/popup_edit_layout"
-	android:layout_height="wrap_content" android:layout_width="wrap_content">
+	android:layout_height="wrap_content" android:orientation="vertical" android:layout_width="match_parent">
+	
 
-	<Button android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:text="Reset"
-		android:id="@+id/popup_edit_reset" android:layout_alignParentRight="true"
-		android:layout_alignTop="@+id/popup_edit_text" android:minHeight="60dp"></Button>
-	<Button android:layout_below="@+id/popup_edit_reset"
-		android:layout_height="wrap_content" android:layout_width="wrap_content"
-		android:layout_alignLeft="@+id/popup_edit_reset" android:id="@+id/popup_edit_ok"
-		android:text="Ok" android:layout_alignRight="@+id/popup_edit_reset"
-		android:minHeight="60dp"></Button>
-	<TextView android:textStyle="bold" android:layout_height="wrap_content" android:text="8" android:id="@+id/popup_edit_free_value" android:layout_width="wrap_content" android:layout_below="@+id/popup_edit_ok" android:layout_alignLeft="@+id/popup_edit_ok" android:layout_alignRight="@+id/popup_edit_ok" android:gravity="center" android:textSize="30sp"></TextView>
-	<TextView android:gravity="center" android:layout_height="wrap_content" android:text="Frei" android:id="@+id/popup_edit_free_label" android:layout_width="wrap_content" android:layout_below="@+id/popup_edit_free_value" android:layout_alignLeft="@+id/popup_edit_free_value" android:layout_alignRight="@+id/popup_edit_free_value" android:textSize="11sp"></TextView>
-
-
-	<com.gandulf.guilib.view.NumberPicker
-		android:layout_height="wrap_content" android:id="@+id/popup_edit_text"
-		android:layout_width="wrap_content" android:layout_alignParentLeft="true"
-		android:layout_toLeftOf="@+id/popup_edit_reset" android:inputType="number"
-		android:text="0" android:imeOptions="flagNoEnterAction"></com.gandulf.guilib.view.NumberPicker>
+<LinearLayout android:layout_height="wrap_content"
+		android:orientation="horizontal" android:layout_alignParentRight="true" android:layout_width="match_parent" android:layout_gravity="center_horizontal" android:gravity="center_horizontal">
+    <TextView android:gravity="center" android:id="@+id/popup_edit_free_label" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" android:text="Zu vergebende Punkte:" android:layout_height="match_parent"></TextView>
+		
+		<TextView android:textStyle="bold" android:text="8" android:id="@+id/popup_edit_free_value" android:layout_width="wrap_content" android:gravity="center" android:textAppearance="?android:attr/textAppearanceLarge" android:layout_height="match_parent"></TextView>
+		</LinearLayout>
+	
 	<LinearLayout android:layout_height="wrap_content"
-		android:layout_width="wrap_content" android:layout_below="@+id/popup_edit_text"
-		android:layout_alignLeft="@+id/popup_edit_text"
-		android:layout_alignRight="@+id/popup_edit_text" android:orientation="horizontal">
+		android:orientation="horizontal" android:layout_alignParentRight="true" android:layout_width="match_parent">
 
-		<com.gandulf.guilib.view.NumberPicker
-			android:orientation="vertical" android:layout_height="wrap_content"
-			android:layout_width="wrap_content" android:id="@+id/popup_edit_at"
-			android:layout_weight="0.5"></com.gandulf.guilib.view.NumberPicker>
-		<com.gandulf.guilib.view.NumberPicker
-			android:orientation="vertical" android:layout_height="wrap_content"
-			android:layout_width="wrap_content" android:id="@+id/popup_edit_pa"
-			android:layout_weight="0.5"></com.gandulf.guilib.view.NumberPicker>
+		<kankan.wheel.widget.WheelView
+		android:id="@+id/popup_edit_text"
+		android:layout_width="wrap_content" android:layout_alignParentLeft="true"
+		android:layout_toLeftOf="@+id/popup_edit_reset" 
+		android:layout_height="200dp" android:layout_weight="1"/>
+		
+		<kankan.wheel.widget.WheelView
+			android:orientation="vertical" android:layout_width="wrap_content" android:id="@+id/popup_edit_at"
+			android:layout_height="200dp" android:layout_weight="1"/>
+		<kankan.wheel.widget.WheelView
+			android:orientation="vertical" android:layout_width="wrap_content" android:id="@+id/popup_edit_pa"
+			android:layout_height="200dp" android:layout_weight="1"/>
 	</LinearLayout>
-</RelativeLayout>
+	
+	<LinearLayout android:layout_height="wrap_content"
+		android:orientation="horizontal" android:layout_alignParentRight="true" android:layout_width="match_parent">
+		<TextView android:id="@+id/textView1" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_weight="1" android:layout_width="0dp" android:gravity="center" android:text="Talent"></TextView>
+		<TextView android:id="@+id/textView2" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_weight="1" android:text="AT" android:layout_width="0dp" android:gravity="center"></TextView>
+		<TextView android:id="@+id/textView3" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium" android:text="PA" android:layout_width="0dp" android:gravity="center"></TextView>
+		
+		</LinearLayout>
+</LinearLayout>

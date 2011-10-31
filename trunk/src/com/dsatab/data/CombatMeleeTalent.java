@@ -30,6 +30,8 @@ public class CombatMeleeTalent extends BaseCombatTalent {
 			else if (item.getName().equals(Xml.KEY_PARADE))
 				pa = new CombatMeleeAttribute(hero, this, item);
 		}
+
+		probeInfo.applyBePattern(type.getBe());
 	}
 
 	public CombatTalentType getCombatTalentType() {
@@ -42,16 +44,6 @@ public class CombatMeleeTalent extends BaseCombatTalent {
 
 	public CombatMeleeAttribute getDefense() {
 		return pa;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.BaseCombatTalent#getBe()
-	 */
-	@Override
-	public String getBe() {
-		return type.getBe();
 	}
 
 	public Position getPosition(int w20) {

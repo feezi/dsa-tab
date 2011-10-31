@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+   xmlns:android="http://schemas.android.com/apk/res/android"
+   android:layout_height="fill_parent" android:layout_width="fill_parent">
+	<WebView android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@+id/web"></WebView>
+
+<TextView android:visibility="gone" android:id="@+android:id/empty" android:layout_height="fill_parent" android:layout_width="fill_parent" android:gravity="center" style="@style/BorderPanel" android:text="Die Suche hat keine Treffer gefunden."></TextView>
+
+</FrameLayout>

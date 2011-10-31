@@ -5,7 +5,7 @@ import org.jdom.Element;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.xml.Xml;
 
-public class CombatMeleeAttribute implements Probe, Value {
+public class CombatMeleeAttribute extends BaseProbe implements Value {
 
 	private static final String PARADE = "Parade";
 
@@ -31,6 +31,9 @@ public class CombatMeleeAttribute implements Probe, Value {
 			this.name = PARADE;
 
 		this.referenceValue = getValue();
+
+		probeInfo.applyBePattern(talent.getCombatTalentType().getBe());
+
 	}
 
 	public Integer getBaseValue() {
@@ -43,17 +46,8 @@ public class CombatMeleeAttribute implements Probe, Value {
 		return base;
 	}
 
-	public String getBe() {
-		return talent.getCombatTalentType().getBe();
-	}
-
 	public int getMinimum() {
 		return getBaseValue();
-	}
-
-	@Override
-	public Integer getErschwernis() {
-		return null;
 	}
 
 	public int getMaximum() {
@@ -69,8 +63,14 @@ public class CombatMeleeAttribute implements Probe, Value {
 		return ProbeType.TwoOfThree;
 	}
 
-	public String getProbe() {
-		return null;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.Value#reset()
+	 */
+	@Override
+	public void reset() {
+		setValue(getReferenceValue());
 	}
 
 	public Integer getProbeValue(int i) {
@@ -114,6 +114,17 @@ public class CombatMeleeAttribute implements Probe, Value {
 
 	public CombatMeleeTalent getTalent() {
 		return talent;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+
+		return getName() + " value=" + getValue() + " range=" + getMinimum() + "-" + getMaximum();
 	}
 
 }

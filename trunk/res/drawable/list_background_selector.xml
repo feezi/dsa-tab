@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<level-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item android:maxLevel="0">
+<selector >
+
+            <item
+                android:drawable="@drawable/list_highlight_shape"
+                android:state_focused="true"
+                android:state_pressed="true"/>
+
+            <item
+                android:drawable="@drawable/list_highlight_shape"
+                android:state_focused="false"
+                android:state_pressed="true"/>
+
+            <item
+                android:drawable="@color/RowEven"
+                android:state_pressed="false"/>
+        </selector></item>
+
+    <item android:maxLevel="1">
+<selector >
+
+            <item
+                android:drawable="@drawable/list_highlight_shape"
+                android:state_focused="true"
+                android:state_pressed="true"/>
+
+            <item
+                android:drawable="@drawable/list_highlight_shape"
+                android:state_focused="false"
+                android:state_pressed="true"/>
+
+            <item
+                android:drawable="@color/RowOdd"
+                android:state_pressed="false"/>
+        </selector></item>
+
+    <item android:maxLevel="2">
+<selector >
+
+            <item
+                android:drawable="@drawable/list_highlight_shape"
+                android:state_focused="true"
+                android:state_pressed="true"/>
+
+            <item
+                android:drawable="@drawable/list_highlight_shape"
+                android:state_focused="false"
+                android:state_pressed="true"/>
+
+            <item
+                android:drawable="@color/RowFavoriteEven"
+                android:state_pressed="false"/>
+        </selector></item>
+
+    <item android:maxLevel="3">
+<selector >
+
+            <item
+                android:drawable="@drawable/list_highlight_shape"
+                android:state_focused="true"
+                android:state_pressed="true"/>
+
+            <item
+                android:drawable="@drawable/list_highlight_shape"
+                android:state_focused="false"
+                android:state_pressed="true"/>
+
+            <item
+                android:drawable="@color/RowFavoriteOdd"
+                android:state_pressed="false"/>
+        </selector></item>
+
+    <item android:maxLevel="4">
+<selector >
+
+            <item
+                android:drawable="@drawable/list_highlight_shape"
+                android:state_focused="true"
+                android:state_pressed="true"/>
+
+            <item
+                android:drawable="@drawable/list_highlight_shape"
+                android:state_focused="false"
+                android:state_pressed="true"/>
+
+            <item
+                android:drawable="@color/RowUnusedEven"
+                android:state_pressed="false"/>
+        </selector></item>
+
+    <item android:maxLevel="5">
+<selector >
+
+            <item
+                android:drawable="@drawable/list_highlight_shape"
+                android:state_focused="true"
+                android:state_pressed="true"/>
+
+            <item
+                android:drawable="@drawable/list_highlight_shape"
+                android:state_focused="false"
+                android:state_pressed="true"/>
+
+            <item
+                android:drawable="@color/RowUnusedOdd"
+                android:state_pressed="false"/>
+        </selector></item>
+
+</level-list>
