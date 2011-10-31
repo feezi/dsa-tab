@@ -1,37 +1,48 @@
 package com.dsatab.data;
 
-import org.jdom.Element;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.Position;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
-import com.dsatab.data.modifier.AbstractModifier;
-import com.dsatab.xml.Xml;
+import com.dsatab.data.modifier.AbstractModificator;
 import com.gandulf.guilib.util.Debug;
 
-public class WoundAttribute extends AbstractModifier {
+public class WoundAttribute extends AbstractModificator implements JSONable {
 
-	private Element element;
+	private static final String FIELD_POSITION = "position";
+	private static final String FIELD_VALUE = "value";
 
-	public WoundAttribute(Hero hero, Element element) {
+	private Position position;
+
+	private Integer value;
+
+	public WoundAttribute(Hero hero, Position position) {
 		super(hero);
-		this.element = element;
+		this.position = position;
+		this.value = 0;
+	}
+
+	public WoundAttribute(Hero hero, JSONObject json) throws JSONException {
+		super(hero);
+		this.value = json.getInt(FIELD_VALUE);
+		this.position = Position.valueOf(json.getString(FIELD_POSITION));
 	}
 
 	public String getName() {
-		return element.getAttributeValue(Xml.KEY_NAME);
+		return position.getName();
 	}
 
 	@Override
-	public String getModifierName() {
-		return "Wunde " + getPosition().getName() + " x" + getValue();
+	public String getModificatorName() {
+		return "Wunde " + getName() + " x" + getValue();
 	}
 
 	@Override
-	public String getModifierInfo() {
+	public String getModificatorInfo() {
 		String info = null;
 
 		switch (getPosition()) {
@@ -58,32 +69,24 @@ public class WoundAttribute extends AbstractModifier {
 	}
 
 	public Position getPosition() {
-		return Position.valueOf(getName());
+		return position;
+	}
+
+	public void setPosition(Position position) {
+		this.position = position;
 	}
 
 	public Integer getValue() {
-		if (element.getAttribute(Xml.KEY_VALUE) != null) {
-			return Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
-		} else {
-			return null;
-		}
-
+		return value;
 	}
 
 	public void setValue(Integer value) {
-
 		Integer oldValue = getValue();
+		this.value = value;
 
-		if (value != null) {
-			element.setAttribute(Xml.KEY_VALUE, Integer.toString(value));
-		} else
-			element.removeAttribute(Xml.KEY_VALUE);
-
-		Integer newValue = getValue();
-
-		if ((oldValue == null || oldValue == 0) && newValue != null && newValue > 0) {
+		if ((oldValue == null || oldValue == 0) && value != null && value > 0) {
 			hero.fireModifierAddedEvent(this);
-		} else if (oldValue != null && oldValue > 0 && (newValue == null || newValue == 0)) {
+		} else if (oldValue != null && oldValue > 0 && (value == null || value == 0)) {
 			hero.fireModifierRemovedEvent(this);
 		} else {
 			hero.fireModifierChangedEvent(this);
@@ -105,7 +108,10 @@ public class WoundAttribute extends AbstractModifier {
 			if (type == AttributeType.Körperkraft || type == AttributeType.at || type == AttributeType.fk
 					|| type == AttributeType.pa) {
 				modifier += -1 * getValue();
+			} else if (type == AttributeType.Geschwindigkeit) {
+				modifier += -1 * getValue();
 			}
+			break;
 		case Brust:
 			if (type == AttributeType.Konstitution || type == AttributeType.Körperkraft || type == AttributeType.at
 					|| type == AttributeType.fk || type == AttributeType.pa) {
@@ -125,10 +131,12 @@ public class WoundAttribute extends AbstractModifier {
 					|| type == AttributeType.Initiative_Aktuell || type == AttributeType.at || type == AttributeType.pa
 					|| type == AttributeType.fk) {
 				modifier += -2 * getValue();
+			} else if (type == AttributeType.Geschwindigkeit) {
+				modifier += -1 * getValue();
 			}
 			break;
 		}
-		return new Modifier(modifier, getModifierName(), getModifierInfo());
+		return new Modifier(modifier, getModificatorName(), getModificatorInfo());
 	}
 
 	@Override
@@ -188,7 +196,22 @@ public class WoundAttribute extends AbstractModifier {
 				break;
 			}
 		}
-		return new Modifier(modifier, getModifierName(), getModifierInfo());
+		return new Modifier(modifier, getModificatorName(), getModificatorInfo());
+	}
+
+	/**
+	 * Constructs a json object with the current data
+	 * 
+	 * @return
+	 * @throws JSONException
+	 */
+	public JSONObject toJSONObject() throws JSONException {
+		JSONObject out = new JSONObject();
+
+		out.put(FIELD_POSITION, position.name());
+		out.put(FIELD_VALUE, value);
+
+		return out;
 	}
 
 }

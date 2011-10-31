@@ -57,6 +57,8 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 
 	private List<EquippedItem> equippedItems;
 
+	private Boolean hasCardImage;
+
 	public Item() {
 		id = UUID.randomUUID();
 		itemInfo = new ItemLocationInfo();
@@ -232,6 +234,21 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 				return true;
 		}
 		return false;
+	}
+
+	public boolean hasImage() {
+
+		if (hasCardImage == null) {
+
+			File lqFile = getFile();
+			if (lqFile == null || !lqFile.isFile())
+				hasCardImage = false;
+			else
+				hasCardImage = (!lqFile.getName().equals(Item.BLANK_PATH));
+
+		}
+		return hasCardImage;
+
 	}
 
 	public String getInfo() {

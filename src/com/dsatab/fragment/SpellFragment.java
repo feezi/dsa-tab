@@ -16,16 +16,10 @@
  */
 package com.dsatab.fragment;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,14 +27,18 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.CheckBox;
 import android.widget.ListView;
 
 import com.dsatab.R;
+import com.dsatab.activity.MainActivity;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Spell;
 import com.dsatab.data.Value;
 import com.dsatab.data.adapter.SpellAdapter;
+import com.dsatab.view.FilterDialog;
+import com.dsatab.view.FilterSettings;
+import com.dsatab.view.FilterSettings.FilterType;
+import com.dsatab.view.ListFilterSettings;
 import com.dsatab.view.SpellInfoDialog;
 import com.dsatab.view.listener.HeroChangedListener;
 
@@ -49,10 +47,6 @@ import com.dsatab.view.listener.HeroChangedListener;
  * 
  */
 public class SpellFragment extends BaseFragment implements OnItemClickListener, HeroChangedListener {
-
-	private static final String PREF_KEY_SHOW_FAVORITE = "SHOW_FAVORITE_SPELL";
-	private static final String PREF_KEY_SHOW_NORMAL = "SHOW_NORMAL_SPELL";
-	private static final String PREF_KEY_SHOW_UNUSED = "SHOW_UNUSED_SPELL";
 
 	private ListView spellList;
 
@@ -63,25 +57,17 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		setHasOptionsMenu(true);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see
 	 * android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater,
 	 * android.view.ViewGroup, android.os.Bundle)
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.sheet_spell, container, false);
+		View root = configureContainerView(inflater.inflate(R.layout.sheet_spell, container, false));
+
+		spellList = (ListView) root.findViewById(R.id.spell_list);
+
+		return root;
 	}
 
 	/*
@@ -91,7 +77,7 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		spellList = (ListView) findViewById(R.id.spell_list);
+
 		registerForContextMenu(spellList);
 		spellList.setOnItemClickListener(this);
 
@@ -128,17 +114,6 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.fragment.BaseFragment#onHeroUnloaded(com.dsatab.data.Hero)
-	 */
-	@Override
-	public void onHeroUnloaded(Hero hero) {
-
-	}
-
 	public void onValueChanged(Value value) {
 		if (value == null) {
 			return;
@@ -167,11 +142,9 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 
 	private void loadHeroSpells(Hero hero2) {
 
-		SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
-
-		spellAdapter = new SpellAdapter(getBaseActivity(), getHero(), getHero().getSpells(), pref.getBoolean(
-				PREF_KEY_SHOW_FAVORITE, true), pref.getBoolean(PREF_KEY_SHOW_NORMAL, true), pref.getBoolean(
-				PREF_KEY_SHOW_UNUSED, false));
+		spellAdapter = new SpellAdapter(getBaseActivity(), getHero(), getHero().getSpells(), preferences.getBoolean(
+				FilterDialog.PREF_KEY_SPELL_FAVORITE, true), preferences.getBoolean(FilterDialog.PREF_KEY_SPELL_NORMAL,
+				true), preferences.getBoolean(FilterDialog.PREF_KEY_SPELL_UNUSED, false));
 
 		spellList.setAdapter(spellAdapter);
 	}
@@ -191,14 +164,13 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 
 			if (position >= 0) {
 				MenuInflater inflater = new MenuInflater(getActivity());
-				inflater.inflate(R.menu.talent_popupmenu, menu);
+				inflater.inflate(R.menu.spell_popupmenu, menu);
 
 				Spell spell = spellAdapter.getItem(position);
-
 				menu.setHeaderTitle(spell.getName());
-				menu.findItem(R.id.option_unmark).setVisible(spell.isFavorite() || spell.isUnused());
-				menu.findItem(R.id.option_mark_favorite).setVisible(!spell.isFavorite());
-				menu.findItem(R.id.option_mark_unused).setVisible(!spell.isUnused());
+				menu.findItem(R.id.option_unmark_spell).setVisible(spell.isFavorite() || spell.isUnused());
+				menu.findItem(R.id.option_mark_favorite_spell).setVisible(!spell.isFavorite());
+				menu.findItem(R.id.option_mark_unused_spell).setVisible(!spell.isUnused());
 			}
 		}
 		super.onCreateContextMenu(menu, v, menuInfo);
@@ -213,115 +185,70 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 	public boolean onContextItemSelected(MenuItem item) {
 
 		if (item.getMenuInfo() instanceof AdapterContextMenuInfo) {
-			int position = ((AdapterContextMenuInfo) item.getMenuInfo()).position;
+			AdapterContextMenuInfo menuInfo = ((AdapterContextMenuInfo) item.getMenuInfo());
+			int position = menuInfo.position;
 
-			Spell spell = null;
-			if (position >= 0) {
-				spell = spellAdapter.getItem(position);
+			View child = menuInfo.targetView;
 
-				switch (item.getItemId()) {
-				case R.id.option_edit_value:
-					getBaseActivity().showEditPopup(spell);
-					return true;
-				case R.id.option_mark_favorite:
-					spell.setFavorite(true);
-					spellAdapter.refilter();
-					spellAdapter.notifyDataSetChanged();
-					return true;
-				case R.id.option_mark_unused:
-					spell.setUnused(true);
-					spellAdapter.refilter();
-					spellAdapter.notifyDataSetChanged();
-					return true;
-				case R.id.option_unmark:
-					spell.setFavorite(false);
-					spell.setUnused(false);
-					spellAdapter.refilter();
-					spellAdapter.notifyDataSetChanged();
-					return true;
-				case R.id.option_view_details:
-					showInfo(spell);
-					break;
-				}
+			switch (item.getItemId()) {
+			case R.id.option_edit_spell: {
+				MainActivity.showEditPopup(getActivity(), getSpell(child, position));
+				return true;
 			}
+			case R.id.option_mark_favorite_spell: {
+				Spell spell = getSpell(child, position);
+				spell.setFavorite(true);
+				spellAdapter.notifyDataSetChanged();
+
+				return true;
+			}
+			case R.id.option_mark_unused_spell: {
+				Spell spell = getSpell(child, position);
+				spell.setUnused(true);
+				spellAdapter.notifyDataSetChanged();
+				return true;
+			}
+			case R.id.option_unmark_spell: {
+				Spell spell = getSpell(child, position);
+				spell.setFavorite(false);
+				spell.setUnused(false);
+				spellAdapter.notifyDataSetChanged();
+				return true;
+			}
+			case R.id.option_view_spell: {
+				showInfo(getSpell(child, position));
+				return true;
+			}
+			}
+
 		}
 
 		return super.onContextItemSelected(item);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.activity.BaseMenuActivity#onCreateOptionsMenu(android.view
-	 * .Menu)
-	 */
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.spell_menu, menu);
+	private Spell getSpell(View child, int position) {
+		Spell spell = null;
+		if (child != null && child.getTag() instanceof Spell) {
+			spell = (Spell) child.getTag();
+		}
+
+		if (spellAdapter != null && spell == null && position >= 0 && position < spellAdapter.getCount()) {
+			spell = spellAdapter.getItem(position);
+		}
+		return spell;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.dsatab.activity.BaseMenuActivity#onOptionsItemSelected(android.view
-	 * .MenuItem)
+	 * @see com.dsatab.fragment.BaseFragment#onFilterChanged(com.dsatab.view.
+	 * FilterSettings.FilterType, com.dsatab.view.FilterSettings)
 	 */
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.option_filter_spell) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-			builder.setTitle("Zaubersprüche filtern");
-			builder.setIcon(android.R.drawable.ic_menu_view);
-			View content = LayoutInflater.from(getActivity()).inflate(R.layout.popup_filter, null);
-
-			final CheckBox fav = (CheckBox) content.findViewById(R.id.cb_show_favorites);
-			final CheckBox normal = (CheckBox) content.findViewById(R.id.cb_show_normal);
-			final CheckBox unused = (CheckBox) content.findViewById(R.id.cb_show_unused);
-
-			SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
-
-			fav.setChecked(pref.getBoolean(PREF_KEY_SHOW_FAVORITE, true));
-			normal.setChecked(pref.getBoolean(PREF_KEY_SHOW_NORMAL, true));
-			unused.setChecked(pref.getBoolean(PREF_KEY_SHOW_UNUSED, false));
-
-			builder.setView(content);
-
-			DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (which == DialogInterface.BUTTON_POSITIVE) {
-
-						SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
-						Editor edit = pref.edit();
-
-						edit.putBoolean(PREF_KEY_SHOW_FAVORITE, fav.isChecked());
-						edit.putBoolean(PREF_KEY_SHOW_NORMAL, normal.isChecked());
-						edit.putBoolean(PREF_KEY_SHOW_UNUSED, unused.isChecked());
-
-						edit.commit();
-
-						spellAdapter.filter(fav.isChecked(), normal.isChecked(), unused.isChecked());
-					} else if (which == DialogInterface.BUTTON_NEUTRAL) {
-						// do nothing
-					}
-
-				}
-			};
-
-			builder.setPositiveButton(R.string.label_ok, clickListener);
-			builder.setNegativeButton(R.string.label_cancel, clickListener);
-
-			builder.show();
-			return true;
-		} else {
-			return super.onOptionsItemSelected(item);
+	public void onFilterChanged(FilterType type, FilterSettings settings) {
+		if (type == FilterType.Spell && settings instanceof ListFilterSettings) {
+			spellAdapter.filter((ListFilterSettings) settings);
 		}
-
 	}
 
 }

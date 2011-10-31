@@ -16,21 +16,27 @@
  */
 package com.dsatab;
 
+import java.util.UUID;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.dsatab.data.JSONable;
+import com.dsatab.fragment.ArtFragment;
 import com.dsatab.fragment.BaseFragment;
+import com.dsatab.fragment.MapFragment;
 
 /**
  * @author Ganymede
  * 
  */
-public class TabInfo implements Parcelable {
+public class TabInfo implements Parcelable, JSONable {
 
 	private static final String FIELD_TAB_RESOURCE_INDEX = "tabResourceId";
+	private static final String FIELD_TAB_FLING_ENABLED = "tabFlingenabled";
 	private static final String FIELD_PRIMARY_ACTIVITY_CLAZZ = "activityClazz1";
 	private static final String FIELD_SECONDARY_ACTIVITY_CLAZZ = "activityClazz2";
 	private static final String FIELD_DICE_SLIDER = "diceSlider";
@@ -41,16 +47,10 @@ public class TabInfo implements Parcelable {
 	private int tabResourceIndex;
 
 	private boolean diceSlider = true;
+	private boolean tabFlingEnabled = true;
 
-	public TabInfo(Class<? extends BaseFragment> activityClazz1, Class<? extends BaseFragment> activityClazz2,
-			int tabResourceId, boolean diceSlider) {
-		super();
-		this.primaryActivityClazz = activityClazz1;
-		this.secondaryActivityClazz = activityClazz2;
-
-		this.tabResourceIndex = resourceIdToIndex(tabResourceId);
-		this.diceSlider = diceSlider;
-	}
+	private transient UUID id;
+	private transient int containerId;
 
 	private static final int indexToResourceId(int index) {
 		if (index < 0 || index >= DSATabApplication.getInstance().getConfiguration().getTabIcons().size())
@@ -66,6 +66,17 @@ public class TabInfo implements Parcelable {
 			return 0;
 		else
 			return index;
+	}
+
+	public TabInfo(Class<? extends BaseFragment> activityClazz1, Class<? extends BaseFragment> activityClazz2,
+			int tabResourceId, boolean diceSlider) {
+		super();
+		this.primaryActivityClazz = activityClazz1;
+		this.secondaryActivityClazz = activityClazz2;
+
+		this.tabResourceIndex = resourceIdToIndex(tabResourceId);
+		this.diceSlider = diceSlider;
+		this.id = UUID.randomUUID();
 	}
 
 	public TabInfo(Class<? extends BaseFragment> activityClazz1, Class<? extends BaseFragment> activityClazz2,
@@ -90,6 +101,8 @@ public class TabInfo implements Parcelable {
 		this.secondaryActivityClazz = (Class<? extends BaseFragment>) in.readSerializable();
 		this.tabResourceIndex = in.readInt();
 		this.diceSlider = in.readInt() == 0 ? false : true;
+		this.id = UUID.randomUUID();
+		this.tabFlingEnabled = in.readInt() == 0 ? false : true;
 	}
 
 	/**
@@ -100,18 +113,38 @@ public class TabInfo implements Parcelable {
 	 */
 	public TabInfo(JSONObject in) throws JSONException, ClassNotFoundException {
 		tabResourceIndex = in.getInt(FIELD_TAB_RESOURCE_INDEX);
-		diceSlider = in.getBoolean(FIELD_DICE_SLIDER);
+		if (in.has(FIELD_DICE_SLIDER))
+			diceSlider = in.getBoolean(FIELD_DICE_SLIDER);
 
 		if (!in.isNull(FIELD_PRIMARY_ACTIVITY_CLAZZ)) {
-			primaryActivityClazz = (Class<? extends BaseFragment>) Class.forName(
-					in.getString(FIELD_PRIMARY_ACTIVITY_CLAZZ), true, BaseFragment.class.getClassLoader());
+			String className = in.getString(FIELD_PRIMARY_ACTIVITY_CLAZZ);
+			if ("com.dsatab.fragment.LiturgieFragment".equals(className)) {
+				className = ArtFragment.class.getName();
+			}
+
+			primaryActivityClazz = (Class<? extends BaseFragment>) Class.forName(className, true,
+					BaseFragment.class.getClassLoader());
 		}
 
 		if (!in.isNull(FIELD_SECONDARY_ACTIVITY_CLAZZ)) {
-			secondaryActivityClazz = (Class<? extends BaseFragment>) Class.forName(
-					in.getString(FIELD_SECONDARY_ACTIVITY_CLAZZ), true, BaseFragment.class.getClassLoader());
+
+			String className = in.getString(FIELD_SECONDARY_ACTIVITY_CLAZZ);
+			if ("com.dsatab.fragment.LiturgieFragment".equals(className)) {
+				className = ArtFragment.class.getName();
+			}
+			secondaryActivityClazz = (Class<? extends BaseFragment>) Class.forName(className, true,
+					BaseFragment.class.getClassLoader());
 		}
 
+		this.id = UUID.randomUUID();
+
+		if (in.has(FIELD_TAB_FLING_ENABLED))
+			tabFlingEnabled = in.getBoolean(FIELD_TAB_FLING_ENABLED);
+
+	}
+
+	public UUID getId() {
+		return id;
 	}
 
 	public Class<? extends BaseFragment> getPrimaryActivityClazz() {
@@ -120,6 +153,14 @@ public class TabInfo implements Parcelable {
 
 	public void setPrimaryActivityClazz(Class<? extends BaseFragment> activityClazz) {
 		this.primaryActivityClazz = activityClazz;
+	}
+
+	public boolean isTabFlingEnabled() {
+		return primaryActivityClazz != MapFragment.class && secondaryActivityClazz != MapFragment.class;
+	}
+
+	public void setTabFlingEnabled(boolean tabFlingEnabled) {
+		this.tabFlingEnabled = tabFlingEnabled;
 	}
 
 	public Class<? extends BaseFragment> getSecondaryActivityClazz() {
@@ -144,6 +185,31 @@ public class TabInfo implements Parcelable {
 
 	public void setDiceSlider(boolean diceSlider) {
 		this.diceSlider = diceSlider;
+	}
+
+	public int getContainerId() {
+		return containerId;
+	}
+
+	public void setContainerId(int containerId) {
+		this.containerId = containerId;
+	}
+
+	public String getFragmentTagName(int tab) {
+		return "android:switcher:" + containerId + ":" + getId().toString() + ":" + tab;
+	}
+
+	public int getTabCount() {
+		int count = 0;
+
+		if (getPrimaryActivityClazz() != null)
+			count++;
+
+		if (getSecondaryActivityClazz() != null)
+			count++;
+
+		return count;
+
 	}
 
 	/*
@@ -180,6 +246,8 @@ public class TabInfo implements Parcelable {
 		dest.writeSerializable(secondaryActivityClazz);
 		dest.writeInt(tabResourceIndex);
 		dest.writeInt(diceSlider ? 1 : 0);
+		dest.writeInt(tabFlingEnabled ? 1 : 0);
+
 	}
 
 	/**
@@ -197,7 +265,18 @@ public class TabInfo implements Parcelable {
 
 		out.put(FIELD_TAB_RESOURCE_INDEX, tabResourceIndex);
 		out.put(FIELD_DICE_SLIDER, diceSlider);
+		out.put(FIELD_TAB_FLING_ENABLED, tabFlingEnabled);
 		return out;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "TabInfo " + getPrimaryActivityClazz() + ":" + getSecondaryActivityClazz();
 	}
 
 }

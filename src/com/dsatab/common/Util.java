@@ -1,5 +1,6 @@
 package com.dsatab.common;
 
+import java.io.File;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Arrays;
@@ -8,8 +9,19 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.LevelListDrawable;
+import android.text.Html;
+import android.text.Spanned;
+import android.text.SpannedString;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -55,6 +67,75 @@ public class Util {
 
 	}
 
+	public static class FileNameComparator implements Comparator<File> {
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+		 */
+		@Override
+		public int compare(File object1, File object2) {
+			return object1.getName().compareToIgnoreCase(object2.getName());
+		}
+	};
+
+	public static void hideKeyboard(View view) {
+		InputMethodManager imm = (InputMethodManager) DSATabApplication.getInstance().getSystemService(
+				Context.INPUT_METHOD_SERVICE);
+
+		imm.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0);
+	}
+
+	public static Spanned getText(int resourceId, java.lang.Object... formatArgs) {
+		return Html.fromHtml(String.format(
+				Html.toHtml(new SpannedString(DSATabApplication.getInstance().getText(resourceId))), formatArgs));
+	}
+
+	public static Bitmap decodeFile(final File f, final int suggestedSize) {
+		if (f == null) {
+			return null;
+		}
+		if (f.exists() == false) {
+			return null;
+		}
+		// return BitmapFactory.decodeFile(f.getAbsolutePath());
+		try {
+			// System.gc();
+			// decode image size
+			final BitmapFactory.Options o = new BitmapFactory.Options();
+			o.inJustDecodeBounds = true;
+			BitmapFactory.decodeFile(f.getAbsolutePath(), o);
+			// Find the correct scale value. It should be the power of
+			// 2.
+			final int requiredSize = suggestedSize;
+			int widthTmp = o.outWidth, heightTmp = o.outHeight;
+			int scale = 1;
+			while (true) {
+				if ((widthTmp / 2) < requiredSize || (heightTmp / 2) < requiredSize) {
+					break;
+				}
+				widthTmp /= 2;
+				heightTmp /= 2;
+				scale *= 2;
+			}
+			// decode with inSampleSize
+			final BitmapFactory.Options o2 = new BitmapFactory.Options();
+			o2.inSampleSize = scale;
+			Bitmap bitmap = null;
+			try {
+				bitmap = BitmapFactory.decodeFile(f.getAbsolutePath(), o2);
+			} catch (final Throwable e) {
+				Debug.error(e);
+				System.gc();
+			}
+			return bitmap;
+		} catch (final Throwable e) {
+			Debug.error(e);
+			System.gc();
+			return null;
+		}
+	}
+
 	public static boolean isBlank(String str) {
 		return str == null || str.trim().length() == 0;
 	}
@@ -72,6 +153,34 @@ public class Util {
 			floats[i] = Float.parseFloat(st.nextToken());
 		}
 		return floats;
+	}
+
+	public static void unbindDrawables(View view) {
+		if (view.getBackground() != null) {
+			view.getBackground().setCallback(null);
+			// if (view.getBackground() instanceof BitmapDrawable) {
+			// BitmapDrawable bm = (BitmapDrawable) view.getBackground();
+			// bm.getBitmap().recycle();
+			// }
+		}
+		if (view instanceof ViewGroup) {
+			for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+				unbindDrawables(((ViewGroup) view).getChildAt(i));
+			}
+			// AdapterViews, ListViews and potentially other ViewGroups
+			// don’t support the removeAllViews operation
+			if (view instanceof AdapterView) {
+				// do nothing
+			} else {
+				try {
+					((ViewGroup) view).removeAllViews();
+				} catch (UnsupportedOperationException mayHappen) {
+					// AdapterViews, ListViews and potentially other ViewGroups
+					// don’t support the removeAllViews operation
+				}
+			}
+		}
+
 	}
 
 	public static String toString(float[] floats) {
@@ -102,24 +211,56 @@ public class Util {
 		return i;
 	}
 
+	public static Long parseLong(String s) {
+
+		if (s == null)
+			return null;
+
+		s = s.trim();
+
+		if (s.length() == 0 || MINUS.equals(s) || NULL.equals(s))
+			return null;
+
+		Long i;
+		if (s.startsWith(PLUS))
+			i = Long.valueOf(s.substring(1));
+		else
+			i = Long.valueOf(s);
+
+		return i;
+	}
+
 	public static void applyRowStyle(Markable markable, View row, int position) {
-		if (position % 2 == 1) {
-			if (markable.isFavorite())
-				row.setBackgroundResource(R.drawable.list_row_odd_fav);
-			else if (markable.isUnused()) {
-				row.setBackgroundResource(R.drawable.list_row_odd_unused);
-			} else {
-				row.setBackgroundResource(R.drawable.list_row_odd);
-			}
+		LevelListDrawable levelListDrawable;
+
+		if (row.getBackground() instanceof LevelListDrawable) {
+			levelListDrawable = (LevelListDrawable) row.getBackground();
 		} else {
-			if (markable.isFavorite())
-				row.setBackgroundResource(R.drawable.list_row_even_fav);
-			else if (markable.isUnused()) {
-				row.setBackgroundResource(R.drawable.list_row_even_unused);
-			} else {
-				row.setBackgroundResource(R.drawable.list_row_even);
-			}
+			row.setBackgroundResource(R.drawable.list_background_selector);
+			levelListDrawable = (LevelListDrawable) row.getBackground();
 		}
+
+		int level = position % 2;
+		if (markable.isFavorite())
+			level += 2;
+		else if (markable.isUnused())
+			level += 4;
+
+		levelListDrawable.setLevel(level);
+
+	}
+
+	public static void applyRowStyle(View row, int position) {
+		LevelListDrawable levelListDrawable;
+
+		if (row.getBackground() instanceof LevelListDrawable) {
+			levelListDrawable = (LevelListDrawable) row.getBackground();
+		} else {
+			row.setBackgroundResource(R.drawable.list_background_selector);
+			levelListDrawable = (LevelListDrawable) row.getBackground();
+		}
+
+		levelListDrawable.setLevel(position % 2);
 	}
 
 	public static void setVisibility(View view, boolean visible, View expander) {
@@ -187,45 +328,13 @@ public class Util {
 		return i;
 	}
 
-	public static int modifyBe(int value, String beModifier, int be) {
-		if (beModifier == null) {
-			return value;
-		}
-
-		beModifier = beModifier.toUpperCase();
-
-		if ("BE".equalsIgnoreCase(beModifier)) {
-			return value - be;
-		} else if (beModifier.startsWith("BE-")) {
-			try {
-				int beMinus = Util.parseInt(beModifier.substring(3));
-				return value - Math.max(0, (be - beMinus));
-			} catch (NumberFormatException e) {
-				Debug.error(e);
-				return value;
-			}
-		} else if (beModifier.startsWith("BEX")) {
-			try {
-				int beMulti = Util.parseInt(beModifier.substring(3));
-				return value - (be * beMulti);
-			} catch (NumberFormatException e) {
-				Debug.error(e);
-				return value;
-			}
-		} else if ("0->BE".equalsIgnoreCase(beModifier)) {
-			return value;
-		} else {
-			Debug.warning("Could not parse beModifier " + beModifier + " be was " + be);
-			return value;
-		}
-	}
-
 	public static void setTextColor(TextView tf, Value value, int modifier) {
-		if (value.getValue() != null && value.getReferenceValue() != null) {
+		if (value.getValue() != null) {
 
-			if (value.getValue() < value.getReferenceValue() || modifier < 0)
+			if (modifier < 0 || (value.getReferenceValue() != null && value.getValue() < value.getReferenceValue()))
 				tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed));
-			else if (value.getValue() > value.getReferenceValue() || modifier > 0)
+			else if (modifier > 0
+					|| (value.getReferenceValue() != null && value.getValue() > value.getReferenceValue()))
 				tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen));
 			else
 				tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueBlack));
@@ -270,12 +379,13 @@ public class Util {
 
 			value += modifier;
 
-			if (prefix != null)
-				tf.setText(prefix + Util.toString(value));
-			else
+			if (prefix != null) {
+				tf.setText(prefix);
+				tf.append(Util.toString(value));
+			} else
 				tf.setText(Util.toString(value));
 		} else {
-			tf.setText("");
+			tf.setText(null);
 		}
 		setTextColor(tf, modifier);
 	}
@@ -284,7 +394,7 @@ public class Util {
 
 		Integer value1 = hero.getAttributeValue(type);
 		if (value1 != null) {
-			int modifier = hero.getModificator(type);
+			int modifier = hero.getModifier(type);
 
 			int color;
 			if (modifier < 0)
@@ -316,7 +426,7 @@ public class Util {
 			title.append(" (");
 
 		if (value1 != null) {
-			int modifier = hero.getModificator(probe1);
+			int modifier = hero.getModifier(probe1);
 
 			int color;
 			if (modifier < 0)
@@ -335,7 +445,7 @@ public class Util {
 			if (value1 != null)
 				title.append("/");
 
-			int modifier = hero.getModificator(probe2);
+			int modifier = hero.getModifier(probe2);
 
 			int color;
 			if (modifier < 0)
@@ -567,5 +677,12 @@ public class Util {
 
 	public static boolean equalsOrNull(Object o1, Object o2) {
 		return (o1 == null && o2 == null) || (o1 != null && o1.equals(o2));
+	}
+
+	public static String getValue(String value, String defaultValue) {
+		if (TextUtils.isEmpty(value))
+			return defaultValue;
+		else
+			return value;
 	}
 }

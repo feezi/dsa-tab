@@ -1,6 +1,0 @@
-<resources>
-    <style name="Theme.MapBackground" parent="android:Theme.Light.NoTitleBar.Fullscreen">
-        <item name="android:windowBackground">@drawable/bg_map_land</item>                
-        <item name="android:textSize">20sp</item>                               
-    </style>
-</resources>

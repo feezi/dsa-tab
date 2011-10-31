@@ -23,15 +23,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import yuku.iconcontextmenu.IconContextMenu.IconContextMenuInfo;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,6 +41,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -48,7 +53,8 @@ import com.dsatab.common.Util;
 import com.dsatab.data.Advantage;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero;
-import com.dsatab.data.Markable;
+import com.dsatab.data.HeroBaseInfo;
+import com.dsatab.data.SpecialFeature;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.modifier.Modificator;
@@ -59,15 +65,17 @@ import com.gandulf.guilib.util.Debug;
 public class CharacterFragment extends BaseFragment implements OnClickListener {
 
 	private static final String PREF_SHOW_FEATURE_COMMENTS = "SHOW_COMMENTS";
+	private static final String PREF_SHOW_BASEINFO = "SHOW_BASEINFO";
 
 	private static final int ACTION_PHOTO = 1;
+	private static final int ACTION_GALERY = 2;
 	private static final int CONTEXTMENU_COMMENTS_TOGGLE = 14;
 
 	private TextView tfSpecialFeatures, tfExperience, tfTotalLp, tfTotalAu, tfTotalAe, tfTotalKe, tfGs, tfWs;
 
 	private View charAttributesList;
 
-	private Markable selectedTalent;
+	private ImageButton detailsSwitch;
 
 	private ImageView portraitView;
 
@@ -82,29 +90,35 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.sheet_character, container, false);
+		Debug.verbose(getClass().getName() + " createView");
+		View root = configureContainerView(inflater.inflate(R.layout.sheet_character, container, false));
+
+		detailsSwitch = (ImageButton) root.findViewById(R.id.details_switch);
+
+		charAttributesList = root.findViewById(R.id.gen_attributes);
+		tfExperience = (TextView) root.findViewById(R.id.attr_abp);
+
+		tfTotalAe = (TextView) root.findViewById(R.id.attr_total_ae);
+		tfTotalKe = (TextView) root.findViewById(R.id.attr_total_ke);
+		tfTotalLp = (TextView) root.findViewById(R.id.attr_total_lp);
+		tfTotalAu = (TextView) root.findViewById(R.id.attr_total_au);
+
+		tfGs = (TextView) root.findViewById(R.id.attr_gs);
+		tfWs = (TextView) root.findViewById(R.id.attr_ws);
+
+		tfSpecialFeatures = (TextView) root.findViewById(R.id.gen_specialfeatures);
+
+		portraitView = (ImageView) root.findViewById(R.id.gen_portrait);
+		return root;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 
-		charAttributesList = findViewById(R.id.gen_attributes);
-
-		tfExperience = (TextView) findViewById(R.id.attr_abp);
+		detailsSwitch.setOnClickListener(this);
 		tfExperience.setOnClickListener(getBaseActivity().getEditListener());
 		tfExperience.setOnLongClickListener(getBaseActivity().getEditListener());
-
-		tfTotalAe = (TextView) findViewById(R.id.attr_total_ae);
-		tfTotalKe = (TextView) findViewById(R.id.attr_total_ke);
-		tfTotalLp = (TextView) findViewById(R.id.attr_total_lp);
-		tfTotalAu = (TextView) findViewById(R.id.attr_total_au);
-
-		tfGs = (TextView) findViewById(R.id.attr_gs);
-		tfWs = (TextView) findViewById(R.id.attr_ws);
-
-		tfSpecialFeatures = (TextView) findViewById(R.id.gen_specialfeatures);
-
-		portraitView = (ImageView) findViewById(R.id.gen_portrait);
+		findViewById(R.id.gen_description).setOnClickListener(this);
 
 		registerForIconContextMenu(portraitView);
 
@@ -119,17 +133,25 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 	 * .Menu, android.view.View, android.view.ContextMenu.ContextMenuInfo)
 	 */
 	@Override
-	public Object onCreateIconContextMenu(Menu menu, View v, ContextMenuInfo menuInfo) {
+	public Object onCreateIconContextMenu(Menu menu, View v, IconContextMenuInfo menuInfo) {
 		switch (v.getId()) {
 		case R.id.gen_specialfeatures:
-			MenuItem item = menu.add(0, CONTEXTMENU_COMMENTS_TOGGLE, 0, R.string.menu_show_hide_comments).setIcon(
-					R.drawable.ic_menu_view);
+
+			boolean showComments = preferences.getBoolean(PREF_SHOW_FEATURE_COMMENTS, true);
+			MenuItem item = null;
+			if (showComments) {
+				item = menu.add(0, CONTEXTMENU_COMMENTS_TOGGLE, 0, R.string.menu_hide_comments).setIcon(
+						R.drawable.ic_menu_view);
+			} else {
+				item = menu.add(0, CONTEXTMENU_COMMENTS_TOGGLE, 0, R.string.menu_show_comments).setIcon(
+						R.drawable.ic_menu_view);
+			}
 			item.setEnabled(getHero() != null);
 			break;
 
 		case R.id.gen_portrait:
 			if (getHero() != null) {
-				MenuInflater inflater = new MenuInflater(getActivity());
+				MenuInflater inflater = getActivity().getMenuInflater();
 				inflater.inflate(R.menu.portrait_popupmenu, menu);
 
 				if (getHero().getPortrait() == null) {
@@ -168,6 +190,12 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 			Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 			startActivityForResult(camera, ACTION_PHOTO);
 			break;
+		case R.id.option_pick_image:
+			Intent photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
+			photoPickerIntent.setType("image/*");
+			startActivityForResult(Intent.createChooser(photoPickerIntent, "Bild auswählen"), ACTION_GALERY);
+
+			break;
 		case R.id.option_view_portrait:
 			showPortrait();
 			break;
@@ -196,6 +224,33 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 		switch (requestCode) {
+		case ACTION_GALERY:
+			if (resultCode == Activity.RESULT_OK) {
+				Uri selectedImage = data.getData();
+				String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+				Cursor cursor = getActivity().getContentResolver().query(selectedImage, filePathColumn, null, null,
+						null);
+				cursor.moveToFirst();
+
+				int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+				String filePath = cursor.getString(columnIndex);
+				cursor.close();
+				File file = new File(filePath);
+				if (file.exists()) {
+					Bitmap yourSelectedImage = Util.decodeFile(new File(filePath), 300);
+
+					File outputfile = saveBitmap(yourSelectedImage);
+					if (outputfile != null) {
+						// set uri for currently selected player
+						getHero().setPortraitUri(outputfile.toURI());
+
+						updatePortrait(getHero());
+					}
+				}
+			}
+
+			break;
 		case ACTION_PHOTO:
 
 			if (resultCode == Activity.RESULT_OK) {
@@ -205,37 +260,44 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 				Bitmap pic = (Bitmap) b.get("data");
 
 				if (pic != null) {
-					// Store the image on the phone for later retrieval
-					FileOutputStream fOut = null;
-					try {
-						String photoName = "photo" + getHero().getName();
-						fOut = getActivity().openFileOutput(photoName, Activity.MODE_PRIVATE);
-						pic.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
-						fOut.flush();
 
-						File outputfile = getActivity().getFileStreamPath(photoName);
-
+					File outputfile = saveBitmap(pic);
+					if (outputfile != null) {
 						// set uri for currently selected player
 						getHero().setPortraitUri(outputfile.toURI());
 
 						updatePortrait(getHero());
-					} catch (FileNotFoundException e) {
-						Debug.error(e);
-					} catch (IOException e) {
-						Debug.error(e);
-					} finally {
-						if (fOut != null) {
-							try {
-								fOut.close();
-							} catch (IOException e) {
-							}
-						}
 					}
 				}
 			}
 		}
 
 		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	private File saveBitmap(Bitmap pic) {
+		FileOutputStream fOut = null;
+		try {
+			String photoName = "photo" + getHero().getName();
+			fOut = getActivity().openFileOutput(photoName, Activity.MODE_PRIVATE);
+			pic.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
+			fOut.flush();
+
+			File outputfile = getActivity().getFileStreamPath(photoName);
+			return outputfile;
+		} catch (FileNotFoundException e) {
+			Debug.error(e);
+		} catch (IOException e) {
+			Debug.error(e);
+		} finally {
+			if (fOut != null) {
+				try {
+					fOut.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		return null;
 	}
 
 	private void showPortrait() {
@@ -264,28 +326,35 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 			}
 			break;
 
+		case R.id.gen_description:
+		case R.id.details_switch:
+			Editor edit = preferences.edit();
+			edit.putBoolean(PREF_SHOW_BASEINFO, !preferences.getBoolean(PREF_SHOW_BASEINFO, true));
+			edit.commit();
+			updateBaseInfo(true);
+			break;
 		}
 
 	}
 
 	@Override
 	public void onModifierAdded(Modificator value) {
-		tfGs.setText(Util.toString(getHero().getGs()));
+
 	}
 
 	@Override
 	public void onModifierRemoved(Modificator value) {
-		tfGs.setText(Util.toString(getHero().getGs()));
+
 	}
 
 	@Override
 	public void onModifierChanged(Modificator value) {
-		tfGs.setText(Util.toString(getHero().getGs()));
+
 	}
 
 	@Override
 	public void onModifiersChanged(List<Modificator> values) {
-		tfGs.setText(Util.toString(getHero().getGs()));
+
 	}
 
 	public void onValueChanged(Value value) {
@@ -353,11 +422,12 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 				break;
 			case Behinderung:
 				fillAttributeValue((TextView) findViewById(R.id.attr_be), AttributeType.Behinderung);
-				tfGs.setText(Util.toString(getHero().getGs()));
+				fillAttributeValue(tfGs, AttributeType.Geschwindigkeit);
+				break;
+			case Geschwindigkeit:
+				fillAttributeValue(tfGs, AttributeType.Geschwindigkeit);
 				break;
 			case Gewandtheit:
-				tfGs.setText(Util.toString(getHero().getGs()));
-				// no break since attribute value has to be set too
 			case Mut:
 			case Klugheit:
 			case Intuition:
@@ -394,10 +464,10 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 		fillAttributeValue((TextView) findViewById(R.id.attr_mr), AttributeType.Magieresistenz);
 		fillAttributeValue((TextView) findViewById(R.id.attr_so), AttributeType.Sozialstatus);
 
-		fillAttributeValue((TextView) findViewById(R.id.attr_at), AttributeType.at);
-		fillAttributeValue((TextView) findViewById(R.id.attr_pa), AttributeType.pa);
-		fillAttributeValue((TextView) findViewById(R.id.attr_fk), AttributeType.fk);
-		fillAttributeValue((TextView) findViewById(R.id.attr_ini), AttributeType.ini);
+		fillAttributeValue((TextView) findViewById(R.id.attr_at), AttributeType.at, false);
+		fillAttributeValue((TextView) findViewById(R.id.attr_pa), AttributeType.pa, false);
+		fillAttributeValue((TextView) findViewById(R.id.attr_fk), AttributeType.fk, false);
+		fillAttributeValue((TextView) findViewById(R.id.attr_ini), AttributeType.ini, false);
 		fillAttributeValue((TextView) findViewById(R.id.attr_be), AttributeType.Behinderung);
 
 		fillAttributeLabel((TextView) findViewById(R.id.attr_at_label), AttributeType.at);
@@ -424,26 +494,87 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 		}
 
 		Util.setText((TextView) findViewById(R.id.attr_st), hero.getLevel(), 0, null);
-		Util.setText(tfGs, hero.getGs(), 0, null);
+
+		fillAttributeValue(tfGs, AttributeType.Geschwindigkeit);
 
 		int[] ws = hero.getWundschwelle();
 		tfWs.setText(ws[0] + "/" + ws[1] + "/" + ws[2]);
 
-		((TextView) findViewById(R.id.gen_groesse)).setText(hero.getGroesse() + " cm");
-		((TextView) findViewById(R.id.gen_gewicht)).setText(hero.getGewicht() + " Stein");
-		((TextView) findViewById(R.id.gen_herkunft)).setText(hero.getHerkunft());
-		((TextView) findViewById(R.id.gen_ausbildung)).setText(hero.getAusbildung());
-		((TextView) findViewById(R.id.gen_alter)).setText(Util.toString(hero.getAlter()));
-		((TextView) findViewById(R.id.gen_haar_augen)).setText(hero.getHaarFarbe() + " / " + hero.getAugenFarbe());
+		updateBaseInfo(false);
 		//
 
 		fillSpecialFeatures(hero);
-		registerForContextMenu(tfSpecialFeatures);
+		registerForIconContextMenu(tfSpecialFeatures);
 
 		// --
 		ImageView portrait = (ImageView) findViewById(R.id.gen_portrait);
 		portrait.setOnClickListener(this);
 		updatePortrait(hero);
+
+	}
+
+	protected void updateBaseInfo(boolean animate) {
+
+		HeroBaseInfo baseInfo = getHero().getBaseInfo();
+
+		boolean showDetails = preferences.getBoolean(PREF_SHOW_BASEINFO, true);
+
+		if (showDetails) {
+			detailsSwitch.setImageResource(R.drawable.expander_ic_maximized);
+			Animation slideup = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in);
+
+			if (TextUtils.isEmpty(baseInfo.getAussehen())) {
+				findViewById(R.id.row_aussehen).setVisibility(View.GONE);
+			} else {
+				((TextView) findViewById(R.id.gen_aussehen)).setText(baseInfo.getAussehen());
+				if (animate)
+					findViewById(R.id.row_aussehen).startAnimation(slideup);
+				findViewById(R.id.row_aussehen).setVisibility(View.VISIBLE);
+			}
+
+			if (TextUtils.isEmpty(baseInfo.getTitel())) {
+				findViewById(R.id.row_titel).setVisibility(View.GONE);
+			} else {
+				((TextView) findViewById(R.id.gen_titel)).setText(baseInfo.getTitel());
+				if (animate)
+					findViewById(R.id.row_titel).startAnimation(slideup);
+				findViewById(R.id.row_titel).setVisibility(View.VISIBLE);
+			}
+
+			if (TextUtils.isEmpty(baseInfo.getStand())) {
+				findViewById(R.id.row_stand).setVisibility(View.GONE);
+			} else {
+				((TextView) findViewById(R.id.gen_stand)).setText(baseInfo.getStand());
+				if (animate)
+					findViewById(R.id.row_stand).startAnimation(slideup);
+				findViewById(R.id.row_stand).setVisibility(View.VISIBLE);
+			}
+
+			if (TextUtils.isEmpty(baseInfo.getKultur())) {
+				findViewById(R.id.row_kultur).setVisibility(View.GONE);
+			} else {
+				((TextView) findViewById(R.id.gen_kultur)).setText(baseInfo.getKultur());
+				if (animate)
+					findViewById(R.id.row_kultur).startAnimation(slideup);
+				findViewById(R.id.row_kultur).setVisibility(View.VISIBLE);
+			}
+
+		} else {
+			((ImageButton) findViewById(R.id.details_switch)).setImageResource(R.drawable.expander_ic_minimized);
+
+			findViewById(R.id.row_aussehen).setVisibility(View.GONE);
+			findViewById(R.id.row_kultur).setVisibility(View.GONE);
+			findViewById(R.id.row_stand).setVisibility(View.GONE);
+			findViewById(R.id.row_titel).setVisibility(View.GONE);
+		}
+
+		((TextView) findViewById(R.id.gen_groesse)).setText(baseInfo.getGroesse() + " cm");
+		((TextView) findViewById(R.id.gen_gewicht)).setText(baseInfo.getGewicht() + " Stein");
+		((TextView) findViewById(R.id.gen_rasse)).setText(baseInfo.getRasse());
+		((TextView) findViewById(R.id.gen_ausbildung)).setText(baseInfo.getAusbildung());
+		((TextView) findViewById(R.id.gen_alter)).setText(Util.toString(baseInfo.getAlter()));
+		((TextView) findViewById(R.id.gen_haar_augen)).setText(baseInfo.getHaarFarbe() + " / "
+				+ baseInfo.getAugenFarbe());
 
 	}
 
@@ -455,17 +586,6 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 			portraitView.setImageResource(R.drawable.profile_blank);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.activity.BaseMenuActivity#onHeroUnloaded(com.dsatab.data.Hero)
-	 */
-	@Override
-	public void onHeroUnloaded(Hero hero) {
-
-	}
-
 	/**
 	 * @param hero
 	 */
@@ -475,12 +595,31 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 
 		StyleableSpannableStringBuilder stringBuilder = new StyleableSpannableStringBuilder();
 
-		stringBuilder.appendBold(getString(R.string.specialfeatures));
-		stringBuilder.appendBold(": ");
-		stringBuilder.append(TextUtils.join(", ", hero.getSpecialFeatures()));
+		if (!hero.getSpecialFeatures().isEmpty()) {
+			stringBuilder.appendBold(getString(R.string.specialfeatures));
+			stringBuilder.appendBold(": ");
+			boolean first = true;
+			for (SpecialFeature feature : hero.getSpecialFeatures()) {
+
+				if (!first) {
+					stringBuilder.append(", ");
+				} else {
+					first = false;
+				}
+				stringBuilder.append(feature.toString());
+				if (showComments && !TextUtils.isEmpty(feature.getComment())) {
+					stringBuilder.appendColor(Color.GRAY, " (");
+					stringBuilder.appendColor(Color.GRAY, feature.getComment());
+					stringBuilder.appendColor(Color.GRAY, ")");
+				}
+
+			}
+
+		}
 
 		if (!hero.getAdvantages().isEmpty()) {
-			stringBuilder.append("\n");
+			if (stringBuilder.length() > 0)
+				stringBuilder.append("\n");
 			stringBuilder.appendBold(getString(R.string.advantages));
 			stringBuilder.appendBold(": ");
 
@@ -504,7 +643,8 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 		}
 
 		if (!hero.getDisadvantages().isEmpty()) {
-			stringBuilder.append("\n");
+			if (stringBuilder.length() > 0)
+				stringBuilder.append("\n");
 			stringBuilder.appendBold(getString(R.string.disadvantages));
 			stringBuilder.appendBold(": ");
 

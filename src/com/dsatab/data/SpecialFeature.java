@@ -1,6 +1,10 @@
 package com.dsatab.data;
 
+import java.util.List;
+
 import org.jdom.Element;
+
+import android.text.TextUtils;
 
 import com.dsatab.xml.Xml;
 
@@ -10,7 +14,20 @@ public class SpecialFeature {
 	public static final String AUSWEICHEN_2 = "Ausweichen II";
 	public static final String AUSWEICHEN_3 = "Ausweichen III";
 
+	public static final String AUFMERKSAMKEIT = "Aufmerksamkeit";
+
+	public static final String DÄMMERNGSSICHT = "Dämmerungssicht";
+	public static final String NACHTSICHT = "Nachtsicht";
+	public static final String HERRAUSRAGENDER_SINN = "Herausragender Sinn";
+	public static final String EINGESCHRÄNKTER_SINN = "Eingeschränkter Sinn";
+
+	public static final String EINÄUGIG = "Einäugig";
+	public static final String EINBILDUNGEN = "Einbildungen";
+	public static final String DUNKELANGST = "Dunkelangst";
+	public static final String NACHTBLIND = "Nachtblind";
+
 	public static final String LINKHAND = "Linkhand";
+	public static final String UNSTET = "Unstet";
 
 	public static final String PARIERWAFFEN_1 = "Parierwaffen I";
 	public static final String PARIERWAFFEN_2 = "Parierwaffen II";
@@ -46,45 +63,95 @@ public class SpecialFeature {
 	public static final String KAMPFREFLEXE = "Kampfreflexe";
 	public static final String KAMPFGESPUER = "Kampfgespür";
 
-	public static final String LITURGIE_PREFIX = "Liturgie: ";
+	public static final String TALENTSPEZIALISIERUNG_PREFIX = "Talentspezialisierung ";
 
-	private String name, kultur, gegenstand;
+	private String name, additionalInfo, parameter1, parameter2, comment;
 
 	public SpecialFeature(Element element) {
 		this.name = element.getAttributeValue(Xml.KEY_NAME);
+		this.comment = element.getAttributeValue(Xml.KEY_KOMMENTAR);
 
-		Element gegenstand = element.getChild(Xml.KEY_KULTUR);
-		if (gegenstand != null) {
-			this.kultur = gegenstand.getAttributeValue(Xml.KEY_NAME);
+		@SuppressWarnings("unchecked")
+		List<Element> children = element.getChildren(Xml.KEY_KULTUR);
+		if (children != null) {
+			this.additionalInfo = "";
+			for (Element child : children) {
+				if (!TextUtils.isEmpty(additionalInfo))
+					this.additionalInfo += ", ";
+				this.additionalInfo += child.getAttributeValue(Xml.KEY_NAME);
+			}
 		}
 
-		gegenstand = element.getChild(Xml.KEY_GEGENSTAND);
-		if (gegenstand != null) {
-			this.gegenstand = gegenstand.getAttributeValue(Xml.KEY_NAME);
+		children = element.getChildren(Xml.KEY_AUSWAHL);
+		if (children != null) {
+			this.additionalInfo = "";
+			for (Element child : children) {
+				if (!TextUtils.isEmpty(additionalInfo))
+					this.additionalInfo += ", ";
+				this.additionalInfo += child.getAttributeValue(Xml.KEY_NAME);
+			}
 		}
+
+		Element child = element.getChild(Xml.KEY_GEGENSTAND);
+		if (child != null) {
+			this.parameter1 = child.getAttributeValue(Xml.KEY_NAME);
+		}
+
+		if (name.startsWith(TALENTSPEZIALISIERUNG_PREFIX)) {
+			child = element.getChild(Xml.KEY_TALENT);
+			if (child != null) {
+				this.parameter1 = child.getAttributeValue(Xml.KEY_NAME);
+			}
+			child = element.getChild(Xml.KEY_SPEZIALISIERUNG);
+			if (child != null) {
+				this.parameter2 = child.getAttributeValue(Xml.KEY_NAME);
+			}
+		}
+	}
+
+	public String getComment() {
+		return comment;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public String getKultur() {
-		return kultur;
+	public String getAdditionalInfo() {
+		return additionalInfo;
 	}
 
-	public String getGegenstand() {
-		return gegenstand;
+	/**
+	 * Return additional parameters, depending on type of special feature.
+	 * Rüstungsgewöhnung: gegenstand <br/>
+	 * Talentspezialisierung: talent <br />
+	 * 
+	 * @return
+	 */
+	public String getParameter1() {
+		return parameter1;
+	}
+
+	/**
+	 * Return additional parameters, depending on type of special feature.
+	 * 
+	 * Talentspezialisierung: spezialisierung
+	 * 
+	 * @return
+	 */
+	public String getParameter2() {
+		return parameter2;
 	}
 
 	@Override
 	public String toString() {
 
-		if (getName().equals(SpecialFeature.RUESTUNGSGEWOEHNUNG_1)) {
-			return getName() + " (" + getGegenstand() + ")";
-		} else if (getName().equals(SpecialFeature.KULTURKUNDE)) {
-			return getName() + " (" + getKultur() + ")";
+		if (name.equals(SpecialFeature.RUESTUNGSGEWOEHNUNG_1)) {
+			return name + " (" + parameter1 + ")";
+		} else if (!TextUtils.isEmpty(additionalInfo)) {
+			return name + " (" + additionalInfo + ")";
 		} else {
-			return getName();
+			return name;
 		}
 	}
 

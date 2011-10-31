@@ -26,8 +26,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -51,6 +52,7 @@ import android.widget.Toast;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
+import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.adapter.GalleryImageAdapter;
 import com.dsatab.data.enums.Position;
@@ -86,7 +88,10 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	private CardView imageView;
 	private ItemListItem itemView;
 
+	private ImageButton[] categoryButtons;
+
 	private ImageButton searchButton;
+	private View searchContainer;
 	private AutoCompleteTextView searchText;
 
 	private int itemX, itemY;
@@ -113,6 +118,8 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	boolean searchable = true;
 
 	private OnItemChooserListener onItemChooserListener;
+
+	private Drawable itemDrawable;
 
 	public interface OnItemChooserListener {
 		public void onItemSelected(Item item, int itemX, int itemY);
@@ -295,6 +302,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 		}
 
+		categoryButtons = new ImageButton[8];
 		// imagebuttons
 		ImageButton weaponButton = (ImageButton) findViewById(R.id.body_attack_button);
 		ImageButton shieldButton = (ImageButton) findViewById(R.id.body_defense_button);
@@ -305,37 +313,37 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		ImageButton specialButton = (ImageButton) findViewById(R.id.body_special_button);
 		ImageButton bagsButton = (ImageButton) findViewById(R.id.body_bags_button);
 
+		categoryButtons[0] = weaponButton;
+		categoryButtons[1] = shieldButton;
+		categoryButtons[2] = distanceButton;
+		categoryButtons[3] = armorButton;
+		categoryButtons[4] = itemsButton;
+		categoryButtons[5] = clothButton;
+		categoryButtons[6] = specialButton;
+		categoryButtons[7] = bagsButton;
+
 		searchButton = (ImageButton) findViewById(R.id.body_search_button);
 		searchText = (AutoCompleteTextView) findViewById(R.id.body_autosearch);
+		searchContainer = findViewById(R.id.body_search_container);
 
 		if (categorySelectable) {
-			weaponButton.setOnClickListener(this);
-			weaponButton.setOnLongClickListener(this);
+
+			for (ImageButton button : categoryButtons) {
+				button.setOnClickListener(this);
+				button.setOnLongClickListener(this);
+			}
+
 			weaponButton.setTag(ItemType.Waffen);
-			shieldButton.setOnClickListener(this);
-			shieldButton.setOnLongClickListener(this);
 			shieldButton.setTag(ItemType.Schilde);
-			distanceButton.setOnClickListener(this);
-			distanceButton.setOnLongClickListener(this);
 			distanceButton.setTag(ItemType.Fernwaffen);
-			armorButton.setOnClickListener(this);
-			armorButton.setOnLongClickListener(this);
 			armorButton.setTag(ItemType.Rüstung);
-			itemsButton.setOnClickListener(this);
-			itemsButton.setOnLongClickListener(this);
 			itemsButton.setTag(ItemType.Sonstiges);
-			clothButton.setOnClickListener(this);
-			clothButton.setOnLongClickListener(this);
 			clothButton.setTag(ItemType.Kleidung);
-			specialButton.setOnClickListener(this);
-			specialButton.setOnLongClickListener(this);
 			specialButton.setTag(ItemType.Schmuck);
-			bagsButton.setOnClickListener(this);
-			bagsButton.setOnLongClickListener(this);
 			bagsButton.setTag(ItemType.Behälter);
 
 			searchButton.setOnClickListener(this);
-			searchText.setVisibility(View.GONE);
+			searchContainer.setVisibility(View.GONE);
 
 			List<String> itemNames = new ArrayList<String>(DataManager.getItemsMap().keySet());
 			Collections.sort(itemNames);
@@ -371,17 +379,12 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			});
 
 		} else {
-			weaponButton.setVisibility(View.GONE);
-			shieldButton.setVisibility(View.GONE);
-			distanceButton.setVisibility(View.GONE);
-			armorButton.setVisibility(View.GONE);
-			itemsButton.setVisibility(View.GONE);
-			clothButton.setVisibility(View.GONE);
-			specialButton.setVisibility(View.GONE);
-			bagsButton.setVisibility(View.GONE);
+			for (ImageButton button : categoryButtons) {
+				button.setVisibility(View.GONE);
+			}
 
 			searchButton.setVisibility(View.GONE);
-			searchText.setVisibility(View.GONE);
+			searchContainer.setVisibility(View.GONE);
 		}
 
 		if (searchable && imageAdapter.getCount() > 1) {
@@ -414,17 +417,6 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	 */
 	@Override
 	public void onHeroLoaded(Hero hero) {
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.fragment.BaseFragment#onHeroUnloaded(com.dsatab.data.Hero)
-	 */
-	@Override
-	public void onHeroUnloaded(Hero hero) {
 
 	}
 
@@ -497,7 +489,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	}
 
 	private void toggleSearch() {
-		if (searchText.getVisibility() == View.VISIBLE)
+		if (searchContainer.getVisibility() == View.VISIBLE)
 			closeSearch();
 		else
 			openSearch();
@@ -505,15 +497,19 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 	private void openSearch() {
 		searchText.setText("");
-		searchText.startAnimation(mInAnimation);
-		searchText.setVisibility(View.VISIBLE);
+		searchContainer.startAnimation(mInAnimation);
+		searchContainer.setVisibility(View.VISIBLE);
 		searchText.requestFocus();
+		searchButton.setSelected(true);
 	}
 
 	private void closeSearch() {
-		searchText.startAnimation(mOutAnimation);
-		searchText.setVisibility(View.INVISIBLE);
+		searchContainer.startAnimation(mOutAnimation);
+		searchContainer.setVisibility(View.INVISIBLE);
 		searchText.clearFocus();
+		searchButton.setSelected(false);
+
+		Util.hideKeyboard(searchText);
 	}
 
 	/*
@@ -535,6 +531,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			}
 		} else if (v.getTag() instanceof ItemType) {
 			ItemType cardType = (ItemType) v.getTag();
+
 			chooseType(cardType, null, null);
 		}
 
@@ -578,20 +575,26 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 		File hqFile = card.getHQFile();
 
-		Bitmap bitmap = null;
+		if (itemDrawable instanceof BitmapDrawable) {
+			BitmapDrawable bitmapDrawable = (BitmapDrawable) itemDrawable;
+			bitmapDrawable.getBitmap().recycle();
+			bitmapDrawable.setCallback(null);
+			bitmapDrawable = null;
+			itemDrawable = null;
+		}
+
 		if (hqFile != null && hqFile.isFile()) {
-			bitmap = DataManager.getBitmap(hqFile.getAbsolutePath());
+			itemDrawable = new BitmapDrawable(getResources(), Util.decodeFile(hqFile, 400));
+			imageView.setImageDrawable(itemDrawable);
 		} else {
 			File lqFile = card.getFile();
 
 			if (lqFile != null && lqFile.isFile()) {
-				bitmap = DataManager.getBitmap(lqFile.getAbsolutePath());
+				imageView.setImageBitmap(DataManager.getBitmap(lqFile.getAbsolutePath()));
 			}
 		}
 
-		imageView.setImageBitmap(bitmap);
 		imageView.setItem(selectedCard);
-
 		itemView.setItem(selectedCard, selectedItemSpecification);
 		itemView.setVisibility(View.VISIBLE);
 
@@ -611,6 +614,10 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 	private void chooseType(ItemType type, String category, Item item) {
 		this.cardType = type;
+
+		for (ImageButton button : categoryButtons) {
+			button.setSelected(cardType.equals(button.getTag()));
+		}
 
 		gallery.setVisibility(View.VISIBLE);
 		imageAdapter.filter(cardType, category, null);

@@ -8,7 +8,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -61,9 +60,6 @@ public class EquippedItemChooserDialog extends AlertDialog implements AdapterVie
 	}
 
 	private void init() {
-
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
 		setTitle("Wähle einen Gegenstand...");
 
 		setCanceledOnTouchOutside(true);

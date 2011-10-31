@@ -15,7 +15,9 @@
  */
 package com.dsatab.fragment;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import android.app.Activity;
 import android.media.AudioManager;
@@ -24,11 +26,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.dsatab.R;
+import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.adapter.EventCatgoryAdapter;
 import com.dsatab.data.enums.EventCategory;
@@ -37,16 +42,24 @@ import com.dsatab.data.enums.EventCategory;
  * @author Seraphim
  * 
  */
-public class NotesEditFragment extends BaseFragment implements OnClickListener {
+public class NotesEditFragment extends BaseFragment implements OnClickListener, OnItemSelectedListener {
 
 	public static final String INTENT_NAME_EVENT_CATEGORY = "eventCategory";
-
 	public static final String INTENT_NAME_EVENT_TEXT = "eventText";
+	public static final String INTENT_NAME_EVENT_NAME = "eventNAme";
+	public static final String INTENT_NAME_EVENT_SOZIALSTATUS = "eventSo";
 
 	public static final String INTENT_NAME_AUDIO_PATH = "audioPath";
 
-	private EditText editText;
+	private EventCatgoryAdapter categoryAdapter;
+
+	private EditText editComment;
+	private EditText editName;
+	private EditText editSozialStatus;
+
 	private Spinner categorySpn;
+
+	private EventCategory category;
 
 	private String audioPath;
 
@@ -68,7 +81,7 @@ public class NotesEditFragment extends BaseFragment implements OnClickListener {
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.sheet_notes_edit, container, false);
+		return configureContainerView(inflater.inflate(R.layout.sheet_notes_edit, container, false));
 	}
 
 	/*
@@ -106,20 +119,41 @@ public class NotesEditFragment extends BaseFragment implements OnClickListener {
 
 		getActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-		editText = (EditText) findViewById(R.id.popup_notes_edit_text);
+		editComment = (EditText) findViewById(R.id.popup_notes_edit_text);
+		editName = (EditText) findViewById(R.id.popup_notes_edit_name);
+		editSozialStatus = (EditText) findViewById(R.id.popup_notes_edit_so);
+
 		categorySpn = (Spinner) findViewById(R.id.popup_notes_spn_category);
 
-		categorySpn.setAdapter(new EventCatgoryAdapter(getActivity(), android.R.layout.simple_spinner_item,
-				EventCategory.values()));
+		List<EventCategory> categories = new ArrayList<EventCategory>(Arrays.asList(EventCategory.values()));
+		categories.remove(EventCategory.Heldensoftware);
+		categoryAdapter = new EventCatgoryAdapter(getActivity(), android.R.layout.simple_spinner_item, categories);
+
+		categorySpn.setAdapter(categoryAdapter);
+		categorySpn.setOnItemSelectedListener(this);
 
 		Bundle extra = getActivity().getIntent().getExtras();
 		if (extra != null) {
-			EventCategory category = (EventCategory) extra.getSerializable(INTENT_NAME_EVENT_CATEGORY);
+			category = (EventCategory) extra.getSerializable(INTENT_NAME_EVENT_CATEGORY);
+			if (category == null)
+				category = EventCategory.Misc;
+
 			String event = extra.getString(INTENT_NAME_EVENT_TEXT);
+			String name = extra.getString(INTENT_NAME_EVENT_NAME);
+			String sozial = extra.getString(INTENT_NAME_EVENT_SOZIALSTATUS);
+
 			audioPath = extra.getString(INTENT_NAME_AUDIO_PATH);
-			categorySpn.setSelection(Arrays.asList(EventCategory.values()).indexOf(category));
-			editText.setText(event);
+			if (category == EventCategory.Heldensoftware)
+				categorySpn.setVisibility(View.GONE);
+			else
+				categorySpn.setSelection(categoryAdapter.getPosition(category));
+
+			editComment.setText(event);
+			editName.setText(name);
+			editSozialStatus.setText(sozial);
 		}
+
+		updateView();
 
 		// builder.setIcon(android.R.drawable.ic_menu_edit);
 		// builder.setTitle("Notiz erstellen");
@@ -130,6 +164,22 @@ public class NotesEditFragment extends BaseFragment implements OnClickListener {
 		cancelButton.setOnClickListener(this);
 
 		super.onActivityCreated(savedInstanceState);
+	}
+
+	private void updateView() {
+		if (category != null) {
+
+			if (category == EventCategory.Bekanntschaft)
+				editSozialStatus.setVisibility(View.VISIBLE);
+			else
+				editSozialStatus.setVisibility(View.GONE);
+
+			if (category.hasName())
+				editName.setVisibility(View.VISIBLE);
+			else
+				editName.setVisibility(View.GONE);
+		}
+
 	}
 
 	/*
@@ -146,11 +196,29 @@ public class NotesEditFragment extends BaseFragment implements OnClickListener {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.dsatab.fragment.BaseFragment#onHeroUnloaded(com.dsatab.data.Hero)
+	 * android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget
+	 * .AdapterView, android.view.View, int, long)
 	 */
 	@Override
-	public void onHeroUnloaded(Hero hero) {
+	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
+		if (parent.getId() == R.id.popup_notes_spn_category) {
+			category = (EventCategory) categorySpn.getSelectedItem();
+			updateView();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.widget.AdapterView.OnItemSelectedListener#onNothingSelected(android
+	 * .widget.AdapterView)
+	 */
+	@Override
+	public void onNothingSelected(AdapterView<?> arg0) {
+		category = null;
+		updateView();
 	}
 
 	/*
@@ -162,17 +230,19 @@ public class NotesEditFragment extends BaseFragment implements OnClickListener {
 	public void onClick(View v) {
 		if (v.getId() == R.id.popup_notes_save) {
 
-			final EventCategory category = (EventCategory) categorySpn.getSelectedItem();
-
 			EditText editText = (EditText) findViewById(R.id.popup_notes_edit_text);
 
 			if (onNotesEditListener != null) {
-				Bundle data = new Bundle(3);
+				Bundle data = new Bundle(5);
 				data.putString(INTENT_NAME_EVENT_TEXT, editText.getText().toString());
+				data.putString(INTENT_NAME_EVENT_NAME, editName.getText().toString());
+				data.putString(INTENT_NAME_EVENT_SOZIALSTATUS, editSozialStatus.getText().toString());
 				data.putSerializable(INTENT_NAME_EVENT_CATEGORY, category);
 				data.putString(INTENT_NAME_AUDIO_PATH, audioPath);
 
 				onNotesEditListener.onNoteSaved(data);
+
+				Util.hideKeyboard(editText);
 			}
 
 		} else if (v.getId() == R.id.popup_notes_cancel) {

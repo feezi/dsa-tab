@@ -15,122 +15,40 @@
  */
 package com.dsatab.activity;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.util.LinkedList;
 import java.util.List;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
-import android.webkit.WebView;
 
-import com.dsatab.DSATabApplication;
 import com.dsatab.DsaTabConfiguration;
 import com.dsatab.DsaTabConfiguration.ArmorType;
 import com.dsatab.R;
-import com.dsatab.view.TipOfTheDayDialog;
-import com.dsatab.xml.XmlParser;
-import com.gandulf.guilib.util.Debug;
-import com.gandulf.guilib.util.Downloader;
-import com.gandulf.guilib.view.VersionInfoDialog;
 
-public class DsaPreferenceActivity extends PreferenceActivity {
-
-	public static final String INTENT_PREF_SCREEN = "com.dsatab.prefScreen";
-
-	public static final int SCREEN_HOME = 0;
-	public static final int SCREEN_EXCHANGE = 1;
-
-	public static final String KEY_PROBE_PROBABILITY = "probeProbability";
-
-	public static final String KEY_NOTES_VISIBILITY = "showNotes";
-
-	public static final String KEY_PROBE_SHAKE_ROLL_DICE = "shakeRollDice";
-
-	public static final String KEY_PROBE_ANIM_ROLL_DICE = "animRollDice";
-
-	public static final String KEY_PROBE_SOUND_ROLL_DICE = "soundRollDice";
-
-	public static final String KEY_PROBE_SOUND_RESULT_DICE = "soundResultDice";
-
-	public static final String KEY_HOUSE_RULES = "houseRules";
-
-	public static final String KEY_ARMOR_TYPE = "armorType";
-
-	public static final String KEY_SETUP_SDCARD_PATH = "sdcardPath";
-
-	public static final String KEY_DOWNLOAD_ALL = "downloadAll";
-	public static final String KEY_DOWNLOAD_WESNOTH_PORTRAITS = "downloadWesnothPortraits";
-
-	public static final String KEY_DOWNLOAD_ITEMS = "downloadItems";
-
-	public static final String KEY_CREDITS = "credits";
-
-	public static final String KEY_INFOS = "infos";
-	public static final String KEY_DONATE = "donate";
-
-	public static final String KEY_FULL_VERSION = "fullVersion";
-
-	public static final String KEY_EXCHANGE = "heldenAustauschScreen";
-
-	public static final String KEY_EXCHANGE_PROVIDER = "exchange_provider";
-
-	public static final String KEY_EXCHANGE_USERNAME = "exchange_username";
-	public static final String KEY_EXCHANGE_PASSWORD = "exchange_password";
-
-	public static final String KEY_USAGE_STATS = "usage_stats";
-
-	public static final String KEY_SCREEN_ORIENTATION = "screen_orientation";
-
-	public static final String KEY_TIP_TODAY = "tipToday";
-
-	public static final String KEY_HEADER_NAME = "header_name";
-	public static final String KEY_HEADER_LE = "header_le";
-	public static final String KEY_HEADER_AU = "header_au";
-	public static final String KEY_HEADER_KE = "header_ke";
-	public static final String KEY_HEADER_AE = "header_ae";
-	public static final String KEY_HEADER_BE = "header_be";
-	public static final String KEY_HEADER_MR = "header_mr";
-	public static final String KEY_HEADER_GS = "header_gs";
-	public static final String KEY_HEADER_WS = "header_ws";
-
-	public static final String DEFAULT_EXCHANGE_PROVIDER = "http://helden.draschenfels.de/";
-
-	public static final String SCREEN_ORIENTATION_AUTO = "auto";
-	public static final String SCREEN_ORIENTATION_LANDSCAPE = "landscape";
-	public static final String SCREEN_ORIENTATION_PORTRAIT = "portrait";
-
-	public static final String DEFAULT_SCREEN_ORIENTATION = SCREEN_ORIENTATION_AUTO;
-	// http://dl.dropbox.com/u/15750588/dsatab-wesnoth-portraits.zip
-	public static final String PATH_WESNOTH_PORTRAITS = "http://dsa-tab.googlecode.com/files/dsatab-wesnoth-portraits.zip";
-
-	private Downloader downloader;
+public class DsaPreferenceActivity extends BasePreferenceActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		addPreferencesFromResource(R.xml.preferences);
+		addPreferencesFromResource(R.xml.preferences_rules);
+		addPreferencesFromResource(R.xml.preferences_display);
+		addPreferencesFromResource(R.xml.preferences_setup);
+		addPreferencesFromResource(R.xml.preferences_info);
 
 		ListPreference listPreference = (ListPreference) findPreference(KEY_ARMOR_TYPE);
-
-		List<String> themeNames = new LinkedList<String>();
-		List<String> themeValues = new LinkedList<String>();
+		List<String> armorNames = new LinkedList<String>();
+		List<String> armorValues = new LinkedList<String>();
 
 		for (ArmorType themeValue : DsaTabConfiguration.ArmorType.values()) {
-			themeNames.add(themeValue.title());
-			themeValues.add(themeValue.name());
+			armorNames.add(themeValue.title());
+			armorValues.add(themeValue.name());
 		}
 
-		listPreference.setEntries(themeNames.toArray(new String[0]));
-		listPreference.setEntryValues(themeValues.toArray(new String[0]));
+		listPreference.setEntries(armorNames.toArray(new String[0]));
+		listPreference.setEntryValues(armorValues.toArray(new String[0]));
 
 		int screen = getIntent().getIntExtra(INTENT_PREF_SCREEN, SCREEN_HOME);
 
@@ -138,89 +56,22 @@ public class DsaPreferenceActivity extends PreferenceActivity {
 		case SCREEN_HOME:
 			break;
 		case SCREEN_EXCHANGE:
-			PreferenceScreen preference = (PreferenceScreen) findPreference(KEY_EXCHANGE);
-			setPreferenceScreen(preference);
+			PreferenceScreen preferenceScreen = (PreferenceScreen) findPreference("setup");
+			setPreferenceScreen(preferenceScreen);
 			break;
 		}
+
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @seeandroid.preference.PreferenceActivity#onPreferenceTreeClick(android.
+	 * @see android.preference.PreferenceActivity#onPreferenceTreeClick(android.
 	 * preference.PreferenceScreen, android.preference.Preference)
 	 */
 	@Override
 	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-		if (preference.getKey().equals(KEY_DOWNLOAD_ALL)) {
-			cleanOldFiles();
-			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
-			downloader.addPath(getString(R.string.path_items));
-			downloader.addPath(PATH_WESNOTH_PORTRAITS);
-			downloader.downloadZip();
-		} else if (preference.getKey().equals(KEY_DOWNLOAD_ITEMS)) {
-			cleanOldFiles();
-			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
-			downloader.addPath(getString(R.string.path_items));
-			downloader.downloadZip();
-		} else if (preference.getKey().equals(KEY_DOWNLOAD_WESNOTH_PORTRAITS)) {
-			downloader = new Downloader(DSATabApplication.getDsaTabPath(), this);
-			downloader.addPath(PATH_WESNOTH_PORTRAITS);
-			downloader.downloadZip();
-		} else if (preference.getKey().equals(KEY_CREDITS)) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setTitle(R.string.title_credits);
-			builder.setCancelable(true);
-			WebView webView = new WebView(this);
-
-			String summary = getResources().getString(R.string.credits);
-			webView.loadData(summary, "text/html", XmlParser.ENCODING.toLowerCase());
-			builder.setView(webView);
-			builder.setNeutralButton(R.string.label_ok, new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.dismiss();
-				}
-			});
-			builder.show();
-		} else if (preference.getKey().equals(KEY_INFOS)) {
-			VersionInfoDialog newsDialog = new VersionInfoDialog(this);
-			newsDialog.setDonateContentId(R.raw.donate);
-			newsDialog.setDonateVersion(DSATabApplication.getInstance().isLiteVersion());
-			newsDialog.setDonateUrl(DSATabApplication.PAYPAL_DONATION_URL);
-			newsDialog.setRawClass(R.raw.class);
-			newsDialog.setTitle(R.string.news_title);
-			newsDialog.setIcon(R.drawable.icon);
-			newsDialog.show(true);
-		} else if (preference.getKey().equals(KEY_TIP_TODAY)) {
-			TipOfTheDayDialog newsDialog = new TipOfTheDayDialog(this);
-			newsDialog.show();
-		} else if (preference.getKey().equals(KEY_DONATE)) {
-			Uri uriUrl = Uri.parse(DSATabApplication.PAYPAL_DONATION_URL);
-			final Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uriUrl);
-			startActivity(launchBrowser);
-		}
-
-		return super.onPreferenceTreeClick(preferenceScreen, preference);
+		return handlePreferenceTreeClick(this, preferenceScreen, preference);
 	}
 
-	private void cleanOldFiles() {
-		File cardsDir = new File(DSATabApplication.getDsaTabPath(), DSATabApplication.DIR_CARDS);
-
-		File[] dirs = cardsDir.listFiles(new FileFilter() {
-
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.isDirectory();
-			}
-		});
-
-		if (dirs != null) {
-			for (File f : dirs) {
-				f.delete();
-				Debug.verbose("Deleting " + f.getAbsolutePath());
-			}
-		}
-	}
 }

@@ -29,6 +29,7 @@ W;Steinmesser;;Dolche													;1W+1;12/6;-2/-3;-2;6;H;;Dolche;
 W;Sägefischschwert;;Schwerter											;1W+2;12/3;-2/1;-1;5;N;;Schwerter;
 
 
+W;Anderthalbhänder;anderthalbhaender00_LQ.gif;Anderthalbhänder          ;1W+5;11/4;0/0;1;2;NS;z;Anderthalbhänder;Zweihandschwerter;
 W;Bastardschwert;bastardschwert00_LQ.gif;Anderthalbhänder               ;1W+5;11/3;0/-1;0;2;NS;z;Anderthalbhänder;
 W;Bastardschwert[einhändig];bastardschwert00_LQ.gif;Anderthalbhänder    ;1W+5;12/4;0/-1;-1;2;N;;Schwerter;
 W;Nachtwind;;Anderthalbhänder          				                    ;1W+4;11/5;0/0;2;0;N;z;Anderthalbhänder;Schwerter;
@@ -213,20 +214,21 @@ S;Legionärsschild;;Schilde									;-2/4;-1;2;S;Raufen;
 
 S;Bock;;Parierwaffe                                         ;-1/1;0;0;SP;Raufen;
 S;Buckler (Vollmetall);;Parierwaffe                               ;0/2;0;-2;SP;Raufen;
+S;Langdolch;;Parierwaffe                                   ;0/1;0;0;P;Dolche;
 S;Hakendolch;;Parierwaffe                                   ;-1/3;0;-2;P;Dolche;
 S;Linkhand;linkhand00_LQ.gif;Parierwaffe                                ;0/2;1;0;P;Dolche;
 S;Linkhand mit Klingenfänger;linkhand00_LQ.gif;Parierwaffe              ;0/2;1;0;P;Dolche;
 S;Linkhand und Klingenbrecher;linkhand00_LQ.gif;Parierwaffe             ;0/2;1;0;P;Dolche;
 S;Panzerarm;;Parierwaffe                                    ;-2/1;0;-2;SP;Raufen;
 S;Buckler;buckler00_LQ.gif;Schilde                                      ;0/1;0;0;SP;Raufen;
-S;Einfacher Holzschild;holzschild00_LQ.gif;Schilde                      ;-1/-3;-1;3;S;Raufen;
+S;Holzschild;holzschild00_LQ.gif;Schilde                      ;-1/-3;-1;3;S;Raufen;
+S;Holzschild (verstärkt);holzschild_verstaerkt01_LQ.gif;Schilde         ;-2/3;-1;0;S;Raufen;
 S;Großschild;;Schilde                                       ;-2/5;-2;2;S;Raufen;
 S;Lederschild;;Schilde                                      ;-1/3;0;5;S;Raufen;
 S;Lederschild (groß);lederschild00_LQ.gif;Schilde                       ;-1/4;-1;6;S;Raufen;
 S;Reiterschild;turnierschild00_LQ.gif;Schilde                           ;-2/5;-2;2;S;Raufen;
 S;Thorwaler Rundschild;thorwalerschild00_LQ.gif;Schilde                      ;-2/4;-1;3;S;Raufen;
 S;Turmschild;;Schilde                                       ;-5/7;-3;1;S;Raufen;
-S;Verstärkter Holzschild;holzschild_verstaerkt01_LQ.gif;Schilde         ;-2/3;-1;0;S;Raufen;
 S;Vollmetallbuckler;;Schilde                                ;0/2;0;-2;SP;Raufen;
 M;Octavo;octavo01_LQ.gif;Bücher                                         ;
 M;Pergamente;pergamente00_LQ.gif;Bücher                                 ;

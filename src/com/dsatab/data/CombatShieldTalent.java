@@ -4,7 +4,7 @@ import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
 
-public class CombatShieldTalent extends BaseCombatTalent implements Probe {
+public class CombatShieldTalent extends BaseCombatTalent {
 
 	protected Hero hero;
 
@@ -28,60 +28,13 @@ public class CombatShieldTalent extends BaseCombatTalent implements Probe {
 		if (hero.hasFeature(SpecialFeature.SCHILDKAMPF_3))
 			value += 2;
 
+		this.probeInfo.applyBePattern(type.getBe());
+
 		this.value = value;
 	}
 
 	public String getName() {
 		return "Schildparade";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.BaseCombatTalent#isFavorite()
-	 */
-	@Override
-	public boolean isFavorite() {
-		// TODO Auto-generated method stub
-		return super.isFavorite();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.BaseCombatTalent#setFavorite(boolean)
-	 */
-	@Override
-	public void setFavorite(boolean value) {
-		// TODO Auto-generated method stub
-		super.setFavorite(value);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.BaseCombatTalent#isUnused()
-	 */
-	@Override
-	public boolean isUnused() {
-		// TODO Auto-generated method stub
-		return super.isUnused();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.BaseCombatTalent#setUnused(boolean)
-	 */
-	@Override
-	public void setUnused(boolean value) {
-		// TODO Auto-generated method stub
-		super.setUnused(value);
-	}
-
-	@Override
-	public Integer getErschwernis() {
-		return null;
 	}
 
 	public Probe getAttack() {
@@ -94,18 +47,6 @@ public class CombatShieldTalent extends BaseCombatTalent implements Probe {
 
 	public CombatTalentType getCombatTalentType() {
 		return type;
-	}
-
-	public void setType(CombatTalentType type) {
-		this.type = type;
-	}
-
-	public String getBe() {
-		return type.getBe();
-	}
-
-	public String getProbe() {
-		return null;
 	}
 
 	@Override

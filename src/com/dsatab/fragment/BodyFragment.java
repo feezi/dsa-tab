@@ -22,18 +22,18 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.activity.BaseMainActivity;
 import com.dsatab.activity.ItemChooserActivity;
+import com.dsatab.activity.MainActivity;
 import com.dsatab.common.Util;
 import com.dsatab.data.ArmorAttribute;
 import com.dsatab.data.Hero;
+import com.dsatab.data.Value;
 import com.dsatab.data.WoundAttribute;
 import com.dsatab.view.BodyLayout;
 
@@ -41,9 +41,13 @@ import com.dsatab.view.BodyLayout;
  * @author Ganymede
  * 
  */
-public class BodyFragment extends BaseFragment implements OnClickListener, OnLongClickListener {
+public class BodyFragment extends BaseFragment implements OnClickListener {
 
 	private BodyLayout bodyLayout;
+
+	ImageButton setButton;
+
+	TextView totalRs, totalBe;
 
 	/*
 	 * (non-Javadoc)
@@ -54,7 +58,15 @@ public class BodyFragment extends BaseFragment implements OnClickListener, OnLon
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.sheet_body, container, false);
+		View root = configureContainerView(inflater.inflate(R.layout.sheet_body, container, false));
+
+		bodyLayout = (BodyLayout) root.findViewById(R.id.body_layout);
+		setButton = (ImageButton) root.findViewById(R.id.fight_set);
+
+		totalRs = (TextView) root.findViewById(R.id.body_total_rs);
+		totalBe = (TextView) root.findViewById(R.id.body_total_be);
+
+		return root;
 	}
 
 	/*
@@ -64,15 +76,29 @@ public class BodyFragment extends BaseFragment implements OnClickListener, OnLon
 	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		bodyLayout = (BodyLayout) getView().findViewById(R.id.body_layout);
 
-		getView().findViewById(R.id.fight_set).setOnClickListener(this);
+		setButton.setOnClickListener(this);
 
 		bodyLayout.setOnArmorClickListener(this);
-		bodyLayout.setOnArmorLongClickListener(this);
+		bodyLayout.setOnArmorLongClickListener(getBaseActivity().getEditListener());
 		bodyLayout.setOnWoundClickListener(this);
 
 		super.onActivityCreated(savedInstanceState);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onDestroyView()
+	 */
+	@Override
+	public void onDestroyView() {
+
+		bodyLayout.setOnArmorClickListener(null);
+		bodyLayout.setOnArmorLongClickListener(null);
+		bodyLayout.setOnWoundClickListener(null);
+
+		super.onDestroyView();
 	}
 
 	/*
@@ -85,68 +111,7 @@ public class BodyFragment extends BaseFragment implements OnClickListener, OnLon
 	public void onHeroLoaded(Hero hero) {
 		bodyLayout.setWoundAttributes(hero.getWounds());
 		bodyLayout.setArmorAttributes(hero.getArmorAttributes());
-
-		ImageButton fightSet = (ImageButton) getView().findViewById(R.id.fight_set);
-		LevelListDrawable drawable = (LevelListDrawable) fightSet.getDrawable();
-		drawable.setLevel(getHero().getActiveSet());
-
-		((TextView) getView().findViewById(R.id.body_total_rs)).setText(Util.toString(hero.getArmorRs()));
-		((TextView) getView().findViewById(R.id.body_total_be)).setText(Util.toString(hero.getArmorBe()));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.fragment.BaseFragment#onHeroUnloaded(com.dsatab.data.Hero)
-	 */
-	@Override
-	public void onHeroUnloaded(Hero hero) {
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.fragment.BaseFragment#onAttachListener(com.dsatab.data.Hero)
-	 */
-	@Override
-	protected void onAttachListener(Hero hero) {
-		super.onAttachListener(hero);
-
-		if (hero != null)
-			hero.addHeroChangedListener(bodyLayout);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.fragment.BaseFragment#onDetachListener(com.dsatab.data.Hero)
-	 */
-	@Override
-	protected void onDetachListener(Hero hero) {
-		super.onDetachListener(hero);
-
-		if (hero != null)
-			hero.removeHeroChangedListener(bodyLayout);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.view.View.OnLongClickListener#onLongClick(android.view.View)
-	 */
-	@Override
-	public boolean onLongClick(View v) {
-		// armor
-		if (v.getTag() instanceof ArmorAttribute) {
-			ArmorAttribute value = (ArmorAttribute) v.getTag();
-			getBaseActivity().showEditPopup(value);
-			return true;
-		}
-		return false;
+		updateView();
 	}
 
 	/*
@@ -175,11 +140,7 @@ public class BodyFragment extends BaseFragment implements OnClickListener, OnLon
 				attribute.setValue(attribute.getValue() + 1);
 			}
 			iv.setSelected(!iv.isSelected());
-
-			if (iv.isSelected())
-				iv.setBackgroundResource(R.drawable.icon_wound_s);
-			else
-				iv.setBackgroundResource(R.drawable.icon_wound_btn);
+			iv.setBackgroundResource(R.drawable.icon_wound_btn);
 		}
 		// armor
 		else if (v.getTag() instanceof ArmorAttribute) {
@@ -202,9 +163,8 @@ public class BodyFragment extends BaseFragment implements OnClickListener, OnLon
 	 */
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == BaseMainActivity.ACTION_PREFERENCES) {
-			((TextView) getView().findViewById(R.id.body_total_rs)).setText(Util.toString(getHero().getArmorRs()));
-			((TextView) getView().findViewById(R.id.body_total_be)).setText(Util.toString(getHero().getArmorBe()));
+		if (requestCode == MainActivity.ACTION_PREFERENCES) {
+			updateView();
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
@@ -217,13 +177,32 @@ public class BodyFragment extends BaseFragment implements OnClickListener, OnLon
 	@Override
 	public void onActiveSetChanged(int newSet, int oldSet) {
 		super.onActiveSetChanged(newSet, oldSet);
+		updateView();
+		bodyLayout.setArmorAttributes(getHero().getArmorAttributes());
+	}
 
-		ImageButton fightSet = (ImageButton) getView().findViewById(R.id.fight_set);
-		LevelListDrawable drawable = (LevelListDrawable) fightSet.getDrawable();
+	private void updateView() {
+
+		LevelListDrawable drawable = (LevelListDrawable) setButton.getDrawable();
 		drawable.setLevel(getHero().getActiveSet());
 
-		((TextView) getView().findViewById(R.id.body_total_rs)).setText(Util.toString(getHero().getArmorRs()));
-		((TextView) getView().findViewById(R.id.body_total_be)).setText(Util.toString(getHero().getArmorBe()));
+		totalRs.setText(Util.toString(getHero().getArmorRs()));
+		totalBe.setText(Util.toString(getHero().getArmorBe()));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.fragment.BaseFragment#onValueChanged(com.dsatab.data.Value)
+	 */
+	@Override
+	public void onValueChanged(Value value) {
+		if (value instanceof ArmorAttribute) {
+			ArmorAttribute rs = (ArmorAttribute) value;
+			bodyLayout.setArmorAttribute(rs);
+		}
+		super.onValueChanged(value);
 	}
 
 }

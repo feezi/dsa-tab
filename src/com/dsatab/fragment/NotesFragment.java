@@ -17,10 +17,15 @@ package com.dsatab.fragment;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -39,20 +44,23 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.Spinner;
 
+import com.commonsware.cwac.merge.MergeAdapter;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.NotesEditActivity;
+import com.dsatab.data.Connection;
+import com.dsatab.data.ConnectionComparator;
 import com.dsatab.data.Event;
 import com.dsatab.data.Hero;
 import com.dsatab.data.NotesComparator;
-import com.dsatab.data.adapter.EventCatgoryAdapter;
-import com.dsatab.data.adapter.NotesAdapter;
+import com.dsatab.data.adapter.ConnectionAdapter;
+import com.dsatab.data.adapter.EventAdapter;
 import com.dsatab.data.enums.EventCategory;
 import com.gandulf.guilib.util.Debug;
 
-public class NotesFragment extends BaseFragment implements OnClickListener, OnItemClickListener {
+public class NotesFragment extends BaseFragment implements OnClickListener, OnItemClickListener,
+		OnMultiChoiceClickListener {
 
 	public static final int ACTION_EDIT = 1;
 
@@ -67,11 +75,14 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 
 	private ListView listView;
 
-	private Spinner notesCategorySpinner;
+	private MergeAdapter mergeAdapter;
+	private EventAdapter notesListAdapter;
+	private ConnectionAdapter connectionsAdapter;
 
-	private NotesAdapter notesListAdapter;
+	private Set<EventCategory> categoriesSelected;
+	private EventCategory[] categories;
 
-	private Event selectedEvent = null;
+	private Object selectedObject = null;
 
 	/*
 	 * (non-Javadoc)
@@ -82,7 +93,7 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.sheet_notes, container, false);
+		return configureContainerView(inflater.inflate(R.layout.sheet_notes, container, false));
 	}
 
 	/*
@@ -105,15 +116,14 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 		// notes
 		registerForContextMenu(listView);
 
-		notesCategorySpinner = (Spinner) findViewById(R.id.notes_spn_category);
-		notesCategorySpinner.setAdapter(new EventCatgoryAdapter(getActivity(), android.R.layout.simple_spinner_item,
-				EventCategory.values()));
-		ImageButton notesAddButton = (ImageButton) findViewById(R.id.notes_btn_add);
-		notesAddButton.setOnClickListener(this);
+		findViewById(R.id.notes_spn_category).setOnClickListener(this);
+		findViewById(R.id.notes_btn_add).setOnClickListener(this);
 
 		// notes
 		listView.setOnItemClickListener(this);
 
+		categories = EventCategory.values();
+		categoriesSelected = new HashSet<EventCategory>(Arrays.asList(categories));
 		super.onActivityCreated(savedInstanceState);
 	}
 
@@ -125,19 +135,15 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 	 */
 	@Override
 	public void onHeroLoaded(Hero hero) {
-		notesListAdapter = new NotesAdapter(getActivity(), android.R.layout.simple_list_item_1, getHero().getEvents());
-		listView.setAdapter(notesListAdapter);
-	}
+		notesListAdapter = new EventAdapter(getActivity(), getHero().getEvents());
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.fragment.BaseFragment#onHeroUnloaded(com.dsatab.data.Hero)
-	 */
-	@Override
-	public void onHeroUnloaded(Hero hero) {
+		connectionsAdapter = new ConnectionAdapter(getActivity(), getHero().getConnections());
 
+		mergeAdapter = new MergeAdapter();
+		mergeAdapter.addAdapter(notesListAdapter);
+		mergeAdapter.addAdapter(connectionsAdapter);
+
+		listView.setAdapter(mergeAdapter);
 	}
 
 	/**
@@ -157,9 +163,22 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		if (v.getId() == android.R.id.list) {
+
 			menu.add(0, CONTEXTMENU_EDITITEM, 1, getString(R.string.menu_edit_item));
 			menu.add(0, CONTEXTMENU_DELETEITEM, 2, getString(R.string.menu_delete_item));
 			menu.add(0, CONTEXTMENU_SORT_NOTES, 3, getString(R.string.menu_sort_items));
+
+			if (menuInfo instanceof AdapterContextMenuInfo) {
+				AdapterContextMenuInfo adapterMenuInfo = (AdapterContextMenuInfo) menuInfo;
+				Object obj = listView.getItemAtPosition(adapterMenuInfo.position);
+
+				if (obj instanceof Event) {
+					Event event = (Event) obj;
+					if (event.getCategory() == EventCategory.Heldensoftware) {
+						menu.findItem(CONTEXTMENU_DELETEITEM).setEnabled(false);
+					}
+				}
+			}
 		}
 
 		super.onCreateContextMenu(menu, v, menuInfo);
@@ -172,28 +191,45 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 	 */
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-		if (item.getItemId() == CONTEXTMENU_DELETEITEM) {
 
+		if (item.getMenuInfo() instanceof AdapterContextMenuInfo) {
 			AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-			Event event = (Event) listView.getItemAtPosition(menuInfo.position);
+			Object obj = listView.getItemAtPosition(menuInfo.position);
 
-			Debug.verbose("Deleting " + event.getComment());
-			getHero().removeEvent(event);
-			notesListAdapter.remove(event);
-			notesListAdapter.notifyDataSetChanged();
-			return true;
-		} else if (item.getItemId() == CONTEXTMENU_EDITITEM) {
-
-			AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-			Event event = (Event) listView.getItemAtPosition(menuInfo.position);
-
-			Debug.verbose("Editing " + event.getComment());
-			editEvent(event);
-			return true;
-		} else if (item.getItemId() == CONTEXTMENU_SORT_NOTES) {
-			notesListAdapter.sort(new NotesComparator());
-			notesListAdapter.notifyDataSetChanged();
-			return true;
+			if (obj instanceof Event) {
+				Event event = (Event) obj;
+				if (item.getItemId() == CONTEXTMENU_DELETEITEM) {
+					Debug.verbose("Deleting " + event.getComment());
+					getHero().removeEvent(event);
+					notesListAdapter.remove(event);
+					notesListAdapter.notifyDataSetChanged();
+					return true;
+				} else if (item.getItemId() == CONTEXTMENU_EDITITEM) {
+					Debug.verbose("Editing " + event.getComment());
+					editEvent(event);
+					return true;
+				} else if (item.getItemId() == CONTEXTMENU_SORT_NOTES) {
+					notesListAdapter.sort(new NotesComparator());
+					connectionsAdapter.sort(new ConnectionComparator());
+					return true;
+				}
+			} else if (obj instanceof Connection) {
+				Connection connection = (Connection) obj;
+				if (item.getItemId() == CONTEXTMENU_DELETEITEM) {
+					Debug.verbose("Deleting " + connection.getName());
+					getHero().removeConnection(connection);
+					connectionsAdapter.remove(connection);
+					return true;
+				} else if (item.getItemId() == CONTEXTMENU_EDITITEM) {
+					Debug.verbose("Editing " + connection.getName());
+					editConnection(connection);
+					return true;
+				} else if (item.getItemId() == CONTEXTMENU_SORT_NOTES) {
+					notesListAdapter.sort(new NotesComparator());
+					connectionsAdapter.sort(new ConnectionComparator());
+					return true;
+				}
+			}
 		}
 		return super.onContextItemSelected(item);
 	}
@@ -208,33 +244,37 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-		Event event = (Event) listView.getItemAtPosition(position);
+		Object obj = listView.getItemAtPosition(position);
 
-		if (event.getAudioPath() != null) {
+		if (obj instanceof Event) {
+			Event event = (Event) obj;
 
-			try {
-				if (mediaPlayer == null)
-					initMediaPlayer();
+			if (event.getAudioPath() != null) {
 
-				mediaPlayer.setDataSource(event.getAudioPath());
-				mediaPlayer.prepare();
-				mediaPlayer.start();
-				mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+				try {
+					if (mediaPlayer == null)
+						initMediaPlayer();
 
-					@Override
-					public void onCompletion(MediaPlayer mp) {
-						mp.stop();
-						mp.reset();
-					}
-				});
-			} catch (IllegalArgumentException e) {
-				Debug.error(e);
-			} catch (IllegalStateException e) {
-				Debug.error(e);
-			} catch (IOException e) {
-				Debug.error(e);
+					mediaPlayer.setDataSource(event.getAudioPath());
+					mediaPlayer.prepare();
+					mediaPlayer.start();
+					mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+						@Override
+						public void onCompletion(MediaPlayer mp) {
+							mp.stop();
+							mp.reset();
+						}
+					});
+				} catch (IllegalArgumentException e) {
+					Debug.error(e);
+				} catch (IllegalStateException e) {
+					Debug.error(e);
+				} catch (IOException e) {
+					Debug.error(e);
+				}
+
 			}
-
 		}
 	}
 
@@ -300,7 +340,50 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 
 		} else if (v.getId() == R.id.notes_btn_add) {
 			editEvent(null, null);
+		} else if (v.getId() == R.id.notes_spn_category) {
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+			String[] categoryNames = new String[categories.length];
+			boolean[] categoriesSet = new boolean[categories.length];
+
+			for (int i = 0; i < categories.length; i++) {
+				categoryNames[i] = categories[i].name();
+				if (categoriesSelected.contains(categories[i]))
+					categoriesSet[i] = true;
+			}
+
+			builder.setMultiChoiceItems(categoryNames, categoriesSet, this);
+			builder.setTitle("Filtern");
+			builder.setIcon(R.drawable.ic_menu_search);
+
+			builder.show().setOnDismissListener(new DialogInterface.OnDismissListener() {
+
+				@Override
+				public void onDismiss(DialogInterface dialog) {
+					notesListAdapter.filter(null, new ArrayList<EventCategory>(categoriesSelected));
+					connectionsAdapter.filter(null, new ArrayList<EventCategory>(categoriesSelected));
+				}
+			});
+
 		}
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.content.DialogInterface.OnMultiChoiceClickListener#onClick(android
+	 * .content.DialogInterface, int, boolean)
+	 */
+	@Override
+	public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+
+		if (isChecked)
+			categoriesSelected.add(categories[which]);
+		else
+			categoriesSelected.remove(categories[which]);
 
 	}
 
@@ -310,7 +393,7 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 
 	private void editEvent(final Event event, final String audioPath) {
 
-		selectedEvent = event;
+		selectedObject = event;
 
 		Intent intent = new Intent(getActivity(), NotesEditActivity.class);
 		if (event != null) {
@@ -319,6 +402,19 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 		}
 		if (audioPath != null) {
 			intent.putExtra(NotesEditFragment.INTENT_NAME_AUDIO_PATH, audioPath);
+		}
+		startActivityForResult(intent, ACTION_EDIT);
+
+	}
+
+	private void editConnection(final Connection event) {
+		selectedObject = event;
+		Intent intent = new Intent(getActivity(), NotesEditActivity.class);
+		if (event != null) {
+			intent.putExtra(NotesEditFragment.INTENT_NAME_EVENT_TEXT, event.getDescription());
+			intent.putExtra(NotesEditFragment.INTENT_NAME_EVENT_NAME, event.getName());
+			intent.putExtra(NotesEditFragment.INTENT_NAME_EVENT_SOZIALSTATUS, event.getSozialStatus());
+			intent.putExtra(NotesEditFragment.INTENT_NAME_EVENT_CATEGORY, event.getCategory());
 		}
 		startActivityForResult(intent, ACTION_EDIT);
 
@@ -336,25 +432,65 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 		if (requestCode == ACTION_EDIT && resultCode == Activity.RESULT_OK) {
 
 			String comment = data.getStringExtra(NotesEditFragment.INTENT_NAME_EVENT_TEXT);
+			String name = data.getStringExtra(NotesEditFragment.INTENT_NAME_EVENT_NAME);
+			String sozialstatus = data.getStringExtra(NotesEditFragment.INTENT_NAME_EVENT_SOZIALSTATUS);
 			String audioPath = data.getStringExtra(NotesEditFragment.INTENT_NAME_AUDIO_PATH);
 			EventCategory category = (EventCategory) data
 					.getSerializableExtra(NotesEditFragment.INTENT_NAME_EVENT_CATEGORY);
 
-			if (selectedEvent == null) {
-				if (comment.trim().length() > 0) {
-					selectedEvent = getHero().addEvent(category, comment, audioPath);
+			if (category == EventCategory.Bekanntschaft) {
+				if (selectedObject instanceof Event) {
+					getHero().removeEvent((Event) selectedObject);
+					notesListAdapter.remove((Event) selectedObject);
+					selectedObject = null;
+					notesListAdapter.notifyDataSetChanged();
 				}
+
+				if (selectedObject instanceof Connection) {
+					Connection selectedEvent = (Connection) selectedObject;
+					selectedEvent.setDescription(comment.trim());
+					selectedEvent.setName(name);
+					selectedEvent.setSozialStatus(sozialstatus);
+				} else if (selectedObject == null) {
+					Connection connection = new Connection();
+					connection.setName(name);
+					connection.setDescription(comment);
+					connection.setSozialStatus(sozialstatus);
+					getHero().addConnection(connection);
+					connectionsAdapter.add(connection);
+				}
+
+				connectionsAdapter.refilter();
+				connectionsAdapter.notifyDataSetChanged();
+
 			} else {
-				if (comment.trim().length() > 0) {
-					selectedEvent.setComment(comment.trim());
+				if (selectedObject instanceof Connection) {
+					getHero().removeConnection((Connection) selectedObject);
+					connectionsAdapter.remove((Connection) selectedObject);
+					selectedObject = null;
+					connectionsAdapter.notifyDataSetChanged();
+				}
+
+				if (selectedObject instanceof Event) {
+					Event selectedEvent = (Event) selectedObject;
+					selectedEvent.setName(name);
+					selectedEvent.setComment(comment);
 					selectedEvent.setAudioPath(audioPath);
 					selectedEvent.setCategory(category);
-				} else {
-					getHero().removeEvent(selectedEvent);
+				} else if (selectedObject == null) {
+					Event selectedEvent = new Event();
+					selectedEvent.setName(name);
+					selectedEvent.setCategory(category);
+					selectedEvent.setComment(comment);
+					selectedEvent.setAudioPath(audioPath);
+					getHero().addEvent(selectedEvent);
+					notesListAdapter.add(selectedEvent);
 				}
+
+				notesListAdapter.refilter();
+				notesListAdapter.notifyDataSetChanged();
 			}
 
-			((ArrayAdapter<?>) listView.getAdapter()).notifyDataSetChanged();
 		}
 
 		super.onActivityResult(requestCode, resultCode, data);

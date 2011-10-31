@@ -15,8 +15,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.jdom.Element;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -25,18 +23,18 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.text.TextUtils;
 import android.util.AndroidRuntimeException;
 import android.widget.Toast;
 
 import com.dsatab.DSATabApplication;
-import com.dsatab.TabConfiguration;
-import com.dsatab.activity.DsaPreferenceActivity;
+import com.dsatab.HeroConfiguration;
+import com.dsatab.activity.DsaPreferenceActivityHC;
 import com.dsatab.common.Util;
+import com.dsatab.data.Art.LiturigeType;
+import com.dsatab.data.MetaTalent.MetaTalentType;
 import com.dsatab.data.TalentGroup.TalentGroupType;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
-import com.dsatab.data.enums.EventCategory;
 import com.dsatab.data.enums.Position;
 import com.dsatab.data.items.Armor;
 import com.dsatab.data.items.DistanceWeapon;
@@ -48,24 +46,25 @@ import com.dsatab.data.items.ItemType;
 import com.dsatab.data.items.MiscSpecification;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
-import com.dsatab.data.modifier.AuModifier;
-import com.dsatab.data.modifier.LeModifier;
+import com.dsatab.data.modifier.AuModificator;
+import com.dsatab.data.modifier.LeModificator;
 import com.dsatab.data.modifier.Modificator;
 import com.dsatab.view.drag.ItemLocationInfo;
 import com.dsatab.view.listener.HeroChangedListener;
 import com.dsatab.xml.DataManager;
 import com.dsatab.xml.DomUtil;
 import com.dsatab.xml.Xml;
+import com.dsatab.xml.XmlParser;
 import com.gandulf.guilib.util.Debug;
 
 public class Hero {
 
-	/**
-	 * 
-	 */
+	private static final String JAGTWAFFE = "jagtwaffe";
+
 	private static final String EVENT_NOTE_TEXT = "Sonstiges Ereignis (Hinzugewinn)";
 
 	private static final String PREFIX_NKWAFFE = "nkwaffe";
+	private static final String PREFIX_FKWAFFE = "fkwaffe";
 
 	private static final String PREFIX_BK = "bk";
 
@@ -96,26 +95,29 @@ public class Hero {
 
 	private CombatShieldTalent shieldTalent;
 	private List<Spell> spells;
-	private List<Event> events;
 	private List<Item> items;
-	private List<Liturgie> liturgies;
+	private List<Art> arts;
 
-	private Talent liturgieKenntnis;
-	private boolean liturgieKenntnisSearched;
+	private List<Talent> artTalents;
 
-	private Map<Position, ArmorAttribute> armorAttributes;
+	private Map<Position, ArmorAttribute>[] armorAttributes;
 	private Map<Position, WoundAttribute> wounds;
 
 	private List<EquippedItem>[] equippedItems = null;
+	private List<Connection> connections = null;
+
+	private Element[] huntingWeapons;
 
 	private List<Element> beidhaendigerKampfElements = new LinkedList<Element>();
 
-	private List<Modificator> modifiers = null;
+	private List<Modificator> modificators = null;
 
-	LeModifier leModifier;
-	AuModifier auModifier;
+	LeModificator leModificator;
+	AuModificator auModificator;
 
 	private Purse purse = null;
+
+	private boolean notizElementFilled = false;
 
 	private List<HeroChangedListener> listener = new LinkedList<HeroChangedListener>();
 
@@ -127,7 +129,14 @@ public class Hero {
 
 	private Element talentsNode, spellsNode, equippmentNode, itemsNode, basisNode, attributesNode;
 
-	private TabConfiguration tabConfiguration;
+	private HeroBaseInfo baseInfo;
+
+	private HeroConfiguration configuration;
+
+	// transient
+	private Map<Probe, Integer> modifiersCache = new HashMap<Probe, Integer>();
+
+	private Map<Probe, Integer> modifiersInclBeCache = new HashMap<Probe, Integer>();
 
 	@SuppressWarnings("unchecked")
 	public Hero(String path, org.jdom.Document dom) {
@@ -135,6 +144,7 @@ public class Hero {
 		this.dom = dom;
 		this.attributes = new HashMap<AttributeType, Attribute>(AttributeType.values().length);
 		this.equippedItems = new List[MAXIMUM_SET_NUMBER];
+		this.huntingWeapons = new Element[MAXIMUM_SET_NUMBER];
 
 		// check for valid hero node
 		if (getHeldElement() == null) {
@@ -163,29 +173,65 @@ public class Hero {
 		basisNode = getHeldElement().getChild(Xml.KEY_BASIS);
 
 		// load modifiers
-		this.leModifier = new LeModifier(this);
-		this.auModifier = new AuModifier(this);
+		this.leModificator = new LeModificator(this);
+		this.auModificator = new AuModificator(this);
+
+		if (basisNode != null)
+			baseInfo = new HeroBaseInfo(basisNode);
+		else
+			baseInfo = new HeroBaseInfo(getHeldElement());
 
 		// preload items
 		getItems();
 	}
 
-	public Talent getLiturgieKenntnis() {
-		if (liturgieKenntnis == null && liturgieKenntnisSearched == false) {
+	public void setHeroConfiguration(HeroConfiguration configuration) {
+		this.configuration = configuration;
+	}
+
+	public Talent getArtTalent(String name) {
+		for (Talent talent : getArtTalents()) {
+			if (talent.getName().startsWith(name))
+				return talent;
+		}
+		return null;
+
+	}
+
+	public HeroBaseInfo getBaseInfo() {
+		return baseInfo;
+	}
+
+	public List<Talent> getArtTalents() {
+		if (artTalents == null) {
 			TalentGroup gaben = getTalentGroups().get(TalentGroupType.Gaben);
 
+			artTalents = new ArrayList<Talent>();
 			if (gaben != null) {
 				for (Talent talent : gaben.getTalents()) {
 					if (talent.getName().startsWith(Talent.LITURGIE_KENNTNIS_PREFIX)) {
-						liturgieKenntnis = talent;
-						break;
-					}
+						artTalents.add(talent);
+					} else if (talent.getName().startsWith(Talent.RITUAL_KENNTNIS_PREFIX))
+						artTalents.add(talent);
 				}
 			}
-			liturgieKenntnisSearched = true;
+
+			Talent talent = getTalent(Talent.GEISTER_ANRUFEN);
+			if (talent != null)
+				artTalents.add(talent);
+			talent = getTalent(Talent.GEISTER_BANNEN);
+			if (talent != null)
+				artTalents.add(talent);
+			talent = getTalent(Talent.GEISTER_BINDEN);
+			if (talent != null)
+				artTalents.add(talent);
+			talent = getTalent(Talent.GEISTER_RUFEN);
+			if (talent != null)
+				artTalents.add(talent);
+
 		}
 
-		return liturgieKenntnis;
+		return artTalents;
 	}
 
 	public void setPortraitUri(Uri uri) {
@@ -239,18 +285,26 @@ public class Hero {
 	public void addHeroChangedListener(HeroChangedListener v) {
 		if (!listener.contains(v))
 			listener.add(v);
+
+		Debug.verbose("Add " + v.getClass() + ". Hero currently contains " + listener.size() + " listeners:"
+				+ listener.toArray());
 	}
 
 	public void removeHeroChangedListener(HeroChangedListener v) {
 		listener.remove(v);
+
+		Debug.verbose("Remove " + v.getClass() + ". Hero currently contains " + listener.size() + " listeners:"
+				+ listener.toArray());
 	}
 
 	public EquippedItem getEquippedItem(String name) {
-		for (int i = 0; i < MAXIMUM_SET_NUMBER; i++) {
-			for (EquippedItem item : getEquippedItems(i)) {
-				if (item.getName().equals(name))
-					return item;
-			}
+		return getEquippedItem(activeSet, name);
+	}
+
+	public EquippedItem getEquippedItem(int set, String name) {
+		for (EquippedItem item : getEquippedItems(set)) {
+			if (item.getName().equals(name))
+				return item;
 		}
 		return null;
 
@@ -314,6 +368,23 @@ public class Hero {
 		return getEquippedItems(activeSet);
 	}
 
+	public void setHuntingWeapon(EquippedItem item) {
+		if (item.isDistanceWeapon() && huntingWeapons[activeSet] != null) {
+			huntingWeapons[activeSet].setAttribute(Xml.KEY_NUMMER, Util.toString(item.getNameId()));
+		}
+	}
+
+	public EquippedItem getHuntingWeapon() {
+		if (huntingWeapons[activeSet] != null) {
+			Integer number = Util.parseInt(huntingWeapons[activeSet].getAttributeValue(Xml.KEY_NUMMER));
+
+			if (number != null && number > 0) {
+				return getEquippedItem(activeSet, PREFIX_FKWAFFE + number);
+			}
+		}
+		return null;
+	}
+
 	public List<EquippedItem> getEquippedItems(int selectedSet) {
 		if (equippedItems[selectedSet] == null) {
 			equippedItems[selectedSet] = new LinkedList<EquippedItem>();
@@ -324,14 +395,16 @@ public class Hero {
 			for (int i = 0; i < equippedElements.size(); i++) {
 				Element element = (Element) equippedElements.get(i);
 
-				if (element.getAttributeValue(Xml.KEY_NAME).equals("jagtwaffe"))
-					continue;
-
 				int set = 0;
 				if (element.getAttribute(Xml.KEY_SET) != null) {
 					set = Util.parseInt(element.getAttributeValue(Xml.KEY_SET));
 					if (set != selectedSet)
 						continue;
+				}
+
+				if (element.getAttributeValue(Xml.KEY_NAME).equals(JAGTWAFFE)) {
+					huntingWeapons[selectedSet] = element;
+					continue;
 				}
 
 				if (element.getAttributeValue(Xml.KEY_NAME).startsWith(PREFIX_BK)) {
@@ -370,8 +443,8 @@ public class Hero {
 					int bk1 = Util.parseInt(bk.substring(2, 3));
 					int bk2 = Util.parseInt(bk.substring(3, 4));
 
-					EquippedItem item1 = getEquippedItem(PREFIX_NKWAFFE + bk1);
-					EquippedItem item2 = getEquippedItem(PREFIX_NKWAFFE + bk2);
+					EquippedItem item1 = getEquippedItem(selectedSet, PREFIX_NKWAFFE + bk1);
+					EquippedItem item2 = getEquippedItem(selectedSet, PREFIX_NKWAFFE + bk2);
 
 					if (item2 != null && item1 != null) {
 						item1.setSecondaryItem(item2);
@@ -386,6 +459,20 @@ public class Hero {
 			}
 			Util.sort(equippedItems[selectedSet]);
 
+			if (huntingWeapons[selectedSet] == null) {
+
+				Element element = new Element(Xml.KEY_HELDENAUSRUESTUNG);
+				element.setAttribute(Xml.KEY_NAME, JAGTWAFFE);
+				element.setAttribute(Xml.KEY_NUMMER, "0");
+				element.setAttribute(Xml.KEY_SET, Util.toString(selectedSet));
+
+				if (equippmentNode != null)
+					equippmentNode.addContent(element);
+				else
+					getHeldElement().addContent(element);
+
+				huntingWeapons[selectedSet] = element;
+			}
 		}
 
 		return equippedItems[selectedSet];
@@ -466,15 +553,14 @@ public class Hero {
 		int oldSet = activeSet;
 		this.activeSet = activeSet;
 
-		resetArmorAttributes();
 		resetBe();
 
 		fireActiveSetChangedEvent(activeSet, oldSet);
 	}
 
 	void fireModifiersChangedEvent(List<Modificator> modifiers) {
-
-		this.modifiers = modifiers;
+		clearModifiersCache();
+		this.modificators = modifiers;
 
 		for (HeroChangedListener l : listener) {
 			l.onModifiersChanged(modifiers);
@@ -487,12 +573,17 @@ public class Hero {
 			Attribute attribute = (Attribute) value;
 
 			switch (attribute.getType()) {
+			case Behinderung:
+				modifiersInclBeCache.clear();
+				getAttribute(AttributeType.Geschwindigkeit).checkBaseValue();
+				break;
+			case Gewandtheit:
+				getAttribute(AttributeType.Geschwindigkeit).checkBaseValue();
 			case Mut:
 			case Klugheit:
 			case Intuition:
 			case Charisma:
 			case Fingerfertigkeit:
-			case Gewandtheit:
 			case Konstitution:
 			case Körperkraft:
 				Attribute attr = getAttribute(AttributeType.at);
@@ -508,7 +599,6 @@ public class Hero {
 				attr.setValue(attr.getReferenceValue());
 
 				// check for magic resistance changes:
-
 				getAttribute(AttributeType.Magieresistenz).checkBaseValue();
 				getAttribute(AttributeType.Astralenergie).checkBaseValue();
 				getAttribute(AttributeType.Astralenergie_Total).checkBaseValue();
@@ -547,12 +637,13 @@ public class Hero {
 	}
 
 	void fireModifierChangedEvent(Modificator modifier) {
+		clearModifiersCache();
 		for (HeroChangedListener l : listener) {
 			l.onModifierChanged(modifier);
 		}
 	}
 
-	public void onHeroSaved() {
+	public void onPostHeroSaved() {
 		for (File f : deletableAudioFiles) {
 			f.delete();
 		}
@@ -600,17 +691,25 @@ public class Hero {
 	}
 
 	void fireModifierAddedEvent(Modificator modifier) {
-
-		getModifiers().add(modifier);
+		clearModifiersCache();
+		getModificators().add(modifier);
 
 		for (HeroChangedListener l : listener) {
 			l.onModifierAdded(modifier);
 		}
 	}
 
-	void fireModifierRemovedEvent(Modificator modifier) {
+	/**
+	 * 
+	 */
+	private void clearModifiersCache() {
+		modifiersCache.clear();
+		modifiersInclBeCache.clear();
+	}
 
-		getModifiers().remove(modifier);
+	void fireModifierRemovedEvent(Modificator modifier) {
+		clearModifiersCache();
+		getModificators().remove(modifier);
 
 		for (HeroChangedListener l : listener) {
 			l.onModifierRemoved(modifier);
@@ -831,7 +930,7 @@ public class Hero {
 		getEquippedItems(set).add(equippedItem);
 
 		if (item.hasSpecification(Armor.class) && set == activeSet) {
-			resetArmorAttributes();
+			recalcArmorAttributes();
 			resetBe();
 		}
 
@@ -848,7 +947,7 @@ public class Hero {
 		return dom;
 	}
 
-	private Element getHeldElement() {
+	public Element getHeldElement() {
 		if (held == null)
 			held = (Element) dom.getRootElement().getChild(Xml.KEY_HELD);
 
@@ -856,11 +955,8 @@ public class Hero {
 	}
 
 	public void setBeCalculation(boolean auto) {
-
 		if (auto != isBeCalculation()) {
-			Element be = getAttribute(AttributeType.Behinderung).getElement();
-			be.setAttribute(Xml.KEY_BE_CALCULATION, Boolean.toString(auto));
-
+			getHeroConfiguration().setBeCalculation(auto);
 			if (auto) {
 				resetBe();
 			}
@@ -868,11 +964,7 @@ public class Hero {
 	}
 
 	public boolean isBeCalculation() {
-		Element be = getAttribute(AttributeType.Behinderung).getElement();
-		if (be.getAttributeValue(Xml.KEY_BE_CALCULATION) != null)
-			return Boolean.valueOf(be.getAttributeValue(Xml.KEY_BE_CALCULATION));
-		else
-			return true;
+		return getHeroConfiguration().isBeCalculation();
 	}
 
 	public Attribute getAttribute(AttributeType type) {
@@ -880,65 +972,61 @@ public class Hero {
 
 		if (attribute == null) {
 
-			List<Element> attributes = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_EIGENSCHAFTEN,
-					Xml.KEY_EIGENSCHAFT);
-			for (int i = 0; i < attributes.size(); i++) {
-				Element attributeElement = (Element) attributes.get(i);
+			// onload load all attributes if no attributes are found yet, the
+			// rest of the attributes will be lazy loaded when needed
+			if (attributes.isEmpty()) {
+				List<Element> domAttributes = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_EIGENSCHAFTEN,
+						Xml.KEY_EIGENSCHAFT);
 
-				Attribute attr = new Attribute(attributeElement, this);
-				this.attributes.put(attr.getType(), attr);
+				for (int i = 0; i < domAttributes.size(); i++) {
+					Element attributeElement = (Element) domAttributes.get(i);
 
-				if (attr.getType() == AttributeType.Lebensenergie) {
-					Attribute attr2 = new Attribute(attributeElement, AttributeType.Lebensenergie_Total, this);
-					this.attributes.put(attr2.getType(), attr2);
-				} else if (attr.getType() == AttributeType.Ausdauer) {
-					Attribute attr2 = new Attribute(attributeElement, AttributeType.Ausdauer_Total, this);
-					this.attributes.put(attr2.getType(), attr2);
-				} else if (attr.getType() == AttributeType.Karmaenergie) {
-					Attribute attr2 = new Attribute(attributeElement, AttributeType.Karmaenergie_Total, this);
-					this.attributes.put(attr2.getType(), attr2);
-				} else if (attr.getType() == AttributeType.Astralenergie) {
-					Attribute attr2 = new Attribute(attributeElement, AttributeType.Astralenergie_Total, this);
-					this.attributes.put(attr2.getType(), attr2);
+					Attribute attr = new Attribute(attributeElement, this);
+					this.attributes.put(attr.getType(), attr);
+
+					if (attr.getType() == AttributeType.Lebensenergie) {
+						Attribute attr2 = new Attribute(attributeElement, AttributeType.Lebensenergie_Total, this);
+						this.attributes.put(attr2.getType(), attr2);
+					} else if (attr.getType() == AttributeType.Ausdauer) {
+						Attribute attr2 = new Attribute(attributeElement, AttributeType.Ausdauer_Total, this);
+						this.attributes.put(attr2.getType(), attr2);
+					} else if (attr.getType() == AttributeType.Karmaenergie) {
+						Attribute attr2 = new Attribute(attributeElement, AttributeType.Karmaenergie_Total, this);
+						this.attributes.put(attr2.getType(), attr2);
+					} else if (attr.getType() == AttributeType.Astralenergie) {
+						Attribute attr2 = new Attribute(attributeElement, AttributeType.Astralenergie_Total, this);
+						this.attributes.put(attr2.getType(), attr2);
+					}
+				}
+
+				for (CustomAttribute attr : getHeroConfiguration().getAttributes()) {
+					this.attributes.put(attr.getType(), attr);
 				}
 			}
 
 			if (type == AttributeType.Behinderung && !this.attributes.containsKey(AttributeType.Behinderung)) {
-				Element element = new Element(Xml.KEY_EIGENSCHAFT);
-				element.setAttribute(Xml.KEY_NAME, AttributeType.Behinderung.name());
-				element.setAttribute(Xml.KEY_VALUE, "0");
-				element.setAttribute(Xml.KEY_BE_CALCULATION, Boolean.toString(true));
-
-				if (attributesNode == null)
-					getHeldElement().addContent(element);
-				else
-					attributesNode.addContent(element);
-
-				Attribute be = new Attribute(element, this);
+				CustomAttribute be = new CustomAttribute(this, AttributeType.Behinderung);
 				be.setValue(getArmorBe());
-				this.attributes.put(AttributeType.Behinderung, be);
+				getHeroConfiguration().addAttribute(be);
+				this.attributes.put(be.getType(), be);
 			}
 			if (type == AttributeType.Ausweichen && !this.attributes.containsKey(AttributeType.Ausweichen)) {
-				Element element = new Element(Xml.KEY_EIGENSCHAFT);
-				element.setAttribute(Xml.KEY_NAME, AttributeType.Ausweichen.name());
-				if (attributesNode == null)
-					getHeldElement().addContent(element);
-				else
-					attributesNode.addContent(element);
-
-				this.attributes.put(AttributeType.Ausweichen, new Attribute(element, this));
+				CustomAttribute aw = new CustomAttribute(this, AttributeType.Ausweichen);
+				getHeroConfiguration().addAttribute(aw);
+				this.attributes.put(aw.getType(), aw);
+			}
+			if (type == AttributeType.Geschwindigkeit && !this.attributes.containsKey(AttributeType.Geschwindigkeit)) {
+				CustomAttribute aw = new CustomAttribute(this, AttributeType.Geschwindigkeit);
+				getHeroConfiguration().addAttribute(aw);
+				this.attributes.put(aw.getType(), aw);
 			}
 
 			if (type == AttributeType.Initiative_Aktuell
 					&& !this.attributes.containsKey(AttributeType.Initiative_Aktuell)) {
-				Element element = new Element(Xml.KEY_EIGENSCHAFT);
-				element.setAttribute(Xml.KEY_NAME, AttributeType.Initiative_Aktuell.name());
-				element.setAttribute(Xml.KEY_VALUE, "0");
-				if (attributesNode == null)
-					getHeldElement().addContent(element);
-				else
-					attributesNode.addContent(element);
-				this.attributes.put(AttributeType.Initiative_Aktuell, new Attribute(element, this));
+				CustomAttribute ini = new CustomAttribute(this, AttributeType.Initiative_Aktuell);
+				ini.setValue(0);
+				getHeroConfiguration().addAttribute(ini);
+				this.attributes.put(ini.getType(), ini);
 			}
 
 			if (type == AttributeType.fk && !this.attributes.containsKey(AttributeType.fk)) {
@@ -948,6 +1036,7 @@ public class Hero {
 				int basefk = getAttributeValue(AttributeType.Intuition)
 						+ getAttributeValue(AttributeType.Fingerfertigkeit)
 						+ getAttributeValue(AttributeType.Körperkraft);
+
 				basefk = Math.round(basefk / 5.0F);
 				element.setAttribute(Xml.KEY_VALUE, Util.toString(basefk));
 				element.setAttribute(Xml.KEY_MOD, "0");
@@ -1012,214 +1101,74 @@ public class Hero {
 		return attribute;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Map<Position, ArmorAttribute> getArmorAttributes() {
 		if (armorAttributes == null) {
-			armorAttributes = new HashMap<Position, ArmorAttribute>(Position.values().length);
+			armorAttributes = new HashMap[MAXIMUM_SET_NUMBER];
+		}
 
-			@SuppressWarnings("unchecked")
-			List<Element> rsNodes = getHeldElement().getChildren(Xml.KEY_RUESTUNGSSCHUTZ);
-			List<Element> remove = new LinkedList<Element>();
+		if (armorAttributes[activeSet] == null) {
 
 			final List<Position> armorPositions = DSATabApplication.getInstance().getConfiguration()
 					.getArmorPositions();
-			for (Element rsNode : rsNodes) {
-				try {
-					ArmorAttribute rs = new ArmorAttribute(rsNode, this);
 
+			HashMap<Position, ArmorAttribute> map = new HashMap<Position, ArmorAttribute>(armorPositions.size());
+
+			if (getHeroConfiguration().getArmorAttributes(activeSet) != null) {
+				for (ArmorAttribute rs : getHeroConfiguration().getArmorAttributes(activeSet)) {
 					if (armorPositions.contains(rs.getPosition())) {
-						armorAttributes.put(rs.getPosition(), rs);
+						map.put(rs.getPosition(), rs);
 					}
-				} catch (Exception e) {
-					remove.add(rsNode);
-					Debug.warn(e);
 				}
 			}
-
-			for (Element node : remove)
-				getHeldElement().removeContent(node);
 
 			// fill not existing values with 0
 			for (Position pos : armorPositions) {
-
-				ArmorAttribute rs = armorAttributes.get(pos);
+				ArmorAttribute rs = map.get(pos);
 
 				if (rs == null) {
-					Element rsNode = new Element(Xml.KEY_RUESTUNGSSCHUTZ);
-					rsNode.setAttribute(Xml.KEY_NAME, pos.name());
-					rsNode.setAttribute(Xml.KEY_VALUE, Integer.toString(getArmorRs(pos)));
-					getHeldElement().addContent(rsNode);
-					rs = new ArmorAttribute(rsNode, this);
-					armorAttributes.put(pos, rs);
+					rs = new ArmorAttribute(this, pos);
+					rs.setValue(getArmorRs(pos));
+
+					getHeroConfiguration().addArmorAttribute(activeSet, rs);
+					map.put(pos, rs);
 				}
 			}
 
+			armorAttributes[activeSet] = map;
+
 		}
-		return armorAttributes;
+
+		return armorAttributes[activeSet];
 	}
 
 	public Map<Position, WoundAttribute> getWounds() {
 		if (wounds == null) {
-			wounds = new HashMap<Position, WoundAttribute>(5);
 
-			@SuppressWarnings("unchecked")
-			List<Element> rsNodes = getHeldElement().getChildren(Xml.KEY_WUNDE);
+			final List<Position> woundPositions = DSATabApplication.getInstance().getConfiguration()
+					.getWoundPositions();
 
-			List<Element> remove = new LinkedList<Element>();
-			for (Element rsNode : rsNodes) {
-				try {
-					WoundAttribute rs = new WoundAttribute(this, rsNode);
+			wounds = new HashMap<Position, WoundAttribute>(woundPositions.size());
+
+			for (WoundAttribute rs : getHeroConfiguration().getWounds()) {
+				if (woundPositions.contains(rs.getPosition()))
 					wounds.put(rs.getPosition(), rs);
-				} catch (Exception e) {
-					remove.add(rsNode);
-					Debug.warn(e);
-				}
-			}
-
-			for (Element node : remove) {
-				getHeldElement().removeContent(node);
 			}
 
 			// fill not existing values with 0
-			for (Position pos : DSATabApplication.getInstance().getConfiguration().getWoundPositions()) {
+			for (Position pos : woundPositions) {
 
-				WoundAttribute rs = wounds.get(pos);
+				WoundAttribute wound = wounds.get(pos);
 
-				if (rs == null) {
-
-					Element rsNode = new Element(Xml.KEY_WUNDE);
-					rsNode.setAttribute(Xml.KEY_NAME, pos.name());
-					rsNode.setAttribute(Xml.KEY_VALUE, "0");
-					getHeldElement().addContent(rsNode);
-					rs = new WoundAttribute(this, rsNode);
-					wounds.put(pos, rs);
+				if (wound == null) {
+					wound = new WoundAttribute(this, pos);
+					getHeroConfiguration().addWound(wound);
+					wounds.put(pos, wound);
 				}
 			}
 
 		}
 		return wounds;
-	}
-
-	public void setWounds(Map<Position, WoundAttribute> wounds) {
-
-		if (this.wounds != null) {
-			for (WoundAttribute w : this.wounds.values()) {
-				if (w.getValue() > 0)
-					fireModifierRemovedEvent(w);
-			}
-		}
-
-		this.wounds = wounds;
-
-		for (WoundAttribute w : this.wounds.values()) {
-			if (w.getValue() > 0)
-				fireModifierAddedEvent(w);
-		}
-	}
-
-	public void setArmorAttributes(Map<Position, ArmorAttribute> armorAttributes) {
-		this.armorAttributes = armorAttributes;
-	}
-
-	public Integer getGewicht() {
-
-		Element rasse = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_RASSE);
-		if (rasse != null) {
-			Element groesse = rasse.getChild(Xml.KEY_GROESSE);
-			if (groesse != null) {
-				return Util.parseInt(groesse.getAttributeValue(Xml.KEY_GEWICHT));
-			}
-		}
-
-		return null;
-	}
-
-	public Integer getGroesse() {
-
-		Element rasse = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_RASSE);
-		if (rasse != null) {
-			Element groesse = rasse.getChild(Xml.KEY_GROESSE);
-			if (groesse != null) {
-				return Util.parseInt(groesse.getAttributeValue(Xml.KEY_VALUE));
-			}
-		}
-		return null;
-	}
-
-	public Integer getAlter() {
-		Element rasse = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_RASSE);
-		if (rasse != null) {
-			Element aussehen = rasse.getChild(Xml.KEY_AUSSEHEN);
-			if (aussehen != null) {
-				return Util.parseInt(aussehen.getAttributeValue(Xml.KEY_ALTER));
-			}
-		}
-		return null;
-
-	}
-
-	public String getAugenFarbe() {
-		Element rasse = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_RASSE);
-		if (rasse != null) {
-			Element aussehen = rasse.getChild(Xml.KEY_AUSSEHEN);
-			if (aussehen != null) {
-				return aussehen.getAttributeValue(Xml.KEY_EYECOLOR);
-			}
-		}
-		return null;
-	}
-
-	public String getHaarFarbe() {
-		Element rasse = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_RASSE);
-		if (rasse != null) {
-			Element aussehen = rasse.getChild(Xml.KEY_AUSSEHEN);
-			if (aussehen != null) {
-				return aussehen.getAttributeValue(Xml.KEY_HAIRCOLOR);
-			}
-		}
-		return null;
-	}
-
-	public String getAusbildung() {
-
-		Element ausbildungen = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_AUSBILDUNGEN);
-
-		if (ausbildungen != null) {
-			@SuppressWarnings("unchecked")
-			List<Element> ausbildungElements = ausbildungen.getChildren();
-
-			for (Element ausbildung : ausbildungElements) {
-				String value = ausbildung.getAttributeValue(Xml.KEY_STRING);
-				if (!TextUtils.isEmpty(value))
-					return value;
-			}
-		}
-
-		Element ausbildung = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_AUSBILDUNG);
-		if (ausbildung != null) {
-			String value = ausbildung.getAttributeValue(Xml.KEY_STRING);
-			if (!TextUtils.isEmpty(value))
-				return value;
-		}
-
-		Element profession = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_PROFESSION);
-		if (profession != null) {
-			String value = profession.getAttributeValue(Xml.KEY_STRING);
-			if (!TextUtils.isEmpty(value))
-				return value;
-		}
-
-		return null;
-
-	}
-
-	public String getHerkunft() {
-
-		Element rasse = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_RASSE);
-
-		if (rasse != null) {
-			return rasse.getAttributeValue(Xml.KEY_STRING);
-		} else
-			return null;
 	}
 
 	public String getName() {
@@ -1268,11 +1217,11 @@ public class Hero {
 
 		if (oldLeRatioLevel == null || oldLeRatioLevel == 0) {
 			if (newLeRatioLevel > 0)
-				fireModifierAddedEvent(leModifier);
+				fireModifierAddedEvent(leModificator);
 		} else if (oldLeRatioLevel > 0 && newLeRatioLevel == 0)
-			fireModifierRemovedEvent(leModifier);
+			fireModifierRemovedEvent(leModificator);
 		else if (oldLeRatioLevel != newLeRatioLevel)
-			fireModifierChangedEvent(leModifier);
+			fireModifierChangedEvent(leModificator);
 
 		oldLeRatioLevel = newLeRatioLevel;
 
@@ -1290,11 +1239,11 @@ public class Hero {
 
 		if (oldAuRatioLevel == null || oldAuRatioLevel == 0) {
 			if (newAuRatioLevel > 0)
-				fireModifierAddedEvent(auModifier);
+				fireModifierAddedEvent(auModificator);
 		} else if (oldAuRatioLevel > 0 && newAuRatioLevel == 0)
-			fireModifierRemovedEvent(auModifier);
+			fireModifierRemovedEvent(auModificator);
 		else if (oldAuRatioLevel != newAuRatioLevel)
-			fireModifierChangedEvent(auModifier);
+			fireModifierChangedEvent(auModificator);
 
 		oldAuRatioLevel = newAuRatioLevel;
 
@@ -1326,26 +1275,50 @@ public class Hero {
 		return ((double) ke.getValue()) / ke.getReferenceValue();
 	}
 
-	public int getModificator(Probe probe) {
+	public int getModifier(Probe probe) {
+		return getModifier(probe, true, true);
+	}
+
+	public int getModifier(Probe probe, boolean includeBe, boolean includeLeAu) {
+
+		if (includeBe) {
+			if (modifiersInclBeCache.containsKey(probe)) {
+				return modifiersInclBeCache.get(probe);
+			}
+		} else {
+			if (modifiersCache.containsKey(probe)) {
+				return modifiersCache.get(probe);
+			}
+		}
+
 		int modifier = 0;
-		for (Modifier mod : getModificators(probe)) {
+		for (Modifier mod : getModifiers(probe, includeBe, includeLeAu)) {
 			modifier += mod.getModifier();
 		}
 
-		return modifier;
+		if (includeBe)
+			modifiersInclBeCache.put(probe, modifier);
+		else
+			modifiersCache.put(probe, modifier);
 
+		return modifier;
 	}
 
-	public List<Modifier> getModificators(Probe probe) {
+	public List<Modifier> getModifiers(Probe probe, boolean includeBe, boolean includeLeAu) {
 
 		List<Modifier> modifiers = new LinkedList<Modifier>();
 
-		for (Modificator modificator : getModifiers()) {
-			Modifier mod = modificator.getModifier(probe);
+		for (Modificator modificator : getModificators()) {
+			if (!includeLeAu && (modificator == leModificator || modificator == auModificator))
+				continue;
 
-			Debug.verbose("Modificator of " + mod.getTitle() + " is " + mod.getModifier());
-			if (mod.getModifier() != 0) {
-				modifiers.add(mod);
+			Modifier mod = modificator.getModifier(probe);
+			if (mod != null) {
+				// Debug.verbose("Modificator of " + mod.getTitle() + " is " +
+				// mod.getModifier());
+				if (mod.getModifier() != 0) {
+					modifiers.add(mod);
+				}
 			}
 		}
 
@@ -1361,6 +1334,82 @@ public class Hero {
 			}
 		}
 
+		if (probe instanceof MetaTalent) {
+			MetaTalent metaTalent = (MetaTalent) probe;
+
+			switch (metaTalent.getMetaType()) {
+			case PirschAnsitzJagd:
+				EquippedItem huntingWeapon = getHuntingWeapon();
+				if (huntingWeapon != null) {
+
+					if (huntingWeapon.getItemSpecification() instanceof DistanceWeapon) {
+
+						DistanceWeapon distanceWeapon = (DistanceWeapon) huntingWeapon.getItemSpecification();
+
+						int maxDistance = distanceWeapon.getMaxDistance();
+						if (maxDistance <= 20)
+							modifiers.add(new Modifier(-7, "Reichweite der Jagdwaffe unter 20 Schritt", ""));
+						else if (maxDistance <= 50)
+							modifiers.add(new Modifier(-3, "Reichweite der Jagdwaffe unter 50 Schritt", ""));
+					}
+				}
+
+				if (hasFeature(SpecialFeature.MEISTERSCHUETZE))
+					modifiers.add(new Modifier(7, SpecialFeature.MEISTERSCHUETZE, ""));
+				else if (hasFeature(SpecialFeature.SCHARFSCHUETZE))
+					modifiers.add(new Modifier(3, SpecialFeature.SCHARFSCHUETZE, ""));
+
+				break;
+			case Wache:
+
+				// TODO add erschöpfung
+
+				if (hasFeature(SpecialFeature.AUFMERKSAMKEIT))
+					modifiers.add(new Modifier(1, SpecialFeature.AUFMERKSAMKEIT, ""));
+
+				Talent gefahr = getTalent(Talent.GEFAHRENINSTINKT);
+				if (gefahr != null) {
+					modifiers.add(new Modifier(gefahr.getProbeBonus() / 2, "Gefahreninstinkt TaW/2", ""));
+				}
+
+				Advantage ausdauernd = getAdvantage(Advantage.AUSDAUERND);
+				if (ausdauernd != null) {
+					modifiers.add(new Modifier(ausdauernd.getValue() / 3, "Ausdauernd Pkt/3", ""));
+				}
+
+				if (hasFeature(SpecialFeature.DÄMMERNGSSICHT)) {
+					modifiers.add(new Modifier(1, SpecialFeature.DÄMMERNGSSICHT, ""));
+				}
+
+				if (hasFeature(SpecialFeature.NACHTSICHT)) {
+					modifiers.add(new Modifier(3, SpecialFeature.NACHTSICHT, ""));
+				}
+
+				if (hasFeature(SpecialFeature.HERRAUSRAGENDER_SINN)) {
+					modifiers.add(new Modifier(1, SpecialFeature.HERRAUSRAGENDER_SINN, ""));
+				}
+
+				if (hasFeature(SpecialFeature.EINÄUGIG)) {
+					modifiers.add(new Modifier(-2, SpecialFeature.EINÄUGIG, ""));
+				}
+				if (hasFeature(SpecialFeature.EINBILDUNGEN)) {
+					modifiers.add(new Modifier(-2, SpecialFeature.EINBILDUNGEN, ""));
+				}
+				if (hasFeature(SpecialFeature.DUNKELANGST)) {
+					modifiers.add(new Modifier(-3, SpecialFeature.DUNKELANGST, ""));
+				}
+
+				if (hasFeature(SpecialFeature.NACHTBLIND)) {
+					modifiers.add(new Modifier(-3, SpecialFeature.NACHTBLIND, ""));
+				}
+				if (hasFeature(SpecialFeature.UNSTET)) {
+					modifiers.add(new Modifier(-2, SpecialFeature.UNSTET, ""));
+				}
+
+			}
+
+		}
+
 		if (probe instanceof CombatProbe) {
 			CombatProbe combatProbe = (CombatProbe) probe;
 			EquippedItem equippedItem = combatProbe.getEquippedItem();
@@ -1368,6 +1417,13 @@ public class Hero {
 			if (equippedItem != null && equippedItem.getItemSpecification() instanceof Weapon) {
 				Item item = equippedItem.getItem();
 				Weapon weapon = (Weapon) equippedItem.getItemSpecification();
+
+				int kkModifier = weapon.getKKModifier(getModifiedValue(AttributeType.Körperkraft));
+
+				if (kkModifier < 0) {
+					Debug.verbose("Körperkraft liegt unter der Schwelle.");
+					modifiers.add(new Modifier(kkModifier, "Zu geringe Körperkraft", ""));
+				}
 
 				if (combatProbe.isAttack()) {
 
@@ -1518,30 +1574,43 @@ public class Hero {
 
 		}
 
-		int heroBe = getBe(probe);
+		if (includeBe) {
+			int heroBe = getBe(probe);
 
-		if (heroBe != 0) {
-			modifiers.add(new Modifier(-1 * heroBe, "Behinderung " + probe.getBe(), null));
+			if (heroBe != 0) {
+
+				modifiers.add(new Modifier(-1 * heroBe, "Behinderung " + probe.getProbeInfo().getBe(), null));
+			}
 		}
 
 		return modifiers;
 	}
 
-	public int getModificator(AttributeType type) {
-		int modifier = 0;
+	public int getModifier(AttributeType type) {
+		return getModifier(getAttribute(type), true, true);
+	}
 
-		for (Modificator m : getModifiers()) {
-			modifier += m.getModifier(type).getModifier();
-		}
-
-		return modifier;
+	public int getModifier(AttributeType type, boolean includeBe, boolean includeLeAu) {
+		return getModifier(getAttribute(type), includeBe, includeLeAu);
 	}
 
 	public Integer getModifiedValue(AttributeType type) {
+		return getModifiedValue(type, true, true);
+	}
+
+	public Integer getModifiedValue(AttributeType type, boolean includeBe, boolean includeLeAu) {
 		if (getAttributeValue(type) == null)
 			return null;
 
-		return getAttributeValue(type) + getModificator(type);
+		return getAttributeValue(type) + getModifier(type, includeBe, includeLeAu);
+	}
+
+	public Integer getModifiedValue(Probe probe, boolean includeBe) {
+
+		if (probe == null || probe.getValue() == null)
+			return null;
+
+		return probe.getValue() + getModifier(probe, includeBe, true);
 	}
 
 	public Integer getAttributeValue(AttributeType type) {
@@ -1555,23 +1624,44 @@ public class Hero {
 
 	public List<SpecialFeature> getSpecialFeatures() {
 		if (specialFeatures == null) {
-
-			List<Element> sfs = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_SONDERFERTIGKEITEN,
-					Xml.KEY_SONDERFERTIGKEIT);
-
-			specialFeatures = new LinkedList<SpecialFeature>();
-
-			for (Element feat : sfs) {
-				if (feat.getAttributeValue(Xml.KEY_NAME).startsWith(SpecialFeature.LITURGIE_PREFIX)) {
-					// skip;
-				} else {
-					specialFeatures.add(new SpecialFeature(feat));
-				}
-			}
+			fillArtsAndSpecialFeatures();
 		}
 
 		return specialFeatures;
 
+	}
+
+	private void fillArtsAndSpecialFeatures() {
+		List<Element> sf = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_SONDERFERTIGKEITEN,
+				Xml.KEY_SONDERFERTIGKEIT);
+
+		specialFeatures = new LinkedList<SpecialFeature>();
+		arts = new LinkedList<Art>();
+
+		Map<String, ArtInfo> artInfos = XmlParser.readLiturige();
+
+		for (Element feat : sf) {
+
+			String name = feat.getAttributeValue(Xml.KEY_NAME).trim();
+			LiturigeType type = LiturigeType.getTypeOfArt(name);
+			if (type == null) {
+				SpecialFeature specialFeature = new SpecialFeature(feat);
+				boolean add = true;
+				if (specialFeature.getName().startsWith(SpecialFeature.TALENTSPEZIALISIERUNG_PREFIX)) {
+					Talent talent = getTalent(specialFeature.getParameter1());
+					if (talent != null) {
+						talent.setTalentSpezialisierung(specialFeature.getParameter2());
+						add = false;
+					}
+				}
+				if (add) {
+					specialFeatures.add(specialFeature);
+				}
+			} else {
+				arts.add(new Art(this, feat, artInfos));
+			}
+
+		}
 	}
 
 	public List<Advantage> getAdvantages() {
@@ -1590,13 +1680,56 @@ public class Hero {
 
 		for (Element feat : sfs) {
 			Advantage adv = new Advantage(feat);
+			boolean add = true;
+			if (adv.getName().equals(Advantage.BEGABUNG_FUER_TALENT)) {
+				Talent talent = getTalent(adv.getValueAsString());
+				if (talent != null) {
+					talent.setBegabung(true);
+					add = false;
+				}
+			} else if (adv.getName().equals(Advantage.TALENTSCHUB)) {
+				Talent talent = getTalent(adv.getValueAsString());
+				if (talent != null) {
+					talent.setTalentschub(true);
+					add = false;
+				}
+			} else if (adv.getName().equals(Advantage.BEGABUNG_FUER_TALENTGRUPPE)) {
+				try {
+					TalentGroupType groupType = TalentGroupType.valueOf(adv.getValueAsString());
+					TalentGroup talent = getTalentGroups().get(groupType);
+					if (talent != null) {
+						talent.setBegabung(true);
+						add = false;
+					}
+				} catch (Exception e) {
+					Debug.warning("Begabung für [Talentgruppe], unknown talentgroup:" + adv.getValueAsString());
+				}
+			} else if (adv.getName().equals(Advantage.BEGABUNG_FUER_ZAUBER)) {
+				for (Spell spell : getSpells()) {
+					if (spell.getName().equals(adv.getValueAsString())) {
+						spell.setBegabung(true);
+						add = false;
+						break;
+					}
+				}
+			} else if (adv.getName().equals(Advantage.BEGABUNG_FUER_RITUAL)) {
+				for (Art art : getArts()) {
+					if (art.getName().equals(adv.getValueAsString())) {
+						art.setBegabung(true);
+						add = false;
+						break;
+					}
+				}
+			}
 
-			if (Advantage.isNachteil(adv.getName()))
-				disadvantages.add(new Advantage(feat));
-			else if (Advantage.isVorteil(adv.getName()))
-				advantages.add(new Advantage(feat));
-			else {
-				Debug.warning("Not recognised value: " + feat.getAttributeValue(Xml.KEY_NAME));
+			if (add) {
+				if (Advantage.isNachteil(adv.getName()))
+					disadvantages.add(new Advantage(feat));
+				else if (Advantage.isVorteil(adv.getName()))
+					advantages.add(new Advantage(feat));
+				else {
+					Debug.warning("Not recognised value: " + feat.getAttributeValue(Xml.KEY_NAME));
+				}
 			}
 		}
 	}
@@ -1607,6 +1740,49 @@ public class Hero {
 		}
 
 		return disadvantages;
+	}
+
+	public Advantage getAdvantage(String name) {
+		for (Advantage adv : getAdvantages()) {
+			if (adv.getName().equals(name)) {
+				return adv;
+			}
+		}
+		return null;
+	}
+
+	public void addConnection(Connection connection) {
+		getConnections().add(connection);
+		getConnectionsElement().addContent(connection.getElement());
+	}
+
+	public void removeConnection(Connection connection) {
+		getConnections().remove(connection);
+		getConnectionsElement().removeContent(connection.getElement());
+	}
+
+	private Element getConnectionsElement() {
+		Element connectionsElement = getHeldElement().getChild(Xml.KEY_VERBINDUNGEN);
+		if (connectionsElement == null) {
+			connectionsElement = new Element(Xml.KEY_VERBINDUNGEN);
+			getHeldElement().addContent(connectionsElement);
+		}
+		return connectionsElement;
+	}
+
+	public List<Connection> getConnections() {
+		if (connections == null) {
+			List<Element> connectionElements = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_VERBINDUNGEN,
+					Xml.KEY_VERBINDUNG);
+
+			connections = new ArrayList<Connection>(connectionElements.size());
+			for (Element connectionElement : connectionElements) {
+				connections.add(new Connection(connectionElement));
+			}
+
+			Collections.sort(connections, new ConnectionComparator());
+		}
+		return connections;
 	}
 
 	public SpecialFeature getSpecialFeature(String name) {
@@ -1645,71 +1821,81 @@ public class Hero {
 
 	}
 
-	public Event addEvent(EventCategory category, String message, String audioPath) {
-
-		Element element = new Element(Xml.KEY_EREIGNIS);
-		getEventsElement().addContent(element);
-		Event event = new Event(element);
-		event.setCategory(category);
-		event.setComment(message);
-		event.setAudioPath(audioPath);
-		getEvents().add(event);
-		return event;
+	public void addEvent(Event event) {
+		getHeroConfiguration().addEvent(event);
 	}
 
-	public Element getEventsElement() {
+	private Element getEventsElement() {
 		if (ereignisse == null) {
-
 			ereignisse = getHeldElement().getChild(Xml.KEY_EREIGNISSE);
-
-			if (ereignisse == null) {
-				ereignisse = new Element(Xml.KEY_EREIGNISSE);
-				getHeldElement().addContent(ereignisse);
-			}
 		}
 		return ereignisse;
 	}
 
 	public List<Event> getEvents() {
-		if (events == null) {
-			events = new LinkedList<Event>();
+		// load old events from xml if events is empty
+		if (getHeroConfiguration().getEvents().isEmpty()) {
 
-			@SuppressWarnings("unchecked")
-			List<Element> eventElements = getEventsElement().getChildren(Xml.KEY_EREIGNIS);
+			if (getEventsElement() != null) {
+				@SuppressWarnings("unchecked")
+				List<Element> eventElements = getEventsElement().getChildren(Xml.KEY_EREIGNIS);
 
-			for (Element element : eventElements) {
+				for (Element element : eventElements) {
 
-				if (element.getAttribute(Xml.KEY_ABENTEUERPUNKTE_UPPER) != null
-						|| element.getAttribute(Xml.KEY_OBJ) != null)
-					continue;
+					if (element.getAttribute(Xml.KEY_ABENTEUERPUNKTE_UPPER) != null
+							|| element.getAttribute(Xml.KEY_OBJ) != null)
+						continue;
 
-				if (EVENT_NOTE_TEXT.equals(element.getAttributeValue(Xml.KEY_TEXT))) {
-					events.add(new Event(element));
+					if (EVENT_NOTE_TEXT.equals(element.getAttributeValue(Xml.KEY_TEXT))) {
+						getHeroConfiguration().addEvent(new Event(element));
+					}
 				}
 			}
 
+			Collections.sort(getHeroConfiguration().getEvents(), new NotesComparator());
+
 		}
 
-		return events;
+		if (!notizElementFilled) {
+			Element notiz = DomUtil.getChildByTagName(getHeldElement(), Xml.KEY_BASIS, Xml.KEY_NOTIZ);
+
+			if (notiz != null) {
+				Event event = new Event(notiz);
+				getHeroConfiguration().addEvent(event);
+			}
+			notizElementFilled = true;
+		}
+
+		return getHeroConfiguration().getEvents();
 	}
 
+	/**
+	 * @param probe
+	 * @return
+	 */
 	public int getBe(Probe probe) {
 		int heroBe = 0;
 
-		if (probe.getBe() != null) {
+		if (probe.getProbeInfo().getBe() != null) {
 
 			// base hero be
 			heroBe = getAttributeValue(AttributeType.Behinderung);
 
-			Debug.verbose("Proben BE is " + probe.getBe() + ", Hero has a base BE of " + heroBe);
-
-			heroBe = Math.abs(Math.min(0, Util.modifyBe(0, probe.getBe(), heroBe)));
-
-			Debug.verbose("Full BE after modifications is " + heroBe);
+			heroBe = Math.abs(probe.getProbeInfo().getBe(0, heroBe));
 
 			boolean isAttack = false;
 			boolean isDefense = false;
 			boolean halfBe = false;
+			if (probe instanceof Attribute) {
+				Attribute attribute = (Attribute) probe;
+				if (attribute.getType() == AttributeType.at) {
+					halfBe = true;
+					isAttack = true;
+				} else if (attribute.getType() == AttributeType.pa) {
+					halfBe = true;
+					isDefense = true;
+				}
+			}
 
 			if (probe instanceof CombatMeleeAttribute) {
 				CombatMeleeAttribute meleeAttr = (CombatMeleeAttribute) probe;
@@ -1730,13 +1916,10 @@ public class Hero {
 			if (halfBe) {
 				if (getCombatStyle() == CombatStyle.Offensive && isAttack) {
 					heroBe = (int) Math.floor(heroBe / 2.0);
-					Debug.verbose("Offensive Attack Half BE is " + heroBe);
 				} else if (getCombatStyle() == CombatStyle.Defensive && isDefense) {
 					heroBe = (int) Math.floor(heroBe / 2.0);
-					Debug.verbose("Defensive Parade Half BE is " + heroBe);
 				} else {
 					heroBe = (int) Math.ceil(heroBe / 2.0);
-					Debug.verbose("Half BE is " + heroBe);
 				}
 			}
 
@@ -1760,43 +1943,13 @@ public class Hero {
 		return result;
 	}
 
-	public int getGs() {
-		int base = 7;
-
-		int ge = getAttributeValue(AttributeType.Gewandtheit);
-		if (ge >= 16)
-			base += 2;
-		else if (ge >= 11)
-			base += 1;
-
-		if (hasFeature(SpecialFeature.FLINK))
-			base++;
-		if (hasFeature(SpecialFeature.BEHAEBIG))
-			base--;
-		if (hasFeature(SpecialFeature.EINBEINIG))
-			base -= 3;
-		if (hasFeature(SpecialFeature.KLEINWUECHSIG))
-			base -= 1;
-		if (hasFeature(SpecialFeature.LAHM))
-			base -= 1;
-		if (hasFeature(SpecialFeature.ZWERGENWUCHS))
-			base -= 2;
-
-		base -= getAttributeValue(AttributeType.Behinderung);
-
-		base -= getWounds().get(Position.Bauch).getValue();
-		base -= getWounds().get(Position.LowerLeg).getValue();
-
-		return base;
-	}
-
 	public int[] getWundschwelle() {
 		int[] ws = new int[3];
 
 		SharedPreferences preferences = DSATabApplication.getPreferences();
 		int wsBase = 0;
 		int wsMod = 0;
-		if (preferences.getBoolean(DsaPreferenceActivity.KEY_HOUSE_RULES, false)) {
+		if (preferences.getBoolean(DsaPreferenceActivityHC.KEY_HOUSE_RULES, false)) {
 			wsBase = (int) Math.ceil(getAttributeValue(AttributeType.Konstitution) / 3.0f);
 			wsMod = 0;
 
@@ -1844,7 +1997,7 @@ public class Hero {
 			} else {
 				SpecialFeature rs1 = getSpecialFeature(SpecialFeature.RUESTUNGSGEWOEHNUNG_1);
 				if (rs1 != null) {
-					rs1Armor = rs1.getGegenstand();
+					rs1Armor = rs1.getParameter1();
 				}
 			}
 
@@ -1936,6 +2089,11 @@ public class Hero {
 					totalRs += armor.getTotalRs();
 				}
 			}
+
+			Advantage natRs = getAdvantage(Advantage.NATUERLICHER_RUESTUNGSSCHUTZ);
+			if (natRs != null && natRs.getValue() != null)
+				totalRs += natRs.getValue();
+
 			break;
 		}
 		return totalRs;
@@ -1967,6 +2125,11 @@ public class Hero {
 				rs += armor.getRs(pos);
 			}
 		}
+
+		Advantage natRs = getAdvantage(Advantage.NATUERLICHER_RUESTUNGSSCHUTZ);
+		if (natRs != null && natRs.getValue() != null)
+			rs += natRs.getValue();
+
 		return rs;
 	}
 
@@ -2010,16 +2173,6 @@ public class Hero {
 		return items;
 	}
 
-	public static String getChildValue(Element node, String childTagName, String childParamName) {
-		Element child = node.getChild(childTagName);
-
-		if (child != null) {
-			return child.getAttributeValue(childParamName);
-		} else {
-			return null;
-		}
-	}
-
 	public Talent getTalent(String talentName) {
 		if (talentByName == null) {
 			getTalentGroups();
@@ -2028,19 +2181,19 @@ public class Hero {
 		return talentByName.get(talentName);
 	}
 
-	private void replaceTalent(Talent oldTalent, Talent newTalent) {
+	private void replaceCombatTalent(Talent oldTalent, Talent newTalent) {
 
 		TalentGroup tg;
 
 		if (oldTalent != null) {
 			talentByName.remove(oldTalent.getName());
-			tg = talentGroups.get(oldTalent.getType());
+			tg = talentGroups.get(TalentGroupType.Nahkampf);
 			tg.getTalents().remove(oldTalent);
 		}
 
 		if (newTalent != null) {
 			talentByName.put(newTalent.getName(), newTalent);
-			tg = talentGroups.get(newTalent.getType());
+			tg = talentGroups.get(TalentGroupType.Nahkampf);
 			tg.getTalents().add(newTalent);
 		}
 
@@ -2075,7 +2228,6 @@ public class Hero {
 							}
 						}
 						found = true;
-						talent.setType(type);
 						TalentGroup tg = talentGroups.get(type);
 						if (tg != null) {
 							tg.getTalents().add(talent);
@@ -2099,9 +2251,6 @@ public class Hero {
 			List<Element> combatAttributesList = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_KAMPF,
 					Xml.KEY_KAMPFWERTE);
 
-			List<CombatTalentType> missingTypes = new ArrayList<CombatTalentType>(Arrays.asList(CombatTalentType
-					.values()));
-
 			for (Element element : combatAttributesList) {
 
 				String talentName = element.getAttributeValue(Xml.KEY_NAME);
@@ -2111,35 +2260,46 @@ public class Hero {
 					// create a fake element
 					talentElement = new Element(Xml.KEY_TALENT);
 					talentElement.setAttribute(Xml.KEY_NAME, talentName);
-
 				} else {
 					talentElement = talent.getElement();
 				}
 
 				CombatMeleeTalent combatTalent = new CombatMeleeTalent(this, talentElement, element);
-				combatTalent.setType(TalentGroupType.Kampf);
-				replaceTalent(talent, combatTalent);
-
-				missingTypes.remove(combatTalent.getType());
+				replaceCombatTalent(talent, combatTalent);
 
 			}
+
+			// add meta talents
+			List<Talent> metaTalents = new ArrayList<Talent>(MetaTalentType.values().length);
+			TalentGroup metaGroup = new TalentGroup(TalentGroupType.Meta);
+			List<MetaTalentType> metaTalentTypes = new ArrayList<MetaTalent.MetaTalentType>(
+					Arrays.asList(MetaTalentType.values()));
+
+			for (MetaTalent metaTalent : getHeroConfiguration().getMetaTalents()) {
+				metaTalents.add(metaTalent);
+				talentByName.put(metaTalent.getName(), metaTalent);
+				metaTalentTypes.remove(metaTalent.getMetaType());
+			}
+
+			for (MetaTalentType metaType : metaTalentTypes) {
+				MetaTalent metaTalent = new MetaTalent(this, metaType);
+				metaTalents.add(metaTalent);
+				talentByName.put(metaTalent.getName(), metaTalent);
+				getHeroConfiguration().addMetaTalent(metaTalent);
+			}
+			metaGroup.setTalents(metaTalents);
+			talentGroups.put(TalentGroupType.Meta, metaGroup);
 
 		}
 		return talentGroups;
 	}
 
 	public CombatStyle getCombatStyle() {
-		if (getHeldElement().getAttribute(Xml.KEY_COMBATSTYLE) != null)
-			return CombatStyle.valueOf(getHeldElement().getAttributeValue(Xml.KEY_COMBATSTYLE));
-		else
-			return CombatStyle.Offensive;
+		return getHeroConfiguration().getCombatStyle();
 	}
 
 	public void setCombatStyle(CombatStyle style) {
-		if (style != null)
-			getHeldElement().setAttribute(Xml.KEY_COMBATSTYLE, style.name());
-		else
-			getHeldElement().removeAttribute(Xml.KEY_COMBATSTYLE);
+		getHeroConfiguration().setCombatStyle(style);
 	}
 
 	public CombatShieldTalent getCombatShieldTalent() {
@@ -2153,22 +2313,11 @@ public class Hero {
 		return new CombatParadeWeaponTalent(this, paradeItem);
 	}
 
-	public List<Liturgie> getLiturgies() {
-		if (liturgies == null) {
-			List<Element> sf = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_SONDERFERTIGKEITEN,
-					Xml.KEY_SONDERFERTIGKEIT);
-
-			liturgies = new ArrayList<Liturgie>(sf.size());
-
-			for (int i = 0; i < sf.size(); i++) {
-				Element element = (Element) sf.get(i);
-
-				if (element.getAttributeValue(Xml.KEY_NAME).startsWith(SpecialFeature.LITURGIE_PREFIX)) {
-					liturgies.add(new Liturgie(this, element));
-				}
-			}
+	public List<Art> getArts() {
+		if (arts == null) {
+			fillArtsAndSpecialFeatures();
 		}
-		return liturgies;
+		return arts;
 	}
 
 	public List<Spell> getSpells() {
@@ -2178,9 +2327,11 @@ public class Hero {
 
 			spells = new ArrayList<Spell>(spellList.size());
 
+			Map<String, SpellInfo> spellInfos = XmlParser.readSpells();
+
 			for (int i = 0; i < spellList.size(); i++) {
 				Element element = (Element) spellList.get(i);
-				spells.add(new Spell(this, element));
+				spells.add(new Spell(this, element, spellInfos));
 			}
 		}
 
@@ -2219,32 +2370,37 @@ public class Hero {
 
 		if (talent == null) {
 
+			Debug.verbose("Couldn't find " + name + " trying combattalents");
 			// add missing combat talents with a value of base.
 			CombatTalentType talentType = CombatTalentType.byName(name);
+			if (talentType != null) {
+				Element element = new Element(Xml.KEY_KAMPFWERTE);
+				element.setAttribute(Xml.KEY_NAME, name);
 
-			Element element = new Element(Xml.KEY_KAMPFWERTE);
-			element.setAttribute(Xml.KEY_NAME, name);
+				if (talentType.isFk()) {
+					// TODO what shall be do in such a case???
+				} else {
+					Element attacke = new Element(Xml.KEY_ATTACKE);
+					Element parade = new Element(Xml.KEY_PARADE);
 
-			if (talentType.isFk()) {
-				// TODO what shall be do in such a case???
-			} else {
-				Element attacke = new Element(Xml.KEY_ATTACKE);
-				Element parade = new Element(Xml.KEY_PARADE);
+					Element talentElement = new Element(Xml.KEY_TALENT);
+					talentElement.setAttribute(Xml.KEY_NAME, name);
+					// TODO what value do i have for a talent if i do not know
+					// it?
+					talentElement.setAttribute(Xml.KEY_VALUE, "0");
 
-				Element talentElement = new Element(Xml.KEY_TALENT);
-				talentElement.setAttribute(Xml.KEY_NAME, name);
-				talentElement.setAttribute(Xml.KEY_BE, talentType.getBe());
-				// TODO what value do i have for a talent if i do not know it?
-				talentElement.setAttribute(Xml.KEY_VALUE, "0");
+					attacke.setAttribute(Xml.KEY_VALUE, Util.toString(getAttributeValue(AttributeType.at)));
+					parade.setAttribute(Xml.KEY_VALUE, Util.toString(getAttributeValue(AttributeType.pa)));
 
-				attacke.setAttribute(Xml.KEY_VALUE, Util.toString(getAttributeValue(AttributeType.at)));
-				parade.setAttribute(Xml.KEY_VALUE, Util.toString(getAttributeValue(AttributeType.pa)));
+					element.addContent(attacke);
+					element.addContent(parade);
 
-				element.addContent(attacke);
-				element.addContent(parade);
-
-				talent = new CombatMeleeTalent(this, talentElement, element);
-				talent.setType(TalentGroupType.Kampf);
+					talent = new CombatMeleeTalent(this, talentElement, element);
+					if (talent.getProbeInfo().getBe() != null)
+						talentElement.setAttribute(Xml.KEY_BE, talent.getProbeInfo().getBe());
+					else
+						talentElement.setAttribute(Xml.KEY_BE, "");
+				}
 			}
 
 		}
@@ -2255,10 +2411,6 @@ public class Hero {
 			return null;
 	}
 
-	public void setName(String name) {
-		getHeldElement().setAttribute(Xml.KEY_NAME, name);
-	}
-
 	public void removeEvent(Event event) {
 		if (event.getAudioPath() != null) {
 
@@ -2267,8 +2419,7 @@ public class Hero {
 				deletableAudioFiles.add(audioFile);
 		}
 
-		getEvents().remove(event);
-		getEventsElement().removeContent(event.getElement());
+		getHeroConfiguration().removeEvent(event);
 	}
 
 	public void removeEquippedItem(EquippedItem equippedItem) {
@@ -2286,7 +2437,7 @@ public class Hero {
 		getEquippedItems(set).remove(equippedItem);
 
 		if (equippedItem.getItem().hasSpecification(Armor.class) && set == activeSet) {
-			resetArmorAttributes();
+			recalcArmorAttributes();
 			resetBe();
 		}
 
@@ -2305,30 +2456,43 @@ public class Hero {
 			if (oldBe != getArmorBe()) {
 				getAttribute(AttributeType.Behinderung).setValue(getArmorBe());
 			}
-			Debug.verbose("reseting be");
+			Debug.verbose("Reseting be");
 		} else {
 			beCache = null;
 		}
 	}
 
-	public List<Modificator> getModifiers() {
+	public void addModificator(CustomModificator modificator) {
+		getHeroConfiguration().addModificator(modificator);
+		fireModifierAddedEvent(modificator);
+	}
+
+	public void removeModificator(CustomModificator modificator) {
+		getHeroConfiguration().removeModificator(modificator);
+		fireModifierRemovedEvent(modificator);
+	}
+
+	public List<Modificator> getModificators() {
 
 		// init modifiers
-		if (modifiers == null) {
-			modifiers = new LinkedList<Modificator>();
+		if (modificators == null) {
+			modificators = new LinkedList<Modificator>();
 
-			if (getLeRatio() < LeModifier.LEVEL_1)
-				modifiers.add(leModifier);
+			if (getLeRatio() < LeModificator.LEVEL_1)
+				modificators.add(leModificator);
 
-			if (getAuRatio() < AuModifier.LEVEL_1)
-				modifiers.add(auModifier);
+			if (getAuRatio() < AuModificator.LEVEL_1)
+				modificators.add(auModificator);
 
 			for (WoundAttribute attr : getWounds().values()) {
 				if (attr.getValue() > 0)
-					modifiers.add(attr);
+					modificators.add(attr);
 			}
+
+			// add custom modificators
+			modificators.addAll(getHeroConfiguration().getModificators());
 		}
-		return modifiers;
+		return modificators;
 
 	}
 
@@ -2336,13 +2500,9 @@ public class Hero {
 		armorAttributes = null;
 	}
 
-	public void resetArmorAttributes() {
+	public void recalcArmorAttributes() {
 		for (ArmorAttribute a : getArmorAttributes().values()) {
-			int newArmor = getArmorRs(a.getPosition());
-			if (newArmor != a.getValue()) {
-				a.setValue(newArmor);
-				fireValueChangedEvent(a);
-			}
+			a.recalcValue();
 		}
 	}
 
@@ -2352,37 +2512,30 @@ public class Hero {
 		public void onEquippedItemAdded(EquippedItem item);
 	}
 
-	public TabConfiguration getTabConfiguration() {
+	public HeroConfiguration getHeroConfiguration() {
+		return configuration;
+	}
 
-		if (tabConfiguration == null) {
-			String tabConfig = getHeldElement().getAttributeValue(Xml.TAB_CONFIG);
-			if (tabConfig != null) {
-				try {
-					JSONObject jsonObject = new JSONObject(tabConfig);
-					tabConfiguration = new TabConfiguration(jsonObject);
-				} catch (JSONException e) {
-					Debug.error(e);
-					tabConfiguration = null;
-				} catch (ClassNotFoundException e) {
-					Debug.error(e);
-					tabConfiguration = null;
-				}
-			}
-
-			if (tabConfiguration == null) {
-				tabConfiguration = DSATabApplication.getInstance().getConfiguration().getDefaultTabConfiguration();
+	/**
+	 * 
+	 */
+	public void onPreHeroSaved() {
+		Debug.verbose("Preparing hero to be saved. Populating data to XML.");
+		if (attributes != null) {
+			for (Attribute attribute : attributes.values()) {
+				attribute.populateXml();
 			}
 		}
 
-		return tabConfiguration;
-	}
-
-	public void storeTabConfiguration(TabConfiguration tabConfiguration) {
-		try {
-			getHeldElement().setAttribute(Xml.TAB_CONFIG, tabConfiguration.toJSONObject().toString());
-		} catch (JSONException e) {
-			Debug.error(e);
-			getHeldElement().removeAttribute(Xml.TAB_CONFIG);
+		if (talentByName != null) {
+			for (Talent talent : talentByName.values()) {
+				talent.populateXml();
+			}
+		}
+		if (spells != null) {
+			for (Spell spell : spells) {
+				spell.populateXml();
+			}
 		}
 	}
 

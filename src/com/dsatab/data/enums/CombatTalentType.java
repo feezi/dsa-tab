@@ -36,17 +36,8 @@ public enum CombatTalentType {
 			this.name = name;
 	}
 
-	public String getBe() {
-		if (be != null) {
-			if (be < 0)
-				return "BE" + be;
-			else if (be > 0)
-				return "BE+" + be;
-			else
-				return "BE";
-		} else {
-			return null;
-		}
+	public Integer getBe() {
+		return be;
 	}
 
 	public boolean isFk() {

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<PreferenceCategory android:title="Info">                        
+		<Preference
+				android:icon="@drawable/ic_menu_love"
+                android:title="Spenden"
+                android:summary="Hier gelangst du direkt zur Paypal Spendenseite"                
+                android:key="donate" />
+                
+        <Preference
+        android:icon="@drawable/ic_menu_barcode"
+                android:title="Credits, Copyright"
+                android:summary="Hinweise zu verwendeten Inhalten, Copyright Informationen"                
+                android:key="credits" />
+        
+        <Preference
+        android:icon="@drawable/ic_menu_info_details"
+                android:title="Version Infos"
+                android:summary="Hinweise zu den Veränderungen der aktuellen Version"                
+                android:key="infos" />
+                
+                <Preference
+                android:icon="@drawable/ic_menu_light"
+                android:title="Tip des Tages anzeigen"
+                android:summary="Nützliche Tips über Features, die du vielleicht bisher übersehen hast."                
+                android:key="tipToday" />
+                
+        </PreferenceCategory>
+        
+        
+        
+</PreferenceScreen>

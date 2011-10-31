@@ -57,6 +57,7 @@ public class CellLayout extends ViewGroup {
 
 	private RectF mDragRect = new RectF();
 
+	private Drawable drawable;
 	private boolean mDirtyTag;
 	private boolean mLastDownOnOccupiedCell = false;
 
@@ -81,6 +82,8 @@ public class CellLayout extends ViewGroup {
 
 		mCellPadding = getResources().getDimensionPixelSize(R.dimen.workspace_cell_padding);
 
+		drawable = getResources().getDrawable(R.drawable.border_patch);
+
 		mShortAxisCells = 4;
 		mLongAxisCells = 4;
 
@@ -98,8 +101,6 @@ public class CellLayout extends ViewGroup {
 
 	@Override
 	public void dispatchDraw(Canvas canvas) {
-
-		Drawable drawable = getResources().getDrawable(R.drawable.border_patch);
 		Rect bounds = new Rect();
 
 		int cellsX = mLongAxisCells, cellsY = mShortAxisCells;
@@ -513,9 +514,11 @@ public class CellLayout extends ViewGroup {
 		int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
 		int heightSpecSize = MeasureSpec.getSize(heightMeasureSpec);
 
-		if (widthSpecMode == MeasureSpec.UNSPECIFIED || heightSpecMode == MeasureSpec.UNSPECIFIED) {
-			throw new RuntimeException("CellLayout cannot have UNSPECIFIED dimensions");
-		}
+		// if (widthSpecMode == MeasureSpec.UNSPECIFIED || heightSpecMode ==
+		// MeasureSpec.UNSPECIFIED) {
+		// throw new
+		// RuntimeException("CellLayout cannot have UNSPECIFIED dimensions");
+		// }
 
 		final int shortAxisCells = mShortAxisCells;
 		final int longAxisCells = mLongAxisCells;

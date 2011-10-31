@@ -7,8 +7,8 @@ import org.jdom.Element;
 
 import com.dsatab.R;
 import com.dsatab.common.Util;
-import com.dsatab.data.Hero;
 import com.dsatab.data.enums.Position;
+import com.dsatab.xml.DomUtil;
 import com.dsatab.xml.Xml;
 
 public class Armor extends ItemSpecification {
@@ -153,12 +153,12 @@ public class Armor extends ItemSpecification {
 
 		if (ruestung != null) {
 
-			String be = Hero.getChildValue(ruestung, Xml.KEY_GESAMT_BE, Xml.KEY_VALUE);
+			String be = DomUtil.getChildValue(ruestung, Xml.KEY_GESAMT_BE, Xml.KEY_VALUE);
 			if (be != null) {
 				setBe(Util.parseFloat(be));
 			}
 			for (Position pos : Position.values()) {
-				String rs = Hero.getChildValue(ruestung, pos.name().toLowerCase(), Xml.KEY_VALUE);
+				String rs = DomUtil.getChildValue(ruestung, pos.name().toLowerCase(), Xml.KEY_VALUE);
 				if (rs != null) {
 					setRs(pos, Util.parseInt(rs));
 				}

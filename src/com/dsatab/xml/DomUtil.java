@@ -40,6 +40,16 @@ public class DomUtil {
 		return parent.getChild(tagName);
 	}
 
+	public static String getChildValue(Element node, String childTagName, String childParamName) {
+		Element child = node.getChild(childTagName);
+
+		if (child != null) {
+			return child.getAttributeValue(childParamName);
+		} else {
+			return null;
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	public static List<Element> getChildrenByTagName(Element parent, String subParentTagName, String tagName) {
 

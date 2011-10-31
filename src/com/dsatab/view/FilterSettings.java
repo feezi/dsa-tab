@@ -16,76 +16,13 @@
  */
 package com.dsatab.view;
 
-import com.dsatab.data.Markable;
-
 /**
- * 
+ * @author Ganymede
  * 
  */
-public class FilterSettings {
+public interface FilterSettings {
 
-	private boolean showNormal, showFavorite, showUnused;
-
-	/**
-	 * Basic constructor
-	 */
-	public FilterSettings() {
-
+	public enum FilterType {
+		Talent, Spell, Art, Fight
 	}
-
-	public FilterSettings(boolean fav, boolean normal, boolean unused) {
-		this.showFavorite = fav;
-		this.showNormal = normal;
-		this.showUnused = unused;
-	}
-
-	public boolean isShowNormal() {
-		return showNormal;
-	}
-
-	public void setShowNormal(boolean showNormal) {
-		this.showNormal = showNormal;
-	}
-
-	public boolean isShowFavorite() {
-		return showFavorite;
-	}
-
-	public void setShowFavorite(boolean showFavorite) {
-		this.showFavorite = showFavorite;
-	}
-
-	public boolean isShowUnused() {
-		return showUnused;
-	}
-
-	public void setShowUnused(boolean showUnused) {
-		this.showUnused = showUnused;
-	}
-
-	public boolean equals(boolean showFavorite, boolean showNormal, boolean showUnused) {
-		return this.showFavorite == showFavorite && this.showNormal == showNormal && this.showUnused == showUnused;
-	}
-
-	public boolean isAllVisible() {
-		return showFavorite && showNormal && showUnused;
-	}
-
-	public boolean isVisible(Markable mark) {
-		return (showFavorite && mark.isFavorite()) || (showUnused && mark.isUnused())
-				|| (showNormal && !mark.isFavorite() && !mark.isUnused());
-	}
-
-	/**
-	 * @param checked
-	 * @param checked2
-	 * @param checked3
-	 */
-	public void set(boolean fav, boolean normal, boolean unused) {
-		this.showFavorite = fav;
-		this.showNormal = normal;
-		this.showUnused = unused;
-
-	}
-
 }

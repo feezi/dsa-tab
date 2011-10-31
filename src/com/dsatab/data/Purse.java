@@ -102,6 +102,10 @@ public class Purse {
 			PurseUnit w = PurseUnit.getByXmlName(m.getAttributeValue(Xml.KEY_NAME));
 			coins.put(w, m);
 		}
+
+		String active = element.getAttributeValue(Xml.KEY_ACTIVE);
+		if (active != null)
+			activeCurrency = Currency.valueOf(active);
 	}
 
 	public Currency getActiveCurrency() {
@@ -110,6 +114,7 @@ public class Purse {
 
 	public void setActiveCurrency(Currency activeCurrency) {
 		this.activeCurrency = activeCurrency;
+		element.setAttribute(Xml.KEY_ACTIVE, activeCurrency.name());
 	}
 
 	public void setCoins(PurseUnit w, int value) {

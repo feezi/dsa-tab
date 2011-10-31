@@ -30,9 +30,8 @@ public class NotesComparator implements Comparator<Event> {
 	 */
 	@Override
 	public int compare(Event object1, Event object2) {
-		int compare1 = object1.getType().compareTo(object2.getType());
-
-		int compare2 = object1.getTime().compareTo(object2.getTime());
+		int compare1 = object1.getCategory().compareTo(object2.getCategory());
+		int compare2 = (int) (object1.getTime() - object2.getTime());
 
 		return compare1 * 10000 + compare2;
 	}

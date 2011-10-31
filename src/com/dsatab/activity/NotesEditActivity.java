@@ -18,12 +18,11 @@ package com.dsatab.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 
 import com.dsatab.R;
 import com.dsatab.fragment.NotesEditFragment.OnNotesEditListener;
 
-public class NotesEditActivity extends FragmentActivity implements OnNotesEditListener {
+public class NotesEditActivity extends BaseFragmentActivity implements OnNotesEditListener {
 
 	/*
 	 * (non-Javadoc)

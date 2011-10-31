@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout android:layout_width="fill_parent"
-	android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
-	android:alwaysDrawnWithCache="false" android:padding="5dip"
+	android:layout_height="wrap_content" xmlns:android="http://schemas.android.com/apk/res/android"
+	android:padding="5dip"
 	android:id="@+id/popup_edit_layout">
 
 	<include android:layout_height="wrap_content" layout="@layout/item_listitem"
@@ -28,12 +28,13 @@
 		android:layout_toRightOf="@+id/evade_enemy_text"
 		android:layout_alignLeft="@+id/evade_distance" android:id="@+id/evade_enemy"
 		android:entries="@array/evadeEnemy"></Spinner>
-	<Button android:layout_width="wrap_content"
-		android:layout_toRightOf="@+id/evade_enemy_text"
-		android:layout_height="wrap_content" android:id="@+id/evade_others"
-		android:layout_alignRight="@+id/evade_distance" android:text="Sonstige Modifikatoren"
-		android:layout_alignParentLeft="true" android:layout_below="@+id/evade_enemy"></Button>
 
-
+	<ListView
+	    android:id="@+id/evade_others"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentLeft="true"
+	    android:layout_below="@+id/evade_enemy_text" android:entries="@array/evadeModificationStrings">
+	</ListView>
 
 </RelativeLayout>

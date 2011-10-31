@@ -1,0 +1,15 @@
+<div>
+<h2>Version 2.5</h2>
+<h4>Features</h4>
+<ul>
+<li>Vorteil: "Natürlicher Rüstungsschutz" wird nun bei Berechnungen berücksichtigt</li>
+<li>Verbindungen aus der Helden-Software werden nun in den Notizen als Bekanntschaft übernommen</li>
+<li>Notizen aus der Helden-Software werden nun übernommen.</li>
+<li>Es kann nun eingestellt werden ob Proben automatisch gewürfel werden sollen, oder manuell nachdem die Modifikatoren angepasst wurden.</li>
+</ul>
+<h4>Bug Fixes</h4>
+<ul>
+<li>Absturz beim Öffnen des Kartentabs</li>
+</ul>
+
+</div>

@@ -7,7 +7,12 @@
     <string name="label_ausbildung">Ausbildung</string>
     <string name="label_gewicht">Gewicht</string>
     <string name="label_groesse">Größe</string>
-    <string name="label_herkunft">Herkunft</string>
+    <string name="label_rasse">Rasse</string>
+    <string name="label_kultur">Kultur</string>
+    <string name="label_aussehen">Aussehen</string>
+    <string name="label_familie">Familie</string>
+    <string name="label_stand">Stand</string>
+    <string name="label_titel">Titel</string>
     
     <string name="label_ws">WS</string>
     <string name="label_ini">Ini</string>
@@ -44,8 +49,8 @@
     
     <string name="app_name">DsaTab</string>
     
-    <string name="offensive">Offensive</string>
-    <string name="defensive">Defensive</string>
+    <string name="offensive">Offensiver Kampfstil</string>
+    <string name="defensive">Defensiver Kampfstil</string>
     
     <item type="id" name="TAG_KEY_VALUE" />
     <item type="id" name="TAG_KEY_PROBE" />
@@ -54,8 +59,10 @@
     
 <string name="menu_unassign_item">Zuweisung aufheben</string>
 <string name="menu_delete_item">Eintrag löschen</string>
+<string name="menu_assign_hunting_weapon">Als Jagdwaffe verwenden</string>
 <string name="menu_sort_items">Einträge sortieren</string>
 <string name="menu_select_version">Variante auswählen</string>
+<string name="menu_select_talent">Talent auswählen</string>
 <string name="menu_reset_values">Werte zurücksetzen</string>
 <string name="menu_equipment_set">Ausrüstungsset %s</string>
 <string name="advantages">Vorteile</string>
@@ -70,49 +77,38 @@
 <string name="recording_message">Aufnahme läuft...</string>
 <string name="label_save">Speichern</string>
 <string name="settings">Einstellungen</string>
+
 <string name="menu_view_item">Eintrag betrachten</string>
-<string name="menu_show_hide_comments">Kommentare ein-/ausblenden</string>
+<string name="menu_show_comments">Kommentare einblenden</string>
+<string name="menu_hide_comments">Kommentare ausblenden</string>
 
-<string name="title_credits">Credits</string>
-<string name="credits">
-<![CDATA[
-
-<p>Copyright (C) 2010 Gandulf Kohlweiss</p>
-<p style="text-align:justify">
-This program is free software; you can redistribute it and/or modify it under the terms
-of the GNU General Public License as published by the Free Software Foundation;
-either version 3 of the License, or (at your option) any later version.</p>
-<p style="text-align:justify">
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-See the GNU General Public License for more details.</p>
-<p style="text-align:justify">
-You should have received a copy of the GNU General Public License along with this program;
-if not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.</p>
-
-<p style="text-align:justify">Source Code of DsaTab is available here: <a href="http://code.google.com/p/dsa-tab/">Source Download</a></p>
-
-<p>Contributions</p>
- 
-<ul>
-<li>Waffen, Tab Icons von verschiedenen K&uuml;nstlern f&uuml;r <a href="http://www.wesnoth.org">www.wesnoth.org</a></li>
-<li>Wunden Icon von Everaldo Coelho <a href="http://www.everaldo.com/"> www.everaldo.com</a></li>
-<li>Würfelsounds aufgenommen von Mike Koenig (Ta-da, Shake and Dice) und Joe Lamb (Sad Trombone) <a href="http://soundbible.com/"> www.soundbible.com </a>
-</ul>
-
-Extern herunterladbarer Inhalt:
-<ul>
-<li>Bilder aus "Lanze, Helm und Federvieh" <a href="http://www.fuldigors-hoehle.de/">Fuldigors H&ouml;hle</a></li>
-<li>Portraits aus dem Spiel "Battle for Wesnoth" - Copyright <a href="http://www.wesnoth.org">www.wesnoth.org</a></li>
-</ul>
-
-<h3>Copyright Informationen</h3>
-
-<p style="text-align:justify">[Benutzte Begriffe, also etwa Das Schwarze Auge, Aventurien, Myranor, Armalion ...] sind eingetragene Warenzeichen von Fantasy Productions GmbH, Erkrath. Copyright by Fantasy Productions GmbH. Diese Website enth&auml;lt nichtoffizielle Informationen zum Rollenspiel "Das Schwarze Auge" und zur Welt "Aventurien" [bzw. "Myranor"]. Diese Informationen k&ouml;nnen im Widerspruch zu offiziell publizierten Texten stehen; bei Fragen zu dieser Seite wendet Euch bitte an gandulf.k et gmail.com</p> 
-]]>
+<string name="message_spell_empty">
+"Keine Zaubersprüche gefunden."\n\n
+"Um diesen Tab zu entfernen öffne sein <b>Kontextmenü</b>\n und wähle den Menüpunkt <b>Tab entfernen</b> aus."
+</string>
+<string name="message_art_empty">
+"Keine Künste gefunden."\n\n
+"Um diesen Tab zu entfernen öffne sein <b>Kontextmenü</b>\n und wähle den Menüpunkt <b>Tab entfernen</b> aus."
+</string>
+<string name="message_documents_empty">
+"Keine Dokumente gefunden."\n\n
+"Kopiere sie auf deine SD-Karte unter \""<b>%1$s</b>"\"."
+</string>
+<string name="message_map_empty">
+"Kein Kartenmaterial gefunden."\n\n
+"Scan deine Karten ein und kopiere sie auf deine SD-Karte unter \""<b>%1$s</b>"\"."\n
+"Oder lade dir unter <b>Einstellungen > Portaits, Bilder, etc herunterladen</b> das offiziele Kartenpaket herunter."
+</string> 
+<string name="message_heroes_empty">
+"Es wurden keine Helden-Dateien gefunden."\n\n
+"Stell sicher, dass sich auf der SD-Karte unter \""<b>%1$s</b>"\"\n die als XML-Datei exportierten Helden der Helden-Software befinden."
 </string>
 
-<string name="lite_title">DsaTab Donationware</string>
+<string name="search_hint">Suchen</string>
+
+<string name="title_credits">Credits</string>
+
+<string name="lite_title">DsaTab</string>
 <string name="lite_info" >
 <![CDATA[
 <p style="text-align:justify">DsaTab ist kostenlos, du kannst jederzeit in den Einstellungen zur Vollversion wechseln. Mit der Lite Version kannst du dir die Wert deines Helden ansehen und Proben ohne Modifikatoren w&uuml;rfeln.</p>
@@ -125,25 +121,12 @@ Extern herunterladbarer Inhalt:
 ]]>
 </string>
 
-
-<string name="lite_feature_teaser_title">Willst du mehr?</string>
-<string name="lite_feature_teaser">
-<![CDATA[
-<p style="text-align:justify">%1$s</p>
-
-<p style="text-align:justify">Falls du mich bei der Entwicklung von DsaTab unterstützen willst, lass mir doch eine kleine Spende via Paypal zukommen. Ich verspreche dir, dass sie nur für Motivations-fördernde Maßnahmen verwendet wird (Kaffee, Bier, ....).</p>
-
-<div align="center">
-<a href="%2$s">
-<img src="file:///android_asset/beer.png" alt="Donate" border="0"/>
-</a>
-</div> 
-]]>
-</string>
-
 <string name="news_title">Informationen</string>
 
 <string name="tip_0_title">Tabs anpassen</string>
 <string name="tip_1_title">Varianten auswählen</string>
 <string name="tip_2_title">Zusätzliche Probenzuschläge</string>
+<string name="tip_3_title">Zusätzliche Modifikatoren</string>
+<string name="tip_4_title">Initiative verwalten</string>
+
 </resources>

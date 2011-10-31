@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>	
 
-	<integer name="dices_font_size">15</integer>
+	<!--  margin of the tab pages -->
+	<dimen name="page_margin">2.5dp</dimen>
 
-	<dimen name="portrait_height">100dp</dimen>
+	<integer name="dices_font_size">15</integer>
+	
+	<integer name="fight_wheel_items">3</integer>
 	
 	<dimen name="portrait_height_small">60dp</dimen>
 	<dimen name="portrait_width_small">60dp</dimen>
@@ -11,10 +14,7 @@
 	<dimen name="icon_button_size">50dp</dimen>
 	
 	<dimen name="tab_size">65dp</dimen>	
-	<dimen name="tab_icon_size">50dp</dimen>
-	<dimen name="tab_icon_padding">5dp</dimen>
-	
-	<dimen name="dice_slider_height">260dp</dimen>
+	<dimen name="tab_icon_size">50dp</dimen>	
 
 	<dimen name="dice_size">70dp</dimen>	
 	
@@ -25,9 +25,9 @@
 	
 	<dimen name="text_value_width">40dp</dimen>
 	
-	<dimen name="wound_icon_size">30dp</dimen>	
-	<dimen name="rs_icon_size">20dp</dimen>
-	<dimen name="rs_icon_text_size">12sp</dimen>
+	<dimen name="wound_icon_size">25dp</dimen>	
+	<dimen name="rs_icon_size">30dp</dimen>
+	<dimen name="rs_icon_text_size">11sp</dimen>
 	
 	<dimen name="gallery_thumb_width">100dp</dimen>
 	<dimen name="gallery_thumb_height">150dp</dimen>
@@ -37,4 +37,6 @@
 	<dimen name="workspace_cell_width">75dip</dimen>
     <dimen name="workspace_cell_height">95dip</dimen>
     <dimen name="workspace_cell_padding">5dip</dimen>
+    
+    <dimen name="expandable_icon_padding">10dp</dimen>
 </resources>

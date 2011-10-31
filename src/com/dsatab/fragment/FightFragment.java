@@ -18,8 +18,13 @@ package com.dsatab.fragment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import kankan.wheel.widget.OnWheelChangedListener;
+import kankan.wheel.widget.WheelView;
+import kankan.wheel.widget.adapters.NumericWheelAdapter;
 import yuku.iconcontextmenu.IconContextMenu;
+import yuku.iconcontextmenu.IconContextMenu.IconContextMenuInfo;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -29,7 +34,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.drawable.LevelListDrawable;
 import android.os.Bundle;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,20 +44,26 @@ import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.activity.BaseMainActivity;
 import com.dsatab.activity.ItemChooserActivity;
+import com.dsatab.activity.MainActivity;
+import com.dsatab.activity.ModificatorEditActivity;
 import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.common.Util;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.CombatProbe;
+import com.dsatab.data.CombatTalent;
+import com.dsatab.data.CustomModificator;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.items.Armor;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
@@ -66,28 +76,33 @@ import com.dsatab.data.modifier.Modificator;
 import com.dsatab.view.ArcheryChooserDialog;
 import com.dsatab.view.EquippedItemChooserDialog;
 import com.dsatab.view.EvadeChooserDialog;
+import com.dsatab.view.FightFilterSettings;
+import com.dsatab.view.FilterDialog;
+import com.dsatab.view.FilterSettings;
+import com.dsatab.view.FilterSettings.FilterType;
 import com.gandulf.guilib.util.Debug;
-import com.gandulf.guilib.view.NumberPicker;
-import com.gandulf.guilib.view.OnViewChangedListener;
 
-public class FightFragment extends BaseFragment implements OnLongClickListener, OnClickListener {
+public class FightFragment extends BaseFragment implements OnLongClickListener, OnClickListener,
+		OnCheckedChangeListener {
 
 	private static final int CONTEXTMENU_SORT_EQUIPPED_ITEM = 5;
 	private static final int CONTEXTMENU_ASSIGN_SECONDARY = 6;
 	private static final int CONTEXTMENU_ASSIGN_PRIMARY = 7;
 	private static final int CONTEXTMENU_UNASSIGN = 8;
+	private static final int CONTEXTMENU_ASSIGN_HUNTING = 9;
 	private static final int CONTEXTMENU_VIEWEQUIPPEDITEM = 13;
 	private static final int CONTEXTMENU_SELECT_VERSION = 14;
+	private static final int CONTEXTMENU_SELECT_TALENT = 15;
 
 	private static final String KEY_PICKER_TYPE = "pickerType";
-	private static final String PREF_KEY_SHOW_ARMOR = "show_armor";
-	private static final String PREF_KEY_SHOW_MODIFIER = "show_modifier";
-	private static final String PREF_KEY_SHOW_EVADE = "show_evade";
 
 	private boolean fightItemsOdd = false;
 
-	private NumberPicker fightNumberPicker;
+	private WheelView fightNumberPicker;
+	private NumericWheelAdapter fightNumberAdapter;
 	private LinearLayout fightLpLayout, fightItems, fightModifiers;
+
+	private FightFilterSettings filterSettings;
 
 	class TargetListener implements View.OnClickListener {
 
@@ -118,23 +133,47 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-		if (requestCode == BaseMainActivity.ACTION_PREFERENCES) {
+		if (requestCode == MainActivity.ACTION_PREFERENCES) {
 			fillFightItemDescriptions();
+		} else if (requestCode == MainActivity.ACTION_ADD_MODIFICATOR) {
+
+			if (resultCode == Activity.RESULT_OK) {
+
+				CustomModificator modificator = new CustomModificator(getHero());
+				modificator.setModificatorName(data.getStringExtra(ModificatorEditActivity.INTENT_NAME));
+				modificator.setRules(data.getStringExtra(ModificatorEditActivity.INTENT_RULES));
+				modificator.setComment(data.getStringExtra(ModificatorEditActivity.INTENT_COMMENT));
+				modificator.setActive(data.getBooleanExtra(ModificatorEditActivity.INTENT_ACTIVE, true));
+
+				getHero().addModificator(modificator);
+
+				fillFightModifierDescriptions();
+			}
+		} else if (requestCode == MainActivity.ACTION_EDIT_MODIFICATOR) {
+			if (resultCode == Activity.RESULT_OK) {
+
+				UUID id = (UUID) data.getSerializableExtra(ModificatorEditActivity.INTENT_ID);
+
+				for (Modificator modificator : getHero().getModificators()) {
+					if (modificator instanceof CustomModificator) {
+						CustomModificator customModificator = (CustomModificator) modificator;
+						if (customModificator.getId().equals(id)) {
+							customModificator.setModificatorName(data
+									.getStringExtra(ModificatorEditActivity.INTENT_NAME));
+							customModificator.setRules(data.getStringExtra(ModificatorEditActivity.INTENT_RULES));
+							customModificator.setActive(data.getBooleanExtra(ModificatorEditActivity.INTENT_ACTIVE,
+									true));
+							customModificator.setComment(data.getStringExtra(ModificatorEditActivity.INTENT_COMMENT));
+
+							fillFightModifierDescription(customModificator);
+						}
+					}
+				}
+
+			}
 		}
 
 		super.onActivityResult(requestCode, resultCode, data);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		setHasOptionsMenu(true);
 	}
 
 	/*
@@ -145,9 +184,18 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	 * .Menu, android.view.View, android.view.ContextMenu.ContextMenuInfo)
 	 */
 	@Override
-	public Object onCreateIconContextMenu(Menu menu, View v, ContextMenuInfo menuInfo) {
+	public Object onCreateIconContextMenu(Menu menu, View v, IconContextMenuInfo menuInfo) {
 		if (v.getTag() instanceof EquippedItem) {
+
 			EquippedItem equippedItem = (EquippedItem) v.getTag();
+
+			menuInfo.setTitle(equippedItem.getItemName());
+
+			if (equippedItem.getItem().hasImage()) {
+				menu.add(0, CONTEXTMENU_VIEWEQUIPPEDITEM, 0, getString(R.string.menu_view_item)).setIcon(
+						R.drawable.ic_menu_view);
+			}
+
 			if (equippedItem.getItem().hasSpecification(Shield.class)) {
 				menu.add(0, CONTEXTMENU_ASSIGN_PRIMARY, 0, getString(R.string.menu_assign_main_weapon)).setIcon(
 						R.drawable.ic_menu_share);
@@ -160,6 +208,12 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 				}
 			}
 
+			if (equippedItem.getItem().hasSpecification(DistanceWeapon.class)) {
+				menu.add(0, CONTEXTMENU_ASSIGN_HUNTING, 0, getString(R.string.menu_assign_hunting_weapon)).setIcon(
+						R.drawable.ic_menu_star);
+
+			}
+
 			if (equippedItem.getSecondaryItem() != null) {
 				menu.add(0, CONTEXTMENU_UNASSIGN, 1, getString(R.string.menu_unassign_item)).setIcon(
 						R.drawable.ic_menu_revert);
@@ -170,7 +224,27 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 						R.drawable.ic_menu_more);
 			}
 
+			if (equippedItem.getItemSpecification() instanceof Weapon) {
+				Weapon weapon = (Weapon) equippedItem.getItemSpecification();
+				if (weapon.getCombatTalentTypes().size() > 1) {
+					menu.add(0, CONTEXTMENU_SELECT_TALENT, 3, getString(R.string.menu_select_talent)).setIcon(
+							R.drawable.ic_menu_more);
+				}
+			} else if (equippedItem.getItemSpecification() instanceof Shield) {
+				Shield shield = (Shield) equippedItem.getItemSpecification();
+				if (shield.getCombatTalentTypes().size() > 1) {
+					menu.add(0, CONTEXTMENU_SELECT_TALENT, 3, getString(R.string.menu_select_talent)).setIcon(
+							R.drawable.ic_menu_more);
+				}
+			}
 			return equippedItem;
+		} else if (v.getTag() instanceof CustomModificator) {
+			CustomModificator modificator = (CustomModificator) v.getTag();
+
+			MenuInflater menuInflater = getActivity().getMenuInflater();
+			menuInflater.inflate(R.menu.modifikator_menu, menu);
+			return modificator;
+
 		} else {
 			return super.onCreateIconContextMenu(menu, v, menuInfo);
 		}
@@ -195,76 +269,32 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * android.support.v4.app.Fragment#onOptionsItemSelected(android.view.MenuItem
-	 * )
+	 * @see com.dsatab.fragment.BaseFragment#onFilterChanged(com.dsatab.view.
+	 * FilterSettings.FilterType, com.dsatab.view.FilterSettings)
 	 */
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.option_filter_fight) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+	public void onFilterChanged(FilterType type, FilterSettings settings) {
+		if (type == FilterType.Fight && settings instanceof FightFilterSettings) {
 
-			builder.setTitle("Kampfübersicht");
-			builder.setIcon(android.R.drawable.ic_menu_view);
-			View content = LayoutInflater.from(getActivity()).inflate(R.layout.popup_filter_fight, null);
+			FightFilterSettings newSettings = (FightFilterSettings) settings;
+			if (filterSettings.equals(newSettings))
+				return;
 
-			final CheckBox armor = (CheckBox) content.findViewById(R.id.cb_show_armor);
-			final CheckBox modifier = (CheckBox) content.findViewById(R.id.cb_show_modifier);
-			final CheckBox evade = (CheckBox) content.findViewById(R.id.cb_show_evade);
+			if (filterSettings.isShowArmor() != newSettings.isShowArmor()) {
+				filterSettings.setShowArmor(newSettings.isShowArmor());
+				fillFightItemDescriptions();
+			}
 
-			SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
+			if (filterSettings.isShowModifier() != newSettings.isShowModifier()) {
+				filterSettings.setShowModifier(newSettings.isShowModifier());
+				fillFightModifierDescriptions();
+			}
 
-			armor.setChecked(pref.getBoolean(PREF_KEY_SHOW_ARMOR, true));
-			modifier.setChecked(pref.getBoolean(PREF_KEY_SHOW_MODIFIER, true));
-			evade.setChecked(pref.getBoolean(PREF_KEY_SHOW_EVADE, false));
-
-			builder.setView(content);
-
-			DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (which == DialogInterface.BUTTON_POSITIVE) {
-
-						SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
-						Editor edit = pref.edit();
-
-						edit.putBoolean(PREF_KEY_SHOW_ARMOR, armor.isChecked());
-						edit.putBoolean(PREF_KEY_SHOW_MODIFIER, modifier.isChecked());
-						edit.putBoolean(PREF_KEY_SHOW_EVADE, evade.isChecked());
-
-						edit.commit();
-
-						fillFightItemDescriptions();
-						fillFightModifierDescriptions();
-						fillAusweichen();
-					} else if (which == DialogInterface.BUTTON_NEUTRAL) {
-						// do nothing
-					}
-
-				}
-			};
-
-			builder.setPositiveButton(R.string.label_ok, clickListener);
-			builder.setNegativeButton(R.string.label_cancel, clickListener);
-
-			builder.show();
-			return true;
-		} else
-			return super.onOptionsItemSelected(item);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.activity.BaseMenuActivity#onCreateOptionsMenu(android.view
-	 * .Menu)
-	 */
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.fight_menu, menu);
+			if (filterSettings.isShowEvade() != newSettings.isShowEvade()) {
+				filterSettings.setShowEvade(newSettings.isShowEvade());
+				fillAusweichen();
+			}
+		}
 	}
 
 	/*
@@ -402,6 +432,66 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 				builder.setTitle("Wähle eine Variante...");
 				builder.show();
+			} else if (item.getItemId() == CONTEXTMENU_SELECT_TALENT) {
+
+				final List<String> specInfo = new ArrayList<String>();
+				if (equippedItem.getItemSpecification() instanceof Weapon) {
+					Weapon weapon = (Weapon) equippedItem.getItemSpecification();
+					for (CombatTalentType type : weapon.getCombatTalentTypes()) {
+						specInfo.add(type.getName());
+					}
+				} else if (equippedItem.getItemSpecification() instanceof Shield) {
+					Shield shield = (Shield) equippedItem.getItemSpecification();
+					for (CombatTalentType type : shield.getCombatTalentTypes()) {
+						specInfo.add(type.getName());
+					}
+				}
+				if (!specInfo.isEmpty()) {
+					AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+					builder.setItems(specInfo.toArray(new String[0]), new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							String talentName = specInfo.get(which);
+							CombatTalent talent = getHero().getCombatTalent(talentName);
+							if (talent != null) {
+								equippedItem.setTalent(talent);
+								getHero().fireItemChangedEvent(equippedItem);
+							}
+							dialog.dismiss();
+						}
+					});
+
+					builder.setTitle("Wähle ein Talent...");
+					builder.show();
+				}
+			} else if (item.getItemId() == CONTEXTMENU_ASSIGN_HUNTING) {
+				getHero().setHuntingWeapon(equippedItem);
+				updateFightItemDescriptions();
+			}
+		} else if (info instanceof CustomModificator) {
+
+			CustomModificator modificator = (CustomModificator) info;
+
+			switch (item.getItemId()) {
+
+			case R.id.option_add:
+
+				startActivityForResult(new Intent(getActivity(), ModificatorEditActivity.class),
+						MainActivity.ACTION_ADD_MODIFICATOR);
+				break;
+			case R.id.option_edit:
+
+				Intent intent = new Intent(getActivity(), ModificatorEditActivity.class);
+				intent.putExtra(ModificatorEditActivity.INTENT_ID, modificator.getId());
+				intent.putExtra(ModificatorEditActivity.INTENT_NAME, modificator.getModificatorName());
+				intent.putExtra(ModificatorEditActivity.INTENT_RULES, modificator.getRules());
+				intent.putExtra(ModificatorEditActivity.INTENT_COMMENT, modificator.getComment());
+				intent.putExtra(ModificatorEditActivity.INTENT_ACTIVE, modificator.isActive());
+				startActivityForResult(intent, MainActivity.ACTION_EDIT_MODIFICATOR);
+				break;
+			case R.id.option_delete:
+				getHero().removeModificator(modificator);
+				break;
 
 			}
 		}
@@ -414,11 +504,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		final Attribute ausweichen = getHero().getAttribute(AttributeType.Ausweichen);
 		View fightausweichen = getView().findViewById(R.id.inc_fight_ausweichen);
 
-		SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
-
-		final boolean showEvade = pref.getBoolean(PREF_KEY_SHOW_EVADE, true);
-
-		if (showEvade) {
+		if (filterSettings.isShowEvade()) {
 
 			fightausweichen.setVisibility(View.VISIBLE);
 			TextView text1 = (TextView) fightausweichen.findViewById(android.R.id.text1);
@@ -428,7 +514,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 			Util.appendValue(getHero(), title, ausweichen, null);
 			text1.setText(title);
 			final TextView text2 = (TextView) fightausweichen.findViewById(android.R.id.text2);
-			text2.setText("Modifikator " + Util.toProbe(ausweichen.getErschwernis()));
+			text2.setText("Modifikator " + Util.toProbe(ausweichen.getProbeInfo().getErschwernis()));
 			if (fightItemsOdd) {
 				fightausweichen.setBackgroundResource(R.color.RowOdd);
 			}
@@ -472,7 +558,6 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		case R.id.fight_set:
 			getHero().setActiveSet(getHero().getNextActiveSet());
 			break;
-
 		case R.id.fight_btn_picker:
 
 			int index = fightPickerTypes.indexOf(fightPickerType);
@@ -483,16 +568,12 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 			updateNumberPicker(attr);
 			break;
+		case R.id.fight_modifiers_add:
+			startActivityForResult(new Intent(getActivity(), ModificatorEditActivity.class),
+					MainActivity.ACTION_ADD_MODIFICATOR);
+			break;
 		}
 
-		if (v.getTag() instanceof EquippedItem) {
-			EquippedItem equippedItem = (EquippedItem) v.getTag();
-			Intent intent = new Intent(getActivity(), ItemChooserActivity.class);
-			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_EQUIPPED_ITEM_ID, equippedItem.getId());
-			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_SEARCHABLE, false);
-			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
-			startActivity(intent);
-		}
 	}
 
 	/*
@@ -504,8 +585,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-		return inflater.inflate(R.layout.sheet_fight, container, false);
+		return configureContainerView(inflater.inflate(R.layout.sheet_fight, container, false));
 	}
 
 	/*
@@ -515,6 +595,10 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
+
+		filterSettings = new FightFilterSettings(preferences.getBoolean(FilterDialog.PREF_KEY_SHOW_ARMOR, true),
+				preferences.getBoolean(FilterDialog.PREF_KEY_SHOW_MODIFIER, true), preferences.getBoolean(
+						FilterDialog.PREF_KEY_SHOW_EVADE, true));
 
 		ImageButton fightSet = (ImageButton) findViewById(R.id.fight_set);
 		fightSet.setOnClickListener(this);
@@ -543,22 +627,28 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		fightPickerButton.setOnClickListener(this);
 		fightPickerButton.setOnLongClickListener(this);
 
-		fightNumberPicker = (NumberPicker) findViewById(R.id.fight_picker);
-		fightNumberPicker.setOnViewChangedListener(new OnViewChangedListener<NumberPicker>() {
+		fightNumberPicker = (WheelView) findViewById(R.id.fight_picker);
+
+		fightNumberAdapter = new NumericWheelAdapter(getActivity());
+		fightNumberPicker.setViewAdapter(fightNumberAdapter);
+
+		fightNumberPicker.setOrientation(WheelView.HORIZONTAL);
+		fightNumberPicker.setOnWheelChangedListeners(new OnWheelChangedListener() {
 
 			@Override
-			public void onChanged(NumberPicker picker, int oldVal, int newVal) {
-				if (oldVal != newVal) {
-					Attribute attr = getHero().getAttribute(fightPickerType);
-					attr.setValue(newVal);
-				}
+			public void onWheelChanged(WheelView wheel, int oldValue, int newValue) {
+				Attribute attr = getHero().getAttribute(fightPickerType);
+				attr.setValue(fightNumberAdapter.getItem(newValue));
 			}
 		});
+
 		fightLpLayout = (LinearLayout) findViewById(R.id.fight_le_layout);
 		fightLpLayout.setOnClickListener(getBaseActivity().getEditListener());
 
 		fightItems = (LinearLayout) findViewById(R.id.fight_items);
 		fightModifiers = (LinearLayout) findViewById(R.id.fight_modifiers);
+
+		findViewById(R.id.fight_modifiers_add).setOnClickListener(this);
 
 		SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
 		try {
@@ -631,16 +721,11 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	 */
 	private void fillFightModifierDescriptions() {
 
-		SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
-
-		final boolean showModifier = pref.getBoolean(PREF_KEY_SHOW_MODIFIER, true);
-
-		if (showModifier) {
+		if (filterSettings.isShowModifier()) {
 			// remove all but first, visibility will be set to visible within
 			// fillFightModifierDescription automatically
 			fightModifiers.removeViews(1, fightModifiers.getChildCount() - 1);
-			fightModifiers.setVisibility(View.GONE);
-			for (Modificator item : getHero().getModifiers()) {
+			for (Modificator item : getHero().getModificators()) {
 				fillFightModifierDescription(item, null);
 			}
 		} else {
@@ -653,10 +738,16 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.dsatab.activity.BaseMenuActivity#onHeroUnloaded(com.dsatab.data.Hero)
+	 * android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged
+	 * (android.widget.CompoundButton, boolean)
 	 */
 	@Override
-	public void onHeroUnloaded(Hero hero) {
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		if (buttonView.getTag() instanceof CustomModificator) {
+			CustomModificator modificator = (CustomModificator) buttonView.getTag();
+			modificator.setActive(isChecked);
+		}
+
 	}
 
 	@Override
@@ -678,13 +769,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	@Override
 	public void onModifierRemoved(Modificator value) {
 		fightModifiers.removeView(fightModifiers.findViewWithTag(value));
-
-		if (fightModifiers.getChildCount() <= 1) {
-			fightModifiers.setVisibility(View.GONE);
-		}
-
 		updateFightItemDescriptions();
-		;
 	}
 
 	@Override
@@ -696,12 +781,9 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 	@Override
 	public void onModifiersChanged(List<Modificator> values) {
-		fightModifiers.removeViews(1, fightModifiers.getChildCount() - 1);
 		for (Modificator item : values) {
-			fillFightModifierDescription(item, null);
-		}
-		if (fightModifiers.getChildCount() <= 1) {
-			fightModifiers.setVisibility(View.GONE);
+			View itemLayout = fightModifiers.findViewWithTag(item);
+			fillFightModifierDescription(item, itemLayout);
 		}
 		updateFightItemDescriptions();
 	}
@@ -709,10 +791,12 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	private void updateNumberPicker(Attribute value) {
 
 		fightNumberPicker.setTag(value);
-		fightNumberPicker.setRange(value.getMinimum(), value.getMaximum());
-		fightNumberPicker.setCurrent(value.getValue());
-		fightNumberPicker.setDefault(value.getReferenceValue());
-
+		fightNumberAdapter.setRange(value.getMinimum(), value.getMaximum());
+		if (value.getValue() != null) {
+			fightNumberPicker.setCurrentItem(fightNumberAdapter.getPosition(value.getValue()));
+		} else {
+			fightNumberPicker.setCurrentItem(0);
+		}
 		fightPickerButton.setText(value.getType().code());
 
 		double ratio = 1.0;
@@ -728,11 +812,11 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		}
 
 		if (ratio < 0.5)
-			fightNumberPicker.setTextColor(getResources().getColor(R.color.ValueRed));
+			fightNumberAdapter.setTextColor(getResources().getColor(R.color.ValueRed));
 		else if (ratio < 1.0)
-			fightNumberPicker.setTextColor(getResources().getColor(R.color.ValueBlack));
+			fightNumberAdapter.setTextColor(getResources().getColor(R.color.ValueBlack));
 		else
-			fightNumberPicker.setTextColor(getResources().getColor(R.color.ValueGreen));
+			fightNumberAdapter.setTextColor(getResources().getColor(R.color.ValueGreen));
 	}
 
 	public void onValueChanged(Value value) {
@@ -748,16 +832,17 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 			}
 
 			switch (attr.getType()) {
-
-			case Ausweichen: {
-
+			case Behinderung:
 				fillAusweichen();
+				break;
+			case Ausweichen: {
+				fillAusweichen();
+				break;
 			}
-
 			case Körperkraft:
 				updateFightItemDescriptions();
+				break;
 			}
-
 		}
 
 	}
@@ -774,9 +859,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		if (item == null || itemSpecification == null)
 			return;
 
-		SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
-		final boolean showArmor = pref.getBoolean(PREF_KEY_SHOW_ARMOR, true);
-		if (!showArmor && itemSpecification instanceof Armor) {
+		if (!filterSettings.isShowArmor() && itemSpecification instanceof Armor) {
 			return;
 		}
 
@@ -888,6 +971,10 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 			iconRight.setVisibility(View.GONE);
 		}
 
+		if (getHero().getHuntingWeapon() != null && getHero().getHuntingWeapon().equals(equippedItem)) {
+			title.append(" (Jagdwaffe)");
+		}
+
 		text1.setSelected(true);
 		text1.setText(title);
 	}
@@ -909,7 +996,6 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		drawable.setLevel(getHero().getActiveSet());
 
 		SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
-		final boolean showArmor = pref.getBoolean(PREF_KEY_SHOW_ARMOR, true);
 
 		int count = fightItems.getChildCount();
 		for (int i = 0; i < count; i++) {
@@ -922,7 +1008,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 			if (item == null || itemSpecification == null)
 				return;
 
-			if (!showArmor && itemSpecification instanceof Armor) {
+			if (!filterSettings.isShowArmor() && itemSpecification instanceof Armor) {
 				continue;
 			}
 
@@ -937,9 +1023,6 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		LevelListDrawable drawable = (LevelListDrawable) fightSet.getDrawable();
 		drawable.setLevel(getHero().getActiveSet());
 
-		SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
-		final boolean showArmor = pref.getBoolean(PREF_KEY_SHOW_ARMOR, true);
-
 		fightItems.removeAllViews();
 		fightItemsOdd = false;
 
@@ -952,7 +1035,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 			if (item == null || itemSpecification == null)
 				return;
 
-			if (!showArmor && itemSpecification instanceof Armor) {
+			if (!filterSettings.isShowArmor() && itemSpecification instanceof Armor) {
 				continue;
 			}
 			fillFightItemDescription(equippedItem);
@@ -970,25 +1053,41 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		fillFightItemDescriptions();
 	}
 
+	private void fillFightModifierDescription(Modificator item) {
+		View itemLayout = fightModifiers.findViewWithTag(item);
+		fillFightModifierDescription(item, itemLayout);
+	}
+
 	private void fillFightModifierDescription(Modificator item, View itemLayout) {
 
-		fightModifiers.setVisibility(View.VISIBLE);
 		if (itemLayout == null) {
-			LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+			LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 			itemLayout = layoutInflater.inflate(R.layout.fight_sheet_modifier, fightModifiers, false);
 			fightModifiers.addView(itemLayout);
-
-			if (fightModifiers.getChildCount() % 2 == 0)
-				itemLayout.setBackgroundResource(R.color.RowOdd);
+			Util.applyRowStyle(itemLayout, fightModifiers.getChildCount());
 		}
 		itemLayout.setTag(item);
 
 		TextView text1 = (TextView) itemLayout.findViewById(android.R.id.text1);
 		TextView text2 = (TextView) itemLayout.findViewById(android.R.id.text2);
 
+		CheckBox active = (CheckBox) itemLayout.findViewById(R.id.active);
+
+		if (item instanceof CustomModificator) {
+			CustomModificator modificator = (CustomModificator) item;
+			active.setVisibility(View.VISIBLE);
+			active.setChecked(modificator.isActive());
+			active.setOnCheckedChangeListener(this);
+			active.setTag(modificator);
+			itemLayout.setTag(modificator);
+			registerForIconContextMenu(itemLayout);
+		} else {
+			active.setVisibility(View.GONE);
+			unregisterForIconContextMenu(itemLayout);
+		}
 		if (item != null) {
-			text1.setText(item.getModifierName());
-			text2.setText(item.getModifierInfo());
+			text1.setText(item.getModificatorName());
+			text2.setText(item.getModificatorInfo());
 		} else {
 			text1.setText(null);
 			text2.setText(null);

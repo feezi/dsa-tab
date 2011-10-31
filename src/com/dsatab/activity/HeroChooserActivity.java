@@ -15,12 +15,17 @@
  */
 package com.dsatab.activity;
 
+import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -41,21 +46,25 @@ import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.common.HeroExchange;
 import com.dsatab.common.HeroExchange.OnHeroExchangeListener;
-import com.dsatab.data.HeroInfo;
+import com.dsatab.common.Util;
+import com.dsatab.data.HeroFileInfo;
 import com.gandulf.guilib.util.Debug;
 
 /**
  * 
  * 
  */
-public class HeroChooserActivity extends Activity implements AdapterView.OnItemClickListener, OnClickListener {
+public class HeroChooserActivity extends BaseActivity implements AdapterView.OnItemClickListener, OnClickListener {
 
 	public static final String INTENT_NAME_HERO_PATH = "heroPath";
 
 	private static final int CONTEXTMENU_DELETEITEM = 1;
 
+	private static final String DUMMY_FILE = "Dummy.xml";
+	private static final String DUMMY_NAME = "Dummy";
 	private GridView list;
 	private HeroAdapter adapter;
+	private boolean dummy;
 
 	/**
 	 * 
@@ -74,8 +83,54 @@ public class HeroChooserActivity extends Activity implements AdapterView.OnItemC
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.popup_hero_chooser);
 
+		List<HeroFileInfo> heroes = null;
+
+		// create test hero if no heroes avialable
+		if (!DSATabApplication.getInstance().hasHeroes()) {
+			dummy = true;
+
+			FileOutputStream fos = null;
+			InputStream fis = null;
+			try {
+
+				fos = new FileOutputStream(DSATabApplication.getDsaTabPath() + DUMMY_FILE);
+				fis = new BufferedInputStream(getAssets().open(DUMMY_FILE));
+				byte[] buffer = new byte[8 * 1024];
+				int length;
+
+				while ((length = fis.read(buffer)) >= 0) {
+					fos.write(buffer, 0, length);
+				}
+
+			} catch (FileNotFoundException e) {
+				Debug.error(e);
+			} catch (IOException e) {
+				Debug.error(e);
+			} finally {
+				try {
+					if (fos != null)
+						fos.close();
+
+					if (fis != null)
+						fis.close();
+				} catch (IOException e) {
+
+				}
+			}
+
+		} else {
+
+			heroes = DSATabApplication.getInstance().getHeroes();
+
+			if (heroes.size() == 1 && heroes.get(0).getName().equals(DUMMY_NAME))
+				dummy = true;
+		}
+
+		if (heroes == null)
+			heroes = DSATabApplication.getInstance().getHeroes();
+
 		list = (GridView) findViewById(R.id.popup_hero_chooser_list);
-		adapter = new HeroAdapter(this, R.layout.hero_chooser_item, DSATabApplication.getInstance().getHeroes());
+		adapter = new HeroAdapter(this, R.layout.hero_chooser_item, heroes);
 		list.setAdapter(adapter);
 		registerForContextMenu(list);
 		list.setOnItemClickListener(this);
@@ -86,17 +141,31 @@ public class HeroChooserActivity extends Activity implements AdapterView.OnItemC
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.activity.BaseActivity#onDestroy()
+	 */
+	@Override
+	protected void onDestroy() {
+		Util.unbindDrawables(findViewById(android.R.id.content));
+		super.onDestroy();
+	}
+
 	private void updateViews() {
 		TextView empty = (TextView) findViewById(R.id.popup_hero_empty);
 
-		if (!DSATabApplication.getInstance().hasHeroes()) {
+		if (!DSATabApplication.getInstance().hasHeroes() || dummy) {
 
-			list.setVisibility(View.INVISIBLE);
+			if (dummy)
+				list.setVisibility(View.VISIBLE);
+			else
+				list.setVisibility(View.INVISIBLE);
+
 			empty.setVisibility(View.VISIBLE);
-			empty.setText("Es wurden keine Helden-Dateien gefunden. Stell sicher, dass sich auf der SD-Karte unter \""
-					+ DSATabApplication.getRelativeDsaTabPath()
-					+ "\" die als XML-Datei exportierten Helden der Helden-Software befinden.");
+			empty.setText(Util.getText(R.string.message_heroes_empty, DSATabApplication.getRelativeDsaTabPath()));
 		} else {
+
 			list.setVisibility(View.VISIBLE);
 			empty.setVisibility(View.GONE);
 		}
@@ -129,7 +198,12 @@ public class HeroChooserActivity extends Activity implements AdapterView.OnItemC
 		switch (item.getItemId()) {
 
 		case R.id.option_settings:
-			startActivityForResult(new Intent(this, DsaPreferenceActivity.class), BaseMainActivity.ACTION_PREFERENCES);
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+				startActivityForResult(new Intent(this, DsaPreferenceActivity.class),
+						MainActivity.ACTION_PREFERENCES);
+			} else {
+				startActivityForResult(new Intent(this, DsaPreferenceActivityHC.class), MainActivity.ACTION_PREFERENCES);
+			}
 			return true;
 
 		}
@@ -145,7 +219,7 @@ public class HeroChooserActivity extends Activity implements AdapterView.OnItemC
 	public boolean onContextItemSelected(MenuItem item) {
 		if (item.getItemId() == CONTEXTMENU_DELETEITEM) {
 			AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-			HeroInfo heroInfo = (HeroInfo) list.getItemAtPosition(menuInfo.position);
+			HeroFileInfo heroInfo = (HeroFileInfo) list.getItemAtPosition(menuInfo.position);
 
 			Debug.verbose("Deleting " + heroInfo.getName());
 			heroInfo.getFile().delete();
@@ -158,9 +232,9 @@ public class HeroChooserActivity extends Activity implements AdapterView.OnItemC
 		return super.onContextItemSelected(item);
 	}
 
-	class HeroAdapter extends ArrayAdapter<HeroInfo> {
+	class HeroAdapter extends ArrayAdapter<HeroFileInfo> {
 
-		public HeroAdapter(Context context, int textViewResourceId, List<HeroInfo> objects) {
+		public HeroAdapter(Context context, int textViewResourceId, List<HeroFileInfo> objects) {
 			super(context, textViewResourceId, objects);
 		}
 
@@ -172,12 +246,14 @@ public class HeroChooserActivity extends Activity implements AdapterView.OnItemC
 				layout = (ViewGroup) convertView;
 			} else {
 				layout = (ViewGroup) getLayoutInflater().inflate(R.layout.hero_chooser_item, null);
+				layout.setFocusable(false);
+				layout.setClickable(false);
 			}
 
 			TextView tv = (TextView) layout.findViewById(R.id.textView);
 			ImageView iv = (ImageView) layout.findViewById(R.id.imageView);
 
-			HeroInfo hero = getItem(position);
+			HeroFileInfo hero = getItem(position);
 			tv.setText(hero.getName());
 
 			if (hero.getPortraitUri() != null) {
@@ -199,11 +275,13 @@ public class HeroChooserActivity extends Activity implements AdapterView.OnItemC
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-		if (requestCode == BaseMainActivity.ACTION_PREFERENCES) {
+		if (requestCode == MainActivity.ACTION_PREFERENCES) {
 			adapter = new HeroAdapter(this, R.layout.hero_chooser_item, DSATabApplication.getInstance().getHeroes());
 			list.setAdapter(adapter);
 
 			updateViews();
+
+			updateFullscreenStatus(preferences.getBoolean(DsaPreferenceActivityHC.KEY_FULLSCREEN, true));
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
@@ -238,7 +316,7 @@ public class HeroChooserActivity extends Activity implements AdapterView.OnItemC
 	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		HeroInfo hero = (HeroInfo) parent.getItemAtPosition(position);
+		HeroFileInfo hero = (HeroFileInfo) parent.getItemAtPosition(position);
 		Intent intent = new Intent();
 		intent.putExtra(INTENT_NAME_HERO_PATH, hero.getFile().toString());
 		setResult(RESULT_OK, intent);

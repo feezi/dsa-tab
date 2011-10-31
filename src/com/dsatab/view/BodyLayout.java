@@ -1,7 +1,6 @@
 package com.dsatab.view;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
@@ -15,16 +14,11 @@ import android.widget.TextView;
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.ArmorAttribute;
-import com.dsatab.data.Value;
 import com.dsatab.data.WoundAttribute;
 import com.dsatab.data.enums.Position;
-import com.dsatab.data.items.EquippedItem;
-import com.dsatab.data.items.Item;
-import com.dsatab.data.modifier.Modificator;
-import com.dsatab.view.listener.HeroChangedListener;
 import com.gandulf.guilib.util.Debug;
 
-public class BodyLayout extends FrameLayout implements HeroChangedListener {
+public class BodyLayout extends FrameLayout {
 
 	private static final double OFFSET_LOWER_LEG_X = 0.70;
 	private static final double OFFSET_UPPER_LEG_X = 0.35;
@@ -58,8 +52,8 @@ public class BodyLayout extends FrameLayout implements HeroChangedListener {
 	private static final double OFFSET_LOWER_LEG_Y = 0.7;
 
 	private static final int MAX_WOUNDS = 3;
-	private int childWidthMeasureSpec;
-	private int childHeightMeasureSpec;
+	private int rsWidthMeasureSpec, rsHeightMeasureSpec;
+	private int woundWidthMeasureSpec, woundHeightMeasureSpec;
 
 	private int woundSize;
 	private int rsSize, rsTextSize;
@@ -117,6 +111,14 @@ public class BodyLayout extends FrameLayout implements HeroChangedListener {
 		init();
 	}
 
+	public void setArmorAttribute(ArmorAttribute attr) {
+		TextView rsText = armorButtons.get(attr.getPosition());
+		if (rsText == null) {
+			rsText = addArmorButton(attr.getPosition());
+		}
+		setValue(rsText, attr);
+	}
+
 	public void setArmorAttributes(Map<Position, ArmorAttribute> attributes) {
 
 		Debug.verbose("setting armorattr " + attributes.size());
@@ -128,16 +130,7 @@ public class BodyLayout extends FrameLayout implements HeroChangedListener {
 
 		// add new ones
 		for (ArmorAttribute attr : attributes.values()) {
-
-			TextView rsText = armorButtons.get(attr.getPosition());
-			if (rsText == null) {
-				rsText = addArmorButton(attr.getPosition());
-			}
-			rsText.setTag(attr);
-			if (attr.getValue() != null)
-				rsText.setText(Util.toString(attr.getValue()));
-			else
-				rsText.setText("0");
+			setArmorAttribute(attr);
 		}
 
 		requestLayout();
@@ -163,27 +156,25 @@ public class BodyLayout extends FrameLayout implements HeroChangedListener {
 				}
 
 				ib.setSelected(attr.getValue() > i);
-
-				if (ib.isSelected())
-					ib.setBackgroundResource(R.drawable.icon_wound_s);
-				else
-					ib.setBackgroundResource(R.drawable.icon_wound_btn);
+				ib.setBackgroundResource(R.drawable.icon_wound_btn);
 			}
 
 		}
 		requestLayout();
 	}
 
-	public void onValueChanged(Value value) {
-		if (value instanceof ArmorAttribute) {
-			ArmorAttribute rs = (ArmorAttribute) value;
-			TextView rsText = armorButtons.get(rs.getPosition());
+	private void setValue(TextView rsText, ArmorAttribute rs) {
+		rsText.setTag(rs);
 
-			if (rs.getValue() != null)
-				rsText.setText(Util.toString(rs.getValue()));
-			else
-				rsText.setText("0");
-		}
+		if (rs.getValue() != null)
+			rsText.setText(Util.toString(rs.getValue()));
+		else
+			rsText.setText("0");
+
+		if (rs.isManual()) {
+			rsText.setTextColor(getResources().getColor(R.color.ValueGreen));
+		} else
+			rsText.setTextColor(getResources().getColor(R.color.ValueGray));
 	}
 
 	protected void init() {
@@ -192,8 +183,11 @@ public class BodyLayout extends FrameLayout implements HeroChangedListener {
 		rsSize = getResources().getDimensionPixelSize(R.dimen.rs_icon_size);
 		rsTextSize = getResources().getDimensionPixelSize(R.dimen.rs_icon_text_size);
 
-		childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(32, MeasureSpec.UNSPECIFIED);
-		childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(32, MeasureSpec.UNSPECIFIED);
+		rsWidthMeasureSpec = MeasureSpec.makeMeasureSpec(rsSize, MeasureSpec.EXACTLY);
+		rsHeightMeasureSpec = MeasureSpec.makeMeasureSpec(rsSize, MeasureSpec.EXACTLY);
+
+		woundWidthMeasureSpec = MeasureSpec.makeMeasureSpec(woundSize, MeasureSpec.EXACTLY);
+		woundHeightMeasureSpec = MeasureSpec.makeMeasureSpec(woundSize, MeasureSpec.EXACTLY);
 
 		setBackgroundResource(R.drawable.character);
 	}
@@ -242,8 +236,6 @@ public class BodyLayout extends FrameLayout implements HeroChangedListener {
 		woundButton.setTag(attr);
 		woundButton.setBackgroundResource(R.drawable.icon_wound_btn);
 		woundButton.setOnClickListener(onWoundClickListener);
-		woundButton.setMinimumWidth(woundSize);
-		woundButton.setMinimumHeight(woundSize);
 
 		addView(woundButton, new LayoutParams(woundSize, woundSize, attr.getPosition()));
 
@@ -272,7 +264,11 @@ public class BodyLayout extends FrameLayout implements HeroChangedListener {
 		int count = getChildCount();
 		for (int i = 0; i < count; i++) {
 			View child = getChildAt(i);
-			child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+			// wound
+			if (child instanceof ImageButton) {
+				child.measure(woundWidthMeasureSpec, woundHeightMeasureSpec);
+			} else if (child instanceof TextView) // armorbutton
+				child.measure(rsWidthMeasureSpec, rsHeightMeasureSpec);
 		}
 	}
 
@@ -526,67 +522,6 @@ public class BodyLayout extends FrameLayout implements HeroChangedListener {
 		} else {
 			return false;
 		}
-
-	}
-
-	@Override
-	public void onModifierAdded(Modificator value) {
-
-	}
-
-	@Override
-	public void onModifierRemoved(Modificator value) {
-
-	}
-
-	@Override
-	public void onModifierChanged(Modificator value) {
-
-	}
-
-	@Override
-	public void onModifiersChanged(List<Modificator> values) {
-
-	}
-
-	@Override
-	public void onPortraitChanged() {
-
-	}
-
-	@Override
-	public void onItemAdded(Item item) {
-
-	}
-
-	@Override
-	public void onItemRemoved(Item item) {
-
-	}
-
-	@Override
-	public void onItemChanged(EquippedItem item) {
-
-	}
-
-	@Override
-	public void onItemEquipped(EquippedItem item) {
-
-	}
-
-	@Override
-	public void onItemUnequipped(EquippedItem item) {
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.view.listener.HeroChangedListener#onActiveSetChanged(int,
-	 * int)
-	 */
-	@Override
-	public void onActiveSetChanged(int newSet, int oldSet) {
 
 	}
 

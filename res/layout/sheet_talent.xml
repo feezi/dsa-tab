@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-	<ExpandableListView  xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/talent_list"
-		android:layout_height="fill_parent" style="@style/BorderPanel"
-		android:layout_width="0dp" android:layout_weight="1" android:fadingEdgeLength="0dip"
-		android:cacheColorHint="#00000000" android:childDivider="#00000000"
-		android:choiceMode="singleChoice" android:dividerHeight="0dip"></ExpandableListView>
-		
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/sheet_talent" android:layout_weight="1" android:layout_height="fill_parent" android:layout_width="fill_parent" android:layout_margin="@dimen/page_margin" style="@style/BorderPanel">
+	<ExpandableListView  android:id="@+id/talent_list"
+		android:layout_height="fill_parent" android:layout_width="fill_parent" style="@style/Widget.ExpandableListView.Probe" android:background="@null"></ExpandableListView>
+		</FrameLayout>

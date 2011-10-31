@@ -1,41 +1,36 @@
 package com.dsatab.view;
 
+import kankan.wheel.widget.OnWheelClickedListener;
+import kankan.wheel.widget.WheelView;
+import kankan.wheel.widget.adapters.NumericWheelAdapter;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.RelativeLayout;
-import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.dsatab.R;
+import com.dsatab.common.Util;
+import com.dsatab.data.ArmorAttribute;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero.CombatStyle;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
 import com.gandulf.guilib.util.Debug;
-import com.gandulf.guilib.view.NumberPicker;
-import com.gandulf.guilib.view.OnViewChangedListener;
 
-public class InlineEditDialog extends AlertDialog implements android.view.View.OnClickListener,
-		OnCheckedChangeListener, Dialog.OnDismissListener, OnViewChangedListener<NumberPicker> {
+public class InlineEditDialog extends AlertDialog implements DialogInterface.OnClickListener, OnCheckedChangeListener,
+		OnWheelClickedListener {
 
 	private Value value;
 
-	private NumberPicker editText;
-	private TextView combatStyleText;
-	private SeekBar editSeek;
-	private Button editReset, editOk;
+	private WheelView editText;
+
+	private NumericWheelAdapter wheelAdapter;
 	private ToggleButton combatStyleBtn;
 	private CheckBox beCalculation;
 
@@ -53,15 +48,14 @@ public class InlineEditDialog extends AlertDialog implements android.view.View.O
 		this.value = value;
 
 		if (value != null) {
-			editSeek.setMax(value.getMaximum() - value.getMinimum());
 
 			int currentValue = value.getValue();
-			editText.setRange(value.getMinimum(), value.getMaximum());
-			editText.setCurrent(currentValue);
-			editSeek.setProgress(currentValue - value.getMinimum());
+
+			wheelAdapter.setRange(value.getMinimum(), value.getMaximum());
+
+			editText.setCurrentItem(wheelAdapter.getPosition(currentValue));
 			editText.setEnabled(true);
-			editSeek.setEnabled(true);
-			editText.setOnViewChangedListener(this);
+
 			int visible = View.GONE;
 			if (value instanceof Attribute) {
 				Attribute attr = (Attribute) value;
@@ -70,28 +64,31 @@ public class InlineEditDialog extends AlertDialog implements android.view.View.O
 					combatStyleBtn.setChecked(attr.getHero().getCombatStyle() == CombatStyle.Offensive);
 					beCalculation.setChecked(attr.getHero().isBeCalculation());
 					editText.setEnabled(!beCalculation.isChecked());
-					editSeek.setEnabled(!beCalculation.isChecked());
 				}
 			}
 
-			combatStyleText.setVisibility(visible);
 			combatStyleBtn.setVisibility(visible);
 			beCalculation.setVisibility(visible);
 
-			editReset.setEnabled(value.getReferenceValue() != null);
+			if (getButton(BUTTON_NEGATIVE) != null) {
+				getButton(BUTTON_NEGATIVE).setEnabled(value.getReferenceValue() != null);
+			}
 		}
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.gandulf.guilib.view.OnViewChangedListener#onChanged(android.view.
-	 * View, int, int)
+	 * @see android.app.Dialog#onStart()
 	 */
 	@Override
-	public void onChanged(NumberPicker picker, int oldVal, int newVal) {
-		editSeek.setProgress(newVal - value.getMinimum());
+	protected void onStart() {
+		super.onStart();
+
+		if (getButton(BUTTON_NEGATIVE) != null && value != null) {
+			getButton(BUTTON_NEGATIVE).setEnabled(value.getReferenceValue() != null);
+		}
+
 	}
 
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -107,89 +104,24 @@ public class InlineEditDialog extends AlertDialog implements android.view.View.O
 		} else if (buttonView == beCalculation) {
 
 			editText.setEnabled(!isChecked);
-			editSeek.setEnabled(!isChecked);
 
 		}
 
 	}
 
-	public void onClick(View v) {
-		if (v == editReset) {
-			editText.setCurrent(value.getReferenceValue());
-			dismiss();
-		}
-		if (v == editOk) {
-			dismiss();
-		}
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * kankan.wheel.widget.OnWheelClickedListener#onItemClicked(kankan.wheel
+	 * .widget.WheelView, int, boolean)
+	 */
+	@Override
+	public void onWheelClick(WheelView wheel, int itemIndex) {
+		accept();
 	}
 
-	private void init() {
-
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-		setCanceledOnTouchOutside(true);
-		setOnDismissListener(this);
-
-		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(R.layout.popup_edit,
-				null, false);
-		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-		setView(popupcontent);
-
-		editText = (NumberPicker) popupcontent.findViewById(R.id.popup_edit_text);
-		editSeek = (SeekBar) popupcontent.findViewById(R.id.popup_edit_seek);
-		editReset = (Button) popupcontent.findViewById(R.id.popup_edit_reset);
-		editOk = (Button) popupcontent.findViewById(R.id.popup_edit_ok);
-
-		combatStyleText = (TextView) popupcontent.findViewById(R.id.popup_edit_combat_style_label);
-		combatStyleBtn = (ToggleButton) popupcontent.findViewById(R.id.popup_edit_combat_style);
-		combatStyleBtn.setTextOn(getContext().getText(R.string.offensive));
-		combatStyleBtn.setTextOff(getContext().getText(R.string.defensive));
-		combatStyleBtn.setOnCheckedChangeListener(this);
-
-		editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-
-			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-
-				if (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-					InlineEditDialog.this.dismiss();
-					return true;
-				}
-
-				if (event != null && event.getKeyCode() == KeyEvent.KEYCODE_DEL) {
-					if (v.getSelectionEnd() == 0) {
-						v.getEditableText().delete(0, 0);
-						return true;
-					}
-				}
-				return false;
-			}
-		});
-
-		editReset.setOnClickListener(this);
-		editOk.setOnClickListener(this);
-
-		editSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
-			public void onStopTrackingTouch(SeekBar seekBar) {
-			}
-
-			public void onStartTrackingTouch(SeekBar seekBar) {
-			}
-
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				if (fromUser) {
-					editText.setCurrent(progress + value.getMinimum());
-				}
-			}
-		});
-
-		beCalculation = (CheckBox) popupcontent.findViewById(R.id.popup_edit_be_calculation);
-		beCalculation.setOnCheckedChangeListener(this);
-
-	}
-
-	public void onDismiss(DialogInterface dialog) {
-
+	private void accept() {
 		if (value instanceof Attribute) {
 			Attribute attr = (Attribute) value;
 			if (attr.getType() == AttributeType.Behinderung) {
@@ -198,18 +130,75 @@ public class InlineEditDialog extends AlertDialog implements android.view.View.O
 				// if we autocalculate the value to not overwrite it with
 				// current value of editText afterwards
 				if (beCalculation.isChecked()) {
+					dismiss();
+					Util.hideKeyboard(beCalculation);
 					return;
 				}
 			}
 		}
 
 		try {
-			editText.validate();
-			int currentValue = editText.getCurrent();
-			value.setValue(currentValue);
+
+			int currentValue = wheelAdapter.getItem(editText.getCurrentItem());
+
+			if (value instanceof ArmorAttribute) {
+				ArmorAttribute armorAttribute = (ArmorAttribute) value;
+				armorAttribute.setValue(currentValue, true);
+			} else {
+				value.setValue(currentValue);
+			}
 		} catch (NumberFormatException e) {
 			Debug.error(e);
 		}
+		Util.hideKeyboard(beCalculation);
+		dismiss();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.content.DialogInterface.OnClickListener#onClick(android.content
+	 * .DialogInterface, int)
+	 */
+	@Override
+	public void onClick(DialogInterface dialog, int which) {
+		switch (which) {
+		case BUTTON_POSITIVE:
+			accept();
+			break;
+
+		case BUTTON_NEGATIVE:
+			value.reset();
+			dismiss();
+			break;
+		}
+
+	}
+
+	private void init() {
+		setCanceledOnTouchOutside(true);
+
+		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(R.layout.popup_edit,
+				null, false);
+		setView(popupcontent);
+
+		editText = (WheelView) popupcontent.findViewById(R.id.popup_edit_text);
+
+		wheelAdapter = new NumericWheelAdapter(getContext());
+		editText.setViewAdapter(wheelAdapter);
+		editText.setOnWheelClickedListeners(this);
+
+		combatStyleBtn = (ToggleButton) popupcontent.findViewById(R.id.popup_edit_combat_style);
+		combatStyleBtn.setTextOn(getContext().getText(R.string.offensive));
+		combatStyleBtn.setTextOff(getContext().getText(R.string.defensive));
+		combatStyleBtn.setOnCheckedChangeListener(this);
+
+		beCalculation = (CheckBox) popupcontent.findViewById(R.id.popup_edit_be_calculation);
+		beCalculation.setOnCheckedChangeListener(this);
+
+		setButton(BUTTON_POSITIVE, "Ok", this);
+		setButton(BUTTON_NEGATIVE, "Reset", this);
 
 	}
 

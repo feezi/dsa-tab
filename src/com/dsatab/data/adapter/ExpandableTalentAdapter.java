@@ -6,61 +6,82 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.BaseMainActivity.EditListener;
-import com.dsatab.activity.BaseMainActivity.ProbeListener;
+import com.dsatab.activity.MainActivity.EditListener;
+import com.dsatab.activity.MainActivity.ProbeListener;
 import com.dsatab.common.Util;
-import com.dsatab.data.BaseCombatTalent;
 import com.dsatab.data.CombatDistanceTalent;
 import com.dsatab.data.CombatMeleeTalent;
-import com.dsatab.data.CombatProbe;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Talent;
 import com.dsatab.data.TalentGroup;
 import com.dsatab.data.TalentGroup.TalentGroupType;
-import com.dsatab.view.FilterSettings;
+import com.dsatab.view.ListFilterSettings;
+import com.gandulf.guilib.util.Debug;
 
 public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
+
+	private static final int TYPE_COMBAT_TALENT = 1;
+
+	private static final int TYPE_SIMPLE_TALENT = 0;
 
 	private List<TalentGroupType> groups;
 
 	private Hero hero;
 
-	private FilterSettings filterSettings;
+	private ListFilterSettings filterSettings;
 
 	private ProbeListener probeListener;
 	private EditListener editListener;
 
 	private Map<TalentGroupType, List<Talent>> groupsMap;
 
-	public ExpandableTalentAdapter(Hero hero, boolean showFavorite, boolean showNormal, boolean showUnused) {
+	private LayoutInflater inflater;
+
+	public ExpandableTalentAdapter(Context context, Hero hero, boolean showFavorite, boolean showNormal,
+			boolean showUnused) {
 		this.hero = hero;
-		this.filterSettings = new FilterSettings(showFavorite, showNormal, showUnused);
+		this.filterSettings = new ListFilterSettings(showFavorite, showNormal, showUnused);
 
 		groups = new ArrayList<TalentGroupType>(Arrays.asList(TalentGroupType.values()));
 		groups.retainAll(hero.getTalentGroups().keySet());
 
 		groupsMap = new HashMap<TalentGroup.TalentGroupType, List<Talent>>();
+
+		inflater = LayoutInflater.from(context);
+
 	}
 
-	public void setFilter(boolean showFavorite, boolean showNormal, boolean showUnused) {
+	public boolean filter(ListFilterSettings settings) {
 
-		boolean hasChanged = !filterSettings.equals(showFavorite, showNormal, showUnused);
-
-		filterSettings.set(showFavorite, showNormal, showUnused);
+		boolean hasChanged = !filterSettings.equals(settings);
 
 		if (hasChanged) {
-			groupsMap.clear();
+			filterSettings.set(settings);
+			notifyDataSetChanged();
 		}
+
+		return hasChanged;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.widget.BaseExpandableListAdapter#notifyDataSetChanged()
+	 */
+	@Override
+	public void notifyDataSetChanged() {
+		groupsMap.clear();
+		super.notifyDataSetChanged();
 	}
 
 	public Talent getChild(int groupPosition, int childPosition) {
@@ -83,6 +104,7 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 			if (talentGroup != null && talentGroup.getTalents() != null) {
 				talents = filter(talentGroup.getTalents());
 			}
+			groupsMap.put(groupType, talents);
 		}
 
 		return talents;
@@ -94,7 +116,7 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 			return in;
 		} else {
 			List<Talent> result = new ArrayList<Talent>();
-
+			Debug.verbose("Filtering talents");
 			for (Talent t : in) {
 				if (filterSettings.isVisible(t)) {
 					result.add(t);
@@ -120,123 +142,133 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 			return 0;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.widget.BaseExpandableListAdapter#getChildTypeCount()
+	 */
+	@Override
+	public int getChildTypeCount() {
+		return 2;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.widget.BaseExpandableListAdapter#getChildType(int, int)
+	 */
+	@Override
+	public int getChildType(int groupPosition, int childPosition) {
+		Talent talent = getChild(groupPosition, childPosition);
+		if (talent instanceof CombatMeleeTalent)
+			return TYPE_COMBAT_TALENT;
+		else
+			return TYPE_SIMPLE_TALENT;
+	}
+
 	public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView,
 			ViewGroup parent) {
 
-		View listItem = null;
+		View listItem;
+		ViewHolder holder;
+		if (convertView == null) {
+			listItem = inflater.inflate(R.layout.talent_list_item, parent, false);
+
+			holder = new ViewHolder();
+			holder.text1 = (TextView) listItem.findViewById(R.id.talent_list_item_text1);
+			// be
+			holder.text2 = (TextView) listItem.findViewById(R.id.talent_list_item_text2);
+			// probe
+			holder.text3 = (TextView) listItem.findViewById(R.id.talent_list_item_text3);
+			// value / at
+			holder.text4 = (TextView) listItem.findViewById(R.id.talent_list_item_text4);
+			// pa
+			holder.text5 = (TextView) listItem.findViewById(R.id.talent_list_item_text5);
+			holder.indicator = (ImageView) listItem.findViewById(R.id.talent_list_item_indicator);
+			listItem.setTag(holder);
+		} else {
+			listItem = convertView;
+			holder = (ViewHolder) convertView.getTag();
+		}
 
 		Talent talent = getChild(groupPosition, childPosition);
-		BaseCombatTalent combatTalent = hero.getCombatTalent(talent.getName());
 
-		if (convertView instanceof LinearLayout) {
-			listItem = convertView;
-		} else {
-			listItem = LayoutInflater.from(DSATabApplication.getInstance()).inflate(R.layout.talent_list_item, null,
-					false);
-		}
+		holder.text1.setText(talent.getName());
 
-		// name
-		TextView text1 = (TextView) listItem.findViewById(R.id.talent_list_item_text1);
-		// be
-		TextView text2 = (TextView) listItem.findViewById(R.id.talent_list_item_text2);
-		// probe
-		TextView text3 = (TextView) listItem.findViewById(R.id.talent_list_item_text3);
-		// value / at
-		TextView text4 = (TextView) listItem.findViewById(R.id.talent_list_item_text4);
-		// pa
-		TextView text5 = (TextView) listItem.findViewById(R.id.talent_list_item_text5);
-
-		text1.setText(talent.getName());
-
-		String be = talent.getBe();
-		if (combatTalent != null) {
-			be = combatTalent.getBe();
-		}
+		String be = talent.getProbeInfo().getBe();
 
 		if (TextUtils.isEmpty(be)) {
-			Util.setVisibility(text2, false, text1);
+			Util.setVisibility(holder.text2, false, holder.text1);
 		} else {
-			Util.setVisibility(text2, true, text1);
-			text2.setText(be);
+			Util.setVisibility(holder.text2, true, holder.text1);
+			holder.text2.setText(be);
 		}
-		text3.setText(talent.getProbe());
+		holder.text3.setText(talent.getProbeInfo().getAttributesString());
 
-		if (combatTalent != null) {
+		if (talent instanceof CombatMeleeTalent) {
+			CombatMeleeTalent meleeTalent = (CombatMeleeTalent) talent;
 
-			// make text5 visible
-			Util.setVisibility(text5, true, text1);
+			if (meleeTalent.getAttack() != null || meleeTalent.getAttack().getValue() != null) {
+				int modifier = hero.getModifier(meleeTalent.getAttack());
 
-			if (combatTalent instanceof CombatMeleeTalent) {
-				CombatMeleeTalent meleeTalent = (CombatMeleeTalent) combatTalent;
-
-				if (meleeTalent.getAttack() != null || meleeTalent.getAttack().getValue() != null) {
-					int modifier = hero.getModificator(meleeTalent.getAttack());
-					Util.setText(text4, meleeTalent.getAttack().getValue(), modifier, null);
-					text4.setOnClickListener(probeListener);
-					text4.setTag(R.id.TAG_KEY_VALUE, meleeTalent.getAttack());
-					text4.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(hero, meleeTalent, true));
-					Util.setVisibility(text4, true, text1);
-				} else {
-					text4.setText("");
-					text4.setTag(R.id.TAG_KEY_VALUE, null);
-					text4.setTag(R.id.TAG_KEY_PROBE, null);
-					text4.setOnClickListener(null);
-					Util.setVisibility(text4, false, text1);
-				}
-
-				if (meleeTalent.getDefense() != null && meleeTalent.getDefense().getValue() != null) {
-					int modifier = hero.getModificator(meleeTalent.getDefense());
-					Util.setText(text5, meleeTalent.getDefense().getValue(), modifier, null);
-					text5.setOnClickListener(probeListener);
-					text5.setTag(R.id.TAG_KEY_VALUE, meleeTalent.getDefense());
-					text5.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(hero, meleeTalent, false));
-					Util.setVisibility(text5, true, text1);
-				} else {
-					text5.setText("");
-					text5.setTag(R.id.TAG_KEY_VALUE, null);
-					text5.setTag(R.id.TAG_KEY_PROBE, null);
-					text5.setOnClickListener(null);
-					Util.setVisibility(text5, false, text1);
-				}
-
-			} else if (combatTalent instanceof CombatDistanceTalent) {
-				CombatDistanceTalent distanceTalent = (CombatDistanceTalent) combatTalent;
-
-				if (distanceTalent.getAttack() != null || distanceTalent.getAttack().getValue() != null) {
-					int modifier = hero.getModificator(distanceTalent.getAttack());
-					Util.setText(text4, distanceTalent.getAttack().getValue(), modifier, null);
-					text4.setOnClickListener(probeListener);
-					text4.setTag(R.id.TAG_KEY_VALUE, distanceTalent.getAttack());
-					text4.setTag(R.id.TAG_KEY_PROBE, new CombatProbe(hero, distanceTalent, true));
-					Util.setVisibility(text4, true, text1);
-				} else {
-					text4.setText("");
-					text4.setTag(R.id.TAG_KEY_VALUE, null);
-					text4.setTag(R.id.TAG_KEY_PROBE, null);
-					text4.setOnClickListener(null);
-					Util.setVisibility(text4, false, text1);
-				}
-				text5.setText("");
-				text5.setTag(R.id.TAG_KEY_VALUE, null);
-				text5.setTag(R.id.TAG_KEY_PROBE, null);
-				text5.setOnClickListener(null);
-				Util.setVisibility(text5, false, text1);
+				Util.setText(holder.text4, meleeTalent.getAttack().getValue(), modifier, null);
+				holder.text4.setOnClickListener(probeListener);
+				holder.text4.setOnLongClickListener(editListener);
+				holder.text4.setTag(R.id.TAG_KEY_VALUE, meleeTalent);
+				holder.text4.setTag(R.id.TAG_KEY_PROBE, meleeTalent.getAttack());
+				Util.setVisibility(holder.text4, true, holder.text1);
+			} else {
+				Util.setVisibility(holder.text4, false, holder.text1);
 			}
 
+			if (meleeTalent.getDefense() != null && meleeTalent.getDefense().getValue() != null) {
+				int modifier = hero.getModifier(meleeTalent.getDefense());
+
+				Util.setText(holder.text5, meleeTalent.getDefense().getValue(), modifier, null);
+				holder.text5.setOnClickListener(probeListener);
+				holder.text5.setOnLongClickListener(editListener);
+				holder.text5.setTag(R.id.TAG_KEY_VALUE, meleeTalent);
+				holder.text5.setTag(R.id.TAG_KEY_PROBE, meleeTalent.getDefense());
+				Util.setVisibility(holder.text5, true, holder.text1);
+			} else {
+				Util.setVisibility(holder.text5, false, holder.text1);
+			}
+
+		} else if (talent instanceof CombatDistanceTalent) {
+
+			CombatDistanceTalent distanceTalent = (CombatDistanceTalent) talent;
+
+			if (distanceTalent.getValue() != null) {
+				int modifier = hero.getModifier(distanceTalent);
+
+				Util.setText(holder.text4, distanceTalent.getValue(), modifier, null);
+				holder.text4.setOnClickListener(null);
+				holder.text4.setClickable(false);
+				Util.setVisibility(holder.text4, true, holder.text1);
+			} else {
+				Util.setVisibility(holder.text4, false, holder.text1);
+			}
+			Util.setVisibility(holder.text5, false, holder.text1);
 		} else {
-			int modifier = hero.getModificator(talent);
-			Util.setText(text4, talent.getValue(), modifier, null);
-			text4.setTag(R.id.TAG_KEY_VALUE, null);
-			text4.setTag(R.id.TAG_KEY_PROBE, null);
-			text4.setOnClickListener(null);
-			text4.setClickable(false);
-			// hide text5 and expand text1 with its width
-			Util.setVisibility(text5, false, text1);
-
+			int modifier = hero.getModifier(talent);
+			Util.setText(holder.text4, talent.getValue(), modifier, null);
+			holder.text4.setOnClickListener(null);
+			holder.text4.setClickable(false); // hide text5 and expand text1
+												// with its width
+			Util.setVisibility(holder.text5, false, holder.text1);
 		}
-		Util.applyRowStyle(talent, listItem, childPosition);
 
-		listItem.setTag(talent);
+		if (holder.indicator != null && (talent.isBegabung() || talent.isTalentschub())) {
+			holder.indicator.setVisibility(View.VISIBLE);
+			holder.indicator.setImageResource(R.drawable.indicator_star);
+		}
+
+		if (holder.indicator != null && !TextUtils.isEmpty(talent.getTalentSpezialisierung())) {
+			holder.indicator.setVisibility(View.VISIBLE);
+			holder.indicator.setImageResource(R.drawable.indicator_flash);
+		}
+
+		Util.applyRowStyle(talent, listItem, childPosition);
 		return listItem;
 	}
 
@@ -253,17 +285,34 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 	}
 
 	public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-		TextView listItem = null;
-		if (convertView instanceof TextView) {
-			listItem = (TextView) convertView;
+
+		View listItem = null;
+		ViewHeaderHolder holder;
+		if (convertView != null) {
+			listItem = convertView;
+			holder = (ViewHeaderHolder) convertView.getTag();
 		} else {
-			listItem = (TextView) LayoutInflater.from(DSATabApplication.getInstance()).inflate(
-					R.layout.talent_list_headeritem, null, false);
+			listItem = inflater.inflate(R.layout.talent_list_headeritem, parent, false);
+
+			holder = new ViewHeaderHolder();
+			holder.text1 = (TextView) listItem.findViewById(R.id.talent_list_headeritem);
+			holder.indicator = (ImageView) listItem.findViewById(R.id.talent_list_item_indicator);
+
+			listItem.setTag(holder);
 		}
 
 		TalentGroupType groupType = getGroup(groupPosition);
-		if (groupType != null)
-			listItem.setText(groupType.name());
+
+		if (groupType != null) {
+			TalentGroup talentGroup = hero.getTalentGroups().get(groupType);
+
+			holder.text1.setText(groupType.name());
+
+			if (holder.indicator != null && talentGroup.isBegabung()) {
+				holder.indicator.setVisibility(View.VISIBLE);
+				holder.indicator.setImageResource(R.drawable.indicator_star);
+			}
+		}
 
 		return listItem;
 	}
@@ -290,6 +339,16 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 
 	public void setEditListener(EditListener editListener) {
 		this.editListener = editListener;
+	}
+
+	private static class ViewHolder {
+		TextView text1, text2, text3, text4, text5;
+		ImageView indicator;
+	}
+
+	private static class ViewHeaderHolder {
+		TextView text1;
+		ImageView indicator;
 	}
 
 }

@@ -3,10 +3,10 @@ package com.dsatab.view;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
@@ -33,19 +33,20 @@ public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnCl
 
 		setTitle(spell.getName());
 		set(R.id.popup_spell_castduration, spell.getCastDuration());
-		set(R.id.popup_spell_comment, spell.getComments());
+		set(R.id.popup_spell_row_comment, R.id.popup_spell_comment, spell.getComments());
 		set(R.id.popup_spell_costs, spell.getCosts());
-		set(R.id.popup_spell_notes, spell.getNotes());
+		set(R.id.popup_spell_effect, spell.getEffect());
+		set(R.id.popup_spell_target, spell.getTarget());
 		set(R.id.popup_spell_range, spell.getRange());
-		set(R.id.popup_spell_spellduration, spell.getSpellDuration());
+		set(R.id.popup_spell_effectduration, spell.getEffectDuration());
 		set(R.id.popup_spell_representation, spell.getRepresantation());
-		set(R.id.popup_spell_variant, spell.getVariant());
+		set(R.id.popup_spell_row_variant, R.id.popup_spell_variant, spell.getVariant());
+		set(R.id.popup_spell_source, spell.getSource());
+		set(R.id.popup_spell_complexity, spell.getComplexity());
+		set(R.id.popup_spell_merkmal, spell.getMerkmale());
 	}
 
 	private void init() {
-
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
 		setCanceledOnTouchOutside(true);
 
 		popupcontent = (View) LayoutInflater.from(getContext()).inflate(R.layout.popup_spell_info, null, false);
@@ -78,6 +79,15 @@ public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnCl
 			dialog.dismiss();
 		}
 
+	}
+
+	private void set(int rowId, int tfid, String v) {
+		if (TextUtils.isEmpty(v))
+			popupcontent.findViewById(rowId).setVisibility(View.GONE);
+		else {
+			popupcontent.findViewById(rowId).setVisibility(View.VISIBLE);
+			set(tfid, v);
+		}
 	}
 
 	private void set(int tfid, String v) {

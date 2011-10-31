@@ -1,41 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.dsatab" android:installLocation="auto" android:versionName="2.3" android:versionCode="31">
-	<application android:debuggable="false" android:label="DsaTab" android:icon="@drawable/icon" android:name="DSATabApplication">
-		<activity android:theme="@style/Theme.MapBackground"
-			android:windowSoftInputMode="stateHidden|adjustResize" android:name="com.dsatab.activity.BaseMainActivity">
+	package="com.dsatab" android:installLocation="auto"
+	android:versionCode="39" android:versionName="2.5.4">
+	<application android:label="DsaTab" android:icon="@drawable/icon" android:theme="@style/Theme.Paper"
+		android:name="DSATabApplication" android:largeHeap="true">
+
+		<activity android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified"
+			android:name="com.dsatab.activity.MainActivity">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-
-		<activity android:name="com.dsatab.activity.DsaPreferenceActivity"
-			android:label="Einstellungen" android:theme="@style/Theme.NoTitle"></activity>
 		
-		<activity android:name="com.dsatab.activity.ItemChooserActivity"
-			android:label="Inventar" android:theme="@style/Theme.ItemsBackground"></activity>
-				
+		<activity android:name=".activity.DsaPreferenceActivityHC"
+		    android:theme="@android:style/Theme.Light"
+			android:label="Einstellungen"></activity>
+		<activity android:name=".activity.DsaPreferenceActivity"
+		    android:theme="@android:style/Theme.Light"
+			android:label="Einstellungen"></activity>		
+		<activity android:name="com.dsatab.activity.ItemChooserActivity"		    
+			android:label="Inventar"></activity>
 		<activity android:name="com.dsatab.activity.NotesEditActivity"
-			android:label="Notizen" android:theme="@style/Theme.MapBackground"
-			android:windowSoftInputMode="stateVisible|adjustResize"></activity>
-			
-			<activity android:windowSoftInputMode="stateVisible|adjustResize" android:name=".activity.TabEditActivity" android:theme="@android:style/Theme.Dialog" android:label="Tab bearbeiten"></activity>
-
+		android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified"
+			android:label="Notiz bearbeiten" android:theme="@style/Theme.Dialog"></activity>
+		<activity android:name=".activity.TabEditActivity"
+		android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified"
+			android:theme="@style/Theme.Dialog" android:label="Tab bearbeiten"></activity>
+		<activity android:name=".activity.ModificatorEditActivity"
+		android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified"
+			android:theme="@style/Theme.Dialog" android:label="Modifikator bearbeiten"></activity>
 		<activity android:name="com.dsatab.activity.HeroChooserActivity"
-			android:theme="@style/Theme.MapBackground" android:label="Held auswählen"></activity>
-			
+			android:label="Held auswählen"></activity>
+		<activity android:name="com.dsatab.activity.SearchableActivity"
+			android:launchMode="singleTop" android:label="Suche">
+			<intent-filter>
+				<action android:name="android.intent.action.SEARCH" />
+			</intent-filter>
+			<meta-data android:name="android.app.searchable"
+				android:resource="@xml/searchable" />
+		</activity>
+
+		<meta-data android:name="android.app.default_searchable"
+			android:value="com.dsatab.activity.SearchableActivity"
+			android:voiceSearchMode="showVoiceSearchButton|launchRecognizer" />
+
 	</application>
 	<uses-sdk android:minSdkVersion="7" android:targetSdkVersion="10" />
 
-	<supports-screens android:largeScreens="true" android:resizeable="true"
-		android:anyDensity="true" android:normalScreens="true" android:smallScreens="true" android:xlargeScreens="true"/>
+	<supports-screens android:largeScreens="true"
+		android:resizeable="true" android:anyDensity="true"
+		android:normalScreens="true" android:smallScreens="true"
+		android:xlargeScreens="true" />
 
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-	<uses-permission android:name="android.permission.VIBRATE"/>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.VIBRATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.RECORD_AUDIO" />
-	
+
 	<uses-feature android:required="false"
 		android:name="android.hardware.microphone"></uses-feature>
 	<uses-feature android:required="false"

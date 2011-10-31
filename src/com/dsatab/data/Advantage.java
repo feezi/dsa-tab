@@ -15,9 +15,12 @@ public class Advantage {
 	private String comment;
 	private String valueString;
 
+	public static final String AUSDAUERND = "Ausdauernd";
+	public static final String NATUERLICHER_RUESTUNGSSCHUTZ = "Natürlicher Rüstungsschutz";
+
 	private static final String[] VORTEILE = { "Amtsadel", "Adlige Abstammung", "Adliges Erbe", "Affinität zu ",
 			"Akademische Ausbildung (Gelehrter)", "Akademische Ausbildung (Krieger)",
-			"Akademische Ausbildung (Magier)", "Altersresistenz", "Astrale Regeneration", "Astralmacht", "Ausdauernd",
+			"Akademische Ausbildung (Magier)", "Altersresistenz", "Astrale Regeneration", "Astralmacht", AUSDAUERND,
 			"Ausdauernder Zauberer", "Ausrüstungsvorteil", "Balance", "Begabung für [Merkmal]",
 			"Begabung für [Ritual]", "Begabung für [Talent]", "Begabung für [Talentgruppe]", "Begabung für [Zauber]",
 			"Beidhändig", "Beseelte Knochenkeule", "Besonderer Besitz", "Breitgefächerte Bildung", "Dämmerungssicht",
@@ -30,7 +33,7 @@ public class Advantage {
 			"Herausragendes Aussehen", "Hitzeresistenz", "Hohe Lebenskraft", "Hohe Magieresistenz",
 			"Immunität gegen Gift", "Immunität gegen Krankheiten", "Innerer Kompass", "Kälteresistenz", "Kampfrausch",
 			"Koboldfreund", "Kräfteschub", "Talentschub", "Linkshänder", "Machtvoller Vertrauter", "Magiedilletant",
-			"Magiegespür", "Meisterhandwerk", "Nachtsicht", "Natürlicher Rüstungsschutz", "Natürliche Waffen",
+			"Magiegespür", "Meisterhandwerk", "Nachtsicht", NATUERLICHER_RUESTUNGSSCHUTZ, "Natürliche Waffen",
 			"Niedrige Schlechte Eigenschaft", "Ortskenntnis", "Prophezeien", "Resistenz gegen Gift",
 			"Resistenz gegen Krankheiten", "Richtungssinn", "Schlangenmensch", "Schnelle Heilung", "Schutzgeist",
 			"Schwer zu verzaubern", "Soziale Anpassungsfähigkeit", "Sprachgefühl", "Tierfreund", "Tierempathie (alle)",
@@ -71,14 +74,22 @@ public class Advantage {
 			"Unangenehme Stimme", "Unansehnlich", "Unfähigkeit für [Merkmal]", "Unfähigkeit für [Talent]",
 			"Unfähigkeit für [Talentgruppe]", "Unfrei", "Ungebildet", "Unstet",
 			"Unverträglichkeit mit verarbeitetem Metall", "Vergesslichkeit", "Verpflichtungen", "Verschwendungssucht",
-			"Verwöhnt", "Vorurteile", "Wahnvorstellungen", "Wahrer Name", "Weltfremd", "Widerwärtiges Aussehen",
-			"Wilde Magie", "Zielschwierigkeiten", "Zögerlicher Zauberer", "Zwergenwuchs", "Hoher Amtsadel", "Comes",
-			"Erstgeborener Comes", "Sacerdos" };
+			"Verwöhnt", "Vorurteile", "Vorurteile (stark)", "Wahnvorstellungen", "Wahrer Name", "Weltfremd",
+			"Widerwärtiges Aussehen", "Wilde Magie", "Zielschwierigkeiten", "Zögerlicher Zauberer", "Zwergenwuchs",
+			"Hoher Amtsadel", "Comes", "Erstgeborener Comes", "Sacerdos" };
 
 	static {
 		Arrays.sort(NACHTEILE);
 		Arrays.sort(VORTEILE);
 	}
+
+	public static final String BEGABUNG_FUER_PREFIX = "Begabung für";
+
+	public static final String BEGABUNG_FUER_TALENT = "Begabung für [Talent]";
+	public static final String BEGABUNG_FUER_TALENTGRUPPE = "Begabung für [Talentgruppe]";
+	public static final String BEGABUNG_FUER_ZAUBER = "Begabung für [Zauber]";
+	public static final String BEGABUNG_FUER_RITUAL = "Begabung für [Zauber]";
+	public static final String TALENTSCHUB = "Talentschub";
 
 	public static boolean isVorteil(String name) {
 		return Arrays.binarySearch(VORTEILE, name) >= 0;
@@ -91,16 +102,8 @@ public class Advantage {
 	public Advantage(Element element) {
 
 		this.name = element.getAttributeValue(Xml.KEY_NAME);
-
-		if (name.startsWith("Begabung für ") && getValueAsString() != null) {
-			this.name = "Begabung für " + getValueAsString();
-		}
-
+		this.valueString = element.getAttributeValue(Xml.KEY_VALUE);
 		this.comment = element.getAttributeValue(Xml.KEY_COMMENT);
-
-		if (element.getAttribute(Xml.KEY_VALUE) != null)
-			this.valueString = element.getAttributeValue(Xml.KEY_VALUE);
-
 	}
 
 	public String getName() {

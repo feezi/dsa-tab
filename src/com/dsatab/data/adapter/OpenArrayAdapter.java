@@ -95,7 +95,7 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 
 	private OpenFilter<T> mFilter;
 
-	private LayoutInflater mInflater;
+	protected LayoutInflater mInflater;
 
 	/**
 	 * Constructor
@@ -171,7 +171,7 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 	 *            The objects to represent in the ListView.
 	 */
 	public OpenArrayAdapter(Context context, int textViewResourceId, List<T> objects) {
-		init(context, textViewResourceId, 0, objects);
+		init(context, textViewResourceId, 0, new ArrayList<T>(objects));
 	}
 
 	/**
@@ -189,7 +189,7 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 	 *            The objects to represent in the ListView.
 	 */
 	public OpenArrayAdapter(Context context, int resource, int textViewResourceId, List<T> objects) {
-		init(context, resource, textViewResourceId, objects);
+		init(context, resource, textViewResourceId, new ArrayList<T>(objects));
 	}
 
 	/**
@@ -203,6 +203,12 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 
 			synchronized (mLock) {
 				mOriginalValues.add(object);
+
+				// add object to current filtered objects too if it pases the
+				// filter
+				if (getFilter().filter(object))
+					mObjects.add(object);
+
 				if (mNotifyOnChange)
 					notifyDataSetChanged();
 			}
@@ -226,6 +232,13 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 		if (mOriginalValues != null) {
 			synchronized (mLock) {
 				mOriginalValues.add(index, object);
+
+				// add object to current filtered objects too if it passes the
+				// filter, index has to be ignored since it's different,
+				// TODO find better solution for filter
+				if (getFilter().filter(object))
+					mObjects.add(object);
+
 				if (mNotifyOnChange)
 					notifyDataSetChanged();
 			}
@@ -245,6 +258,7 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 	public void remove(T object) {
 		if (mOriginalValues != null) {
 			synchronized (mLock) {
+				mObjects.remove(object);
 				mOriginalValues.remove(object);
 			}
 		} else {
@@ -261,6 +275,7 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 		if (mOriginalValues != null) {
 			synchronized (mLock) {
 				mOriginalValues.clear();
+				mObjects.clear();
 			}
 		} else {
 			mObjects.clear();
@@ -453,8 +468,9 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 	}
 
 	public void refilter() {
-		if (getFilter().isFilterSet())
+		if (getFilter().isFilterSet()) {
 			getFilter().filter(getFilter().constraint);
+		}
 	}
 
 	/**

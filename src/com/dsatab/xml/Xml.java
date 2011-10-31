@@ -39,8 +39,6 @@ public interface Xml {
 	public static final String KEY_GEGENSTAND = "gegenstand";
 	public static final String KEY_HELD = "held";
 	public static final String KEY_EIGENSCHAFT = "eigenschaft";
-	public static final String KEY_RUESTUNGSSCHUTZ = "ruestungsschutz";
-	public static final String KEY_WUNDE = "wunde";
 	public static final String KEY_ABENTEUERPUNKTE = "abenteuerpunkte";
 	public static final String KEY_FREIE_ABENTEUERPUNKTE = "freieabenteuerpunkte";
 
@@ -55,7 +53,6 @@ public interface Xml {
 	public static final String KEY_ABENTEUERPUNKTE_UPPER = "Abenteuerpunkte";
 	public static final String KEY_OBJ = "obj";
 	public static final String KEY_TALENT = "talent";
-	public static final String KEY_COMBATSTYLE = "combatStyle";
 
 	public static final String KEY_KAMPF = "kampf";
 	public static final String KEY_KAMPFWERTE = "kampfwerte";
@@ -142,5 +139,19 @@ public interface Xml {
 	public static final String KEY_DAUER = "dauer";
 	public static final String KEY_WIRKUNG = "wirkung";
 	public static final String TAB_CONFIG = "tabConfig";
-	public static final String KEY_BE_CALCULATION = "be_calc";
+	public static final String KEY_AUSWAHL = "auswahl";
+	public static final String KEY_NUMMER = "nummer";
+
+	public static final String KEY_VERBINDUNGEN = "verbindungen";
+	public static final String KEY_VERBINDUNG = "verbindung";
+	public static final String KEY_DESCRIPTION = "beschreibung";
+	public static final String KEY_SO = "so";
+
+	public static final String KEY_NOTIZ_PREFIX = "notiz";
+	public static final String KEY_NOTIZ = "notiz";
+	public static final String KEY_AUSSEHENTEXT_PREFIX = "aussehentext";
+	public static final String KEY_TITEL = "titel";
+	public static final String KEY_STAND = "stand";
+	public static final String KEY_ACTIVE = "active";
+	public static final String KEY_SPEZIALISIERUNG = "spezialisierung";
 }

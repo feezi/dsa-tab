@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" android:title="Regeln">
+        <PreferenceCategory android:title="Regeln">
+                <CheckBoxPreference
+                android:icon="@drawable/ic_menu_home"
+                        android:title="Hausregeln verwenden"
+                        android:defaultValue="false"
+                        android:summary="Spezielle Hausregeln verwenden: Eigenschafts-/Kampfproben besten 2 von 3 Würfen"
+                        android:key="houseRules" />
+                
+				<CheckBoxPreference
+					android:icon="@drawable/ic_menu_dice"
+                        android:title="Schüttel Wurf"
+                        android:defaultValue="false"
+                        android:summary="Durch das Schütteln des Handies wird ein Würfel geworfen"
+                        android:key="shakeRollDice" />
+                                        
+
+				<ListPreference
+				android:icon="@drawable/ic_menu_tag"
+                        android:title="Rüstungsschutzart"
+                        android:summary="Wähle nach welcher Art der Rüstungsschutz berechnet wird (Zonenrüstung/Gesamtrüstung)."
+                        android:key="armorType"
+                        android:defaultValue="ZonenRuestung"/>
+                                                
+        </PreferenceCategory>        
+                        
+</PreferenceScreen>

@@ -1,28 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="wrap_content"
-	android:weightSum="1.0" android:paddingLeft="5dp" android:paddingRight="5dp">
+<LinearLayout 	
+	android:minHeight="40dp"		
+	android:weightSum="1.0" xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingLeft="2.5dp">
 
 	<TextView android:id="@+id/talent_list_item_text1" style="@style/TextLabel"
-		android:text="Talentname" android:ellipsize="end" android:gravity="center_vertical"
-		android:layout_width="0dip" android:textColor="#000000" android:layout_height="fill_parent" android:layout_weight="0.3"/>
+		android:text="" android:ellipsize="end" android:gravity="center_vertical"
+		android:layout_width="0dip" android:textColor="#000000" android:layout_height="wrap_content" android:layout_weight="0.3" />
 	<TextView android:gravity="center_vertical" android:id="@+id/talent_list_item_text2"
-		style="@style/TextLabelSmall" android:text="Be-2"
+		style="@style/TextLabelSmall" android:text=""
 		android:layout_width="0dip" android:layout_weight="0.15"
 		android:ellipsize="marquee" android:textColor="#000000"
 		android:layout_height="fill_parent"/>
 	<TextView android:ellipsize="end" android:gravity="center_vertical"
 		style="@style/TextLabelSmall" android:id="@+id/talent_list_item_text3"
-		android:text="(Mu/Mu/Mu)" android:layout_weight="0.3"
+		android:text="" android:layout_weight="0.3"
 		android:layout_width="0dip" android:textColor="#000000"
-		android:layout_height="fill_parent" />
-	<TextView android:ellipsize="end" android:id="@+id/talent_list_item_text4" android:text="8"
+		android:layout_height="fill_parent"/>
+	<TextView android:ellipsize="end" android:id="@+id/talent_list_item_text4" android:text=""
 		style="@style/TextValue" android:layout_width="0dip" android:textColor="#000000"
-		android:layout_height="fill_parent" android:layout_gravity="right" android:gravity="center" android:layout_weight="0.125"/>
-<TextView android:ellipsize="end" android:id="@+id/talent_list_item_text5" android:text="8"
-		style="@style/TextValue" android:layout_width="0dip" android:textColor="#000000"
-		android:layout_height="fill_parent" android:layout_gravity="right" android:gravity="center" android:layout_marginLeft="3dp" android:layout_weight="0.125"/>		
-
-
+		android:layout_height="fill_parent" android:layout_gravity="right" android:gravity="center" android:layout_weight="0.125" />
+	<TextView android:ellipsize="end" android:id="@+id/talent_list_item_text5" android:text=""
+		style="@style/TextValue" android:layout_width="0dip" android:textColor="#000000"			
+		android:layout_height="fill_parent" android:layout_gravity="right" android:gravity="center" android:layout_marginLeft="3dp" android:layout_weight="0.125"/>
+	<ImageView
+	    android:id="@+id/talent_list_item_indicator"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:src="@drawable/indicator_house" android:layout_gravity="top|right" android:layout_weight="0" android:visibility="invisible"/>
 
 </LinearLayout>
+

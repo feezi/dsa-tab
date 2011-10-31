@@ -17,7 +17,7 @@
 package com.dsatab.data.adapter;
 
 import com.dsatab.data.Markable;
-import com.dsatab.view.FilterSettings;
+import com.dsatab.view.ListFilterSettings;
 
 /**
  * @author Ganymede
@@ -25,7 +25,7 @@ import com.dsatab.view.FilterSettings;
  */
 public class FilterableListFilter<T extends Markable> extends OpenFilter<T> {
 
-	private FilterSettings settings;
+	private ListFilterSettings settings;
 
 	/**
 	 * 
@@ -38,11 +38,11 @@ public class FilterableListFilter<T extends Markable> extends OpenFilter<T> {
 		return constraint != null || (settings != null && !settings.isAllVisible());
 	}
 
-	public FilterSettings getSettings() {
+	public ListFilterSettings getSettings() {
 		return settings;
 	}
 
-	public void setSettings(FilterSettings settings) {
+	public void setSettings(ListFilterSettings settings) {
 		this.settings = settings;
 	}
 

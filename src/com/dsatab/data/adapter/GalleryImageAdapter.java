@@ -108,8 +108,13 @@ public class GalleryImageAdapter extends OpenArrayAdapter<Item> {
 		File lqFile = item.getFile();
 		if (lqFile != null && lqFile.isFile()) {
 			bitmap = DataManager.getBitmap(lqFile.getAbsolutePath());
+
 		}
-		i.setImageBitmap(bitmap);
+
+		if (bitmap != null)
+			i.setImageBitmap(bitmap);
+		else
+			i.setImageResource(R.drawable.item_card);
 
 		return i;
 	}

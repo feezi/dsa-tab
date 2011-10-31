@@ -2,6 +2,9 @@
     
 	<item android:id="@+id/option_choose_map"
           android:icon="@drawable/ic_menu_mapmode"
-          android:title="Karte auswählen" />
-              
+          android:title="Karte auswählen"/>
+    
+    <item android:id="@+id/option_map_license"
+          android:icon="@drawable/ic_menu_agenda"
+          android:title="Lizenzbedingungen" />          
 </menu>

@@ -1,29 +1,29 @@
 package com.dsatab.view;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.Button;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.activity.BaseMainActivity;
+import com.dsatab.activity.MainActivity;
 import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.common.Util;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.enums.AttributeType;
 
 public class EvadeChooserDialog extends AlertDialog implements android.view.View.OnClickListener,
-		Dialog.OnDismissListener {
+		DialogInterface.OnClickListener, OnItemClickListener {
 
 	private int[] distanceValues;
 	private int[] enemyValues;
@@ -33,43 +33,62 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 
 	private TextView text1, text2;
 
-	private Button btnOthers;
-
-	private ImageButton iconLeft, iconRight;
-
-	private AlertDialog othersDialog;
-
 	private int erschwernis = 0;
 
 	private int otherErschwernis = 0;
 
 	private boolean doubleDK = false;
 
-	private BaseMainActivity main;
+	private ListView othersList;
 
-	public EvadeChooserDialog(BaseMainActivity context) {
+	private MainActivity main;
+
+	public EvadeChooserDialog(MainActivity context) {
 		super(context);
 		this.main = context;
 		init();
 	}
 
-	protected BaseMainActivity getMain() {
+	protected MainActivity getMain() {
 		return main;
 	}
 
-	public void onClick(View v) {
-		if (v == iconLeft) {
-
-			Attribute ausweichen = main.getHero().getAttribute(AttributeType.Ausweichen);
-			ausweichen.setErschwernis(erschwernis + otherErschwernis);
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.content.DialogInterface.OnClickListener#onClick(android.content
+	 * .DialogInterface, int)
+	 */
+	@Override
+	public void onClick(DialogInterface dialog, int which) {
+		switch (which) {
+		case BUTTON_POSITIVE:
+			accept();
+			break;
+		case BUTTON_NEGATIVE:
 			dismiss();
-			main.checkProbe(ausweichen);
-		} else if (v == btnOthers) {
-			if (othersDialog == null)
-				initOthersDialog();
-			othersDialog.show();
+			break;
 		}
+
+	}
+
+	protected void accept() {
+		Attribute ausweichen = main.getHero().getAttribute(AttributeType.Ausweichen);
+		ausweichen.getProbeInfo().setErschwernis(erschwernis + otherErschwernis);
+
+		main.getHero().fireValueChangedEvent(ausweichen);
+		dismiss();
+		main.checkProbe(ausweichen);
+	}
+
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case android.R.id.icon1:
+			accept();
+			break;
+		}
+
 	}
 
 	private void updateProbeValue() {
@@ -92,22 +111,19 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 	protected void onStart() {
 
 		Attribute ausweichen = main.getHero().getAttribute(AttributeType.Ausweichen);
-		ausweichen.setErschwernis(0);
+		ausweichen.getProbeInfo().setErschwernis(0);
 
 		if (ausweichen != null) {
 			StyleableSpannableStringBuilder title = new StyleableSpannableStringBuilder();
 			title.append(ausweichen.getName());
 			Util.appendValue(main.getHero(), title, ausweichen, null);
 			text1.setText(title);
-			text2.setText("Modifikator " + ausweichen.getErschwernis());
+			text2.setText("Modifikator " + ausweichen.getProbeInfo().getErschwernis());
 		}
 		super.onStart();
 	}
 
 	private void init() {
-
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
 		distanceValues = getContext().getResources().getIntArray(R.array.evadeDistanceValues);
 		enemyValues = getContext().getResources().getIntArray(R.array.evadeEnemyValues);
 		modificationValues = getContext().getResources().getIntArray(R.array.evadeModificationValues);
@@ -153,68 +169,48 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 		text1.setTextColor(Color.parseColor("#dddddd"));
 		text2.setTextColor(Color.parseColor("#dddddd"));
 
-		iconLeft = (ImageButton) popupcontent.findViewById(android.R.id.icon1);
-		iconRight = (ImageButton) popupcontent.findViewById(android.R.id.icon2);
-
+		ImageButton iconLeft = (ImageButton) popupcontent.findViewById(android.R.id.icon1);
 		iconLeft.setOnClickListener(this);
 		iconLeft.setVisibility(View.VISIBLE);
 		iconLeft.setClickable(true);
 		iconLeft.setFocusable(true);
 		iconLeft.setImageResource(R.drawable.icon_ausweichen);
 
-		iconRight.setVisibility(View.GONE);
+		popupcontent.findViewById(android.R.id.icon2).setVisibility(View.GONE);
 
-		setOnDismissListener(this);
-
-		btnOthers = (Button) popupcontent.findViewById(R.id.evade_others);
-		btnOthers.setOnClickListener(this);
-
-	}
-
-	public void onDismiss(DialogInterface dialog) {
-		Attribute ausweichen = main.getHero().getAttribute(AttributeType.Ausweichen);
-		ausweichen.setErschwernis(erschwernis + otherErschwernis);
-
-		dismiss();
-	}
-
-	private void initOthersDialog() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-		builder.setTitle(R.string.modifikatoren);
-		builder.setPositiveButton(R.string.label_ok, new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				updateProbeValue();
-			}
-		});
-		builder.setNegativeButton(R.string.label_cancel, new OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-				otherErschwernis = 0;
-				updateProbeValue();
-			}
-		});
+		othersList = (ListView) popupcontent.findViewById(R.id.evade_others);
 
 		String[] modificationStrings = getContext().getResources().getStringArray(R.array.evadeModificationStrings);
 
-		builder.setMultiChoiceItems(modificationStrings, null, new DialogInterface.OnMultiChoiceClickListener() {
+		othersList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+		othersList.setAdapter(new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_multiple_choice,
+				modificationStrings));
 
-			@Override
-			public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-				if (which == 0) {
-					doubleDK = isChecked;
-				} else {
-					if (isChecked)
-						otherErschwernis += modificationValues[which];
-					else {
-						otherErschwernis -= modificationValues[which];
-					}
-				}
+		othersList.setOnItemClickListener(this);
+
+		setButton(BUTTON_POSITIVE, "Ausweichen", this);
+		setButton(BUTTON_NEGATIVE, getContext().getString(R.string.label_cancel), this);
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget
+	 * .AdapterView, android.view.View, int, long)
+	 */
+	@Override
+	public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
+		if (position == 0) {
+			doubleDK = view.isSelected();
+		} else {
+			if (view.isSelected())
+				otherErschwernis += modificationValues[position];
+			else {
+				otherErschwernis -= modificationValues[position];
 			}
-		});
-		othersDialog = builder.create();
+		}
+		updateProbeValue();
 	}
 }

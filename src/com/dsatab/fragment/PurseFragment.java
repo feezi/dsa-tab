@@ -1,5 +1,8 @@
 package com.dsatab.fragment;
 
+import kankan.wheel.widget.OnWheelChangedListener;
+import kankan.wheel.widget.WheelView;
+import kankan.wheel.widget.adapters.NumericWheelAdapter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,15 +17,15 @@ import com.dsatab.data.Hero;
 import com.dsatab.data.Purse;
 import com.dsatab.data.Purse.Currency;
 import com.dsatab.data.Purse.PurseUnit;
-import com.gandulf.guilib.view.NumberPicker;
-import com.gandulf.guilib.view.OnViewChangedListener;
+import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.view.adapter.SpinnerSimpleAdapter;
 
-public class PurseFragment extends BaseFragment implements OnItemSelectedListener, OnViewChangedListener<NumberPicker> {
+public class PurseFragment extends BaseFragment implements OnItemSelectedListener, OnWheelChangedListener {
 
 	private Spinner currencySpinner;
 
-	private NumberPicker[] picker;
+	private WheelView[] picker;
+	private NumericWheelAdapter pickerAdapter;
 	private TextView[] labels;
 
 	private Purse purse;
@@ -36,7 +39,23 @@ public class PurseFragment extends BaseFragment implements OnItemSelectedListene
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.sheet_purse, container, false);
+		View root = configureContainerView(inflater.inflate(R.layout.sheet_purse, container, false));
+
+		currencySpinner = (Spinner) root.findViewById(R.id.sp_currency);
+
+		picker = new WheelView[4];
+		picker[0] = (WheelView) root.findViewById(R.id.popup_purse_dukat);
+		picker[1] = (WheelView) root.findViewById(R.id.popup_purse_silver);
+		picker[2] = (WheelView) root.findViewById(R.id.popup_purse_heller);
+		picker[3] = (WheelView) root.findViewById(R.id.popup_purse_kreuzer);
+
+		labels = new TextView[4];
+		labels[0] = (TextView) root.findViewById(R.id.tv_currency1);
+		labels[1] = (TextView) root.findViewById(R.id.tv_currency2);
+		labels[2] = (TextView) root.findViewById(R.id.tv_currency3);
+		labels[3] = (TextView) root.findViewById(R.id.tv_currency4);
+
+		return root;
 	}
 
 	/*
@@ -47,30 +66,18 @@ public class PurseFragment extends BaseFragment implements OnItemSelectedListene
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 
-		currencySpinner = (Spinner) findViewById(R.id.sp_currency);
-		currencySpinner.setAdapter(new SpinnerSimpleAdapter<Currency>(getActivity(), Currency.values()));
-		currencySpinner.setOnItemSelectedListener(this);
-
-		picker = new NumberPicker[4];
-		picker[0] = (NumberPicker) findViewById(R.id.popup_purse_dukat);
-		picker[0].setOnViewChangedListener(this);
-		picker[1] = (NumberPicker) findViewById(R.id.popup_purse_silver);
-		picker[1].setOnViewChangedListener(this);
-		picker[2] = (NumberPicker) findViewById(R.id.popup_purse_heller);
-		picker[2].setOnViewChangedListener(this);
-		picker[3] = (NumberPicker) findViewById(R.id.popup_purse_kreuzer);
-		picker[3].setOnViewChangedListener(this);
-
-		for (int i = 0; i < picker.length; i++) {
-			picker[i].setRange(0, 9999);
+		if (currencySpinner != null) {
+			currencySpinner.setAdapter(new SpinnerSimpleAdapter<Currency>(getActivity(), Currency.values()));
+		} else {
+			Debug.error("Spinner was NULL!?!?!");
 		}
 
-		labels = new TextView[4];
-		labels[0] = (TextView) findViewById(R.id.tv_currency1);
-		labels[1] = (TextView) findViewById(R.id.tv_currency2);
-		labels[2] = (TextView) findViewById(R.id.tv_currency3);
-		labels[3] = (TextView) findViewById(R.id.tv_currency4);
+		pickerAdapter = new NumericWheelAdapter(getActivity(), 0, 9999);
 
+		for (int i = 0; i < picker.length; i++) {
+			picker[i].setOnWheelChangedListeners(this);
+			picker[i].setViewAdapter(pickerAdapter);
+		}
 		super.onActivityCreated(savedInstanceState);
 	}
 
@@ -85,6 +92,8 @@ public class PurseFragment extends BaseFragment implements OnItemSelectedListene
 
 		purse = hero.getPurse();
 
+		Debug.verbose("Loading purse with " + purse.getActiveCurrency());
+
 		if (purse.getActiveCurrency() == null) {
 			purse.setActiveCurrency(Currency.Mittelreich);
 		}
@@ -97,20 +106,25 @@ public class PurseFragment extends BaseFragment implements OnItemSelectedListene
 				break;
 			}
 		}
-		currencySpinner.setSelection(index);
-
 		updateCurrency(purse.getActiveCurrency());
+		currencySpinner.setSelection(index);
+		currencySpinner.setOnItemSelectedListener(this);
+
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.dsatab.fragment.BaseFragment#onHeroUnloaded(com.dsatab.data.Hero)
+	 * kankan.wheel.widget.OnWheelChangedListener#onChanged(kankan.wheel.widget
+	 * .WheelView, int, int)
 	 */
 	@Override
-	public void onHeroUnloaded(Hero hero) {
-
+	public void onWheelChanged(WheelView wheel, int oldValue, int newValue) {
+		if (purse != null) {
+			PurseUnit unit = (PurseUnit) wheel.getTag();
+			purse.setCoins(unit, pickerAdapter.getItem(wheel.getCurrentItem()));
+		}
 	}
 
 	private void updateCurrency(Currency c) {
@@ -119,7 +133,7 @@ public class PurseFragment extends BaseFragment implements OnItemSelectedListene
 		for (int i = 0; i < units.length; i++) {
 			picker[i].setVisibility(View.VISIBLE);
 			picker[i].setTag(units[i]);
-			picker[i].setCurrent(purse.getCoins(units[i]));
+			picker[i].setCurrentItem(pickerAdapter.getPosition(purse.getCoins(units[i])));
 
 			labels[i].setVisibility(View.VISIBLE);
 			labels[i].setText(units[i].xmlName());
@@ -141,9 +155,15 @@ public class PurseFragment extends BaseFragment implements OnItemSelectedListene
 	 */
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-		Currency cur = (Currency) parent.getItemAtPosition(position);
-		purse.setActiveCurrency(cur);
-		updateCurrency(cur);
+		if (purse != null) {
+
+			Currency cur = (Currency) parent.getItemAtPosition(position);
+
+			Debug.verbose("On item selected " + cur);
+
+			purse.setActiveCurrency(cur);
+			updateCurrency(cur);
+		}
 	}
 
 	/*
@@ -156,19 +176,6 @@ public class PurseFragment extends BaseFragment implements OnItemSelectedListene
 	@Override
 	public void onNothingSelected(AdapterView<?> parent) {
 
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.gandulf.guilib.view.OnViewChangedListener#onChanged(android.view.
-	 * View, int, int)
-	 */
-	@Override
-	public void onChanged(NumberPicker picker, int oldVal, int newVal) {
-		PurseUnit unit = (PurseUnit) picker.getTag();
-		purse.setCoins(unit, picker.getCurrent());
 	}
 
 }

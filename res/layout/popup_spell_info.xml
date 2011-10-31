@@ -19,30 +19,47 @@
 				android:layout_height="wrap_content" android:text="10SP"
 				android:id="@+id/popup_spell_costs" style="@style/TextValuePopup"></TextView>
 		</TableRow>
-		<TableRow android:layout_height="wrap_content"
-		android:layout_width="wrap_content">
-		<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Reichweite" style="@style/TextLabelPopup"></TextView>
-		<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_range" android:text="10Schritt" style="@style/TextValuePopup"></TextView>
-	</TableRow>
+		
+		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Ziel" style="@style/TextLabelPopup"></TextView>
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_target" android:text="1 Person" style="@style/TextValuePopup"></TextView>
+		</TableRow>
+		
+		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Reichweite" style="@style/TextLabelPopup"></TextView>
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_range" android:text="10Schritt" style="@style/TextValuePopup"></TextView>
+		</TableRow>
 		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
 			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Wirkungsdauer" android:paddingRight="5dp" style="@style/TextLabelPopup"></TextView>
-			<TextView android:layout_height="wrap_content" android:text="10Schritt" android:layout_width="wrap_content" android:id="@+id/popup_spell_spellduration" style="@style/TextValuePopup"></TextView>
+			<TextView android:layout_height="wrap_content" android:text="10Schritt" android:layout_width="wrap_content" android:id="@+id/popup_spell_effectduration" style="@style/TextValuePopup"></TextView>
 		</TableRow>
 		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
-			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Anmerkungen" style="@style/TextLabelPopup"></TextView>
-			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_notes" style="@style/TextValuePopup" android:textSize="14sp" android:textStyle="normal"></TextView>
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Wirkung" style="@style/TextLabelPopup"></TextView>
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_effect" style="@style/TextValuePopup" android:textSize="14sp" android:textStyle="normal"></TextView>
 		</TableRow>
-		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_row_comment">
 			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Kommentar" style="@style/TextLabelPopup"></TextView>
 			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_comment" style="@style/TextValuePopup" android:textSize="14sp" android:textStyle="normal"></TextView>
+		</TableRow>
+		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Merkmal" android:paddingRight="5dp" style="@style/TextLabelPopup"></TextView>
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Objekt" android:id="@+id/popup_spell_merkmal" style="@style/TextValuePopup"></TextView>
 		</TableRow>
 		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
 			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Repräsentation" android:paddingRight="5dp" style="@style/TextLabelPopup"></TextView>
 			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Magier" android:id="@+id/popup_spell_representation" style="@style/TextValuePopup"></TextView>
 		</TableRow>
-		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_row_variant">
 			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Variante" style="@style/TextLabelPopup"></TextView>
 			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_variant" style="@style/TextValuePopup"></TextView>
+		</TableRow>
+		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Quelle" style="@style/TextLabelPopup"></TextView>
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_source" style="@style/TextValuePopup"></TextView>
+		</TableRow>
+		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Komplexität" style="@style/TextLabelPopup"></TextView>
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_complexity" style="@style/TextValuePopup"></TextView>
 		</TableRow>
 	</TableLayout>
 </ScrollView>

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ImageButton android:id="@+id/gen_tab" xmlns:android="http://schemas.android.com/apk/res/android"
+<com.dsatab.view.GlossyImageButton android:id="@+id/gen_tab" xmlns:android="http://schemas.android.com/apk/res/android"
 		android:layout_height="@dimen/tab_icon_size" android:layout_width="@dimen/tab_icon_size"
-		android:padding="@dimen/tab_icon_padding"
-		style="@style/IconButton">
-</ImageButton>
+		android:layout_margin="2dp"/>
+
 		
 		

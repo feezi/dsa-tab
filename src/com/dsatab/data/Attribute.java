@@ -6,7 +6,7 @@ import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.xml.Xml;
 
-public class Attribute implements Probe, Value {
+public class Attribute extends BaseProbe implements Value, XmlWriteable {
 
 	/**
 	 * 
@@ -18,19 +18,17 @@ public class Attribute implements Probe, Value {
 
 	private Element element;
 
-	private AttributeType type;
+	protected AttributeType type;
 
-	private Hero hero;
+	protected Hero hero;
 
-	private Integer referenceValue;
+	protected Integer referenceValue;
 
-	private Integer erschwernis;
-
-	private Integer baseValue;
-
-	public Attribute(Element element) {
-		this(element, null);
-	}
+	protected transient Integer originalBaseValue;
+	protected transient Integer currentBaseValue;
+	protected transient Integer value;
+	protected transient Integer coreValue;
+	protected transient String name;
 
 	public Attribute(Element element, Hero hero) {
 		this(element, null, hero);
@@ -39,18 +37,23 @@ public class Attribute implements Probe, Value {
 	public Attribute(Element element, AttributeType type, Hero hero) {
 		this.element = element;
 		this.hero = hero;
+		if (element != null) {
+			this.name = element.getAttributeValue(Xml.KEY_NAME);
+			if (type == null)
+				type = AttributeType.valueOf(element.getAttributeValue(Xml.KEY_NAME));
 
-		if (type == null)
-			type = AttributeType.valueOf(element.getAttributeValue(Xml.KEY_NAME));
-
+			if (isDSATabValue() && element.getAttribute(Xml.KEY_DSATAB_VALUE) != null) {
+				value = Integer.parseInt(element.getAttributeValue(Xml.KEY_DSATAB_VALUE));
+			}
+		}
 		this.type = type;
 
 		if (type == AttributeType.Ausweichen)
-			erschwernis = 0;
-	}
+			probeInfo.setErschwernis(0);
 
-	public Element getElement() {
-		return element;
+		if (type.hasBe())
+			probeInfo.applyBePattern(CONSTANT_BE);
+
 	}
 
 	public AttributeType getType() {
@@ -80,13 +83,9 @@ public class Attribute implements Probe, Value {
 		case Karmaenergie:
 			return "Karmaenergie aktuell";
 		default:
-			return element.getAttributeValue(Xml.KEY_NAME);
+			return name;
 		}
 
-	}
-
-	public String getProbe() {
-		return null;
 	}
 
 	public ProbeType getProbeType() {
@@ -103,72 +102,79 @@ public class Attribute implements Probe, Value {
 	}
 
 	public Integer getValue() {
-		if (isDSATabValue() && element.getAttribute(Xml.KEY_DSATAB_VALUE) != null) {
-			return Integer.parseInt(element.getAttributeValue(Xml.KEY_DSATAB_VALUE));
-		} else {
-			return getCoreValue();
+		if (value == null) {
+			value = getCoreValue();
 		}
-
+		return value;
 	}
 
 	private Integer getCoreValue() {
-		Integer value = null;
+		if (coreValue == null) {
 
-		if (element.getAttribute(Xml.KEY_VALUE) != null) {
-			value = Integer.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
-			int mod = 0;
-			if (element.getAttribute(Xml.KEY_MOD) != null && Util.isNotBlank(element.getAttributeValue(Xml.KEY_MOD)))
-				mod = Integer.parseInt(element.getAttributeValue(Xml.KEY_MOD));
+			org.jdom.Attribute valueAttribute = element.getAttribute(Xml.KEY_VALUE);
 
-			// value and mod of 0 means not able to use it
-			if ((type == AttributeType.Karmaenergie || type == AttributeType.Astralenergie) && value == 0 && mod == 0)
-				return null;
+			if (valueAttribute != null) {
+				coreValue = Integer.parseInt(valueAttribute.getValue());
+				int mod = 0;
 
-			value += mod;
+				org.jdom.Attribute modAttribute = element.getAttribute(Xml.KEY_MOD);
+				if (modAttribute != null && Util.isNotBlank(modAttribute.getValue()))
+					mod = Integer.parseInt(modAttribute.getValue());
 
-			return value + getBaseValue();
-		} else {
-			if (getType() == AttributeType.Ausweichen) {
-
-				value = 0;
-				if (hero.hasFeature(SpecialFeature.AUSWEICHEN_1))
-					value += 3;
-				if (hero.hasFeature(SpecialFeature.AUSWEICHEN_2))
-					value += 3;
-				if (hero.hasFeature(SpecialFeature.AUSWEICHEN_3))
-					value += 3;
-
-				Talent athletik = hero.getTalent(Talent.ATHLETIK);
-				if (athletik != null && athletik.getValue() >= 9) {
-					value += (athletik.getValue() - 9) / 3;
+				// value and mod of 0 means not able to use it
+				if ((type == AttributeType.Karmaenergie || type == AttributeType.Astralenergie) && coreValue == 0
+						&& mod == 0) {
+					coreValue = null;
+				} else {
+					coreValue += mod;
 				}
 
-				return value + getBaseValue();
-			}
+			} else {
+				if (getType() == AttributeType.Ausweichen) {
 
+					coreValue = 0;
+					if (hero.hasFeature(SpecialFeature.AUSWEICHEN_1))
+						coreValue += 3;
+					if (hero.hasFeature(SpecialFeature.AUSWEICHEN_2))
+						coreValue += 3;
+					if (hero.hasFeature(SpecialFeature.AUSWEICHEN_3))
+						coreValue += 3;
+
+					Talent athletik = hero.getTalent(Talent.ATHLETIK);
+					if (athletik != null && athletik.getValue() >= 9) {
+						coreValue += (athletik.getValue() - 9) / 3;
+					}
+				}
+			}
 		}
-		return null;
+		if (coreValue != null)
+			return coreValue + getBaseValue();
+		else
+			return null;
+	}
+
+	public void populateXml() {
+		if (element != null) {
+			if (value != null) {
+				if (isDSATabValue()) {
+					element.setAttribute(Xml.KEY_DSATAB_VALUE, value.toString());
+				} else {
+					if (element.getAttribute(Xml.KEY_MOD) != null) {
+						value -= Integer.parseInt(element.getAttributeValue(Xml.KEY_MOD));
+					}
+					element.setAttribute(Xml.KEY_VALUE, Integer.toString(value - getBaseValue()));
+				}
+			} else {
+				element.removeAttribute(Xml.KEY_VALUE);
+			}
+		}
 	}
 
 	public void setValue(Integer value) {
-
 		Integer oldValue = getValue();
-		if (value != null) {
+		this.value = value;
 
-			if (isDSATabValue()) {
-				element.setAttribute(Xml.KEY_DSATAB_VALUE, value.toString());
-			} else {
-				if (element.getAttribute(Xml.KEY_MOD) != null) {
-					value -= Integer.parseInt(element.getAttributeValue(Xml.KEY_MOD));
-				}
-				element.setAttribute(Xml.KEY_VALUE, Integer.toString(value - getBaseValue()));
-			}
-
-		} else {
-			element.removeAttribute(Xml.KEY_VALUE);
-		}
-
-		if (oldValue != value)
+		if (oldValue != this.value)
 			hero.fireValueChangedEvent(this);
 	}
 
@@ -178,11 +184,18 @@ public class Attribute implements Probe, Value {
 				|| type == AttributeType.Ausweichen;
 	}
 
+	/**
+	 * Checks wether the base value has changed
+	 * 
+	 * @return
+	 */
 	public boolean checkBaseValue() {
-		int baseValue = getBaseValue();
+		currentBaseValue = null;
 
-		if (baseValue != this.baseValue) {
-			this.baseValue = baseValue;
+		int currentBaseValue = getBaseValue();
+
+		if (currentBaseValue != this.originalBaseValue) {
+			this.originalBaseValue = currentBaseValue;
 			hero.fireValueChangedEvent(this);
 			return true;
 		} else {
@@ -191,44 +204,62 @@ public class Attribute implements Probe, Value {
 	}
 
 	public int getBaseValue() {
-		int baseValue = 0;
 
-		if (hero != null) {
-			if (type == AttributeType.Lebensenergie || type == AttributeType.Lebensenergie_Total) {
-				baseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Konstitution) * 2 + hero
-						.getAttributeValue(AttributeType.Körperkraft)) / 2.0);
+		if (currentBaseValue == null) {
+			currentBaseValue = 0;
+			if (hero != null) {
 
-			} else if (type == AttributeType.Astralenergie || type == AttributeType.Astralenergie_Total) {
-
-				if (hero.hasFeature(SpecialFeature.GEFAESS_DER_STERNE)) {
-					baseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
-							+ hero.getAttributeValue(AttributeType.Intuition)
-							+ hero.getAttributeValue(AttributeType.Charisma) + hero
-							.getAttributeValue(AttributeType.Charisma)) / 2.0);
-				} else {
-					baseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
-							+ hero.getAttributeValue(AttributeType.Intuition) + hero
-							.getAttributeValue(AttributeType.Charisma)) / 2.0);
+				switch (type) {
+				case Lebensenergie:
+				case Lebensenergie_Total:
+					currentBaseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Konstitution) * 2 + hero
+							.getAttributeValue(AttributeType.Körperkraft)) / 2.0);
+					break;
+				case Astralenergie:
+				case Astralenergie_Total:
+					if (hero.hasFeature(SpecialFeature.GEFAESS_DER_STERNE)) {
+						currentBaseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
+								+ hero.getAttributeValue(AttributeType.Intuition)
+								+ hero.getAttributeValue(AttributeType.Charisma) + hero
+								.getAttributeValue(AttributeType.Charisma)) / 2.0);
+					} else {
+						currentBaseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
+								+ hero.getAttributeValue(AttributeType.Intuition) + hero
+								.getAttributeValue(AttributeType.Charisma)) / 2.0);
+					}
+					break;
+				case Ausdauer:
+				case Ausdauer_Total:
+					currentBaseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
+							+ hero.getAttributeValue(AttributeType.Konstitution) + hero
+							.getAttributeValue(AttributeType.Gewandtheit)) / 2.0);
+					break;
+				case Magieresistenz:
+					currentBaseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
+							+ hero.getAttributeValue(AttributeType.Klugheit) + hero
+							.getAttributeValue(AttributeType.Konstitution)) / 5.0);
+					break;
+				case Ausweichen:
+					currentBaseValue = (int) hero.getAttributeValue(AttributeType.pa);
+					break;
 				}
-
-			} else if (type == AttributeType.Ausdauer || type == AttributeType.Ausdauer_Total) {
-				baseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
-						+ hero.getAttributeValue(AttributeType.Konstitution) + hero
-						.getAttributeValue(AttributeType.Gewandtheit)) / 2.0);
-
-			} else if (type == AttributeType.Magieresistenz) {
-				baseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
-						+ hero.getAttributeValue(AttributeType.Klugheit) + hero
-						.getAttributeValue(AttributeType.Konstitution)) / 5.0);
-			} else if (type == AttributeType.Ausweichen) {
-				baseValue = (int) hero.getAttributeValue(AttributeType.pa);
 			}
 		}
 
-		if (this.baseValue == null)
-			this.baseValue = baseValue;
+		if (this.originalBaseValue == null)
+			this.originalBaseValue = currentBaseValue;
 
-		return baseValue;
+		return currentBaseValue;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.Value#reset()
+	 */
+	@Override
+	public void reset() {
+		setValue(getReferenceValue());
 	}
 
 	public void setReferenceValue(Integer referenceValue) {
@@ -329,23 +360,6 @@ public class Attribute implements Probe, Value {
 		}
 
 		return max;
-	}
-
-	public String getBe() {
-		if (type.hasBe())
-			return CONSTANT_BE;
-		else
-			return null;
-	}
-
-	public Integer getErschwernis() {
-		return erschwernis;
-	}
-
-	public void setErschwernis(Integer erschwernis) {
-		this.erschwernis = erschwernis;
-
-		hero.fireValueChangedEvent(this);
 	}
 
 	@Override

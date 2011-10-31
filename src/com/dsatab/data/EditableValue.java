@@ -63,7 +63,7 @@ public class EditableValue implements Value {
 	 */
 	@Override
 	public Integer getValue() {
-		if (element.getAttribute(Xml.KEY_VALUE) !=null)
+		if (element.getAttribute(Xml.KEY_VALUE) != null)
 			return Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
 		else
 			return null;
@@ -92,6 +92,16 @@ public class EditableValue implements Value {
 
 		if (changed)
 			hero.fireValueChangedEvent(this);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.Value#reset()
+	 */
+	@Override
+	public void reset() {
+		setValue(getReferenceValue());
 	}
 
 	public void addValue(Integer value) {

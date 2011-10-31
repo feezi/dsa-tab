@@ -19,10 +19,10 @@ package com.dsatab.activity;
 import java.util.Arrays;
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -33,31 +33,34 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.Spinner;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
+import com.dsatab.common.Util;
+import com.dsatab.fragment.ArtFragment;
 import com.dsatab.fragment.BaseFragment;
 import com.dsatab.fragment.BodyFragment;
 import com.dsatab.fragment.CharacterFragment;
+import com.dsatab.fragment.DocumentsFragment;
 import com.dsatab.fragment.FightFragment;
 import com.dsatab.fragment.ItemsFragment;
 import com.dsatab.fragment.ItemsListFragment;
-import com.dsatab.fragment.LiturgieFragment;
 import com.dsatab.fragment.MapFragment;
 import com.dsatab.fragment.NotesFragment;
 import com.dsatab.fragment.PurseFragment;
 import com.dsatab.fragment.SpellFragment;
 import com.dsatab.fragment.TalentFragment;
+import com.dsatab.view.GlossyImageButton;
 import com.gandulf.guilib.view.adapter.SpinnerSimpleAdapter;
 
-public class TabEditActivity extends Activity implements OnItemClickListener, OnClickListener, OnItemSelectedListener {
+public class TabEditActivity extends BaseActivity implements OnItemClickListener, OnClickListener,
+		OnItemSelectedListener {
 
 	public static final String INTENT_ICON = "icon";
 	public static final String INTENT_PRIMARY_CLASS = "class1";
 	public static final String INTENT_SECONDARY_CLASS = "class2";
+	public static final String INTENT_TAB_INDEX = "index";
 	public static final String INTENT_DICE_SLIDER = "diceslider";
 
 	private GridView gridView;
@@ -71,6 +74,8 @@ public class TabEditActivity extends Activity implements OnItemClickListener, On
 	private List<Class<? extends BaseFragment>> activityValues;
 
 	private int selectedPosition = 0;
+
+	private int tabIndex = -1;
 
 	/** Called when the activity is first created. */
 	@SuppressWarnings("unchecked")
@@ -89,12 +94,14 @@ public class TabEditActivity extends Activity implements OnItemClickListener, On
 
 		spinner1 = (Spinner) findViewById(R.id.popup_edit_primary);
 
-		activities = Arrays.asList("Keine", "Charakterbogen", "Talente", "Zaubersprüche", "Liturgien", "Wunden",
-				"Kampfschirm", "Ausrüstung (Bilder)", "Ausrüstung (Liste)", "Notizen", "Geldbörse", "Karte");
+		activities = Arrays.asList("Keine", "Charakterbogen", "Talente", "Zaubersprüche", "Künste", "Wunden",
+				"Kampfschirm", "Ausrüstung (Bilder)", "Ausrüstung (Liste)", "Notizen", "Geldbörse", "Karte",
+				"Dokumente");
 
 		activityValues = Arrays.asList(null, CharacterFragment.class, TalentFragment.class, SpellFragment.class,
-				LiturgieFragment.class, BodyFragment.class, FightFragment.class, ItemsFragment.class,
-				ItemsListFragment.class, NotesFragment.class, PurseFragment.class, MapFragment.class);
+				ArtFragment.class, BodyFragment.class, FightFragment.class, ItemsFragment.class,
+				ItemsListFragment.class, NotesFragment.class, PurseFragment.class, MapFragment.class,
+				DocumentsFragment.class);
 
 		SpinnerSimpleAdapter<String> adapter = new SpinnerSimpleAdapter<String>(this, activities);
 		spinner1.setAdapter(adapter);
@@ -122,10 +129,13 @@ public class TabEditActivity extends Activity implements OnItemClickListener, On
 			spinner2.setSelection(activityValues.indexOf(clazz2));
 
 			diceslider.setChecked(getIntent().getBooleanExtra(INTENT_DICE_SLIDER, true));
+
+			tabIndex = getIntent().getIntExtra(INTENT_TAB_INDEX, -1);
 		}
 		if (selectedPosition < 0)
 			selectedPosition = 0;
 
+		gridView.setItemChecked(selectedPosition, true);
 	}
 
 	/*
@@ -159,11 +169,14 @@ public class TabEditActivity extends Activity implements OnItemClickListener, On
 			data.putExtra(INTENT_SECONDARY_CLASS, clazz2);
 			data.putExtra(INTENT_ICON, ((Integer) gridView.getItemAtPosition(selectedPosition)).intValue());
 			data.putExtra(INTENT_DICE_SLIDER, diceslider.isChecked());
+			data.putExtra(INTENT_TAB_INDEX, tabIndex);
 			setResult(RESULT_OK, data);
+			Util.hideKeyboard(v);
 			finish();
 			break;
 		case R.id.popup_edit_cancel:
 			setResult(RESULT_CANCELED);
+			Util.hideKeyboard(v);
 			finish();
 			break;
 		}
@@ -202,21 +215,19 @@ public class TabEditActivity extends Activity implements OnItemClickListener, On
 	 */
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		if (selectedPosition >= 0) {
-			View child = gridView.getChildAt(selectedPosition);
-			if (child != null) {
-				child.setBackgroundResource(R.drawable.icon_btn);
-			}
-		}
-		selectedPosition = position;
 
-		view.setBackgroundResource(R.drawable.button_selected_patch);
+		selectedPosition = position;
+		gridView.setItemChecked(position, true);
 	}
 
 	static class AvatarAdaper extends ArrayAdapter<Integer> {
 
+		LayoutInflater inflater;
+
 		public AvatarAdaper(Context context, List<Integer> objects) {
 			super(context, 0, objects);
+
+			inflater = LayoutInflater.from(getContext());
 		}
 
 		/*
@@ -228,18 +239,18 @@ public class TabEditActivity extends Activity implements OnItemClickListener, On
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 
-			ImageView imageView = null;
-			if (convertView instanceof ImageView) {
-				imageView = (ImageView) convertView;
+			GlossyImageButton imageButton = null;
+			if (convertView instanceof GlossyImageButton) {
+				imageButton = (GlossyImageButton) convertView;
 			} else {
-				imageView = new ImageView(getContext());
-				imageView.setScaleType(ScaleType.FIT_CENTER);
+				imageButton = (GlossyImageButton) inflater.inflate(R.layout.hero_tab, parent, false);
+
 			}
+			imageButton.setFocusable(false);
+			imageButton.setClickable(false);
+			imageButton.setImageResource(getItem(position));
 
-			imageView.setImageResource(getItem(position));
-			imageView.setBackgroundResource(R.drawable.icon_btn);
-
-			return imageView;
+			return imageButton;
 		}
 
 	}

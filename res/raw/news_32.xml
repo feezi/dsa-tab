@@ -1,0 +1,17 @@
+<div>
+<h2>Version 2.4</h2>
+
+<h4>Features</h4>
+<ul>
+<li>Rüstungswerte können für jedes Set individuell angepasst werden. Sobald ein Wert manuell verändert wurde, wird er nicht mehr automatisch berechnet, bis man den Wert zurücksetzt (reset).</li>
+<li>Neue Talentgruppe Meta-Talente hinzugefügt.</li>
+<li>Die Jagdwaffe kann über das Kontextmenü in der Kampgübersicht verwaltet werden.</li>
+<li>Wiki Aventurica Suche integriert. Über den Suchen-Button kann über das Internet in der Wiki Aventurica gesucht werden.</li>
+</ul>
+<h4>Bug Fixes</h4>
+<ul>
+<li>Bei Talent- und Zauberproben wurde bei der Gewandheit die Behinderung abgezogen.</li>
+<li>Liturgien von nicht 12 Götter Geweihten werden nun auch erkannt</li>
+</ul>
+
+</div>

@@ -95,6 +95,3 @@ Wahrer Name: Wird man unter Anrufung seines wahren Namens bezaubert, erhält der
 Weltfremd: 1 Maluswürfel, wenn es um bestimmte Themen geht (z.B. Geld und Besitz, Adelsherrschaft, Religion, Geselligkeit). Gewinn: 1 Vorteilspunkt.
 Wilde Magie: Ein kritischer Misserfolg tritt bereits bei einer 19 ein. In Neben- und Hauptkonflikten heben 20er einen Erfolg auf. Gewinn: 3 Vorteilspunkte.
 Zielschwierigkeiten: 1 Maluswürfel bei Zaubern gegen Einzelpersonen und Einzelobjekte. Gewinn: 1 Vorteilspunkt.
-
-
-
