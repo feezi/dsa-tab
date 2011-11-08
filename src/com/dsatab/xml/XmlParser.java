@@ -41,7 +41,6 @@ import com.dsatab.data.items.MiscSpecification;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
 import com.gandulf.guilib.util.Debug;
-import com.gandulf.guilib.util.ErrorHandler;
 
 public class XmlParser {
 
@@ -60,8 +59,7 @@ public class XmlParser {
 				readItems("items_armor.txt", items);
 			}
 		} catch (IOException e) {
-			ErrorHandler.handleError(e, DSATabApplication.getInstance().getBaseContext());
-			throw new AndroidRuntimeException(e);
+			throw new AndroidRuntimeException("Could not parse items from items.txt", e);
 		}
 
 		return items;
@@ -73,8 +71,8 @@ public class XmlParser {
 
 		BufferedReader r = null;
 		try {
-			r = new BufferedReader(new InputStreamReader(DSATabApplication.getInstance().getAssets()
-					.open("liturgien.txt"), ENCODING), 1024 * 8);
+			r = new BufferedReader(new InputStreamReader(DSATabApplication.getInstance().getAssets().open("arts.txt"),
+					ENCODING), 1024 * 8);
 
 			String line;
 			StringSplitter splitter = new TextUtils.SimpleStringSplitter(';');
@@ -131,8 +129,7 @@ public class XmlParser {
 
 			}
 		} catch (IOException e) {
-			ErrorHandler.handleError(e, DSATabApplication.getInstance().getBaseContext());
-			throw new AndroidRuntimeException(e);
+			throw new AndroidRuntimeException("Could not read arts from arts.txt", e);
 		} finally {
 			try {
 				if (r != null)
@@ -200,8 +197,7 @@ public class XmlParser {
 
 			}
 		} catch (IOException e) {
-			ErrorHandler.handleError(e, DSATabApplication.getInstance().getBaseContext());
-			throw new AndroidRuntimeException(e);
+			throw new AndroidRuntimeException("Could nor read spells from zauber.txt", e);
 		} finally {
 			try {
 				if (r != null)
@@ -344,7 +340,7 @@ public class XmlParser {
 
 		Armor w = new Armor(item);
 
-		w.setBe(Util.parseFloat(i.next()));
+		w.setTotalBe(Util.parseFloat(i.next()));
 
 		for (Position pos : armorPositions) {
 			if (!i.hasNext())
@@ -559,9 +555,9 @@ public class XmlParser {
 						r.append("A;");
 						appendItem(r, item, null);
 
-						if (w.getBe() < 10)
+						if (w.getTotalBe() < 10)
 							r.append(" ");
-						r.append(Util.toString(w.getBe()));
+						r.append(Util.toString(w.getTotalBe()));
 						r.append(";");
 
 						for (Position pos : DSATabApplication.getInstance().getConfiguration().getArmorPositions()) {

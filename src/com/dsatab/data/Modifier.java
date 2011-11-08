@@ -11,6 +11,10 @@ public class Modifier {
 
 	private String description;
 
+	public Modifier(int modifier, String title) {
+		this(modifier, title, null);
+	}
+
 	public Modifier(int modifier, String title, String description) {
 		super();
 		this.modifier = modifier;

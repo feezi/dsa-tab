@@ -58,7 +58,7 @@
 
 #Bezeichnung;			Seite;	Probe;		Komplex;	Ursprung; Merkmale;		ZD;		Kosten;	Ziel;	Reichweite;	Wirkungsdauer;	Auswirkung;																					
 Abvenenum reine Speise;	LCD11;	KL/KL/FF +X;	C;	Dru, Elf, Hex, Mag 6| Geo 5| Ach, Sch 4;	Objekt;	A(15);	4 Asp;	O;		1 Schritt;	A;				Der Zauberer reinigt Speisen und Getränke von sämtlichen Giften und Krankheistskeimen.;		
-Accuratum Zaubernadel;	LCD11;	KL/CH/FF +X;	C;	Mag, Srl 4| Hex 2;	Objekt;
+Accuratum Zaubernadel;	LCD12;	KL/CH/FF +X;	C;	Mag, Srl 4| Hex 2;	Objekt;
 Adamantium Erzstruktur;	LCD13;	KL/FF/KO;	C;	Ach 6| Mag 5;	Elementar (Erz), Objekt;
 Adlerauge Luchsenohr;	LCD15;	KL/IN/FF;	B;	Elf 7| Ach, Dru, Geo, Hex, Mag 3;	Hellsicht, Eigenschaften;
 Adlerschwinge Wolfsgestalt;	LCD16;	MU/IN/GE +X;	D;	Elf 6| Ach, Mag 3| Dru, Hex 2(Elf);	Form;
@@ -228,7 +228,7 @@ Memorans Gedächtniskraft;	LCD177;	KL/KL/IN;	C;	Mag 5| Dru 2;	Hellsicht, Eigensc
 Menetekel Flammenschrift;	LCD178;	KL/CH/FF;	B;	Mag 5| Srl 3(Mag);	Illusion;
 Metamagie neutralisieren;	LCD179;	KL/KL/KO +X;	F;	Mag 2;	Antimagie, Metamagie;
 Metamorpho Gletscherform;	LCD180;	KL/FF/KK;	C;	Elf 4| Mag 2;	Einfluss;
-Metamorpho Felsenform;	LCD180;	KL/FF/KK;	C;	Elf 4| Mag 2;	Einfluss;
+Metamorpho Felsenform;	LCD180;	KL/FF/KK;	D;	Elf 2| Mag 2;	Einfluss;
 Motoricus;	LCD181;	KL/FF/KK +X;	C;	Mag 6| Sch 5| Ach, Elf, Hex, Srl 4;	Telekinese;
 Movimento Dauerlauf;	LCD183;	IN/GE/KO;	A;	Elf 7| Dru, Hex, Mag 3(Elf);	Eigenschaften;
 Murks und Patz;	LCD184;	IN/IN/FF +X;	C;	Sch 2;	Einfluss;
@@ -254,12 +254,12 @@ Pectetondo Zauberhaar;	LCD203;	KL/CH/FF;	B;	Mag, Srl 5| Hex 3(Mag)| Sch 2(Mag);	
 Penetrizzel Tiefenblick;	LCD204;	KL/KL/KO;	C;	Mag 5| Elf, Sch 4| Srl 3;	Hellsicht;
 Pentagramma Sphärenbann;	LCD205;	MU/MU/CH +X;	D;	Mag 5| Dru, Geo, Hex 2;	Antimagie, Beschwörung, Däm., Geisterw.;
 Pestilenz erspüren;	LCD207;	KL/IN/CH +X;	C;	Dru 6| Hex 5| Elf 3;	Hellsicht;
-Pfeil des Feuers;	LCD208;	KL/IN/CH;	C;	Besonderheiten! S.134 LC;	Elementar (je nach Element), Objekt;
-Pfeil des Wassers;	LCD208;	KL/IN/CH;	C;	Besonderheiten! S.134 LC;	Elementar (je nach Element), Objekt;
-Pfeil des Erzes;	LCD208;	KL/IN/CH;	C;	Besonderheiten! S.134 LC;	Elementar (je nach Element), Objekt;
-Pfeil der Luft;	LCD208;	KL/IN/CH;	C;	Besonderheiten! S.134 LC;	Elementar (je nach Element), Objekt;
-Pfeil des Humus;	LCD208;	KL/IN/CH;	C;	Besonderheiten! S.134 LC;	Elementar (je nach Element), Objekt;
-Pfeil des Eises;	LCD208;	KL/IN/CH;	C;	Besonderheiten! S.134 LC;	Elementar (je nach Element), Objekt;
+Pfeil des Feuers;	LCD208;	KL/IN/CH;	C;	Elf 1| Mag 2;	Elementar (Feuer), Objekt;
+Pfeil des Wassers;	LCD208;	KL/IN/CH;	C;	Ach3| Elf 1 (nur Au- und Firnelfen);	Elementar (Wasser), Objekt;
+Pfeil des Erzes;	LCD208;	KL/IN/CH;	C;	Mag 2;	Elementar (Erz), Objekt;
+Pfeil der Luft;	LCD208;	KL/IN/CH;	C;	Elf 5| Mag 3;	Elementar (Luft), Objekt;
+Pfeil des Humus;	LCD208;	KL/IN/CH;	C;	Elf 4| Ach 3;	Elementar (Humus), Objekt;
+Pfeil des Eises;	LCD208;	KL/IN/CH;	C;	Elf 3 (nur Firnelfen);	Elementar (Eis), Objekt;
 Planastrale Anderswelt;	LCD210;	MU/MU/KO;	F;	Mag 1| rituell S. 135 LC;	Limbus;
 Plumbumbarum schwerer Arm;	LCD211;	CH/GE/KK +X;	B;	Mag 7| Dru, Geo, Hex 5| Ach, Elf, Sch 4| Srl 3;	Einfluss;
 Projektimago Ebenbild;	LCD212;	MU/IN/CH +X;	D;	Mag, Srl 2;	Illusion, Verständigung;

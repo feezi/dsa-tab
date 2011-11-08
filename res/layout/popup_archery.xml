@@ -11,8 +11,7 @@
 		android:layout_height="wrap_content" android:layout_width="wrap_content"
 		android:text="Entfernung" android:id="@+id/archery_distance_text"
 		android:layout_alignParentLeft="true" android:layout_alignBottom="@+id/archery_distance"
-		android:layout_centerInParent="false" android:gravity="center_vertical"
-		android:textColor="#ddd"></TextView>
+		android:layout_centerInParent="false" android:gravity="center_vertical" style="@style/TextLabel"></TextView>
 	<Spinner android:layout_height="wrap_content"
 		android:layout_below="@+id/inc_archery_item" android:layout_width="fill_parent"
 		android:id="@+id/archery_distance" android:layout_toRightOf="@+id/archery_distance_text"></Spinner>
@@ -20,8 +19,7 @@
 		android:layout_width="wrap_content" android:id="@+id/archery_size_text"
 		android:text="Größe" android:layout_alignParentLeft="true"
 		android:layout_below="@id/archery_distance"
-		android:layout_alignBottom="@+id/archery_size" android:gravity="center_vertical"
-		android:textColor="#ddd"></TextView>
+		android:layout_alignBottom="@+id/archery_size" android:gravity="center_vertical" style="@style/TextLabel"></TextView>
 	<Spinner android:layout_height="wrap_content"
 		android:layout_width="fill_parent" android:entries="@array/archerySize"
 		android:id="@+id/archery_size" android:layout_below="@+id/archery_distance"
@@ -35,13 +33,11 @@
 	<TextView android:layout_height="wrap_content"
 		android:layout_width="wrap_content" android:id="@+id/archery_probe"
 		android:layout_marginRight="5dip" android:textSize="30dip"
-		android:text="Erschwernis:" android:layout_below="@+id/archery_others"
-		android:textColor="#ddd"></TextView>
+		android:text="Erschwernis:" android:layout_below="@+id/archery_others" style="@style/TextLabel"></TextView>
 	<TextView android:layout_height="wrap_content"
 		android:layout_width="wrap_content" android:id="@+id/archery_probe_value"
-		android:layout_toRightOf="@+id/archery_probe" style="@style/TextValue"
-		android:textSize="30dip" android:text="+8" android:layout_below="@+id/archery_others"
-		android:textColor="#ddd"></TextView>
+		android:layout_toRightOf="@+id/archery_probe" style="@style/TextValue.NoTouch"
+		android:textSize="30dip" android:text="+8" android:layout_below="@+id/archery_others"></TextView>
 
 
 

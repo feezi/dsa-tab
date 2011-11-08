@@ -137,7 +137,7 @@ public class MetaTalent extends Talent implements JSONable {
 			Integer minValue = DsaMath.min(wildnis, fährtensuche, schleichen, tierkunde, distance);
 
 			Debug.verbose("Minium value is " + minValue);
-			int value = DsaMath.sum(wildnis, fährtensuche, schleichen, tierkunde, distance) / 5;
+			int value = Math.round(DsaMath.sum(wildnis, fährtensuche, schleichen, tierkunde, distance) / 5.0f);
 
 			Debug.verbose("Sum value/5 is " + value);
 			if (minValue == null)
@@ -153,7 +153,7 @@ public class MetaTalent extends Talent implements JSONable {
 			Integer planzen = getTalentValue(Talent.PFLANZENKUNDE);
 
 			Integer minValue = DsaMath.min(wildnis, sinnen, planzen);
-			int value = DsaMath.sum(wildnis, sinnen, planzen) / 3;
+			int value = Math.round(DsaMath.sum(wildnis, sinnen, planzen) / 3.0f);
 
 			if (minValue == null)
 				return null;
@@ -168,7 +168,7 @@ public class MetaTalent extends Talent implements JSONable {
 			Integer planzen = getTalentValue(Talent.PFLANZENKUNDE);
 
 			Integer minValue = DsaMath.min(wildnis, sinnen, planzen);
-			int value = DsaMath.sum(wildnis, sinnen, planzen) / 3;
+			int value = Math.round(DsaMath.sum(wildnis, sinnen, planzen) / 3.0f);
 
 			if (minValue == null)
 				return null;
@@ -188,8 +188,8 @@ public class MetaTalent extends Talent implements JSONable {
 					+ verstecken + " wildn " + wildnis);
 
 			Integer minValue = DsaMath.min(selbst, sinnen, schleichen, verstecken, wildnis);
-			int value = DsaMath.sum(selbst, selbst, selbst, sinnen, sinnen, sinnen, sinnen, schleichen, verstecken,
-					wildnis) / 10;
+			int value = Math.round(DsaMath.sum(selbst, selbst, selbst, sinnen, sinnen, sinnen, sinnen, schleichen,
+					verstecken, wildnis) / 10.0f);
 
 			if (minValue == null)
 				return null;

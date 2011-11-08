@@ -30,9 +30,12 @@
 				<LinearLayout android:layout_height="wrap_content"
 					android:id="@+id/fight_items" android:orientation="vertical"
 					android:layout_width="fill_parent">
-				</LinearLayout>
-				<include android:layout_height="wrap_content" layout="@layout/item_listitem"
+					
+				    <include android:layout_height="wrap_content" layout="@layout/item_listitem"
 					android:id="@+id/inc_fight_ausweichen" android:layout_width="fill_parent"></include>
+				    
+				</LinearLayout>
+				
 			</LinearLayout>
 			<LinearLayout android:layout_height="wrap_content"
 				android:orientation="vertical" android:layout_width="fill_parent"

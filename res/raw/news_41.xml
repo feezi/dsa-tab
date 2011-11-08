@@ -1,0 +1,14 @@
+<div>
+<h2>Version 2.5.5</h2>
+<h4>Features</h4>
+<ul>
+<li>Touch Elemente werden nun durch einen Kreis gekennzeichnet.</li>
+<li>Titelleiste überarbeitet.</li>
+</ul>
+
+<h4>Bug Fixes</h4>
+<ul>
+<li>Absturz beim Öffnen des Gegenständetabs unter Android 2.x</li>
+</ul>
+
+</div>

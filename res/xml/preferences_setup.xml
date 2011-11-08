@@ -20,6 +20,7 @@
                 <EditTextPreference
                 android:icon="@drawable/ic_menu_account_list"
                 	android:title="Password"
+                	android:password="true"
                 	android:summary="Password der Heldenaustauschseite"
                 	android:key="exchange_password" />
         

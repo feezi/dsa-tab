@@ -1,21 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme" parent="@android:Theme.Light.NoTitleBar">
-        <item name="android:windowBackground">@drawable/bg_white</item>                        
-        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Glossy</item>
-        <item name="glossyButtonStyle">@style/Widget.Button.Glossy</item>
-    </style>
-    
-    <style name="Theme.Map" parent="Theme">
-        <item name="android:windowBackground">@drawable/bg_map</item>
+    <style name="DsaTabTheme" parent="@android:Theme.Light.NoTitleBar">
+        <item name="android:windowBackground">@drawable/bg_splash</item>                        
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
+        <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
+        <item name="glossyButtonOverlay">@null</item>
+        <item name="glossyButtonMask">@null</item>
     </style>
     
     <style name="Theme.Dialog" parent="@android:style/Theme.Dialog">        
-        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Glossy</item>
-        <item name="glossyButtonStyle">@style/Widget.Button.Glossy</item>
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
+        <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
     </style>
     
-    <style name="Theme.Paper" parent="Theme">
-        <item name="android:windowBackground">@drawable/bg_paper_selector</item>
+    <style name="DsaTabTheme.Abstract" parent="@DsaTabTheme">
+        <item name="android:windowBackground">@drawable/bg_white</item>                        
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Glossy</item>
+        <item name="glossyButtonStyle">@style/Widget.Button.Glossy</item>
+        <item name="glossyButtonOverlay">@drawable/btn_glossy_gloss</item>
+        <item name="glossyButtonMask">@drawable/btn_glossy_mask</item>
+    </style>    
+    <style name="Theme.Dialog.Abstract" parent="@android:style/Theme.Dialog">        
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Glossy</item>
+        <item name="glossyButtonStyle">@style/Widget.Button.Glossy</item>
+        <item name="glossyButtonOverlay">@drawable/btn_glossy_gloss</item>
+        <item name="glossyButtonMask">@drawable/btn_glossy_mask</item>
     </style>
+    	
+    <style name="DsaTabTheme.Map" parent="DsaTabTheme">
+        <item name="android:windowBackground">@drawable/bg_map</item>
+    </style>    
+    <style name="Theme.Dialog.Map" parent="@android:style/Theme.Dialog">        
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Glossy</item>
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
+        <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
+    </style>
+    
+    <style name="DsaTabTheme.Paper" parent="DsaTabTheme">
+        <item name="android:windowBackground">@drawable/bg_paper_selector</item>
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
+        <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
+        <item name="glossyButtonOverlay">@null</item>
+        <item name="glossyButtonMask">@null</item>
+    </style>    
+    <style name="Theme.Dialog.Paper" parent="@android:style/Theme.Dialog">        
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Glossy</item>
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
+        <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
+    </style>
+    
+    
 </resources>

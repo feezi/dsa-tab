@@ -11,87 +11,87 @@
 		<TableRow android:layout_width="wrap_content"
 			android:layout_height="wrap_content">
 			<TextView android:layout_width="wrap_content" android:text="Art"
-				style="@style/TextLabelPopup" android:layout_height="wrap_content"></TextView>
+				style="@style/TextLabel.Popup" android:layout_height="wrap_content"></TextView>
 			<TextView android:layout_width="wrap_content" android:id="@+id/popup_liturgie_type"
-				style="@style/TextValuePopup" android:layout_height="wrap_content"
-				android:textStyle="normal" android:text="Ritual" android:textSize="14sp"></TextView>
+				style="@style/TextValue.Small.NoTouch" android:layout_height="wrap_content"
+				android:text="Ritual" android:gravity="right|center_vertical"></TextView>
 		</TableRow>
 		
 		<TableRow android:layout_width="wrap_content"
 			android:layout_height="wrap_content">
 			<TextView android:layout_width="wrap_content" android:text="Ziel"
-				style="@style/TextLabelPopup" android:layout_height="wrap_content"></TextView>
+				style="@style/TextLabel.Popup" android:layout_height="wrap_content"></TextView>
 			<TextView android:layout_width="wrap_content" android:id="@+id/popup_liturgie_target"
-				style="@style/TextValuePopup" android:layout_height="wrap_content"
-				android:textStyle="normal" android:text="P" android:textSize="14sp"></TextView>
+				style="@style/TextValue.Small.NoTouch" android:layout_height="wrap_content"
+				android:text="P" android:gravity="right|center_vertical"></TextView>
 		</TableRow>
 		
 		<TableRow android:layout_width="wrap_content"
 			android:layout_height="wrap_content">
 			<TextView android:layout_width="wrap_content" android:text="Reichweite"
-				style="@style/TextLabelPopup" android:layout_height="wrap_content"></TextView>
+				style="@style/TextLabel.Popup" android:layout_height="wrap_content"></TextView>
 			<TextView android:layout_width="wrap_content" android:id="@+id/popup_liturgie_range"
-				style="@style/TextValuePopup" android:layout_height="wrap_content"
-				android:textStyle="normal" android:text="Z" android:textSize="14sp"></TextView>
+				style="@style/TextValue.Small.NoTouch" android:layout_height="wrap_content"
+				android:text="Z" android:gravity="right|center_vertical"></TextView>
 		</TableRow>
 		
 		<TableRow android:layout_width="wrap_content"
 			android:layout_height="wrap_content">
 			<TextView android:layout_width="wrap_content" android:text="Ritualdauer"
-				style="@style/TextLabelPopup" android:layout_height="wrap_content"></TextView>
+				style="@style/TextLabel.Popup" android:layout_height="wrap_content"></TextView>
 			<TextView android:layout_width="wrap_content" android:id="@+id/popup_liturgie_castduration"
-				style="@style/TextValuePopup" android:layout_height="wrap_content"
-				android:textStyle="normal" android:text="Z" android:textSize="14sp"></TextView>
+				style="@style/TextValue.Small.NoTouch" android:layout_height="wrap_content"
+				android:text="Z" android:gravity="right|center_vertical"></TextView>
 		</TableRow>
 		
 		<TableRow android:layout_height="wrap_content"
 			android:layout_width="wrap_content">
 			<TextView android:layout_height="wrap_content"
-				android:layout_width="wrap_content" style="@style/TextLabelPopup"
+				android:layout_width="wrap_content" style="@style/TextLabel.Popup"
 				android:text="Wirkung"></TextView>
 			<TextView android:layout_height="wrap_content"
-				android:layout_width="wrap_content" style="@style/TextValuePopup"
-				android:textStyle="normal" android:id="@+id/popup_liturgie_effect"
-				android:text="" android:textSize="14sp" android:singleLine="false"></TextView>
+				android:layout_width="wrap_content" style="@style/TextValue.Small.NoTouch"
+				android:id="@+id/popup_liturgie_effect"
+				android:text="" android:singleLine="false" android:gravity="right|center_vertical"></TextView>
 		</TableRow>
 		
 		<TableRow android:layout_width="wrap_content"
 			android:layout_height="wrap_content">
 			<TextView android:layout_width="wrap_content" android:text="Wirkungsdauer"
-				android:paddingRight="5dp" style="@style/TextLabelPopup"
+				android:paddingRight="5dp" style="@style/TextLabel.Popup"
 				android:layout_height="wrap_content"></TextView>
 			<TextView android:layout_width="wrap_content" android:text=""
-				style="@style/TextValuePopup" android:layout_height="wrap_content"
-				android:id="@+id/popup_liturgie_effectduration" android:textSize="14sp"></TextView>
+				style="@style/TextValue.Small.NoTouch" android:layout_height="wrap_content"
+				android:id="@+id/popup_liturgie_effectduration" android:gravity="right|center_vertical"></TextView>
 		</TableRow>
 		
 		<TableRow android:layout_width="wrap_content"
 			android:layout_height="wrap_content">
 			<TextView android:layout_width="wrap_content" android:text="Probe"
-				style="@style/TextLabelPopup" android:layout_height="wrap_content"></TextView>
+				style="@style/TextLabel.Popup" android:layout_height="wrap_content"></TextView>
 			<TextView android:layout_width="wrap_content" android:id="@+id/popup_liturgie_probe"
-				style="@style/TextValuePopup" android:layout_height="wrap_content"
-				android:textStyle="normal"></TextView>
+				style="@style/TextValue.NoTouch" android:layout_height="wrap_content"
+				android:gravity="right|center_vertical"></TextView>
 		</TableRow>
 		
 		<TableRow android:layout_width="wrap_content"
 			android:layout_height="wrap_content">
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text="Kosten"
-				style="@style/TextLabelPopup"></TextView>
+				style="@style/TextLabel.Popup"></TextView>
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text="10SP"
-				style="@style/TextValuePopup" android:id="@+id/popup_liturgie_costs"></TextView>
+				style="@style/TextValue.NoTouch" android:id="@+id/popup_liturgie_costs" android:gravity="right|center_vertical"></TextView>
 		</TableRow>
 		
 		<TableRow android:layout_width="wrap_content"
 			android:layout_height="wrap_content">
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text="Herkunft"
-				style="@style/TextLabelPopup"></TextView>
+				style="@style/TextLabel.Popup"></TextView>
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text="10SP"
-				style="@style/TextValuePopup" android:id="@+id/popup_liturgie_origin" android:textSize="14sp"></TextView>
+				style="@style/TextValue.Small.NoTouch" android:id="@+id/popup_liturgie_origin" android:gravity="right|center_vertical"></TextView>
 		</TableRow>
 		
 	</TableLayout>

@@ -47,6 +47,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -96,11 +97,10 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 	private static final String KEY_PICKER_TYPE = "pickerType";
 
-	private boolean fightItemsOdd = false;
-
 	private WheelView fightNumberPicker;
 	private NumericWheelAdapter fightNumberAdapter;
 	private LinearLayout fightLpLayout, fightItems, fightModifiers;
+	private View fightausweichen;
 
 	private FightFilterSettings filterSettings;
 
@@ -292,7 +292,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 			if (filterSettings.isShowEvade() != newSettings.isShowEvade()) {
 				filterSettings.setShowEvade(newSettings.isShowEvade());
-				fillAusweichen();
+				updateAusweichen();
 			}
 		}
 	}
@@ -499,13 +499,11 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		super.onIconContextItemSelected(item, info);
 	}
 
-	public void fillAusweichen() {
-
-		final Attribute ausweichen = getHero().getAttribute(AttributeType.Ausweichen);
-		View fightausweichen = getView().findViewById(R.id.inc_fight_ausweichen);
+	private void updateAusweichen() {
 
 		if (filterSettings.isShowEvade()) {
 
+			Attribute ausweichen = getHero().getAttribute(AttributeType.Ausweichen);
 			fightausweichen.setVisibility(View.VISIBLE);
 			TextView text1 = (TextView) fightausweichen.findViewById(android.R.id.text1);
 
@@ -515,9 +513,8 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 			text1.setText(title);
 			final TextView text2 = (TextView) fightausweichen.findViewById(android.R.id.text2);
 			text2.setText("Modifikator " + Util.toProbe(ausweichen.getProbeInfo().getErschwernis()));
-			if (fightItemsOdd) {
-				fightausweichen.setBackgroundResource(R.color.RowOdd);
-			}
+
+			fightausweichen.setBackgroundResource(getFightItemBackgroundResource(fightausweichen));
 
 			ImageButton iconLeft = (ImageButton) fightausweichen.findViewById(android.R.id.icon1);
 			iconLeft.setTag(ausweichen);
@@ -574,6 +571,11 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 			break;
 		}
 
+		if (v.getTag() instanceof CustomModificator) {
+			CheckBox active = (CheckBox) v.findViewById(R.id.active);
+			active.toggle();
+		}
+
 	}
 
 	/*
@@ -585,7 +587,11 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return configureContainerView(inflater.inflate(R.layout.sheet_fight, container, false));
+		View root = configureContainerView(inflater.inflate(R.layout.sheet_fight, container, false));
+
+		fightausweichen = root.findViewById(R.id.inc_fight_ausweichen);
+
+		return root;
 	}
 
 	/*
@@ -710,7 +716,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		Attribute attr = hero.getAttribute(fightPickerType);
 		updateNumberPicker(attr);
 
-		fillAusweichen();
+		updateAusweichen();
 
 		fillFightModifierDescriptions();
 
@@ -726,7 +732,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 			// fillFightModifierDescription automatically
 			fightModifiers.removeViews(1, fightModifiers.getChildCount() - 1);
 			for (Modificator item : getHero().getModificators()) {
-				fillFightModifierDescription(item, null);
+				fillFightModifierDescription(item);
 			}
 		} else {
 			fightModifiers.setVisibility(View.GONE);
@@ -753,7 +759,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	@Override
 	public void onModifierAdded(Modificator value) {
 		updateFightItemDescriptions();
-		fillFightModifierDescription(value, null);
+		fillFightModifierDescription(value);
 	}
 
 	/*
@@ -774,16 +780,14 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 	@Override
 	public void onModifierChanged(Modificator value) {
-		View itemLayout = fightModifiers.findViewWithTag(value);
-		fillFightModifierDescription(value, itemLayout);
+		fillFightModifierDescription(value);
 		updateFightItemDescriptions();
 	}
 
 	@Override
 	public void onModifiersChanged(List<Modificator> values) {
 		for (Modificator item : values) {
-			View itemLayout = fightModifiers.findViewWithTag(item);
-			fillFightModifierDescription(item, itemLayout);
+			fillFightModifierDescription(item);
 		}
 		updateFightItemDescriptions();
 	}
@@ -833,10 +837,10 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 			switch (attr.getType()) {
 			case Behinderung:
-				fillAusweichen();
+				updateAusweichen();
 				break;
 			case Ausweichen: {
-				fillAusweichen();
+				updateAusweichen();
 				break;
 			}
 			case Körperkraft:
@@ -848,10 +852,24 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	}
 
 	private void fillFightItemDescription(EquippedItem equippedItem) {
-		fillFightItemDescription(null, equippedItem);
+		fillFightItemDescription(equippedItem, findFightItemDescription(equippedItem));
 	}
 
-	private void fillFightItemDescription(View itemLayout, EquippedItem equippedItem) {
+	private int getFightItemBackgroundResource(View itemLayout) {
+		int index = fightItems.indexOfChild(itemLayout);
+
+		if (index >= 0) {
+			if (index % 2 == 0)
+				return R.color.RowEven;
+			else
+				return R.color.RowOdd;
+		} else {
+			return 0;
+		}
+
+	}
+
+	private void fillFightItemDescription(EquippedItem equippedItem, View itemLayout) {
 
 		Item item = equippedItem.getItem();
 		ItemSpecification itemSpecification = equippedItem.getItemSpecification();
@@ -865,20 +883,13 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 		if (itemLayout == null) {
 			LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-
 			itemLayout = layoutInflater.inflate(R.layout.item_listitem, fightItems, false);
-			itemLayout.setOnClickListener(this);
-
 			registerForIconContextMenu(itemLayout);
-
 			fightItems.addView(itemLayout);
 		}
 
 		itemLayout.setTag(equippedItem);
-
-		if (fightItemsOdd) {
-			itemLayout.setBackgroundResource(R.color.RowOdd);
-		}
+		itemLayout.setBackgroundResource(getFightItemBackgroundResource(itemLayout));
 
 		TextView text1 = (TextView) itemLayout.findViewById(android.R.id.text1);
 		TextView text2 = (TextView) itemLayout.findViewById(android.R.id.text2);
@@ -886,13 +897,16 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		ImageButton iconLeft = (ImageButton) itemLayout.findViewById(android.R.id.icon1);
 		ImageButton iconRight = (ImageButton) itemLayout.findViewById(android.R.id.icon2);
 
-		if (equippedItem.getSecondaryItem() != null
-				&& (equippedItem.getSecondaryItem().getItem().hasSpecification(Shield.class) || (equippedItem
-						.getSecondaryItem().getItem().hasSpecification(Weapon.class) && equippedItem.getHand() == Hand.rechts))) {
-			// keep odd/even
-		} else {
-			fightItemsOdd = !fightItemsOdd;
-		}
+		// if (equippedItem.getSecondaryItem() != null
+		// &&
+		// (equippedItem.getSecondaryItem().getItem().hasSpecification(Shield.class)
+		// || (equippedItem
+		// .getSecondaryItem().getItem().hasSpecification(Weapon.class) &&
+		// equippedItem.getHand() == Hand.rechts))) {
+		//
+		// } else {
+		// fightItemsOdd = !fightItemsOdd;
+		// }
 
 		StyleableSpannableStringBuilder title = new StyleableSpannableStringBuilder();
 		title.append(item.getTitle());
@@ -995,9 +1009,9 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		LevelListDrawable drawable = (LevelListDrawable) fightSet.getDrawable();
 		drawable.setLevel(getHero().getActiveSet());
 
-		SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
+		// -1 because of Ausweichen
 
-		int count = fightItems.getChildCount();
+		int count = fightItems.getChildCount() - 1;
 		for (int i = 0; i < count; i++) {
 			View v = fightItems.getChildAt(i);
 			EquippedItem equippedItem = (EquippedItem) v.getTag();
@@ -1012,7 +1026,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 				continue;
 			}
 
-			fillFightItemDescription(v, equippedItem);
+			fillFightItemDescription(equippedItem, v);
 		}
 
 	}
@@ -1023,11 +1037,14 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		LevelListDrawable drawable = (LevelListDrawable) fightSet.getDrawable();
 		drawable.setLevel(getHero().getActiveSet());
 
-		fightItems.removeAllViews();
-		fightItemsOdd = false;
+		// TODO reuse elements
 
-		Util.sort(getHero().getEquippedItems());
-		for (EquippedItem equippedItem : getHero().getEquippedItems()) {
+		fightItems.removeAllViews();
+
+		List<EquippedItem> items = getHero().getEquippedItems();
+		Util.sort(items);
+
+		for (EquippedItem equippedItem : items) {
 
 			ItemSpecification itemSpecification = equippedItem.getItemSpecification();
 			Item item = equippedItem.getItem();
@@ -1038,8 +1055,10 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 			if (!filterSettings.isShowArmor() && itemSpecification instanceof Armor) {
 				continue;
 			}
-			fillFightItemDescription(equippedItem);
+			fillFightItemDescription(equippedItem, null);
 		}
+
+		fightItems.addView(fightausweichen);
 	}
 
 	/*
@@ -1070,6 +1089,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 		TextView text1 = (TextView) itemLayout.findViewById(android.R.id.text1);
 		TextView text2 = (TextView) itemLayout.findViewById(android.R.id.text2);
+		ImageView icon1 = (ImageView) itemLayout.findViewById(android.R.id.icon1);
 
 		CheckBox active = (CheckBox) itemLayout.findViewById(R.id.active);
 
@@ -1080,9 +1100,12 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 			active.setOnCheckedChangeListener(this);
 			active.setTag(modificator);
 			itemLayout.setTag(modificator);
+			itemLayout.setOnClickListener(this);
 			registerForIconContextMenu(itemLayout);
+			icon1.setVisibility(View.INVISIBLE);
 		} else {
 			active.setVisibility(View.GONE);
+			icon1.setVisibility(View.VISIBLE);
 			unregisterForIconContextMenu(itemLayout);
 		}
 		if (item != null) {
@@ -1127,7 +1150,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	 */
 	@Override
 	public void onItemChanged(EquippedItem item) {
-		fillFightItemDescription(findFightItemDescription(item), item);
+		fillFightItemDescription(item);
 	}
 
 	/*
@@ -1139,7 +1162,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	 */
 	@Override
 	public void onItemEquipped(EquippedItem item) {
-		fillFightItemDescription(findFightItemDescription(item), item);
+		fillFightItemDescription(item);
 	}
 
 	/*

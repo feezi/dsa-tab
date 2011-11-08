@@ -58,6 +58,8 @@ public class ArtInfoDialog extends AlertDialog implements DialogInterface.OnClic
 		for (int i = 0; i < childCount; i++) {
 			if (i % 2 == 1) {
 				table.getChildAt(i).setBackgroundResource(R.color.RowOdd);
+			} else {
+				table.getChildAt(i).setBackgroundResource(R.color.RowEven);
 			}
 		}
 

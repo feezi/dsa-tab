@@ -17,6 +17,7 @@ package com.dsatab.activity;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.Arrays;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -32,6 +33,7 @@ import android.preference.PreferenceScreen;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
+import android.widget.Toast;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
@@ -73,6 +75,7 @@ public abstract class BasePreferenceActivity extends PreferenceActivity implemen
 
 	public static final String KEY_SETUP_SDCARD_PATH = "sdcardPath";
 
+	public static final String KEY_DOWNLOAD_SCREEN = "downloadMediaScreen";
 	public static final String KEY_DOWNLOAD_ALL = "downloadAll";
 	public static final String KEY_DOWNLOAD_MAPS = "downloadMaps";
 	public static final String KEY_DOWNLOAD_OSMMAPS = "downloadOSMMaps";
@@ -85,6 +88,7 @@ public abstract class BasePreferenceActivity extends PreferenceActivity implemen
 
 	public static final String KEY_INFOS = "infos";
 	public static final String KEY_DONATE = "donate";
+	public static final String KEY_THEME = "theme";
 
 	public static final String KEY_FULL_VERSION = "fullVersion";
 
@@ -100,6 +104,8 @@ public abstract class BasePreferenceActivity extends PreferenceActivity implemen
 	public static final String KEY_SCREEN_ORIENTATION = "screen_orientation";
 
 	public static final String KEY_TIP_TODAY = "tipToday";
+
+	public static final String KEY_DSA_LICENSE = "dsa_license";
 
 	public static final String KEY_HEADER_NAME = "header_name";
 	public static final String KEY_HEADER_LE = "header_le";
@@ -125,6 +131,13 @@ public abstract class BasePreferenceActivity extends PreferenceActivity implemen
 
 	public static final String PATH_OSM_MAP_PACK = "http://dsa-tab.googlecode.com/files/dsatab-osmmap-v1.zip";
 
+	private static final String[] RESTART_KEYS = { KEY_THEME };
+	static {
+		Arrays.sort(RESTART_KEYS);
+	}
+
+	private boolean restartRequired = false;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -134,6 +147,20 @@ public abstract class BasePreferenceActivity extends PreferenceActivity implemen
 
 		updateFullscreenStatus(getWindow(), preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onPause()
+	 */
+	@Override
+	protected void onStop() {
+		if (restartRequired) {
+			Toast.makeText(this, "Veränderte Einstellungen erfordern einen Neustart um übernommen zu werden.",
+					Toast.LENGTH_LONG).show();
+		}
+		super.onStop();
 	}
 
 	protected static void cleanOldFiles() {
@@ -244,6 +271,23 @@ public abstract class BasePreferenceActivity extends PreferenceActivity implemen
 			final Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uriUrl);
 			context.startActivity(launchBrowser);
 			return true;
+		} else if (preference.getKey().equals(KEY_DSA_LICENSE)) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			builder.setTitle(R.string.title_credits);
+			builder.setCancelable(true);
+			WebView webView = new WebView(context);
+
+			String summary = ResUtil.loadResToString(R.raw.ulisses_license, context);
+			webView.loadData(summary, "text/html", "ISO-8859-1");
+			builder.setView(webView);
+			builder.setNeutralButton(R.string.label_ok, new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			});
+			builder.show();
 		}
 
 		return false;
@@ -261,5 +305,8 @@ public abstract class BasePreferenceActivity extends PreferenceActivity implemen
 		if (key.equals(KEY_FULLSCREEN)) {
 			updateFullscreenStatus(getWindow(), sharedPreferences.getBoolean(KEY_FULLSCREEN, true));
 		}
+
+		if (!restartRequired && Arrays.binarySearch(RESTART_KEYS, key) >= 0)
+			restartRequired = true;
 	}
 }

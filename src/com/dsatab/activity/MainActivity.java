@@ -98,6 +98,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	// protected List<BaseFragment> fragments;
 
 	private DiceSlider diceSlider;
+	private View diceSliderContainer;
 
 	private ShakeListener mShaker;
 
@@ -474,12 +475,15 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setTheme(DSATabApplication.getInstance().getCustomTheme());
 		super.onCreate(savedInstanceState);
 
 		// start tracing to "/sdcard/calc.trace"
 		// android.os.Debug.startMethodTracing("dsatab");
 
 		setContentView(R.layout.main_tab_view);
+
+		relMainLayout = (RelativeLayout) findViewById(R.id.gen_main_layout);
 
 		Configuration configuration = getResources().getConfiguration();
 
@@ -664,11 +668,13 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	}
 
 	protected void setupDiceSilder() {
-		relMainLayout = (RelativeLayout) findViewById(R.id.gen_main_layout);
-		View child = LayoutInflater.from(this).inflate(R.layout.dice_slider, relMainLayout, false);
-		RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) child.getLayoutParams();
+		if (diceSliderContainer != null)
+			relMainLayout.removeView(diceSliderContainer);
+
+		diceSliderContainer = LayoutInflater.from(this).inflate(R.layout.dice_slider, relMainLayout, false);
+		RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) diceSliderContainer.getLayoutParams();
 		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		relMainLayout.addView(child);
+		relMainLayout.addView(diceSliderContainer);
 
 		diceSlider = (DiceSlider) relMainLayout.findViewById(R.id.SlidingDrawer);
 	}

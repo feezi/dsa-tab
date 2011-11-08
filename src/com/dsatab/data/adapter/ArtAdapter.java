@@ -127,6 +127,8 @@ public class ArtAdapter extends OpenArrayAdapter<Art> {
 			holder.text5 = (TextView) listItem.findViewById(R.id.talent_list_item_text5);
 			holder.indicator = (ImageView) listItem.findViewById(R.id.talent_list_item_indicator);
 			listItem.setTag(holder);
+
+			Util.setVisibility(holder.text5, false, holder.text1);
 		} else {
 			listItem = convertView;
 			holder = (ViewHolder) convertView.getTag();
@@ -159,13 +161,19 @@ public class ArtAdapter extends OpenArrayAdapter<Art> {
 			else
 				holder.text3.setText(null);
 		}
+		if (art.getProbeInfo().getErschwernis() != null) {
+			holder.text4.setText(Util.toProbe(art.getProbeInfo().getErschwernis()));
+			holder.text4.setVisibility(View.VISIBLE);
+		} else
+			holder.text4.setVisibility(View.INVISIBLE);
 
-		holder.text4.setText(Util.toProbe(art.getProbeInfo().getErschwernis()));
-		Util.setVisibility(holder.text5, false, holder.text1);
-
-		if (holder.indicator != null && art.isBegabung()) {
-			holder.indicator.setVisibility(View.VISIBLE);
-			holder.indicator.setImageBitmap(indicatorStar);
+		if (holder.indicator != null) {
+			if (art.isBegabung()) {
+				holder.indicator.setVisibility(View.VISIBLE);
+				holder.indicator.setImageBitmap(indicatorStar);
+			} else {
+				holder.indicator.setVisibility(View.INVISIBLE);
+			}
 		}
 		Util.applyRowStyle(art, listItem, position);
 

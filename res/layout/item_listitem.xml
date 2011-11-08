@@ -6,6 +6,7 @@
 	android:layout_width="fill_parent" android:layout_height="wrap_content">
 
 	<com.dsatab.view.GlossyImageButton android:layout_alignParentLeft="true"
+	    android:layout_centerVertical="true"
 		android:id="@android:id/icon1" android:layout_marginRight="5dip" android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:visibility="visible"/>
 	
 	<TextView android:id="@android:id/text1"
@@ -24,6 +25,7 @@
 		android:textAppearance="?android:attr/textAppearanceMedium" android:textStyle="normal" />
 
 	<com.dsatab.view.GlossyImageButton android:layout_alignParentRight="true"
+	    android:layout_centerVertical="true"
 		android:id="@android:id/icon2" android:layout_height="@dimen/icon_button_size"
 		android:layout_width="@dimen/icon_button_size"
 		android:visibility="gone" android:layout_marginLeft="5dip"/>

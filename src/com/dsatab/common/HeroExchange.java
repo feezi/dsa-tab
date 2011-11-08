@@ -48,8 +48,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.AndroidRuntimeException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -62,11 +64,11 @@ import android.widget.Toast;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
+import com.dsatab.activity.DsaPreferenceActivity;
 import com.dsatab.activity.DsaPreferenceActivityHC;
 import com.dsatab.data.Hero;
 import com.dsatab.xml.XmlParser;
 import com.gandulf.guilib.util.Debug;
-import com.gandulf.guilib.util.ErrorHandler;
 
 public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 
@@ -284,8 +286,14 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 			Toast.makeText(context, "Bitte zuerst die Logindaten bei den Heldenaustausch Einstellungen angeben.",
 					Toast.LENGTH_LONG).show();
 
-			Intent intent = new Intent(context, DsaPreferenceActivityHC.class);
-			intent.putExtra(DsaPreferenceActivityHC.INTENT_PREF_SCREEN, DsaPreferenceActivityHC.SCREEN_EXCHANGE);
+			Intent intent;
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+				intent = new Intent(context, DsaPreferenceActivity.class);
+			} else {
+				intent = new Intent(context, DsaPreferenceActivityHC.class);
+			}
+			intent.putExtra(DsaPreferenceActivity.INTENT_PREF_SCREEN, DsaPreferenceActivity.SCREEN_EXCHANGE);
+
 			context.startActivity(intent);
 			return false;
 		} else
@@ -372,8 +380,10 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 					zos.close();
 
 					HttpClient httpclient = new DefaultHttpClient();
-					HttpPost httppost = new HttpPost(preferences.getString(DsaPreferenceActivityHC.KEY_EXCHANGE_PROVIDER,
-							DsaPreferenceActivityHC.DEFAULT_EXCHANGE_PROVIDER) + "index.php");
+					HttpPost httppost = new HttpPost(preferences.getString(
+							DsaPreferenceActivityHC.KEY_EXCHANGE_PROVIDER,
+							DsaPreferenceActivityHC.DEFAULT_EXCHANGE_PROVIDER)
+							+ "index.php");
 
 					MultipartEntity entity = new MultipartEntity();
 
@@ -463,7 +473,7 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 			case RESULT_ERROR:
 				Toast.makeText(context, "Held konnte nicht exportiert werden.", Toast.LENGTH_LONG);
 				if (caughtException != null) {
-					ErrorHandler.handleError(caughtException, context);
+					throw new AndroidRuntimeException("Could not export hero.", caughtException);
 				}
 				break;
 			}
@@ -655,10 +665,7 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 				break;
 			case RESULT_ERROR:
 				Toast.makeText(context, R.string.download_error, Toast.LENGTH_SHORT).show();
-				if (caughtException != null) {
-					ErrorHandler.handleError(caughtException, context);
-				}
-				break;
+				throw new AndroidRuntimeException("Could not import hero from " + innerFile, caughtException);
 			}
 
 		}

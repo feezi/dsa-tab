@@ -5,16 +5,16 @@
                 android:icon="@drawable/ic_menu_home"
                         android:title="Hausregeln verwenden"
                         android:defaultValue="false"
-                        android:summary="Spezielle Hausregeln verwenden: Eigenschafts-/Kampfproben besten 2 von 3 Würfen"
+                        android:summaryOn="Spezielle Hausregeln verwenden: Eigenschafts-/Kampfproben besten 2 von 3 Würfen"
+                        android:summaryOff="Das offizielen DSA 4.x Regelwerk verwenden. (Empfohlen)"  
                         android:key="houseRules" />
                 
 				<CheckBoxPreference
 					android:icon="@drawable/ic_menu_dice"
                         android:title="Schüttel Wurf"
                         android:defaultValue="false"
-                        android:summary="Durch das Schütteln des Handies wird ein Würfel geworfen"
-                        android:key="shakeRollDice" />
-                                        
+                        android:summary="Durch das Schütteln des Handies wird ein Würfel (W20) geworfen"                        
+                        android:key="shakeRollDice" />                                        
 
 				<ListPreference
 				android:icon="@drawable/ic_menu_tag"

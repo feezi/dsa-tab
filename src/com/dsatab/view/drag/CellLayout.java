@@ -845,6 +845,7 @@ public class CellLayout extends ViewGroup {
 	}
 
 	public boolean isCellEmpty(int locX, int locY) {
+
 		int count = getChildCount();
 		for (int i = 0; i < count; i++) {
 			View child = getChildAt(i);
@@ -1036,9 +1037,9 @@ public class CellLayout extends ViewGroup {
 		public View cell;
 		public int cellX;
 		public int cellY;
-		int spanX;
-		int spanY;
-		int screen;
+		public int spanX;
+		public int spanY;
+		public int screen;
 		boolean valid;
 
 		final ArrayList<VacantCell> vacantCells = new ArrayList<VacantCell>(VacantCell.POOL_LIMIT);

@@ -30,20 +30,21 @@ public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnCl
 
 	public void setSpell(Spell spell) {
 		this.spell = spell;
-
-		setTitle(spell.getName());
-		set(R.id.popup_spell_castduration, spell.getCastDuration());
-		set(R.id.popup_spell_row_comment, R.id.popup_spell_comment, spell.getComments());
-		set(R.id.popup_spell_costs, spell.getCosts());
-		set(R.id.popup_spell_effect, spell.getEffect());
-		set(R.id.popup_spell_target, spell.getTarget());
-		set(R.id.popup_spell_range, spell.getRange());
-		set(R.id.popup_spell_effectduration, spell.getEffectDuration());
-		set(R.id.popup_spell_representation, spell.getRepresantation());
-		set(R.id.popup_spell_row_variant, R.id.popup_spell_variant, spell.getVariant());
-		set(R.id.popup_spell_source, spell.getSource());
-		set(R.id.popup_spell_complexity, spell.getComplexity());
-		set(R.id.popup_spell_merkmal, spell.getMerkmale());
+		if (spell != null) {
+			setTitle(spell.getName());
+			set(R.id.popup_spell_castduration, spell.getCastDuration());
+			set(R.id.popup_spell_row_comment, R.id.popup_spell_comment, spell.getComments());
+			set(R.id.popup_spell_costs, spell.getCosts());
+			set(R.id.popup_spell_effect, spell.getEffect());
+			set(R.id.popup_spell_target, spell.getTarget());
+			set(R.id.popup_spell_range, spell.getRange());
+			set(R.id.popup_spell_effectduration, spell.getEffectDuration());
+			set(R.id.popup_spell_representation, spell.getRepresantation());
+			set(R.id.popup_spell_row_variant, R.id.popup_spell_variant, spell.getVariant());
+			set(R.id.popup_spell_source, spell.getSource());
+			set(R.id.popup_spell_complexity, spell.getComplexity());
+			set(R.id.popup_spell_merkmal, spell.getMerkmale());
+		}
 	}
 
 	private void init() {
@@ -61,6 +62,8 @@ public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnCl
 		for (int i = 0; i < childCount; i++) {
 			if (i % 2 == 1) {
 				table.getChildAt(i).setBackgroundResource(R.color.RowOdd);
+			} else {
+				table.getChildAt(i).setBackgroundResource(R.color.RowEven);
 			}
 		}
 

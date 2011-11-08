@@ -19,6 +19,7 @@ package com.dsatab.activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.fragment.NotesEditFragment.OnNotesEditListener;
 
@@ -31,6 +32,7 @@ public class NotesEditActivity extends BaseFragmentActivity implements OnNotesEd
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setTheme(DSATabApplication.getInstance().getCustomDialogTheme());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_notes_edit);
 	}

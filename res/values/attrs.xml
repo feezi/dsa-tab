@@ -12,6 +12,8 @@
     <declare-styleable name="Theme">
         <attr name="glossyImageButtonStyle" format="reference"/>
         <attr name="glossyButtonStyle" format="reference"/>
+        <attr name="glossyButtonOverlay" format="reference"/>
+        <attr name="glossyButtonMask" format="reference"/>
     </declare-styleable>
     
     <declare-styleable name="Gallery">

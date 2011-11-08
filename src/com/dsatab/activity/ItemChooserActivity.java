@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.data.items.Item;
 import com.dsatab.fragment.ItemChooserFragment;
@@ -35,6 +36,7 @@ public class ItemChooserActivity extends BaseFragmentActivity implements OnItemC
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setTheme(DSATabApplication.getInstance().getCustomTheme());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_item_chooser);
 	}

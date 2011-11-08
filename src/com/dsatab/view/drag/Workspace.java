@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -37,6 +36,7 @@ import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
 import com.dsatab.view.CardView;
+import com.dsatab.view.PageButton;
 import com.dsatab.view.drag.CellLayout.CellInfo.VacantCell;
 import com.dsatab.xml.DataManager;
 import com.gandulf.guilib.drag.DragController;
@@ -87,10 +87,8 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 	private int[] mTempCell = new int[2];
 	private int[] mTempEstimate = new int[2];
 
-	private boolean mAllowLongPress = true;
-
-	private Drawable mPreviousIndicator;
-	private Drawable mNextIndicator;
+	private PageButton mPreviousIndicator;
+	private PageButton mNextIndicator;
 
 	private WorkspaceOvershootInterpolator mScrollInterpolator;
 
@@ -315,8 +313,7 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 			mScroller.abortAnimation();
 		clearVacantCache();
 		mCurrentScreen = Math.max(0, Math.min(currentScreen, getChildCount() - 1));
-		mPreviousIndicator.setLevel(mCurrentScreen);
-		mNextIndicator.setLevel(mCurrentScreen);
+		updateIndicators();
 		scrollTo(mCurrentScreen * getWidth(), 0);
 		invalidate();
 	}
@@ -481,8 +478,7 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 
 		} else if (mNextScreen != INVALID_SCREEN) {
 			mCurrentScreen = Math.max(0, Math.min(mNextScreen, getChildCount() - 1));
-			mPreviousIndicator.setLevel(mCurrentScreen);
-			mNextIndicator.setLevel(mCurrentScreen);
+			updateIndicators();
 			mNextScreen = INVALID_SCREEN;
 			clearChildrenCache();
 		}
@@ -701,9 +697,7 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		enableChildrenCache(mCurrentScreen, whichScreen);
 
 		mNextScreen = whichScreen;
-
-		mPreviousIndicator.setLevel(mNextScreen);
-		mNextIndicator.setLevel(mNextScreen);
+		updateIndicators(mNextScreen);
 
 		View focusedChild = getFocusedChild();
 		if (focusedChild != null && whichScreen != mCurrentScreen && focusedChild == getChildAt(mCurrentScreen)) {
@@ -1024,21 +1018,6 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		return null;
 	}
 
-	/**
-	 * @return True is long presses are still allowed for the current touch
-	 */
-	public boolean allowLongPress() {
-		return mAllowLongPress;
-	}
-
-	/**
-	 * Set true to allow long-press events to be triggered, usually checked by
-	 * {@link Launcher2} to accept or block dpad-initiated long-presses.
-	 */
-	public void setAllowLongPress(boolean allowLongPress) {
-		mAllowLongPress = allowLongPress;
-	}
-
 	public void replaceItem(final ItemCard oldItem, final ItemCard newItem) {
 
 		newItem.getItemInfo().setCellX(oldItem.getItemInfo().getCellX());
@@ -1131,11 +1110,23 @@ public class Workspace extends ViewGroup implements DropTarget<ItemCard>, DragSo
 		getChildAt(mDefaultScreen).requestFocus();
 	}
 
-	public void setIndicators(Drawable previous, Drawable next) {
+	public void setIndicators(PageButton previous, PageButton next) {
 		mPreviousIndicator = previous;
 		mNextIndicator = next;
-		previous.setLevel(mCurrentScreen);
-		next.setLevel(mCurrentScreen);
+		mPreviousIndicator.setMaxLevel(getChildCount() - 1);
+		mNextIndicator.setMaxLevel(getChildCount() - 1);
+		updateIndicators();
+	}
+
+	private void updateIndicators() {
+		updateIndicators(mCurrentScreen);
+	}
+
+	private void updateIndicators(int screen) {
+		mPreviousIndicator.setLevel(screen);
+		mNextIndicator.setLevel(getChildCount() - 1 - screen);
+		mPreviousIndicator.setMaxLevel(getChildCount() - 1);
+		mNextIndicator.setMaxLevel(getChildCount() - 1);
 	}
 
 	public static class SavedState extends BaseSavedState {

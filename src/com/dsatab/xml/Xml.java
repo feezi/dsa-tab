@@ -95,6 +95,11 @@ public interface Xml {
 	public static final String KEY_AUSBILDUNG = "ausbildung";
 	public static final String KEY_RASSE = "rasse";
 
+	public static final String KEY_SCHILDWAFFE = "Schild";
+
+	public static final String KEY_FERNKAMPWAFFE = "Fernkampfwaffe";
+	public static final String KEY_TPMOD = "tpmod";
+
 	public static final String KEY_NAHKAMPWAFFE = "Nahkampfwaffe";
 	public static final String KEY_TREFFERPUNKTE = "trefferpunkte";
 	public static final String KEY_TREFFERPUNKTE_MUL = "mul";
@@ -154,4 +159,9 @@ public interface Xml {
 	public static final String KEY_STAND = "stand";
 	public static final String KEY_ACTIVE = "active";
 	public static final String KEY_SPEZIALISIERUNG = "spezialisierung";
+	public static final String KEY_K = "k";
+	public static final String KEY_MRMOD = "mrmod";
+	public static final String KEY_GESBE = "gesbe";
+	public static final String KEY_ENTFERNUNG = "entfernung";
+
 }

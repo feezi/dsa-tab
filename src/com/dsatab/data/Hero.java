@@ -23,6 +23,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.util.AndroidRuntimeException;
 import android.widget.Toast;
 
@@ -30,11 +31,12 @@ import com.dsatab.DSATabApplication;
 import com.dsatab.HeroConfiguration;
 import com.dsatab.activity.DsaPreferenceActivityHC;
 import com.dsatab.common.Util;
-import com.dsatab.data.Art.LiturigeType;
+import com.dsatab.data.Art.ArtType;
 import com.dsatab.data.MetaTalent.MetaTalentType;
 import com.dsatab.data.TalentGroup.TalentGroupType;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
+import com.dsatab.data.enums.EventCategory;
 import com.dsatab.data.enums.Position;
 import com.dsatab.data.items.Armor;
 import com.dsatab.data.items.DistanceWeapon;
@@ -134,9 +136,19 @@ public class Hero {
 	private HeroConfiguration configuration;
 
 	// transient
-	private Map<Probe, Integer> modifiersCache = new HashMap<Probe, Integer>();
+	private Map<Probe, ModifierCache> modifiersCache = new HashMap<Probe, ModifierCache>();
 
-	private Map<Probe, Integer> modifiersInclBeCache = new HashMap<Probe, Integer>();
+	private static class ModifierCache {
+		int mod = Integer.MIN_VALUE;
+		int modInclBe = Integer.MIN_VALUE;
+		int modInclLEAu = Integer.MIN_VALUE;
+
+		void clear() {
+			mod = Integer.MIN_VALUE;
+			modInclBe = Integer.MIN_VALUE;
+			modInclLEAu = Integer.MIN_VALUE;
+		}
+	}
 
 	@SuppressWarnings("unchecked")
 	public Hero(String path, org.jdom.Document dom) {
@@ -157,7 +169,9 @@ public class Hero {
 
 		equippmentNode = getHeldElement().getChild(Xml.KEY_AUSRUESTUNGEN_UE);
 		if (equippmentNode != null) {
-			equippmentNode.setName(Xml.KEY_AUSRUESTUNGEN);
+			// for newer android versions rename ausrüstung back to ü
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO)
+				equippmentNode.setName(Xml.KEY_AUSRUESTUNGEN);
 		} else {
 			equippmentNode = getHeldElement().getChild(Xml.KEY_AUSRUESTUNGEN);
 		}
@@ -389,7 +403,7 @@ public class Hero {
 		if (equippedItems[selectedSet] == null) {
 			equippedItems[selectedSet] = new LinkedList<EquippedItem>();
 
-			List<Element> equippedElements = DomUtil.getChildrenByTagName(getHeldElement(), Xml.KEY_AUSRUESTUNGEN,
+			List<Element> equippedElements = DomUtil.getChildrenByTagName(getHeldElement(), equippmentNode,
 					Xml.KEY_HELDENAUSRUESTUNG);
 
 			for (int i = 0; i < equippedElements.size(); i++) {
@@ -550,12 +564,14 @@ public class Hero {
 
 	public void setActiveSet(int activeSet) {
 
-		int oldSet = activeSet;
-		this.activeSet = activeSet;
+		if (activeSet != this.activeSet) {
+			int oldSet = activeSet;
+			this.activeSet = activeSet;
 
-		resetBe();
+			resetBe();
 
-		fireActiveSetChangedEvent(activeSet, oldSet);
+			fireActiveSetChangedEvent(activeSet, oldSet);
+		}
 	}
 
 	void fireModifiersChangedEvent(List<Modificator> modifiers) {
@@ -574,7 +590,7 @@ public class Hero {
 
 			switch (attribute.getType()) {
 			case Behinderung:
-				modifiersInclBeCache.clear();
+				clearModifiersCache();
 				getAttribute(AttributeType.Geschwindigkeit).checkBaseValue();
 				break;
 			case Gewandtheit:
@@ -703,8 +719,9 @@ public class Hero {
 	 * 
 	 */
 	private void clearModifiersCache() {
-		modifiersCache.clear();
-		modifiersInclBeCache.clear();
+		for (ModifierCache cache : modifiersCache.values()) {
+			cache.clear();
+		}
 	}
 
 	void fireModifierRemovedEvent(Modificator modifier) {
@@ -1254,7 +1271,14 @@ public class Hero {
 	 */
 	public double getLeRatio() {
 		Attribute le = getAttribute(AttributeType.Lebensenergie);
-		return ((double) le.getValue()) / le.getReferenceValue();
+		Integer value = le.getValue();
+		Integer ref = le.getReferenceValue();
+		if (value != null && ref != null) {
+			return ((double) value) / ref;
+		} else {
+			return 1.0;
+		}
+
 	}
 
 	/**
@@ -1280,14 +1304,26 @@ public class Hero {
 	}
 
 	public int getModifier(Probe probe, boolean includeBe, boolean includeLeAu) {
+		ModifierCache cache = null;
+
+		cache = modifiersCache.get(probe);
+		if (cache == null) {
+			cache = new ModifierCache();
+			modifiersCache.put(probe, cache);
+		}
 
 		if (includeBe) {
-			if (modifiersInclBeCache.containsKey(probe)) {
-				return modifiersInclBeCache.get(probe);
+			if (cache.modInclBe != Integer.MIN_VALUE) {
+				return cache.modInclBe;
+			}
+		}
+		if (includeLeAu) {
+			if (cache.modInclLEAu != Integer.MIN_VALUE) {
+				return cache.modInclLEAu;
 			}
 		} else {
-			if (modifiersCache.containsKey(probe)) {
-				return modifiersCache.get(probe);
+			if (cache.mod != Integer.MIN_VALUE) {
+				return cache.mod;
 			}
 		}
 
@@ -1297,9 +1333,11 @@ public class Hero {
 		}
 
 		if (includeBe)
-			modifiersInclBeCache.put(probe, modifier);
+			cache.modInclBe = modifier;
+		else if (includeLeAu)
+			cache.modInclLEAu = modifier;
 		else
-			modifiersCache.put(probe, modifier);
+			cache.mod = modifier;
 
 		return modifier;
 	}
@@ -1327,14 +1365,49 @@ public class Hero {
 
 			if (attribute.getType() == AttributeType.ini) {
 				if (attribute.getHero().hasFeature(SpecialFeature.KAMPFGESPUER))
-					modifiers.add(new Modifier(2, "Kampfgespür", ""));
+					modifiers.add(new Modifier(2, SpecialFeature.KAMPFGESPUER));
 
 				if (attribute.getHero().hasFeature(SpecialFeature.KAMPFREFLEXE))
-					modifiers.add(new Modifier(4, "Kampfreflexe", ""));
+					modifiers.add(new Modifier(4, SpecialFeature.KAMPFREFLEXE));
 			}
-		}
 
-		if (probe instanceof MetaTalent) {
+		} else if (probe instanceof CombatMeleeTalent || probe instanceof CombatMeleeAttribute) {
+			CombatMeleeTalent meleeTalent;
+			if (probe instanceof CombatMeleeAttribute)
+				meleeTalent = ((CombatMeleeAttribute) probe).getTalent();
+			else
+				meleeTalent = (CombatMeleeTalent) probe;
+
+			if (meleeTalent.getCombatTalentType() == CombatTalentType.Raufen) {
+				// waffenlose kampftechniken +1/+1
+
+				if (hasFeature(SpecialFeature.WK_GLADIATORENSTIL)) {
+					modifiers.add(new Modifier(1, SpecialFeature.WK_GLADIATORENSTIL));
+				}
+				if (hasFeature(SpecialFeature.WK_HAMMERFAUST)) {
+					modifiers.add(new Modifier(1, SpecialFeature.WK_HAMMERFAUST));
+				}
+				if (hasFeature(SpecialFeature.WK_MERCENARIO)) {
+					modifiers.add(new Modifier(1, SpecialFeature.WK_MERCENARIO));
+				}
+				if (hasFeature(SpecialFeature.WK_HRURUZAT)) {
+					modifiers.add(new Modifier(1, SpecialFeature.WK_HRURUZAT));
+				}
+			}
+
+			if (meleeTalent.getCombatTalentType() == CombatTalentType.Ringen) {
+				if (hasFeature(SpecialFeature.WK_UNAUER_SCHULE)) {
+					modifiers.add(new Modifier(1, SpecialFeature.WK_UNAUER_SCHULE));
+				}
+				if (hasFeature(SpecialFeature.WK_BORNLAENDISCH)) {
+					modifiers.add(new Modifier(1, SpecialFeature.WK_BORNLAENDISCH));
+				}
+				if (hasFeature(SpecialFeature.WK_GLADIATORENSTIL)) {
+					modifiers.add(new Modifier(1, SpecialFeature.WK_GLADIATORENSTIL));
+				}
+			}
+
+		} else if (probe instanceof MetaTalent) {
 			MetaTalent metaTalent = (MetaTalent) probe;
 
 			switch (metaTalent.getMetaType()) {
@@ -1355,9 +1428,9 @@ public class Hero {
 				}
 
 				if (hasFeature(SpecialFeature.MEISTERSCHUETZE))
-					modifiers.add(new Modifier(7, SpecialFeature.MEISTERSCHUETZE, ""));
+					modifiers.add(new Modifier(7, SpecialFeature.MEISTERSCHUETZE));
 				else if (hasFeature(SpecialFeature.SCHARFSCHUETZE))
-					modifiers.add(new Modifier(3, SpecialFeature.SCHARFSCHUETZE, ""));
+					modifiers.add(new Modifier(3, SpecialFeature.SCHARFSCHUETZE));
 
 				break;
 			case Wache:
@@ -1365,7 +1438,7 @@ public class Hero {
 				// TODO add erschöpfung
 
 				if (hasFeature(SpecialFeature.AUFMERKSAMKEIT))
-					modifiers.add(new Modifier(1, SpecialFeature.AUFMERKSAMKEIT, ""));
+					modifiers.add(new Modifier(1, SpecialFeature.AUFMERKSAMKEIT));
 
 				Talent gefahr = getTalent(Talent.GEFAHRENINSTINKT);
 				if (gefahr != null) {
@@ -1378,39 +1451,37 @@ public class Hero {
 				}
 
 				if (hasFeature(SpecialFeature.DÄMMERNGSSICHT)) {
-					modifiers.add(new Modifier(1, SpecialFeature.DÄMMERNGSSICHT, ""));
+					modifiers.add(new Modifier(1, SpecialFeature.DÄMMERNGSSICHT));
 				}
 
 				if (hasFeature(SpecialFeature.NACHTSICHT)) {
-					modifiers.add(new Modifier(3, SpecialFeature.NACHTSICHT, ""));
+					modifiers.add(new Modifier(3, SpecialFeature.NACHTSICHT));
 				}
 
 				if (hasFeature(SpecialFeature.HERRAUSRAGENDER_SINN)) {
-					modifiers.add(new Modifier(1, SpecialFeature.HERRAUSRAGENDER_SINN, ""));
+					modifiers.add(new Modifier(1, SpecialFeature.HERRAUSRAGENDER_SINN));
 				}
 
 				if (hasFeature(SpecialFeature.EINÄUGIG)) {
-					modifiers.add(new Modifier(-2, SpecialFeature.EINÄUGIG, ""));
+					modifiers.add(new Modifier(-2, SpecialFeature.EINÄUGIG));
 				}
 				if (hasFeature(SpecialFeature.EINBILDUNGEN)) {
-					modifiers.add(new Modifier(-2, SpecialFeature.EINBILDUNGEN, ""));
+					modifiers.add(new Modifier(-2, SpecialFeature.EINBILDUNGEN));
 				}
 				if (hasFeature(SpecialFeature.DUNKELANGST)) {
-					modifiers.add(new Modifier(-3, SpecialFeature.DUNKELANGST, ""));
+					modifiers.add(new Modifier(-3, SpecialFeature.DUNKELANGST));
 				}
 
 				if (hasFeature(SpecialFeature.NACHTBLIND)) {
-					modifiers.add(new Modifier(-3, SpecialFeature.NACHTBLIND, ""));
+					modifiers.add(new Modifier(-3, SpecialFeature.NACHTBLIND));
 				}
 				if (hasFeature(SpecialFeature.UNSTET)) {
-					modifiers.add(new Modifier(-2, SpecialFeature.UNSTET, ""));
+					modifiers.add(new Modifier(-2, SpecialFeature.UNSTET));
 				}
 
 			}
 
-		}
-
-		if (probe instanceof CombatProbe) {
+		} else if (probe instanceof CombatProbe) {
 			CombatProbe combatProbe = (CombatProbe) probe;
 			EquippedItem equippedItem = combatProbe.getEquippedItem();
 
@@ -1428,65 +1499,65 @@ public class Hero {
 				if (combatProbe.isAttack()) {
 
 					Debug.verbose("Hauptwaffe Wm Attack is " + weapon.getWmAt());
-					if (weapon.getWmAt() != null)
-						modifiers.add(new Modifier(weapon.getWmAt(), "Waffenmodifikator At", ""));
+					if (weapon.getWmAt() != null && weapon.getWmAt() != 0)
+						modifiers.add(new Modifier(weapon.getWmAt(), "Waffenmodifikator At"));
 				} else {
 					Debug.verbose("Hauptwaffe Wm Defense is " + weapon.getWmPa());
-					if (weapon.getWmPa() != null)
-						modifiers.add(new Modifier(weapon.getWmPa(), "Waffenmodifikator Pa", ""));
+					if (weapon.getWmPa() != null && weapon.getWmPa() != 0)
+						modifiers.add(new Modifier(weapon.getWmPa(), "Waffenmodifikator Pa"));
 				}
 
-				for (SpecialFeature special : getSpecialFeatures()) {
-					if (special.getName().startsWith("Talentspezialisierung")
-							&& special.getName().endsWith(item.getName() + ")")) {
-						Debug.verbose("Talentspezialisierung " + item.getName());
+				BaseCombatTalent talent = (BaseCombatTalent) equippedItem.getTalent();
+				if (talent != null && talent.getTalentSpezialisierung() != null
+						&& talent.getTalentSpezialisierung().equalsIgnoreCase(item.getName())) {
 
-						modifiers.add(new Modifier(1, special.getName(), ""));
+					Debug.verbose("Talentspezialisierung " + item.getName() + " +1");
 
-						Debug.verbose(special.getName() + " AT/PA+1");
-					}
+					modifiers.add(new Modifier(1, SpecialFeature.TALENTSPEZIALISIERUNG_PREFIX + " "
+							+ talent.getTalentSpezialisierung()));
+
 				}
 
 				// waffenlose kampftechniken +1/+1
 				if (item.getName().startsWith("Raufen")) {
 					if (hasFeature(SpecialFeature.WK_GLADIATORENSTIL)) {
-						modifiers.add(new Modifier(1, SpecialFeature.WK_GLADIATORENSTIL, ""));
+						modifiers.add(new Modifier(1, SpecialFeature.WK_GLADIATORENSTIL));
 					}
 					if (hasFeature(SpecialFeature.WK_HAMMERFAUST)) {
-						modifiers.add(new Modifier(1, SpecialFeature.WK_HAMMERFAUST, ""));
+						modifiers.add(new Modifier(1, SpecialFeature.WK_HAMMERFAUST));
 					}
 					if (hasFeature(SpecialFeature.WK_MERCENARIO)) {
-						modifiers.add(new Modifier(1, SpecialFeature.WK_MERCENARIO, ""));
+						modifiers.add(new Modifier(1, SpecialFeature.WK_MERCENARIO));
 					}
 					if (hasFeature(SpecialFeature.WK_HRURUZAT)) {
-						modifiers.add(new Modifier(1, SpecialFeature.WK_HRURUZAT, ""));
+						modifiers.add(new Modifier(1, SpecialFeature.WK_HRURUZAT));
 					}
 				}
 
 				if (item.getName().startsWith("Hruruzat")) {
 					if (hasFeature(SpecialFeature.WK_GLADIATORENSTIL)) {
-						modifiers.add(new Modifier(1, SpecialFeature.WK_GLADIATORENSTIL, ""));
+						modifiers.add(new Modifier(1, SpecialFeature.WK_GLADIATORENSTIL));
 					}
 					if (hasFeature(SpecialFeature.WK_HAMMERFAUST)) {
-						modifiers.add(new Modifier(1, SpecialFeature.WK_HAMMERFAUST, ""));
+						modifiers.add(new Modifier(1, SpecialFeature.WK_HAMMERFAUST));
 					}
 					if (hasFeature(SpecialFeature.WK_MERCENARIO)) {
-						modifiers.add(new Modifier(1, SpecialFeature.WK_MERCENARIO, ""));
+						modifiers.add(new Modifier(1, SpecialFeature.WK_MERCENARIO));
 					}
 					if (hasFeature(SpecialFeature.WK_HRURUZAT)) {
-						modifiers.add(new Modifier(1, SpecialFeature.WK_HRURUZAT, ""));
+						modifiers.add(new Modifier(1, SpecialFeature.WK_HRURUZAT));
 					}
 				}
 
 				if (item.getName().startsWith("Ringen")) {
 					if (hasFeature(SpecialFeature.WK_UNAUER_SCHULE)) {
-						modifiers.add(new Modifier(1, SpecialFeature.WK_UNAUER_SCHULE, ""));
+						modifiers.add(new Modifier(1, SpecialFeature.WK_UNAUER_SCHULE));
 					}
 					if (hasFeature(SpecialFeature.WK_BORNLAENDISCH)) {
-						modifiers.add(new Modifier(1, SpecialFeature.WK_BORNLAENDISCH, ""));
+						modifiers.add(new Modifier(1, SpecialFeature.WK_BORNLAENDISCH));
 					}
 					if (hasFeature(SpecialFeature.WK_GLADIATORENSTIL)) {
-						modifiers.add(new Modifier(1, SpecialFeature.WK_GLADIATORENSTIL, ""));
+						modifiers.add(new Modifier(1, SpecialFeature.WK_GLADIATORENSTIL));
 					}
 				}
 
@@ -1525,7 +1596,7 @@ public class Hero {
 
 						Shield shield = (Shield) equippedShield.getItem().getSpecification(Shield.class);
 
-						modifiers.add(new Modifier(shield.getWmAt(), "Schildkampf Modifikator At", ""));
+						modifiers.add(new Modifier(shield.getWmAt(), "Schildkampf Modifikator At"));
 
 						Debug.verbose("Hauptwaffenattacke is reduziert um Schild WM " + shield.getWmAt());
 					}
@@ -1537,10 +1608,10 @@ public class Hero {
 				if (combatProbe.isAttack()) {
 					Debug.verbose("Shield Wm Attack is " + shield.getWmAt());
 
-					modifiers.add(new Modifier(shield.getWmAt(), "Schildmodifikator At", ""));
+					modifiers.add(new Modifier(shield.getWmAt(), "Schildmodifikator At"));
 				} else {
 					Debug.verbose("Shield Wm Defense is " + shield.getWmPa());
-					modifiers.add(new Modifier(shield.getWmPa(), "Schildmodifikator PA", ""));
+					modifiers.add(new Modifier(shield.getWmPa(), "Schildmodifikator PA"));
 
 					// paradevalue is increased by 1 if weaponparade is above
 					// 15
@@ -1555,17 +1626,17 @@ public class Hero {
 										+ ". Schildparade +3");
 
 								modifiers.add(new Modifier(3, "Hauptwaffe hat Paradewert von " + defenseValue
-										+ ". Schildparade +3", ""));
+										+ ". Schildparade +3"));
 							} else if (defenseValue >= 18) {
 								Debug.verbose("Shield: Hauptwaffe hat Paradewert von " + defenseValue
 										+ ". Schildparade +2");
 								modifiers.add(new Modifier(2, "Hauptwaffe hat Paradewert von " + defenseValue
-										+ ". Schildparade +2", ""));
+										+ ". Schildparade +2"));
 							} else if (defenseValue >= 15) {
 								Debug.verbose("Shield: Hauptwaffe hat Paradewert von " + defenseValue
 										+ ". Schildparade +1");
 								modifiers.add(new Modifier(1, "Hauptwaffe hat Paradewert von " + defenseValue
-										+ ". Schildparade +1", ""));
+										+ ". Schildparade +1"));
 							}
 						}
 					}
@@ -1579,7 +1650,7 @@ public class Hero {
 
 			if (heroBe != 0) {
 
-				modifiers.add(new Modifier(-1 * heroBe, "Behinderung " + probe.getProbeInfo().getBe(), null));
+				modifiers.add(new Modifier(-1 * heroBe, "Behinderung " + probe.getProbeInfo().getBe()));
 			}
 		}
 
@@ -1643,7 +1714,7 @@ public class Hero {
 		for (Element feat : sf) {
 
 			String name = feat.getAttributeValue(Xml.KEY_NAME).trim();
-			LiturigeType type = LiturigeType.getTypeOfArt(name);
+			ArtType type = ArtType.getTypeOfArt(name);
 			if (type == null) {
 				SpecialFeature specialFeature = new SpecialFeature(feat);
 				boolean add = true;
@@ -1850,6 +1921,15 @@ public class Hero {
 						getHeroConfiguration().addEvent(new Event(element));
 					}
 				}
+
+				// UPGRADE: remove element since we will handle it in our
+				// json configration from now one
+				for (Event event : getHeroConfiguration().getEvents()) {
+					if (event.getElement() != null && event.getCategory() == EventCategory.Misc) {
+						getEventsElement().removeContent(event.getElement());
+						event.setElement(null);
+					}
+				}
 			}
 
 			Collections.sort(getHeroConfiguration().getEvents(), new NotesComparator());
@@ -1876,7 +1956,7 @@ public class Hero {
 	public int getBe(Probe probe) {
 		int heroBe = 0;
 
-		if (probe.getProbeInfo().getBe() != null) {
+		if (probe != null && probe.getProbeInfo().getBe() != null) {
 
 			// base hero be
 			heroBe = getAttributeValue(AttributeType.Behinderung);
@@ -1925,22 +2005,6 @@ public class Hero {
 
 		}
 		return heroBe;
-	}
-
-	public List<Item> getItems(ItemType... types) {
-		List<Item> result = new LinkedList<Item>();
-		List<ItemType> typeList = Arrays.asList(types);
-
-		for (Item item : getItems()) {
-			for (ItemSpecification spec : item.getSpecifications()) {
-				if (typeList.contains(spec.getType())) {
-					result.add(item);
-					break;
-				}
-			}
-		}
-
-		return result;
 	}
 
 	public int[] getWundschwelle() {
@@ -2042,7 +2106,7 @@ public class Hero {
 					ItemSpecification itemSpec = equippedItem.getItemSpecification();
 					if (itemSpec instanceof Armor) {
 						Armor armor = (Armor) itemSpec;
-						be += armor.getBe();
+						be += armor.getTotalBe();
 
 						if (rs1Armor != null && rs1Armor.equals(equippedItem.getItemName())) {
 							be -= 1.0;

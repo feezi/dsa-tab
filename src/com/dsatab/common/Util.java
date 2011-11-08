@@ -17,7 +17,7 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.TextUtils;
-import android.view.Gravity;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -329,8 +329,11 @@ public class Util {
 	}
 
 	public static void setTextColor(TextView tf, Value value, int modifier) {
-		if (value.getValue() != null) {
+		setTextColor(tf, value, modifier, false);
+	}
 
+	public static void setTextColor(TextView tf, Value value, int modifier, boolean inverse) {
+		if (value.getValue() != null) {
 			if (modifier < 0 || (value.getReferenceValue() != null && value.getValue() < value.getReferenceValue()))
 				tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed));
 			else if (modifier > 0
@@ -339,14 +342,30 @@ public class Util {
 			else
 				tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueBlack));
 		} else {
-			tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueBlack));
+			if (inverse)
+				tf.setTextColor(getThemeColors(tf.getContext(), android.R.attr.textColorPrimaryInverse));
+			else
+				tf.setTextColor(getThemeColors(tf.getContext(), android.R.attr.textColorPrimary));
 		}
 	}
 
-	public static void setTextColor(TextView tf, int modifier) {
+	public static int getThemeColors(Context context, int attr) {
+		return DSATabApplication.getInstance().getResources().getColor(getThemeResourceId(context, attr));
+	}
+
+	public static int getThemeResourceId(Context context, int attr) {
+		TypedValue typedvalueattr = new TypedValue();
+		context.getTheme().resolveAttribute(attr, typedvalueattr, true);
+		return typedvalueattr.resourceId;
+	}
+
+	public static void setTextColor(TextView tf, int modifier, boolean inverse) {
 
 		if (modifier == 0) {
-			tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueBlack));
+			if (inverse)
+				tf.setTextColor(getThemeColors(tf.getContext(), android.R.attr.textColorPrimaryInverse));
+			else
+				tf.setTextColor(getThemeColors(tf.getContext(), android.R.attr.textColorPrimary));
 		} else if (modifier < 0)
 			tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed));
 		else if (modifier > 0)
@@ -359,22 +378,22 @@ public class Util {
 	}
 
 	public static void setText(TextView tf, Value value, String prefix) {
-		setText(tf, value, 0, prefix);
+		setText(tf, value, prefix, false);
 	}
 
-	public static void setText(TextView tf, Value value, int modifier, String prefix) {
-		if (value.getValue() != null) {
-			if (prefix != null)
-				tf.setText(prefix + Util.toString(value.getValue() + modifier));
-			else
-				tf.setText(Util.toString(value.getValue() + modifier));
-		} else {
-			tf.setText("");
-		}
-		setTextColor(tf, value, modifier);
+	public static void setText(TextView tf, Value value, String prefix, boolean inverseColors) {
+		setText(tf, value != null ? value.getValue() : null, 0, prefix, inverseColors);
+	}
+
+	public static void setText(TextView tf, Value value, int modifier, String prefix, boolean inverse) {
+		setText(tf, value != null ? value.getValue() : null, modifier, prefix, inverse);
 	}
 
 	public static void setText(TextView tf, Integer value, int modifier, String prefix) {
+		setText(tf, value, modifier, prefix, false);
+	}
+
+	public static void setText(TextView tf, Integer value, int modifier, String prefix, boolean inverse) {
 		if (value != null) {
 
 			value += modifier;
@@ -387,7 +406,7 @@ public class Util {
 		} else {
 			tf.setText(null);
 		}
-		setTextColor(tf, modifier);
+		setTextColor(tf, modifier, inverse);
 	}
 
 	public static void appendValue(Hero hero, StyleableSpannableStringBuilder title, AttributeType type) {
@@ -461,14 +480,6 @@ public class Util {
 
 		if (value1 != null || value2 != null)
 			title.append(")");
-	}
-
-	public static void applyTextValueStyle(TextView tv) {
-		tv.setTextAppearance(DSATabApplication.getInstance(), R.style.TextValue);
-		tv.setMinimumWidth(DSATabApplication.getInstance().getResources()
-				.getDimensionPixelSize(R.dimen.text_value_width));
-		tv.setGravity(Gravity.CENTER);
-
 	}
 
 	/*

@@ -24,8 +24,8 @@ import java.util.UUID;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
+import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -42,7 +42,6 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -101,6 +100,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	private ItemChooserDialog itemChooserDialog;
 
 	private Item selectedCard = null;
+	private Item foundItem = null;
 
 	private ItemSpecification selectedItemSpecification = null;
 
@@ -182,7 +182,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		Item foundItem = null;
+
 		String itemCategory;
 
 		Bundle extra = getActivity().getIntent().getExtras();
@@ -275,6 +275,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Item card = (Item) gallery.getItemAtPosition(position);
+				foundItem = null;
 				showCard(card, null, false);
 			}
 		});
@@ -301,6 +302,30 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			gallery.setSelection(index, false);
 
 		}
+
+		imageAdapter.registerDataSetObserver(new DataSetObserver() {
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see android.database.DataSetObserver#onChanged()
+			 */
+			@Override
+			public void onChanged() {
+				if (foundItem == null) {
+					Item item = null;
+					if (imageAdapter.getCount() > 0)
+						item = imageAdapter.getItem(0);
+
+					if (item != null) {
+						showCard(item, null, true);
+					}
+				} else {
+					int index = imageAdapter.getPosition(foundItem);
+					if (index >= 0)
+						gallery.setSelection(index, false);
+				}
+			}
+		});
 
 		categoryButtons = new ImageButton[8];
 		// imagebuttons
@@ -369,10 +394,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 					Item item = DataManager.getItemByName(arrAdapter.getItem(position));
 					if (item != null) {
 
-						InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
-								Context.INPUT_METHOD_SERVICE);
-						imm.hideSoftInputFromWindow(searchText.getWindowToken(), 0);
-
+						Util.hideKeyboard(searchText);
 						chooseType(item.getSpecifications().get(0).getType(), item.getCategory(), item);
 					}
 				}
@@ -531,7 +553,6 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			}
 		} else if (v.getTag() instanceof ItemType) {
 			ItemType cardType = (ItemType) v.getTag();
-
 			chooseType(cardType, null, null);
 		}
 
@@ -619,15 +640,12 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			button.setSelected(cardType.equals(button.getTag()));
 		}
 
+		foundItem = item;
 		gallery.setVisibility(View.VISIBLE);
 		imageAdapter.filter(cardType, category, null);
 
-		if (item == null && imageAdapter.getCount() > 0)
-			item = imageAdapter.getItem(0);
-
-		if (item != null) {
-			showCard(item, null, true);
-		}
+		if (foundItem != null)
+			showCard(foundItem, null, true);
 	}
 
 	private void openSubCategoriesDialog(final ItemType cardType) {

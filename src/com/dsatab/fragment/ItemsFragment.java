@@ -22,7 +22,6 @@ import java.util.UUID;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -33,7 +32,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Spinner;
 
 import com.dsatab.R;
@@ -42,6 +40,7 @@ import com.dsatab.data.Hero;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
+import com.dsatab.view.PageButton;
 import com.dsatab.view.drag.CellLayout;
 import com.dsatab.view.drag.DeleteZone;
 import com.dsatab.view.drag.ItemLocationInfo;
@@ -252,12 +251,10 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 		DeleteZone mDeleteZone = (DeleteZone) mDragLayer.findViewById(R.id.delete_zone);
 		mDeleteZone.setOrientation(DeleteZone.ORIENTATION_HORIZONTAL);
 
-		ImageView mPreviousView = (ImageView) mDragLayer.findViewById(R.id.previous_screen);
-		ImageView mNextView = (ImageView) mDragLayer.findViewById(R.id.next_screen);
+		PageButton mPreviousView = (PageButton) mDragLayer.findViewById(R.id.previous_screen);
+		PageButton mNextView = (PageButton) mDragLayer.findViewById(R.id.next_screen);
 
-		Drawable previous = mPreviousView.getDrawable();
-		Drawable next = mNextView.getDrawable();
-		mWorkspace.setIndicators(previous, next);
+		mWorkspace.setIndicators(mPreviousView, mNextView);
 
 		mPreviousView.setHapticFeedbackEnabled(false);
 		mPreviousView.setOnClickListener(this);
@@ -295,6 +292,7 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 			getHero().setActiveSet(newScreen);
 		else
 			updateSpinner(newScreen);
+
 	}
 
 	/*
@@ -686,14 +684,11 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 			return true;
 		}
 
-		if (mWorkspace.allowLongPress()) {
+		// User long pressed on an item
+		mWorkspace.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
+				HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
+		mWorkspace.startDrag(cellInfo);
 
-			// User long pressed on an item
-			mWorkspace.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
-					HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
-			mWorkspace.startDrag(cellInfo);
-
-		}
 		return true;
 	}
 

@@ -30,28 +30,30 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable {
 	protected transient Integer coreValue;
 	protected transient String name;
 
+	private boolean lazyInit = false;
+
 	public Attribute(Element element, Hero hero) {
 		this(element, null, hero);
 	}
 
-	public Attribute(Element element, AttributeType type, Hero hero) {
+	public Attribute(Element element, AttributeType defaultType, Hero hero) {
 		this.element = element;
 		this.hero = hero;
+		this.type = defaultType;
 		if (element != null) {
 			this.name = element.getAttributeValue(Xml.KEY_NAME);
-			if (type == null)
-				type = AttributeType.valueOf(element.getAttributeValue(Xml.KEY_NAME));
-
-			if (isDSATabValue() && element.getAttribute(Xml.KEY_DSATAB_VALUE) != null) {
-				value = Integer.parseInt(element.getAttributeValue(Xml.KEY_DSATAB_VALUE));
+			if (this.type == null) {
+				this.type = AttributeType.valueOf(element.getAttributeValue(Xml.KEY_NAME));
+			}
+			if (isDSATabValue()) {
+				value = Util.parseInt(element.getAttributeValue(Xml.KEY_DSATAB_VALUE));
 			}
 		}
-		this.type = type;
 
-		if (type == AttributeType.Ausweichen)
+		if (this.type == AttributeType.Ausweichen)
 			probeInfo.setErschwernis(0);
 
-		if (type.hasBe())
+		if (this.type.hasBe())
 			probeInfo.applyBePattern(CONSTANT_BE);
 
 	}
@@ -88,6 +90,21 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable {
 
 	}
 
+	private void lazyInit() {
+		if (lazyInit)
+			return;
+
+		if (value == null) {
+			value = getCoreValue();
+		}
+
+		if (this.type == AttributeType.Astralenergie || this.type == AttributeType.Karmaenergie) {
+			if (getCoreValue() == null)
+				value = null;
+		}
+		lazyInit = true;
+	}
+
 	public ProbeType getProbeType() {
 		return ProbeType.TwoOfThree;
 	}
@@ -102,9 +119,7 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable {
 	}
 
 	public Integer getValue() {
-		if (value == null) {
-			value = getCoreValue();
-		}
+		lazyInit();
 		return value;
 	}
 
@@ -155,14 +170,15 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable {
 
 	public void populateXml() {
 		if (element != null) {
-			if (value != null) {
+			if (getValue() != null) {
 				if (isDSATabValue()) {
 					element.setAttribute(Xml.KEY_DSATAB_VALUE, value.toString());
 				} else {
+					int modValue = value;
 					if (element.getAttribute(Xml.KEY_MOD) != null) {
-						value -= Integer.parseInt(element.getAttributeValue(Xml.KEY_MOD));
+						modValue -= Integer.parseInt(element.getAttributeValue(Xml.KEY_MOD));
 					}
-					element.setAttribute(Xml.KEY_VALUE, Integer.toString(value - getBaseValue()));
+					element.setAttribute(Xml.KEY_VALUE, Integer.toString(modValue - getBaseValue()));
 				}
 			} else {
 				element.removeAttribute(Xml.KEY_VALUE);
@@ -238,6 +254,20 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable {
 					currentBaseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
 							+ hero.getAttributeValue(AttributeType.Klugheit) + hero
 							.getAttributeValue(AttributeType.Konstitution)) / 5.0);
+
+					// int mrmod = 0;
+					// if (hero.getAttribute(AttributeType.Astralenergie) !=
+					// null) {
+					// Element e =
+					// hero.getAttribute(AttributeType.Astralenergie).element;
+					// if
+					// (!TextUtils.isEmpty(e.getAttributeValue(Xml.KEY_MRMOD)))
+					// {
+					// mrmod =
+					// Util.parseInt(e.getAttributeValue(Xml.KEY_MRMOD));
+					// }
+					// currentBaseValue += mrmod;
+					// }
 					break;
 				case Ausweichen:
 					currentBaseValue = (int) hero.getAttributeValue(AttributeType.pa);

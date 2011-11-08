@@ -31,6 +31,7 @@ import android.widget.Checkable;
 import android.widget.ImageButton;
 
 import com.dsatab.R;
+import com.dsatab.common.Util;
 
 /**
  * @author Ganymede
@@ -57,7 +58,6 @@ public class GlossyImageButton extends ImageButton implements Checkable {
 
 	public GlossyImageButton(Context context, AttributeSet attrs) {
 		this(context, attrs, R.attr.glossyImageButtonStyle);
-
 	}
 
 	public GlossyImageButton(Context context) {
@@ -92,17 +92,25 @@ public class GlossyImageButton extends ImageButton implements Checkable {
 	 * 
 	 */
 	private void init() {
-		mGlossDrawable = getResources().getDrawable(R.drawable.btn_glossy_gloss);
-		if (!isInEditMode())
-			mGlossDrawable.setCallback(this);
-		mMaskDrawable = getResources().getDrawable(R.drawable.btn_glossy_mask);
-		if (!isInEditMode())
-			mMaskDrawable.setCallback(this);
 
-		mMaskedPaint = new Paint();
-		mMaskedPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+		int overlayId = Util.getThemeResourceId(getContext(), R.attr.glossyButtonOverlay);
+		if (overlayId > 0) {
+			mGlossDrawable = getResources().getDrawable(R.drawable.btn_glossy_gloss);
+			if (!isInEditMode())
+				mGlossDrawable.setCallback(this);
+		}
 
-		mCopyPaint = new Paint();
+		int maskId = Util.getThemeResourceId(getContext(), R.attr.glossyButtonMask);
+		if (maskId > 0) {
+			mMaskDrawable = getResources().getDrawable(maskId);
+			if (!isInEditMode())
+				mMaskDrawable.setCallback(this);
+
+			mMaskedPaint = new Paint();
+			mMaskedPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+
+			mCopyPaint = new Paint();
+		}
 
 	}
 
@@ -114,14 +122,15 @@ public class GlossyImageButton extends ImageButton implements Checkable {
 	@Override
 	protected void onDraw(Canvas canvas) {
 
-		if (!isInEditMode()) {
+		if (!isInEditMode() && (mMaskDrawable != null || mGlossDrawable != null)) {
 			int sc = canvas.saveLayer(mBoundsF, mCopyPaint, Canvas.HAS_ALPHA_LAYER_SAVE_FLAG
 					| Canvas.FULL_COLOR_LAYER_SAVE_FLAG);
 			super.onDraw(canvas);
-			canvas.saveLayer(mBoundsF, mMaskedPaint, 0);
-			if (mMaskDrawable != null)
+			if (mMaskDrawable != null) {
+				canvas.saveLayer(mBoundsF, mMaskedPaint, 0);
 				mMaskDrawable.draw(canvas);
-			canvas.restoreToCount(sc);
+				canvas.restoreToCount(sc);
+			}
 			if (mGlossDrawable != null)
 				mGlossDrawable.draw(canvas);
 
@@ -147,15 +156,16 @@ public class GlossyImageButton extends ImageButton implements Checkable {
 	@Override
 	protected void drawableStateChanged() {
 		super.drawableStateChanged();
-		if (mGlossDrawable.isStateful()) {
+		if (mGlossDrawable != null && mGlossDrawable.isStateful()) {
 			mGlossDrawable.setState(getDrawableState());
 		}
-		if (mMaskDrawable.isStateful()) {
+		if (mMaskDrawable != null && mMaskDrawable.isStateful()) {
 			mMaskDrawable.setState(getDrawableState());
 		}
 
 		// TODO: is this the right place to invalidate?
-		invalidate();
+		if (mGlossDrawable != null || mMaskDrawable != null)
+			invalidate();
 	}
 
 	@Override

@@ -1,0 +1,10 @@
+<div>
+<h2>Version 2.5.4.1</h2>
+<h4>Bug Fixes</h4>
+<ul>
+<li>Unter Android 2.2 war die Talenteliste grau in grau.</li>
+<li>Fehler beim Laden eines Helden ohne Magieresistenz behoben.</li>
+<li>Fernkampf und Nahkampfproben werden in der Talentliste richtig angezeigt.</li>
+</ul>
+
+</div>

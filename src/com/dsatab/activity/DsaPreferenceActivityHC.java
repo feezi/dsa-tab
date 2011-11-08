@@ -21,6 +21,7 @@ import java.util.List;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 
@@ -61,7 +62,45 @@ public class DsaPreferenceActivityHC extends BasePreferenceActivity {
 			super.onCreate(savedInstanceState);
 
 			// Load the preferences from an XML resource
-			addPreferencesFromResource(R.xml.preferences_setup);
+			addPreferencesFromResource(R.xml.preferences_hc_setup);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * android.preference.PreferenceFragment#onPreferenceTreeClick(android
+		 * .preference.PreferenceScreen, android.preference.Preference)
+		 */
+		@Override
+		public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+
+			if (preference.getKey().equals(KEY_DOWNLOAD_SCREEN)) {
+				((PreferenceActivity) getActivity()).startPreferenceFragment(new PrefsDownloadFragment(), true);
+				return true;
+			} else
+				return handlePreferenceTreeClick(getActivity(), preferenceScreen, preference);
+		}
+	}
+
+	public static class PrefsDisplayFragment extends PreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+
+			// Load the preferences from an XML resource
+			addPreferencesFromResource(R.xml.preferences_display);
+
+		}
+	}
+
+	public static class PrefsDownloadFragment extends PreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+
+			// Load the preferences from an XML resource
+			addPreferencesFromResource(R.xml.preferences_hc_download);
 		}
 
 		/*
@@ -75,17 +114,7 @@ public class DsaPreferenceActivityHC extends BasePreferenceActivity {
 		public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
 			return handlePreferenceTreeClick(getActivity(), preferenceScreen, preference);
 		}
-	}
 
-	public static class PrefsDisplayFragment extends PreferenceFragment {
-		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-
-			// Load the preferences from an XML resource
-			addPreferencesFromResource(R.xml.preferences_display);
-
-		}
 	}
 
 	public static class PrefsRulesFragment extends PreferenceFragment {

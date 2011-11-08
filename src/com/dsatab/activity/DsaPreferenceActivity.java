@@ -33,32 +33,32 @@ public class DsaPreferenceActivity extends BasePreferenceActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		addPreferencesFromResource(R.xml.preferences_rules);
-		addPreferencesFromResource(R.xml.preferences_display);
-		addPreferencesFromResource(R.xml.preferences_setup);
-		addPreferencesFromResource(R.xml.preferences_info);
-
-		ListPreference listPreference = (ListPreference) findPreference(KEY_ARMOR_TYPE);
-		List<String> armorNames = new LinkedList<String>();
-		List<String> armorValues = new LinkedList<String>();
-
-		for (ArmorType themeValue : DsaTabConfiguration.ArmorType.values()) {
-			armorNames.add(themeValue.title());
-			armorValues.add(themeValue.name());
-		}
-
-		listPreference.setEntries(armorNames.toArray(new String[0]));
-		listPreference.setEntryValues(armorValues.toArray(new String[0]));
-
 		int screen = getIntent().getIntExtra(INTENT_PREF_SCREEN, SCREEN_HOME);
 
 		switch (screen) {
-		case SCREEN_HOME:
-			break;
 		case SCREEN_EXCHANGE:
-			PreferenceScreen preferenceScreen = (PreferenceScreen) findPreference("setup");
-			setPreferenceScreen(preferenceScreen);
+			addPreferencesFromResource(R.xml.preferences_setup);
 			break;
+		default:
+			addPreferencesFromResource(R.xml.preferences_rules);
+			addPreferencesFromResource(R.xml.preferences_display);
+			addPreferencesFromResource(R.xml.preferences_setup);
+			addPreferencesFromResource(R.xml.preferences_info);
+			break;
+		}
+
+		ListPreference listPreference = (ListPreference) findPreference(KEY_ARMOR_TYPE);
+		if (listPreference != null) {
+			List<String> armorNames = new LinkedList<String>();
+			List<String> armorValues = new LinkedList<String>();
+
+			for (ArmorType themeValue : DsaTabConfiguration.ArmorType.values()) {
+				armorNames.add(themeValue.title());
+				armorValues.add(themeValue.name());
+			}
+
+			listPreference.setEntries(armorNames.toArray(new String[0]));
+			listPreference.setEntryValues(armorValues.toArray(new String[0]));
 		}
 
 	}
