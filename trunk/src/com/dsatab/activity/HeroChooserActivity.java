@@ -80,6 +80,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setTheme(DSATabApplication.getInstance().getCustomTheme());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.popup_hero_chooser);
 
@@ -199,8 +200,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 
 		case R.id.option_settings:
 			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-				startActivityForResult(new Intent(this, DsaPreferenceActivity.class),
-						MainActivity.ACTION_PREFERENCES);
+				startActivityForResult(new Intent(this, DsaPreferenceActivity.class), MainActivity.ACTION_PREFERENCES);
 			} else {
 				startActivityForResult(new Intent(this, DsaPreferenceActivityHC.class), MainActivity.ACTION_PREFERENCES);
 			}

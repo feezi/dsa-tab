@@ -3,9 +3,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/contentLayout" android:gravity="center|top"
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	android:paddingBottom="0dip" android:paddingLeft="10dip"
-	android:paddingRight="10dip" android:paddingTop="10dip"
-	android:clickable="true" android:orientation="vertical" android:background="@color/ValueBlack">
+	android:paddingBottom="2.5dip" android:paddingTop="10dip"
+	android:clickable="true" android:orientation="vertical">
 	<TextView android:layout_width="match_parent"
 				android:layout_height="wrap_content" android:text="Schleichen"
 				android:id="@+id/dice_talent" android:textColor="#ffffff" android:ellipsize="end" android:textAppearance="?android:attr/textAppearanceMedium" android:gravity="center_horizontal" android:lines="1"></TextView>
@@ -74,10 +73,10 @@
 			android:layout_marginLeft="5dip" android:layout_height="@dimen/dice_size"
 			android:layout_width="@dimen/dice_size" android:scaleType="fitCenter"
 			android:soundEffectsEnabled="false" android:layout_gravity="center_vertical"></ImageView>
-		<ImageView android:layout_marginLeft="5dip" android:id="@+id/dice_area"
+		<com.dsatab.view.GlossyImageButton android:layout_marginLeft="5dip" android:id="@+id/dice_area"
 			android:src="@drawable/icon_dummy" android:scaleType="fitCenter"
 			android:layout_gravity="center_vertical" android:layout_height="@dimen/dice_size"
-			android:layout_width="@dimen/dice_size" android:visibility="gone"></ImageView>
+			android:layout_width="@dimen/dice_size" android:visibility="gone"/>
 		<com.dsatab.view.GlossyButton android:gravity="center" android:id="@+id/dice_execute" android:layout_gravity="center_vertical" android:text="Würfeln" android:drawableTop="@drawable/ic_menu_dice" android:minHeight="@dimen/dice_size" android:layout_width="@dimen/dice_size" android:layout_height="@dimen/dice_size" android:layout_marginLeft="5dp"/>
 			
 	</LinearLayout>

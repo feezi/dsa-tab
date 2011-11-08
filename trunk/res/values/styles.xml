@@ -1,62 +1,105 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <resources> 
-<style name="BorderPanel">
+	<style name="BorderPanel">
     	<item name="android:background">@drawable/border_patch</item>
         <item name="android:paddingTop">5dp</item>
         <item name="android:paddingLeft">5dp</item>
         <item name="android:paddingRight">5dp</item>
         <item name="android:paddingBottom">5dp</item>
     </style>
-    <style name="BorderPanel.Black">
+    <style name="BorderPanel.Black" parent="@BorderPanel">
     	<item name="android:background">@drawable/border_patch_black</item>        
     </style>
     
-    <style name="Widget.ImageButton.Glossy" parent="@android:style/Widget.ImageButton">
-    	<item name="android:background">@drawable/btn_glossy</item>
+    <style name="Widget.ImageButton" parent="@android:style/Widget.ImageButton">    	
     	<item name="android:scaleType">fitCenter</item>    	        
         <item name="android:minWidth">@dimen/icon_button_size</item>
         <item name="android:minHeight">@dimen/icon_button_size</item>
         <item name="android:padding">2dp</item>
     </style>
+    <style name="Widget.ImageButton.Glossy" parent="@Widget.ImageButton">
+    	<item name="android:background">@drawable/btn_glossy</item>    	
+    </style>
     
-        <style name="Widget.Button.Glossy" parent="@android:style/Widget.Button">
+    <style name="Widget.ImageButton.Plain" parent="@Widget.ImageButton">
+    	<item name="android:background">@drawable/btn_plain</item>
+    	<item name="android:padding">5dp</item>    	
+    </style>
+    
+    <style name="Widget.Button.Glossy" parent="@android:style/Widget.Button">
     	<item name="android:background">@drawable/btn_glossy</item>
         <item name="android:textColor">#FFFFFF</item>
     </style>
-            
-    <style name="TextValue" parent="@android:style/Widget.TextView">    	
-    	<item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
-    	<item name="android:minWidth">40dp</item>
-    	<item name="android:gravity">center</item>    	
-        <item name="android:textColor">#000000</item>
-        <item name="android:layout_gravity">center_vertical</item>
+        
+    <style name="Widget.Button.Plain" parent="@android:style/Widget.Button">
+    	<item name="android:background">@drawable/btn_plain</item>
+        <item name="android:textColor">#FFFFFF</item>
     </style>
     
-    <style name="TextValueSmall" parent="TextValue">
-    	<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-        <item name="android:layout_gravity">left|center_vertical</item>
+    <style name="TextValue" parent="@android:style/Widget.TextView">
+        <item name="android:background">@drawable/btn_touch</item>
+    	<item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
+    	<item name="android:minWidth">40dp</item>
+    	<item name="android:minHeight">40dp</item>
+    	<item name="android:gravity">center</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_margin">2.5dp</item>
+        
         <item name="android:ellipsize">end</item>
     </style>
     
-    <style name="TextValuePopup" parent="TextValue">
-    	<item name="android:gravity">right</item>    	
-        <item name="android:textColor">#ffffff</item>
-        <item name="android:layout_gravity">center_vertical</item>
+    <style name="TextValue.NoTouch">
+        <item name="android:background">@null</item>
+        <item name="android:minHeight">0dp</item>    	
+        <item name="android:minWidth">0dp</item>
+        <item name="android:layout_margin">0dp</item>
     </style>
+    
+    <style name="TextValue.NoTouch.Inverse" >
+        <item name="android:textAppearance">?android:attr/textAppearanceLargeInverse</item>
+    </style>
+    
+    <style name="TextValue.Small">
+    	<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+    	<item name="android:minWidth">30dp</item>
+    	<item name="android:minHeight">25dp</item>
+        <item name="android:layout_margin">2dp</item>
+    </style>
+    
+    <style name="TextValue.Small.Inverse">
+        <item name="android:background">@drawable/btn_touch_inverse</item>
+    	<item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>        
+    </style>   
+    
+    <style name="TextValue.Small.NoTouch">
+        <item name="android:background">@null</item>
+        <item name="android:minWidth">0dp</item>
+    	<item name="android:minHeight">0dp</item>    	            
+    </style>
+    
+    <style name="TextValue.Small.NoTouch.Inverse">
+    	<item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
+    </style>    
     
     <style name="TextLabel" parent="@android:style/Widget.TextView">
     	<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-    	<item name="android:textColor">#333333</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:ellipsize">end</item>
     </style>
-    
-    <style name="TextLabelSmall" parent="TextLabel">
+    <style name="TextLabel.Inverse">
+    	<item name="android:textAppearance">?android:attr/textAppearanceMediumInverse</item>        
+    </style>
+            
+    <style name="TextLabel.Small">
     	<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>        
     </style>
     
-    <style name="TextLabelPopup" parent="TextLabel">    	
-    	<item name="android:textColor">#dddddd</item>
+    <style name="TextLabel.Small.Inverse">
+        <item name="android:textSize">10sp</item>
+    	<item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>        
+    </style>
+    
+    <style name="TextLabel.Popup">    	
     	<item name="android:textStyle">bold</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:ellipsize">end</item>
@@ -80,26 +123,18 @@
     </style>
     
     <style name="Widget.ListView.Probe" parent="@android:style/Widget.ListView">
-        <item name="android:scrollbarStyle">insideOverlay</item>
-	    
+        <item name="android:scrollbarStyle">insideOverlay</item>	  
 	    <item name="android:cacheColorHint">#00000000</item>    
 	    <item name="android:choiceMode">singleChoice</item>	    
 	    <item name="android:divider">#aa2b2b2b</item>
-	    <item name="android:childDivider">#aa2b2b2b</item>
 	    <item name="android:dividerHeight">1dp</item>
-	    
-	    
     </style>
     
     <style name="Widget.ExpandableListView.Probe" parent="@android:style/Widget.ExpandableListView">
         <item name="android:scrollbarStyle">insideOverlay</item>
-	    
-	    <item name="android:cacheColorHint">#00000000</item>    
-	    <item name="android:choiceMode">singleChoice</item>	    
+	    <item name="android:cacheColorHint">#00000000</item>
+	    <item name="android:choiceMode">singleChoice</item>
 	    <item name="android:divider">#aa2b2b2b</item>
-	    <item name="android:childDivider">#aa2b2b2b</item>
 	    <item name="android:dividerHeight">1dp</item>
-	    
-	    
     </style>
 </resources>

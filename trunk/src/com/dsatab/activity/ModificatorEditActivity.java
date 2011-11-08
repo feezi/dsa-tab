@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 
 public class ModificatorEditActivity extends BaseActivity implements OnClickListener {
@@ -41,6 +42,7 @@ public class ModificatorEditActivity extends BaseActivity implements OnClickList
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		setTheme(DSATabApplication.getInstance().getCustomDialogTheme());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.popup_edit_modificator);
 

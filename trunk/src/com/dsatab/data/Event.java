@@ -64,6 +64,7 @@ public class Event implements JSONable {
 
 	public Event(Element element) {
 		this.category = EventCategory.Misc;
+		this.element = element;
 
 		if (element.getAttribute(Xml.KEY_KOMMENTAR) != null) {
 
@@ -82,19 +83,16 @@ public class Event implements JSONable {
 				this.comment = s;
 			}
 
-			this.time = Util.parseLong(element.getAttributeValue(Xml.KEY_TIME));
+			if (element.getAttributeValue(Xml.KEY_TIME) == null)
+				this.time = System.currentTimeMillis();
+			else
+				this.time = Util.parseLong(element.getAttributeValue(Xml.KEY_TIME));
 
-			// UPGRADE: remove element since we will handle it in our json
-			// configration
-			// from now one
-			if (element.getParentElement() != null) {
-				element.getParentElement().removeContent(element);
-			}
 		}
 
 		// special case for notiz elements they will be keep in the xml
-		if (element.getAttribute(Xml.KEY_NOTIZ_PREFIX + "0") != null) {
-			this.element = element;
+		if (element.getName().equals(Xml.KEY_NOTIZ)) {
+
 			this.category = EventCategory.Heldensoftware;
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i <= 11; i++) {
@@ -144,6 +142,14 @@ public class Event implements JSONable {
 
 	public void setAudioPath(String audioPath) {
 		this.audioPath = audioPath;
+	}
+
+	public Element getElement() {
+		return element;
+	}
+
+	public void setElement(Element element) {
+		this.element = element;
 	}
 
 	public String getName() {

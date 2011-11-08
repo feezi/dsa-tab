@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.dsatab" android:installLocation="auto"
-	android:versionCode="39" android:versionName="2.5.4">
-	<application android:label="DsaTab" android:icon="@drawable/icon" android:theme="@style/Theme.Paper"
+	android:versionCode="42" android:versionName="2.5.6">
+	<application android:label="DsaTab" android:icon="@drawable/icon" android:theme="@style/DsaTabTheme"
+	    android:hardwareAccelerated="true"
 		android:name="DSATabApplication" android:largeHeap="true">
 
 		<activity android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified"
@@ -17,7 +18,7 @@
 		    android:theme="@android:style/Theme.Light"
 			android:label="Einstellungen"></activity>
 		<activity android:name=".activity.DsaPreferenceActivity"
-		    android:theme="@android:style/Theme.Light"
+		    android:theme="@android:style/Theme.Black"
 			android:label="Einstellungen"></activity>		
 		<activity android:name="com.dsatab.activity.ItemChooserActivity"		    
 			android:label="Inventar"></activity>

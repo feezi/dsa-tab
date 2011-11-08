@@ -16,6 +16,8 @@
  */
 package com.dsatab.fragment;
 
+import java.util.List;
+
 import android.content.Intent;
 import android.graphics.drawable.LevelListDrawable;
 import android.os.Bundle;
@@ -26,6 +28,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dsatab.R;
 import com.dsatab.activity.ItemChooserActivity;
@@ -35,6 +38,7 @@ import com.dsatab.data.ArmorAttribute;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Value;
 import com.dsatab.data.WoundAttribute;
+import com.dsatab.data.items.EquippedItem;
 import com.dsatab.view.BodyLayout;
 
 /**
@@ -146,10 +150,15 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 		else if (v.getTag() instanceof ArmorAttribute) {
 			ArmorAttribute value = (ArmorAttribute) v.getTag();
 
-			Intent intent = new Intent(getActivity(), ItemChooserActivity.class);
-			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ARMOR_POSITION, value.getPosition());
-			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
-			startActivity(intent);
+			List<EquippedItem> equippedItems = getHero().getArmor(value.getPosition());
+			if (!equippedItems.isEmpty()) {
+				Intent intent = new Intent(getActivity(), ItemChooserActivity.class);
+				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ARMOR_POSITION, value.getPosition());
+				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
+				startActivity(intent);
+			} else {
+				Toast.makeText(getActivity(), "Keine Einträge gefunden", Toast.LENGTH_SHORT).show();
+			}
 
 		}
 

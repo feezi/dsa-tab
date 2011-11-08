@@ -15,6 +15,11 @@
                 android:key="credits" />
         
         <Preference
+        android:icon="@drawable/ic_menu_barcode"
+                android:title="Ulisses Fanprojekt Lizenz"
+                android:summary="Lizenzvereinbarung der Ulisses Spiele Medien &amp; Spiel Distribution GmbH"                
+                android:key="dsa_license" />
+        <Preference
         android:icon="@drawable/ic_menu_info_details"
                 android:title="Version Infos"
                 android:summary="Hinweise zu den Veränderungen der aktuellen Version"                

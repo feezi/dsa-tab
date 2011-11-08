@@ -153,13 +153,17 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 		}
 		Util.setVisibility(holder.text5, false, holder.text1);
 
-		if (holder.indicator != null && spell.isHouseSpell()) {
-			holder.indicator.setVisibility(View.VISIBLE);
-			holder.indicator.setImageBitmap(indicatorHouse);
-		}
-		if (holder.indicator != null && spell.isBegabung()) {
-			holder.indicator.setVisibility(View.VISIBLE);
-			holder.indicator.setImageBitmap(indicatorStar);
+		if (holder.indicator != null) {
+
+			if (spell.isHouseSpell()) {
+				holder.indicator.setVisibility(View.VISIBLE);
+				holder.indicator.setImageBitmap(indicatorHouse);
+			} else if (spell.isBegabung()) {
+				holder.indicator.setVisibility(View.VISIBLE);
+				holder.indicator.setImageBitmap(indicatorStar);
+			} else {
+				holder.indicator.setVisibility(View.INVISIBLE);
+			}
 		}
 		Util.applyRowStyle(spell, listItem, position);
 

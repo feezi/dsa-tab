@@ -81,16 +81,13 @@ public class TabEditActivity extends BaseActivity implements OnItemClickListener
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		setTheme(DSATabApplication.getInstance().getCustomDialogTheme());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.popup_edit_tab);
 
 		List<Integer> avatars = DSATabApplication.getInstance().getConfiguration().getTabIcons();
 
 		diceslider = (CheckBox) findViewById(R.id.popup_edit_diceslider);
-
-		gridView = (GridView) findViewById(android.R.id.list);
-		gridView.setAdapter(new AvatarAdaper(this, avatars));
-		gridView.setOnItemClickListener(this);
 
 		spinner1 = (Spinner) findViewById(R.id.popup_edit_primary);
 
@@ -135,19 +132,9 @@ public class TabEditActivity extends BaseActivity implements OnItemClickListener
 		if (selectedPosition < 0)
 			selectedPosition = 0;
 
-		gridView.setItemChecked(selectedPosition, true);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onStart()
-	 */
-	@Override
-	protected void onStart() {
-		super.onStart();
-		if (gridView.getChildAt(selectedPosition) != null)
-			gridView.getChildAt(selectedPosition).setBackgroundResource(R.drawable.button_selected_patch);
+		gridView = (GridView) findViewById(android.R.id.list);
+		gridView.setAdapter(new TabIconAdaper(this, avatars));
+		gridView.setOnItemClickListener(this);
 	}
 
 	/*
@@ -216,15 +203,24 @@ public class TabEditActivity extends BaseActivity implements OnItemClickListener
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+		// uncheck old position
+		if (selectedPosition >= 0 && gridView.getChildAt(selectedPosition) instanceof GlossyImageButton) {
+			((GlossyImageButton) gridView.getChildAt(selectedPosition)).setChecked(false);
+		}
+
 		selectedPosition = position;
-		gridView.setItemChecked(position, true);
+		// check new position
+		if (selectedPosition >= 0 && view instanceof GlossyImageButton) {
+			((GlossyImageButton) view).setChecked(true);
+		}
+
 	}
 
-	static class AvatarAdaper extends ArrayAdapter<Integer> {
+	class TabIconAdaper extends ArrayAdapter<Integer> {
 
 		LayoutInflater inflater;
 
-		public AvatarAdaper(Context context, List<Integer> objects) {
+		public TabIconAdaper(Context context, List<Integer> objects) {
 			super(context, 0, objects);
 
 			inflater = LayoutInflater.from(getContext());
@@ -238,16 +234,16 @@ public class TabEditActivity extends BaseActivity implements OnItemClickListener
 		 */
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-
 			GlossyImageButton imageButton = null;
 			if (convertView instanceof GlossyImageButton) {
 				imageButton = (GlossyImageButton) convertView;
 			} else {
 				imageButton = (GlossyImageButton) inflater.inflate(R.layout.hero_tab, parent, false);
-
 			}
 			imageButton.setFocusable(false);
 			imageButton.setClickable(false);
+			imageButton.setChecked(selectedPosition >= 0 && selectedPosition == position);
+
 			imageButton.setImageResource(getItem(position));
 
 			return imageButton;

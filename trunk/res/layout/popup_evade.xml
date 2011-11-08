@@ -12,7 +12,7 @@
 		android:text="Entfernung" android:id="@+id/evade_distance_text"
 		android:layout_alignParentLeft="true" android:layout_alignBottom="@+id/evade_distance"
 		android:layout_centerInParent="false" android:gravity="center_vertical"
-		android:textColor="#ddd"></TextView>
+		style="@style/TextLabel"></TextView>
 
 	<Spinner android:layout_height="wrap_content"
 		android:layout_below="@+id/inc_evade_item" android:layout_width="fill_parent"
@@ -21,8 +21,8 @@
 	<TextView android:layout_height="wrap_content"
 		android:layout_width="wrap_content" android:layout_alignParentLeft="true"
 		android:layout_below="@id/evade_distance" android:gravity="center_vertical"
-		android:textColor="#ddd" android:text="Gegner" android:id="@+id/evade_enemy_text"
-		android:layout_alignBottom="@+id/evade_enemy"></TextView>
+		android:text="Gegner" android:id="@+id/evade_enemy_text"
+		android:layout_alignBottom="@+id/evade_enemy" style="@style/TextLabel"></TextView>
 	<Spinner android:layout_height="wrap_content"
 		android:layout_width="fill_parent" android:layout_below="@+id/evade_distance"
 		android:layout_toRightOf="@+id/evade_enemy_text"

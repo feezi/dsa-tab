@@ -1,21 +1,28 @@
 package com.dsatab.data.items;
 
+import java.util.List;
+
 import org.jdom.Element;
+
+import android.text.TextUtils;
 
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.CombatTalentType;
+import com.dsatab.xml.Xml;
 
 public class DistanceWeapon extends ItemSpecification {
 
 	private static final long serialVersionUID = 8538598636617857056L;
 
+	private static final int DISTANCE_COUNT = 5;
+
 	private String tp;
 
+	private String distance[];
 	private String distances;
 
-	private String distance[];
-
+	private String tpDistance[];
 	private String tpDistances;
 
 	private CombatTalentType combatTalentType;
@@ -33,6 +40,9 @@ public class DistanceWeapon extends ItemSpecification {
 	}
 
 	public String getDistances() {
+		if (distances == null && distance != null) {
+			distances = "(" + TextUtils.join("/", distance) + ")";
+		}
 		return distances;
 	}
 
@@ -47,9 +57,6 @@ public class DistanceWeapon extends ItemSpecification {
 	}
 
 	public int getDistanceCount() {
-		if (distance == null) {
-			distance = Util.splitDistanceString(distances);
-		}
 		if (distance != null)
 			return distance.length;
 		else
@@ -57,27 +64,48 @@ public class DistanceWeapon extends ItemSpecification {
 	}
 
 	public String getDistance(int index) {
-
-		if (distance == null) {
-			distance = Util.splitDistanceString(distances);
-		}
-
 		if (distance != null)
 			return distance[index];
 		else
 			return null;
 	}
 
+	public void setDistances(int index, String value) {
+		if (distance == null) {
+			distance = new String[DISTANCE_COUNT];
+		}
+		this.distance[index] = value;
+		this.distances = null;
+	}
+
+	public void setDistances(String[] distances) {
+		this.distance = distances;
+		this.distances = null;
+	}
+
 	public void setDistances(String distances) {
 		this.distances = distances;
+		this.distance = Util.splitDistanceString(distances);
 	}
 
 	public String getTpDistances() {
+		if (tpDistances == null && tpDistance != null) {
+			tpDistances = "(" + TextUtils.join("/", tpDistance) + ")";
+		}
 		return tpDistances;
 	}
 
 	public void setTpDistances(String tpDistances) {
 		this.tpDistances = tpDistances;
+		this.tpDistance = Util.splitDistanceString(tpDistances);
+	}
+
+	public void setTpDistances(int index, String value) {
+		if (tpDistance == null) {
+			tpDistance = new String[DISTANCE_COUNT];
+		}
+		this.tpDistance[index] = value;
+		this.tpDistances = null;
 	}
 
 	public CombatTalentType getCombatTalentType() {
@@ -109,6 +137,40 @@ public class DistanceWeapon extends ItemSpecification {
 	 */
 	@Override
 	public void setElement(Element element) {
+		@SuppressWarnings("unchecked")
+		List<Element> waffen = element.getChildren(Xml.KEY_FERNKAMPWAFFE);
+
+		Element child;
+		for (Element waffe : waffen) {
+
+			child = waffe.getChild(Xml.KEY_ENTFERNUNG);
+			if (child != null) {
+				for (int i = 0; i < DISTANCE_COUNT; i++) {
+					String value = child.getAttributeValue("E" + i);
+					if (!TextUtils.isEmpty(value)) {
+						setDistances(i, value);
+					}
+				}
+			}
+
+			child = waffe.getChild(Xml.KEY_TPMOD);
+			if (child != null) {
+				for (int i = 0; i < DISTANCE_COUNT; i++) {
+					String value = child.getAttributeValue("M" + i);
+					if (!TextUtils.isEmpty(value)) {
+						setTpDistances(i, value);
+					}
+				}
+			}
+
+			child = waffe.getChild(Xml.KEY_TREFFERPUNKTE);
+			if (child != null) {
+				String tp = child.getAttributeValue(Xml.KEY_TREFFERPUNKTE_MUL) + "W"
+						+ child.getAttributeValue(Xml.KEY_TREFFERPUNKTE_DICE) + "+"
+						+ child.getAttributeValue(Xml.KEY_TREFFERPUNKTE_SUM);
+				setTp(tp);
+			}
+		}
 
 	}
 

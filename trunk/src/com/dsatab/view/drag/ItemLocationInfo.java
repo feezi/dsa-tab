@@ -104,16 +104,27 @@ public class ItemLocationInfo implements Serializable, Cloneable {
 		if (element == null)
 			return;
 
-		if (element.getAttribute(Xml.KEY_CELL_X) !=null)
+		if (element.getAttribute(Xml.KEY_CELL_X) != null)
 			setCellX(Util.parseInt(element.getAttributeValue(Xml.KEY_CELL_X)));
-		if (element.getAttribute(Xml.KEY_CELL_Y) !=null)
+		if (element.getAttribute(Xml.KEY_CELL_Y) != null)
 			setCellY(Util.parseInt(element.getAttributeValue(Xml.KEY_CELL_Y)));
-		if (element.getAttribute(Xml.KEY_SCREEN) !=null)
+		if (element.getAttribute(Xml.KEY_SCREEN) != null)
 			setScreen(Util.parseInt(element.getAttributeValue(Xml.KEY_SCREEN)));
-		if (element.getAttribute(Xml.KEY_SPAN_X) !=null)
+		if (element.getAttribute(Xml.KEY_SPAN_X) != null)
 			setSpanX(Util.parseInt(element.getAttributeValue(Xml.KEY_SPAN_X)));
-		if (element.getAttribute(Xml.KEY_SPAN_Y) !=null)
+		if (element.getAttribute(Xml.KEY_SPAN_Y) != null)
 			setSpanY(Util.parseInt(element.getAttributeValue(Xml.KEY_SPAN_Y)));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+
+		return cellX + "/" + cellY + " on " + screen;
 	}
 
 	/*

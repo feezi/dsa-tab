@@ -34,7 +34,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SlidingDrawer;
+import android.widget.SlidingDrawer.OnDrawerCloseListener;
+import android.widget.SlidingDrawer.OnDrawerOpenListener;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,8 +44,9 @@ import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.DsaPreferenceActivityHC;
 import com.dsatab.common.DsaMath;
-import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.common.Util;
+import com.dsatab.data.Advantage;
+import com.dsatab.data.Art;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.CombatDistanceTalent;
 import com.dsatab.data.CombatMeleeAttribute;
@@ -54,26 +56,25 @@ import com.dsatab.data.Hero;
 import com.dsatab.data.Modifier;
 import com.dsatab.data.Probe;
 import com.dsatab.data.Probe.ProbeType;
+import com.dsatab.data.Spell;
 import com.dsatab.data.enums.AttributeType;
 import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.view.WrappingSlidingDrawer;
 
 public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickListener, OnWheelChangedListener,
-		OnWheelClickedListener {
+		OnWheelClickedListener, OnDrawerOpenListener, OnDrawerCloseListener {
 
 	private static final int HANDLE_DICE_20 = 1;
 	private static final int HANDLE_DICE_6 = 2;
 	private static final int HANDLE_MELEE_FAILURE = 3;
 	private static final int HANDLE_DISTANCE_FAILURE = 4;
 
-	private int COLOR_WHITE;
-
 	private TableLayout tblDiceProbe;
 	private TextView tfDiceTalent, tfDiceTalentValue, tfDiceProbesAttr, tfDiceProbesAttrValues, tfEffect,
 			tfEffectValue;
 	private ImageView tfDice20, tfDice6, tfArea;
 
-	private ImageButton info;
+	private ImageButton infoButton;
 
 	private LinearLayout linDiceResult;
 
@@ -133,7 +134,6 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		soundWin = sounds.load(getContext(), R.raw.dice_win, 1);
 		soundFail = sounds.load(getContext(), R.raw.dice_fail, 1);
 
-		COLOR_WHITE = DSATabApplication.getInstance().getResources().getColor(R.color.ValueWhite);
 	}
 
 	public void onClick(View v) {
@@ -205,10 +205,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 	 * @param linearLayout
 	 */
 	private void fillModifierList(LinearLayout linearLayout) {
-		StyleableSpannableStringBuilder stringBuilder = new StyleableSpannableStringBuilder();
-
 		linearLayout.removeAllViews();
-
 		LayoutInflater inflater = LayoutInflater.from(getContext());
 		if (modifiers != null) {
 			for (Modifier mod : modifiers) {
@@ -222,15 +219,14 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 				text1.setText(mod.getTitle());
 
 				TextView text2 = (TextView) listItem.findViewById(R.id.popup_probelist_item_text2);
-
-				stringBuilder.clear();
-
 				if (mod.getModifier() < 0) {
-					stringBuilder.appendColor(Color.RED, Util.toProbe(-mod.getModifier()));
+					text2.setTextColor(getResources().getColor(R.color.ValueRed));
+				} else if (mod.getModifier() > 0) {
+					text2.setTextColor(getResources().getColor(R.color.ValueGreen));
 				} else {
-					stringBuilder.appendColor(Color.GREEN, Util.toProbe(-mod.getModifier()));
+					text2.setTextColor(Util.getThemeColors(getContext(), android.R.attr.textColorSecondaryInverse));
 				}
-				text2.setText(stringBuilder.toString());
+				text2.setText(Util.toProbe(-mod.getModifier()));
 
 				linearLayout.addView(listItem);
 			}
@@ -245,8 +241,10 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		if (modifierAdpater == null) {
 			modifierAdpater = new NumericWheelAdapter(getContext());
 			modifierAdpater.setRange(-20, 20);
-			modifierAdpater.setTextColor(AbstractWheelTextAdapter.STATE_POSITIVE_VALUE, Color.RED);
-			modifierAdpater.setTextColor(AbstractWheelTextAdapter.STATE_NEGATIVE_VALUE, Color.GREEN);
+			modifierAdpater.setTextColor(AbstractWheelTextAdapter.STATE_POSITIVE_VALUE,
+					getResources().getColor(R.color.ValueRed));
+			modifierAdpater.setTextColor(AbstractWheelTextAdapter.STATE_NEGATIVE_VALUE,
+					getResources().getColor(R.color.ValueGreen));
 		}
 		modifierWheel.setViewAdapter(modifierAdpater);
 		modifierWheel.setCurrentItem(modifierAdpater.getPosition(-getManualModifier().getModifier()));
@@ -268,11 +266,11 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 	protected void onFinishInflate() {
 
-		BitmapDrawable TileMe = new BitmapDrawable(BitmapFactory.decodeResource(getResources(), R.drawable.bg_tab_dice));
-		TileMe.setTileModeX(Shader.TileMode.MIRROR);
-		TileMe.setTileModeY(Shader.TileMode.CLAMP);
+		BitmapDrawable tileMe = new BitmapDrawable(BitmapFactory.decodeResource(getResources(), R.drawable.bg_tab_dice));
+		tileMe.setTileModeX(Shader.TileMode.MIRROR);
+		tileMe.setTileModeY(Shader.TileMode.CLAMP);
 
-		findViewById(R.id.inc_dice_slider_content).setBackgroundDrawable(TileMe);
+		findViewById(R.id.inc_dice_slider_content).setBackgroundDrawable(tileMe);
 		tblDiceProbe = (TableLayout) findViewById(R.id.dice_probe_table);
 		tblDiceProbe.setVisibility(View.GONE);
 
@@ -303,41 +301,37 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 		shakeDice20 = AnimationUtils.loadAnimation(getContext(), R.anim.shake);
 		shakeDice6 = AnimationUtils.loadAnimation(getContext(), R.anim.shake);
+		setOnDrawerOpenListener(this);
+		setOnDrawerCloseListener(this);
 
-		setOnDrawerCloseListener(new SlidingDrawer.OnDrawerCloseListener() {
-
-			public void onDrawerClosed() {
-				tblDiceProbe.setVisibility(View.GONE);
-				info.setVisibility(View.INVISIBLE);
-				executeButton.setVisibility(View.GONE);
-				if (modifiersContainer != null)
-					modifiersContainer.setVisibility(View.GONE);
-			}
-		});
-
-		info = (ImageButton) findViewById(R.id.dice_info);
-		info.setVisibility(View.GONE);
-		if (preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_SHOW_MODIFIKATORS, false)) {
-
-			ViewStub modifierStub = (ViewStub) findViewById(R.id.modifier_container_stub);
-			modifiersContainer = modifierStub.inflate();
-
-			LinearLayout linearLayout = (LinearLayout) modifiersContainer.findViewById(R.id.popup_probe_layout);
-			fillModifierList(linearLayout);
-
-			modifiersContainer.setVisibility(View.GONE);
-
-			// getLayoutParams().height =
-			// getResources().getDimensionPixelSize(R.dimen.dice_slider_modifier_height);
-		} else {
-			findViewById(R.id.dice_probe_table).setOnClickListener(this);
-			info.setOnClickListener(this);
-
-			// getLayoutParams().height =
-			// getResources().getDimensionPixelSize(R.dimen.dice_slider_height);
-		}
+		infoButton = (ImageButton) findViewById(R.id.dice_info);
+		infoButton.setVisibility(View.GONE);
 
 		super.onFinishInflate();
+	}
+
+	public void onDrawerClosed() {
+		tblDiceProbe.setVisibility(View.GONE);
+		infoButton.setVisibility(View.INVISIBLE);
+		executeButton.setVisibility(View.GONE);
+		tfArea.setVisibility(View.GONE);
+		tfDiceTalent.setText(null);
+		if (modifiersContainer != null)
+			modifiersContainer.setVisibility(View.GONE);
+	}
+
+	private boolean isModifiersPopup() {
+		return !preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_SHOW_MODIFIKATORS, false);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.widget.SlidingDrawer.OnDrawerOpenListener#onDrawerOpened()
+	 */
+	@Override
+	public void onDrawerOpened() {
+
 	}
 
 	/*
@@ -403,30 +397,51 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 			if (erschwernis != null)
 				tfEffectValue.append(" (" + erschwernis + ")");
 
-			if (info.failureTwenty && effect < 0) {
-				if (lastCombatTalent instanceof CombatDistanceTalent)
-					mHandler.sendMessageDelayed(Message.obtain(mHandler, HANDLE_DISTANCE_FAILURE), 1000);
-				else
-					mHandler.sendMessageDelayed(Message.obtain(mHandler, HANDLE_MELEE_FAILURE), 1000);
-			}
-
+			// misslungen
 			if ((effect < 0 && !info.successOne) || info.failureTwenty) {
-				tfEffectValue.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed));
+				tfEffectValue.setTextColor(getResources().getColor(R.color.ValueRed));
+
+				if (info.failureTwenty && effect < 0) {
+					tfDiceTalent.setText(info.probe.getName() + " total verpatzt!");
+
+					linDiceResult.setBackgroundResource(R.drawable.probe_red_highlight);
+
+					if (lastCombatTalent instanceof CombatDistanceTalent)
+						mHandler.sendMessageDelayed(Message.obtain(mHandler, HANDLE_DISTANCE_FAILURE), 1000);
+					else
+						mHandler.sendMessageDelayed(Message.obtain(mHandler, HANDLE_MELEE_FAILURE), 1000);
+
+				} else {
+
+					linDiceResult.setBackgroundResource(0);
+					tfDiceTalent.setText(info.probe.getName() + " mißlungen");
+				}
+				tfDiceTalent.setTextColor(getResources().getColor(R.color.ValueRed));
 
 				if (info.sound && preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_SOUND_ROLL_DICE, true)
 						&& preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_SOUND_RESULT_DICE, true))
 					sounds.play(soundFail, 1.0f, 1.0f, 0, 0, 1.0f);
-			} else {
+			} else { // geschafft
+
+				if (info.successOne && effect >= 0) {
+					tfDiceTalent.setText(info.probe.getName() + " glücklich gemeistert!");
+					tfEffectValue.setTextColor(DSATabApplication.getInstance().getResources()
+							.getColor(R.color.ValueGreen));
+					tfDiceTalent.setTextColor(getResources().getColor(R.color.ValueGreen));
+					linDiceResult.setBackgroundResource(R.drawable.probe_green_highlight);
+				} else {
+					tfDiceTalent.setText(info.probe.getName() + " geschafft");
+					tfEffectValue.setTextColor(Util.getThemeColors(getContext(),
+							android.R.attr.textColorSecondaryInverse));
+					tfDiceTalent
+							.setTextColor(Util.getThemeColors(getContext(), android.R.attr.textColorPrimaryInverse));
+					linDiceResult.setBackgroundResource(0);
+				}
 
 				if (info.sound && preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_SOUND_ROLL_DICE, true)
 						&& preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_SOUND_RESULT_DICE, true))
 					sounds.play(soundWin, 1.0f, 1.0f, 0, 0, 1.0f);
 
-				if (info.successOne)
-					tfEffectValue.setTextColor(DSATabApplication.getInstance().getResources()
-							.getColor(R.color.ValueGreen));
-				else
-					tfEffectValue.setTextColor(Color.WHITE);
 			}
 		} else {
 			tfEffectValue.setVisibility(View.INVISIBLE);
@@ -442,8 +457,9 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		dice6Count = 0;
 		lastCombatTalent = null;
 		linDiceResult.removeAllViews();
-		if (probeData != null)
+		if (probeData != null) {
 			probeData.clearDice();
+		}
 	}
 
 	public Double checkProbe(Hero hero, Probe probe) {
@@ -481,7 +497,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		probeData.probe = probe;
 		probeData.value = new Integer[] { value1, value2, value3 };
 
-		if (modifiersContainer != null) {
+		if (modifiersContainer != null && !isModifiersPopup()) {
 			modifiersContainer.setVisibility(View.VISIBLE);
 			if (findViewById(R.id.popup_probe_layout) != null)
 				fillModifierList((LinearLayout) findViewById(R.id.popup_probe_layout));
@@ -517,8 +533,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 			}
 		}
 
-		if (probe.getProbeInfo().getAttributeTypes() == null && info.value[0] == info.value[1]
-				&& info.value[1] == info.value[2]) {
+		if (isAttributesHidden(info)) {
 			tfDiceTalentValue.setText(Util.toString(info.value[0]));
 			if (modifiersSum != 0) {
 				tfDiceTalentValue.append(" ");
@@ -570,7 +585,8 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 				}
 				break;
 			}
-			tfEffectValue.setTextColor(COLOR_WHITE);
+			tfEffectValue.setTextColor(Util.getThemeColors(getContext(), android.R.attr.textColorSecondaryInverse));
+
 			if (probability != null) {
 				tfEffectValue.setText(probabilityFormat.format(probability));
 			} else {
@@ -582,14 +598,20 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 	}
 
+	private boolean isAttributesHidden(ProbeData info) {
+		Probe probe = probeData.probe;
+
+		return (probe instanceof CombatDistanceTalent || probe instanceof CombatMeleeAttribute || (probe.getProbeInfo()
+				.getAttributeTypes() == null && info.value[0] == info.value[1] && info.value[1] == info.value[2]));
+	}
+
 	private void updateView(ProbeData info) {
 		Probe probe = probeData.probe;
 
 		// --
 		tblDiceProbe.setVisibility(View.VISIBLE);
-		if (modifiersContainer == null)
-			this.info.setVisibility(View.VISIBLE);
 		tfDiceTalent.setText(probe.getName());
+		tfDiceTalent.setTextColor(Util.getThemeColors(getContext(), android.R.attr.textColorPrimaryInverse));
 
 		if (probe.getProbeBonus() != null) {
 			tfDiceTalentValue.setText(Integer.toString(probe.getProbeBonus()));
@@ -600,8 +622,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 		// if no probe is present and all values are the same display them as
 		// bonus
-		if (probe.getProbeInfo().getAttributeTypes() == null && info.value[0] == info.value[1]
-				&& info.value[1] == info.value[2]) {
+		if (isAttributesHidden(info)) {
 			tfDiceProbesAttr.setVisibility(View.GONE);
 			tfDiceProbesAttrValues.setVisibility(View.GONE);
 
@@ -614,6 +635,46 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 			tfDiceProbesAttrValues.setText(Util.toString(info.value[0]) + "/" + Util.toString(info.value[1]) + "/"
 					+ Util.toString(info.value[2]));
 			tfDiceProbesAttrValues.setVisibility(View.VISIBLE);
+		}
+
+		if (probe instanceof CombatProbe) {
+			lastCombatTalent = ((CombatProbe) probe).getCombatTalent();
+		} else if (probe instanceof CombatTalent) {
+			lastCombatTalent = (CombatTalent) probe;
+		} else if (probe instanceof CombatMeleeAttribute) {
+			lastCombatTalent = ((CombatMeleeAttribute) probe).getTalent();
+		}
+
+		if (lastCombatTalent != null) {
+			tfArea.setVisibility(View.VISIBLE);
+			tfArea.setTag(lastCombatTalent);
+		} else {
+			tfArea.setVisibility(View.GONE);
+		}
+
+		if (isModifiersPopup()) {
+			if (modifiersContainer != null) {
+				modifiersContainer.setVisibility(View.GONE);
+			}
+
+			findViewById(R.id.dice_probe_table).setOnClickListener(this);
+			infoButton.setVisibility(View.VISIBLE);
+			infoButton.setOnClickListener(this);
+
+		} else {
+
+			if (modifiersContainer == null) {
+				ViewStub modifierStub = (ViewStub) findViewById(R.id.modifier_container_stub);
+				modifiersContainer = modifierStub.inflate();
+
+				LinearLayout linearLayout = (LinearLayout) modifiersContainer.findViewById(R.id.popup_probe_layout);
+				fillModifierList(linearLayout);
+			}
+
+			findViewById(R.id.dice_probe_table).setOnClickListener(null);
+			infoButton.setOnClickListener(null);
+			infoButton.setVisibility(View.GONE);
+
 		}
 
 	}
@@ -672,6 +733,16 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 				probeType = ProbeType.One;
 			}
 
+			int PATZER_THRESHOLD = 20;
+			if ((probe instanceof Spell || probe instanceof Art)) {
+				if (info.hero.hasFeature(Advantage.WILDE_MAGIE)) {
+					PATZER_THRESHOLD = 19;
+				}
+			} else {
+				if (info.hero.hasFeature(Advantage.TOLLPATSCH)) {
+					PATZER_THRESHOLD = 19;
+				}
+			}
 			switch (probeType) {
 
 			case ThreeOfThree: {
@@ -684,6 +755,35 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 				if (info.dice[2] == null)
 					info.dice[2] = rollDice20(1500, info.value[2] + valueModifier);
+
+				int w20Count = 0, w1Count = 0;
+				for (int i = 0; i < 3; i++) {
+					if (info.dice[i] >= PATZER_THRESHOLD)
+						w20Count++;
+
+					if (info.dice[i] == 1)
+						w1Count++;
+				}
+				if (w20Count >= 2) {
+					info.failureTwenty = Boolean.TRUE;
+
+					// Wege des Helden 251: Patzer bei Zaubern nur wenn der
+					// dritte Würfel auch 18,19,20 ist.
+					if (probe instanceof Spell && info.hero.hasFeature(Advantage.FESTE_MATRIX)) {
+						for (int i = 0; i < 3; i++) {
+							// sobald einer der Würfel unter 18 ist, kann es
+							// kein Patzer gewesen sein
+							if (info.dice[i] < 18) {
+								info.failureTwenty = Boolean.FALSE;
+								break;
+							}
+						}
+
+					}
+
+				}
+				if (w1Count >= 2)
+					info.successOne = Boolean.TRUE;
 
 				int effect1 = (info.value[0] + valueModifier) - info.dice[0];
 				int effect2 = (info.value[1] + valueModifier) - info.dice[1];
@@ -709,10 +809,10 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 					info.dice[0] = rollDice20(500, info.value[0] + taw);
 
 					if (info.dice[0] == 1) {
-						info.successOne = true;
+						info.successOne = Boolean.TRUE;
 						info.dice[0] = rollDice20(2000, info.value[0] + taw);
-					} else if (info.dice[0] == 20) {
-						info.failureTwenty = true;
+					} else if (info.dice[0] >= PATZER_THRESHOLD) {
+						info.failureTwenty = Boolean.TRUE;
 						info.dice[0] = rollDice20(2000, info.value[0] + taw);
 					}
 				}
@@ -722,30 +822,11 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 				if (info.dice[2] == null)
 					info.dice[2] = rollDice20(1500, info.value[2] + taw);
 
-				// TODO this should be obsolute code
-				if (info.dice[0] == 1) {
-					if (info.successOne == null) {
-						info.successOne = true;
-						info.dice[0] = rollDice20(2000, info.value[0] + taw);
-					} else if (info.dice[0] == 20) {
-						info.failureTwenty = true;
-						info.dice[0] = rollDice20(2000, info.value[0] + taw);
-					}
-				}
-
 				int[] dices = new int[] { info.dice[0], info.dice[1], info.dice[2] };
 				Arrays.sort(dices);
 				// we only need the two best
 				int dice1 = dices[0];
 				int dice2 = dices[1];
-
-				if (probe instanceof CombatProbe) {
-					lastCombatTalent = ((CombatProbe) probe).getCombatTalent();
-				} else if (probe instanceof CombatTalent) {
-					lastCombatTalent = (CombatTalent) probe;
-				} else if (probe instanceof CombatMeleeAttribute) {
-					lastCombatTalent = ((CombatMeleeAttribute) probe).getTalent();
-				}
 
 				Debug.verbose("Value Modifier (Be, Wm, Manuell) " + taw);
 
@@ -777,20 +858,14 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 				}
 				if (info.dice[0] == 1) {
 					if (info.successOne == null) {
-						info.successOne = true;
 						info.dice[0] = rollDice20(2000, info.value[0] + taw);
-					} else if (info.dice[0] == 20) {
-						info.failureTwenty = true;
+
+						info.successOne = Boolean.TRUE;
+
+					} else if (info.dice[0] >= PATZER_THRESHOLD) {
+						info.failureTwenty = Boolean.TRUE;
 						info.dice[0] = rollDice20(2000, info.value[0] + taw);
 					}
-				}
-
-				if (probe instanceof CombatProbe) {
-					lastCombatTalent = ((CombatProbe) probe).getCombatTalent();
-				} else if (probe instanceof CombatTalent) {
-					lastCombatTalent = (CombatTalent) probe;
-				} else if (probe instanceof CombatMeleeAttribute) {
-					lastCombatTalent = ((CombatMeleeAttribute) probe).getTalent();
 				}
 
 				Debug.verbose("Value Modifier (Be, Wm) " + taw);
@@ -803,12 +878,6 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 			}
 		}
 
-		if (lastCombatTalent != null) {
-			tfArea.setVisibility(View.VISIBLE);
-			tfArea.setTag(lastCombatTalent);
-		} else {
-			tfArea.setVisibility(View.GONE);
-		}
 		showEffect(effect, erschwernis, info);
 
 		return effect;
@@ -1015,6 +1084,9 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 			dice[0] = null;
 			dice[1] = null;
 			dice[2] = null;
+
+			failureTwenty = null;
+			successOne = null;
 		}
 
 	}

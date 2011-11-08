@@ -44,8 +44,9 @@ W;Jagdmesser;jagdmesser00_LQ.gif;Dolche                                 ;1W+2;12
 W;Langdolch;langdolch00_LQ.gif;Dolche                                   ;1W+2;12/4;0/0;0;1;H;;Dolche;Fechtwaffen;
 W;Mengbilar;mengbillar00_LQ.gif;Dolche                                  ;1W+1;12/5;0/-3;-2;7;H;;Dolche;
 W;Messer;messer00_LQ.gif;Dolche                                         ;1W;12/6;-2/-3;-2;4;H;;Dolche;
-W;Ogerfänger;;Dolche                                        ;1W+2;12/4;0/-2;0;4;H;;Dolche;
-W;Scheibendolch;;Dolche                                     ;1W+2;11/4;0/-3;0;0;H;;Dolche;
+W;Ogerfänger;;Dolche                                        			;1W+2;12/4;0/-2;0;4;H;;Dolche;
+W;Scheibendolch;;Dolche                                     			;1W+2;11/4;0/-3;0;0;H;;Dolche;
+W;Panzerstecher;;Fechtwaffen                                     		;1W+4;13/3;-1/-1;0;0;N;;Fechtwaffen;
 W;Schwerer Dolch;dolch_schwer00_LQ.gif;Dolche                           ;1W+2;12/4;0/-1;0;1;H;;Dolche;
 W;Vulkanglasdolch;dolch_vulkanglas00_LQ.gif;Dolche                      ;1W-1;12/5;-2/-3;-2;6;H;;Dolche;
 W;Waqqif;waqqif00_LQ.gif;Dolche                                         ;1W+2;12/5;-1/-3;-2;2;H;;Dolche;Säbel;

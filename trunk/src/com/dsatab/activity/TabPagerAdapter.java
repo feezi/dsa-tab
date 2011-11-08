@@ -156,7 +156,7 @@ public class TabPagerAdapter extends PagerAdapter {
 	 */
 	@Override
 	public int getCount() {
-		if (configuration != null)
+		if (configuration != null && configuration.getTabs() != null)
 			return configuration.getTabs().size();
 		else
 			return 0;

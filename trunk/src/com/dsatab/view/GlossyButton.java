@@ -28,6 +28,7 @@ import android.util.AttributeSet;
 import android.widget.Button;
 
 import com.dsatab.R;
+import com.dsatab.common.Util;
 
 /**
  * @author Ganymede
@@ -60,17 +61,24 @@ public class GlossyButton extends Button {
 	 * 
 	 */
 	private void init() {
-		mGlossDrawable = getResources().getDrawable(R.drawable.btn_glossy_gloss);
-		if (!isInEditMode())
-			mGlossDrawable.setCallback(this);
-		mMaskDrawable = getResources().getDrawable(R.drawable.btn_glossy_mask);
-		if (!isInEditMode())
-			mMaskDrawable.setCallback(this);
+		int overlayId = Util.getThemeResourceId(getContext(), R.attr.glossyButtonOverlay);
+		if (overlayId > 0) {
+			mGlossDrawable = getResources().getDrawable(R.drawable.btn_glossy_gloss);
+			if (!isInEditMode())
+				mGlossDrawable.setCallback(this);
+		}
 
-		mMaskedPaint = new Paint();
-		mMaskedPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+		int maskId = Util.getThemeResourceId(getContext(), R.attr.glossyButtonMask);
+		if (maskId > 0) {
+			mMaskDrawable = getResources().getDrawable(maskId);
+			if (!isInEditMode())
+				mMaskDrawable.setCallback(this);
 
-		mCopyPaint = new Paint();
+			mMaskedPaint = new Paint();
+			mMaskedPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+
+			mCopyPaint = new Paint();
+		}
 
 	}
 
@@ -82,16 +90,21 @@ public class GlossyButton extends Button {
 	@Override
 	protected void onDraw(Canvas canvas) {
 
-		int sc = canvas.saveLayer(mBoundsF, mCopyPaint, Canvas.HAS_ALPHA_LAYER_SAVE_FLAG
-				| Canvas.FULL_COLOR_LAYER_SAVE_FLAG);
+		if (!isInEditMode() && (mMaskDrawable != null || mGlossDrawable != null)) {
+			int sc = canvas.saveLayer(mBoundsF, mCopyPaint, Canvas.HAS_ALPHA_LAYER_SAVE_FLAG
+					| Canvas.FULL_COLOR_LAYER_SAVE_FLAG);
+			super.onDraw(canvas);
+			if (mMaskDrawable != null) {
+				canvas.saveLayer(mBoundsF, mMaskedPaint, 0);
+				mMaskDrawable.draw(canvas);
+				canvas.restoreToCount(sc);
+			}
+			if (mGlossDrawable != null)
+				mGlossDrawable.draw(canvas);
 
-		super.onDraw(canvas);
-		canvas.saveLayer(mBoundsF, mMaskedPaint, 0);
-		if (mMaskDrawable != null)
-			mMaskDrawable.draw(canvas);
-		canvas.restoreToCount(sc);
-		if (mGlossDrawable != null)
-			mGlossDrawable.draw(canvas);
+		} else {
+			super.onDraw(canvas);
+		}
 
 	}
 
@@ -111,15 +124,16 @@ public class GlossyButton extends Button {
 	@Override
 	protected void drawableStateChanged() {
 		super.drawableStateChanged();
-		if (mGlossDrawable.isStateful()) {
+		if (mGlossDrawable != null && mGlossDrawable.isStateful()) {
 			mGlossDrawable.setState(getDrawableState());
 		}
-		if (mMaskDrawable.isStateful()) {
+		if (mMaskDrawable != null && mMaskDrawable.isStateful()) {
 			mMaskDrawable.setState(getDrawableState());
 		}
 
 		// TODO: is this the right place to invalidate?
-		invalidate();
+		if (mGlossDrawable != null || mMaskDrawable != null)
+			invalidate();
 	}
 
 }

@@ -5,9 +5,9 @@
         <RadioButton android:id="@+id/rb_new_hero" android:layout_height="wrap_content" android:text="Neuen Held" android:layout_width="fill_parent" android:textColor="#dddddd"></RadioButton>
     </RadioGroup>
     <LinearLayout android:layout_height="wrap_content" android:layout_below="@+id/rg_import" android:orientation="vertical" android:layout_width="fill_parent" android:id="@+id/ll_newhero">
-        <TextView android:text="HeldenKey / HeldenID" android:layout_height="wrap_content" style="@style/TextLabelPopup" android:layout_width="wrap_content" android:id="@+id/lbl_heldenkey"></TextView>
+        <TextView android:text="HeldenKey / HeldenID" android:layout_height="wrap_content" style="@style/TextLabel.Popup" android:layout_width="wrap_content" android:id="@+id/lbl_heldenkey"></TextView>
         <EditText android:id="@+id/et_heldenkey" android:text="EditText" android:layout_height="wrap_content" android:layout_width="fill_parent"></EditText>
-        <TextView android:text="Eigentümer" android:layout_height="wrap_content" style="@style/TextLabelPopup" android:layout_width="wrap_content" android:id="@+id/lbl_heldenowner"></TextView>
+        <TextView android:text="Eigentümer" android:layout_height="wrap_content" style="@style/TextLabel.Popup" android:layout_width="wrap_content" android:id="@+id/lbl_heldenowner"></TextView>
         <EditText android:id="@+id/et_heldenowner" android:text="EditText" android:layout_height="wrap_content" android:layout_width="fill_parent"></EditText>
     </LinearLayout>
 </RelativeLayout>

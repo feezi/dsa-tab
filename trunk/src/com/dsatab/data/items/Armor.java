@@ -21,8 +21,6 @@ public class Armor extends ItemSpecification {
 	public static final String CATEGORY_FULL = "Komplettrüstung";
 	public static final String CATEGORY_TORSO = "Torso";
 
-	private float be;
-
 	private int stars;
 
 	private boolean zonenHalfBe;
@@ -31,6 +29,7 @@ public class Armor extends ItemSpecification {
 
 	private int zonenRs = 0;
 	private int totalRs = 0;
+	private float totalBe;
 
 	private int maxRs = 0;
 
@@ -41,12 +40,12 @@ public class Armor extends ItemSpecification {
 		rs = new HashMap<Position, Integer>(Position.values().length);
 	}
 
-	public float getBe() {
-		return be;
+	public float getTotalBe() {
+		return totalBe;
 	}
 
-	public void setBe(float be) {
-		this.be = be;
+	public void setTotalBe(float be) {
+		this.totalBe = be;
 	}
 
 	public boolean isZonenHalfBe() {
@@ -73,7 +72,7 @@ public class Armor extends ItemSpecification {
 			StringBuilder sb = new StringBuilder();
 
 			sb.append("Be ");
-			sb.append(Util.toString(getBe()));
+			sb.append(Util.toString(getTotalBe()));
 
 			int[] kopf = new int[] { getRs(Position.Head_Face), getRs(Position.Head_Side), getRs(Position.Head_Up),
 					getRs(Position.Kopf), getRs(Position.Neck) };
@@ -155,13 +154,23 @@ public class Armor extends ItemSpecification {
 
 			String be = DomUtil.getChildValue(ruestung, Xml.KEY_GESAMT_BE, Xml.KEY_VALUE);
 			if (be != null) {
-				setBe(Util.parseFloat(be));
+				setTotalBe(Util.parseFloat(be));
 			}
 			for (Position pos : Position.values()) {
 				String rs = DomUtil.getChildValue(ruestung, pos.name().toLowerCase(), Xml.KEY_VALUE);
 				if (rs != null) {
 					setRs(pos, Util.parseInt(rs));
 				}
+			}
+
+			String rs = DomUtil.getChildValue(ruestung, Xml.KEY_RS, Xml.KEY_VALUE);
+			if (rs != null) {
+				setTotalRs(Util.parseInt(rs));
+			}
+
+			rs = DomUtil.getChildValue(ruestung, Xml.KEY_STERNE, Xml.KEY_VALUE);
+			if (rs != null) {
+				setStars(Util.parseInt(rs));
 			}
 
 		}

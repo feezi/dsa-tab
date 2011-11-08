@@ -35,7 +35,6 @@ import com.dsatab.activity.MainActivity;
 import com.dsatab.xml.Xml;
 import com.dsatab.xml.XmlParser;
 import com.gandulf.guilib.util.Debug;
-import com.gandulf.guilib.util.ErrorHandler;
 
 /**
  * @author Ganymede
@@ -123,9 +122,6 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 
 			return hero;
 		} catch (Exception e) {
-
-			ErrorHandler.handleError(e, getContext());
-
 			// clear last hero since loading resulted in an error
 			Editor editor = preferences.edit();
 			editor.remove(MainActivity.PREF_LAST_HERO);

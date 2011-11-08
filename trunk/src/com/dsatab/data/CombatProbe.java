@@ -42,7 +42,8 @@ public class CombatProbe extends BaseProbe {
 			else
 				probe = combatTalent.getDefense();
 
-			this.probeInfo = probe.getProbeInfo().clone();
+			if (probe != null)
+				this.probeInfo = probe.getProbeInfo().clone();
 		}
 
 		// distance talents actually have probe values (MU/FF/KK) but they are

@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+<array name="themes">
+	<item>Papier</item>
+	<item>Karte</item>
+	<item>Abstrakt</item>
+</array>
+
+<array name="themesValues">
+	<item>paper</item>
+	<item>map</item>
+	<item>abstract</item>
+</array>
 
 <array name="screenOrientation">
 	<item>Automatisch</item>

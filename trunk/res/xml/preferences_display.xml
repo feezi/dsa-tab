@@ -2,7 +2,16 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" android:title="Darstellung">                
                 
         <PreferenceCategory android:title="Darstellung">                                                      
-                        
+
+            <ListPreference
+				android:icon="@drawable/ic_menu_database"
+                        android:title="Theme"
+                        android:summary="Bestimme das Aussehen von DsaTab. (Erfordert Neustart)"
+                        android:key="theme"
+                        android:defaultValue="paper"
+                        android:entries="@array/themes"
+                        android:entryValues="@array/themesValues"/>
+            
 				<ListPreference
 				android:icon="@drawable/ic_menu_always_landscape_portrait"
                         android:title="Bildschirmausrichtung"

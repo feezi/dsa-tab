@@ -5,9 +5,12 @@ import java.util.List;
 
 import org.jdom.Element;
 
+import android.text.TextUtils;
+
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.CombatTalentType;
+import com.dsatab.xml.Xml;
 
 public class Shield extends ItemSpecification {
 
@@ -24,6 +27,8 @@ public class Shield extends ItemSpecification {
 	private boolean paradeWeapon;
 
 	private List<CombatTalentType> combatTalentType = new LinkedList<CombatTalentType>();
+
+	private String info;
 
 	public Shield(Item item) {
 		super(item, ItemType.Schilde, 0);
@@ -95,12 +100,29 @@ public class Shield extends ItemSpecification {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.dsatab.data.items.ItemSpecification#setElement(org.jdom.Element)
+	 * @see com.dsatab.data.items.ItemSpecification#setElement(org.jdom.Element)
 	 */
 	@Override
 	public void setElement(Element element) {
 
+		@SuppressWarnings("unchecked")
+		List<Element> waffen = element.getChildren(Xml.KEY_SCHILDWAFFE);
+
+		for (Element waffe : waffen) {
+			Element wm = waffe.getChild(Xml.KEY_WAFFENMODIF);
+			if (wm != null) {
+				setWmAt(Util.parseInt(wm.getAttributeValue(Xml.KEY_WAFFENMODIF_AT)));
+				setWmPa(Util.parseInt(wm.getAttributeValue(Xml.KEY_WAFFENMODIF_PA)));
+			}
+			Element bf = waffe.getChild(Xml.KEY_BRUCHFAKTOR);
+			if (bf != null) {
+				setBf(Util.parseInt(bf.getAttributeValue(Xml.KEY_BRUCHFAKTOR_AKT)));
+			}
+			Element ini = waffe.getChild(Xml.KEY_INI_MOD);
+			if (ini != null) {
+				setIni(Util.parseInt(ini.getAttributeValue(Xml.KEY_INI_MOD_INI)));
+			}
+		}
 	}
 
 	@Override
@@ -122,8 +144,10 @@ public class Shield extends ItemSpecification {
 	}
 
 	public String getInfo() {
-		return Util.toString(getWmAt()) + "/" + Util.toString(getWmPa()) + " Bf " + Util.toString(getBf()) + " Ini "
-				+ Util.toString(getIni());
+		if (info == null) {
+			info = TextUtils.expandTemplate("^1/^2 Bf ^3 Ini ^4", Util.toString(getWmAt()), Util.toString(getWmPa()),
+					Util.toString(getBf()), Util.toString(getIni())).toString();
+		}
+		return info;
 	}
-
 }

@@ -297,26 +297,28 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 	}
 
 	protected void fillAttributeValue(TextView tv, AttributeType type) {
-		fillAttributeValue(tv, type, null);
+		fillAttributeValue(tv, type, null, true, false);
 	}
 
 	protected void fillAttributeValue(TextView tv, AttributeType type, boolean includeBe) {
-		fillAttributeValue(tv, type, null, includeBe);
+		fillAttributeValue(tv, type, null, includeBe, false);
 	}
 
 	protected void fillAttributeValue(TextView tv, AttributeType type, String prefix) {
-		fillAttributeValue(tv, type, prefix, true);
+		fillAttributeValue(tv, type, prefix, true, false);
 	}
 
-	protected void fillAttributeValue(TextView tv, AttributeType type, String prefix, boolean includeBe) {
-		if (getHero() == null)
+	protected void fillAttributeValue(TextView tv, AttributeType type, String prefix, boolean includeBe,
+			boolean inverseColors) {
+		if (getHero() == null || tv == null)
 			return;
+
 		Attribute attribute = getHero().getAttribute(type);
 
 		if (attribute != null) {
 
 			int modifier = getHero().getModifier(type, includeBe, true);
-			Util.setText(tv, attribute, modifier, prefix);
+			Util.setText(tv, attribute, modifier, prefix, inverseColors);
 			tv.setTag(attribute);
 
 			if (!tv.isLongClickable()) {
@@ -330,6 +332,8 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 				if (type.editable())
 					tv.setOnLongClickListener(getBaseActivity().getEditListener());
 			}
+		} else {
+			tv.setText(null);
 		}
 	}
 

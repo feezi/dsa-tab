@@ -40,6 +40,8 @@ import android.preference.PreferenceManager;
 import android.util.AndroidRuntimeException;
 import android.widget.Toast;
 
+import com.bugsense.trace.BugSenseHandler;
+import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.activity.DsaPreferenceActivityHC;
 import com.dsatab.data.Hero;
 import com.dsatab.data.HeroFileInfo;
@@ -47,7 +49,6 @@ import com.dsatab.map.BitmapTileSource;
 import com.dsatab.xml.Xml;
 import com.dsatab.xml.XmlParser;
 import com.gandulf.guilib.util.Debug;
-import com.gandulf.guilib.util.ErrorHandler;
 
 public class DSATabApplication extends Application implements OnSharedPreferenceChangeListener {
 
@@ -57,6 +58,8 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	public static final String TILESOURCE_AVENTURIEN = "AVENTURIEN";
 
 	public static final String FLURRY_APP_ID = "AK17DSVJZBNH35G554YR";
+
+	public static final String BUGSENSE_APP_ID = "4b4062da";
 
 	public static final String SD_CARD_PATH_PREFIX = "/sdcard/";
 
@@ -77,6 +80,11 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	public static final String PAYPAL_DONATION_URL = "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=gandulf%2ek%40gmx%2enet&lc=DE&item_name=Gandulf&item_number=DsaTab&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted";
 
 	public static final String TAG = "DSATab";
+
+	public static final String THEME_PAPER = "paper";
+	public static final String THEME_ABSTRACT = "abstract";
+	public static final String THEME_MAP = "map";
+	public static final String THEME_DEFAULT = THEME_PAPER;
 
 	// instance
 	private static DSATabApplication instance = null;
@@ -201,19 +209,51 @@ public class DSATabApplication extends Application implements OnSharedPreference
 			throw new IllegalStateException("Application not created yet!");
 	}
 
+	public int getCustomTheme() {
+		String theme = getPreferences().getString(BasePreferenceActivity.KEY_THEME, THEME_DEFAULT);
+
+		if (THEME_ABSTRACT.equals(theme)) {
+			return R.style.DsaTabTheme_Abstract;
+		} else if (THEME_PAPER.equals(theme)) {
+			return R.style.DsaTabTheme_Paper;
+		} else if (THEME_MAP.equals(theme)) {
+			return R.style.DsaTabTheme_Map;
+		} else {
+			return R.style.DsaTabTheme;
+		}
+	}
+
+	public int getCustomDialogTheme() {
+		String theme = getPreferences().getString(BasePreferenceActivity.KEY_THEME, THEME_DEFAULT);
+
+		if (THEME_ABSTRACT.equals(theme)) {
+			return R.style.Theme_Dialog_Abstract;
+		} else if (THEME_PAPER.equals(theme)) {
+			return R.style.Theme_Dialog_Paper;
+		} else if (THEME_MAP.equals(theme)) {
+			return R.style.Theme_Dialog_Map;
+		} else {
+			return R.style.Theme_Dialog;
+		}
+	}
+
 	@Override
 	public void onCreate() {
 		// provide an instance for our static accessors
 		instance = this;
 
-		ErrorHandler.setup("gandulf.k@gmail.com", "DsaTab Fehlerbericht");
+		setTheme(getCustomTheme());
 
 		configuration = new DsaTabConfiguration(this);
 
 		poorRichFont = Typeface.createFromAsset(this.getAssets(), "fonts/poorich.ttf");
 		Debug.setDebugTag(TAG);
+		boolean stats = getPreferences().getBoolean(DsaPreferenceActivityHC.KEY_USAGE_STATS, true);
 
-		AnalyticsManager.setEnabled(getPreferences().getBoolean(DsaPreferenceActivityHC.KEY_USAGE_STATS, true));
+		AnalyticsManager.setEnabled(stats);
+		if (stats) {
+			BugSenseHandler.setup(this, BUGSENSE_APP_ID);
+		}
 
 		Debug.verbose("AnalytisManager enabled = " + AnalyticsManager.isEnabled());
 
@@ -360,7 +400,6 @@ public class DSATabApplication extends Application implements OnSharedPreference
 			Toast.makeText(this, getString(R.string.hero_saved, hero.getName()), Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
 			Toast.makeText(this, "Held konnte nicht gespeichert werden.", Toast.LENGTH_LONG);
-			ErrorHandler.handleError(e, this);
 			throw new AndroidRuntimeException(e);
 		} finally {
 			if (out != null) {

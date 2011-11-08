@@ -41,7 +41,7 @@ public class TipOfTheDayDialog extends AlertDialog implements android.view.View.
 
 	private WebView webView;
 
-	private static final int TIP_COUNT = 5;
+	private static final int TIP_COUNT = 6;
 
 	private Integer currentTip;
 

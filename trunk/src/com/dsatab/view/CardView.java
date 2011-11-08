@@ -23,7 +23,9 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Path;
+import android.os.Build;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.dsatab.DSATabApplication;
@@ -42,16 +44,22 @@ public class CardView extends ImageView {
 
 	private Paint paint;
 
+	private Path textPath;
+
 	private boolean calculated = false;
 
 	private static int TEXT_PADDING = 20;
+
+	private int cellX, cellY;
+
+	private ItemsTable itemsTable;
 
 	/**
 	 * @param context
 	 */
 	public CardView(Context context, ItemCard item) {
 		this(context, null, 0);
-		this.item = item;
+		setItem(item);
 	}
 
 	public CardView(Context context, AttributeSet attrs) {
@@ -68,11 +76,32 @@ public class CardView extends ImageView {
 		init();
 	}
 
+	public int getCellX() {
+		return cellX;
+	}
+
+	public int getCellY() {
+		return cellY;
+	}
+
+	public int getScreen() {
+		return itemsTable.getScreen();
+	}
+
+	public ItemsTable getItemsTable() {
+		return itemsTable;
+	}
+
+	public void setItemsTable(ItemsTable itemsTable) {
+		this.itemsTable = itemsTable;
+	}
+
 	/**
 	 * 
 	 */
 	private void init() {
 
+		setDrawingCacheEnabled(false);
 		setBackgroundResource(R.drawable.border_patch);
 		setScaleType(ScaleType.FIT_XY);
 
@@ -84,6 +113,10 @@ public class CardView extends ImageView {
 			paint.setTypeface(DSATabApplication.getInstance().getPoorRichardFont());
 		}
 		TEXT_PADDING = getResources().getDimensionPixelOffset(R.dimen.card_text_padding);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		}
 	}
 
 	public ItemCard getItem() {
@@ -94,6 +127,13 @@ public class CardView extends ImageView {
 		this.item = item;
 		hasCardImage = null;
 		calculated = false;
+		setTag(item);
+		invalidate();
+	}
+
+	public void setLocation(int x, int y) {
+		this.cellX = x;
+		this.cellY = y;
 	}
 
 	private boolean hasCardImage() {
@@ -115,21 +155,28 @@ public class CardView extends ImageView {
 	}
 
 	private void calcTextSize(int w, int h) {
-		if (calculated)
+		if (calculated || item == null)
 			return;
 		paint.setTextSize(getWidth() / 7);
 
 		int maxWidth = (int) Math.sqrt((w - TEXT_PADDING * 2) * (w - TEXT_PADDING * 2) + (h - TEXT_PADDING * 2)
 				* (h - TEXT_PADDING * 2));
 
-		final String title = item != null ? item.getTitle() : "";
+		final String title = item.getTitle();
 
 		float width = paint.measureText(title);
 
-		while (width > maxWidth) {
+		while (width > maxWidth && paint.getTextSize() > 1.0f) {
 			paint.setTextSize(paint.getTextSize() - 2);
 			width = paint.measureText(title);
 		}
+
+		if (textPath == null)
+			textPath = new Path();
+		else
+			textPath.reset();
+		textPath.moveTo(TEXT_PADDING, TEXT_PADDING);
+		textPath.lineTo(w - TEXT_PADDING, h - TEXT_PADDING);
 
 		calculated = true;
 	}
@@ -144,7 +191,6 @@ public class CardView extends ImageView {
 		super.onSizeChanged(w, h, oldw, oldh);
 		calculated = false;
 		calcTextSize(w, h);
-
 	}
 
 	/*
@@ -155,14 +201,12 @@ public class CardView extends ImageView {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		if (!hasCardImage()) {
-			calcTextSize(getWidth(), getHeight());
-
-			Path path = new Path();
-			path.moveTo(TEXT_PADDING, TEXT_PADDING);
-			path.lineTo(getWidth() - TEXT_PADDING, getHeight() - TEXT_PADDING);
-			if (item != null)
-				canvas.drawTextOnPath(item.getTitle(), path, 0, paint.getTextSize() / 2, paint);
+		if (item != null) {
+			if (!hasCardImage()) {
+				calcTextSize(getWidth(), getHeight());
+				canvas.drawTextOnPath(item.getTitle(), textPath, 0, paint.getTextSize() / 2, paint);
+			}
 		}
+
 	}
 }

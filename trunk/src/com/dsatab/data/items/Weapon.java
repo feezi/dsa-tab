@@ -36,6 +36,8 @@ public class Weapon extends ItemSpecification {
 
 	private List<CombatTalentType> combatTalentType = new LinkedList<CombatTalentType>();
 
+	private String info;
+
 	public Weapon(Item item, int version) {
 		super(item, ItemType.Waffen, version);
 	}
@@ -292,9 +294,12 @@ public class Weapon extends ItemSpecification {
 	}
 
 	public String getInfo() {
-		return TextUtils.expandTemplate("^1 ^2/^3 ^4/^5 Ini ^6 ^7 ^8", getTp(), Util.toString(getTpKKMin()),
-				Util.toString(getTpKKStep()), Util.toString(getWmAt()), Util.toString(getWmPa()),
-				Util.toString(getIni()), getDistance(), isTwoHanded() ? "2H" : "").toString();
+		if (info == null) {
+			info = TextUtils.expandTemplate("^1 ^2/^3 ^4/^5 Ini ^6 ^7 ^8", getTp(), Util.toString(getTpKKMin()),
+					Util.toString(getTpKKStep()), Util.toString(getWmAt()), Util.toString(getWmPa()),
+					Util.toString(getIni()), getDistance(), isTwoHanded() ? "2H" : "").toString();
+		}
+		return info;
 
 	}
 

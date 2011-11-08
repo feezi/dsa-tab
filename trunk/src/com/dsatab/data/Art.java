@@ -2,6 +2,7 @@ package com.dsatab.data;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jdom.Element;
@@ -16,9 +17,18 @@ import com.gandulf.guilib.util.Debug;
 
 public class Art extends MarkableElement implements Value, Markable {
 
-	public enum LiturigeType {
-		Liturige(LITURGIE_PREFIX, Talent.LITURGIE_KENNTNIS_PREFIX), Ritual(RITUAL_PREFIX, Talent.RITUAL_KENNTNIS_PREFIX), Stabzauber(
-				STABZAUBER_PREFIX, Talent.RITUAL_KENNTNIS_GILDENMAGIE), Schalenzauber(SCHALENZAUBER_PREFIX,
+	public static final Map<String, ArtType> artMappings = new HashMap<String, Art.ArtType>();
+	static {
+		artMappings.put("Apport", ArtType.Stabzauber);
+		artMappings.put("Bannschwert", ArtType.Stabzauber);
+		artMappings.put("Die Gestalt aus Rauch", ArtType.Ritual);
+		artMappings.put("Kristallkraft bündeln", ArtType.KristallomantischesRitual);
+	}
+
+	public enum ArtType {
+		Liturige(LITURGIE_PREFIX, Talent.LITURGIE_KENNTNIS_PREFIX), Ritual(RITUAL_PREFIX, Talent.RITUAL_KENNTNIS_PREFIX), RitualSeher(
+				RITUAL_SEHER_PREFIX, Talent.RITUAL_KENNTNIS_PREFIX), Stabzauber(STABZAUBER_PREFIX,
+				Talent.RITUAL_KENNTNIS_GILDENMAGIE), Schalenzauber(SCHALENZAUBER_PREFIX,
 				Talent.RITUAL_KENNTNIS_ALCHEMIST), SchlangenringZauber(SCHLANGENRING_ZAUBER_PEFIX,
 				Talent.RITUAL_KENNTNIS_GEODE), Schuppenbeutel(SCHUPPENBEUTEL_PREFIX,
 				Talent.RITUAL_KENNTNIS_KRISTALLOMANTIE), Trommelzauber(TROMMELZAUBER_PREFIX,
@@ -35,12 +45,12 @@ public class Art extends MarkableElement implements Value, Markable {
 
 		private String talentName;
 
-		private LiturigeType(String prefix) {
+		private ArtType(String prefix) {
 			this.prefix = prefix;
 			this.talentName = null;
 		}
 
-		private LiturigeType(String prefix, String talentName) {
+		private ArtType(String prefix, String talentName) {
 			this.prefix = prefix;
 			this.talentName = talentName;
 		}
@@ -61,24 +71,33 @@ public class Art extends MarkableElement implements Value, Markable {
 			return name;
 		}
 
-		public static LiturigeType getTypeOfArt(String artName) {
-			LiturigeType[] types = LiturigeType.values();
-
-			for (LiturigeType type : types) {
-				if (artName.startsWith(type.prefix)) {
-					return type;
+		public static ArtType getTypeOfArt(String artName) {
+			ArtType[] types = ArtType.values();
+			ArtType result = null;
+			result = artMappings.get(artName);
+			if (result == null) {
+				for (ArtType type : types) {
+					if (artName.startsWith(type.prefix)) {
+						result = type;
+						break;
+					}
 				}
 			}
-			return null;
+			return result;
 		}
 
 		public String truncateName(String artName) {
-			return artName.substring(prefix.length()).trim();
+			if (artName.startsWith(prefix)) {
+				return artName.substring(prefix.length()).trim();
+			} else {
+				return artName.trim();
+			}
 		}
 	}
 
 	public static final String LITURGIE_PREFIX = "Liturgie: ";
 	public static final String RITUAL_PREFIX = "Ritual: ";
+	public static final String RITUAL_SEHER_PREFIX = "Seher: ";
 	public static final String STABZAUBER_PREFIX = "Stabzauber: ";
 	public static final String SCHALENZAUBER_PREFIX = "Schalenzauber: ";
 	public static final String SCHLANGENRING_ZAUBER_PEFIX = "Schlangenring-Zauber: ";
@@ -108,7 +127,7 @@ public class Art extends MarkableElement implements Value, Markable {
 
 	};
 
-	private LiturigeType type;
+	private ArtType type;
 
 	private Hero hero;
 
@@ -129,7 +148,7 @@ public class Art extends MarkableElement implements Value, Markable {
 		name = element.getAttributeValue(Xml.KEY_NAME).trim();
 		String grade = null;
 
-		type = LiturigeType.getTypeOfArt(name);
+		type = ArtType.getTypeOfArt(name);
 		if (type != null) {
 			name = type.truncateName(name);
 		} else {
@@ -182,7 +201,7 @@ public class Art extends MarkableElement implements Value, Markable {
 		}
 	}
 
-	public LiturigeType getType() {
+	public ArtType getType() {
 		return type;
 	}
 

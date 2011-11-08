@@ -40,15 +40,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.FloatMath;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -65,7 +61,6 @@ import com.dsatab.map.MapTileProviderLocal;
 import com.gandulf.guilib.util.AbstractDownloader;
 import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.util.DownloaderWrapper;
-import com.gandulf.guilib.util.ResUtil;
 
 public class MapFragment extends BaseFragment implements OnTouchListener, OnClickListener {
 
@@ -134,17 +129,6 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 		imageMapView = (ImageView) root.findViewById(R.id.imageView);
 		chooseMap = (ImageButton) root.findViewById(R.id.open_map);
 		return configureContainerView(root);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
 	}
 
 	/*
@@ -373,26 +357,6 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 		}
 	}
 
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.map_menu, menu);
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.Fragment#onPrepareOptionsMenu(android.view.Menu)
-	 */
-	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
-		super.onPrepareOptionsMenu(menu);
-
-		menu.findItem(R.id.option_choose_map).setEnabled(mapFiles != null);
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -491,34 +455,6 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 		});
 
 		builder.show();
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-
-		if (item.getItemId() == R.id.option_choose_map) {
-
-			showMapChooser();
-		} else if (item.getItemId() == R.id.option_map_license) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-			builder.setTitle(R.string.title_credits);
-			builder.setCancelable(true);
-			WebView webView = new WebView(getActivity());
-
-			String summary = ResUtil.loadResToString(R.raw.ulisses_license, getActivity());
-			webView.loadData(summary, "text/html", "ISO-8859-1");
-			builder.setView(webView);
-			builder.setNeutralButton(R.string.label_ok, new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.dismiss();
-				}
-			});
-			builder.show();
-		}
-
-		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

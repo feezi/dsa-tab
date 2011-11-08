@@ -258,14 +258,17 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 			Util.setVisibility(holder.text5, false, holder.text1);
 		}
 
-		if (holder.indicator != null && (talent.isBegabung() || talent.isTalentschub())) {
-			holder.indicator.setVisibility(View.VISIBLE);
-			holder.indicator.setImageResource(R.drawable.indicator_star);
-		}
+		if (holder.indicator != null) {
 
-		if (holder.indicator != null && !TextUtils.isEmpty(talent.getTalentSpezialisierung())) {
-			holder.indicator.setVisibility(View.VISIBLE);
-			holder.indicator.setImageResource(R.drawable.indicator_flash);
+			if (talent.isBegabung() || talent.isTalentschub()) {
+				holder.indicator.setVisibility(View.VISIBLE);
+				holder.indicator.setImageResource(R.drawable.indicator_star);
+			} else if (!TextUtils.isEmpty(talent.getTalentSpezialisierung())) {
+				holder.indicator.setVisibility(View.VISIBLE);
+				holder.indicator.setImageResource(R.drawable.indicator_flash);
+			} else {
+				holder.indicator.setVisibility(View.INVISIBLE);
+			}
 		}
 
 		Util.applyRowStyle(talent, listItem, childPosition);

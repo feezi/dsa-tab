@@ -17,6 +17,9 @@ public class Advantage {
 
 	public static final String AUSDAUERND = "Ausdauernd";
 	public static final String NATUERLICHER_RUESTUNGSSCHUTZ = "Natürlicher Rüstungsschutz";
+	public static final String FESTE_MATRIX = "Feste Matrix";
+	public static final String WILDE_MAGIE = "Wilde Magie";
+	public static final String TOLLPATSCH = "Tollpatsch";
 
 	private static final String[] VORTEILE = { "Amtsadel", "Adlige Abstammung", "Adliges Erbe", "Affinität zu ",
 			"Akademische Ausbildung (Gelehrter)", "Akademische Ausbildung (Krieger)",
@@ -25,7 +28,7 @@ public class Advantage {
 			"Begabung für [Ritual]", "Begabung für [Talent]", "Begabung für [Talentgruppe]", "Begabung für [Zauber]",
 			"Beidhändig", "Beseelte Knochenkeule", "Besonderer Besitz", "Breitgefächerte Bildung", "Dämmerungssicht",
 			"Eidetisches Gedächtnis", "Eigeboren", "Eisenaffine Aura", "Eisern", "Empathie", "Entfernungssinn",
-			"Ererbte Knochenkeule", "Feenfreund", "Feste Matrix", "Früher Vertrauter", "Flink", "Gebildet",
+			"Ererbte Knochenkeule", "Feenfreund", FESTE_MATRIX, "Früher Vertrauter", "Flink", "Gebildet",
 			"Gefahreninstinkt", "Geräuschhexerei", "Geweiht [Angrosch]", "Geweiht [Gravesh]",
 			"Geweiht [nicht-alveranische Gottheit]", "Geweiht [H'Ranga]", "Geweiht [zwölfgöttliche Kirche]", "Glück",
 			"Glück im Spiel", "Gutaussehend", "Guter Ruf", "Gutes Gedächtnis", "Halbzauberer", "Herausragende Balance",
@@ -70,12 +73,12 @@ public class Advantage {
 			"Schulden", "Schwache Ausstrahlung", "Schwacher Astralkörper", "Schwanzlos", "Seffer Manich",
 			"Sensibler Geruchssinn", "Selbstgespräche", "Sippenlosigkeit", "Sonnensucht", "Speisegebote",
 			"Sprachfehler", "Spielsucht", "Spruchhemmung", "Stigma", "Streitsucht", "Stubenhocker", "Sucht",
-			"Thesisgebunden", "Tollpatsch", "Totenangst", "Trägheit", "Treulosigkeit", "Übler Geruch",
+			"Thesisgebunden", TOLLPATSCH, "Totenangst", "Trägheit", "Treulosigkeit", "Übler Geruch",
 			"Unangenehme Stimme", "Unansehnlich", "Unfähigkeit für [Merkmal]", "Unfähigkeit für [Talent]",
 			"Unfähigkeit für [Talentgruppe]", "Unfrei", "Ungebildet", "Unstet",
 			"Unverträglichkeit mit verarbeitetem Metall", "Vergesslichkeit", "Verpflichtungen", "Verschwendungssucht",
 			"Verwöhnt", "Vorurteile", "Vorurteile (stark)", "Wahnvorstellungen", "Wahrer Name", "Weltfremd",
-			"Widerwärtiges Aussehen", "Wilde Magie", "Zielschwierigkeiten", "Zögerlicher Zauberer", "Zwergenwuchs",
+			"Widerwärtiges Aussehen", WILDE_MAGIE, "Zielschwierigkeiten", "Zögerlicher Zauberer", "Zwergenwuchs",
 			"Hoher Amtsadel", "Comes", "Erstgeborener Comes", "Sacerdos" };
 
 	static {
