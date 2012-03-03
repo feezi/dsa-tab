@@ -22,6 +22,7 @@ import java.util.List;
 import android.text.TextUtils;
 import android.widget.Filter;
 
+
 /**
  * @author Ganymede
  * 
@@ -95,7 +96,7 @@ public class OpenFilter<T> extends Filter {
 		return constraint != null;
 	}
 
-	protected boolean filter(T m) {
+	public boolean filter(T m) {
 		boolean valid = true;
 
 		if (constraint != null && m.toString().toLowerCase().startsWith(constraint)) {

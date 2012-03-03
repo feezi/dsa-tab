@@ -64,7 +64,7 @@ public class DocumentsFragment extends BaseFragment implements OnItemClickListen
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 
-		File pdfsDir = new File(DSATabApplication.getDsaTabPath(), DSATabApplication.DIR_PDFS);
+		File pdfsDir = DSATabApplication.getDirectory(DSATabApplication.DIR_PDFS);
 		if (!pdfsDir.exists())
 			pdfsDir.mkdirs();
 
@@ -72,7 +72,12 @@ public class DocumentsFragment extends BaseFragment implements OnItemClickListen
 		registerForContextMenu(listView);
 		listView.setOnItemClickListener(this);
 
-		List<File> documents = Arrays.asList(pdfsDir.listFiles());
+		File[] pdfFiles = pdfsDir.listFiles();
+		List<File> documents;
+		if (pdfFiles != null) {
+			documents = Arrays.asList(pdfFiles);
+		} else
+			documents = Collections.emptyList();
 
 		TextView empty = (TextView) findViewById(android.R.id.empty);
 

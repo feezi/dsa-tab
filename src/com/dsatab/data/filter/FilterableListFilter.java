@@ -14,9 +14,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.dsatab.data.adapter;
+package com.dsatab.data.filter;
 
 import com.dsatab.data.Markable;
+import com.dsatab.data.adapter.OpenArrayAdapter;
+import com.dsatab.data.adapter.OpenFilter;
 import com.dsatab.view.ListFilterSettings;
 
 /**
@@ -46,7 +48,7 @@ public class FilterableListFilter<T extends Markable> extends OpenFilter<T> {
 		this.settings = settings;
 	}
 
-	protected boolean filter(Markable m) {
+	public boolean filter(Markable m) {
 		boolean valid = true;
 		if (settings != null) {
 			valid = settings.isVisible(m);

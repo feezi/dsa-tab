@@ -139,7 +139,12 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable {
 				// value and mod of 0 means not able to use it
 				if ((type == AttributeType.Karmaenergie || type == AttributeType.Astralenergie) && coreValue == 0
 						&& mod == 0) {
-					coreValue = null;
+
+					if (type == AttributeType.Astralenergie && hero.hasFeature(Advantage.MAGIEDILLETANT)) {
+						coreValue = 0;
+					} else {
+						coreValue = null;
+					}
 				} else {
 					coreValue += mod;
 				}

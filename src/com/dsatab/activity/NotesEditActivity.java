@@ -32,9 +32,14 @@ public class NotesEditActivity extends BaseFragmentActivity implements OnNotesEd
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setTheme(DSATabApplication.getInstance().getCustomDialogTheme());
+		setTheme(DSATabApplication.getInstance().getCustomTheme());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_notes_edit);
+
+		getSupportActionBar().setDisplayShowTitleEnabled(true);
+		getSupportActionBar().setDisplayShowHomeEnabled(true);
+		getSupportActionBar().setDisplayUseLogoEnabled(true);
+
 	}
 
 	/*

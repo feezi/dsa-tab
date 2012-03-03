@@ -13,6 +13,7 @@ import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.Event;
 import com.dsatab.data.enums.EventCategory;
+import com.dsatab.data.filter.EventListFilter;
 
 public class EventAdapter extends OpenArrayAdapter<Event> {
 
@@ -20,12 +21,10 @@ public class EventAdapter extends OpenArrayAdapter<Event> {
 
 	public EventAdapter(Context context, Event[] objects) {
 		super(context, 0, objects);
-
 	}
 
 	public EventAdapter(Context context, List<Event> objects) {
 		super(context, 0, objects);
-
 	}
 
 	public void filter(String constraint, List<EventCategory> types) {

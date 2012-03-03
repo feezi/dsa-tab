@@ -17,14 +17,37 @@
 package com.dsatab.data.items;
 
 import java.io.File;
+import java.util.Comparator;
 
-import com.dsatab.view.drag.ItemLocationInfo;
+import com.dsatab.data.ItemLocationInfo;
 
 public interface ItemCard {
+
+	public static final Comparator<ItemCard> CELL_NUMBER_COMPARATOR = new Comparator<ItemCard>() {
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+		 */
+		@Override
+		public int compare(ItemCard lhs, ItemCard rhs) {
+			if (lhs.getItemInfo().getCellNumber() == -1 && rhs.getItemInfo().getCellNumber() >= 0)
+				return 1;
+			else if (lhs.getItemInfo().getCellNumber() == -1 && rhs.getItemInfo().getCellNumber() == -1)
+				return 0;
+			else if (lhs.getItemInfo().getCellNumber() > 0 && rhs.getItemInfo().getCellNumber() == -1)
+				return -1;
+
+			return lhs.getItemInfo().getCellNumber() - rhs.getItemInfo().getCellNumber();
+		}
+
+	};
 
 	public ItemLocationInfo getItemInfo();
 
 	public File getFile();
+
+	public File getHQFile();
 
 	public String getTitle();
 

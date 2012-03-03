@@ -33,9 +33,6 @@ import com.dsatab.R;
  */
 public class FileAdapter extends ArrayAdapter<File> {
 
-	/**
-	 * 
-	 */
 	private static final String PDF_SUFFIX = ".pdf";
 
 	private int textViewResourceId;

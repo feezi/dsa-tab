@@ -14,62 +14,51 @@
  *  You should have received a copy of the GNU General Public License
  *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.dsatab.data.adapter;
+package com.dsatab.data.filter;
 
-import java.util.Arrays;
-import java.util.List;
-
-import com.dsatab.data.Event;
-import com.dsatab.data.enums.EventCategory;
+import com.dsatab.data.adapter.OpenArrayAdapter;
+import com.dsatab.data.adapter.OpenFilter;
+import com.dsatab.data.items.Armor;
+import com.dsatab.data.items.EquippedItem;
+import com.dsatab.view.FightFilterSettings;
 
 /**
  * @author Ganymede
  * 
  */
-public class EventListFilter extends OpenFilter<Event> {
+public class EquippedItemListFilter extends OpenFilter<EquippedItem> {
 
-	private List<EventCategory> types;
+	private FightFilterSettings settings;
 
 	/**
 	 * 
 	 */
-	public EventListFilter(OpenArrayAdapter<Event> list) {
+	public EquippedItemListFilter(OpenArrayAdapter<EquippedItem> list) {
 		super(list);
 	}
 
-	public List<EventCategory> getTypes() {
-		return types;
+	public FightFilterSettings getSettings() {
+		return settings;
 	}
 
-	public void setTypes(List<EventCategory> type) {
-		this.types = type;
-	}
-
-	public void setType(EventCategory type) {
-		if (type != null)
-			this.types = Arrays.asList(type);
-		else
-			this.types = null;
+	public void setSettings(FightFilterSettings settings) {
+		this.settings = settings;
 	}
 
 	protected boolean isFilterSet() {
-		return constraint != null || (types != null && !types.isEmpty());
+		return constraint != null || (settings != null && !settings.isAllVisible());
 	}
 
-	protected boolean filter(Event m) {
+	public boolean filter(EquippedItem m) {
 		boolean valid = true;
-		if (types != null) {
-			boolean found = false;
+		if (settings != null) {
+			if (m.getItemSpecification() instanceof Armor)
+				valid &= settings.isShowArmor();
 
-			if (types.contains(m.getCategory())) {
-				found = true;
-			}
-
-			valid &= found;
 		}
 
 		if (constraint != null) {
-			valid &= m.getComment().toLowerCase().startsWith(constraint);
+			valid &= m.getName().toLowerCase().startsWith(constraint);
 		}
 
 		return valid;

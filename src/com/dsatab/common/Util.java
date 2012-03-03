@@ -12,6 +12,7 @@ import java.util.StringTokenizer;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.LevelListDrawable;
 import android.text.Html;
 import android.text.Spanned;
@@ -86,6 +87,42 @@ public class Util {
 		imm.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0);
 	}
 
+	private static final String PLAIN_ASCII = "AaEeIiOoUu" // grave
+			+ "AaEeIiOoUuYy" // acute
+			+ "AaEeIiOoUuYy" // circumflex
+			+ "AaOoNn" // tilde
+			+ "AaEeIiOoUuYy" // umlaut
+			+ "Aa" // ring
+			+ "Cc" // cedilla
+			+ "OoUu" // double acute
+	;
+
+	private static final String UNICODE = "\u00C0\u00E0\u00C8\u00E8\u00CC\u00EC\u00D2\u00F2\u00D9\u00F9"
+			+ "\u00C1\u00E1\u00C9\u00E9\u00CD\u00ED\u00D3\u00F3\u00DA\u00FA\u00DD\u00FD"
+			+ "\u00C2\u00E2\u00CA\u00EA\u00CE\u00EE\u00D4\u00F4\u00DB\u00FB\u0176\u0177"
+			+ "\u00C3\u00E3\u00D5\u00F5\u00D1\u00F1"
+			+ "\u00C4\u00E4\u00CB\u00EB\u00CF\u00EF\u00D6\u00F6\u00DC\u00FC\u0178\u00FF" + "\u00C5\u00E5"
+			+ "\u00C7\u00E7" + "\u0150\u0151\u0170\u0171";
+
+	// remove accentued from a string and replace with ascii equivalent
+	public static String convertNonAscii(String s) {
+		if (s == null)
+			return null;
+		StringBuilder sb = new StringBuilder();
+		int n = s.length();
+		for (int i = 0; i < n; i++) {
+			char c = s.charAt(i);
+			int pos = UNICODE.indexOf(c);
+			if (pos > -1) {
+				sb.append(PLAIN_ASCII.charAt(pos));
+			} else if (Character.isLetterOrDigit(c)) {
+				sb.append(c);
+			}
+
+		}
+		return sb.toString();
+	}
+
 	public static Spanned getText(int resourceId, java.lang.Object... formatArgs) {
 		return Html.fromHtml(String.format(
 				Html.toHtml(new SpannedString(DSATabApplication.getInstance().getText(resourceId))), formatArgs));
@@ -134,6 +171,24 @@ public class Util {
 			System.gc();
 			return null;
 		}
+	}
+
+	public static String checkFileWriteAccess(File file) {
+		String error = null;
+		if (file.exists()) {
+			if (!file.canWrite()) {
+				error = "DsaTab erhielt keine Schreibrechte für folgende Datei:"
+						+ file.getAbsolutePath()
+						+ ". Der häufigste Grund hierfür ist, dass die SD-Karte gerade vom PC verwendet wird. Trenne am besten das Kabel zwischen Smartphone und PC und versuche es erneut.";
+			}
+		} else if (file.getParentFile().exists() && !file.getParentFile().canWrite()) {
+			error = "DsaTab erhielt keine Schreibrechte für folgende Datei:"
+					+ file.getAbsolutePath()
+					+ ". Der häufigste Grund hierfür ist, dass die SD-Karte gerade vom PC verwendet wird. Trenne am besten das Kabel zwischen Smartphone und PC und versuche es erneut.";
+
+		}
+
+		return error;
 	}
 
 	public static boolean isBlank(String str) {
@@ -339,11 +394,16 @@ public class Util {
 			else if (modifier > 0
 					|| (value.getReferenceValue() != null && value.getValue() > value.getReferenceValue()))
 				tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen));
-			else
-				tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueBlack));
+			else {
+				if (inverse)
+					tf.setTextColor(tf.getContext().getResources().getColor(android.R.color.primary_text_dark));
+				else
+					tf.setTextColor(getThemeColors(tf.getContext(), android.R.attr.textColorPrimary));
+			}
 		} else {
 			if (inverse)
-				tf.setTextColor(getThemeColors(tf.getContext(), android.R.attr.textColorPrimaryInverse));
+				tf.setTextColor(DSATabApplication.getInstance().getResources()
+						.getColor(android.R.color.primary_text_dark));
 			else
 				tf.setTextColor(getThemeColors(tf.getContext(), android.R.attr.textColorPrimary));
 		}
@@ -362,14 +422,16 @@ public class Util {
 	public static void setTextColor(TextView tf, int modifier, boolean inverse) {
 
 		if (modifier == 0) {
-			if (inverse)
-				tf.setTextColor(getThemeColors(tf.getContext(), android.R.attr.textColorPrimaryInverse));
-			else
+			if (inverse) {
+				tf.setTextColor(DSATabApplication.getInstance().getResources()
+						.getColor(android.R.color.primary_text_dark));
+			} else {
 				tf.setTextColor(getThemeColors(tf.getContext(), android.R.attr.textColorPrimary));
+			}
 		} else if (modifier < 0)
-			tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed));
+			tf.setTextColor(tf.getResources().getColor(R.color.ValueRed));
 		else if (modifier > 0)
-			tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen));
+			tf.setTextColor(tf.getResources().getColor(R.color.ValueGreen));
 
 	}
 
@@ -417,21 +479,22 @@ public class Util {
 
 			int color;
 			if (modifier < 0)
-				color = R.color.ValueRed;
+				color = DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed);
 			else if (modifier > 0)
-				color = R.color.ValueGreen;
-			else
-				color = R.color.ValueBlack;
+				color = DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen);
+			else {
+				color = getThemeColors(DSATabApplication.getInstance(), android.R.attr.textColorPrimary);
 
+			}
 			title.append(" (");
-			title.appendColor(DSATabApplication.getInstance().getResources().getColor(color),
-					Util.toString(value1 + modifier));
+			title.appendColor(color, Util.toString(value1 + modifier));
 			title.append(")");
 		}
 
 	}
 
-	public static void appendValue(Hero hero, StyleableSpannableStringBuilder title, Probe probe1, Probe probe2) {
+	public static void appendValue(Hero hero, StyleableSpannableStringBuilder title, Probe probe1, Probe probe2,
+			boolean includeModifiers) {
 
 		Integer value1 = null, value2 = null;
 
@@ -445,18 +508,20 @@ public class Util {
 			title.append(" (");
 
 		if (value1 != null) {
-			int modifier = hero.getModifier(probe1);
+			int modifier = 0;
+			int color = Color.TRANSPARENT;
+			if (includeModifiers) {
+				modifier = hero.getModifier(probe1);
 
-			int color;
-			if (modifier < 0)
-				color = R.color.ValueRed;
-			else if (modifier > 0)
-				color = R.color.ValueGreen;
+				if (modifier < 0)
+					color = DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed);
+				else if (modifier > 0)
+					color = DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen);
+			}
+			if (color != Color.TRANSPARENT)
+				title.appendColor(color, Util.toString(value1 + modifier));
 			else
-				color = R.color.ValueBlack;
-
-			title.appendColor(DSATabApplication.getInstance().getResources().getColor(color),
-					Util.toString(value1 + modifier));
+				title.append(Util.toString(value1 + modifier));
 		}
 
 		if (value2 != null) {
@@ -464,18 +529,21 @@ public class Util {
 			if (value1 != null)
 				title.append("/");
 
-			int modifier = hero.getModifier(probe2);
+			int modifier = 0;
+			int color = Color.TRANSPARENT;
+			if (includeModifiers) {
+				modifier = hero.getModifier(probe2);
 
-			int color;
-			if (modifier < 0)
-				color = R.color.ValueRed;
-			else if (modifier > 0)
-				color = R.color.ValueGreen;
+				if (modifier < 0)
+					color = DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed);
+				else if (modifier > 0)
+					color = DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen);
+			}
+
+			if (color != Color.TRANSPARENT)
+				title.appendColor(color, Util.toString(value2 + modifier));
 			else
-				color = R.color.ValueBlack;
-
-			title.appendColor(DSATabApplication.getInstance().getResources().getColor(color),
-					Util.toString(value2 + modifier));
+				title.append(Util.toString(value2 + modifier));
 		}
 
 		if (value1 != null || value2 != null)
@@ -648,11 +716,11 @@ public class Util {
 
 			EquippedItem equippedItem = equippedItems.get(i);
 
-			if (equippedItem.getItem().hasSpecification(Weapon.class) && equippedItem.getSecondaryItem() != null) {
+			if (equippedItem.getItemSpecification() instanceof Weapon && equippedItem.getSecondaryItem() != null) {
 				EquippedItem secondaryEquippedItem = equippedItem.getSecondaryItem();
 
-				if (secondaryEquippedItem.getItem().hasSpecification(Shield.class)
-						|| (secondaryEquippedItem.getItem().hasSpecification(Weapon.class) && secondaryEquippedItem
+				if (secondaryEquippedItem.getItemSpecification() instanceof Shield
+						|| (secondaryEquippedItem.getItemSpecification() instanceof Weapon && secondaryEquippedItem
 								.getHand() == Hand.links)) {
 					equippedItems.remove(secondaryEquippedItem);
 
@@ -672,7 +740,7 @@ public class Util {
 	 * @return
 	 */
 	public static int gradeToInt(String next) {
-		if (next != null)
+		if (!TextUtils.isEmpty(next))
 			return ROMANS.indexOf(next.toUpperCase());
 		else
 			return -1;

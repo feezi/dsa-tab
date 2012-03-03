@@ -14,33 +14,16 @@ import com.dsatab.view.ItemListItem;
 
 public class ModificatorAdapter extends ArrayAdapter<Modificator> {
 
-	public ModificatorAdapter(Context context, int textViewResourceId, Modificator[] objects) {
-		super(context, textViewResourceId, objects);
-	}
-
-	public ModificatorAdapter(Context context, int resource, int textViewResourceId, Modificator[] objects) {
-		super(context, resource, textViewResourceId, objects);
-
-	}
-
-	public ModificatorAdapter(Context context, int resource, int textViewResourceId, List<Modificator> objects) {
-		super(context, resource, textViewResourceId, objects);
-
-	}
-
-	public ModificatorAdapter(Context context, int resource, int textViewResourceId) {
-		super(context, resource, textViewResourceId);
-
-	}
+	private LayoutInflater inflater;
 
 	public ModificatorAdapter(Context context, int textViewResourceId, List<Modificator> objects) {
 		super(context, textViewResourceId, objects);
-
+		inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	public ModificatorAdapter(Context context, int textViewResourceId) {
 		super(context, textViewResourceId);
-
+		inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	@Override
@@ -49,9 +32,6 @@ public class ModificatorAdapter extends ArrayAdapter<Modificator> {
 		ItemListItem view;
 
 		if (!(convertView instanceof ItemListItem)) {
-			// We need the layoutinflater to pick up the view from xml
-			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			// Pick up the TwoLineListItem defined in the xml file
 			view = (ItemListItem) inflater.inflate(R.layout.item_listitem, parent, false);
 		} else {
 			view = (ItemListItem) convertView;

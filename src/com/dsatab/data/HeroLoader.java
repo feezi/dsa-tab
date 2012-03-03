@@ -27,11 +27,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.support.v4.content.AsyncTaskLoader;
-import android.util.AndroidRuntimeException;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.HeroConfiguration;
 import com.dsatab.activity.MainActivity;
+import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.xml.Xml;
 import com.dsatab.xml.XmlParser;
 import com.gandulf.guilib.util.Debug;
@@ -126,7 +126,7 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 			Editor editor = preferences.edit();
 			editor.remove(MainActivity.PREF_LAST_HERO);
 			editor.commit();
-			throw new AndroidRuntimeException(e);
+			throw new DsaTabRuntimeException(e);
 		} finally {
 			if (fis != null) {
 				try {

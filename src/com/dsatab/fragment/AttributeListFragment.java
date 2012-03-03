@@ -34,7 +34,7 @@ import android.widget.TextView;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.DsaPreferenceActivityHC;
+import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.activity.MainActivity;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero;
@@ -135,21 +135,21 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 	private void updateView() {
 		SharedPreferences preferences = DSATabApplication.getPreferences();
 
-		if (preferences.getBoolean(DsaPreferenceActivityHC.KEY_HEADER_NAME, true)) {
+		if (preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_NAME, true)) {
 			findViewById(R.id.attr_name).setVisibility(View.VISIBLE);
 		} else {
 			findViewById(R.id.attr_name).setVisibility(View.GONE);
 		}
 
-		int visible = preferences.getBoolean(DsaPreferenceActivityHC.KEY_HEADER_LE, true) ? View.VISIBLE : View.GONE;
+		int visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_LE, true) ? View.VISIBLE : View.GONE;
 		findViewById(R.id.attr_le).setVisibility(visible);
 		findViewById(R.id.attr_le_label).setVisibility(visible);
 
-		visible = preferences.getBoolean(DsaPreferenceActivityHC.KEY_HEADER_AU, true) ? View.VISIBLE : View.GONE;
+		visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_AU, true) ? View.VISIBLE : View.GONE;
 		findViewById(R.id.attr_au).setVisibility(visible);
 		findViewById(R.id.attr_au_label).setVisibility(visible);
 
-		visible = preferences.getBoolean(DsaPreferenceActivityHC.KEY_HEADER_AE, true) ? View.VISIBLE : View.GONE;
+		visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_AE, true) ? View.VISIBLE : View.GONE;
 		if (visible == View.VISIBLE && getHero() != null
 				&& getHero().getAttributeValue(AttributeType.Astralenergie) != null) {
 			findViewById(R.id.attr_ae).setVisibility(visible);
@@ -159,7 +159,7 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 			findViewById(R.id.attr_ae_label).setVisibility(View.GONE);
 		}
 
-		visible = preferences.getBoolean(DsaPreferenceActivityHC.KEY_HEADER_KE, true) ? View.VISIBLE : View.GONE;
+		visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_KE, true) ? View.VISIBLE : View.GONE;
 		if (visible == View.VISIBLE && getHero() != null
 				&& getHero().getAttributeValue(AttributeType.Karmaenergie) != null) {
 			findViewById(R.id.attr_ke).setVisibility(visible);
@@ -169,19 +169,19 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 			findViewById(R.id.attr_ke_label).setVisibility(View.GONE);
 		}
 
-		visible = preferences.getBoolean(DsaPreferenceActivityHC.KEY_HEADER_BE, true) ? View.VISIBLE : View.GONE;
+		visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_BE, true) ? View.VISIBLE : View.GONE;
 		findViewById(R.id.attr_be).setVisibility(visible);
 		findViewById(R.id.attr_be_label).setVisibility(visible);
 
-		visible = preferences.getBoolean(DsaPreferenceActivityHC.KEY_HEADER_MR, true) ? View.VISIBLE : View.GONE;
+		visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_MR, true) ? View.VISIBLE : View.GONE;
 		findViewById(R.id.attr_mr).setVisibility(visible);
 		findViewById(R.id.attr_mr_label).setVisibility(visible);
 
-		visible = preferences.getBoolean(DsaPreferenceActivityHC.KEY_HEADER_GS, true) ? View.VISIBLE : View.GONE;
+		visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_GS, true) ? View.VISIBLE : View.GONE;
 		findViewById(R.id.attr_gs).setVisibility(visible);
 		findViewById(R.id.attr_gs_label).setVisibility(visible);
 
-		visible = preferences.getBoolean(DsaPreferenceActivityHC.KEY_HEADER_WS, true) ? View.VISIBLE : View.GONE;
+		visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_WS, true) ? View.VISIBLE : View.GONE;
 		findViewById(R.id.attr_ws).setVisibility(visible);
 		findViewById(R.id.attr_ws_label).setVisibility(visible);
 	}
@@ -350,7 +350,7 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 		if (hero.getAttributeValue(AttributeType.Karmaenergie) == null) {
 			findViewById(R.id.attr_ke).setVisibility(View.GONE);
 			findViewById(R.id.attr_ke_label).setVisibility(View.GONE);
-		} else if (preferences.getBoolean(DsaPreferenceActivityHC.KEY_HEADER_KE, true)) {
+		} else if (preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_KE, true)) {
 			fillAttributeValue((TextView) findViewById(R.id.attr_ke), AttributeType.Karmaenergie, null, true, true);
 			fillAttributeLabel((TextView) findViewById(R.id.attr_ke_label), AttributeType.Karmaenergie);
 			findViewById(R.id.attr_ke).setVisibility(View.VISIBLE);
@@ -360,7 +360,7 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 		if (hero.getAttributeValue(AttributeType.Astralenergie) == null) {
 			findViewById(R.id.attr_ae).setVisibility(View.GONE);
 			findViewById(R.id.attr_ae_label).setVisibility(View.GONE);
-		} else if (preferences.getBoolean(DsaPreferenceActivityHC.KEY_HEADER_AE, true)) {
+		} else if (preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_AE, true)) {
 			fillAttributeValue((TextView) findViewById(R.id.attr_ae), AttributeType.Astralenergie, null, true, true);
 			fillAttributeLabel((TextView) findViewById(R.id.attr_ae_label), AttributeType.Astralenergie);
 			findViewById(R.id.attr_ae).setVisibility(View.VISIBLE);

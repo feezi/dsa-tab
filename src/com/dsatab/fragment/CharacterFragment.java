@@ -278,7 +278,8 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 	private File saveBitmap(Bitmap pic) {
 		FileOutputStream fOut = null;
 		try {
-			String photoName = "photo" + getHero().getName();
+
+			String photoName = "photo" + Util.convertNonAscii(getHero().getName());
 			fOut = getActivity().openFileOutput(photoName, Activity.MODE_PRIVATE);
 			pic.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
 			fOut.flush();
@@ -339,22 +340,22 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 
 	@Override
 	public void onModifierAdded(Modificator value) {
-
+		updateValues();
 	}
 
 	@Override
 	public void onModifierRemoved(Modificator value) {
-
+		updateValues();
 	}
 
 	@Override
 	public void onModifierChanged(Modificator value) {
-
+		updateValues();
 	}
 
 	@Override
 	public void onModifiersChanged(List<Modificator> values) {
-
+		updateValues();
 	}
 
 	public void onValueChanged(Value value) {
@@ -451,7 +452,7 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 	@Override
 	public void onHeroLoaded(Hero hero) {
 
-		fillAttributesList(charAttributesList);
+		updateValues();
 
 		Util.setText(tfExperience, hero.getExperience(), null);
 		tfExperience.setTag(hero.getExperience());
@@ -463,12 +464,6 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 		fillAttributeValue((TextView) findViewById(R.id.attr_lp), AttributeType.Lebensenergie);
 		fillAttributeValue((TextView) findViewById(R.id.attr_mr), AttributeType.Magieresistenz);
 		fillAttributeValue((TextView) findViewById(R.id.attr_so), AttributeType.Sozialstatus);
-
-		fillAttributeValue((TextView) findViewById(R.id.attr_at), AttributeType.at, false);
-		fillAttributeValue((TextView) findViewById(R.id.attr_pa), AttributeType.pa, false);
-		fillAttributeValue((TextView) findViewById(R.id.attr_fk), AttributeType.fk, false);
-		fillAttributeValue((TextView) findViewById(R.id.attr_ini), AttributeType.ini, false);
-		fillAttributeValue((TextView) findViewById(R.id.attr_be), AttributeType.Behinderung);
 
 		fillAttributeLabel((TextView) findViewById(R.id.attr_at_label), AttributeType.at);
 		fillAttributeLabel((TextView) findViewById(R.id.attr_pa_label), AttributeType.pa);
@@ -495,8 +490,6 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 
 		Util.setText((TextView) findViewById(R.id.attr_st), hero.getLevel(), 0, null);
 
-		fillAttributeValue(tfGs, AttributeType.Geschwindigkeit);
-
 		int[] ws = hero.getWundschwelle();
 		tfWs.setText(ws[0] + "/" + ws[1] + "/" + ws[2]);
 
@@ -511,6 +504,18 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 		portrait.setOnClickListener(this);
 		updatePortrait(hero);
 
+	}
+
+	protected void updateValues() {
+		fillAttributesList(charAttributesList);
+
+		fillAttributeValue(tfGs, AttributeType.Geschwindigkeit);
+
+		fillAttributeValue((TextView) findViewById(R.id.attr_at), AttributeType.at, false);
+		fillAttributeValue((TextView) findViewById(R.id.attr_pa), AttributeType.pa, false);
+		fillAttributeValue((TextView) findViewById(R.id.attr_fk), AttributeType.fk, false);
+		fillAttributeValue((TextView) findViewById(R.id.attr_ini), AttributeType.ini, false);
+		fillAttributeValue((TextView) findViewById(R.id.attr_be), AttributeType.Behinderung);
 	}
 
 	protected void updateBaseInfo(boolean animate) {

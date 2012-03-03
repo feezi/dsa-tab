@@ -25,6 +25,7 @@ import android.preference.PreferenceScreen;
 
 import com.dsatab.DsaTabConfiguration;
 import com.dsatab.DsaTabConfiguration.ArmorType;
+import com.dsatab.DsaTabConfiguration.WoundType;
 import com.dsatab.R;
 
 public class DsaPreferenceActivity extends BasePreferenceActivity {
@@ -53,6 +54,20 @@ public class DsaPreferenceActivity extends BasePreferenceActivity {
 			List<String> armorValues = new LinkedList<String>();
 
 			for (ArmorType themeValue : DsaTabConfiguration.ArmorType.values()) {
+				armorNames.add(themeValue.title());
+				armorValues.add(themeValue.name());
+			}
+
+			listPreference.setEntries(armorNames.toArray(new String[0]));
+			listPreference.setEntryValues(armorValues.toArray(new String[0]));
+		}
+
+		listPreference = (ListPreference) findPreference(KEY_WOUND_TYPE);
+		if (listPreference != null) {
+			List<String> armorNames = new LinkedList<String>();
+			List<String> armorValues = new LinkedList<String>();
+
+			for (WoundType themeValue : DsaTabConfiguration.WoundType.values()) {
 				armorNames.add(themeValue.title());
 				armorValues.add(themeValue.name());
 			}

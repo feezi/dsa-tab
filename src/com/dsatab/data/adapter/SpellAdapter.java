@@ -32,6 +32,8 @@ import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Spell;
+import com.dsatab.data.Talent.Flags;
+import com.dsatab.data.filter.FilterableListFilter;
 import com.dsatab.view.ListFilterSettings;
 import com.gandulf.guilib.util.Debug;
 
@@ -58,13 +60,12 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 	 * @param textViewResourceId
 	 * @param objects
 	 */
-	public SpellAdapter(Context context, Hero hero, List<Spell> spells, boolean showFavorite, boolean showNormal,
-			boolean showUnused) {
+	public SpellAdapter(Context context, Hero hero, List<Spell> spells, ListFilterSettings settings) {
 		super(context, 0, 0, spells);
 
 		this.hero = hero;
 
-		this.filterSettings = new ListFilterSettings(showFavorite, showNormal, showUnused);
+		this.filterSettings = settings;
 		if (!filterSettings.isAllVisible())
 			filter(filterSettings);
 
@@ -158,7 +159,7 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 			if (spell.isHouseSpell()) {
 				holder.indicator.setVisibility(View.VISIBLE);
 				holder.indicator.setImageBitmap(indicatorHouse);
-			} else if (spell.isBegabung()) {
+			} else if (spell.hasFlag(Flags.Begabung) || spell.hasFlag(Flags.ÜbernatürlicheBegabung)) {
 				holder.indicator.setVisibility(View.VISIBLE);
 				holder.indicator.setImageBitmap(indicatorStar);
 			} else {

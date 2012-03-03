@@ -12,6 +12,7 @@ import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.Connection;
 import com.dsatab.data.enums.EventCategory;
+import com.dsatab.data.filter.ConnectionListFilter;
 
 public class ConnectionAdapter extends OpenArrayAdapter<Connection> {
 
@@ -19,12 +20,10 @@ public class ConnectionAdapter extends OpenArrayAdapter<Connection> {
 
 	public ConnectionAdapter(Context context, Connection[] objects) {
 		super(context, 0, objects);
-
 	}
 
 	public ConnectionAdapter(Context context, List<Connection> objects) {
 		super(context, 0, objects);
-
 	}
 
 	public void filter(String constraint, List<EventCategory> types) {

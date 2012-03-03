@@ -77,11 +77,8 @@ public interface Xml {
 
 	public static final String KEY_PARADE = "parade";
 	public static final String KEY_ATTACKE = "attacke";
-	public static final String KEY_CELL_X = "cellX";
-	public static final String KEY_CELL_Y = "cellY";
+	public static final String KEY_CELL_NUMBER = "cellNumber";
 	public static final String KEY_SCREEN = "screen";
-	public static final String KEY_SPAN_X = "spanX";
-	public static final String KEY_SPAN_Y = "spanY";
 
 	public static final String KEY_RUESTUNG = "Rüstung";
 	public static final String KEY_RUESTUNG_UE = "Ruestung";

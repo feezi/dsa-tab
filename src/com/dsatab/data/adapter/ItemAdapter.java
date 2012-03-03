@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.dsatab.R;
+import com.dsatab.data.filter.ItemListFilter;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.view.ItemListItem;
@@ -16,12 +17,16 @@ public class ItemAdapter extends OpenArrayAdapter<Item> {
 
 	private ItemListFilter filter;
 
+	private LayoutInflater inflater;
+
 	public ItemAdapter(Context context, Item[] objects) {
 		super(context, 0, objects);
+		inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	public ItemAdapter(Context context, List<Item> objects) {
 		super(context, 0, objects);
+		inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	public void filter(ItemType type, String category, String constraint) {
@@ -49,9 +54,6 @@ public class ItemAdapter extends OpenArrayAdapter<Item> {
 
 		ItemListItem view;
 		if (!(convertView instanceof ItemListItem)) {
-			// We need the layoutinflater to pick up the view from xml
-			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			// Pick up the TwoLineListItem defined in the xml file
 			view = (ItemListItem) inflater.inflate(R.layout.item_listitem, parent, false);
 		} else {
 			view = (ItemListItem) convertView;

@@ -98,7 +98,8 @@ public class ArtFragment extends BaseFragment implements OnItemClickListener, He
 
 		filterSettings = new ListFilterSettings(preferences.getBoolean(FilterDialog.PREF_KEY_ART_FAVORITE, true),
 				preferences.getBoolean(FilterDialog.PREF_KEY_ART_NORMAL, true), preferences.getBoolean(
-						FilterDialog.PREF_KEY_ART_UNUSED, false));
+						FilterDialog.PREF_KEY_ART_UNUSED, false), preferences.getBoolean(
+						FilterDialog.PREF_KEY_ART_MODIFIERS, true));
 
 		super.onActivityCreated(savedInstanceState);
 	}
@@ -347,7 +348,7 @@ public class ArtFragment extends BaseFragment implements OnItemClickListener, He
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 
-		if (item.getMenuInfo() instanceof AdapterContextMenuInfo) {
+		if (item.getGroupId() == R.id.group_art && item.getMenuInfo() instanceof AdapterContextMenuInfo) {
 			AdapterContextMenuInfo menuInfo = ((AdapterContextMenuInfo) item.getMenuInfo());
 			int position = menuInfo.position;
 
@@ -356,26 +357,34 @@ public class ArtFragment extends BaseFragment implements OnItemClickListener, He
 			switch (item.getItemId()) {
 			case R.id.option_mark_favorite_art: {
 				Art art = getArt(child, position);
-				art.setFavorite(true);
-				artAdapter.notifyDataSetChanged();
+				if (art != null) {
+					art.setFavorite(true);
+					artAdapter.notifyDataSetChanged();
+				}
 				return true;
 			}
 			case R.id.option_mark_unused_art: {
 				Art art = getArt(child, position);
-				art.setUnused(true);
-				artAdapter.notifyDataSetChanged();
+				if (art != null) {
+					art.setUnused(true);
+					artAdapter.notifyDataSetChanged();
+				}
 				return true;
 			}
 			case R.id.option_unmark_art: {
 				Art art = getArt(child, position);
-				art.setFavorite(false);
-				art.setUnused(false);
-				artAdapter.notifyDataSetChanged();
+				if (art != null) {
+					art.setFavorite(false);
+					art.setUnused(false);
+					artAdapter.notifyDataSetChanged();
+				}
 				return true;
 			}
 			case R.id.option_view_art: {
 				Art art = getArt(child, position);
-				showInfo(art);
+				if (art != null) {
+					showInfo(art);
+				}
 				return true;
 			}
 			}

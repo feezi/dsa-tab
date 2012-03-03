@@ -6,8 +6,11 @@ import org.jdom.Element;
 
 import android.text.TextUtils;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
+import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.common.Util;
+import com.dsatab.data.Dice;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.xml.Xml;
 
@@ -32,6 +35,7 @@ public class DistanceWeapon extends ItemSpecification {
 	}
 
 	public String getTp() {
+
 		return tp;
 	}
 
@@ -128,6 +132,44 @@ public class DistanceWeapon extends ItemSpecification {
 
 	public String getInfo() {
 		return getTp() + " " + getDistances() + " " + getTpDistances();
+	}
+
+	public CharSequence getInfo(int modifier) {
+
+		StyleableSpannableStringBuilder info = new StyleableSpannableStringBuilder();
+
+		if (modifier != 0) {
+			Dice dice = Dice.parseDice(tp);
+			if (dice != null) {
+
+				dice.constant += modifier;
+				if (modifier > 0) {
+					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen),
+							dice.toString());
+				} else {
+					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed),
+							dice.toString());
+				}
+			} else {
+				info.append(tp);
+				if (modifier > 0) {
+					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen),
+							Util.toProbe(modifier));
+				} else {
+					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed),
+							Util.toProbe(modifier));
+				}
+			}
+		} else {
+			info.append(tp);
+		}
+
+		info.append(" ");
+		info.append(getDistances());
+		info.append(" ");
+		info.append(getTpDistances());
+
+		return info;
 	}
 
 	/*

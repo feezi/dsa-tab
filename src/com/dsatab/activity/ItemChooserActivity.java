@@ -39,6 +39,10 @@ public class ItemChooserActivity extends BaseFragmentActivity implements OnItemC
 		setTheme(DSATabApplication.getInstance().getCustomTheme());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_item_chooser);
+
+		getSupportActionBar().setDisplayShowTitleEnabled(true);
+		getSupportActionBar().setDisplayShowHomeEnabled(true);
+		getSupportActionBar().setDisplayUseLogoEnabled(true);
 	}
 
 	/*
@@ -50,6 +54,7 @@ public class ItemChooserActivity extends BaseFragmentActivity implements OnItemC
 	@Override
 	public void onItemCanceled() {
 		setResult(Activity.RESULT_CANCELED);
+		finish();
 	}
 
 	/*
@@ -60,7 +65,7 @@ public class ItemChooserActivity extends BaseFragmentActivity implements OnItemC
 	 * (com.dsatab.data.items.Item)
 	 */
 	@Override
-	public void onItemSelected(Item item, int itemX, int itemY) {
+	public void onItemSelected(Item item, int cellNumber) {
 		Debug.verbose("Selected " + item.getName());
 		Intent intent = new Intent();
 		intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_TYPE, item.getSpecifications().get(0).getType().name());
@@ -68,8 +73,7 @@ public class ItemChooserActivity extends BaseFragmentActivity implements OnItemC
 		intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_ID, item.getId());
 		intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CATEGORY, item.getCategory());
 
-		intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_X, itemX);
-		intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_Y, itemY);
+		intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CELL, cellNumber);
 
 		setResult(Activity.RESULT_OK, intent);
 		finish();

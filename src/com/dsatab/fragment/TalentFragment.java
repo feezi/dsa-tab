@@ -174,10 +174,12 @@ public class TalentFragment extends BaseFragment implements HeroChangedListener 
 
 	private void loadHeroTalents(Hero hero2) {
 
-		talentAdapter = new ExpandableTalentAdapter(getActivity(), getHero(), preferences.getBoolean(
+		ListFilterSettings filterSettings = new ListFilterSettings(preferences.getBoolean(
 				FilterDialog.PREF_KEY_TALENT_FAVORITE, true), preferences.getBoolean(
 				FilterDialog.PREF_KEY_TALENT_NORMAL, true), preferences.getBoolean(FilterDialog.PREF_KEY_TALENT_UNUSED,
-				false));
+				false), preferences.getBoolean(FilterDialog.PREF_KEY_TALENT_MODIFIERS, true));
+
+		talentAdapter = new ExpandableTalentAdapter(getActivity(), getHero(), filterSettings);
 
 		talentAdapter.setProbeListener(getBaseActivity().getProbeListener());
 		talentAdapter.setEditListener(getBaseActivity().getEditListener());
@@ -285,7 +287,7 @@ public class TalentFragment extends BaseFragment implements HeroChangedListener 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 
-		if (item.getMenuInfo() instanceof ExpandableListContextMenuInfo) {
+		if (item.getGroupId() == R.id.group_talent && item.getMenuInfo() instanceof ExpandableListContextMenuInfo) {
 			ExpandableListContextMenuInfo menuInfo = ((ExpandableListContextMenuInfo) item.getMenuInfo());
 			long packedPosition = menuInfo.packedPosition;
 
@@ -298,26 +300,34 @@ public class TalentFragment extends BaseFragment implements HeroChangedListener 
 
 			case R.id.option_edit_talent: {
 				Talent talent = getTalent(child, group, position);
-				MainActivity.showEditPopup(getActivity(), talent);
+				if (talent != null) {
+					MainActivity.showEditPopup(getActivity(), talent);
+				}
 				return true;
 			}
 			case R.id.option_mark_favorite_talent: {
 				Talent talent = getTalent(child, group, position);
-				talent.setFavorite(true);
-				talentAdapter.notifyDataSetChanged();
+				if (talent != null) {
+					talent.setFavorite(true);
+					talentAdapter.notifyDataSetChanged();
+				}
 				return true;
 			}
 			case R.id.option_mark_unused_talent: {
 				Talent talent = getTalent(child, group, position);
-				talent.setUnused(true);
-				talentAdapter.notifyDataSetChanged();
+				if (talent != null) {
+					talent.setUnused(true);
+					talentAdapter.notifyDataSetChanged();
+				}
 				return true;
 			}
 			case R.id.option_unmark_talent: {
 				Talent talent = getTalent(child, group, position);
-				talent.setFavorite(false);
-				talent.setUnused(false);
-				talentAdapter.notifyDataSetChanged();
+				if (talent != null) {
+					talent.setFavorite(false);
+					talent.setUnused(false);
+					talentAdapter.notifyDataSetChanged();
+				}
 				return true;
 			}
 			}

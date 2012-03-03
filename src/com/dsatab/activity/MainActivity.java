@@ -26,33 +26,28 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.graphics.BitmapFactory;
-import android.graphics.Shader;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
+import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.AnalyticsManager;
 import com.dsatab.DSATabApplication;
 import com.dsatab.HeroConfiguration;
 import com.dsatab.R;
 import com.dsatab.TabInfo;
+import com.dsatab.activity.menu.TabListener;
 import com.dsatab.common.HeroExchange;
 import com.dsatab.common.Util;
 import com.dsatab.data.CombatMeleeTalent;
@@ -86,7 +81,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 	public static final int ACTION_PREFERENCES = 1000;
 	private static final int ACTION_EDIT_TAB = 1001;
-	private static final int ACTION_ADD_TAB = 1002;
 	public static final int ACTION_ADD_MODIFICATOR = 1003;
 	protected static final int ACTION_CHOOSE_HERO = 1004;
 	public static final int ACTION_EDIT_MODIFICATOR = 1005;
@@ -101,8 +95,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	private View diceSliderContainer;
 
 	private ShakeListener mShaker;
-
-	private LinearLayout tabLayout;
 
 	private RelativeLayout relMainLayout;
 
@@ -205,13 +197,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 	private TabPagerAdapter viewPagerAdapter;
 
-	/**
-	 * 
-	 */
-	public MainActivity() {
-		// fragments = new LinkedList<BaseFragment>();
-	}
-
 	public Hero getHero() {
 		return DSATabApplication.getInstance().getHero();
 	}
@@ -260,17 +245,19 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	}
 
 	public void showDiceSlider() {
-		diceSlider.setVisibility(View.VISIBLE);
-		// diceSlider.getHandle().startAnimation(AnimationUtils.makeInChildBottomAnimation(this));
-
+		if (diceSlider.getVisibility() != View.VISIBLE) {
+			diceSlider.setVisibility(View.VISIBLE);
+			diceSlider.getHandle().startAnimation(AnimationUtils.makeInChildBottomAnimation(this));
+		}
 	}
 
 	public void hideDiceSlider() {
 		if (diceSlider.isOpened())
 			diceSlider.close();
-		diceSlider.setVisibility(View.GONE);
-		// diceSlider.getHandle().startAnimation(AnimationUtils.loadAnimation(this,
-		// android.R.anim.fade_out));
+		if (diceSlider.getVisibility() != View.GONE) {
+			diceSlider.setVisibility(View.GONE);
+			diceSlider.getHandle().startAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_out));
+		}
 
 	}
 
@@ -307,15 +294,10 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	@Override
 	public void onPageSelected(int position) {
 
-		// for (BaseFragment fragment : getPageFragments()) {
-		// fragment.unloadHero(getHero());
-		// }
-
-		int count = tabLayout.getChildCount();
-
+		final int count = getHeroConfiguration().getTabs().size();
 		for (int i = 0; i < count; i++) {
-			ImageButton b = (ImageButton) tabLayout.getChildAt(i);
-			b.setSelected(i == position);
+			if (i == position)
+				getSupportActionBar().getTabAt(i).select();
 		}
 
 		tabInfo = getHeroConfiguration().getTab(position);
@@ -327,9 +309,10 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		else
 			hideDiceSlider();
 
-		// for (BaseFragment fragment : getPageFragments()) {
-		// fragment.loadHero(getHero());
-		// }
+		for (BaseFragment fragment : getPageFragments()) {
+			fragment.onShown();
+			fragment.setMenuVisibility(isOnScreen(fragment));
+		}
 	}
 
 	private void loadHero() {
@@ -356,9 +339,11 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 		DSATabApplication.getInstance().hero = hero;
 
-		Toast.makeText(this, getString(R.string.hero_loaded, hero.getName()), Toast.LENGTH_SHORT).show();
-
+		if (hero != null) {
+			Toast.makeText(this, getString(R.string.hero_loaded, hero.getName()), Toast.LENGTH_SHORT).show();
+		}
 		onHeroLoaded(hero);
+
 	}
 
 	public void onLoaderReset(Loader<Hero> loader) {
@@ -374,65 +359,78 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	 * @see android.app.Activity#onActivityResult(int, int,
 	 * android.content.Intent)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 		if (requestCode == ACTION_EDIT_TAB && resultCode == RESULT_OK) {
-			int icon = data.getIntExtra(TabEditActivity.INTENT_ICON, 0);
-			Class<? extends BaseFragment> class1 = (Class<? extends BaseFragment>) data
-					.getSerializableExtra(TabEditActivity.INTENT_PRIMARY_CLASS);
-			Class<? extends BaseFragment> class2 = (Class<? extends BaseFragment>) data
-					.getSerializableExtra(TabEditActivity.INTENT_SECONDARY_CLASS);
+			setupTabs();
+		}
 
-			int tabIndex = data.getIntExtra(TabEditActivity.INTENT_TAB_INDEX, -1);
+		// int icon = data.getIntExtra(TabEditActivity.INTENT_ICON, 0);
+		// Class<? extends BaseFragment> class1 = (Class<? extends
+		// BaseFragment>) data
+		// .getSerializableExtra(TabEditActivity.INTENT_PRIMARY_CLASS);
+		// Class<? extends BaseFragment> class2 = (Class<? extends
+		// BaseFragment>) data
+		// .getSerializableExtra(TabEditActivity.INTENT_SECONDARY_CLASS);
+		//
+		// int tabIndex = data.getIntExtra(TabEditActivity.INTENT_TAB_INDEX,
+		// -1);
+		//
+		// Debug.verbose("Edit tab with index " + tabIndex);
+		//
+		// if (tabIndex >= 0 && tabIndex <
+		// getHeroConfiguration().getTabs().size()) {
+		// TabInfo info = getHeroConfiguration().getTabs().get(tabIndex);
+		//
+		// ImageButton selectedTab = (ImageButton)
+		// tabLayout.findViewWithTag(info);
+		// info.setTabResourceId(icon);
+		// info.setPrimaryActivityClazz(class1);
+		// info.setSecondaryActivityClazz(class2);
+		// info.setDiceSlider(data.getBooleanExtra(TabEditActivity.INTENT_DICE_SLIDER,
+		// true));
+		//
+		// selectedTab.setImageResource(icon);
+		//
+		// // update view if current tab was changed
+		// if (info == tabInfo) {
+		// showTab(tabInfo);
+		// }
+		// selectedTab = null;
+		//
+		// viewPagerAdapter.notifyDataSetChanged();
+		// }
+		//
+		// } else if (requestCode == ACTION_ADD_TAB && resultCode == RESULT_OK)
+		// {
+		//
+		// int icon = data.getIntExtra(TabEditActivity.INTENT_ICON, 0);
+		// Class<? extends BaseFragment> class1 = (Class<? extends
+		// BaseFragment>) data
+		// .getSerializableExtra(TabEditActivity.INTENT_PRIMARY_CLASS);
+		// Class<? extends BaseFragment> class2 = (Class<? extends
+		// BaseFragment>) data
+		// .getSerializableExtra(TabEditActivity.INTENT_SECONDARY_CLASS);
+		// int index = data.getIntExtra(TabEditActivity.INTENT_TAB_INDEX, -1);
+		//
+		// TabInfo newInfo = new TabInfo(class1, class2, icon);
+		// newInfo.setDiceSlider(data.getBooleanExtra(TabEditActivity.INTENT_DICE_SLIDER,
+		// true));
+		// LayoutInflater inflater = LayoutInflater.from(this);
+		// View tab = createTab(inflater, newInfo);
+		// tab.setEnabled(true);
+		// if (index >= 0) {
+		// tabLayout.addView(tab, index);
+		// getHeroConfiguration().getTabs().add(index, newInfo);
+		// } else {
+		// tabLayout.addView(tab);
+		// getHeroConfiguration().getTabs().add(newInfo);
+		// }
+		// viewPagerAdapter.notifyDataSetChanged();
 
-			Debug.verbose("Edit tab with index " + tabIndex);
-
-			if (tabIndex >= 0 && tabIndex < getHeroConfiguration().getTabs().size()) {
-				TabInfo info = getHeroConfiguration().getTabs().get(tabIndex);
-
-				ImageButton selectedTab = (ImageButton) tabLayout.findViewWithTag(info);
-				info.setTabResourceId(icon);
-				info.setPrimaryActivityClazz(class1);
-				info.setSecondaryActivityClazz(class2);
-				info.setDiceSlider(data.getBooleanExtra(TabEditActivity.INTENT_DICE_SLIDER, true));
-
-				selectedTab.setImageResource(icon);
-
-				// update view if current tab was changed
-				if (info == tabInfo) {
-					showTab(tabInfo);
-				}
-				selectedTab = null;
-
-				viewPagerAdapter.notifyDataSetChanged();
-			}
-
-		} else if (requestCode == ACTION_ADD_TAB && resultCode == RESULT_OK) {
-
-			int icon = data.getIntExtra(TabEditActivity.INTENT_ICON, 0);
-			Class<? extends BaseFragment> class1 = (Class<? extends BaseFragment>) data
-					.getSerializableExtra(TabEditActivity.INTENT_PRIMARY_CLASS);
-			Class<? extends BaseFragment> class2 = (Class<? extends BaseFragment>) data
-					.getSerializableExtra(TabEditActivity.INTENT_SECONDARY_CLASS);
-			int index = data.getIntExtra(TabEditActivity.INTENT_TAB_INDEX, -1);
-
-			TabInfo newInfo = new TabInfo(class1, class2, icon);
-			newInfo.setDiceSlider(data.getBooleanExtra(TabEditActivity.INTENT_DICE_SLIDER, true));
-			LayoutInflater inflater = LayoutInflater.from(this);
-			View tab = createTab(inflater, newInfo);
-			tab.setEnabled(true);
-			if (index >= 0) {
-				tabLayout.addView(tab, index);
-				getHeroConfiguration().getTabs().add(index, newInfo);
-			} else {
-				tabLayout.addView(tab);
-				getHeroConfiguration().getTabs().add(newInfo);
-			}
-			viewPagerAdapter.notifyDataSetChanged();
-
-		} else if (requestCode == ACTION_CHOOSE_HERO) {
+		// } else
+		if (requestCode == ACTION_CHOOSE_HERO) {
 
 			if (resultCode == RESULT_OK) {
 				String heroPath = data.getStringExtra(HeroChooserActivity.INTENT_NAME_HERO_PATH);
@@ -447,7 +445,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 			SharedPreferences preferences = DSATabApplication.getPreferences();
 
-			if (preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_SHAKE_ROLL_DICE, false)) {
+			if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_SHAKE_ROLL_DICE, false)) {
 				registerShakeDice();
 			} else {
 				unregisterShakeDice();
@@ -483,32 +481,18 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 		setContentView(R.layout.main_tab_view);
 
+		getSupportActionBar().setDisplayShowHomeEnabled(false);
+		getSupportActionBar().setDisplayShowTitleEnabled(false);
+		getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
 		relMainLayout = (RelativeLayout) findViewById(R.id.gen_main_layout);
-
-		Configuration configuration = getResources().getConfiguration();
-
-		if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			BitmapDrawable TileMe = new BitmapDrawable(BitmapFactory.decodeResource(getResources(),
-					R.drawable.bg_tab_land));
-			TileMe.setTileModeX(Shader.TileMode.MIRROR);
-			TileMe.setTileModeY(Shader.TileMode.MIRROR);
-
-			findViewById(R.id.inc_tabs).setBackgroundDrawable(TileMe);
-		} else {
-			BitmapDrawable TileMe = new BitmapDrawable(BitmapFactory.decodeResource(getResources(),
-					R.drawable.bg_tab_nonland));
-			TileMe.setTileModeX(Shader.TileMode.MIRROR);
-			TileMe.setTileModeY(Shader.TileMode.MIRROR);
-
-			findViewById(R.id.inc_tabs).setBackgroundDrawable(TileMe);
-		}
-		// overridePendingTransition(android.R.anim.fade_in,
-		// android.R.anim.fade_out);
 
 		preferences = DSATabApplication.getPreferences();
 
-		String orientation = preferences.getString(DsaPreferenceActivityHC.KEY_SCREEN_ORIENTATION,
+		String orientation = preferences.getString(BasePreferenceActivity.KEY_SCREEN_ORIENTATION,
 				DsaPreferenceActivity.DEFAULT_SCREEN_ORIENTATION);
+
+		Configuration configuration = getResources().getConfiguration();
 
 		if (DsaPreferenceActivity.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)
 				&& configuration.orientation != Configuration.ORIENTATION_LANDSCAPE) {
@@ -537,8 +521,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		viewPagerAdapter = new TabPagerAdapter(this, getSupportFragmentManager(), getHeroConfiguration());
 		viewPager.setAdapter(viewPagerAdapter);
 
-		tabLayout = (LinearLayout) findViewById(R.id.gen_tab_layout);
-
 		if (savedInstanceState != null) {
 			tabInfo = savedInstanceState.getParcelable(KEY_TAB_INFO);
 		}
@@ -549,18 +531,40 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 		setupDiceSilder();
 		tabInfo = refreshTabInfo();
-		setupTabs();
 
-		if (savedInstanceState == null) {
-			Debug.verbose("New instance setup tabs");
-			showTab(tabInfo);
-		} else {
-			Debug.verbose("Old instance keep tabs");
-			showTab(tabInfo);
-		}
-
-		if (!showNewsInfoPopup())
+		if (!showNewsInfoPopup()) {
 			showTipPopup();
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void setupTabs() {
+
+		if (viewPagerAdapter == null) {
+			viewPagerAdapter = new TabPagerAdapter(this, getSupportFragmentManager(), getHeroConfiguration());
+			viewPager.setAdapter(viewPagerAdapter);
+		} else {
+			viewPagerAdapter.setConfiguration(getHeroConfiguration());
+		}
+		viewPager.setOnPageChangeListener(this);
+
+		ActionBar bar = getSupportActionBar();
+
+		List<TabInfo> tabs = getHeroConfiguration().getTabs();
+		int tabCount = tabs.size();
+
+		bar.removeAllTabs();
+
+		for (int i = 0; i < tabCount; i++) {
+			TabInfo tabInfo = tabs.get(i);
+			bar.addTab(bar.newTab().setIcon(tabInfo.getTabResourceId()).setTabListener(new TabListener(this, i)));
+
+			if (tabInfo == this.tabInfo)
+				bar.getTabAt(i).select();
+
+		}
 
 	}
 
@@ -599,72 +603,12 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 	}
 
-	private void updateTab(ImageButton tabButton, TabInfo tabInfo) {
-		tabButton.setOnClickListener(this);
-		tabButton.setTag(tabInfo);
-		tabButton.setImageResource(tabInfo.getTabResourceId());
-		registerForIconContextMenu(tabButton);
-	}
-
-	private ImageButton createTab(LayoutInflater inflater, TabInfo tabInfo) {
-		ImageButton tabButton = (ImageButton) inflater.inflate(R.layout.hero_tab, tabLayout, false);
-		updateTab(tabButton, tabInfo);
-		return tabButton;
-	}
-
 	private HeroConfiguration getHeroConfiguration() {
 		HeroConfiguration tabConfig = null;
 		if (getHero() != null) {
 			tabConfig = getHero().getHeroConfiguration();
 		}
-
 		return tabConfig;
-	}
-
-	/**
-	 * 
-	 */
-	private void setupTabs() {
-
-		if (getHeroConfiguration() == null) {
-			tabLayout.removeAllViews();
-			return;
-		}
-
-		if (viewPagerAdapter == null) {
-			viewPagerAdapter = new TabPagerAdapter(this, getSupportFragmentManager(), getHeroConfiguration());
-			viewPager.setAdapter(viewPagerAdapter);
-		} else {
-			viewPagerAdapter.setConfiguration(getHeroConfiguration());
-		}
-		viewPager.setOnPageChangeListener(this);
-
-		LayoutInflater inflater = LayoutInflater.from(this);
-
-		List<TabInfo> tabs = getHeroConfiguration().getTabs();
-		int tabCount = tabs.size();
-
-		for (int i = 0; i < tabCount; i++) {
-			ImageButton tabButton = (ImageButton) tabLayout.getChildAt(i);
-			TabInfo tabInfo = tabs.get(i);
-
-			if (tabButton != null) {
-				updateTab(tabButton, tabInfo);
-			} else {
-				tabButton = createTab(inflater, tabInfo);
-				tabLayout.addView(tabButton, i);
-			}
-			tabButton.setEnabled(getHero() != null);
-			tabButton.setSelected(tabInfo == this.tabInfo);
-		}
-
-		// remove tabs if there are too much
-		for (int i = tabLayout.getChildCount() - 1; i >= tabCount; i--) {
-			tabLayout.removeViewAt(i);
-		}
-
-		return;
-
 	}
 
 	protected void setupDiceSilder() {
@@ -774,7 +718,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		return tabs.get(0);
 	}
 
-	protected boolean showTab(int index) {
+	public boolean showTab(int index) {
 
 		if (index >= 0 && index < getHeroConfiguration().getTabs().size()) {
 			viewPager.setCurrentItem(index, false);
@@ -786,7 +730,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 	protected boolean showTab(TabInfo newTabInfo) {
 
-		if (newTabInfo != null) {
+		if (newTabInfo != null && getHeroConfiguration() != null) {
 			viewPager.setCurrentItem(getHeroConfiguration().getTabs().indexOf(newTabInfo));
 			return true;
 		} else {
@@ -801,7 +745,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 			// no need to reselect the current tab
 			if (this.tabInfo != tabInfo) {
-				showTab(tabLayout.indexOfChild(v));
+				showTab(tabInfo);
 			}
 		}
 	}
@@ -821,21 +765,14 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		}
 	}
 
-	private void setTabsEnabled(boolean enabled) {
-		int count = tabLayout.getChildCount();
-		for (int i = 0; i < count; i++) {
-			tabLayout.getChildAt(i).setEnabled(enabled);
-		}
-	}
-
 	protected void onHeroLoaded(Hero hero) {
 
 		if (hero == null) {
 			Toast.makeText(this, "Error: Trying to load empty hero. Please contact developer!", Toast.LENGTH_LONG);
-			setTabsEnabled(false);
+			// tabBarHelper.setNavigationTabsEnabled(false);
 			return;
 		} else {
-			setTabsEnabled(true);
+			// tabBarHelper.setNavigationTabsEnabled(true);
 		}
 
 		TabInfo oldInfo = tabInfo;
@@ -989,101 +926,27 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
+
+		getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
 		loadHero();
-	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.activity.BaseFragmentActivity#onCreateIconContextMenu(android
-	 * .view.Menu, android.view.View, android.view.ContextMenu.ContextMenuInfo)
-	 */
-	@Override
-	public Object onCreateIconContextMenu(Menu menu, View v, ContextMenuInfo menuInfo) {
-		Object info = super.onCreateIconContextMenu(menu, v, menuInfo);
+		// setupTabs();
 
-		if (v.getTag() instanceof TabInfo) {
-			getMenuInflater().inflate(R.menu.tab_menu, menu);
-			return v;
-		}
-
-		return info;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.activity.BaseFragmentActivity#onIconContextItemSelected(android
-	 * .view.MenuItem, java.lang.Object)
-	 */
-	@Override
-	public void onIconContextItemSelected(MenuItem item, Object info) {
-
-		switch (item.getItemId()) {
-		case R.id.option_add: {
-			ImageButton selectedTab = (ImageButton) info;
-			Intent intent = new Intent(this, TabEditActivity.class);
-			intent.putExtra(TabEditActivity.INTENT_TAB_INDEX, tabLayout.indexOfChild(selectedTab));
-			startActivityForResult(intent, ACTION_ADD_TAB);
-			break;
-		}
-		case R.id.option_delete: {
-			ImageButton selectedTab = (ImageButton) info;
-			if (selectedTab != null) {
-				tabLayout.removeView(selectedTab);
-				TabInfo selectedInfo = (TabInfo) selectedTab.getTag();
-				getHeroConfiguration().getTabs().remove(selectedInfo);
-
-				viewPagerAdapter.notifyDataSetChanged();
-			}
-			break;
-		}
-		case R.id.option_edit: {
-			ImageButton selectedTab = (ImageButton) info;
-			if (selectedTab != null) {
-
-				TabInfo selectedInfo = (TabInfo) selectedTab.getTag();
-				Intent intent = new Intent(this, TabEditActivity.class);
-				intent.putExtra(TabEditActivity.INTENT_ICON, selectedInfo.getTabResourceId());
-				intent.putExtra(TabEditActivity.INTENT_PRIMARY_CLASS, selectedInfo.getPrimaryActivityClazz());
-				intent.putExtra(TabEditActivity.INTENT_SECONDARY_CLASS, selectedInfo.getSecondaryActivityClazz());
-				intent.putExtra(TabEditActivity.INTENT_TAB_INDEX, getHeroConfiguration().getTabs()
-						.indexOf(selectedInfo));
-
-				startActivityForResult(intent, ACTION_EDIT_TAB);
-			}
-			break;
-
-		}
-		case R.id.option_tab_reset: {
-			getHeroConfiguration().reset();
-			setupTabs();
-			break;
-		}
+		if (savedInstanceState == null) {
+			Debug.verbose("New instance setup tabs");
+			showTab(tabInfo);
+		} else {
+			Debug.verbose("Old instance keep tabs");
+			showTab(tabInfo);
 		}
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.main_menu, menu);
+		com.actionbarsherlock.view.MenuInflater menuInflater = new com.actionbarsherlock.view.MenuInflater(this);
+		menuInflater.inflate(R.menu.main_menu, menu);
 		return true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
-	 */
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-
-		Hero hero = getHero();
-		menu.findItem(R.id.option_save_hero).setEnabled(hero != null);
-
-		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
@@ -1097,11 +960,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 			DSATabApplication.getInstance().saveHero();
 			return true;
 		case R.id.option_settings:
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-				startActivityForResult(new Intent(this, DsaPreferenceActivity.class), ACTION_PREFERENCES);
-			} else {
-				startActivityForResult(new Intent(this, DsaPreferenceActivityHC.class), ACTION_PREFERENCES);
-			}
+			BasePreferenceActivity.startPreferenceActivity(this);
 			return true;
 		case R.id.option_export_hero: {
 			HeroExchange exchange = new HeroExchange(this);
@@ -1118,22 +977,25 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 					ListFilterSettings talentSettings = new ListFilterSettings(pref.getBoolean(
 							FilterDialog.PREF_KEY_TALENT_FAVORITE, true), pref.getBoolean(
 							FilterDialog.PREF_KEY_TALENT_NORMAL, true), pref.getBoolean(
-							FilterDialog.PREF_KEY_TALENT_UNUSED, false));
+							FilterDialog.PREF_KEY_TALENT_UNUSED, false), pref.getBoolean(
+							FilterDialog.PREF_KEY_TALENT_MODIFIERS, true));
 
 					ListFilterSettings spellSettings = new ListFilterSettings(pref.getBoolean(
 							FilterDialog.PREF_KEY_SPELL_FAVORITE, true), pref.getBoolean(
 							FilterDialog.PREF_KEY_SPELL_NORMAL, true), pref.getBoolean(
-							FilterDialog.PREF_KEY_SPELL_UNUSED, false));
+							FilterDialog.PREF_KEY_SPELL_UNUSED, false), pref.getBoolean(
+							FilterDialog.PREF_KEY_SPELL_MODIFIERS, true));
 
 					ListFilterSettings artSettings = new ListFilterSettings(pref.getBoolean(
 							FilterDialog.PREF_KEY_ART_FAVORITE, true), pref.getBoolean(
 							FilterDialog.PREF_KEY_ART_NORMAL, true), pref.getBoolean(FilterDialog.PREF_KEY_ART_UNUSED,
-							false));
+							false), pref.getBoolean(FilterDialog.PREF_KEY_ART_MODIFIERS, true));
 
 					FightFilterSettings fightSettings = new FightFilterSettings(pref.getBoolean(
 							FilterDialog.PREF_KEY_SHOW_ARMOR, true), pref.getBoolean(
 							FilterDialog.PREF_KEY_SHOW_MODIFIER, true), pref.getBoolean(
-							FilterDialog.PREF_KEY_SHOW_EVADE, false));
+							FilterDialog.PREF_KEY_SHOW_EVADE, false), pref.getBoolean(
+							FilterDialog.PREF_KEY_INCLUDE_MODIFIER, true));
 
 					FragmentManager fragmentManager = getSupportFragmentManager();
 					for (int i = 0; i < tabInfo.getTabCount(); i++) {
@@ -1151,6 +1013,10 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 			});
 
 			dialog.show();
+			return true;
+
+		case R.id.option_edit_tabs:
+			startActivityForResult(new Intent(this, TabEditActivity.class), ACTION_EDIT_TAB);
 			return true;
 		}
 

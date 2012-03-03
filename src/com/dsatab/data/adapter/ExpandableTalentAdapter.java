@@ -23,6 +23,7 @@ import com.dsatab.data.CombatDistanceTalent;
 import com.dsatab.data.CombatMeleeTalent;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Talent;
+import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.TalentGroup;
 import com.dsatab.data.TalentGroup.TalentGroupType;
 import com.dsatab.view.ListFilterSettings;
@@ -47,10 +48,9 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 
 	private LayoutInflater inflater;
 
-	public ExpandableTalentAdapter(Context context, Hero hero, boolean showFavorite, boolean showNormal,
-			boolean showUnused) {
+	public ExpandableTalentAdapter(Context context, Hero hero, ListFilterSettings settings) {
 		this.hero = hero;
-		this.filterSettings = new ListFilterSettings(showFavorite, showNormal, showUnused);
+		this.filterSettings = settings;
 
 		groups = new ArrayList<TalentGroupType>(Arrays.asList(TalentGroupType.values()));
 		groups.retainAll(hero.getTalentGroups().keySet());
@@ -89,7 +89,7 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 
 		List<Talent> talents = getTalents(groupType);
 
-		if (talents != null)
+		if (talents != null && childPosition < talents.size() && childPosition >= 0)
 			return talents.get(childPosition);
 		else
 			return null;
@@ -209,8 +209,10 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 			CombatMeleeTalent meleeTalent = (CombatMeleeTalent) talent;
 
 			if (meleeTalent.getAttack() != null || meleeTalent.getAttack().getValue() != null) {
-				int modifier = hero.getModifier(meleeTalent.getAttack());
-
+				int modifier = 0;
+				if (filterSettings.isIncludeModifiers()) {
+					modifier = hero.getModifier(meleeTalent.getAttack());
+				}
 				Util.setText(holder.text4, meleeTalent.getAttack().getValue(), modifier, null);
 				holder.text4.setOnClickListener(probeListener);
 				holder.text4.setOnLongClickListener(editListener);
@@ -222,8 +224,10 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 			}
 
 			if (meleeTalent.getDefense() != null && meleeTalent.getDefense().getValue() != null) {
-				int modifier = hero.getModifier(meleeTalent.getDefense());
-
+				int modifier = 0;
+				if (filterSettings.isIncludeModifiers()) {
+					modifier = hero.getModifier(meleeTalent.getDefense());
+				}
 				Util.setText(holder.text5, meleeTalent.getDefense().getValue(), modifier, null);
 				holder.text5.setOnClickListener(probeListener);
 				holder.text5.setOnLongClickListener(editListener);
@@ -239,8 +243,11 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 			CombatDistanceTalent distanceTalent = (CombatDistanceTalent) talent;
 
 			if (distanceTalent.getValue() != null) {
-				int modifier = hero.getModifier(distanceTalent);
+				int modifier = 0;
 
+				if (filterSettings.isIncludeModifiers()) {
+					modifier = hero.getModifier(distanceTalent);
+				}
 				Util.setText(holder.text4, distanceTalent.getValue(), modifier, null);
 				holder.text4.setOnClickListener(null);
 				holder.text4.setClickable(false);
@@ -250,7 +257,10 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 			}
 			Util.setVisibility(holder.text5, false, holder.text1);
 		} else {
-			int modifier = hero.getModifier(talent);
+			int modifier = 0;
+			if (filterSettings.isIncludeModifiers()) {
+				modifier = hero.getModifier(talent);
+			}
 			Util.setText(holder.text4, talent.getValue(), modifier, null);
 			holder.text4.setOnClickListener(null);
 			holder.text4.setClickable(false); // hide text5 and expand text1
@@ -260,7 +270,8 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 
 		if (holder.indicator != null) {
 
-			if (talent.isBegabung() || talent.isTalentschub()) {
+			if (talent.hasFlag(Flags.Begabung) || talent.hasFlag(Flags.Talentschub)
+					|| talent.hasFlag(Flags.Meisterhandwerk)) {
 				holder.indicator.setVisibility(View.VISIBLE);
 				holder.indicator.setImageResource(R.drawable.indicator_star);
 			} else if (!TextUtils.isEmpty(talent.getTalentSpezialisierung())) {
@@ -311,7 +322,7 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 
 			holder.text1.setText(groupType.name());
 
-			if (holder.indicator != null && talentGroup.isBegabung()) {
+			if (holder.indicator != null && talentGroup.hasFlag(Flags.Begabung)) {
 				holder.indicator.setVisibility(View.VISIBLE);
 				holder.indicator.setImageResource(R.drawable.indicator_star);
 			}

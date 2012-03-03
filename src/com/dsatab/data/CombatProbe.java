@@ -18,23 +18,11 @@ public class CombatProbe extends BaseProbe {
 	protected CombatTalentType type = null;
 
 	public CombatProbe(Hero hero, EquippedItem item, boolean attack) {
-		this(hero, item.getTalent(), attack);
 		this.equippedItem = item;
-
-		if (combatTalent instanceof CombatShieldTalent && equippedItem.getSecondaryItem() != null) {
-			// shields and paradeweapons use the BE from their main weapon
-			type = equippedItem.getSecondaryItem().getTalent().getCombatTalentType();
-
-			if (type != null) {
-				probeInfo.applyBePattern(type.getBe());
-			}
-		}
-	}
-
-	public CombatProbe(Hero hero, CombatTalent talent, boolean attack) {
 		this.attack = attack;
 		this.hero = hero;
-		this.combatTalent = talent;
+
+		this.combatTalent = item.getTalent();
 
 		if (combatTalent != null) {
 			if (this.attack)
@@ -50,6 +38,15 @@ public class CombatProbe extends BaseProbe {
 		// not used in case of a attack
 		if (probe instanceof CombatDistanceTalent) {
 			this.probeInfo.setAttributeTypes(null);
+		}
+
+		if (combatTalent instanceof CombatShieldTalent && equippedItem.getSecondaryItem() != null) {
+			// shields and paradeweapons use the BE from their main weapon
+			type = equippedItem.getSecondaryItem().getTalent().getCombatTalentType();
+
+			if (type != null) {
+				probeInfo.applyBePattern(type.getBe());
+			}
 		}
 	}
 

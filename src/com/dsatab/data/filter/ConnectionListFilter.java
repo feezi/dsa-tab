@@ -14,12 +14,14 @@
  *  You should have received a copy of the GNU General Public License
  *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.dsatab.data.adapter;
+package com.dsatab.data.filter;
 
 import java.util.Arrays;
 import java.util.List;
 
 import com.dsatab.data.Connection;
+import com.dsatab.data.adapter.OpenArrayAdapter;
+import com.dsatab.data.adapter.OpenFilter;
 import com.dsatab.data.enums.EventCategory;
 
 /**
@@ -56,7 +58,7 @@ public class ConnectionListFilter extends OpenFilter<Connection> {
 		return constraint != null || (types != null && !types.isEmpty());
 	}
 
-	protected boolean filter(Connection m) {
+	public boolean filter(Connection m) {
 		boolean valid = true;
 		if (types != null) {
 			boolean found = false;

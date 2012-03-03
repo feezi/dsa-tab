@@ -142,9 +142,12 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 
 	private void loadHeroSpells(Hero hero2) {
 
-		spellAdapter = new SpellAdapter(getBaseActivity(), getHero(), getHero().getSpells(), preferences.getBoolean(
+		ListFilterSettings filterSettings = new ListFilterSettings(preferences.getBoolean(
 				FilterDialog.PREF_KEY_SPELL_FAVORITE, true), preferences.getBoolean(FilterDialog.PREF_KEY_SPELL_NORMAL,
-				true), preferences.getBoolean(FilterDialog.PREF_KEY_SPELL_UNUSED, false));
+				true), preferences.getBoolean(FilterDialog.PREF_KEY_SPELL_UNUSED, false), preferences.getBoolean(
+				FilterDialog.PREF_KEY_SPELL_MODIFIERS, true));
+
+		spellAdapter = new SpellAdapter(getBaseActivity(), getHero(), getHero().getSpells(), filterSettings);
 
 		spellList.setAdapter(spellAdapter);
 	}
@@ -184,7 +187,7 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 
-		if (item.getMenuInfo() instanceof AdapterContextMenuInfo) {
+		if (item.getGroupId() == R.id.group_spell && item.getMenuInfo() instanceof AdapterContextMenuInfo) {
 			AdapterContextMenuInfo menuInfo = ((AdapterContextMenuInfo) item.getMenuInfo());
 			int position = menuInfo.position;
 

@@ -37,12 +37,12 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.util.AndroidRuntimeException;
 import android.widget.Toast;
 
 import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.activity.BasePreferenceActivity;
-import com.dsatab.activity.DsaPreferenceActivityHC;
+import com.dsatab.common.DsaTabRuntimeException;
+import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.HeroFileInfo;
 import com.dsatab.map.BitmapTileSource;
@@ -61,7 +61,8 @@ public class DSATabApplication extends Application implements OnSharedPreference
 
 	public static final String BUGSENSE_APP_ID = "4b4062da";
 
-	public static final String SD_CARD_PATH_PREFIX = "/sdcard/";
+	public static final String SD_CARD_PATH_PREFIX = Environment.getExternalStorageDirectory().getAbsolutePath()
+			+ File.separator;
 
 	public static final String DEFAULT_SD_CARD = "dsatab/";
 
@@ -84,6 +85,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	public static final String THEME_PAPER = "paper";
 	public static final String THEME_ABSTRACT = "abstract";
 	public static final String THEME_MAP = "map";
+	public static final String THEME_DARK = "dark";
 	public static final String THEME_DEFAULT = THEME_PAPER;
 
 	// instance
@@ -93,6 +95,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	 * Cache for corrected path
 	 */
 	private static String path;
+	private static File baseDir;
 
 	public Hero hero = null;
 
@@ -109,12 +112,18 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	}
 
 	public boolean isLiteVersion() {
-		return !getPreferences().getBoolean(DsaPreferenceActivityHC.KEY_FULL_VERSION, false);
+		return !getPreferences().getBoolean(BasePreferenceActivity.KEY_FULL_VERSION, false);
+	}
+
+	protected static File getBaseDirectory() {
+		if (baseDir == null)
+			baseDir = new File(Environment.getExternalStorageDirectory(), getRelativeDsaTabPath());
+		return baseDir;
 	}
 
 	public static File getDirectory(String name) {
-		File mapfile = new File(Environment.getExternalStoragePublicDirectory(getRelativeDsaTabPath()), name);
-		return mapfile;
+		File dirFile = new File(getBaseDirectory(), name);
+		return dirFile;
 	}
 
 	private void disableConnectionReuseIfNecessary() {
@@ -133,21 +142,22 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key.equals(DsaPreferenceActivityHC.KEY_SETUP_SDCARD_PATH)) {
+		if (key.equals(BasePreferenceActivity.KEY_SETUP_SDCARD_PATH)) {
 			path = null;
-			checkDirectories(getDsaTabPath());
+			baseDir = null;
+			checkDirectories();
 		}
 
 	}
 
 	public static String getRelativeDsaTabPath() {
-		String path = getDsaTabPath().replace(SD_CARD_PATH_PREFIX, "");
+		String path = getDsaTabPath().substring(SD_CARD_PATH_PREFIX.length());
 		return path;
 	}
 
 	public static String getDsaTabPath() {
 		if (path == null) {
-			path = getPreferences().getString(DsaPreferenceActivityHC.KEY_SETUP_SDCARD_PATH, DEFAULT_SD_CARD);
+			path = getPreferences().getString(BasePreferenceActivity.KEY_SETUP_SDCARD_PATH, DEFAULT_SD_CARD);
 
 			if (!path.endsWith("/"))
 				path += "/";
@@ -163,30 +173,34 @@ public class DSATabApplication extends Application implements OnSharedPreference
 		return path;
 	}
 
-	private static void checkDirectories(String path) {
+	private static void checkDirectories() {
 
 		Debug.verbose("Checking path " + path + " for subdirs");
-		File base = new File(path);
+		File base = getBaseDirectory();
 		if (!base.exists())
 			base.mkdirs();
 
-		File recordingsDir = new File(base, DIR_RECORDINGS);
+		File recordingsDir = getDirectory(DIR_RECORDINGS);
 		if (!recordingsDir.exists())
 			recordingsDir.mkdirs();
 
-		File mapsDir = new File(base, DIR_MAPS);
+		File mapsDir = getDirectory(DIR_MAPS);
 		if (!mapsDir.exists())
 			mapsDir.mkdirs();
 
-		File cardsDir = new File(base, DIR_CARDS);
+		File osmmapsDir = getDirectory(DIR_OSM_MAPS);
+		if (!osmmapsDir.exists())
+			osmmapsDir.mkdirs();
+
+		File cardsDir = getDirectory(DIR_CARDS);
 		if (!cardsDir.exists())
 			cardsDir.mkdirs();
 
-		File portraitsDir = new File(base, DIR_PORTRAITS);
+		File portraitsDir = getDirectory(DIR_PORTRAITS);
 		if (!portraitsDir.exists())
 			portraitsDir.mkdirs();
 
-		File pdfsDir = new File(base, DIR_PDFS);
+		File pdfsDir = getDirectory(DIR_PDFS);
 		if (!pdfsDir.exists())
 			pdfsDir.mkdirs();
 
@@ -218,6 +232,8 @@ public class DSATabApplication extends Application implements OnSharedPreference
 			return R.style.DsaTabTheme_Paper;
 		} else if (THEME_MAP.equals(theme)) {
 			return R.style.DsaTabTheme_Map;
+		} else if (THEME_DARK.equals(theme)) {
+			return R.style.DsaTabTheme_Dark;
 		} else {
 			return R.style.DsaTabTheme;
 		}
@@ -232,6 +248,8 @@ public class DSATabApplication extends Application implements OnSharedPreference
 			return R.style.Theme_Dialog_Paper;
 		} else if (THEME_MAP.equals(theme)) {
 			return R.style.Theme_Dialog_Map;
+		} else if (THEME_DARK.equals(theme)) {
+			return R.style.Theme_Dialog_Dark;
 		} else {
 			return R.style.Theme_Dialog;
 		}
@@ -248,7 +266,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 
 		poorRichFont = Typeface.createFromAsset(this.getAssets(), "fonts/poorich.ttf");
 		Debug.setDebugTag(TAG);
-		boolean stats = getPreferences().getBoolean(DsaPreferenceActivityHC.KEY_USAGE_STATS, true);
+		boolean stats = getPreferences().getBoolean(BasePreferenceActivity.KEY_USAGE_STATS, true);
 
 		AnalyticsManager.setEnabled(stats);
 		if (stats) {
@@ -257,7 +275,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 
 		Debug.verbose("AnalytisManager enabled = " + AnalyticsManager.isEnabled());
 
-		checkDirectories(getDsaTabPath());
+		checkDirectories();
 
 		getPreferences().registerOnSharedPreferenceChangeListener(this);
 
@@ -391,7 +409,13 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	public void saveHero() {
 		FileOutputStream out = null;
 		try {
-			out = new FileOutputStream(new File(hero.getPath()));
+			File destFile = new File(hero.getPath());
+			String error = Util.checkFileWriteAccess(destFile);
+			if (error != null) {
+				Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+				return;
+			}
+			out = new FileOutputStream(destFile);
 			hero.onPreHeroSaved();
 			XmlParser.writeHero(hero, out);
 			hero.onPostHeroSaved();
@@ -400,7 +424,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 			Toast.makeText(this, getString(R.string.hero_saved, hero.getName()), Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
 			Toast.makeText(this, "Held konnte nicht gespeichert werden.", Toast.LENGTH_LONG);
-			throw new AndroidRuntimeException(e);
+			throw new DsaTabRuntimeException(e);
 		} finally {
 			if (out != null) {
 				try {

@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.Arrays;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,6 +27,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -68,8 +70,15 @@ public abstract class BasePreferenceActivity extends PreferenceActivity implemen
 	public static final String KEY_PROBE_SHOW_MODIFIKATORS = "probeShowModificators";
 
 	public static final String KEY_HOUSE_RULES = "houseRules";
+	public static final String KEY_HOUSE_RULES_2_OF_3_DICE = "houseRules.2of3Dice";
+	public static final String KEY_HOUSE_RULES_LE_MODIFIER = "houseRules.leModifier";
+	public static final String KEY_HOUSE_RULES_AU_MODIFIER = "houseRules.auModifier";
+	public static final String KEY_HOUSE_RULES_EASIER_WOUNDS = "houseRules.easierWounds";
+	public static final String KEY_HOUSE_RULES_MORE_WOUND_ZONES = "houseRules.moreWoundZones";
 
 	public static final String KEY_ARMOR_TYPE = "armorType";
+
+	public static final String KEY_WOUND_TYPE = "woundType";
 
 	public static final String KEY_FULLSCREEN = "fullscreen";
 
@@ -137,6 +146,16 @@ public abstract class BasePreferenceActivity extends PreferenceActivity implemen
 	}
 
 	private boolean restartRequired = false;
+
+	public static void startPreferenceActivity(Activity context) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			context.startActivityForResult(new Intent(context, DsaPreferenceActivity.class),
+					MainActivity.ACTION_PREFERENCES);
+		} else {
+			context.startActivityForResult(new Intent(context, DsaPreferenceActivityHC.class),
+					MainActivity.ACTION_PREFERENCES);
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

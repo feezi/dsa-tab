@@ -97,6 +97,8 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 
 	private float oldDistance = 1f;
 
+	private String activeMap = null;
+
 	private String[] mapFiles;
 	private String[] mapNames;
 
@@ -115,20 +117,33 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.sheet_map, container, false);
 
-		File osmMapDir = DSATabApplication.getDirectory(DSATabApplication.DIR_OSM_MAPS);
-		ITileSource tileSource = TileSourceFactory.getTileSource(DSATabApplication.TILESOURCE_AVENTURIEN);
-		MapTileProviderLocal tileProvider = new MapTileProviderLocal(osmMapDir.getAbsolutePath(), getActivity(),
-				tileSource);
-		osmMapView = new MapView(getActivity(), 256, new DefaultResourceProxyImpl(getActivity()), tileProvider);
-		osmMapView.setUseDataConnection(false);
-		osmMapView.setBuiltInZoomControls(true);
-		osmMapView.setMultiTouchControls(true);
-		osmMapView.getController().setZoom(DEFAULT_OSM_ZOOM);
-		root.addView(osmMapView, 0);
-
 		imageMapView = (ImageView) root.findViewById(R.id.imageView);
 		chooseMap = (ImageButton) root.findViewById(R.id.open_map);
 		return configureContainerView(root);
+	}
+
+	private void initOSMMapView() {
+		if (osmMapView == null) {
+			File osmMapDir = DSATabApplication.getDirectory(DSATabApplication.DIR_OSM_MAPS);
+			ITileSource tileSource = TileSourceFactory.getTileSource(DSATabApplication.TILESOURCE_AVENTURIEN);
+			MapTileProviderLocal tileProvider = new MapTileProviderLocal(osmMapDir.getAbsolutePath(), getActivity(),
+					tileSource);
+			osmMapView = new MapView(getActivity(), 256, new DefaultResourceProxyImpl(getActivity()), tileProvider);
+			osmMapView.setUseDataConnection(false);
+			osmMapView.setBuiltInZoomControls(true);
+			osmMapView.setMultiTouchControls(true);
+
+			osmMapView.getController().setZoom(preferences.getInt(PREF_KEY_OSM_ZOOM, DEFAULT_OSM_ZOOM));
+
+			int latitude = preferences.getInt(PREF_KEY_OSM_LATITUDE, -1);
+			int longitude = preferences.getInt(PREF_KEY_OSM_LONGITUDE, -1);
+			if (latitude != -1 && longitude != -1) {
+				IGeoPoint center = new GeoPoint(latitude, longitude);
+				osmMapView.getController().setCenter(center);
+			}
+
+			((ViewGroup) getView()).addView(osmMapView, 0);
+		}
 	}
 
 	/*
@@ -160,8 +175,8 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 		List<String> mapFiles = new ArrayList<String>();
 		List<String> mapNames = new ArrayList<String>();
 
-		File mapDir = new File(DSATabApplication.getDsaTabPath(), DSATabApplication.DIR_MAPS);
-		File osmMapDir = new File(DSATabApplication.getDsaTabPath(), DSATabApplication.DIR_OSM_MAPS);
+		File mapDir = DSATabApplication.getDirectory(DSATabApplication.DIR_MAPS);
+		File osmMapDir = DSATabApplication.getDirectory(DSATabApplication.DIR_OSM_MAPS);
 
 		if (!mapDir.exists())
 			mapDir.mkdirs();
@@ -234,7 +249,9 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 
 			empty.setVisibility(View.VISIBLE);
 			imageMapView.setVisibility(View.GONE);
-			osmMapView.setVisibility(View.GONE);
+			if (osmMapView != null)
+				osmMapView.setVisibility(View.GONE);
+
 			chooseMap.setVisibility(View.GONE);
 
 			empty.setText(Util.getText(R.string.message_map_empty, path));
@@ -255,14 +272,21 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 
 	private void loadMap(String filePath) {
 		Debug.verbose("loading map " + filePath);
-		Debug.heap();
-		unloadMap();
+
+		if (activeMap != null && activeMap.equals(filePath)) {
+			return;
+		} else {
+			unloadMap();
+			activeMap = filePath;
+		}
 
 		if (OSM_AVENTURIEN.equals(filePath)) {
 			imageMapView.setVisibility(View.GONE);
+			initOSMMapView();
 			osmMapView.setVisibility(View.VISIBLE);
 		} else {
-			osmMapView.setVisibility(View.GONE);
+			if (osmMapView != null)
+				osmMapView.setVisibility(View.GONE);
 			imageMapView.setVisibility(View.VISIBLE);
 
 			loadImageTask = new LoadImageTask();
@@ -316,15 +340,16 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 			progress.setVisibility(View.GONE);
 			progressText.setVisibility(View.GONE);
 
-			if (result != null) {
-				Toast.makeText(getActivity(), "Karte geladen.", Toast.LENGTH_SHORT).show();
-				bitmap = new BitmapDrawable(getResources(), result);
-				imageMapView.setImageDrawable(bitmap);
-				imageMapView.setImageMatrix(matrix);
-			} else {
-				Toast.makeText(getActivity(), "Konnte Karte nicht laden.", Toast.LENGTH_SHORT).show();
+			if (getActivity() != null) {
+				if (result != null) {
+					Toast.makeText(getActivity(), "Karte geladen.", Toast.LENGTH_SHORT).show();
+					bitmap = new BitmapDrawable(getResources(), result);
+					imageMapView.setImageDrawable(bitmap);
+					imageMapView.setImageMatrix(matrix);
+				} else {
+					Toast.makeText(getActivity(), "Konnte Karte nicht laden.", Toast.LENGTH_SHORT).show();
+				}
 			}
-
 			loadImageTask = null;
 		}
 
@@ -355,6 +380,8 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 				bitmap.getBitmap().recycle();
 			bitmap = null;
 		}
+
+		activeMap = null;
 	}
 
 	/*
@@ -380,10 +407,12 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 		float[] values = new float[9];
 		matrix.getValues(values);
 		edit.putString(PREF_KEY_LAST_MAP_COORDINATES, Util.toString(values));
-		edit.putInt(PREF_KEY_OSM_ZOOM, osmMapView.getZoomLevel());
-		IGeoPoint center = osmMapView.getMapCenter();
-		edit.putInt(PREF_KEY_OSM_LATITUDE, center.getLatitudeE6());
-		edit.putInt(PREF_KEY_OSM_LATITUDE, center.getLongitudeE6());
+		if (osmMapView != null) {
+			edit.putInt(PREF_KEY_OSM_ZOOM, osmMapView.getZoomLevel());
+			IGeoPoint center = osmMapView.getMapCenter();
+			edit.putInt(PREF_KEY_OSM_LATITUDE, center.getLatitudeE6());
+			edit.putInt(PREF_KEY_OSM_LATITUDE, center.getLongitudeE6());
+		}
 		edit.commit();
 
 		// clear bitmap
@@ -404,23 +433,15 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 
 		String lastMap = preferences.getString(PREF_KEY_LAST_MAP, null);
 
-		if (mapFiles != null && mapFiles.length > 0) {
-			if (lastMap == null) {
-				lastMap = mapFiles[0];
-				// Work around a Cupcake bug
-				matrix.setTranslate(1f, 1f);
+		if (osmMapView != null) {
+			osmMapView.getController().setZoom(preferences.getInt(PREF_KEY_OSM_ZOOM, DEFAULT_OSM_ZOOM));
+
+			int latitude = preferences.getInt(PREF_KEY_OSM_LATITUDE, -1);
+			int longitude = preferences.getInt(PREF_KEY_OSM_LONGITUDE, -1);
+			if (latitude != -1 && longitude != -1) {
+				IGeoPoint center = new GeoPoint(latitude, longitude);
+				osmMapView.getController().setCenter(center);
 			}
-		} else {
-			lastMap = null;
-		}
-
-		osmMapView.getController().setZoom(preferences.getInt(PREF_KEY_OSM_ZOOM, DEFAULT_OSM_ZOOM));
-
-		int latitude = preferences.getInt(PREF_KEY_OSM_LATITUDE, -1);
-		int longitude = preferences.getInt(PREF_KEY_OSM_LONGITUDE, -1);
-		if (latitude != -1 && longitude != -1) {
-			IGeoPoint center = new GeoPoint(latitude, longitude);
-			osmMapView.getController().setCenter(center);
 		}
 
 		if (!TextUtils.isEmpty(lastMap)) {
@@ -430,8 +451,25 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 			if (coords != null) {
 				matrix.setValues(Util.parseFloats(coords));
 			}
+
+			if (isOnScreen()) {
+				loadMap(lastMap);
+			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onShown()
+	 */
+	@Override
+	public void onShown() {
+		String lastMap = preferences.getString(PREF_KEY_LAST_MAP, null);
+		if (!TextUtils.isEmpty(lastMap)) {
 			loadMap(lastMap);
 		}
+
 	}
 
 	private void showMapChooser() {

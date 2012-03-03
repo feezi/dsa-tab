@@ -25,7 +25,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.dsatab.activity.DsaPreferenceActivityHC;
+import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.data.enums.Position;
 import com.dsatab.fragment.ArtFragment;
 import com.dsatab.fragment.BaseFragment;
@@ -54,6 +54,20 @@ public class DsaTabConfiguration {
 	private Context context;
 
 	private List<Integer> tabIcons;
+
+	public enum WoundType {
+		Standard("Standard"), Trefferzonen("Trefferzonen");
+
+		private String title;
+
+		private WoundType(String t) {
+			title = t;
+		}
+
+		public String title() {
+			return title;
+		}
+	}
 
 	public enum ArmorType {
 		ZonenRuestung("Zonenrüstung"), GesamtRuestung("Gesamte Rüstung");
@@ -106,24 +120,21 @@ public class DsaTabConfiguration {
 			return 0;
 	}
 
-	/**
-	 * 
-	 */
-
-	public boolean isHouseRules() {
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-		return preferences.getBoolean(DsaPreferenceActivityHC.KEY_HOUSE_RULES, false);
+	public int getIndexOfTabResourceId(int resourceId) {
+		return tabIcons.indexOf(resourceId);
 	}
 
 	public List<Position> getArmorPositions() {
-		if (isHouseRules()) {
+		if (DSATabApplication.getPreferences().getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_MORE_WOUND_ZONES,
+				false)) {
 			return Position.ARMOR_POSITIONS_HOUSE;
 		} else
 			return Position.ARMOR_POSITIONS;
 	}
 
 	public List<Position> getWoundPositions() {
-		if (isHouseRules()) {
+		if (DSATabApplication.getPreferences().getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_MORE_WOUND_ZONES,
+				false)) {
 			return Position.WOUND_POSITIONS;
 		} else
 			return Position.WOUND_POSITIONS;
@@ -131,8 +142,14 @@ public class DsaTabConfiguration {
 
 	public ArmorType getArmorType() {
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-		return ArmorType.valueOf(preferences.getString(DsaPreferenceActivityHC.KEY_ARMOR_TYPE,
+		return ArmorType.valueOf(preferences.getString(BasePreferenceActivity.KEY_ARMOR_TYPE,
 				ArmorType.ZonenRuestung.name()));
+	}
+
+	public WoundType getWoundType() {
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		return WoundType.valueOf(preferences.getString(BasePreferenceActivity.KEY_WOUND_TYPE,
+				WoundType.Trefferzonen.name()));
 	}
 
 }

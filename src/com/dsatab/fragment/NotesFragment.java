@@ -64,6 +64,8 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 
 	public static final int ACTION_EDIT = 1;
 
+	private static final int GROUP_NOTES = 2;
+
 	private static final int CONTEXTMENU_DELETEITEM = 1;
 	private static final int CONTEXTMENU_EDITITEM = 2;
 	private static final int CONTEXTMENU_SORT_NOTES = 3;
@@ -105,7 +107,7 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 	public void onActivityCreated(Bundle savedInstanceState) {
 		getActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-		recordingsDir = new File(DSATabApplication.getDsaTabPath(), DSATabApplication.DIR_RECORDINGS);
+		recordingsDir = DSATabApplication.getDirectory(DSATabApplication.DIR_RECORDINGS);
 		if (!recordingsDir.exists())
 			recordingsDir.mkdirs();
 
@@ -164,9 +166,9 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		if (v.getId() == android.R.id.list) {
 
-			menu.add(0, CONTEXTMENU_EDITITEM, 1, getString(R.string.menu_edit_item));
-			menu.add(0, CONTEXTMENU_DELETEITEM, 2, getString(R.string.menu_delete_item));
-			menu.add(0, CONTEXTMENU_SORT_NOTES, 3, getString(R.string.menu_sort_items));
+			menu.add(GROUP_NOTES, CONTEXTMENU_EDITITEM, 1, getString(R.string.menu_edit_item));
+			menu.add(GROUP_NOTES, CONTEXTMENU_DELETEITEM, 2, getString(R.string.menu_delete_item));
+			menu.add(GROUP_NOTES, CONTEXTMENU_SORT_NOTES, 3, getString(R.string.menu_sort_items));
 
 			if (menuInfo instanceof AdapterContextMenuInfo) {
 				AdapterContextMenuInfo adapterMenuInfo = (AdapterContextMenuInfo) menuInfo;
@@ -192,42 +194,44 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 
-		if (item.getMenuInfo() instanceof AdapterContextMenuInfo) {
-			AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-			Object obj = listView.getItemAtPosition(menuInfo.position);
+		if (item.getGroupId() == GROUP_NOTES) {
+			if (item.getMenuInfo() instanceof AdapterContextMenuInfo) {
+				AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
+				Object obj = listView.getItemAtPosition(menuInfo.position);
 
-			if (obj instanceof Event) {
-				Event event = (Event) obj;
-				if (item.getItemId() == CONTEXTMENU_DELETEITEM) {
-					Debug.verbose("Deleting " + event.getComment());
-					getHero().removeEvent(event);
-					notesListAdapter.remove(event);
-					notesListAdapter.notifyDataSetChanged();
-					return true;
-				} else if (item.getItemId() == CONTEXTMENU_EDITITEM) {
-					Debug.verbose("Editing " + event.getComment());
-					editEvent(event);
-					return true;
-				} else if (item.getItemId() == CONTEXTMENU_SORT_NOTES) {
-					notesListAdapter.sort(new NotesComparator());
-					connectionsAdapter.sort(new ConnectionComparator());
-					return true;
-				}
-			} else if (obj instanceof Connection) {
-				Connection connection = (Connection) obj;
-				if (item.getItemId() == CONTEXTMENU_DELETEITEM) {
-					Debug.verbose("Deleting " + connection.getName());
-					getHero().removeConnection(connection);
-					connectionsAdapter.remove(connection);
-					return true;
-				} else if (item.getItemId() == CONTEXTMENU_EDITITEM) {
-					Debug.verbose("Editing " + connection.getName());
-					editConnection(connection);
-					return true;
-				} else if (item.getItemId() == CONTEXTMENU_SORT_NOTES) {
-					notesListAdapter.sort(new NotesComparator());
-					connectionsAdapter.sort(new ConnectionComparator());
-					return true;
+				if (obj instanceof Event) {
+					Event event = (Event) obj;
+					if (item.getItemId() == CONTEXTMENU_DELETEITEM) {
+						Debug.verbose("Deleting " + event.getComment());
+						getHero().removeEvent(event);
+						notesListAdapter.remove(event);
+						notesListAdapter.notifyDataSetChanged();
+						return true;
+					} else if (item.getItemId() == CONTEXTMENU_EDITITEM) {
+						Debug.verbose("Editing " + event.getComment());
+						editEvent(event);
+						return true;
+					} else if (item.getItemId() == CONTEXTMENU_SORT_NOTES) {
+						notesListAdapter.sort(new NotesComparator());
+						connectionsAdapter.sort(new ConnectionComparator());
+						return true;
+					}
+				} else if (obj instanceof Connection) {
+					Connection connection = (Connection) obj;
+					if (item.getItemId() == CONTEXTMENU_DELETEITEM) {
+						Debug.verbose("Deleting " + connection.getName());
+						getHero().removeConnection(connection);
+						connectionsAdapter.remove(connection);
+						return true;
+					} else if (item.getItemId() == CONTEXTMENU_EDITITEM) {
+						Debug.verbose("Editing " + connection.getName());
+						editConnection(connection);
+						return true;
+					} else if (item.getItemId() == CONTEXTMENU_SORT_NOTES) {
+						notesListAdapter.sort(new NotesComparator());
+						connectionsAdapter.sort(new ConnectionComparator());
+						return true;
+					}
 				}
 			}
 		}
@@ -311,8 +315,10 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						mediaRecorder.stop();
-						mediaRecorder.reset();
+						if (mediaRecorder != null) {
+							mediaRecorder.stop();
+							mediaRecorder.reset();
+						}
 
 						File nowAudio = new File(recordingsDir, System.currentTimeMillis() + ".3gp");
 						currentAudio.renameTo(nowAudio);
@@ -325,8 +331,10 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						mediaRecorder.stop();
-						mediaRecorder.reset();
+						if (mediaRecorder != null) {
+							mediaRecorder.stop();
+							mediaRecorder.reset();
+						}
 						currentAudio.delete();
 					}
 				});

@@ -20,6 +20,9 @@ public class Advantage {
 	public static final String FESTE_MATRIX = "Feste Matrix";
 	public static final String WILDE_MAGIE = "Wilde Magie";
 	public static final String TOLLPATSCH = "Tollpatsch";
+	public static final String MAGIEDILLETANT = "Magiedilletant";
+
+	public static final String MEISTERHANDWERK = "Meisterhandwerk";
 
 	private static final String[] VORTEILE = { "Amtsadel", "Adlige Abstammung", "Adliges Erbe", "Affinität zu ",
 			"Akademische Ausbildung (Gelehrter)", "Akademische Ausbildung (Krieger)",
@@ -35,8 +38,8 @@ public class Advantage {
 			"Herausragende Eigenschaft", "Herausragender Sechster Sinn", "Herausragender Sinn",
 			"Herausragendes Aussehen", "Hitzeresistenz", "Hohe Lebenskraft", "Hohe Magieresistenz",
 			"Immunität gegen Gift", "Immunität gegen Krankheiten", "Innerer Kompass", "Kälteresistenz", "Kampfrausch",
-			"Koboldfreund", "Kräfteschub", "Talentschub", "Linkshänder", "Machtvoller Vertrauter", "Magiedilletant",
-			"Magiegespür", "Meisterhandwerk", "Nachtsicht", NATUERLICHER_RUESTUNGSSCHUTZ, "Natürliche Waffen",
+			"Koboldfreund", "Kräfteschub", "Talentschub", "Linkshänder", "Machtvoller Vertrauter", MAGIEDILLETANT,
+			"Magiegespür", MEISTERHANDWERK, "Nachtsicht", NATUERLICHER_RUESTUNGSSCHUTZ, "Natürliche Waffen",
 			"Niedrige Schlechte Eigenschaft", "Ortskenntnis", "Prophezeien", "Resistenz gegen Gift",
 			"Resistenz gegen Krankheiten", "Richtungssinn", "Schlangenmensch", "Schnelle Heilung", "Schutzgeist",
 			"Schwer zu verzaubern", "Soziale Anpassungsfähigkeit", "Sprachgefühl", "Tierfreund", "Tierempathie (alle)",
@@ -93,6 +96,8 @@ public class Advantage {
 	public static final String BEGABUNG_FUER_ZAUBER = "Begabung für [Zauber]";
 	public static final String BEGABUNG_FUER_RITUAL = "Begabung für [Zauber]";
 	public static final String TALENTSCHUB = "Talentschub";
+
+	public static final String UEBERNATUERLICHE_BEGABUNG = "Übernatürliche Begabung";
 
 	public static boolean isVorteil(String name) {
 		return Arrays.binarySearch(VORTEILE, name) >= 0;
