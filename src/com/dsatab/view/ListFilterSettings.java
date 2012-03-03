@@ -26,6 +26,8 @@ public class ListFilterSettings implements FilterSettings {
 
 	private boolean showNormal, showFavorite, showUnused;
 
+	private boolean includeModifiers;
+
 	/**
 	 * Basic constructor
 	 */
@@ -33,10 +35,11 @@ public class ListFilterSettings implements FilterSettings {
 
 	}
 
-	public ListFilterSettings(boolean fav, boolean normal, boolean unused) {
+	public ListFilterSettings(boolean fav, boolean normal, boolean unused, boolean incMod) {
 		this.showFavorite = fav;
 		this.showNormal = normal;
 		this.showUnused = unused;
+		this.includeModifiers = incMod;
 	}
 
 	public boolean isShowNormal() {
@@ -63,12 +66,22 @@ public class ListFilterSettings implements FilterSettings {
 		this.showUnused = showUnused;
 	}
 
-	public boolean equals(ListFilterSettings settings) {
-		return equals(settings.isShowFavorite(), settings.isShowNormal(), settings.isShowUnused());
+	public boolean isIncludeModifiers() {
+		return includeModifiers;
 	}
 
-	public boolean equals(boolean showFavorite, boolean showNormal, boolean showUnused) {
-		return this.showFavorite == showFavorite && this.showNormal == showNormal && this.showUnused == showUnused;
+	public void setIncludeModifiers(boolean includeModifiers) {
+		this.includeModifiers = includeModifiers;
+	}
+
+	public boolean equals(ListFilterSettings settings) {
+		return equals(settings.isShowFavorite(), settings.isShowNormal(), settings.isShowUnused(),
+				settings.isIncludeModifiers());
+	}
+
+	public boolean equals(boolean showFavorite, boolean showNormal, boolean showUnused, boolean includeModifiers) {
+		return this.showFavorite == showFavorite && this.showNormal == showNormal && this.showUnused == showUnused
+				&& this.includeModifiers == includeModifiers;
 	}
 
 	public boolean isAllVisible() {
@@ -81,7 +94,7 @@ public class ListFilterSettings implements FilterSettings {
 	}
 
 	public void set(ListFilterSettings settings) {
-		set(settings.isShowFavorite(), settings.isShowNormal(), settings.isShowUnused());
+		set(settings.isShowFavorite(), settings.isShowNormal(), settings.isShowUnused(), settings.isIncludeModifiers());
 	}
 
 	/**
@@ -89,10 +102,11 @@ public class ListFilterSettings implements FilterSettings {
 	 * @param checked2
 	 * @param checked3
 	 */
-	public void set(boolean fav, boolean normal, boolean unused) {
+	public void set(boolean fav, boolean normal, boolean unused, boolean incMod) {
 		this.showFavorite = fav;
 		this.showNormal = normal;
 		this.showUnused = unused;
+		this.includeModifiers = incMod;
 
 	}
 

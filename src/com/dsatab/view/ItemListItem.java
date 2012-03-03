@@ -125,7 +125,10 @@ public class ItemListItem extends TwoLineListItem {
 
 		if (icon1 != null) {
 			icon1.setVisibility(View.VISIBLE);
-			icon1.setImageResource(e.getResourceId());
+			if (spec != null)
+				icon1.setImageResource(spec.getResourceId());
+			else
+				icon1.setImageResource(e.getResourceId());
 		}
 		// Set value for the first text field
 		if (getText1() != null) {

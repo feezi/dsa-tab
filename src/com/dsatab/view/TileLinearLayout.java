@@ -33,10 +33,6 @@ public class TileLinearLayout extends LinearLayout {
 
 	private boolean backgroundStretched = false;
 
-	public TileLinearLayout(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-	}
-
 	public TileLinearLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}

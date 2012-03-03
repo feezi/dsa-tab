@@ -41,6 +41,9 @@ public class ArtInfoDialog extends AlertDialog implements DialogInterface.OnClic
 		set(R.id.popup_liturgie_range, art.getRangeDetailed());
 		set(R.id.popup_liturgie_target, art.getTargetDetailed());
 
+		set(R.id.popup_liturgie_merkmal, art.getSource());
+		set(R.id.popup_liturgie_source, art.getMerkmale());
+
 	}
 
 	private void init() {

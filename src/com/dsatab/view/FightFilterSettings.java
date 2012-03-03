@@ -26,6 +26,8 @@ public class FightFilterSettings implements FilterSettings {
 
 	private boolean showArmor, showModifier, showEvade;
 
+	private boolean includeModifiers;
+
 	/**
 	 * Basic constructor
 	 */
@@ -33,10 +35,11 @@ public class FightFilterSettings implements FilterSettings {
 
 	}
 
-	public FightFilterSettings(boolean armor, boolean modifier, boolean evade) {
+	public FightFilterSettings(boolean armor, boolean modifier, boolean evade, boolean incMod) {
 		this.showModifier = modifier;
 		this.showArmor = armor;
 		this.showEvade = evade;
+		this.includeModifiers = incMod;
 	}
 
 	public boolean isShowArmor() {
@@ -63,12 +66,22 @@ public class FightFilterSettings implements FilterSettings {
 		this.showEvade = showUnused;
 	}
 
-	public boolean equals(FightFilterSettings settings) {
-		return equals(settings.isShowArmor(), settings.isShowModifier(), settings.isShowEvade());
+	public boolean isIncludeModifiers() {
+		return includeModifiers;
 	}
 
-	public boolean equals(boolean showArmor, boolean showModifier, boolean showEvade) {
-		return this.showModifier == showModifier && this.showArmor == showArmor && this.showEvade == showEvade;
+	public void setIncludeModifiers(boolean includeModifiers) {
+		this.includeModifiers = includeModifiers;
+	}
+
+	public boolean equals(FightFilterSettings settings) {
+		return equals(settings.isShowArmor(), settings.isShowModifier(), settings.isShowEvade(),
+				settings.isIncludeModifiers());
+	}
+
+	public boolean equals(boolean showArmor, boolean showModifier, boolean showEvade, boolean incModifier) {
+		return this.showModifier == showModifier && this.showArmor == showArmor && this.showEvade == showEvade
+				&& this.includeModifiers == incModifier;
 	}
 
 	public boolean isAllVisible() {
@@ -81,7 +94,7 @@ public class FightFilterSettings implements FilterSettings {
 	}
 
 	public void set(FightFilterSettings settings) {
-		set(settings.isShowArmor(), settings.isShowModifier(), settings.isShowEvade());
+		set(settings.isShowArmor(), settings.isShowModifier(), settings.isShowEvade(), settings.isIncludeModifiers());
 	}
 
 	/**
@@ -89,10 +102,11 @@ public class FightFilterSettings implements FilterSettings {
 	 * @param checked2
 	 * @param checked3
 	 */
-	public void set(boolean armor, boolean modifer, boolean evade) {
+	public void set(boolean armor, boolean modifer, boolean evade, boolean incMod) {
 		this.showModifier = modifer;
 		this.showArmor = armor;
 		this.showEvade = evade;
+		this.includeModifiers = incMod;
 
 	}
 

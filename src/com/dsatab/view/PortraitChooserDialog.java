@@ -42,7 +42,7 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 	private void init() {
 		setTitle("Wähle ein Portrait...");
 
-		File portraitDir = new File(DSATabApplication.getDsaTabPath(), DSATabApplication.DIR_PORTRAITS);
+		File portraitDir = DSATabApplication.getDirectory(DSATabApplication.DIR_PORTRAITS);
 		if (!portraitDir.exists())
 			portraitDir.mkdirs();
 
@@ -67,6 +67,7 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 							+ "\" oder lade die Standardportraits in den Einstellungen herunter.", Toast.LENGTH_LONG)
 					.show();
 			dismiss();
+			return;
 		}
 
 		setCanceledOnTouchOutside(true);

@@ -89,8 +89,9 @@ public class InlineEditFightDialog extends AlertDialog implements DialogInterfac
 			textFreeValue.setTextColor(getContext().getResources().getColor(R.color.ValueRed));
 		else if (free > 0)
 			textFreeValue.setTextColor(getContext().getResources().getColor(R.color.ValueGreen));
-		else
-			textFreeValue.setTextColor(getContext().getResources().getColor(R.color.ValueWhite));
+		else {
+			textFreeValue.setTextColor(Util.getThemeColors(getContext(), android.R.attr.textColorPrimary));
+		}
 
 		textFreeValue.setText(Util.toString(free));
 
