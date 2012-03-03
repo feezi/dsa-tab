@@ -3,7 +3,6 @@
     android:layout_width="fill_parent"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:padding="2.5dp"
-    android:background="@color/Brighter"
     android:layout_height="wrap_content">
 
     <ImageView android:layout_alignParentLeft="true"
@@ -14,17 +13,18 @@
 	
     <CheckBox android:id="@+id/active" android:layout_width="wrap_content" android:layout_centerVertical="true" android:layout_marginLeft="5dip"
         android:layout_alignLeft="@android:id/icon1"
+        android:focusable="false"
         android:layout_alignRight="@android:id/icon1"
         android:layout_height="wrap_content"></CheckBox>
         
     <TextView android:id="@android:id/text1"        
         android:layout_width="wrap_content"
         android:layout_toRightOf="@android:id/icon1"
-        android:layout_toLeftOf="@+id/active"
+        android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="true"        
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textStyle="bold" />
+        android:textStyle="bold"/>
 
     <TextView android:id="@android:id/text2"
         android:layout_width="wrap_content"
@@ -33,7 +33,7 @@
         android:layout_alignLeft="@android:id/text1"
         android:layout_alignRight="@android:id/text1"        
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textStyle="normal" />
+        android:textStyle="normal"/>
         
     
 

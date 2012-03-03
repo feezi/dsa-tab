@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	        android:layout_width="fill_parent" android:layout_height="wrap_content"
+	        android:orientation="horizontal" android:padding="2.5dp" >
+
+	        <TextView
+	            android:id="@+id/fight_modifiers_title"
+	            style="@style/TextViewTitle"
+	            android:layout_width="wrap_content"
+	            android:layout_height="fill_parent"
+	            android:layout_weight="1"
+	            android:gravity="left|center_vertical"
+	            android:text="Modifikatoren" />
+
+	        <com.dsatab.view.GlossyImageButton
+	            android:id="@+id/fight_modifiers_add"
+	            android:layout_width="@dimen/icon_button_size"
+	            android:layout_height="@dimen/icon_button_size"
+	            android:layout_weight="0"
+	            android:scaleType="fitCenter"	            
+	            android:src="@drawable/ic_input_add" />
+	    
+	    </LinearLayout>

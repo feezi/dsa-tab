@@ -1,19 +1,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    
-    <item android:id="@+id/option_edit"
-          android:icon="@drawable/ic_menu_edit"
-          android:title="Tab bearbeiten" />
           
     <item android:id="@+id/option_add"
           android:icon="@drawable/ic_menu_add"
-          android:title="Tab hinzufügen" />
+          android:title="Tab hinzufügen"
+          android:showAsAction="ifRoom|withText"  />
     
     <item android:id="@+id/option_delete"
           android:icon="@drawable/ic_menu_delete"
-          android:title="Tab entfernen" />
+          android:title="Tab entfernen"
+          android:showAsAction="ifRoom|withText"  />
           
-          <item android:id="@+id/option_tab_reset"
+    <item android:id="@+id/option_tab_reset"
           android:icon="@drawable/ic_menu_revert"
-          android:title="Tabs zurücksetzen" />
+          android:title="Tabs zurücksetzen"
+          android:showAsAction="ifRoom|withText"  />
     
 </menu>

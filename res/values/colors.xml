@@ -20,5 +20,7 @@
 	<color name="ValueWhite">#FFFFFFFF</color>
 	<color name="ValueGray">#FF333333</color>	
 		
-	<color name="delete_color_filter">#A5FF0000</color>
+	<color name="delete_color_filter">#88FF0000</color>
+	<color name="accept_color_filter">#3300FF00</color>
+	<color name="reject_color_filter">#33FF0000</color>
 </resources>

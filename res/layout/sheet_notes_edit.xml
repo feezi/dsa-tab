@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/sheet_notes_edit" android:layout_width="wrap_content" android:layout_height="wrap_content" android:padding="5dp">
-	<ScrollView android:layout_height="wrap_content" android:layout_above="@+id/popup_notes_buttons" android:layout_width="match_parent" android:layout_alignParentTop="true" android:fillViewport="true">
+	android:id="@+id/sheet_notes_edit" android:layout_width="wrap_content" android:layout_height="wrap_content">
+	<ScrollView android:layout_height="wrap_content" android:layout_above="@+id/popup_notes_buttons" android:layout_width="match_parent" android:layout_alignParentTop="true" android:fillViewport="true" android:padding="5dp">
 	<LinearLayout android:layout_height="wrap_content" android:orientation="vertical" android:layout_width="fill_parent">
 		<Spinner android:layout_width="fill_parent" android:id="@+id/popup_notes_spn_category" android:layout_height="wrap_content"></Spinner>
 		<EditText android:layout_height="wrap_content" android:inputType="textPersonName" android:id="@+id/popup_notes_edit_name" android:layout_width="fill_parent" android:hint="Name">
 			<requestFocus></requestFocus>
 		</EditText>
 		<EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/popup_notes_edit_so" android:hint="Sozialstatus"></EditText>
-		<EditText android:layout_width="fill_parent" android:id="@+id/popup_notes_edit_text" android:hint="Notiz" android:minHeight="50dip" android:inputType="text|textMultiLine" android:gravity="top" android:layout_height="wrap_content" android:layout_weight="1"></EditText>
+		<EditText android:layout_width="fill_parent" android:id="@+id/popup_notes_edit_text" android:hint="Notiz" android:minHeight="50dip" android:inputType="text|textMultiLine" android:gravity="top" android:layout_height="0dp" android:layout_weight="1"></EditText>
 	</LinearLayout>
 	</ScrollView>
-	<LinearLayout android:layout_height="wrap_content" android:layout_alignParentBottom="true" android:layout_width="fill_parent" android:id="@+id/popup_notes_buttons" android:background="@android:drawable/bottom_bar" android:paddingLeft="5dp" android:paddingRight="5dp" android:paddingTop="5dp">
+	<LinearLayout android:layout_height="wrap_content" android:layout_alignParentBottom="true" android:layout_width="fill_parent" android:id="@+id/popup_notes_buttons" android:paddingLeft="5dp" android:paddingRight="5dp" android:paddingTop="5dp" style="@android:style/ButtonBar">
 		<Button android:layout_width="wrap_content" android:text="@string/label_save" android:id="@+id/popup_notes_save" android:layout_height="wrap_content" android:layout_weight="1"></Button>
 		<Button android:layout_width="wrap_content" android:text="@string/label_cancel" android:id="@+id/popup_notes_cancel" android:layout_height="wrap_content" android:layout_weight="1"></Button>
 	</LinearLayout>

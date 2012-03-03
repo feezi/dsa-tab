@@ -1,9 +1,9 @@
-<RelativeLayout android:layout_weight="1" android:layout_height="fill_parent" android:id="@+id/sheet_fight"
+<LinearLayout android:layout_weight="1" android:layout_height="fill_parent" android:id="@+id/sheet_fight"
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:dsatab="http://schemas.android.com/apk/res/com.dsatab" android:layout_margin="@dimen/page_margin" android:layout_width="fill_parent">
+	xmlns:dsatab="http://schemas.android.com/apk/res/com.dsatab" android:layout_margin="@dimen/page_margin" android:layout_width="fill_parent" android:orientation="vertical">
 	
 	<LinearLayout android:layout_height="wrap_content"
-		android:layout_centerHorizontal="true" android:id="@+id/fight_le_layout"
+		android:id="@+id/fight_le_layout"
 		android:layout_width="fill_parent" android:weightSum="1.0"
 		android:layout_margin="@dimen/page_margin"
 		android:gravity="center_horizontal">
@@ -19,45 +19,11 @@
 		<kankan.wheel.widget.WheelView
 			android:id="@+id/fight_picker" dsatab:visibleItems="@integer/fight_wheel_items" dsatab:orientation="vertical" android:layout_height="@dimen/icon_button_size" android:layout_width="fill_parent"/>
 	</LinearLayout>
-	<ScrollView android:layout_below="@+id/fight_le_layout"
-		android:layout_width="fill_parent" android:layout_marginTop="10dip"
-		android:layout_height="fill_parent" android:fillViewport="true">
-		<LinearLayout android:orientation="vertical"
-			android:layout_width="fill_parent" android:layout_height="fill_parent">
-			<LinearLayout android:id="@+id/LinearLayout01"
-				android:layout_height="wrap_content"
-				style="@style/BorderPanel" android:orientation="vertical" android:layout_width="fill_parent">
-				<LinearLayout android:layout_height="wrap_content"
-					android:id="@+id/fight_items" android:orientation="vertical"
-					android:layout_width="fill_parent">
-					
-				    <include android:layout_height="wrap_content" layout="@layout/item_listitem"
-					android:id="@+id/inc_fight_ausweichen" android:layout_width="fill_parent"></include>
-				    
-				</LinearLayout>
-				
-			</LinearLayout>
-			<LinearLayout android:layout_height="wrap_content"
-				android:orientation="vertical" android:layout_width="fill_parent"
-				android:id="@+id/fight_modifiers" style="@style/BorderPanel"
-				android:layout_marginTop="5dip">
-				
-				<LinearLayout android:layout_height="wrap_content"
-					android:id="@+id/fight_modifiers_title" android:orientation="horizontal"
-					android:padding="2dp"
-					android:layout_width="fill_parent">
-					
-					<TextView android:id="@+id/fight_modifiers_title"
-					style="@style/TextViewTitle" android:layout_weight="1" android:layout_width="wrap_content" android:gravity="left|center_vertical" android:layout_height="fill_parent" android:text="Modifikatoren"></TextView>
-					
-					<com.dsatab.view.GlossyImageButton android:src="@drawable/ic_input_add" android:id="@+id/fight_modifiers_add" android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:scaleType="fitCenter"/>
-					
-				</LinearLayout>
-				
 
-			</LinearLayout>
+	<ListView
+	    android:id="@+id/fight_list"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content" style="@style/BorderPanel">
+	</ListView>
 
-		</LinearLayout>
-	</ScrollView>
-
-</RelativeLayout>
+</LinearLayout>

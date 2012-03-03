@@ -7,8 +7,7 @@
 <com.dsatab.view.DiceSlider 
 	android:id="@+id/SlidingDrawer" android:handle="@+id/SlidingHandle"
 	android:content="@+id/inc_dice_slider_content" android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:layout_marginBottom="@dimen/dice_slider_margin">
+	android:layout_height="wrap_content">
 	<LinearLayout android:layout_height="wrap_content"
 		android:id="@+id/SlidingHandle" android:orientation="horizontal"
 		android:layout_width="wrap_content">

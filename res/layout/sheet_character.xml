@@ -2,8 +2,9 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 android:id="@+id/sheet_character"
 	android:layout_height="fill_parent" android:layout_weight="1"
+	android:fillViewport="true"
 	android:scrollbarStyle="outsideOverlay" android:layout_margin="@dimen/page_margin" android:layout_width="fill_parent">
-	<RelativeLayout android:layout_height="fill_parent"
+	<RelativeLayout android:layout_height="wrap_content"
 		android:layout_width="fill_parent" android:id="@+id/gen_char_sheet">
 		<ImageView android:id="@+id/gen_portrait" android:src="@drawable/profile_blank"
 			android:layout_height="@dimen/portrait_height_small"
@@ -365,7 +366,7 @@ android:id="@+id/sheet_character"
 			<TextView android:layout_height="wrap_content"
 				android:layout_width="wrap_content" android:layout_weight="1"
 				style="@style/TextValue" android:id="@+id/attr_ini"
-				android:paddingRight="10dp" android:singleLine="true"
+				android:singleLine="true"
 				android:ellipsize="none" android:gravity="center"></TextView>
 		</LinearLayout>
 

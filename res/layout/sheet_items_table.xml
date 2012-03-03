@@ -6,11 +6,15 @@
     android:layout_margin="@dimen/page_margin"
     android:layout_height="fill_parent">    
 
-    <com.dsatab.view.ItemsTable
-        android:id="@+id/workspace"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" android:layout_marginBottom="@dimen/icon_button_size" android:stretchColumns="*" android:shrinkColumns="*">
-    </com.dsatab.view.ItemsTable>
+    <com.dsatab.view.ItemGridView android:id="@+id/workspace"
+    android:layout_width="match_parent" 
+    android:layout_height="match_parent"
+    android:verticalSpacing="@dimen/workspace_cell_padding"
+    android:horizontalSpacing="@dimen/workspace_cell_padding"
+    android:layout_marginBottom="@dimen/icon_button_size"
+	android:numColumns="auto_fit" android:stretchMode="spacingWidthUniform" android:columnWidth="@dimen/workspace_cell_width"/>
+    
+    
     
     <FrameLayout
         android:layout_width="match_parent"
@@ -24,7 +28,7 @@
         
         
         
-            <com.dsatab.view.drag.DeleteZone
+        <com.dsatab.view.DeleteZone
         android:id="@+id/delete_zone"
         android:layout_width="56dip"
         android:layout_height="56dip"
@@ -32,8 +36,7 @@
         android:layout_gravity="bottom|center_horizontal"
         android:scaleType="centerInside"
         android:src="@drawable/delete_zone_selector"
-        android:visibility="invisible"
-    />
+        android:visibility="invisible"/>
         <com.dsatab.view.PageButton
         android:id="@+id/next_screen"
         android:layout_width="wrap_content"
@@ -50,7 +53,9 @@
             
         <Spinner android:layout_width="wrap_content" android:id="@+id/screen_set_button" android:layout_height="match_parent" android:layout_gravity="center"></Spinner>
         
-            <com.dsatab.view.GlossyImageButton android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:id="@+id/fight_inventory" android:src="@drawable/inventory_selector" android:layout_gravity="center"/>
+            <com.dsatab.view.GlossyImageButton android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:id="@+id/fight_inventory" android:src="@drawable/inventory" android:layout_gravity="center"/>
+            
+            <com.dsatab.view.GlossyImageButton android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:id="@+id/fight_add_item" android:src="@drawable/ic_input_add" android:layout_gravity="center" android:layout_marginLeft="2.5dp"/>
         </LinearLayout>
         
     </FrameLayout>

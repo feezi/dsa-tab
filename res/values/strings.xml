@@ -74,7 +74,7 @@
 <string name="modifikatoren">Modifikatoren</string>
 <string name="menu_edit_item">Eintrag bearbeiten</string>
 <string name="recording">Aufnahme</string>
-<string name="recording_message">Aufnahme läuft...</string>
+<string name="recording_message">Aufnahme läuft&#8230;</string>
 <string name="label_save">Speichern</string>
 <string name="settings">Einstellungen</string>
 

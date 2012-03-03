@@ -575,3 +575,38 @@ Wolfsfluch;IV;P
 Wolfsruf;II;PP
 Zeichen setzen;II;speziell
 Zorn des Berglöwen;II;S
+
+#Bezeichnung; Grad ;Ziel ;Rw ;RD ;Auswirkung;WD ;Herkunft ;Seite;Probe;Merkmale
+El Vanidad (Tanz der Bilder);;; ;;;; Haz7, Maj7, Nov6, Tul6;WdZ143; CH/CH/GE; Illusion
+Firuns Jagd;;; ;;;; Maj5; WdZ142; CH/GE/KO; Eigenschaft
+Heschinjas Blick (Tanz der Wahrheit);;; ;;;; Nov4, Tul4; WdZ144, WdZ144; IN/IN/CH; Hellsicht
+Hesindes Macht (Tanz der Erlösung);;; ;;;; Haz6, Nov5, Tul5, Maj4; WdZ143; MU/CH/CH; Antimagie, Einfluss, Herrschaft
+Khablas Verlockung (Tanz der Liebe);;; ;;;; Tul6, Haz5, Nov5; WdZ144; IN/CH/GE; Einfluss, Verständigung
+Madayana;;; ;;;; Haz3, Maj1; WdZ142; MU/CH/CH; Verständigung
+Marhibos Hand (Tanz der Erlösung);;; ;;;; Haz6, Nov5, Tul5, Maj4; WdZ143; MU/CH/CH; Antimagie, Einfluss, Herrschaft
+Nahemas Traum (Tanz ohne Ende);;; ;;;; Haz4, Maj3, Tul3, Nov2; WdZ145; MU/IN/CH; Herrschaft
+Orhimas Tanz (Tanz der Weisheit);;; ;;;; Nov6; WdZ145, WdZ145; KL/KL/CH; Eigenschaft, Hellsicht
+Pavonearse (Tanz der Ermutigung);;; ;;;; Maj7, Nov7, Tul7, Haz6; WdZ143; MU/MU/CH; Eigenschaft, Einfluss
+Peraines Liebe (Tanz der Freude);;; ;;;; Nov6, Tul 6, Maj3; WdZ144; IN/CH/GE; Heilung, Einfluss
+Perhinas Segen (Tanz der Freude);;; ;;;; Nov6, Tul 6, Maj3; WdZ144; IN/CH/GE; Heilung, Einfluss
+Phexens Geschmeide (Tanz der Bilder);;; ;;;; Haz7, Maj7, Nov6, Tul6; WdZ143; CH/CH/GE; Illusion
+Rahjarra (Tanz der Liebe);;; ;;;; Tul6, Haz5, Nov5; WdZ144; IN/CH/GE; Einfluss, Verständigung
+Rahjas Begehren;;; ;;;; Maj5; WdZ143; MU/CH/CH; Eigenschaft, Einfluss
+Rhondaras Forderung (Tanz der Ermutigung);;; ;;;; Maj7, Nov7, Tul7, Haz6; WdZ143; MU/MU/CH; Eigenschaft, Einfluss
+Rondras Mut (Tanz der Ermutigung);;; ;;;; Maj7, Nov7, Tul7, Haz6; WdZ143; MU/MU/CH; Eigenschaft, Einfluss
+Satinavs Gabe (Tanz ohne Ende);;; ;;;; Haz4, Maj3, Tul3, Nov2; WdZ145; MU/IN/CH; Herrschaft
+Selinata;;; ;;;; Haz4; WdZ143; MU/IN/CH; Einfluss
+Shimijas Rausch (Tanz der Bilder);;; ;;;; Haz7, Maj7, Nov6, Tul6; WdZ143; CH/CH/GE; Illusion
+Suenyo (Tanz ohne Ende);;; ;;;; Haz4, Maj3, Tul3, Nov2; WdZ145; MU/IN/CH; Herrschaft
+Tanz der Bilder;;; ;;;; Haz7, Maj7, Nov6, Tul6; WdZ143; CH/CH/GE; Illusion
+Tanz der Erlösung;;; ;;;; Haz6, Nov5, Tul5, Maj4; WdZ143; MU/CH/CH; Antimagie, Einfluss, Herrschaft
+Tanz der Ermutigung;;; ;;;; Maj7, Nov7, Tul7, Haz6; WdZ143; MU/MU/CH; Eigenschaft, Einfluss
+Tanz der Freude;;; ;;;; Nov6, Tul 6, Maj3; WdZ144; IN/CH/GE; Heilung, Einfluss
+Tanz der Gemeinschaft;;; ;;;; Tul2; WdZ144; KL/IN/CH; Verständigung
+Tanz der Liebe;;; ;;;; Tul6,  Haz5, Nov5; WdZ144; IN/CH/GE; Einfluss, Verständigung
+Tanz der Wahrheit;;; ;;;; Nov4, Tul4; WdZ144; IN/IN/CH; Hellsicht
+Tanz der Weisheit;;; ;;;; Nov6; WdZ145; KL/KL/CH; Eigenschaft, Hellsicht
+Tanz des Ungehorsams;;; ;;;; Tul4; WdZ145; MU/IN/CH; Eigenschaft
+Tanz für Rastullah (Tanz der Unantastbarkeit);;; ;;;; Nov4; WdZ144; MU/KK/KO; 
+Tanz ohne Ende;;; ;;;; Haz4, Maj3, Tul3, Nov2; WdZ145; MU/IN/CH; Herrschaft
+Zarpada (Tanz der Erlösung);;; ;;;; Haz6, Nov5, Tul5, Maj4; WdZ143; MU/CH/CH; Antimagie, Einfluss, Herrschaft

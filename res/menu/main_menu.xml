@@ -1,18 +1,33 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/option_settings"
           android:icon="@drawable/ic_menu_preferences"
-          android:title="Einstellungen" />
+          android:title="Einstellungen"
+          android:orderInCategory="1"
+          android:showAsAction="never" />
     <item android:id="@+id/option_load_hero"
           android:icon="@drawable/ic_menu_archive"
-          android:title="Held laden" />
+          android:title="Held laden"
+          android:orderInCategory="1"
+          android:showAsAction="never" />
     <item android:id="@+id/option_save_hero"
           android:icon="@drawable/ic_menu_save"
-          android:title="Held speichern" />	              
+          android:title="Held speichern"
+          android:orderInCategory="1"
+          android:showAsAction="never" />	              
     <item android:id="@+id/option_export_hero"
           android:icon="@drawable/ic_menu_upload"
-          android:title="Held exportieren" />
-          
-          <item android:id="@+id/option_filter"
+          android:title="Held exportieren"
+          android:orderInCategory="1"
+          android:showAsAction="never" />          
+    <item android:id="@+id/option_filter"
           android:icon="@drawable/ic_menu_view"
-          android:title="Filtereinstellung" />
+          android:title="Filtereinstellung"
+          android:orderInCategory="1"
+          android:showAsAction="never" />
+    
+<item android:id="@+id/option_edit_tabs"
+          android:icon="@drawable/ic_menu_account_list"
+          android:title="Tabs anpassen"
+          android:orderInCategory="2"
+          android:showAsAction="never" />    
 </menu>

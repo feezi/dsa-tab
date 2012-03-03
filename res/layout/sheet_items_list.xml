@@ -32,7 +32,7 @@
 		</LinearLayout>
     
     
-    <ListView android:layout_width="fill_parent" android:id="@android:id/list" android:layout_height="fill_parent" style="@style/BorderPanel" android:layout_below="@+id/items_buttons" android:paddingLeft="2.5dp" android:paddingRight="2.5dp" android:cacheColorHint="#00000000">
+    <ListView android:layout_width="fill_parent" android:id="@android:id/list" android:layout_height="fill_parent" style="@style/BorderPanel" android:layout_below="@+id/items_buttons" android:cacheColorHint="#00000000">
 	</ListView>
 
 </RelativeLayout>

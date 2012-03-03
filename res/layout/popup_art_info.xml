@@ -4,7 +4,7 @@
 	android:layout_height="fill_parent">
 
 	<TableLayout android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:stretchColumns="0,1"
+		android:layout_height="wrap_content" android:stretchColumns="0,1"
 		android:paddingLeft="5dp" android:paddingRight="5dp"
 		android:shrinkColumns="1" android:id="@+id/popup_liturgie_table">
 		
@@ -92,6 +92,16 @@
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text="10SP"
 				style="@style/TextValue.Small.NoTouch" android:id="@+id/popup_liturgie_origin" android:gravity="right|center_vertical"></TextView>
+		</TableRow>
+		
+		    <TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Quelle" style="@style/TextLabel.Popup"></TextView>
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_liturgie_source" style="@style/TextValue.NoTouch" android:gravity="right|center_vertical"></TextView>
+		</TableRow>
+		
+		        <TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Merkmal" android:paddingRight="5dp" style="@style/TextLabel.Popup"></TextView>
+			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Objekt" android:id="@+id/popup_liturgie_merkmal" style="@style/TextValue.NoTouch" android:gravity="right|center_vertical"></TextView>
 		</TableRow>
 		
 	</TableLayout>
