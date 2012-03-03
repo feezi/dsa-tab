@@ -51,7 +51,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.text.Html;
 import android.text.TextUtils;
-import android.util.AndroidRuntimeException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -64,6 +63,7 @@ import android.widget.Toast;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
+import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.activity.DsaPreferenceActivity;
 import com.dsatab.activity.DsaPreferenceActivityHC;
 import com.dsatab.data.Hero;
@@ -116,13 +116,13 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 	private boolean isConfigured() {
 		final SharedPreferences preferences = DSATabApplication.getPreferences();
 
-		if (preferences.contains(DsaPreferenceActivityHC.KEY_EXCHANGE_USERNAME)
-				&& preferences.contains(DsaPreferenceActivityHC.KEY_EXCHANGE_PASSWORD)
-				&& preferences.contains(DsaPreferenceActivityHC.KEY_EXCHANGE_PROVIDER)) {
+		if (preferences.contains(BasePreferenceActivity.KEY_EXCHANGE_USERNAME)
+				&& preferences.contains(BasePreferenceActivity.KEY_EXCHANGE_PASSWORD)
+				&& preferences.contains(BasePreferenceActivity.KEY_EXCHANGE_PROVIDER)) {
 
-			String user = preferences.getString(DsaPreferenceActivityHC.KEY_EXCHANGE_USERNAME, "");
-			String password = preferences.getString(DsaPreferenceActivityHC.KEY_EXCHANGE_USERNAME, "");
-			String provider = preferences.getString(DsaPreferenceActivityHC.KEY_EXCHANGE_USERNAME, "");
+			String user = preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME, "");
+			String password = preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME, "");
+			String provider = preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME, "");
 
 			return !TextUtils.isEmpty(user) && !TextUtils.isEmpty(password) && !TextUtils.isEmpty(provider);
 		}
@@ -225,12 +225,12 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 			editor.commit();
 
 			StringBuilder sb = new StringBuilder();
-			sb.append(preferences.getString(DsaPreferenceActivityHC.KEY_EXCHANGE_PROVIDER,
-					DsaPreferenceActivityHC.DEFAULT_EXCHANGE_PROVIDER));
+			sb.append(preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_PROVIDER,
+					BasePreferenceActivity.DEFAULT_EXCHANGE_PROVIDER));
 			sb.append("index.php?login=");
-			sb.append(preferences.getString(DsaPreferenceActivityHC.KEY_EXCHANGE_USERNAME, DEFAULT_USERNAME));
+			sb.append(preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME, DEFAULT_USERNAME));
 			sb.append("&password=");
-			sb.append(preferences.getString(DsaPreferenceActivityHC.KEY_EXCHANGE_PASSWORD, DEFAULT_PASSWORD));
+			sb.append(preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_PASSWORD, DEFAULT_PASSWORD));
 			sb.append("&action=downloadheld2&hkey=");
 			sb.append(key);
 
@@ -381,19 +381,19 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 
 					HttpClient httpclient = new DefaultHttpClient();
 					HttpPost httppost = new HttpPost(preferences.getString(
-							DsaPreferenceActivityHC.KEY_EXCHANGE_PROVIDER,
-							DsaPreferenceActivityHC.DEFAULT_EXCHANGE_PROVIDER)
+							BasePreferenceActivity.KEY_EXCHANGE_PROVIDER,
+							BasePreferenceActivity.DEFAULT_EXCHANGE_PROVIDER)
 							+ "index.php");
 
 					MultipartEntity entity = new MultipartEntity();
 
 					entity.addPart(
 							"login",
-							new StringBody(preferences.getString(DsaPreferenceActivityHC.KEY_EXCHANGE_USERNAME,
+							new StringBody(preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME,
 									DEFAULT_USERNAME)));
 					entity.addPart(
 							"password",
-							new StringBody(preferences.getString(DsaPreferenceActivityHC.KEY_EXCHANGE_PASSWORD,
+							new StringBody(preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_PASSWORD,
 									DEFAULT_PASSWORD)));
 					entity.addPart("hkey", new StringBody(hero.getKey()));
 					entity.addPart("name", new StringBody(hero.getName()));
@@ -405,7 +405,7 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 
 					entity.addPart(
 							"masterlogin",
-							new StringBody(preferences.getString(DsaPreferenceActivityHC.KEY_EXCHANGE_USERNAME,
+							new StringBody(preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME,
 									DEFAULT_USERNAME)));
 					entity.addPart("action", new StringBody("uploadheld"));
 					httppost.setEntity(entity);
@@ -473,7 +473,7 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 			case RESULT_ERROR:
 				Toast.makeText(context, "Held konnte nicht exportiert werden.", Toast.LENGTH_LONG);
 				if (caughtException != null) {
-					throw new AndroidRuntimeException("Could not export hero.", caughtException);
+					throw new DsaTabRuntimeException("Could not export hero.", caughtException);
 				}
 				break;
 			}
@@ -665,7 +665,7 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 				break;
 			case RESULT_ERROR:
 				Toast.makeText(context, R.string.download_error, Toast.LENGTH_SHORT).show();
-				throw new AndroidRuntimeException("Could not import hero from " + innerFile, caughtException);
+				throw new DsaTabRuntimeException("Could not import hero from " + innerFile, caughtException);
 			}
 
 		}

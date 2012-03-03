@@ -32,6 +32,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
@@ -70,6 +72,49 @@ public class NotesEditFragment extends BaseFragment implements OnClickListener, 
 		public void onNoteSaved(Bundle data);
 
 		public void onNoteCanceled();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.support.v4.app.Fragment#onCreateOptionsMenu(com.actionbarsherlock
+	 * .view.Menu, com.actionbarsherlock.view.MenuInflater)
+	 */
+	@Override
+	public void onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.accept_abort_menu, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.support.v4.app.Fragment#onOptionsItemSelected(com.actionbarsherlock
+	 * .view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.option_accept) {
+			accept();
+			return true;
+		} else if (item.getItemId() == R.id.option_cancel) {
+			cancel();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	/*
@@ -229,26 +274,39 @@ public class NotesEditFragment extends BaseFragment implements OnClickListener, 
 	@Override
 	public void onClick(View v) {
 		if (v.getId() == R.id.popup_notes_save) {
-
-			EditText editText = (EditText) findViewById(R.id.popup_notes_edit_text);
-
-			if (onNotesEditListener != null) {
-				Bundle data = new Bundle(5);
-				data.putString(INTENT_NAME_EVENT_TEXT, editText.getText().toString());
-				data.putString(INTENT_NAME_EVENT_NAME, editName.getText().toString());
-				data.putString(INTENT_NAME_EVENT_SOZIALSTATUS, editSozialStatus.getText().toString());
-				data.putSerializable(INTENT_NAME_EVENT_CATEGORY, category);
-				data.putString(INTENT_NAME_AUDIO_PATH, audioPath);
-
-				onNotesEditListener.onNoteSaved(data);
-
-				Util.hideKeyboard(editText);
-			}
-
+			accept();
 		} else if (v.getId() == R.id.popup_notes_cancel) {
-			if (onNotesEditListener != null)
-				onNotesEditListener.onNoteCanceled();
+			cancel();
 
+		}
+
+	}
+
+	/**
+	 * 
+	 */
+	protected void cancel() {
+		if (onNotesEditListener != null)
+			onNotesEditListener.onNoteCanceled();
+	}
+
+	/**
+	 * 
+	 */
+	protected void accept() {
+		EditText editText = (EditText) findViewById(R.id.popup_notes_edit_text);
+
+		if (onNotesEditListener != null) {
+			Bundle data = new Bundle(5);
+			data.putString(INTENT_NAME_EVENT_TEXT, editText.getText().toString());
+			data.putString(INTENT_NAME_EVENT_NAME, editName.getText().toString());
+			data.putString(INTENT_NAME_EVENT_SOZIALSTATUS, editSozialStatus.getText().toString());
+			data.putSerializable(INTENT_NAME_EVENT_CATEGORY, category);
+			data.putString(INTENT_NAME_AUDIO_PATH, audioPath);
+
+			onNotesEditListener.onNoteSaved(data);
+
+			Util.hideKeyboard(editText);
 		}
 
 	}

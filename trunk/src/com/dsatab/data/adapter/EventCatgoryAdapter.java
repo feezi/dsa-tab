@@ -3,6 +3,7 @@ package com.dsatab.data.adapter;
 import java.util.List;
 
 import android.content.Context;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -13,34 +14,12 @@ import com.gandulf.guilib.view.adapter.SpinnerSimpleAdapter;
 
 public class EventCatgoryAdapter extends SpinnerSimpleAdapter<EventCategory> {
 
-	public EventCatgoryAdapter(Context context, int textViewResourceId, EventCategory[] objects) {
-		super(context, textViewResourceId, objects);
-
-	}
-
-	public EventCatgoryAdapter(Context context, int resource, int textViewResourceId, EventCategory[] objects) {
-		super(context, resource, textViewResourceId, objects);
-
-	}
-
-	public EventCatgoryAdapter(Context context, int resource, int textViewResourceId, List<EventCategory> objects) {
-		super(context, resource, textViewResourceId, objects);
-
-	}
-
-	public EventCatgoryAdapter(Context context, int resource, int textViewResourceId) {
-		super(context, resource, textViewResourceId);
-
-	}
-
 	public EventCatgoryAdapter(Context context, int textViewResourceId, List<EventCategory> objects) {
 		super(context, textViewResourceId, objects);
-
 	}
 
 	public EventCatgoryAdapter(Context context, int textViewResourceId) {
 		super(context, textViewResourceId);
-
 	}
 
 	@Override
@@ -55,6 +34,7 @@ public class EventCatgoryAdapter extends SpinnerSimpleAdapter<EventCategory> {
 			textView.setCompoundDrawablePadding(getContext().getResources()
 					.getDimensionPixelSize(R.dimen.dices_padding));
 			textView.setText(e.name());
+			textView.setGravity(Gravity.CENTER_VERTICAL);
 		}
 
 		return view;
@@ -72,6 +52,7 @@ public class EventCatgoryAdapter extends SpinnerSimpleAdapter<EventCategory> {
 			textView.setCompoundDrawablePadding(getContext().getResources()
 					.getDimensionPixelSize(R.dimen.dices_padding));
 			textView.setText(e.name());
+			textView.setGravity(Gravity.CENTER_VERTICAL);
 		}
 
 		return view;

@@ -26,15 +26,20 @@ import com.dsatab.common.Util;
  */
 public class ArtInfo {
 
-	private static final String[] COSTS = { "2 KaP", "5 KaP", "10 KaP", "15 KaP", "20 KaP", "25 KaP/ 1 pKap",
+	private static final String[] LITURGIE_COSTS = { "2 KaP", "5 KaP", "10 KaP", "15 KaP", "20 KaP", "25 KaP/ 1 pKap",
 			"30 KaP/ 3 pKaP", "35 Kap/ 5 pKap", "40 KaP/ 7 pKaP", "45 KaP/ 9 pKaP" };
+
 	private String name;
 
-	private int grade;
+	private String source;
+
+	private String probe;
 
 	private String target;
 
 	private String range;
+
+	private String merkmale;
 
 	private String castDuration;
 
@@ -44,7 +49,7 @@ public class ArtInfo {
 
 	private String origin;
 
-	private String source;
+	private int grade;
 
 	/**
 	 * 
@@ -58,7 +63,10 @@ public class ArtInfo {
 	}
 
 	public String getFullName() {
-		return name + " " + Util.intToGrade(grade);
+		if (grade >= 0)
+			return name + " " + Util.intToGrade(grade);
+		else
+			return name;
 	}
 
 	public void setName(String name) {
@@ -73,8 +81,24 @@ public class ArtInfo {
 		this.grade = grade;
 	}
 
+	public String getProbe() {
+		return probe;
+	}
+
+	public void setProbe(String probe) {
+		this.probe = probe;
+	}
+
 	public String getTarget() {
 		return target;
+	}
+
+	public String getMerkmale() {
+		return merkmale;
+	}
+
+	public void setMerkmale(String merkmale) {
+		this.merkmale = merkmale;
 	}
 
 	public String getTargetDetailed() {
@@ -108,7 +132,7 @@ public class ArtInfo {
 
 	public String getCosts() {
 		if (grade >= 0)
-			return COSTS[grade];
+			return LITURGIE_COSTS[grade];
 		else
 			return "";
 	}

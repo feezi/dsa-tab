@@ -27,7 +27,6 @@ import android.os.Parcelable;
 import com.dsatab.data.JSONable;
 import com.dsatab.fragment.ArtFragment;
 import com.dsatab.fragment.BaseFragment;
-import com.dsatab.fragment.ItemsTableFragment;
 import com.dsatab.fragment.MapFragment;
 
 /**
@@ -94,6 +93,10 @@ public class TabInfo implements Parcelable, JSONable {
 		this(activityClazz1, null, tabResourceId, true);
 	}
 
+	public TabInfo() {
+		this(null, null, -1, true);
+	}
+
 	/**
 	 * 
 	 */
@@ -122,9 +125,6 @@ public class TabInfo implements Parcelable, JSONable {
 			if ("com.dsatab.fragment.LiturgieFragment".equals(className)) {
 				className = ArtFragment.class.getName();
 			}
-			if ("com.dsatab.fragment.ItemsFragment".equals(className)) {
-				className = ItemsTableFragment.class.getName();
-			}
 
 			primaryActivityClazz = (Class<? extends BaseFragment>) Class.forName(className, true,
 					BaseFragment.class.getClassLoader());
@@ -136,9 +136,7 @@ public class TabInfo implements Parcelable, JSONable {
 			if ("com.dsatab.fragment.LiturgieFragment".equals(className)) {
 				className = ArtFragment.class.getName();
 			}
-			if ("com.dsatab.fragment.ItemsFragment".equals(className)) {
-				className = ItemsTableFragment.class.getName();
-			}
+
 			secondaryActivityClazz = (Class<? extends BaseFragment>) Class.forName(className, true,
 					BaseFragment.class.getClassLoader());
 		}
@@ -184,6 +182,14 @@ public class TabInfo implements Parcelable, JSONable {
 
 	public void setTabResourceId(int tabResourceId) {
 		this.tabResourceIndex = resourceIdToIndex(tabResourceId);
+	}
+
+	public int getTabResourceIndex() {
+		return tabResourceIndex;
+	}
+
+	public void setTabResourceIndex(int tabResourceIndex) {
+		this.tabResourceIndex = tabResourceIndex;
 	}
 
 	public boolean isDiceSlider() {

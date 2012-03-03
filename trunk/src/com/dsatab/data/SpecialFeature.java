@@ -63,6 +63,8 @@ public class SpecialFeature {
 	public static final String KAMPFREFLEXE = "Kampfreflexe";
 	public static final String KAMPFGESPUER = "Kampfgespür";
 
+	public static final String KLINGENTAENZER = "Klingentänzer";
+
 	public static final String TALENTSPEZIALISIERUNG_PREFIX = "Talentspezialisierung ";
 
 	private String name, additionalInfo, parameter1, parameter2, comment;

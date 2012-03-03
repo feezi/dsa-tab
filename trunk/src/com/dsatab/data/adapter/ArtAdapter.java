@@ -32,6 +32,8 @@ import android.widget.TextView;
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.Art;
+import com.dsatab.data.Talent.Flags;
+import com.dsatab.data.filter.FilterableListFilter;
 import com.dsatab.view.ListFilterSettings;
 
 /**
@@ -48,15 +50,6 @@ public class ArtAdapter extends OpenArrayAdapter<Art> {
 	private LayoutInflater inflater;
 
 	private Bitmap indicatorStar;
-
-	/**
-	 * @param context
-	 * @param textViewResourceId
-	 * @param objects
-	 */
-	public ArtAdapter(Context context, List<Art> liturgies, boolean showFavorite, boolean showNormal, boolean showUnused) {
-		this(context, liturgies, new ListFilterSettings(showFavorite, showNormal, showUnused));
-	}
 
 	public ArtAdapter(Context context, List<Art> liturgies, ListFilterSettings filterSettings) {
 		super(context, 0, 0, liturgies);
@@ -168,7 +161,7 @@ public class ArtAdapter extends OpenArrayAdapter<Art> {
 			holder.text4.setVisibility(View.INVISIBLE);
 
 		if (holder.indicator != null) {
-			if (art.isBegabung()) {
+			if (art.hasFlag(Flags.Begabung)) {
 				holder.indicator.setVisibility(View.VISIBLE);
 				holder.indicator.setImageBitmap(indicatorStar);
 			} else {

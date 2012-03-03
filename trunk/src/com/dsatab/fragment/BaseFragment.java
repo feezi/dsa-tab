@@ -81,6 +81,14 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 		super.onAttach(activity);
 	}
 
+	/**
+	 * special method that is called when this fragment is actually shown on
+	 * screen and not only preloaded in the ViewPager
+	 */
+	public void onShown() {
+
+	}
+
 	protected boolean isOnScreen() {
 		if (getActivity() instanceof MainActivity) {
 			MainActivity mainActivity = (MainActivity) getActivity();
@@ -383,6 +391,18 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 
 	@Override
 	public void onItemChanged(EquippedItem item) {
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroChangedListener#onItemChanged(com.dsatab
+	 * .data.items.Item)
+	 */
+	@Override
+	public void onItemChanged(Item item) {
 
 	}
 

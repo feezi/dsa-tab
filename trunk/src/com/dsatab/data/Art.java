@@ -2,98 +2,21 @@ package com.dsatab.data;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.jdom.Element;
 
 import android.text.TextUtils;
-import android.util.AndroidRuntimeException;
 
+import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.common.Util;
+import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.xml.Xml;
 import com.gandulf.guilib.util.Debug;
 
 public class Art extends MarkableElement implements Value, Markable {
-
-	public static final Map<String, ArtType> artMappings = new HashMap<String, Art.ArtType>();
-	static {
-		artMappings.put("Apport", ArtType.Stabzauber);
-		artMappings.put("Bannschwert", ArtType.Stabzauber);
-		artMappings.put("Die Gestalt aus Rauch", ArtType.Ritual);
-		artMappings.put("Kristallkraft bündeln", ArtType.KristallomantischesRitual);
-	}
-
-	public enum ArtType {
-		Liturige(LITURGIE_PREFIX, Talent.LITURGIE_KENNTNIS_PREFIX), Ritual(RITUAL_PREFIX, Talent.RITUAL_KENNTNIS_PREFIX), RitualSeher(
-				RITUAL_SEHER_PREFIX, Talent.RITUAL_KENNTNIS_PREFIX), Stabzauber(STABZAUBER_PREFIX,
-				Talent.RITUAL_KENNTNIS_GILDENMAGIE), Schalenzauber(SCHALENZAUBER_PREFIX,
-				Talent.RITUAL_KENNTNIS_ALCHEMIST), SchlangenringZauber(SCHLANGENRING_ZAUBER_PEFIX,
-				Talent.RITUAL_KENNTNIS_GEODE), Schuppenbeutel(SCHUPPENBEUTEL_PREFIX,
-				Talent.RITUAL_KENNTNIS_KRISTALLOMANTIE), Trommelzauber(TROMMELZAUBER_PREFIX,
-				Talent.RITUAL_KENNTNIS_DERWISCH), Runen(RUNEN_PREFIX), Kugelzauber(KUGELZAUBER_PREFIX), KristallomantischesRitual(
-				KRISTALLOMANTISCHES_RITUAL_PREFIX, Talent.RITUAL_KENNTNIS_KRISTALLOMANTIE), Hexenfluch(
-				HEXENFLUCH_PREFIX, Talent.RITUAL_KENNTNIS_HEXE), GabeDesOdun(GABE_DES_ODUN_PREFIX,
-				Talent.RITUAL_KENNTNIS_DURRO_DUN), DruidischesHerrschaftsritual(DRUIDISCHES_HERRSCHAFTSRITUAL_PREFIX,
-				Talent.RITUAL_KENNTNIS_DRUIDE), DruidischesDolchritual(DRUIDISCHES_DOLCHRITUAL_PREFIX,
-				Talent.RITUAL_KENNTNIS_DRUIDE), Zaubertanz(ZAUBERTANZ_PREFIX,
-				Talent.RITUAL_KENNTNIS_ZAUBERTAENZER_PREFIX), Zauberzeichen(ZAUBERZEICHEN_PREFIX), ZibiljaRitual(
-				ZIBILJA_RITUAL_PREFIX, Talent.RITUAL_KENNTNIS_ZIBILJA);
-
-		private String prefix;
-
-		private String talentName;
-
-		private ArtType(String prefix) {
-			this.prefix = prefix;
-			this.talentName = null;
-		}
-
-		private ArtType(String prefix, String talentName) {
-			this.prefix = prefix;
-			this.talentName = talentName;
-		}
-
-		public String prefix() {
-			return prefix;
-		}
-
-		public String talentName() {
-			return talentName;
-		}
-
-		public String getName() {
-			String name = prefix.trim();
-			if (name.endsWith(":"))
-				name = name.substring(0, name.length() - 1);
-
-			return name;
-		}
-
-		public static ArtType getTypeOfArt(String artName) {
-			ArtType[] types = ArtType.values();
-			ArtType result = null;
-			result = artMappings.get(artName);
-			if (result == null) {
-				for (ArtType type : types) {
-					if (artName.startsWith(type.prefix)) {
-						result = type;
-						break;
-					}
-				}
-			}
-			return result;
-		}
-
-		public String truncateName(String artName) {
-			if (artName.startsWith(prefix)) {
-				return artName.substring(prefix.length()).trim();
-			} else {
-				return artName.trim();
-			}
-		}
-	}
 
 	public static final String LITURGIE_PREFIX = "Liturgie: ";
 	public static final String RITUAL_PREFIX = "Ritual: ";
@@ -137,7 +60,7 @@ public class Art extends MarkableElement implements Value, Markable {
 
 	private Talent kenntnis;
 
-	private boolean begabung;
+	private EnumSet<Flags> flags = EnumSet.noneOf(Flags.class);
 
 	private boolean customProbe;
 
@@ -152,7 +75,7 @@ public class Art extends MarkableElement implements Value, Markable {
 		if (type != null) {
 			name = type.truncateName(name);
 		} else {
-			throw new AndroidRuntimeException("Unknown Art type for: " + name);
+			throw new DsaTabRuntimeException("Unknown Art type for: " + name);
 		}
 
 		// we have a grade specification in the name: Erdsegen (III)
@@ -188,9 +111,15 @@ public class Art extends MarkableElement implements Value, Markable {
 			probeInfo = kenntnis.getProbeInfo().clone();
 		}
 
-		probeInfo.applyProbePattern(element.getAttributeValue(Xml.KEY_PROBE));
+		if (info != null && !TextUtils.isEmpty(info.getProbe())) {
+			probeInfo.applyProbePattern(info.getProbe());
+		}
 
-		if (probeInfo.getErschwernis() == null && info != null) {
+		if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_PROBE))) {
+			probeInfo.applyProbePattern(element.getAttributeValue(Xml.KEY_PROBE));
+		}
+
+		if (probeInfo.getErschwernis() == null && info != null && info.getGrade() >= 0) {
 			probeInfo.setErschwernis(info.getGrade() * 2 - 2);
 		}
 
@@ -213,12 +142,12 @@ public class Art extends MarkableElement implements Value, Markable {
 
 	}
 
-	public boolean isBegabung() {
-		return begabung;
+	public boolean hasFlag(Flags flag) {
+		return flags.contains(flag);
 	}
 
-	public void setBegabung(boolean begabung) {
-		this.begabung = begabung;
+	public void addFlag(Flags flag) {
+		flags.add(flag);
 	}
 
 	public String getName() {
@@ -397,6 +326,13 @@ public class Art extends MarkableElement implements Value, Markable {
 	public String getSource() {
 		if (info != null)
 			return info.getSource();
+		else
+			return null;
+	}
+
+	public String getMerkmale() {
+		if (info != null)
+			return info.getMerkmale();
 		else
 			return null;
 	}

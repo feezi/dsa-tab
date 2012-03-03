@@ -15,7 +15,6 @@
  */
 package com.dsatab.fragment;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,14 +26,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.database.DataSetObserver;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
@@ -53,6 +48,7 @@ import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
+import com.dsatab.data.ItemLocationInfo;
 import com.dsatab.data.adapter.GalleryImageAdapter;
 import com.dsatab.data.enums.Position;
 import com.dsatab.data.items.EquippedItem;
@@ -64,14 +60,12 @@ import com.dsatab.view.FastAnimationSet;
 import com.dsatab.view.FastTranslateAnimation;
 import com.dsatab.view.ItemChooserDialog;
 import com.dsatab.view.ItemListItem;
-import com.dsatab.view.drag.ItemLocationInfo;
 import com.dsatab.xml.DataManager;
 import com.gandulf.guilib.util.Debug;
 
 public class ItemChooserFragment extends BaseFragment implements View.OnClickListener, View.OnLongClickListener {
 
-	public static final String INTENT_EXTRA_ITEM_X = "itemX";
-	public static final String INTENT_EXTRA_ITEM_Y = "itemY";
+	public static final String INTENT_EXTRA_ITEM_CELL = "itemCell";
 	public static final String INTENT_EXTRA_ITEM_NAME = "itemName";
 	public static final String INTENT_EXTRA_ITEM_ID = "itemID";
 	public static final String INTENT_EXTRA_EQUIPPED_ITEM_ID = "equippedItemID";
@@ -93,7 +87,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	private View searchContainer;
 	private AutoCompleteTextView searchText;
 
-	private int itemX, itemY;
+	private int cellNumber;
 
 	private GalleryImageAdapter imageAdapter;
 
@@ -121,8 +115,10 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 	private Drawable itemDrawable;
 
+	private DataSetObserver dataSetObserver;
+
 	public interface OnItemChooserListener {
-		public void onItemSelected(Item item, int itemX, int itemY);
+		public void onItemSelected(Item item, int cellNumber);
 
 		public void onItemCanceled();
 	}
@@ -173,6 +169,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	public void onDetach() {
 		super.onDetach();
 		onItemChooserListener = null;
+		imageAdapter.unregisterDataSetObserver(dataSetObserver);
 	}
 
 	/*
@@ -183,64 +180,65 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 
-		String itemCategory;
+		String itemCategory = null;
 
 		Bundle extra = getActivity().getIntent().getExtras();
+		if (extra != null) {
+			foundItem = (Item) extra.getSerializable(INTENT_EXTRA_ITEM);
 
-		foundItem = (Item) extra.getSerializable(INTENT_EXTRA_ITEM);
+			cellNumber = extra.getInt(INTENT_EXTRA_ITEM_CELL, ItemLocationInfo.INVALID_POSITION);
+			categorySelectable = extra.getBoolean(INTENT_EXTRA_CATEGORY_SELECTABLE, true);
+			searchable = extra.getBoolean(INTENT_EXTRA_SEARCHABLE, true);
 
-		itemX = extra.getInt(INTENT_EXTRA_ITEM_X, ItemLocationInfo.INVALID_POSITION);
-		itemY = extra.getInt(INTENT_EXTRA_ITEM_Y, ItemLocationInfo.INVALID_POSITION);
-		categorySelectable = extra.getBoolean(INTENT_EXTRA_CATEGORY_SELECTABLE, true);
-		searchable = extra.getBoolean(INTENT_EXTRA_SEARCHABLE, true);
+			if (foundItem == null) {
+				String itemName = extra.getString(INTENT_EXTRA_ITEM_NAME);
+				UUID itemId = (UUID) extra.getSerializable(INTENT_EXTRA_ITEM_ID);
+				UUID equippedItemId = (UUID) extra.getSerializable(INTENT_EXTRA_EQUIPPED_ITEM_ID);
 
-		if (foundItem == null) {
-			String itemName = extra.getString(INTENT_EXTRA_ITEM_NAME);
-			UUID itemId = (UUID) extra.getSerializable(INTENT_EXTRA_ITEM_ID);
-			UUID equippedItemId = (UUID) extra.getSerializable(INTENT_EXTRA_EQUIPPED_ITEM_ID);
+				String itemType = extra.getString(INTENT_EXTRA_ITEM_TYPE);
+				itemCategory = extra.getString(INTENT_EXTRA_ITEM_CATEGORY);
 
-			String itemType = extra.getString(INTENT_EXTRA_ITEM_TYPE);
-			itemCategory = extra.getString(INTENT_EXTRA_ITEM_CATEGORY);
+				cardType = ItemType.Waffen;
+				if (itemType != null) {
+					cardType = ItemType.valueOf(itemType);
+				}
 
-			cardType = ItemType.Waffen;
-			if (itemType != null) {
-				cardType = ItemType.valueOf(itemType);
-			}
+				if (itemId != null) {
+					Hero hero = DSATabApplication.getInstance().getHero();
+					foundItem = hero.getItem(itemId);
+				}
 
-			if (itemId != null) {
-				Hero hero = DSATabApplication.getInstance().getHero();
-				foundItem = hero.getItem(itemId);
-			}
+				if (equippedItemId != null) {
+					Hero hero = DSATabApplication.getInstance().getHero();
+					EquippedItem selectedEquippedItem = hero.getEquippedItem(equippedItemId);
+					foundItem = selectedEquippedItem.getItem();
+					selectedItemSpecification = selectedEquippedItem.getItemSpecification();
+				}
+				if (foundItem == null && !TextUtils.isEmpty(itemName)) {
+					foundItem = DataManager.getItemByName(itemName);
+				}
 
-			if (equippedItemId != null) {
-				Hero hero = DSATabApplication.getInstance().getHero();
-				EquippedItem selectedEquippedItem = hero.getEquippedItem(equippedItemId);
-				foundItem = selectedEquippedItem.getItem();
-				selectedItemSpecification = selectedEquippedItem.getItemSpecification();
-			}
-			if (foundItem == null && !TextUtils.isEmpty(itemName)) {
-				foundItem = DataManager.getItemByName(itemName);
-			}
+				if (foundItem != null) {
+					if (selectedItemSpecification == null) {
+						selectedItemSpecification = foundItem.getSpecifications().get(0);
+					}
 
-			if (foundItem != null) {
+					cardType = selectedItemSpecification.getType();
+					itemCategory = foundItem.getCategory();
+					Debug.verbose("Displaying " + itemName + " " + cardType + "/" + itemCategory + " : " + foundItem);
+				}
+			} else {
 				if (selectedItemSpecification == null) {
 					selectedItemSpecification = foundItem.getSpecifications().get(0);
 				}
-
 				cardType = selectedItemSpecification.getType();
 				itemCategory = foundItem.getCategory();
-				Debug.verbose("Displaying " + itemName + " " + cardType + "/" + itemCategory + " : " + foundItem);
 			}
-		} else {
-			if (selectedItemSpecification == null) {
-				selectedItemSpecification = foundItem.getSpecifications().get(0);
-			}
-			cardType = selectedItemSpecification.getType();
-			itemCategory = foundItem.getCategory();
 		}
 
 		gallery = (Gallery) findViewById(R.id.gal_gallery);
 		imageView = (CardView) findViewById(R.id.gal_imageView);
+		imageView.setHighQuality(true);
 		itemView = (ItemListItem) findViewById(R.id.inc_gal_item_view);
 		itemView.setTextColor(Color.BLACK);
 		itemView.setBackgroundColor(getResources().getColor(R.color.Brighter));
@@ -248,7 +246,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		imageView.setOnClickListener(this);
 		imageView.setOnLongClickListener(this);
 
-		if (extra.containsKey(INTENT_EXTRA_ARMOR_POSITION)) {
+		if (extra != null && extra.containsKey(INTENT_EXTRA_ARMOR_POSITION)) {
 			Position pos = (Position) extra.getSerializable(INTENT_EXTRA_ARMOR_POSITION);
 			Hero hero = DSATabApplication.getInstance().getHero();
 
@@ -303,7 +301,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 		}
 
-		imageAdapter.registerDataSetObserver(new DataSetObserver() {
+		dataSetObserver = new DataSetObserver() {
 			/*
 			 * (non-Javadoc)
 			 * 
@@ -325,7 +323,9 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 						gallery.setSelection(index, false);
 				}
 			}
-		});
+		};
+
+		imageAdapter.registerDataSetObserver(dataSetObserver);
 
 		categoryButtons = new ImageButton[8];
 		// imagebuttons
@@ -578,7 +578,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 	private void selectCard(Item item) {
 		if (onItemChooserListener != null)
-			onItemChooserListener.onItemSelected(item, itemX, itemY);
+			onItemChooserListener.onItemSelected(item, cellNumber);
 	}
 
 	private void cancel() {
@@ -594,27 +594,6 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		else
 			selectedItemSpecification = selectedCard.getSpecifications().get(0);
 
-		File hqFile = card.getHQFile();
-
-		if (itemDrawable instanceof BitmapDrawable) {
-			BitmapDrawable bitmapDrawable = (BitmapDrawable) itemDrawable;
-			bitmapDrawable.getBitmap().recycle();
-			bitmapDrawable.setCallback(null);
-			bitmapDrawable = null;
-			itemDrawable = null;
-		}
-
-		if (hqFile != null && hqFile.isFile()) {
-			itemDrawable = new BitmapDrawable(getResources(), Util.decodeFile(hqFile, 400));
-			imageView.setImageDrawable(itemDrawable);
-		} else {
-			File lqFile = card.getFile();
-
-			if (lqFile != null && lqFile.isFile()) {
-				imageView.setImageBitmap(DataManager.getBitmap(lqFile.getAbsolutePath()));
-			}
-		}
-
 		imageView.setItem(selectedCard);
 		itemView.setItem(selectedCard, selectedItemSpecification);
 		itemView.setVisibility(View.VISIBLE);
@@ -626,11 +605,22 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.support.v4.app.Fragment#onCreateOptionsMenu(com.actionbarsherlock
+	 * .view.Menu, com.actionbarsherlock.view.MenuInflater)
+	 */
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu,
+			com.actionbarsherlock.view.MenuInflater inflater) {
+
+		inflater.inflate(R.menu.accept_abort_menu, menu);
 		if (categorySelectable) {
 			inflater.inflate(R.menu.gallery_menu, menu);
 		}
+		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	private void chooseType(ItemType type, String category, Item item) {
@@ -662,11 +652,25 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		builder.show();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.support.v4.app.Fragment#onOptionsItemSelected(com.actionbarsherlock
+	 * .view.MenuItem)
+	 */
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-
+	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
 		if (item.getItemId() == R.id.option_load_subtype) {
 			openSubCategoriesDialog(cardType);
+			return true;
+		} else if (item.getItemId() == R.id.option_accept) {
+			if (selectedCard != null) {
+				selectCard(selectedCard);
+			}
+			return true;
+		} else if (item.getItemId() == R.id.option_cancel) {
+			cancel();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);

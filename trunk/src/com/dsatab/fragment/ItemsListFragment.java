@@ -48,11 +48,12 @@ import com.dsatab.xml.DataManager;
 
 public class ItemsListFragment extends BaseFragment implements View.OnClickListener, OnItemClickListener {
 
+	private static final int GROUP_INVENTORY = 1;
 	private static final int ACTION_CHOOSE_CARD = 2;
 	private static final int ACTION_SHOW_CARD = 1;
 
-	private static final int CONTEXTMENU_REMOVE = 1;
-	private static final int CONTEXTMENU_SHOW = 2;
+	private static final int CONTEXTMENU_REMOVE = 10;
+	private static final int CONTEXTMENU_SHOW = 11;
 
 	private ListView itemList;
 
@@ -151,22 +152,23 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 	 */
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
+		if (item.getGroupId() == GROUP_INVENTORY) {
+			switch (item.getItemId()) {
+			case CONTEXTMENU_REMOVE:
+				if (selectedItem != null) {
+					itemAdpater.remove(selectedItem);
+					getHero().removeItem(selectedItem);
+					selectedItem = null;
+				}
+				return true;
 
-		switch (item.getItemId()) {
-		case CONTEXTMENU_REMOVE:
-			if (selectedItem != null) {
-				itemAdpater.remove(selectedItem);
-				getHero().removeItem(selectedItem);
-				selectedItem = null;
+			case CONTEXTMENU_SHOW:
+				if (selectedItem != null) {
+					selectItem(selectedItem);
+					selectedItem = null;
+				}
+				return true;
 			}
-			return true;
-
-		case CONTEXTMENU_SHOW:
-			if (selectedItem != null) {
-				selectItem(selectedItem);
-				selectedItem = null;
-			}
-			return true;
 		}
 		return super.onContextItemSelected(item);
 	}
@@ -188,9 +190,9 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 			selectedItem = item;
 
 			if (selectedItem.hasImage()) {
-				menu.add(0, CONTEXTMENU_SHOW, 0, getString(R.string.menu_view_item));
+				menu.add(GROUP_INVENTORY, CONTEXTMENU_SHOW, 0, getString(R.string.menu_view_item));
 			}
-			menu.add(0, CONTEXTMENU_REMOVE, 1, getString(R.string.menu_delete_item));
+			menu.add(GROUP_INVENTORY, CONTEXTMENU_REMOVE, 1, getString(R.string.menu_delete_item));
 
 		}
 		super.onCreateContextMenu(menu, v, menuInfo);
@@ -265,8 +267,7 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_NAME, item.getName());
 			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CATEGORY, item.getCategory());
 
-			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_X, itemCard.getItemInfo().getCellX());
-			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_Y, itemCard.getItemInfo().getCellY());
+			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CELL, itemCard.getItemInfo().getCellNumber());
 
 			startActivityForResult(intent, ACTION_SHOW_CARD);
 		}

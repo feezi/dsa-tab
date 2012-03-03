@@ -33,6 +33,7 @@ import android.view.WindowManager;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.common.Util;
+import com.dsatab.data.Hero;
 
 /**
  * @author Ganymede
@@ -64,16 +65,6 @@ public class BaseFragmentActivity extends FragmentActivity implements IconContex
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
-	 */
-	@Override
-	protected void onCreate(Bundle arg0) {
-		super.onCreate(arg0);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see
 	 * android.support.v4.app.FragmentActivity#onPostCreate(android.os.Bundle)
 	 */
@@ -81,7 +72,7 @@ public class BaseFragmentActivity extends FragmentActivity implements IconContex
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 		SharedPreferences preferences = DSATabApplication.getPreferences();
-		updateFullscreenStatus(preferences.getBoolean(DsaPreferenceActivityHC.KEY_FULLSCREEN, true));
+		updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
 	}
 
 	/*
@@ -107,27 +98,32 @@ public class BaseFragmentActivity extends FragmentActivity implements IconContex
 
 			SharedPreferences preferences = DSATabApplication.getPreferences();
 
-			String orientation = preferences.getString(DsaPreferenceActivityHC.KEY_SCREEN_ORIENTATION,
-					DsaPreferenceActivityHC.DEFAULT_SCREEN_ORIENTATION);
+			String orientation = preferences.getString(BasePreferenceActivity.KEY_SCREEN_ORIENTATION,
+					BasePreferenceActivity.DEFAULT_SCREEN_ORIENTATION);
 
-			if (DsaPreferenceActivityHC.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)) {
+			if (BasePreferenceActivity.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)) {
 				if (getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
 					// You need to check if your desired orientation isn't
 					// already set because setting orientation restarts your
 					// Activity which takes long
 					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 				}
-			} else if (DsaPreferenceActivityHC.SCREEN_ORIENTATION_PORTRAIT.equals(orientation)) {
+			} else if (BasePreferenceActivity.SCREEN_ORIENTATION_PORTRAIT.equals(orientation)) {
 				if (getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
 					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 				}
-			} else if (DsaPreferenceActivityHC.SCREEN_ORIENTATION_AUTO.equals(orientation)) {
+			} else if (BasePreferenceActivity.SCREEN_ORIENTATION_AUTO.equals(orientation)) {
 				if (getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_SENSOR) {
 					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
 				}
 			}
 
-			updateFullscreenStatus(preferences.getBoolean(DsaPreferenceActivityHC.KEY_FULLSCREEN, true));
+			updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
+
+			if (DSATabApplication.getInstance().getHero() != null) {
+				Hero hero = DSATabApplication.getInstance().getHero();
+				hero.firePreferencesChanged();
+			}
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}

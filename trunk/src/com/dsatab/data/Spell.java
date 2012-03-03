@@ -1,6 +1,7 @@
 package com.dsatab.data;
 
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.jdom.Element;
@@ -8,6 +9,7 @@ import org.jdom.Element;
 import android.text.TextUtils;
 
 import com.dsatab.common.Util;
+import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.xml.Xml;
 
@@ -35,7 +37,7 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 	private String variant;
 	private boolean houseSpell;
 
-	private boolean begabung;
+	private EnumSet<Flags> flags = EnumSet.noneOf(Flags.class);
 
 	public Spell(Hero hero, Element element, Map<String, SpellInfo> spellInfos) {
 		super(element);
@@ -82,12 +84,12 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 		return name;
 	}
 
-	public boolean isBegabung() {
-		return begabung;
+	public boolean hasFlag(Flags flag) {
+		return flags.contains(flag);
 	}
 
-	public void setBegabung(boolean begabung) {
-		this.begabung = begabung;
+	public void addFlag(Flags flag) {
+		flags.add(flag);
 	}
 
 	public SpellInfo getInfo() {

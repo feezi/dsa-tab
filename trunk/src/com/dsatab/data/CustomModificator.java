@@ -32,6 +32,9 @@ import android.widget.Toast;
 import com.dsatab.DSATabApplication;
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.data.items.DistanceWeapon;
+import com.dsatab.data.items.EquippedItem;
+import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.AbstractModificator;
 import com.gandulf.guilib.util.Debug;
 
@@ -41,7 +44,10 @@ import com.gandulf.guilib.util.Debug;
  */
 public class CustomModificator extends AbstractModificator implements JSONable {
 
+	private static final String POSTFIX_TP = " tp";
+
 	public static final String KEY_AT = "at";
+	public static final String KEY_FK = "fk";
 	public static final String KEY_PA = "pa";
 
 	public static final String KEY_ZAUBER = "zauber";
@@ -157,31 +163,33 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 
 				StringBuilder errors = new StringBuilder();
 
-				StringTokenizer st = new StringTokenizer(rules, ", ");
+				StringTokenizer st = new StringTokenizer(rules, ",");
 				String token = null;
 				while (st.hasMoreTokens()) {
 					try {
 						token = st.nextToken();
 
-						int index = token.indexOf("+");
+						int index = token.lastIndexOf("+");
 						if (index < 0)
-							index = token.indexOf("-");
+							index = token.lastIndexOf("-");
 
-						String key = token.substring(0, index);
+						String key = token.substring(0, index).trim().toLowerCase();
 						String value = token.substring(index);
 
-						if (VALID_KEYS.contains(key.toLowerCase())) {
-							// revert value since we deal with erschwernis
-							// intern,
-							// but
-							// declare it as bonus outside
-							modMap.put(key.toLowerCase(), Util.parseInt(value));
-						} else {
-							if (errors.length() > 0)
-								errors.append(", ");
+						// if (VALID_KEYS.contains(key)) {
+						// revert value since we deal with erschwernis
+						// intern,
+						// but
+						// declare it as bonus outside
+						modMap.put(key, Util.parseInt(value));
+						// } else {
+						// modMap.put(key, Util.parseInt(value));
 
-							errors.append(token);
-						}
+						// if (errors.length() > 0)
+						// errors.append(", ");
+						//
+						// errors.append(token);
+						// }
 					} catch (Exception e) {
 						Debug.warning("Couldn't parse string for modifikators:" + token);
 						if (errors.length() > 0)
@@ -201,12 +209,45 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 	}
 
 	private Integer getModifier(String key) {
+		if (key == null)
+			return null;
+
 		key = key.toLowerCase();
 
 		if (getModMap().containsKey(key))
 			return modMap.get(key);
 		else
 			return null;
+	}
+
+	public Modifier getModifier(EquippedItem item) {
+
+		if (isActive()) {
+			Integer modifier = getModifier(item.getItemName() + POSTFIX_TP);
+
+			if (modifier == null && item.getTalent() != null)
+				modifier = getModifier(item.getTalent().getCombatTalentType().getName() + POSTFIX_TP);
+
+			if (item.getItemSpecification() instanceof Weapon) {
+				Weapon weapon = (Weapon) item.getItemSpecification();
+
+				if (modifier == null)
+					modifier = getModifier(KEY_AT + POSTFIX_TP);
+			}
+
+			if (item.getItemSpecification() instanceof DistanceWeapon) {
+				DistanceWeapon weapon = (DistanceWeapon) item.getItemSpecification();
+
+				if (modifier == null)
+					modifier = getModifier(KEY_FK + POSTFIX_TP);
+			}
+
+			if (modifier != null)
+				return new Modifier(modifier, getModificatorName(), getRules());
+		}
+
+		return null;
+
 	}
 
 	/*
@@ -227,28 +268,44 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 				// combatDistancetalent has to come before talent since its a
 				// talent too, but needs special handling
 			} else if (probe instanceof CombatDistanceTalent) {
-				modifier = getModifier(KEY_AT);
+				modifier = getModifier(probe.getName());
+				if (modifier == null)
+					modifier = getModifier(KEY_AT);
 			} else if (probe instanceof Spell) {
-				modifier = getModifier(KEY_ZAUBER);
+				modifier = getModifier(probe.getName());
+				if (modifier == null)
+					modifier = getModifier(KEY_ZAUBER);
 			} else if (probe instanceof Art) {
-				modifier = getModifier(KEY_LITURGIEN);
+				modifier = getModifier(probe.getName());
+				if (modifier == null)
+					modifier = getModifier(KEY_LITURGIEN);
 			} else if (probe instanceof CombatShieldTalent) {
-				modifier = getModifier(KEY_PA);
+				modifier = getModifier(probe.getName());
+				if (modifier == null)
+					modifier = getModifier(KEY_PA);
 			} else if (probe instanceof CombatMeleeAttribute) {
-				CombatMeleeAttribute meleeAttribute = (CombatMeleeAttribute) probe;
-				if (meleeAttribute.isAttack())
-					modifier = getModifier(KEY_AT);
-				else
-					modifier = getModifier(KEY_PA);
+				modifier = getModifier(probe.getName());
+				if (modifier == null) {
+					CombatMeleeAttribute meleeAttribute = (CombatMeleeAttribute) probe;
+					if (meleeAttribute.isAttack())
+						modifier = getModifier(KEY_AT);
+					else
+						modifier = getModifier(KEY_PA);
+				}
 			} else if (probe instanceof CombatProbe) {
-				CombatProbe combatProbe = (CombatProbe) probe;
+				modifier = getModifier(probe.getName());
+				if (modifier == null) {
+					CombatProbe combatProbe = (CombatProbe) probe;
 
-				if (combatProbe.isAttack())
-					modifier = getModifier(KEY_AT);
-				else
-					modifier = getModifier(KEY_PA);
+					if (combatProbe.isAttack())
+						modifier = getModifier(KEY_AT);
+					else
+						modifier = getModifier(KEY_PA);
+				}
 			} else if (probe instanceof Talent) {
-				modifier = getModifier(KEY_TALENTE);
+				modifier = getModifier(probe.getName());
+				if (modifier == null)
+					modifier = getModifier(KEY_TALENTE);
 			}
 
 			if (modifier != null) {

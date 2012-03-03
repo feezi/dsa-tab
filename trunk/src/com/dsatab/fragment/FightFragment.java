@@ -23,8 +23,6 @@ import java.util.UUID;
 import kankan.wheel.widget.OnWheelChangedListener;
 import kankan.wheel.widget.WheelView;
 import kankan.wheel.widget.adapters.NumericWheelAdapter;
-import yuku.iconcontextmenu.IconContextMenu;
-import yuku.iconcontextmenu.IconContextMenu.IconContextMenuInfo;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -34,23 +32,27 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.drawable.LevelListDrawable;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.commonsware.cwac.merge.MergeAdapter;
+import com.commonsware.cwac.sacklist.SackOfViewsAdapter;
 import com.dsatab.R;
 import com.dsatab.activity.ItemChooserActivity;
 import com.dsatab.activity.MainActivity;
@@ -58,19 +60,18 @@ import com.dsatab.activity.ModificatorEditActivity;
 import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.common.Util;
 import com.dsatab.data.Attribute;
-import com.dsatab.data.CombatProbe;
 import com.dsatab.data.CombatTalent;
 import com.dsatab.data.CustomModificator;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Value;
+import com.dsatab.data.adapter.FightEquippedItemAdapter;
+import com.dsatab.data.adapter.FightModificatorAdapter;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
-import com.dsatab.data.items.Armor;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Hand;
 import com.dsatab.data.items.Item;
-import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.Modificator;
@@ -83,8 +84,7 @@ import com.dsatab.view.FilterSettings;
 import com.dsatab.view.FilterSettings.FilterType;
 import com.gandulf.guilib.util.Debug;
 
-public class FightFragment extends BaseFragment implements OnLongClickListener, OnClickListener,
-		OnCheckedChangeListener {
+public class FightFragment extends BaseFragment implements OnLongClickListener, OnClickListener, OnItemClickListener {
 
 	private static final int CONTEXTMENU_SORT_EQUIPPED_ITEM = 5;
 	private static final int CONTEXTMENU_ASSIGN_SECONDARY = 6;
@@ -99,18 +99,34 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 	private WheelView fightNumberPicker;
 	private NumericWheelAdapter fightNumberAdapter;
-	private LinearLayout fightLpLayout, fightItems, fightModifiers;
+	private LinearLayout fightLpLayout;
+
 	private View fightausweichen;
+
+	private ListView fightList;
 
 	private FightFilterSettings filterSettings;
 
-	class TargetListener implements View.OnClickListener {
+	private FightEquippedItemAdapter fightItemAdapter;
+	private FightModificatorAdapter fightModificatorAdapter;
+	private SackOfViewsAdapter evadeAdapter;
+	private MergeAdapter fightMergeAdapter;
+
+	public static class TargetListener implements View.OnClickListener {
+		private MainActivity activity;
+
+		/**
+		 * 
+		 */
+		public TargetListener(MainActivity activity) {
+			this.activity = activity;
+		}
 
 		public void onClick(View v) {
 			if (v.getTag() instanceof EquippedItem) {
 
 				EquippedItem item = (EquippedItem) v.getTag();
-				ArcheryChooserDialog targetChooserDialog = new ArcheryChooserDialog(getBaseActivity());
+				ArcheryChooserDialog targetChooserDialog = new ArcheryChooserDialog(activity);
 				targetChooserDialog.setWeapon(item);
 				targetChooserDialog.show();
 
@@ -118,11 +134,14 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		}
 	}
 
-	private TargetListener targetListener = new TargetListener();
+	private TargetListener targetListener;
+
 	private Button fightPickerButton;
 	private AttributeType fightPickerType = AttributeType.Lebensenergie;
 
 	private List<AttributeType> fightPickerTypes;
+
+	private Object menuItem;
 
 	/*
 	 * (non-Javadoc)
@@ -147,7 +166,6 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 				getHero().addModificator(modificator);
 
-				fillFightModifierDescriptions();
 			}
 		} else if (requestCode == MainActivity.ACTION_EDIT_MODIFICATOR) {
 			if (resultCode == Activity.RESULT_OK) {
@@ -164,8 +182,6 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 							customModificator.setActive(data.getBooleanExtra(ModificatorEditActivity.INTENT_ACTIVE,
 									true));
 							customModificator.setComment(data.getStringExtra(ModificatorEditActivity.INTENT_COMMENT));
-
-							fillFightModifierDescription(customModificator);
 						}
 					}
 				}
@@ -174,96 +190,6 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		}
 
 		super.onActivityResult(requestCode, resultCode, data);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.fragment.BaseFragment#onCreateIconContextMenu(android.view
-	 * .Menu, android.view.View, android.view.ContextMenu.ContextMenuInfo)
-	 */
-	@Override
-	public Object onCreateIconContextMenu(Menu menu, View v, IconContextMenuInfo menuInfo) {
-		if (v.getTag() instanceof EquippedItem) {
-
-			EquippedItem equippedItem = (EquippedItem) v.getTag();
-
-			menuInfo.setTitle(equippedItem.getItemName());
-
-			if (equippedItem.getItem().hasImage()) {
-				menu.add(0, CONTEXTMENU_VIEWEQUIPPEDITEM, 0, getString(R.string.menu_view_item)).setIcon(
-						R.drawable.ic_menu_view);
-			}
-
-			if (equippedItem.getItem().hasSpecification(Shield.class)) {
-				menu.add(0, CONTEXTMENU_ASSIGN_PRIMARY, 0, getString(R.string.menu_assign_main_weapon)).setIcon(
-						R.drawable.ic_menu_share);
-			}
-			if (equippedItem.getItem().hasSpecification(Weapon.class)) {
-				Weapon weapon = (Weapon) equippedItem.getItem().getSpecification(Weapon.class);
-				if (!weapon.isTwoHanded()) {
-					menu.add(0, CONTEXTMENU_ASSIGN_SECONDARY, 0, getString(R.string.menu_assign_secondary_weapon))
-							.setIcon(R.drawable.ic_menu_share);
-				}
-			}
-
-			if (equippedItem.getItem().hasSpecification(DistanceWeapon.class)) {
-				menu.add(0, CONTEXTMENU_ASSIGN_HUNTING, 0, getString(R.string.menu_assign_hunting_weapon)).setIcon(
-						R.drawable.ic_menu_star);
-
-			}
-
-			if (equippedItem.getSecondaryItem() != null) {
-				menu.add(0, CONTEXTMENU_UNASSIGN, 1, getString(R.string.menu_unassign_item)).setIcon(
-						R.drawable.ic_menu_revert);
-			}
-
-			if (equippedItem.getItem().getSpecifications().size() > 1) {
-				menu.add(0, CONTEXTMENU_SELECT_VERSION, 2, getString(R.string.menu_select_version)).setIcon(
-						R.drawable.ic_menu_more);
-			}
-
-			if (equippedItem.getItemSpecification() instanceof Weapon) {
-				Weapon weapon = (Weapon) equippedItem.getItemSpecification();
-				if (weapon.getCombatTalentTypes().size() > 1) {
-					menu.add(0, CONTEXTMENU_SELECT_TALENT, 3, getString(R.string.menu_select_talent)).setIcon(
-							R.drawable.ic_menu_more);
-				}
-			} else if (equippedItem.getItemSpecification() instanceof Shield) {
-				Shield shield = (Shield) equippedItem.getItemSpecification();
-				if (shield.getCombatTalentTypes().size() > 1) {
-					menu.add(0, CONTEXTMENU_SELECT_TALENT, 3, getString(R.string.menu_select_talent)).setIcon(
-							R.drawable.ic_menu_more);
-				}
-			}
-			return equippedItem;
-		} else if (v.getTag() instanceof CustomModificator) {
-			CustomModificator modificator = (CustomModificator) v.getTag();
-
-			MenuInflater menuInflater = getActivity().getMenuInflater();
-			menuInflater.inflate(R.menu.modifikator_menu, menu);
-			return modificator;
-
-		} else {
-			return super.onCreateIconContextMenu(menu, v, menuInfo);
-		}
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.fragment.BaseFragment#onPrepareIconContextMenu(yuku.
-	 * iconcontextmenu.IconContextMenu, android.view.View)
-	 */
-	@Override
-	public void onPrepareIconContextMenu(IconContextMenu menu, View v) {
-		super.onPrepareIconContextMenu(menu, v);
-		if (menu.getInfo() instanceof EquippedItem) {
-			EquippedItem equippedItem = (EquippedItem) menu.getInfo();
-			menu.setTitle(equippedItem.getItemName());
-		}
 	}
 
 	/*
@@ -280,14 +206,16 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 			if (filterSettings.equals(newSettings))
 				return;
 
-			if (filterSettings.isShowArmor() != newSettings.isShowArmor()) {
-				filterSettings.setShowArmor(newSettings.isShowArmor());
-				fillFightItemDescriptions();
+			if (filterSettings.isShowArmor() != newSettings.isShowArmor()
+					|| filterSettings.isIncludeModifiers() != newSettings.isIncludeModifiers()) {
+				filterSettings.set(newSettings);
+				fightItemAdapter.filter(filterSettings);
+				updateAusweichen();
 			}
 
 			if (filterSettings.isShowModifier() != newSettings.isShowModifier()) {
 				filterSettings.setShowModifier(newSettings.isShowModifier());
-				fillFightModifierDescriptions();
+				fightModificatorAdapter.filter(filterSettings);
 			}
 
 			if (filterSettings.isShowEvade() != newSettings.isShowEvade()) {
@@ -301,15 +229,99 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.dsatab.fragment.BaseFragment#onIconContextItemSelected(android.view
-	 * .MenuItem, java.lang.Object)
+	 * android.support.v4.app.Fragment#onCreateContextMenu(android.view.ContextMenu
+	 * , android.view.View, android.view.ContextMenu.ContextMenuInfo)
 	 */
 	@Override
-	public void onIconContextItemSelected(MenuItem item, Object info) {
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 
-		if (info instanceof EquippedItem) {
+		if (v == fightList) {
 
-			final EquippedItem equippedItem = (EquippedItem) info;
+			int position = ((AdapterContextMenuInfo) menuInfo).position;
+
+			if (position >= 0) {
+
+				menuItem = fightMergeAdapter.getItem(position);
+
+				if (menuItem instanceof EquippedItem) {
+
+					EquippedItem equippedItem = (EquippedItem) menuItem;
+
+					menu.setHeaderTitle(equippedItem.getItemName());
+
+					if (equippedItem.getItem().hasImage()) {
+						menu.add(0, CONTEXTMENU_VIEWEQUIPPEDITEM, 0, getString(R.string.menu_view_item)).setIcon(
+								R.drawable.ic_menu_view);
+					}
+
+					if (equippedItem.getItem().hasSpecification(Shield.class)) {
+						menu.add(0, CONTEXTMENU_ASSIGN_PRIMARY, 0, getString(R.string.menu_assign_main_weapon))
+								.setIcon(R.drawable.ic_menu_share);
+					}
+					if (equippedItem.getItem().hasSpecification(Weapon.class)) {
+						Weapon weapon = (Weapon) equippedItem.getItem().getSpecification(Weapon.class);
+						if (!weapon.isTwoHanded()) {
+							menu.add(0, CONTEXTMENU_ASSIGN_SECONDARY, 0,
+									getString(R.string.menu_assign_secondary_weapon)).setIcon(R.drawable.ic_menu_share);
+						}
+					}
+
+					if (equippedItem.getItem().hasSpecification(DistanceWeapon.class)) {
+						menu.add(0, CONTEXTMENU_ASSIGN_HUNTING, 0, getString(R.string.menu_assign_hunting_weapon))
+								.setIcon(R.drawable.ic_menu_star);
+
+					}
+
+					if (equippedItem.getSecondaryItem() != null) {
+						menu.add(0, CONTEXTMENU_UNASSIGN, 1, getString(R.string.menu_unassign_item)).setIcon(
+								R.drawable.ic_menu_revert);
+					}
+
+					if (equippedItem.getItem().getSpecifications().size() > 1) {
+						menu.add(0, CONTEXTMENU_SELECT_VERSION, 2, getString(R.string.menu_select_version)).setIcon(
+								R.drawable.ic_menu_more);
+					}
+
+					if (equippedItem.getItemSpecification() instanceof Weapon) {
+						Weapon weapon = (Weapon) equippedItem.getItemSpecification();
+						if (weapon.getCombatTalentTypes().size() > 1) {
+							menu.add(0, CONTEXTMENU_SELECT_TALENT, 3, getString(R.string.menu_select_talent)).setIcon(
+									R.drawable.ic_menu_more);
+						}
+					} else if (equippedItem.getItemSpecification() instanceof Shield) {
+						Shield shield = (Shield) equippedItem.getItemSpecification();
+						if (shield.getCombatTalentTypes().size() > 1) {
+							menu.add(0, CONTEXTMENU_SELECT_TALENT, 3, getString(R.string.menu_select_talent)).setIcon(
+									R.drawable.ic_menu_more);
+						}
+					}
+					return;
+				} else if (menuItem instanceof CustomModificator) {
+					CustomModificator modificator = (CustomModificator) menuItem;
+
+					MenuInflater menuInflater = getActivity().getMenuInflater();
+					menuInflater.inflate(R.menu.modifikator_popupmenu, menu);
+					return;
+
+				}
+			}
+		}
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.support.v4.app.Fragment#onContextItemSelected(android.support
+	 * .v4.view.MenuItem)
+	 */
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+
+		if (menuItem instanceof EquippedItem) {
+
+			final EquippedItem equippedItem = (EquippedItem) menuItem;
 
 			if (item.getItemId() == CONTEXTMENU_VIEWEQUIPPEDITEM) {
 
@@ -466,11 +478,11 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 				}
 			} else if (item.getItemId() == CONTEXTMENU_ASSIGN_HUNTING) {
 				getHero().setHuntingWeapon(equippedItem);
-				updateFightItemDescriptions();
+				fightItemAdapter.notifyDataSetChanged();
 			}
-		} else if (info instanceof CustomModificator) {
+		} else if (menuItem instanceof CustomModificator) {
 
-			CustomModificator modificator = (CustomModificator) info;
+			CustomModificator modificator = (CustomModificator) menuItem;
 
 			switch (item.getItemId()) {
 
@@ -495,32 +507,41 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 			}
 		}
-
-		super.onIconContextItemSelected(item, info);
+		return super.onContextItemSelected(item);
 	}
 
 	private void updateAusweichen() {
 
 		if (filterSettings.isShowEvade()) {
 
+			if (!fightMergeAdapter.containsAdapter(evadeAdapter)) {
+				fightMergeAdapter.addAdapter(1, evadeAdapter);
+				fightMergeAdapter.notifyDataSetChanged();
+			}
+
 			Attribute ausweichen = getHero().getAttribute(AttributeType.Ausweichen);
-			fightausweichen.setVisibility(View.VISIBLE);
 			TextView text1 = (TextView) fightausweichen.findViewById(android.R.id.text1);
 
 			StyleableSpannableStringBuilder title = new StyleableSpannableStringBuilder();
 			title.append(ausweichen.getName());
-			Util.appendValue(getHero(), title, ausweichen, null);
+
+			Util.appendValue(getHero(), title, ausweichen, null,
+					preferences.getBoolean(FilterDialog.PREF_KEY_INCLUDE_MODIFIER, true));
+
 			text1.setText(title);
 			final TextView text2 = (TextView) fightausweichen.findViewById(android.R.id.text2);
 			text2.setText("Modifikator " + Util.toProbe(ausweichen.getProbeInfo().getErschwernis()));
 
-			fightausweichen.setBackgroundResource(getFightItemBackgroundResource(fightausweichen));
+			// fightausweichen.setBackgroundResource(getFightItemBackgroundResource(fightausweichen));
 
 			ImageButton iconLeft = (ImageButton) fightausweichen.findViewById(android.R.id.icon1);
 			iconLeft.setTag(ausweichen);
 
 		} else {
-			fightausweichen.setVisibility(View.GONE);
+			if (fightMergeAdapter.containsAdapter(evadeAdapter)) {
+				fightMergeAdapter.removeAdapter(evadeAdapter);
+				fightMergeAdapter.notifyDataSetChanged();
+			}
 		}
 
 	}
@@ -565,15 +586,6 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 			updateNumberPicker(attr);
 			break;
-		case R.id.fight_modifiers_add:
-			startActivityForResult(new Intent(getActivity(), ModificatorEditActivity.class),
-					MainActivity.ACTION_ADD_MODIFICATOR);
-			break;
-		}
-
-		if (v.getTag() instanceof CustomModificator) {
-			CheckBox active = (CheckBox) v.findViewById(R.id.active);
-			active.toggle();
 		}
 
 	}
@@ -589,8 +601,6 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = configureContainerView(inflater.inflate(R.layout.sheet_fight, container, false));
 
-		fightausweichen = root.findViewById(R.id.inc_fight_ausweichen);
-
 		return root;
 	}
 
@@ -602,14 +612,28 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 
+		fightList = (ListView) getView().findViewById(R.id.fight_list);
+
 		filterSettings = new FightFilterSettings(preferences.getBoolean(FilterDialog.PREF_KEY_SHOW_ARMOR, true),
 				preferences.getBoolean(FilterDialog.PREF_KEY_SHOW_MODIFIER, true), preferences.getBoolean(
-						FilterDialog.PREF_KEY_SHOW_EVADE, true));
+						FilterDialog.PREF_KEY_SHOW_EVADE, true), preferences.getBoolean(
+						FilterDialog.PREF_KEY_INCLUDE_MODIFIER, true));
+
+		fightItemAdapter = new FightEquippedItemAdapter(getActivity(), getHero(), filterSettings);
+
+		targetListener = new TargetListener((MainActivity) getActivity());
+
+		fightItemAdapter.setProbeListener(getBaseActivity().getProbeListener());
+		fightItemAdapter.setTargetListener(targetListener);
+
+		fightMergeAdapter = new MergeAdapter();
+
+		fightMergeAdapter.addAdapter(fightItemAdapter);
 
 		ImageButton fightSet = (ImageButton) findViewById(R.id.fight_set);
 		fightSet.setOnClickListener(this);
 
-		View fightausweichen = findViewById(R.id.inc_fight_ausweichen);
+		fightausweichen = getLayoutInflater(savedInstanceState).inflate(R.layout.item_listitem, null, false);
 		ImageButton iconLeft = (ImageButton) fightausweichen.findViewById(android.R.id.icon1);
 		iconLeft.setOnClickListener(getBaseActivity().getProbeListener());
 		iconLeft.setOnLongClickListener(getBaseActivity().getEditListener());
@@ -628,6 +652,19 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 				ausweichenModificationDialog.show();
 			}
 		});
+
+		List<View> evadeViews = new ArrayList<View>(1);
+		evadeViews.add(fightausweichen);
+		evadeAdapter = new SackOfViewsAdapter(evadeViews);
+		fightMergeAdapter.addAdapter(evadeAdapter);
+
+		fightModificatorAdapter = new FightModificatorAdapter(getActivity());
+
+		fightList.setOnItemClickListener(this);
+		fightMergeAdapter.addAdapter(fightModificatorAdapter);
+
+		fightList.setAdapter(fightMergeAdapter);
+		registerForContextMenu(fightList);
 
 		fightPickerButton = (Button) findViewById(R.id.fight_btn_picker);
 		fightPickerButton.setOnClickListener(this);
@@ -651,11 +688,6 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		fightLpLayout = (LinearLayout) findViewById(R.id.fight_le_layout);
 		fightLpLayout.setOnClickListener(getBaseActivity().getEditListener());
 
-		fightItems = (LinearLayout) findViewById(R.id.fight_items);
-		fightModifiers = (LinearLayout) findViewById(R.id.fight_modifiers);
-
-		findViewById(R.id.fight_modifiers_add).setOnClickListener(this);
-
 		SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
 		try {
 			String typeString = pref.getString(KEY_PICKER_TYPE, AttributeType.Lebensenergie.name());
@@ -678,7 +710,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		super.onPause();
 
 		SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
-		;
+
 		Editor edit = pref.edit();
 		edit.putString(KEY_PICKER_TYPE, fightPickerType.name());
 		edit.commit();
@@ -693,6 +725,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	@Override
 	public void onHeroLoaded(Hero hero) {
 
+		updateSetButton();
 		fillFightItemDescriptions();
 
 		fightPickerTypes = new ArrayList<AttributeType>(4);
@@ -718,48 +751,24 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 		updateAusweichen();
 
-		fillFightModifierDescriptions();
+		fightModificatorAdapter.setNotifyOnChange(false);
+		fightModificatorAdapter.clear();
+		for (Modificator mod : hero.getModificators()) {
+			fightModificatorAdapter.add(mod);
+		}
+		fightModificatorAdapter.notifyDataSetChanged();
 
 	}
 
 	/**
 	 * 
 	 */
-	private void fillFightModifierDescriptions() {
-
-		if (filterSettings.isShowModifier()) {
-			// remove all but first, visibility will be set to visible within
-			// fillFightModifierDescription automatically
-			fightModifiers.removeViews(1, fightModifiers.getChildCount() - 1);
-			for (Modificator item : getHero().getModificators()) {
-				fillFightModifierDescription(item);
-			}
-		} else {
-			fightModifiers.setVisibility(View.GONE);
-		}
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged
-	 * (android.widget.CompoundButton, boolean)
-	 */
-	@Override
-	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-		if (buttonView.getTag() instanceof CustomModificator) {
-			CustomModificator modificator = (CustomModificator) buttonView.getTag();
-			modificator.setActive(isChecked);
-		}
-
-	}
 
 	@Override
 	public void onModifierAdded(Modificator value) {
-		updateFightItemDescriptions();
-		fillFightModifierDescription(value);
+		fightItemAdapter.notifyDataSetChanged();
+
+		fightModificatorAdapter.add(value);
 	}
 
 	/*
@@ -774,22 +783,23 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 	@Override
 	public void onModifierRemoved(Modificator value) {
-		fightModifiers.removeView(fightModifiers.findViewWithTag(value));
-		updateFightItemDescriptions();
+		fightModificatorAdapter.remove(value);
+		fightItemAdapter.notifyDataSetChanged();
+		updateAusweichen();
 	}
 
 	@Override
 	public void onModifierChanged(Modificator value) {
-		fillFightModifierDescription(value);
-		updateFightItemDescriptions();
+		fightModificatorAdapter.notifyDataSetChanged();
+		fightItemAdapter.notifyDataSetChanged();
+		updateAusweichen();
 	}
 
 	@Override
 	public void onModifiersChanged(List<Modificator> values) {
-		for (Modificator item : values) {
-			fillFightModifierDescription(item);
-		}
-		updateFightItemDescriptions();
+		fightModificatorAdapter.notifyDataSetChanged();
+		fightItemAdapter.notifyDataSetChanged();
+		updateAusweichen();
 	}
 
 	private void updateNumberPicker(Attribute value) {
@@ -844,221 +854,46 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 				break;
 			}
 			case Körperkraft:
-				updateFightItemDescriptions();
+				fightItemAdapter.notifyDataSetChanged();
 				break;
 			}
 		}
 
 	}
 
-	private void fillFightItemDescription(EquippedItem equippedItem) {
-		fillFightItemDescription(equippedItem, findFightItemDescription(equippedItem));
-	}
-
-	private int getFightItemBackgroundResource(View itemLayout) {
-		int index = fightItems.indexOfChild(itemLayout);
-
-		if (index >= 0) {
-			if (index % 2 == 0)
-				return R.color.RowEven;
-			else
-				return R.color.RowOdd;
-		} else {
-			return 0;
-		}
-
-	}
-
-	private void fillFightItemDescription(EquippedItem equippedItem, View itemLayout) {
-
-		Item item = equippedItem.getItem();
-		ItemSpecification itemSpecification = equippedItem.getItemSpecification();
-
-		if (item == null || itemSpecification == null)
-			return;
-
-		if (!filterSettings.isShowArmor() && itemSpecification instanceof Armor) {
-			return;
-		}
-
-		if (itemLayout == null) {
-			LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-			itemLayout = layoutInflater.inflate(R.layout.item_listitem, fightItems, false);
-			registerForIconContextMenu(itemLayout);
-			fightItems.addView(itemLayout);
-		}
-
-		itemLayout.setTag(equippedItem);
-		itemLayout.setBackgroundResource(getFightItemBackgroundResource(itemLayout));
-
-		TextView text1 = (TextView) itemLayout.findViewById(android.R.id.text1);
-		TextView text2 = (TextView) itemLayout.findViewById(android.R.id.text2);
-
-		ImageButton iconLeft = (ImageButton) itemLayout.findViewById(android.R.id.icon1);
-		ImageButton iconRight = (ImageButton) itemLayout.findViewById(android.R.id.icon2);
-
-		// if (equippedItem.getSecondaryItem() != null
-		// &&
-		// (equippedItem.getSecondaryItem().getItem().hasSpecification(Shield.class)
-		// || (equippedItem
-		// .getSecondaryItem().getItem().hasSpecification(Weapon.class) &&
-		// equippedItem.getHand() == Hand.rechts))) {
-		//
-		// } else {
-		// fightItemsOdd = !fightItemsOdd;
-		// }
-
-		StyleableSpannableStringBuilder title = new StyleableSpannableStringBuilder();
-		title.append(item.getTitle());
-
-		text2.setText(itemSpecification.getInfo());
-
-		if (itemSpecification instanceof DistanceWeapon) {
-			DistanceWeapon distanceWeapon = (DistanceWeapon) itemSpecification;
-			iconLeft.setImageResource(distanceWeapon.getResourceId());
-			iconLeft.setVisibility(View.VISIBLE);
-			iconLeft.setFocusable(true);
-			iconRight.setImageResource(R.drawable.icon_target);
-			iconRight.setVisibility(View.VISIBLE);
-			iconRight.setFocusable(true);
-
-			if (equippedItem.getTalent() != null) {
-				CombatProbe probe = new CombatProbe(getHero(), equippedItem, true);
-				Util.appendValue(getHero(), title, probe, null);
-				iconRight.setEnabled(true);
-				iconLeft.setEnabled(true);
-				iconRight.setTag(equippedItem);
-				iconRight.setOnClickListener(targetListener);
-				iconLeft.setTag(probe);
-				iconLeft.setOnClickListener(getBaseActivity().getProbeListener());
-			} else {
-				iconRight.setEnabled(false);
-				iconLeft.setEnabled(false);
-			}
-		} else if (itemSpecification instanceof Shield) {
-			iconRight.setImageResource(item.getResourceId());
-			iconRight.setVisibility(View.VISIBLE);
-			iconRight.setFocusable(true);
-			iconLeft.setVisibility(View.INVISIBLE);
-			if (equippedItem.getTalent() != null) {
-				iconRight.setEnabled(true);
-				iconLeft.setEnabled(true);
-				CombatProbe probe = new CombatProbe(getHero(), equippedItem, false);
-				Util.appendValue(getHero(), title, probe, null);
-				iconRight.setTag(probe);
-				iconRight.setOnClickListener(getBaseActivity().getProbeListener());
-			} else {
-				iconRight.setEnabled(false);
-				iconLeft.setEnabled(false);
-			}
-		} else if (itemSpecification instanceof Weapon) {
-			Weapon weapon = (Weapon) itemSpecification;
-			iconLeft.setImageResource(weapon.getResourceId());
-			iconLeft.setVisibility(View.VISIBLE);
-			iconLeft.setFocusable(true);
-			iconRight.setImageResource(R.drawable.icon_shield);
-			iconRight.setVisibility(View.VISIBLE);
-			iconRight.setFocusable(true);
-			if (equippedItem.getTalent() != null) {
-				iconRight.setEnabled(true);
-				iconLeft.setEnabled(true);
-
-				CombatProbe at = new CombatProbe(getHero(), equippedItem, true);
-				iconLeft.setTag(at);
-				iconLeft.setOnClickListener(getBaseActivity().getProbeListener());
-				CombatProbe pa = new CombatProbe(getHero(), equippedItem, false);
-				iconRight.setTag(pa);
-				iconRight.setOnClickListener(getBaseActivity().getProbeListener());
-
-				Util.appendValue(getHero(), title, at, pa);
-			} else {
-				iconRight.setEnabled(false);
-				iconLeft.setEnabled(false);
-			}
-			text2.setText(weapon.getInfo(getHero().getModifiedValue(AttributeType.Körperkraft)));
-		} else if (itemSpecification instanceof Armor) {
-			Armor armor = (Armor) itemSpecification;
-			iconLeft.setImageResource(armor.getResourceId());
-			iconLeft.setVisibility(View.VISIBLE);
-			iconLeft.setFocusable(true);
-			iconLeft.setFocusable(false);
-			iconRight.setVisibility(View.GONE);
-		}
-
-		if (getHero().getHuntingWeapon() != null && getHero().getHuntingWeapon().equals(equippedItem)) {
-			title.append(" (Jagdwaffe)");
-		}
-
-		text1.setSelected(true);
-		text1.setText(title);
-	}
-
-	private View findFightItemDescription(EquippedItem equippedItem) {
-		int count = fightItems.getChildCount();
-		for (int i = 0; i < count; i++) {
-			View child = fightItems.getChildAt(i);
-			if (equippedItem.equals(child.getTag()))
-				return child;
-		}
-		return null;
-	}
-
-	private void updateFightItemDescriptions() {
-
-		ImageButton fightSet = (ImageButton) findViewById(R.id.fight_set);
-		LevelListDrawable drawable = (LevelListDrawable) fightSet.getDrawable();
-		drawable.setLevel(getHero().getActiveSet());
-
-		// -1 because of Ausweichen
-
-		int count = fightItems.getChildCount() - 1;
-		for (int i = 0; i < count; i++) {
-			View v = fightItems.getChildAt(i);
-			EquippedItem equippedItem = (EquippedItem) v.getTag();
-
-			ItemSpecification itemSpecification = equippedItem.getItemSpecification();
-			Item item = equippedItem.getItem();
-
-			if (item == null || itemSpecification == null)
-				return;
-
-			if (!filterSettings.isShowArmor() && itemSpecification instanceof Armor) {
-				continue;
-			}
-
-			fillFightItemDescription(equippedItem, v);
-		}
-
-	}
-
 	private void fillFightItemDescriptions() {
-
-		ImageButton fightSet = (ImageButton) findViewById(R.id.fight_set);
-		LevelListDrawable drawable = (LevelListDrawable) fightSet.getDrawable();
-		drawable.setLevel(getHero().getActiveSet());
-
-		// TODO reuse elements
-
-		fightItems.removeAllViews();
-
 		List<EquippedItem> items = getHero().getEquippedItems();
 		Util.sort(items);
 
+		fightItemAdapter.setNotifyOnChange(false);
+		fightItemAdapter.clear();
 		for (EquippedItem equippedItem : items) {
+			fightItemAdapter.add(equippedItem);
+		}
+		fightItemAdapter.notifyDataSetChanged();
+	}
 
-			ItemSpecification itemSpecification = equippedItem.getItemSpecification();
-			Item item = equippedItem.getItem();
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget
+	 * .AdapterView, android.view.View, int, long)
+	 */
+	@Override
+	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
-			if (item == null || itemSpecification == null)
-				return;
+		if (v == fightList) {
 
-			if (!filterSettings.isShowArmor() && itemSpecification instanceof Armor) {
-				continue;
+			Object object = fightMergeAdapter.getItem(position);
+
+			if (object instanceof CustomModificator) {
+				CheckBox active = (CheckBox) v.findViewById(R.id.active);
+				if (active != null)
+					active.toggle();
 			}
-			fillFightItemDescription(equippedItem, null);
 		}
 
-		fightItems.addView(fightausweichen);
 	}
 
 	/*
@@ -1069,52 +904,14 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	@Override
 	public void onActiveSetChanged(int newSet, int oldSet) {
 		super.onActiveSetChanged(newSet, oldSet);
+		updateSetButton();
 		fillFightItemDescriptions();
 	}
 
-	private void fillFightModifierDescription(Modificator item) {
-		View itemLayout = fightModifiers.findViewWithTag(item);
-		fillFightModifierDescription(item, itemLayout);
-	}
-
-	private void fillFightModifierDescription(Modificator item, View itemLayout) {
-
-		if (itemLayout == null) {
-			LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-			itemLayout = layoutInflater.inflate(R.layout.fight_sheet_modifier, fightModifiers, false);
-			fightModifiers.addView(itemLayout);
-			Util.applyRowStyle(itemLayout, fightModifiers.getChildCount());
-		}
-		itemLayout.setTag(item);
-
-		TextView text1 = (TextView) itemLayout.findViewById(android.R.id.text1);
-		TextView text2 = (TextView) itemLayout.findViewById(android.R.id.text2);
-		ImageView icon1 = (ImageView) itemLayout.findViewById(android.R.id.icon1);
-
-		CheckBox active = (CheckBox) itemLayout.findViewById(R.id.active);
-
-		if (item instanceof CustomModificator) {
-			CustomModificator modificator = (CustomModificator) item;
-			active.setVisibility(View.VISIBLE);
-			active.setChecked(modificator.isActive());
-			active.setOnCheckedChangeListener(this);
-			active.setTag(modificator);
-			itemLayout.setTag(modificator);
-			itemLayout.setOnClickListener(this);
-			registerForIconContextMenu(itemLayout);
-			icon1.setVisibility(View.INVISIBLE);
-		} else {
-			active.setVisibility(View.GONE);
-			icon1.setVisibility(View.VISIBLE);
-			unregisterForIconContextMenu(itemLayout);
-		}
-		if (item != null) {
-			text1.setText(item.getModificatorName());
-			text2.setText(item.getModificatorInfo());
-		} else {
-			text1.setText(null);
-			text2.setText(null);
-		}
+	private void updateSetButton() {
+		ImageButton fightSet = (ImageButton) findViewById(R.id.fight_set);
+		LevelListDrawable drawable = (LevelListDrawable) fightSet.getDrawable();
+		drawable.setLevel(getHero().getActiveSet());
 	}
 
 	/*
@@ -1150,7 +947,8 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	 */
 	@Override
 	public void onItemChanged(EquippedItem item) {
-		fillFightItemDescription(item);
+		if (item.getSet() == getHero().getActiveSet())
+			fightItemAdapter.notifyDataSetChanged();
 	}
 
 	/*
@@ -1162,7 +960,9 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	 */
 	@Override
 	public void onItemEquipped(EquippedItem item) {
-		fillFightItemDescription(item);
+		if (item.getSet() == getHero().getActiveSet()) {
+			fightItemAdapter.add(item);
+		}
 	}
 
 	/*
@@ -1174,7 +974,10 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	 */
 	@Override
 	public void onItemUnequipped(EquippedItem item) {
-		fightItems.removeView(findFightItemDescription(item));
+		if (item.getSet() == getHero().getActiveSet()) {
+			fightItemAdapter.remove(item);
+		}
+
 	}
 
 }

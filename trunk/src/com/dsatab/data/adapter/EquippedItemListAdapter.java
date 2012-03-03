@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
+import com.dsatab.data.filter.ItemListFilter;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
@@ -22,14 +23,18 @@ public class EquippedItemListAdapter extends OpenArrayAdapter<Item> implements O
 
 	private ItemListFilter filter;
 
+	private LayoutInflater inflater;
+
 	public EquippedItemListAdapter(Context context, Hero hero, Item[] objects) {
 		super(context, 0, objects);
 		this.hero = hero;
+		inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	public EquippedItemListAdapter(Context context, Hero hero, List<Item> objects) {
 		super(context, 0, objects);
 		this.hero = hero;
+		inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	public void filter(List<ItemType> type, String category, String constraint) {
@@ -57,9 +62,6 @@ public class EquippedItemListAdapter extends OpenArrayAdapter<Item> implements O
 
 		EquippedItemListItem view;
 		if (!(convertView instanceof EquippedItemListItem)) {
-			// We need the layoutinflater to pick up the view from xml
-			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			// Pick up the TwoLineListItem defined in the xml file
 			view = (EquippedItemListItem) inflater.inflate(R.layout.equippeditem_listitem, parent, false);
 		} else {
 			view = (EquippedItemListItem) convertView;

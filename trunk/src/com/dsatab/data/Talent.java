@@ -1,5 +1,7 @@
 package com.dsatab.data;
 
+import java.util.EnumSet;
+
 import org.jdom.Element;
 
 import com.dsatab.common.Util;
@@ -48,8 +50,12 @@ public class Talent extends MarkableElement implements Value, XmlWriteable {
 	private String name;
 
 	private String talentSpezialisierung;
-	private boolean begabung;
-	private boolean talentschub;
+
+	public enum Flags {
+		Meisterhandwerk, Begabung, Talentschub, ÜbernatürlicheBegabung
+	}
+
+	private EnumSet<Flags> flags = EnumSet.noneOf(Flags.class);
 
 	public Talent(Hero hero, Element element) {
 		super(element);
@@ -89,20 +95,12 @@ public class Talent extends MarkableElement implements Value, XmlWriteable {
 		this.talentSpezialisierung = talentSpezialisierung;
 	}
 
-	public boolean isBegabung() {
-		return begabung;
+	public boolean hasFlag(Flags flag) {
+		return flags.contains(flag);
 	}
 
-	public void setBegabung(boolean begabung) {
-		this.begabung = begabung;
-	}
-
-	public boolean isTalentschub() {
-		return talentschub;
-	}
-
-	public void setTalentschub(boolean talentschub) {
-		this.talentschub = talentschub;
+	public void addFlag(Flags flag) {
+		flags.add(flag);
 	}
 
 	public Integer getProbeValue(int i) {

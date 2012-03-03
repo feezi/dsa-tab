@@ -23,9 +23,10 @@ import org.xml.sax.InputSource;
 
 import android.text.TextUtils;
 import android.text.TextUtils.StringSplitter;
-import android.util.AndroidRuntimeException;
 
 import com.dsatab.DSATabApplication;
+import com.dsatab.activity.BasePreferenceActivity;
+import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.common.Util;
 import com.dsatab.data.ArtInfo;
 import com.dsatab.data.Hero;
@@ -53,20 +54,21 @@ public class XmlParser {
 		try {
 			readItems("items.txt", items);
 
-			if (DSATabApplication.getInstance().getConfiguration().isHouseRules()) {
+			if (DSATabApplication.getPreferences().getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_MORE_WOUND_ZONES,
+					false)) {
 				readItems("items_armor_house.txt", items);
 			} else {
 				readItems("items_armor.txt", items);
 			}
 		} catch (IOException e) {
-			throw new AndroidRuntimeException("Could not parse items from items.txt", e);
+			throw new DsaTabRuntimeException("Could not parse items from items.txt", e);
 		}
 
 		return items;
 
 	}
 
-	public static Map<String, ArtInfo> readLiturige() {
+	public static Map<String, ArtInfo> readArts() {
 		Map<String, ArtInfo> items = new HashMap<String, ArtInfo>();
 
 		BufferedReader r = null;
@@ -91,7 +93,8 @@ public class XmlParser {
 					i = splitter.iterator();
 
 					item.setName(i.next().trim());
-					item.setGrade(Util.gradeToInt(i.next().trim()));
+					if (i.hasNext())
+						item.setGrade(Util.gradeToInt(i.next().trim()));
 					if (i.hasNext())
 						item.setTarget(i.next().trim());
 					if (i.hasNext())
@@ -106,6 +109,10 @@ public class XmlParser {
 						item.setOrigin(i.next().trim());
 					if (i.hasNext())
 						item.setSource(i.next().trim());
+					if (i.hasNext())
+						item.setProbe(i.next().trim());
+					if (i.hasNext())
+						item.setMerkmale(i.next().trim());
 
 					if (items.containsKey(item.getName())) {
 						String nameWithGrade = item.getName() + " " + Util.intToGrade(item.getGrade());
@@ -129,7 +136,7 @@ public class XmlParser {
 
 			}
 		} catch (IOException e) {
-			throw new AndroidRuntimeException("Could not read arts from arts.txt", e);
+			throw new DsaTabRuntimeException("Could not read arts from arts.txt", e);
 		} finally {
 			try {
 				if (r != null)
@@ -197,7 +204,7 @@ public class XmlParser {
 
 			}
 		} catch (IOException e) {
-			throw new AndroidRuntimeException("Could nor read spells from zauber.txt", e);
+			throw new DsaTabRuntimeException("Could nor read spells from zauber.txt", e);
 		} finally {
 			try {
 				if (r != null)
@@ -242,7 +249,7 @@ public class XmlParser {
 					int startSpec = name.indexOf('[');
 					int endSpec = name.indexOf(']', startSpec);
 					if (endSpec == -1) {
-						throw new AndroidRuntimeException(
+						throw new DsaTabRuntimeException(
 								"Malformed items.txt file: Opening item specificaton '[' without closing bracket found at item "
 										+ name);
 					}

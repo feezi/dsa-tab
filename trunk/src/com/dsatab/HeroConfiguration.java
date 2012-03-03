@@ -41,7 +41,7 @@ import com.dsatab.fragment.BodyFragment;
 import com.dsatab.fragment.CharacterFragment;
 import com.dsatab.fragment.DocumentsFragment;
 import com.dsatab.fragment.FightFragment;
-import com.dsatab.fragment.ItemsFragment;
+import com.dsatab.fragment.ItemsListFragment;
 import com.dsatab.fragment.MapFragment;
 import com.dsatab.fragment.NotesFragment;
 import com.dsatab.fragment.PurseFragment;
@@ -241,9 +241,23 @@ public class HeroConfiguration {
 		}
 	}
 
+	public void setTabs(int orientation, List<TabInfo> tabs) {
+		switch (orientation) {
+		case Configuration.ORIENTATION_LANDSCAPE:
+			tabInfosLandscape = tabs;
+		default:
+			tabInfosPortrait = tabs;
+		}
+	}
+
 	public List<TabInfo> getTabs() {
 		Configuration configuration = DSATabApplication.getInstance().getResources().getConfiguration();
 		return getTabs(configuration.orientation);
+	}
+
+	public void setTabs(List<TabInfo> tabs) {
+		Configuration configuration = DSATabApplication.getInstance().getResources().getConfiguration();
+		setTabs(configuration.orientation, tabs);
 	}
 
 	public TabInfo getTab(int index) {
@@ -289,12 +303,12 @@ public class HeroConfiguration {
 		return wounds;
 	}
 
-	public void addWound(WoundAttribute modificator) {
-		wounds.add(modificator);
+	public void addWound(WoundAttribute wound) {
+		wounds.add(wound);
 	}
 
-	public void removeWound(WoundAttribute modificator) {
-		wounds.remove(modificator);
+	public void removeWound(WoundAttribute wound) {
+		wounds.remove(wound);
 	}
 
 	public CombatStyle getCombatStyle() {
@@ -353,50 +367,61 @@ public class HeroConfiguration {
 		this.beCalculation = beCalculation;
 	}
 
-	public void reset() {
-		Debug.verbose("Restoring tabs");
+	public List<TabInfo> getDefaultTabs() {
+		Configuration configuration = DSATabApplication.getInstance().getResources().getConfiguration();
+		return getDefaultTabs(configuration.orientation);
+	}
 
-		List<TabInfo> tabInfos = getTabs(Configuration.ORIENTATION_PORTRAIT);
-		tabInfos.clear();
-		tabInfos.add(new TabInfo(CharacterFragment.class, getTabResourceId(CharacterFragment.class)));
-		tabInfos.add(new TabInfo(TalentFragment.class, getTabResourceId(TalentFragment.class)));
-		tabInfos.add(new TabInfo(SpellFragment.class, getTabResourceId(SpellFragment.class)));
-		tabInfos.add(new TabInfo(ArtFragment.class, getTabResourceId(ArtFragment.class)));
-		tabInfos.add(new TabInfo(BodyFragment.class, getTabResourceId(BodyFragment.class)));
-		tabInfos.add(new TabInfo(FightFragment.class, getTabResourceId(FightFragment.class)));
-		tabInfos.add(new TabInfo(ItemsFragment.class, getTabResourceId(ItemsFragment.class), false));
-		tabInfos.add(new TabInfo(NotesFragment.class, getTabResourceId(NotesFragment.class)));
-		tabInfos.add(new TabInfo(PurseFragment.class, getTabResourceId(PurseFragment.class)));
-		tabInfos.add(new TabInfo(DocumentsFragment.class, getTabResourceId(DocumentsFragment.class), false));
-		tabInfos.add(new TabInfo(MapFragment.class, getTabResourceId(MapFragment.class), false));
+	public List<TabInfo> getDefaultTabs(int orientation) {
 
-		if (isDualPanel()) {
-			tabInfos = getTabs(Configuration.ORIENTATION_LANDSCAPE);
-			tabInfos.clear();
-			tabInfos.add(new TabInfo(CharacterFragment.class, TalentFragment.class,
-					getTabResourceId(CharacterFragment.class)));
-			tabInfos.add(new TabInfo(SpellFragment.class, ArtFragment.class, getTabResourceId(SpellFragment.class)));
-			tabInfos.add(new TabInfo(FightFragment.class, BodyFragment.class, getTabResourceId(FightFragment.class)));
-			tabInfos.add(new TabInfo(ItemsFragment.class, getTabResourceId(ItemsFragment.class), false));
-			tabInfos.add(new TabInfo(NotesFragment.class, PurseFragment.class, getTabResourceId(NotesFragment.class),
-					false));
-			tabInfos.add(new TabInfo(DocumentsFragment.class, getTabResourceId(DocumentsFragment.class), false));
-			tabInfos.add(new TabInfo(MapFragment.class, getTabResourceId(MapFragment.class), false));
-		} else {
-			tabInfos = getTabs(Configuration.ORIENTATION_LANDSCAPE);
-			tabInfos.clear();
+		List<TabInfo> tabInfos = new ArrayList<TabInfo>();
+
+		if (orientation == Configuration.ORIENTATION_PORTRAIT) {
 			tabInfos.add(new TabInfo(CharacterFragment.class, getTabResourceId(CharacterFragment.class)));
 			tabInfos.add(new TabInfo(TalentFragment.class, getTabResourceId(TalentFragment.class)));
 			tabInfos.add(new TabInfo(SpellFragment.class, getTabResourceId(SpellFragment.class)));
 			tabInfos.add(new TabInfo(ArtFragment.class, getTabResourceId(ArtFragment.class)));
 			tabInfos.add(new TabInfo(BodyFragment.class, getTabResourceId(BodyFragment.class)));
 			tabInfos.add(new TabInfo(FightFragment.class, getTabResourceId(FightFragment.class)));
-			tabInfos.add(new TabInfo(ItemsFragment.class, getTabResourceId(ItemsFragment.class), false));
+			tabInfos.add(new TabInfo(ItemsListFragment.class, getTabResourceId(ItemsListFragment.class), false));
 			tabInfos.add(new TabInfo(NotesFragment.class, getTabResourceId(NotesFragment.class)));
 			tabInfos.add(new TabInfo(PurseFragment.class, getTabResourceId(PurseFragment.class)));
 			tabInfos.add(new TabInfo(DocumentsFragment.class, getTabResourceId(DocumentsFragment.class), false));
 			tabInfos.add(new TabInfo(MapFragment.class, getTabResourceId(MapFragment.class), false));
+		} else {
+			if (isDualPanel()) {
+				tabInfos.add(new TabInfo(CharacterFragment.class, TalentFragment.class,
+						getTabResourceId(CharacterFragment.class)));
+				tabInfos.add(new TabInfo(SpellFragment.class, ArtFragment.class, getTabResourceId(SpellFragment.class)));
+				tabInfos.add(new TabInfo(FightFragment.class, BodyFragment.class, getTabResourceId(FightFragment.class)));
+				tabInfos.add(new TabInfo(ItemsListFragment.class, getTabResourceId(ItemsListFragment.class), false));
+				tabInfos.add(new TabInfo(NotesFragment.class, PurseFragment.class,
+						getTabResourceId(NotesFragment.class), false));
+				tabInfos.add(new TabInfo(DocumentsFragment.class, getTabResourceId(DocumentsFragment.class), false));
+				tabInfos.add(new TabInfo(MapFragment.class, getTabResourceId(MapFragment.class), false));
+			} else {
+				tabInfos.add(new TabInfo(CharacterFragment.class, getTabResourceId(CharacterFragment.class)));
+				tabInfos.add(new TabInfo(TalentFragment.class, getTabResourceId(TalentFragment.class)));
+				tabInfos.add(new TabInfo(SpellFragment.class, getTabResourceId(SpellFragment.class)));
+				tabInfos.add(new TabInfo(ArtFragment.class, getTabResourceId(ArtFragment.class)));
+				tabInfos.add(new TabInfo(BodyFragment.class, getTabResourceId(BodyFragment.class)));
+				tabInfos.add(new TabInfo(FightFragment.class, getTabResourceId(FightFragment.class)));
+				tabInfos.add(new TabInfo(ItemsListFragment.class, getTabResourceId(ItemsListFragment.class), false));
+				tabInfos.add(new TabInfo(NotesFragment.class, getTabResourceId(NotesFragment.class)));
+				tabInfos.add(new TabInfo(PurseFragment.class, getTabResourceId(PurseFragment.class)));
+				tabInfos.add(new TabInfo(DocumentsFragment.class, getTabResourceId(DocumentsFragment.class), false));
+				tabInfos.add(new TabInfo(MapFragment.class, getTabResourceId(MapFragment.class), false));
+			}
 		}
+
+		return tabInfos;
+	}
+
+	public void reset() {
+		Debug.verbose("Restoring tabs");
+
+		tabInfosPortrait = getDefaultTabs(Configuration.ORIENTATION_PORTRAIT);
+		tabInfosLandscape = getDefaultTabs(Configuration.ORIENTATION_LANDSCAPE);
 	}
 
 	/**

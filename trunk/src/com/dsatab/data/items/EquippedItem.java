@@ -11,14 +11,15 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.TextUtils;
-import android.util.AndroidRuntimeException;
 import android.widget.Toast;
 
+import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.common.Util;
+import com.dsatab.data.CombatProbe;
 import com.dsatab.data.CombatTalent;
 import com.dsatab.data.Hero;
+import com.dsatab.data.ItemLocationInfo;
 import com.dsatab.data.enums.CombatTalentType;
-import com.dsatab.view.drag.ItemLocationInfo;
 import com.dsatab.xml.DataManager;
 import com.dsatab.xml.Xml;
 
@@ -32,7 +33,7 @@ public class EquippedItem implements ItemCard {
 
 	private static final String NAME_PREFIX_RUESTUNG = "ruestung";
 
-	private static final String NAME_PREFIX_SCHILD = "schild";
+	public static final String NAME_PREFIX_SCHILD = "schild";
 
 	private static final String NAME_PREFIX_NK = "nkwaffe";
 
@@ -63,9 +64,7 @@ public class EquippedItem implements ItemCard {
 
 	private ItemLocationInfo itemInfo;
 
-	public EquippedItem(Hero hero) {
-		this(hero, null, null);
-	}
+	private CombatProbe at, pa;
 
 	public EquippedItem(Hero hero, Element element) {
 		this(hero, element, null);
@@ -77,9 +76,23 @@ public class EquippedItem implements ItemCard {
 		this.element = element;
 		this.item = item;
 		this.itemInfo = new ItemLocationInfo();
-		setItem(item);
-		setElement(element);
 
+		setElement(element, item);
+
+	}
+
+	public CombatProbe getCombatProbeAttacke() {
+		if (at == null) {
+			at = new CombatProbe(hero, this, true);
+		}
+		return at;
+	}
+
+	public CombatProbe getCombatProbeDefense() {
+		if (pa == null) {
+			pa = new CombatProbe(hero, this, false);
+		}
+		return pa;
 	}
 
 	public String getItemSpecificationLabel() {
@@ -101,7 +114,7 @@ public class EquippedItem implements ItemCard {
 			else
 				element.setAttribute(Xml.KEY_BEZEICHNER, "");
 		} else
-			throw new AndroidRuntimeException("Setting SpecificationLabel without a DOM element");
+			throw new DsaTabRuntimeException("Setting SpecificationLabel without a DOM element");
 
 	}
 
@@ -124,26 +137,33 @@ public class EquippedItem implements ItemCard {
 					}
 				}
 
-				if (itemSpecification == null) {
-					// r.g. wurfspeers can be used as distance and closecombat
-					// weapons
-					if (isDistanceWeapon() && item.hasSpecification(DistanceWeapon.class)) {
-						itemSpecification = item.getSpecification(DistanceWeapon.class);
-					} else if (!isDistanceWeapon() && item.hasSpecification(Weapon.class)) {
-						itemSpecification = item.getSpecification(Weapon.class);
-					}
-				}
 			}
 
-			// find a version that fits the talent
-			if (itemSpecification == null && getTalent() != null) {
+			// find a version that fits the talent or at least the type of
+			// equipped item matches the type of weapon (nk = weapon, fk =
+			// Distance, shield = Shield, ...)
+			if (itemSpecification == null) {
 				for (ItemSpecification specification : item.getSpecifications()) {
-					if (specification instanceof Weapon) {
-						Weapon weapon = (Weapon) specification;
-						if (weapon.getCombatTalentTypes().contains(getTalent().getCombatTalentType())) {
+					if (isCloseCombatWeapon() && specification instanceof Weapon) {
+						if (getTalent() != null) {
+							Weapon weapon = (Weapon) specification;
+							if (weapon.getCombatTalentTypes().contains(getTalent().getCombatTalentType())) {
+								itemSpecification = specification;
+								break;
+							}
+						}
+					} else if (isShieldWeapon() && specification instanceof Shield) {
+						Shield shield = (Shield) specification;
+						if (shield.isParadeWeapon() && getUsageType() == UsageType.Paradewaffe) {
+							itemSpecification = specification;
+							break;
+						} else if (shield.isShield() && getUsageType() == UsageType.Schild) {
 							itemSpecification = specification;
 							break;
 						}
+					} else if (isDistanceWeapon() && specification instanceof DistanceWeapon) {
+						itemSpecification = specification;
+						break;
 					}
 				}
 			}
@@ -276,53 +296,97 @@ public class EquippedItem implements ItemCard {
 		element.setAttribute(Xml.KEY_SET, Util.toString(set));
 	}
 
-	public void setElement(Element element) {
+	public void setElement(Element element, Item inItem) {
 		this.element = element;
 		this.itemInfo.setElement(element);
+		this.item = inItem;
 
-		if (element == null)
-			return;
-
-		if (element.getAttribute(Xml.KEY_SLOT) == null)
-			element.setAttribute(Xml.KEY_SLOT, "0");
-		if (getName().startsWith(NAME_PREFIX_NK)) {
-			itemNameField = WAFFENNAME;
-			nameId = Util.parseInt(getName().substring(NAME_PREFIX_NK.length()));
-		} else if (getName().startsWith(NAME_PREFIX_FK)) {
-			itemNameField = WAFFENNAME;
-			nameId = Util.parseInt(getName().substring(NAME_PREFIX_FK.length()));
-			if (getItem().hasSpecification(DistanceWeapon.class)) {
-				DistanceWeapon weapon = getItem().getSpecification(DistanceWeapon.class);
-				talent = hero.getCombatTalent(weapon.getCombatTalentType().getName());
+		if (item != null) {
+			if (item.hasSpecification(Weapon.class) || item.hasSpecification(DistanceWeapon.class)) {
+				element.setAttribute(WAFFENNAME, item.getName());
+			} else if (item.hasSpecification(Shield.class)) {
+				element.setAttribute(SCHILDNAME, item.getName());
+			} else if (item.hasSpecification(Armor.class)) {
+				element.setAttribute(RUESTUNGSNAME, item.getName());
 			}
-		} else if (getName().startsWith(NAME_PREFIX_SCHILD)) {
-			itemNameField = SCHILDNAME;
-			nameId = Util.parseInt(getName().substring(NAME_PREFIX_SCHILD.length()));
 
-			Item item = DataManager.getItemByName(getItemName());
+			if (element != null && element.getAttribute(Xml.KEY_NAME) == null) {
+				String namePrefix = null;
 
-			if (item != null && item.hasSpecification(Shield.class)) {
-				Shield shield = item.getSpecification(Shield.class);
-
-				if (getUsageType() == null) {
-					if (shield.isShield())
-						setUsageType(UsageType.Schild);
-					else if (shield.isParadeWeapon())
-						setUsageType(UsageType.Paradewaffe);
+				if (item.hasSpecification(Weapon.class)) {
+					namePrefix = NAME_PREFIX_NK;
+				}
+				if (item.hasSpecification(DistanceWeapon.class)) {
+					namePrefix = NAME_PREFIX_FK;
+				}
+				if (item.hasSpecification(Shield.class)) {
+					namePrefix = NAME_PREFIX_SCHILD;
+				}
+				if (item.hasSpecification(Armor.class)) {
+					namePrefix = NAME_PREFIX_RUESTUNG;
 				}
 
-				if (shield.isShield() && getUsageType() == UsageType.Schild)
+				// find first free slot
+				int i = 1;
+				while (hero.getEquippedItem(namePrefix + i) != null) {
+					i++;
+				}
+				element.setAttribute(Xml.KEY_NAME, namePrefix + i);
+			}
+		}
+
+		if (element != null) {
+			if (element.getAttribute(Xml.KEY_SLOT) == null)
+				element.setAttribute(Xml.KEY_SLOT, "0");
+			if (getName().startsWith(NAME_PREFIX_NK)) {
+				itemNameField = WAFFENNAME;
+				nameId = Util.parseInt(getName().substring(NAME_PREFIX_NK.length()));
+			} else if (getName().startsWith(NAME_PREFIX_FK)) {
+				itemNameField = WAFFENNAME;
+				nameId = Util.parseInt(getName().substring(NAME_PREFIX_FK.length()));
+				if (getItem().hasSpecification(DistanceWeapon.class)) {
+					DistanceWeapon weapon = getItem().getSpecification(DistanceWeapon.class);
+					talent = hero.getCombatTalent(weapon.getCombatTalentType().getName());
+				}
+			} else if (getName().startsWith(NAME_PREFIX_SCHILD)) {
+				itemNameField = SCHILDNAME;
+				nameId = Util.parseInt(getName().substring(NAME_PREFIX_SCHILD.length()));
+
+				Item item = DataManager.getItemByName(getItemName());
+
+				if (item != null && item.hasSpecification(Shield.class)) {
+					Shield shield = item.getSpecification(Shield.class);
+
+					if (getUsageType() == null) {
+						if (shield.isShield())
+							setUsageType(UsageType.Schild);
+						else if (shield.isParadeWeapon())
+							setUsageType(UsageType.Paradewaffe);
+					}
+
+					if (shield.isShield() && getUsageType() == UsageType.Schild)
+						talent = hero.getCombatShieldTalent();
+					else if (shield.isParadeWeapon() && getUsageType() == UsageType.Paradewaffe)
+						talent = hero.getCombatParadeWeaponTalent(this);
+				} else {
 					talent = hero.getCombatShieldTalent();
-				else if (shield.isParadeWeapon() && getUsageType() == UsageType.Paradewaffe)
-					talent = hero.getCombatParadeWeaponTalent(this);
-			} else {
-				talent = hero.getCombatShieldTalent();
+				}
+
+			} else if (getName().startsWith(NAME_PREFIX_RUESTUNG)) {
+				itemNameField = RUESTUNGSNAME;
+				nameId = Util.parseInt(getName().substring(NAME_PREFIX_RUESTUNG.length()));
 			}
 
-		} else if (getName().startsWith(NAME_PREFIX_RUESTUNG)) {
-			itemNameField = RUESTUNGSNAME;
-			nameId = Util.parseInt(getName().substring(NAME_PREFIX_RUESTUNG.length()));
 		}
+
+	}
+
+	public boolean isShieldWeapon() {
+		return getName().startsWith(NAME_PREFIX_SCHILD);
+	}
+
+	public boolean isCloseCombatWeapon() {
+		return getName().startsWith(NAME_PREFIX_NK);
 	}
 
 	public boolean isDistanceWeapon() {
@@ -357,6 +421,16 @@ public class EquippedItem implements ItemCard {
 		return getItem().getFile();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.items.ItemCard#getHQFile()
+	 */
+	@Override
+	public File getHQFile() {
+		return getItem().getHQFile();
+	}
+
 	public int getNameId() {
 		return nameId;
 	}
@@ -369,44 +443,6 @@ public class EquippedItem implements ItemCard {
 		return element.getAttributeValue(itemNameField);
 	}
 
-	public void setItem(Item item) {
-
-		this.item = item;
-		if (item != null) {
-			if (item.hasSpecification(Weapon.class) || item.hasSpecification(DistanceWeapon.class)) {
-				element.setAttribute(WAFFENNAME, item.getName());
-			} else if (item.hasSpecification(Shield.class)) {
-				element.setAttribute(SCHILDNAME, item.getName());
-			} else if (item.hasSpecification(Armor.class)) {
-				element.setAttribute(RUESTUNGSNAME, item.getName());
-			}
-
-			if (element != null && element.getAttribute(Xml.KEY_NAME) == null) {
-				String namePrefix = null;
-
-				if (item.hasSpecification(Weapon.class)) {
-					namePrefix = NAME_PREFIX_NK;
-				}
-				if (item.hasSpecification(DistanceWeapon.class)) {
-					namePrefix = NAME_PREFIX_FK;
-				}
-				if (item.hasSpecification(Shield.class)) {
-					namePrefix = NAME_PREFIX_SCHILD;
-				}
-				if (item.hasSpecification(Armor.class)) {
-					namePrefix = NAME_PREFIX_RUESTUNG;
-				}
-
-				// find first free slot
-				int i = 1;
-				while (hero.getEquippedItem(namePrefix + i) != null) {
-					i++;
-				}
-				element.setAttribute(Xml.KEY_NAME, namePrefix + i);
-			}
-		}
-	}
-
 	public Item getItem() {
 		if (item == null && getItemName() != null) {
 			item = hero.getItem(getItemName());
@@ -416,45 +452,21 @@ public class EquippedItem implements ItemCard {
 	}
 
 	public EquippedItem getSecondaryItem() {
-		if (secondaryEquippedItem == null) {
-			if (getItem().hasSpecification(Weapon.class) && element.getAttribute(Xml.KEY_SCHILD) != null) {
-				int schild = Util.parseInt(element.getAttributeValue(Xml.KEY_SCHILD));
-				if (schild > 0) {
-					secondaryEquippedItem = hero.getEquippedItem(NAME_PREFIX_SCHILD + schild);
-				}
-			} else if (getItem().hasSpecification(Shield.class)) {
-
-				int mySchildIndex = getNameId();
-				for (EquippedItem equippedItem : hero.getEquippedItems()) {
-					if (equippedItem.getElement().getAttribute(Xml.KEY_SCHILD) != null) {
-						int schild = Util.parseInt(equippedItem.getElement().getAttributeValue(Xml.KEY_SCHILD));
-						if (mySchildIndex == schild) {
-							secondaryEquippedItem = equippedItem;
-						}
-					}
-				}
-			}
-
-		}
 		return secondaryEquippedItem;
 	}
 
 	public void setSecondaryItem(EquippedItem secondaryEquippedItem) {
 
 		this.secondaryEquippedItem = secondaryEquippedItem;
-		Item secondaryItem = null;
-		if (secondaryEquippedItem != null) {
-			secondaryItem = secondaryEquippedItem.getItem();
-		}
 
-		if (getItem().hasSpecification(Weapon.class)) {
+		if (getItemSpecification() instanceof Weapon) {
 			if (secondaryEquippedItem == null) {
 				element.setAttribute(Xml.KEY_SCHILD, "0");
-			} else if (secondaryItem.hasSpecification(Shield.class)) {
+			} else if (secondaryEquippedItem.getItemSpecification() instanceof Shield) {
 				String name = secondaryEquippedItem.getName();
 				int mySchildIndex = Util.parseInt(name.substring(NAME_PREFIX_SCHILD.length()));
 				element.setAttribute(Xml.KEY_SCHILD, Util.toString(mySchildIndex));
-			} else if (secondaryItem.hasSpecification(Weapon.class)) {
+			} else if (secondaryEquippedItem.getItemSpecification() instanceof Weapon) {
 				getHero().addBeidhaendigerKampf(this, secondaryEquippedItem);
 			}
 		}

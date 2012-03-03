@@ -25,12 +25,9 @@ import java.util.List;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -186,26 +183,27 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 		super.onCreateContextMenu(menu, v, menuInfo);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.SherlockActivity#onCreateOptionsMenu(com.
+	 * actionbarsherlock.view.Menu)
+	 */
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
+	public boolean onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu) {
+		com.actionbarsherlock.view.MenuInflater inflater = new com.actionbarsherlock.view.MenuInflater(this);
 		inflater.inflate(R.menu.hero_chooser_menu, menu);
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
 
 		switch (item.getItemId()) {
 
 		case R.id.option_settings:
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-				startActivityForResult(new Intent(this, DsaPreferenceActivity.class), MainActivity.ACTION_PREFERENCES);
-			} else {
-				startActivityForResult(new Intent(this, DsaPreferenceActivityHC.class), MainActivity.ACTION_PREFERENCES);
-			}
+			BasePreferenceActivity.startPreferenceActivity(this);
 			return true;
-
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -281,7 +279,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 
 			updateViews();
 
-			updateFullscreenStatus(preferences.getBoolean(DsaPreferenceActivityHC.KEY_FULLSCREEN, true));
+			updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}

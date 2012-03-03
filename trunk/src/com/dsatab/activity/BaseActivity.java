@@ -16,13 +16,13 @@
  */
 package com.dsatab.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.WindowManager;
 
+import com.actionbarsherlock.app.SherlockActivity;
 import com.dsatab.DSATabApplication;
 import com.dsatab.common.Util;
 import com.gandulf.guilib.util.Debug;
@@ -31,7 +31,7 @@ import com.gandulf.guilib.util.Debug;
  * @author Ganymede
  * 
  */
-public class BaseActivity extends Activity {
+public class BaseActivity extends SherlockActivity {
 
 	protected SharedPreferences preferences;
 
@@ -53,7 +53,6 @@ public class BaseActivity extends Activity {
 	 */
 	@Override
 	protected void onDestroy() {
-
 		Debug.verbose("Unbinding drawbale to free memory");
 		Util.unbindDrawables(getWindow().getDecorView());
 
@@ -68,10 +67,7 @@ public class BaseActivity extends Activity {
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-
-		updateFullscreenStatus(preferences.getBoolean(DsaPreferenceActivityHC.KEY_FULLSCREEN, true));
-
-		Debug.heap();
+		updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
 	}
 
 	/*
@@ -87,17 +83,17 @@ public class BaseActivity extends Activity {
 
 			SharedPreferences preferences = DSATabApplication.getPreferences();
 
-			String orientation = preferences.getString(DsaPreferenceActivityHC.KEY_SCREEN_ORIENTATION,
-					DsaPreferenceActivityHC.DEFAULT_SCREEN_ORIENTATION);
-			if (DsaPreferenceActivityHC.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)) {
+			String orientation = preferences.getString(BasePreferenceActivity.KEY_SCREEN_ORIENTATION,
+					BasePreferenceActivity.DEFAULT_SCREEN_ORIENTATION);
+			if (BasePreferenceActivity.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)) {
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-			} else if (DsaPreferenceActivityHC.SCREEN_ORIENTATION_PORTRAIT.equals(orientation)) {
+			} else if (BasePreferenceActivity.SCREEN_ORIENTATION_PORTRAIT.equals(orientation)) {
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-			} else if (DsaPreferenceActivityHC.SCREEN_ORIENTATION_AUTO.equals(orientation)) {
+			} else if (BasePreferenceActivity.SCREEN_ORIENTATION_AUTO.equals(orientation)) {
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			}
 
-			updateFullscreenStatus(preferences.getBoolean(DsaPreferenceActivityHC.KEY_FULLSCREEN, true));
+			updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}

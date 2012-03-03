@@ -14,82 +14,64 @@
  *  You should have received a copy of the GNU General Public License
  *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.dsatab.data.adapter;
+package com.dsatab.data.filter;
 
 import java.util.Arrays;
 import java.util.List;
 
-import android.text.TextUtils;
-
-import com.dsatab.data.items.Item;
-import com.dsatab.data.items.ItemSpecification;
-import com.dsatab.data.items.ItemType;
+import com.dsatab.data.Event;
+import com.dsatab.data.adapter.OpenArrayAdapter;
+import com.dsatab.data.adapter.OpenFilter;
+import com.dsatab.data.enums.EventCategory;
 
 /**
  * @author Ganymede
  * 
  */
-public class ItemListFilter extends OpenFilter<Item> {
+public class EventListFilter extends OpenFilter<Event> {
 
-	private List<ItemType> types;
-
-	private String category;
+	private List<EventCategory> types;
 
 	/**
 	 * 
 	 */
-	public ItemListFilter(OpenArrayAdapter<Item> list) {
+	public EventListFilter(OpenArrayAdapter<Event> list) {
 		super(list);
 	}
 
-	public List<ItemType> getTypes() {
+	public List<EventCategory> getTypes() {
 		return types;
 	}
 
-	public void setTypes(List<ItemType> type) {
+	public void setTypes(List<EventCategory> type) {
 		this.types = type;
 	}
 
-	public void setType(ItemType type) {
+	public void setType(EventCategory type) {
 		if (type != null)
 			this.types = Arrays.asList(type);
 		else
 			this.types = null;
 	}
 
-	public String getCategory() {
-		return category;
-	}
-
-	public void setCategory(String category) {
-		this.category = category;
-	}
-
 	protected boolean isFilterSet() {
-		return constraint != null || (types != null && !types.isEmpty()) || category != null;
+		return constraint != null || (types != null && !types.isEmpty());
 	}
 
-	protected boolean filter(Item m) {
+	public boolean filter(Event m) {
 		boolean valid = true;
 		if (types != null) {
 			boolean found = false;
 
-			for (ItemSpecification spec : m.getSpecifications()) {
-				if (types.contains(spec.getType())) {
-					found = true;
-					break;
-				}
+			if (types.contains(m.getCategory())) {
+				found = true;
 			}
 
 			valid &= found;
 		}
 
-		if (!TextUtils.isEmpty(category)) {
-			valid &= category.equals(m.getCategory());
-		}
-
 		if (constraint != null) {
-			valid &= m.getName().toLowerCase().startsWith(constraint);
+			valid &= m.getComment().toLowerCase().startsWith(constraint);
 		}
 
 		return valid;

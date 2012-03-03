@@ -14,7 +14,7 @@ import android.text.TextUtils;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.common.Util;
-import com.dsatab.view.drag.ItemLocationInfo;
+import com.dsatab.data.ItemLocationInfo;
 import com.dsatab.xml.Xml;
 import com.gandulf.guilib.util.Debug;
 
@@ -38,6 +38,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	static final String POSTFIX_HQ = "_HQ.jpg";
 
 	public static final String BLANK_PATH = "blank_w_LQ.gif";
+	public static final String BLANK_PATH_HQ = "blank_w_HQ.jpg";
 
 	private transient Element element;
 
@@ -209,14 +210,14 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 
 	public File getFile() {
 		if (getPath() != null)
-			return new File(DSATabApplication.getDsaTabPath() + "cards/" + getPath());
+			return new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), getPath());
 		else
 			return null;
 	}
 
 	public File getHQFile() {
 		if (getHQPath() != null)
-			return new File(DSATabApplication.getDsaTabPath() + "cards/" + getHQPath());
+			return new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), getHQPath());
 		else
 			return null;
 	}

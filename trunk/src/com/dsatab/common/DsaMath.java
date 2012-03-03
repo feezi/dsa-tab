@@ -3,7 +3,7 @@ package com.dsatab.common;
 import android.content.SharedPreferences;
 
 import com.dsatab.DSATabApplication;
-import com.dsatab.activity.DsaPreferenceActivityHC;
+import com.dsatab.activity.BasePreferenceActivity;
 
 public class DsaMath {
 
@@ -45,9 +45,8 @@ public class DsaMath {
 		double result;
 		SharedPreferences preferences = DSATabApplication.getPreferences();
 
-		if (preferences.getBoolean(DsaPreferenceActivityHC.KEY_HOUSE_RULES, false) == false) {
+		if (preferences.getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_2_OF_3_DICE, false) == false) {
 			result = Math.min(1.0, (e1 + taw) / 20.0);
-
 		} else {
 
 			e1 = e1 + taw;

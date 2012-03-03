@@ -1,10 +1,12 @@
 package com.dsatab.data;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.dsatab.data.MetaTalent.MetaTalentType;
+import com.dsatab.data.Talent.Flags;
 
 public class TalentGroup {
 
@@ -83,7 +85,7 @@ public class TalentGroup {
 
 	private TalentGroupType type;
 
-	private boolean begabung;
+	private EnumSet<Flags> flags = EnumSet.noneOf(Flags.class);
 
 	public TalentGroup(TalentGroupType name) {
 		this.type = name;
@@ -93,12 +95,12 @@ public class TalentGroup {
 		this.talents = talents;
 	}
 
-	public boolean isBegabung() {
-		return begabung;
+	public boolean hasFlag(Flags flag) {
+		return flags.contains(flag);
 	}
 
-	public void setBegabung(boolean begabung) {
-		this.begabung = begabung;
+	public void addFlag(Flags flag) {
+		flags.add(flag);
 	}
 
 	public List<Talent> getTalents() {

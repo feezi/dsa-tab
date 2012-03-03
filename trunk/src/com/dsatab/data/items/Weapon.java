@@ -17,8 +17,6 @@ import com.dsatab.xml.Xml;
 
 public class Weapon extends ItemSpecification {
 
-	private static final long serialVersionUID = 6832804846158222277L;
-
 	private String tp;
 
 	private Integer tpKKMin;
@@ -235,7 +233,7 @@ public class Weapon extends ItemSpecification {
 		return kkModifier;
 	}
 
-	public CharSequence getInfo(int kk) {
+	public CharSequence getInfo(int kk, int modifier) {
 
 		StyleableSpannableStringBuilder info = new StyleableSpannableStringBuilder();
 
@@ -243,11 +241,12 @@ public class Weapon extends ItemSpecification {
 
 		int tpModifier = getKKModifier(kk);
 
-		if (tpModifier != 0) {
+		if (tpModifier != 0 || modifier != 0) {
 			Dice dice = Dice.parseDice(tp);
 			if (dice != null) {
 				dice.constant += tpModifier;
-				if (tpModifier > 0) {
+				dice.constant += modifier;
+				if (tpModifier + modifier > 0) {
 					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen),
 							dice.toString());
 				} else {
@@ -256,12 +255,12 @@ public class Weapon extends ItemSpecification {
 				}
 			} else {
 				info.append(tp);
-				if (tpModifier > 0) {
+				if (tpModifier + modifier > 0) {
 					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen),
-							Util.toProbe(tpModifier));
+							Util.toProbe(tpModifier + modifier));
 				} else {
 					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed),
-							Util.toProbe(tpModifier));
+							Util.toProbe(tpModifier + modifier));
 				}
 			}
 		} else {

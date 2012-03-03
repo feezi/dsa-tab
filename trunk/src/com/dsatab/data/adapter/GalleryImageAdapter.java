@@ -15,21 +15,19 @@
  */
 package com.dsatab.data.adapter;
 
-import java.io.File;
 import java.util.List;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Gallery;
 
 import com.dsatab.R;
+import com.dsatab.data.filter.ItemListFilter;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.view.CardView;
-import com.dsatab.xml.DataManager;
 
 public class GalleryImageAdapter extends OpenArrayAdapter<Item> {
 
@@ -93,29 +91,15 @@ public class GalleryImageAdapter extends OpenArrayAdapter<Item> {
 
 		if (convertView instanceof CardView) {
 			i = (CardView) convertView;
-			i.setItem(item);
 		} else {
-			i = new CardView(getContext(), item);
+			i = new CardView(getContext());
 			/* Set the Width/Height of the ImageView. */
 			i.setMaxWidth(width);
 			i.setMaxHeight(height);
 			i.setLayoutParams(new Gallery.LayoutParams(width, height));
 			i.setBackgroundResource(mGalleryItemBackground);
 		}
-
-		Bitmap bitmap = null;
-
-		File lqFile = item.getFile();
-		if (lqFile != null && lqFile.isFile()) {
-			bitmap = DataManager.getBitmap(lqFile.getAbsolutePath());
-
-		}
-
-		if (bitmap != null)
-			i.setImageBitmap(bitmap);
-		else
-			i.setImageResource(R.drawable.item_card);
-
+		i.setItem(item);
 		return i;
 	}
 
