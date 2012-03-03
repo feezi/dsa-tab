@@ -5,5 +5,5 @@
 	<GridView android:layout_height="fill_parent"
 		android:layout_width="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android" 
 		android:id="@+id/popup_portrait_chooser_list" android:padding="5dip"
-		android:verticalSpacing="5dip" android:numColumns="auto_fit" android:columnWidth="90dp"></GridView>
+		android:verticalSpacing="5dip" android:numColumns="auto_fit" android:columnWidth="@dimen/portrait_width_small" android:stretchMode="spacingWidthUniform"></GridView>
 

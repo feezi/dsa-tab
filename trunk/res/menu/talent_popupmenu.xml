@@ -1,5 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
- <item android:id="@+id/option_edit_talent"
+<group android:id="@+id/group_talent"> 
+ 	<item android:id="@+id/option_edit_talent"
           android:icon="@drawable/ic_menu_edit"
           android:title="Wert bearbeiten" />
 
@@ -16,5 +17,5 @@
     <item android:id="@+id/option_unmark_talent"
           android:icon="@drawable/ic_menu_close_clear_cancel"
           android:title="Markierung aufheben" />
-    
+</group>    
 </menu>

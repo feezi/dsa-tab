@@ -5,12 +5,14 @@
 	<item>Papier</item>
 	<item>Karte</item>
 	<item>Abstrakt</item>
+	<item>Dark</item>
 </array>
 
 <array name="themesValues">
 	<item>paper</item>
 	<item>map</item>
 	<item>abstract</item>
+	<item>dark</item>
 </array>
 
 <array name="screenOrientation">

@@ -1,5 +1,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-		
+<group android:id="@+id/group_art">		
 	<item android:id="@+id/option_view_art"
           android:icon="@drawable/ic_menu_view"
           android:title="Details anzeigen" />                    
@@ -13,4 +13,5 @@
     <item android:id="@+id/option_unmark_art"
           android:icon="@drawable/ic_menu_close_clear_cancel"
           android:title="Markierung aufheben" />
+</group>    
 </menu>

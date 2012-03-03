@@ -38,6 +38,17 @@
 		android:id="@+id/set3" android:layout_height="@dimen/icon_button_size"
 		android:layout_width="@dimen/icon_button_size"  android:src="@drawable/set3"
 		android:visibility="visible" android:layout_marginLeft="1dip" android:clickable="false" android:focusable="false"/>
-		
+
+	<TextView
+	    android:id="@+id/icon_1_overlay"
+	    android:textColor="#dddddd"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"	    
+	    android:layout_alignLeft="@android:id/icon1"
+	    android:layout_alignBottom="@android:id/icon1"
+	    android:text="1"
+	    android:textAppearance="?android:attr/textAppearanceSmall" android:background="@drawable/ic_notification_overlay"/>
+
+	
 
 </com.dsatab.view.EquippedItemListItem>

@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <item android:id="@+id/option_edit"
+          android:icon="@drawable/ic_menu_edit"
+          android:title="Modifikator bearbeiten" />
+          
+    <item android:id="@+id/option_add"
+          android:icon="@drawable/ic_menu_add"
+          android:title="Modifikator hinzufügen" />
+    
+    <item android:id="@+id/option_delete"
+          android:icon="@drawable/ic_menu_delete"
+          android:title="Modifikator entfernen" />                    
+    
+</menu>

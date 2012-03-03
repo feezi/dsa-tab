@@ -1,0 +1,21 @@
+<div>
+<h2>Version 3.0-beta</h2>
+<h4>Features</h4>
+<ul>
+<li>Tab-Navigation wurde in die ActionBar von Android 3.0 integriert</li>
+<li>Klingentänzer wird beim Wurf der Initiative berücksichtigt</li>
+<li>Modifikatoren können nun auch die Trefferpunkte anpassen z.B.: AT TP+2, Dolche TP+1, Langschwert TP+2</li>
+<li>Meisterhandwerk und Übernatürliche Begabung wird als Stern in der Talent-/Zauberliste angezeigt</li>
+<li>Man kann nun bei Wunden zwischen dem System mit und ohne Trefferzonen unterscheiden. Ohne Treffersystem wird für jede Wunde AT,PA,FK,GE,INI -2; GS -1 verwendet, egal wo man sie eintragt.</li>
+</ul>
+
+<h4>Bug Fixes</h4>
+<ul>
+<li>Download Code wurde überarbeitet. Hoffenltich gibt es jetzt weniger Abbrüche beim Herunterladen von zusätzlichem Inhalt.</li>
+<li>Helden Import/Export verursachte unter Android &lt;3.0 einen Absturz, falls bei der Datenverbindung ein Problem auftrat.</li>
+<li>Abstruz beim Öffnen des Dokumentetabs, falls dieser leer ist.</li>
+<li>Wunden wirken sich nun auch auf den Ausweichenwert aus.</li>
+<li>Modifikatoren wirken sich nun sofort auf die Übersichtsseite aus.</li>
+</ul>
+
+</div>

@@ -1,13 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.dsatab" android:installLocation="auto"
-	android:versionCode="42" android:versionName="2.5.6">
+	android:versionCode="47" android:versionName="3.0-beta">
+	
+	<uses-sdk android:minSdkVersion="7" android:targetSdkVersion="14" />
+
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.VIBRATE" />
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+	<uses-feature android:required="false"
+		android:name="android.hardware.microphone"></uses-feature>
+	<uses-feature android:required="false"
+		android:name="android.hardware.sensor.gyroscope"></uses-feature>
+	<uses-feature android:required="true"
+		android:name="android.hardware.touchscreen"></uses-feature>
+		
+	<supports-screens android:largeScreens="true"
+		android:resizeable="true" android:anyDensity="true"
+		android:normalScreens="true" android:smallScreens="true"
+		android:xlargeScreens="true" />
+	
 	<application android:label="DsaTab" android:icon="@drawable/icon" android:theme="@style/DsaTabTheme"
-	    android:hardwareAccelerated="true"
-		android:name="DSATabApplication" android:largeHeap="true">
+	    android:hardwareAccelerated="true" android:name="DSATabApplication" android:largeHeap="true">
 
 		<activity android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified"
-			android:name="com.dsatab.activity.MainActivity">
+			android:name="com.dsatab.activity.MainActivity" android:uiOptions="splitActionBarWhenNarrow">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
@@ -22,17 +41,25 @@
 			android:label="Einstellungen"></activity>		
 		<activity android:name="com.dsatab.activity.ItemChooserActivity"		    
 			android:label="Inventar"></activity>
+		
 		<activity android:name="com.dsatab.activity.NotesEditActivity"
-		android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified"
+			android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified"
+			android:logo="@android:drawable/ic_menu_edit" 
 			android:label="Notiz bearbeiten" android:theme="@style/Theme.Dialog"></activity>
+		
 		<activity android:name=".activity.TabEditActivity"
-		android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified"
+			android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified"
+			android:logo="@android:drawable/ic_menu_edit"
 			android:theme="@style/Theme.Dialog" android:label="Tab bearbeiten"></activity>
+		
 		<activity android:name=".activity.ModificatorEditActivity"
-		android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified"
+			android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified"
+			android:logo="@android:drawable/ic_menu_edit"
 			android:theme="@style/Theme.Dialog" android:label="Modifikator bearbeiten"></activity>
+		
 		<activity android:name="com.dsatab.activity.HeroChooserActivity"
 			android:label="Held auswählen"></activity>
+		
 		<activity android:name="com.dsatab.activity.SearchableActivity"
 			android:launchMode="singleTop" android:label="Suche">
 			<intent-filter>
@@ -41,28 +68,19 @@
 			<meta-data android:name="android.app.searchable"
 				android:resource="@xml/searchable" />
 		</activity>
+		
+	    <receiver android:name="com.gandulf.guilib.util.DownloadBroadcastReceiver" android:exported="false">
+	        <intent-filter>
+	            <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
+	        </intent-filter>
+	    </receiver>
+	    
+        <service android:name="com.gandulf.guilib.util.UnzipIntentService" android:exported="false"></service>
 
 		<meta-data android:name="android.app.default_searchable"
 			android:value="com.dsatab.activity.SearchableActivity"
 			android:voiceSearchMode="showVoiceSearchButton|launchRecognizer" />
 
 	</application>
-	<uses-sdk android:minSdkVersion="7" android:targetSdkVersion="10" />
-
-	<supports-screens android:largeScreens="true"
-		android:resizeable="true" android:anyDensity="true"
-		android:normalScreens="true" android:smallScreens="true"
-		android:xlargeScreens="true" />
-
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-	<uses-permission android:name="android.permission.VIBRATE" />
-	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.RECORD_AUDIO" />
-
-	<uses-feature android:required="false"
-		android:name="android.hardware.microphone"></uses-feature>
-	<uses-feature android:required="false"
-		android:name="android.hardware.sensor.gyroscope"></uses-feature>
-	<uses-feature android:required="true"
-		android:name="android.hardware.touchscreen"></uses-feature>
+	
 </manifest> 

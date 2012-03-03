@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="wrap_content">
 
-	<TextView style="@style/TextLabel.Inverse"
+	<TextView style="@style/TextLabel"
 		android:id="@+id/popup_probelist_item_text1" android:layout_width="wrap_content" android:layout_weight="1" android:text="Manuell" android:layout_height="fill_parent" android:layout_gravity="center_vertical" android:gravity="center_vertical"/>
 				
 	<kankan.wheel.widget.WheelView android:id="@+id/popup_probelist_item_text2"

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>    
+    
+    <style name="Theme.Dialog" parent="@android:style/Theme.Holo.Light.Dialog">        
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
+        <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
+    </style>    
+    
+    <style name="Theme.Dialog.Abstract">        
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Glossy</item>
+        <item name="glossyButtonStyle">@style/Widget.Button.Glossy</item>
+        <item name="glossyButtonOverlay">@drawable/btn_glossy_gloss</item>
+        <item name="glossyButtonMask">@drawable/btn_glossy_mask</item>
+    </style>
+    
+    <style name="Theme.Dialog.Map">        
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Glossy</item>
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
+        <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
+    </style>    
+    
+    <style name="Theme.Dialog.Paper">        
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Glossy</item>
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
+        <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
+    </style>    
+    
+    <style name="Theme.Dialog.Dark" parent="@android:style/Theme.Holo.Dialog">        
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Glossy</item>
+        <item name="glossyButtonStyle">@style/Widget.Button.Glossy</item>
+        <item name="glossyButtonOverlay">@drawable/btn_glossy_gloss</item>
+        <item name="glossyButtonMask">@drawable/btn_glossy_mask</item>
+    </style>    
+    
+</resources>

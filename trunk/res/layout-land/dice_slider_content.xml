@@ -2,8 +2,8 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/contentLayout" android:gravity="center|top"
-	android:layout_width="fill_parent" android:layout_height="fill_parent" android:paddingBottom="2.5dip" android:paddingTop="10dip" android:background="@color/ValueBlack" android:orientation="vertical">
-    <TextView android:id="@+id/dice_talent" android:paddingRight="3dip" android:layout_height="wrap_content" android:text="Schleichen" android:ellipsize="end" android:textAppearance="?android:attr/textAppearanceMediumInverse" android:layout_width="match_parent" android:gravity="center_horizontal" android:lines="1"></TextView>
+	android:layout_width="fill_parent" android:layout_height="fill_parent" android:paddingBottom="2.5dip" android:paddingTop="10dip" android:orientation="vertical">
+    <TextView android:id="@+id/dice_talent" android:paddingRight="3dip" android:layout_height="wrap_content" android:text="Schleichen" android:ellipsize="end" android:layout_width="match_parent" android:gravity="center_horizontal" android:lines="1" style="@style/TextLabel.Inverse"></TextView>
     
     <ViewStub android:id="@+id/modifier_container_stub" android:layout="@layout/popup_probe_info" android:inflatedId="@+id/modifier_container" android:layout_width="wrap_content" android:layout_gravity="center_horizontal" android:layout_height="fill_parent"></ViewStub>
 
@@ -11,14 +11,14 @@
 		android:id="@+id/dice_dices" android:gravity="center" android:layout_width="fill_parent">
 		<TableLayout android:layout_width="wrap_content" android:shrinkColumns="0" android:id="@+id/dice_probe_table" android:layout_height="wrap_content">
 			<TableRow android:id="@+id/TableRow01" android:layout_height="wrap_content" android:layout_width="wrap_content">
-				<TextView android:id="@+id/dice_taw" android:paddingRight="3dip" android:layout_height="wrap_content" android:text="TaW" android:textAppearance="?android:attr/textAppearanceSmallInverse" android:layout_width="match_parent" android:gravity="center_horizontal"></TextView>
-				<TextView android:id="@+id/dice_probe" android:gravity="center_horizontal" android:layout_height="wrap_content" android:text="(KK/KO/IN)" android:textAppearance="?android:attr/textAppearanceSmallInverse" android:layout_width="match_parent"></TextView>
-				<TextView android:id="@+id/dice_effect" android:layout_height="wrap_content" android:text="TaP*" android:layout_marginLeft="5dip" android:textAppearance="?android:attr/textAppearanceSmallInverse" android:layout_width="match_parent" android:gravity="center_horizontal"></TextView>
+				<TextView android:id="@+id/dice_taw" android:paddingRight="3dip" android:layout_height="wrap_content" android:text="TaW" android:layout_width="match_parent" android:gravity="center_horizontal" style="@style/TextLabel.Small.Inverse"></TextView>
+				<TextView android:id="@+id/dice_probe" android:gravity="center_horizontal" android:layout_height="wrap_content" android:text="(KK/KO/IN)" android:layout_width="match_parent" style="@style/TextLabel.Small.Inverse"></TextView>
+				<TextView android:id="@+id/dice_effect" android:layout_height="wrap_content" android:text="TaP*" android:layout_marginLeft="5dip" android:layout_width="match_parent" android:gravity="center_horizontal" style="@style/TextLabel.Small.Inverse"></TextView>
 			</TableRow>
 			<TableRow android:id="@+id/TableRow02" android:layout_height="wrap_content" android:layout_width="wrap_content">
-				<TextView android:id="@+id/dice_talent_value" android:gravity="center_horizontal" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="5" android:textStyle="bold" android:textAppearance="?android:attr/textAppearanceMediumInverse" android:paddingRight="5dp" android:paddingLeft="5dp"></TextView>
-				<TextView android:id="@+id/dice_value" android:gravity="center_horizontal" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="13/15/9" android:textAppearance="?android:attr/textAppearanceMediumInverse"></TextView>
-				<TextView android:id="@+id/dice_effect_value" android:gravity="center_horizontal" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="5" android:layout_marginLeft="5dip" android:textAppearance="?android:attr/textAppearanceMediumInverse" android:textStyle="bold"></TextView>
+				<TextView android:id="@+id/dice_talent_value" android:gravity="center_horizontal" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="5" android:textStyle="bold" android:paddingRight="5dp" android:paddingLeft="5dp" style="@style/TextValue.NoTouch.Inverse"></TextView>
+				<TextView android:id="@+id/dice_value" android:gravity="center_horizontal" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="13/15/9" style="@style/TextValue.NoTouch.Inverse"></TextView>
+				<TextView android:id="@+id/dice_effect_value" android:gravity="center_horizontal" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="5" android:layout_marginLeft="5dip" android:textStyle="bold" style="@style/TextValue.NoTouch.Inverse"></TextView>
 			</TableRow>
 		</TableLayout>
 		<ImageButton android:background="@null" android:layout_width="wrap_content" android:id="@+id/dice_info" android:scaleType="fitCenter" android:src="@drawable/ic_menu_info_details" android:layout_marginRight="10dp" android:layout_height="wrap_content"></ImageButton>
