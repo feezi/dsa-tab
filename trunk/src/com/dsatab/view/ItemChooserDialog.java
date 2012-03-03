@@ -99,6 +99,7 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 	private void openSearch() {
 		searchText.setText("");
 		searchText.setVisibility(View.VISIBLE);
+		categorySpinner.setVisibility(View.INVISIBLE);
 		searchText.requestFocus();
 
 		searchButton.setSelected(true);
@@ -116,6 +117,7 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 	}
 
 	private void closeSearch() {
+		categorySpinner.setVisibility(View.VISIBLE);
 		searchText.setVisibility(View.INVISIBLE);
 		searchText.clearFocus();
 

@@ -16,8 +16,6 @@
  */
 package com.dsatab.view;
 
-import java.io.File;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -30,8 +28,10 @@ import android.widget.ImageView;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
+import com.dsatab.common.Util;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
+import com.dsatab.xml.DataManager;
 
 /**
  * 
@@ -40,7 +40,7 @@ public class CardView extends ImageView {
 
 	private ItemCard item;
 
-	private Boolean hasCardImage;
+	private boolean hasCardImage;
 
 	private Paint paint;
 
@@ -48,11 +48,9 @@ public class CardView extends ImageView {
 
 	private boolean calculated = false;
 
+	private boolean highQuality;
+
 	private static int TEXT_PADDING = 20;
-
-	private int cellX, cellY;
-
-	private ItemsTable itemsTable;
 
 	/**
 	 * @param context
@@ -64,7 +62,6 @@ public class CardView extends ImageView {
 
 	public CardView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
-
 	}
 
 	public CardView(Context context) {
@@ -74,26 +71,6 @@ public class CardView extends ImageView {
 	public CardView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
-	}
-
-	public int getCellX() {
-		return cellX;
-	}
-
-	public int getCellY() {
-		return cellY;
-	}
-
-	public int getScreen() {
-		return itemsTable.getScreen();
-	}
-
-	public ItemsTable getItemsTable() {
-		return itemsTable;
-	}
-
-	public void setItemsTable(ItemsTable itemsTable) {
-		this.itemsTable = itemsTable;
 	}
 
 	/**
@@ -125,33 +102,38 @@ public class CardView extends ImageView {
 
 	public void setItem(ItemCard item) {
 		this.item = item;
-		hasCardImage = null;
+		hasCardImage = false;
 		calculated = false;
 		setTag(item);
+
+		if (highQuality && item != null && item.getHQFile() != null && item.getHQFile().isFile()
+				&& !item.getHQFile().getName().equals(Item.BLANK_PATH_HQ)) {
+			hasCardImage = true;
+			setImageBitmap(Util.decodeFile(item.getHQFile(), 400));
+			setScaleType(ScaleType.FIT_CENTER);
+		}
+
+		if (!hasCardImage && item != null && item.getFile() != null && item.getFile().isFile()
+				&& !item.getFile().getName().equals(Item.BLANK_PATH)) {
+			hasCardImage = true;
+			setImageBitmap(DataManager.getBitmap(item.getFile().getAbsolutePath()));
+			setScaleType(ScaleType.FIT_CENTER);
+		}
+
+		if (!hasCardImage) {
+			setImageResource(R.drawable.item_card);
+			setScaleType(ScaleType.FIT_XY);
+		}
+
 		invalidate();
 	}
 
-	public void setLocation(int x, int y) {
-		this.cellX = x;
-		this.cellY = y;
+	public boolean isHighQuality() {
+		return highQuality;
 	}
 
-	private boolean hasCardImage() {
-
-		if (hasCardImage == null) {
-
-			if (item != null) {
-				File lqFile = item.getFile();
-				if (lqFile == null || !lqFile.isFile())
-					hasCardImage = false;
-				else
-					hasCardImage = (!lqFile.getName().equals(Item.BLANK_PATH));
-			} else {
-				hasCardImage = false;
-			}
-		}
-		return hasCardImage;
-
+	public void setHighQuality(boolean highQuality) {
+		this.highQuality = highQuality;
 	}
 
 	private void calcTextSize(int w, int h) {
@@ -201,11 +183,9 @@ public class CardView extends ImageView {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		if (item != null) {
-			if (!hasCardImage()) {
-				calcTextSize(getWidth(), getHeight());
-				canvas.drawTextOnPath(item.getTitle(), textPath, 0, paint.getTextSize() / 2, paint);
-			}
+		if (item != null && !hasCardImage) {
+			calcTextSize(getWidth(), getHeight());
+			canvas.drawTextOnPath(item.getTitle(), textPath, 0, paint.getTextSize() / 2, paint);
 		}
 
 	}

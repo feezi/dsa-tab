@@ -174,7 +174,7 @@ public class BodyLayout extends FrameLayout {
 		if (rs.isManual()) {
 			rsText.setTextColor(getResources().getColor(R.color.ValueGreen));
 		} else
-			rsText.setTextColor(getResources().getColor(R.color.ValueGray));
+			rsText.setTextColor(getResources().getColor(android.R.color.primary_text_light));
 	}
 
 	protected void init() {
@@ -250,6 +250,7 @@ public class BodyLayout extends FrameLayout {
 		rsText.setOnLongClickListener(onArmorLongClickListener);
 		rsText.setGravity(Gravity.CENTER);
 		rsText.setTextSize(rsTextSize);
+		rsText.setTextColor(getResources().getColor(android.R.color.primary_text_light));
 		rsText.setMinimumWidth(rsSize);
 		rsText.setMinimumHeight(rsSize);
 		addView(rsText, new LayoutParams(rsSize, rsSize, pos, 1));

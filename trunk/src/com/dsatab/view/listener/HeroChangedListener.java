@@ -25,6 +25,8 @@ public interface HeroChangedListener {
 
 	void onItemRemoved(Item item);
 
+	void onItemChanged(Item item);
+
 	void onItemChanged(EquippedItem item);
 
 	void onItemEquipped(EquippedItem item);

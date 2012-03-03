@@ -34,7 +34,7 @@ import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 
 public class TipOfTheDayDialog extends AlertDialog implements android.view.View.OnClickListener,
-		DialogInterface.OnDismissListener {
+		DialogInterface.OnDismissListener, DialogInterface.OnClickListener {
 
 	public static final String PREF_SHOW_TIPS = "_showTips";
 	public static boolean tipShown = false;
@@ -99,24 +99,10 @@ public class TipOfTheDayDialog extends AlertDialog implements android.view.View.
 
 		setView(popupcontent);
 
-		setButton(BUTTON_POSITIVE, getContext().getString(R.string.label_ok), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-			}
-		});
+		setButton(BUTTON_POSITIVE, getContext().getString(R.string.label_ok), this);
 
 		if (DSATabApplication.getInstance().isLiteVersion()) {
-			setButton(BUTTON_NEGATIVE, getContext().getString(R.string.label_donate),
-					new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-							Uri uriUrl = Uri.parse(DSATabApplication.PAYPAL_DONATION_URL);
-							final Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uriUrl);
-							getContext().startActivity(launchBrowser);
-						}
-					});
+			setButton(BUTTON_NEGATIVE, getContext().getString(R.string.label_donate), this);
 		}
 
 		setOnDismissListener(this);
@@ -124,6 +110,21 @@ public class TipOfTheDayDialog extends AlertDialog implements android.view.View.
 		setCanceledOnTouchOutside(true);
 
 		randomTip();
+	}
+
+	public void onClick(DialogInterface dialog, int which) {
+		switch (which) {
+		case BUTTON_POSITIVE:
+			dialog.dismiss();
+			break;
+		case BUTTON_NEGATIVE:
+			dialog.dismiss();
+			Uri uriUrl = Uri.parse(DSATabApplication.PAYPAL_DONATION_URL);
+			final Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uriUrl);
+			getContext().startActivity(launchBrowser);
+			break;
+
+		}
 	}
 
 	/*

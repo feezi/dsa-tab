@@ -42,7 +42,7 @@ import android.widget.Toast;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.DsaPreferenceActivityHC;
+import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.common.DsaMath;
 import com.dsatab.common.Util;
 import com.dsatab.data.Advantage;
@@ -50,12 +50,14 @@ import com.dsatab.data.Art;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.CombatDistanceTalent;
 import com.dsatab.data.CombatMeleeAttribute;
+import com.dsatab.data.CombatMeleeTalent;
 import com.dsatab.data.CombatProbe;
 import com.dsatab.data.CombatTalent;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Modifier;
 import com.dsatab.data.Probe;
 import com.dsatab.data.Probe.ProbeType;
+import com.dsatab.data.SpecialFeature;
 import com.dsatab.data.Spell;
 import com.dsatab.data.enums.AttributeType;
 import com.gandulf.guilib.util.Debug;
@@ -127,13 +129,14 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 	 */
 	private void init() {
 		effectFormat.setMaximumFractionDigits(1);
-		preferences = DSATabApplication.getPreferences();
+		if (!isInEditMode()) {
+			preferences = DSATabApplication.getPreferences();
 
-		sounds = new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
-		soundNeutral = sounds.load(getContext(), R.raw.dice, 1);
-		soundWin = sounds.load(getContext(), R.raw.dice_win, 1);
-		soundFail = sounds.load(getContext(), R.raw.dice_fail, 1);
-
+			sounds = new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
+			soundNeutral = sounds.load(getContext(), R.raw.dice, 1);
+			soundWin = sounds.load(getContext(), R.raw.dice_win, 1);
+			soundFail = sounds.load(getContext(), R.raw.dice_fail, 1);
+		}
 	}
 
 	public void onClick(View v) {
@@ -171,7 +174,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 			View probeInfoView = inflater.inflate(R.layout.popup_probe_info, null, false);
 			LinearLayout linearLayout = (LinearLayout) probeInfoView.findViewById(R.id.popup_probe_layout);
 
-			fillModifierList(linearLayout);
+			fillModifierList(linearLayout, false);
 
 			// build
 			builder = new AlertDialog.Builder(getContext());
@@ -189,7 +192,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 				@Override
 				public void onDismiss(DialogInterface dialog) {
-					if (preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_AUTO_ROLL_DICE, true)) {
+					if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_AUTO_ROLL_DICE, true)) {
 						checkProbe(probeData, getManualModifier());
 					}
 					modifierWheel = null;
@@ -204,7 +207,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 	/**
 	 * @param linearLayout
 	 */
-	private void fillModifierList(LinearLayout linearLayout) {
+	private void fillModifierList(LinearLayout linearLayout, boolean inverse) {
 		linearLayout.removeAllViews();
 		LayoutInflater inflater = LayoutInflater.from(getContext());
 		if (modifiers != null) {
@@ -217,16 +220,14 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 				TextView text1 = (TextView) listItem.findViewById(R.id.popup_probelist_item_text1);
 				text1.setText(mod.getTitle());
+				if (inverse) {
+					text1.setTextColor(DSATabApplication.getInstance().getResources()
+							.getColor(android.R.color.primary_text_dark));
+				}
 
 				TextView text2 = (TextView) listItem.findViewById(R.id.popup_probelist_item_text2);
-				if (mod.getModifier() < 0) {
-					text2.setTextColor(getResources().getColor(R.color.ValueRed));
-				} else if (mod.getModifier() > 0) {
-					text2.setTextColor(getResources().getColor(R.color.ValueGreen));
-				} else {
-					text2.setTextColor(Util.getThemeColors(getContext(), android.R.attr.textColorSecondaryInverse));
-				}
 				text2.setText(Util.toProbe(-mod.getModifier()));
+				Util.setTextColor(text2, mod.getModifier(), inverse);
 
 				linearLayout.addView(listItem);
 			}
@@ -271,6 +272,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		tileMe.setTileModeY(Shader.TileMode.CLAMP);
 
 		findViewById(R.id.inc_dice_slider_content).setBackgroundDrawable(tileMe);
+
 		tblDiceProbe = (TableLayout) findViewById(R.id.dice_probe_table);
 		tblDiceProbe.setVisibility(View.GONE);
 
@@ -321,7 +323,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 	}
 
 	private boolean isModifiersPopup() {
-		return !preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_SHOW_MODIFIKATORS, false);
+		return !preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_SHOW_MODIFIKATORS, false);
 	}
 
 	/*
@@ -353,7 +355,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 			getManualModifier().setModifier(-erschwernis);
 
 			updateProgressView(probeData, getManualModifier());
-			if (preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_AUTO_ROLL_DICE, true)) {
+			if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_AUTO_ROLL_DICE, true)) {
 				checkProbe(probeData, getManualModifier());
 			}
 
@@ -384,8 +386,8 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		if (info.failureTwenty == null)
 			info.failureTwenty = false;
 
-		if (info.sound && preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_SOUND_ROLL_DICE, true)
-				&& !preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_SOUND_RESULT_DICE, true)) {
+		if (info.sound && preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_SOUND_ROLL_DICE, true)
+				&& !preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_SOUND_RESULT_DICE, true)) {
 			sounds.play(soundNeutral, 1.0f, 1.0f, 0, 0, 1.0f);
 		}
 
@@ -401,25 +403,27 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 			if ((effect < 0 && !info.successOne) || info.failureTwenty) {
 				tfEffectValue.setTextColor(getResources().getColor(R.color.ValueRed));
 
+				// bestätigter patzer
 				if (info.failureTwenty && effect < 0) {
 					tfDiceTalent.setText(info.probe.getName() + " total verpatzt!");
 
 					linDiceResult.setBackgroundResource(R.drawable.probe_red_highlight);
 
-					if (lastCombatTalent instanceof CombatDistanceTalent)
+					if (lastCombatTalent instanceof CombatDistanceTalent) {
 						mHandler.sendMessageDelayed(Message.obtain(mHandler, HANDLE_DISTANCE_FAILURE), 1000);
-					else
+					} else if (lastCombatTalent instanceof CombatMeleeTalent
+							|| lastCombatTalent instanceof CombatMeleeAttribute) {
 						mHandler.sendMessageDelayed(Message.obtain(mHandler, HANDLE_MELEE_FAILURE), 1000);
+					}
 
-				} else {
-
+				} else { // unbestätigter patzer
 					linDiceResult.setBackgroundResource(0);
-					tfDiceTalent.setText(info.probe.getName() + " mißlungen");
+					tfDiceTalent.setText(info.probe.getName() + " misslungen");
 				}
 				tfDiceTalent.setTextColor(getResources().getColor(R.color.ValueRed));
 
-				if (info.sound && preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_SOUND_ROLL_DICE, true)
-						&& preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_SOUND_RESULT_DICE, true))
+				if (info.sound && preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_SOUND_ROLL_DICE, true)
+						&& preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_SOUND_RESULT_DICE, true))
 					sounds.play(soundFail, 1.0f, 1.0f, 0, 0, 1.0f);
 			} else { // geschafft
 
@@ -430,16 +434,15 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 					tfDiceTalent.setTextColor(getResources().getColor(R.color.ValueGreen));
 					linDiceResult.setBackgroundResource(R.drawable.probe_green_highlight);
 				} else {
-					tfDiceTalent.setText(info.probe.getName() + " geschafft");
-					tfEffectValue.setTextColor(Util.getThemeColors(getContext(),
-							android.R.attr.textColorSecondaryInverse));
-					tfDiceTalent
-							.setTextColor(Util.getThemeColors(getContext(), android.R.attr.textColorPrimaryInverse));
+					tfDiceTalent.setText(info.probe.getName() + " gelungen");
+					tfEffectValue.setTextColor(getResources().getColor(android.R.color.secondary_text_dark));
+					tfDiceTalent.setTextColor(getResources().getColor(android.R.color.primary_text_dark));
+					;
 					linDiceResult.setBackgroundResource(0);
 				}
 
-				if (info.sound && preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_SOUND_ROLL_DICE, true)
-						&& preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_SOUND_RESULT_DICE, true))
+				if (info.sound && preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_SOUND_ROLL_DICE, true)
+						&& preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_SOUND_RESULT_DICE, true))
 					sounds.play(soundWin, 1.0f, 1.0f, 0, 0, 1.0f);
 
 			}
@@ -500,9 +503,9 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		if (modifiersContainer != null && !isModifiersPopup()) {
 			modifiersContainer.setVisibility(View.VISIBLE);
 			if (findViewById(R.id.popup_probe_layout) != null)
-				fillModifierList((LinearLayout) findViewById(R.id.popup_probe_layout));
+				fillModifierList((LinearLayout) findViewById(R.id.popup_probe_layout), true);
 		}
-		if (preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_AUTO_ROLL_DICE, true)) {
+		if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_AUTO_ROLL_DICE, true)) {
 			executeButton.setVisibility(View.GONE);
 			updateView(probeData);
 			updateProgressView(probeData);
@@ -547,13 +550,13 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		}
 		taw += modifiersSum;
 
-		if (preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_PROBABILITY, false)) {
+		if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_PROBABILITY, false)) {
 			Double probability = null;
 
 			// House rule preferences
 			ProbeType probeType = probe.getProbeType();
 			if (probeType == ProbeType.TwoOfThree
-					&& preferences.getBoolean(DsaPreferenceActivityHC.KEY_HOUSE_RULES, false) == false) {
+					&& preferences.getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_2_OF_3_DICE, false) == false) {
 				probeType = ProbeType.One;
 			}
 
@@ -585,7 +588,9 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 				}
 				break;
 			}
-			tfEffectValue.setTextColor(Util.getThemeColors(getContext(), android.R.attr.textColorSecondaryInverse));
+
+			tfEffectValue.setTextColor(DSATabApplication.getInstance().getResources()
+					.getColor(android.R.color.secondary_text_dark));
 
 			if (probability != null) {
 				tfEffectValue.setText(probabilityFormat.format(probability));
@@ -611,7 +616,8 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		// --
 		tblDiceProbe.setVisibility(View.VISIBLE);
 		tfDiceTalent.setText(probe.getName());
-		tfDiceTalent.setTextColor(Util.getThemeColors(getContext(), android.R.attr.textColorPrimaryInverse));
+		tfDiceTalent.setTextColor(DSATabApplication.getInstance().getResources()
+				.getColor(android.R.color.primary_text_dark));
 
 		if (probe.getProbeBonus() != null) {
 			tfDiceTalentValue.setText(Integer.toString(probe.getProbeBonus()));
@@ -668,7 +674,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 				modifiersContainer = modifierStub.inflate();
 
 				LinearLayout linearLayout = (LinearLayout) modifiersContainer.findViewById(R.id.popup_probe_layout);
-				fillModifierList(linearLayout);
+				fillModifierList(linearLayout, true);
 			}
 
 			findViewById(R.id.dice_probe_table).setOnClickListener(null);
@@ -697,7 +703,18 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 				if (info.dice[0] == null)
 					info.dice[0] = rollDice6();
 
-				double effect = info.hero.getAttributeValue(AttributeType.ini) + info.dice[0] + modifiersSum;
+				double effect;
+
+				if (info.hero.hasFeature(SpecialFeature.KLINGENTAENZER)) {
+					if (info.dice[1] == null)
+						info.dice[1] = rollDice6();
+
+					effect = info.hero.getAttributeValue(AttributeType.ini) + info.dice[0] + info.dice[1]
+							+ modifiersSum;
+				} else {
+					effect = info.hero.getAttributeValue(AttributeType.ini) + info.dice[0] + modifiersSum;
+				}
+
 				showEffect(effect, null, info);
 
 				info.hero.getAttribute(AttributeType.Initiative_Aktuell).setValue((int) effect);
@@ -729,7 +746,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 			// House rule preferences
 			ProbeType probeType = probe.getProbeType();
 			if (probeType == ProbeType.TwoOfThree
-					&& preferences.getBoolean(DsaPreferenceActivityHC.KEY_HOUSE_RULES, false) == false) {
+					&& preferences.getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_2_OF_3_DICE, false) == false) {
 				probeType = ProbeType.One;
 			}
 
@@ -855,16 +872,13 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 				if (info.dice[0] == null) {
 					info.dice[0] = rollDice20(500, info.value[0] + taw);
-				}
-				if (info.dice[0] == 1) {
-					if (info.successOne == null) {
-						info.dice[0] = rollDice20(2000, info.value[0] + taw);
 
+					if (info.dice[0] == 1) {
+						info.dice[0] = rollDice20(2000, info.value[0] + taw);
 						info.successOne = Boolean.TRUE;
-
 					} else if (info.dice[0] >= PATZER_THRESHOLD) {
-						info.failureTwenty = Boolean.TRUE;
 						info.dice[0] = rollDice20(2000, info.value[0] + taw);
+						info.failureTwenty = Boolean.TRUE;
 					}
 				}
 
@@ -891,7 +905,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 		int dice = rnd.nextInt(20) + 1;
 
-		if (preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_ANIM_ROLL_DICE, true)) {
+		if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_ANIM_ROLL_DICE, true)) {
 
 			if (dice20Count == 1 && (!shakeDice20.hasStarted() || shakeDice20.hasEnded())) {
 				shakeDice20.reset();
@@ -917,7 +931,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 		int dice = rnd.nextInt(6) + 1;
 
-		if (preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_ANIM_ROLL_DICE, true)) {
+		if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_ANIM_ROLL_DICE, true)) {
 			if (dice6Count == 1 && (!shakeDice6.hasStarted() || shakeDice6.hasEnded())) {
 				shakeDice6.reset();
 				tfDice6.startAnimation(shakeDice6);
@@ -956,7 +970,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		res.setGravity(Gravity.CENTER);
 		res.setPadding(padding, 0, padding, 0);
 		linDiceResult.addView(res, width, width);
-		if (preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_ANIM_ROLL_DICE, true)) {
+		if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_ANIM_ROLL_DICE, true)) {
 			res.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.flip_in));
 		}
 
@@ -976,7 +990,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		res.setImageResource(Util.getDrawableByName("w6_" + value));
 		res.setPadding(padding, 0, padding, 0);
 		linDiceResult.addView(res, width, width);
-		if (preferences.getBoolean(DsaPreferenceActivityHC.KEY_PROBE_ANIM_ROLL_DICE, true)) {
+		if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_ANIM_ROLL_DICE, true)) {
 			res.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.flip_in));
 		}
 

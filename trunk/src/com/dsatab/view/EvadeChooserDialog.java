@@ -2,13 +2,13 @@ package com.dsatab.view;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.CheckedTextView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -116,7 +116,7 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 		if (ausweichen != null) {
 			StyleableSpannableStringBuilder title = new StyleableSpannableStringBuilder();
 			title.append(ausweichen.getName());
-			Util.appendValue(main.getHero(), title, ausweichen, null);
+			Util.appendValue(main.getHero(), title, ausweichen, null, true);
 			text1.setText(title);
 			text2.setText("Modifikator " + ausweichen.getProbeInfo().getErschwernis());
 		}
@@ -166,8 +166,6 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 
 		text1 = (TextView) popupcontent.findViewById(android.R.id.text1);
 		text2 = (TextView) popupcontent.findViewById(android.R.id.text2);
-		text1.setTextColor(Color.parseColor("#dddddd"));
-		text2.setTextColor(Color.parseColor("#dddddd"));
 
 		ImageButton iconLeft = (ImageButton) popupcontent.findViewById(android.R.id.icon1);
 		iconLeft.setOnClickListener(this);
@@ -202,10 +200,14 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 	 */
 	@Override
 	public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
+		CheckedTextView checkedText = (CheckedTextView) view;
+		// the state seems to geet updated after this call, so invert it to get
+		// the correct value here
+		boolean checked = !checkedText.isChecked();
 		if (position == 0) {
-			doubleDK = view.isSelected();
+			doubleDK = checked;
 		} else {
-			if (view.isSelected())
+			if (checked)
 				otherErschwernis += modificationValues[position];
 			else {
 				otherErschwernis -= modificationValues[position];

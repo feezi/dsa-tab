@@ -85,6 +85,7 @@ public class GlossyImageButton extends ImageButton implements Checkable {
 		if (mChecked != checked) {
 			mChecked = checked;
 			refreshDrawableState();
+			invalidate();
 		}
 	}
 

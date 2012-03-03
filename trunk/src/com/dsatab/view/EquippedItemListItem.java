@@ -21,10 +21,11 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.TwoLineListItem;
 
 import com.dsatab.R;
+import com.dsatab.common.Util;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemSpecification;
@@ -36,6 +37,11 @@ import com.dsatab.data.items.ItemSpecification;
 public class EquippedItemListItem extends TwoLineListItem {
 
 	private int textColor = 0;
+
+	private ImageButton icon1;
+	private ImageButton set1, set2, set3;
+	private TextView text1, text2;
+	private TextView countOverlay;
 
 	public EquippedItemListItem(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
@@ -59,11 +65,11 @@ public class EquippedItemListItem extends TwoLineListItem {
 	public void setTextColor(int textColor) {
 		this.textColor = textColor;
 
-		if (getText1() != null && (textColor != Color.TRANSPARENT)) {
-			getText1().setTextColor(textColor);
+		if (text1 != null && (textColor != Color.TRANSPARENT)) {
+			text1.setTextColor(textColor);
 		}
-		if (getText2() != null && (textColor != Color.TRANSPARENT)) {
-			getText2().setTextColor(textColor);
+		if (text2 != null && (textColor != Color.TRANSPARENT)) {
+			text2.setTextColor(textColor);
 		}
 	}
 
@@ -88,48 +94,59 @@ public class EquippedItemListItem extends TwoLineListItem {
 	 */
 	@Override
 	protected void onFinishInflate() {
-		if (getText1() != null && (textColor != Color.TRANSPARENT)) {
-			getText1().setTextColor(textColor);
-		}
-		if (getText2() != null && (textColor != Color.TRANSPARENT)) {
-			getText2().setTextColor(textColor);
-		}
-
-		if (getIcon1() != null) {
-			getIcon1().setFocusable(false);
-			getIcon1().setClickable(false);
-		}
-
-		if (getSet1() != null) {
-			getSet1().setFocusable(false);
-			getSet1().setClickable(false);
-		}
-		if (getSet2() != null) {
-			getSet2().setFocusable(false);
-			getSet2().setClickable(false);
-		}
-		if (getSet3() != null) {
-			getSet3().setFocusable(false);
-			getSet3().setClickable(false);
-		}
-
 		super.onFinishInflate();
+
+		text1 = getText1();
+		text2 = getText2();
+		icon1 = (ImageButton) findViewById(android.R.id.icon1);
+
+		set1 = (ImageButton) findViewById(R.id.set1);
+		set2 = (ImageButton) findViewById(R.id.set2);
+		set3 = (ImageButton) findViewById(R.id.set3);
+
+		countOverlay = (TextView) findViewById(R.id.icon_1_overlay);
+
+		if (text1 != null && (textColor != Color.TRANSPARENT)) {
+			text1.setTextColor(textColor);
+		}
+		if (text2 != null && (textColor != Color.TRANSPARENT)) {
+			text2.setTextColor(textColor);
+		}
+
+		if (icon1 != null) {
+			icon1.setFocusable(false);
+			icon1.setClickable(false);
+		}
+
+		if (set1 != null) {
+			set1.setFocusable(false);
+			set1.setClickable(false);
+		}
+		if (set2 != null) {
+			set2.setFocusable(false);
+			set2.setClickable(false);
+		}
+		if (set3 != null) {
+			set3.setFocusable(false);
+			set3.setClickable(false);
+		}
+
 	}
 
 	public ImageButton getIcon1() {
-		return (ImageButton) findViewById(android.R.id.icon1);
+		return icon1;
 	}
 
 	public ImageButton getSet1() {
-		return (ImageButton) findViewById(R.id.set1);
+		return set1;
 	}
 
 	public ImageButton getSet2() {
-		return (ImageButton) findViewById(R.id.set2);
+		return set2;
 	}
 
 	public ImageButton getSet3() {
-		return (ImageButton) findViewById(R.id.set3);
+		return set3;
 	}
 
 	public void setItem(EquippedItem e) {
@@ -142,30 +159,35 @@ public class EquippedItemListItem extends TwoLineListItem {
 
 	public void setItem(Item e, ItemSpecification spec) {
 
-		ImageView icon1 = getIcon1();
-
 		if (icon1 != null) {
 			icon1.setVisibility(View.VISIBLE);
 			icon1.setImageResource(e.getResourceId());
 		}
 		// Set value for the first text field
-		if (getText1() != null) {
-			getText1().setText(e.getTitle());
+		if (text1 != null) {
+			text1.setText(e.getTitle());
 			if (textColor != Color.TRANSPARENT)
-				getText1().setTextColor(textColor);
+				text1.setTextColor(textColor);
 		}
 
 		// set value for the second text field
-		if (getText2() != null) {
-			getText2().setText(spec.getInfo());
+		if (text2 != null) {
+			text2.setText(spec.getInfo());
 			if (textColor != Color.TRANSPARENT)
-				getText2().setTextColor(textColor);
+				text2.setTextColor(textColor);
 		}
 
 		int visibility = e.isEquipable() ? View.VISIBLE : View.GONE;
-		getSet1().setVisibility(visibility);
-		getSet2().setVisibility(visibility);
-		getSet3().setVisibility(visibility);
+		set1.setVisibility(visibility);
+		set2.setVisibility(visibility);
+		set3.setVisibility(visibility);
+
+		if (e.getCount() > 1) {
+			countOverlay.setText(Util.toString(e.getCount()));
+			countOverlay.setVisibility(View.VISIBLE);
+		} else {
+			countOverlay.setVisibility(View.GONE);
+		}
 
 	}
 

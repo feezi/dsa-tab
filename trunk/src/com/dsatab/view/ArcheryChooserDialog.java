@@ -2,7 +2,6 @@ package com.dsatab.view;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -97,7 +96,7 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 	}
 
 	private void accept() {
-		CombatProbe combatProbe = new CombatProbe(main.getHero(), equippedItem, true);
+		CombatProbe combatProbe = equippedItem.getCombatProbeAttacke();
 		combatProbe.getProbeInfo().setErschwernis(erschwernis + otherErschwernis);
 
 		dismiss();
@@ -203,8 +202,6 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 
 		text1 = (TextView) popupcontent.findViewById(android.R.id.text1);
 		text2 = (TextView) popupcontent.findViewById(android.R.id.text2);
-		text1.setTextColor(Color.parseColor("#dddddd"));
-		text2.setTextColor(Color.parseColor("#dddddd"));
 
 		iconLeft = (ImageButton) popupcontent.findViewById(android.R.id.icon1);
 		iconLeft.setVisibility(View.VISIBLE);
