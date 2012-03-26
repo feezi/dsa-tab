@@ -813,7 +813,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		}
 		fightPickerButton.setText(value.getType().code());
 
-		double ratio = 1.0;
+		float ratio = 1.0f;
 
 		if (value.getType() == AttributeType.Lebensenergie) {
 			ratio = getHero().getLeRatio();
@@ -825,9 +825,9 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 			ratio = getHero().getAeRatio();
 		}
 
-		if (ratio < 0.5)
+		if (ratio < 0.5f)
 			fightNumberAdapter.setTextColor(getResources().getColor(R.color.ValueRed));
-		else if (ratio < 1.0)
+		else if (ratio < 1.0f)
 			fightNumberAdapter.setTextColor(getResources().getColor(R.color.ValueBlack));
 		else
 			fightNumberAdapter.setTextColor(getResources().getColor(R.color.ValueGreen));

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-           android:icon="@drawable/ic_menu_download" android:key="downloadMediaScreen">
+           android:icon="@drawable/ic_menu_download" android:key="downloadMediaScreen" android:title="Portraits, Bilder, etc herunterladen">
                 
     <PreferenceCategory android:title="Portraits, Bilder, etc herunterladen"
                 android:summary="Ladet zusätzliche Charakter Portraits, etc. aus dem Internet herunter.">

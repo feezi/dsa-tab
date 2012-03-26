@@ -37,6 +37,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.actionbarsherlock.view.MenuItem;
 import com.commonsware.cwac.tlv.TouchListView;
@@ -86,6 +87,14 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		setTheme(DSATabApplication.getInstance().getCustomTheme());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.popup_edit_tab);
+
+		if (DSATabApplication.getInstance().getHero() == null) {
+			Toast.makeText(this, "Tabs können erst editiert werden, wenn ein Held geladen wurde.", Toast.LENGTH_SHORT)
+					.show();
+			setResult(RESULT_CANCELED);
+			finish();
+			return;
+		}
 
 		getSupportActionBar().setDisplayShowTitleEnabled(true);
 		getSupportActionBar().setDisplayShowHomeEnabled(true);

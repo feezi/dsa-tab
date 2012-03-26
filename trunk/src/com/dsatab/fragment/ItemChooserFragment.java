@@ -30,6 +30,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
@@ -609,13 +612,11 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * android.support.v4.app.Fragment#onCreateOptionsMenu(com.actionbarsherlock
-	 * .view.Menu, com.actionbarsherlock.view.MenuInflater)
+	 * android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu,
+	 * android.view.MenuInflater)
 	 */
 	@Override
-	public void onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu,
-			com.actionbarsherlock.view.MenuInflater inflater) {
-
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.accept_abort_menu, menu);
 		if (categorySelectable) {
 			inflater.inflate(R.menu.gallery_menu, menu);
@@ -656,11 +657,11 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * android.support.v4.app.Fragment#onOptionsItemSelected(com.actionbarsherlock
-	 * .view.MenuItem)
+	 * android.support.v4.app.Fragment#onOptionsItemSelected(android.view.MenuItem
+	 * )
 	 */
 	@Override
-	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.option_load_subtype) {
 			openSubCategoriesDialog(cardType);
 			return true;

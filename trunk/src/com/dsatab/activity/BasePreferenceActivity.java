@@ -30,13 +30,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.view.TipOfTheDayDialog;
@@ -46,7 +46,8 @@ import com.gandulf.guilib.util.DownloaderWrapper;
 import com.gandulf.guilib.util.ResUtil;
 import com.gandulf.guilib.view.VersionInfoDialog;
 
-public abstract class BasePreferenceActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+public abstract class BasePreferenceActivity extends SherlockPreferenceActivity implements
+		OnSharedPreferenceChangeListener {
 
 	public static final String INTENT_PREF_SCREEN = "com.dsatab.prefScreen";
 

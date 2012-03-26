@@ -1,6 +1,9 @@
 package com.dsatab.common;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Arrays;
@@ -14,6 +17,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.LevelListDrawable;
+import android.net.Uri;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.SpannedString;
@@ -208,6 +212,44 @@ public class Util {
 			floats[i] = Float.parseFloat(st.nextToken());
 		}
 		return floats;
+	}
+
+	public static Bitmap decodeFile(Uri uri, int maxImageSize) throws IOException {
+		Bitmap b = null;
+
+		InputStream is = DSATabApplication.getInstance().getBaseContext().getContentResolver().openInputStream(uri);
+		BufferedInputStream bis = new BufferedInputStream(is);
+
+		// Decode image size
+		BitmapFactory.Options o = new BitmapFactory.Options();
+		o.inJustDecodeBounds = true;
+
+		BitmapFactory.decodeStream(is, null, o);
+		bis.close();
+
+		int scale = 1;
+		if (o.outHeight > maxImageSize || o.outWidth > maxImageSize) {
+			scale = (int) Math.pow(
+					2.0,
+					(int) Math.round(Math.log(maxImageSize / (double) Math.max(o.outHeight, o.outWidth))
+							/ Math.log(0.5)));
+		}
+
+		// Decode with inSampleSize
+		BitmapFactory.Options o2 = new BitmapFactory.Options();
+		o2.inSampleSize = scale;
+		o2.inDither = false;
+		o2.inInputShareable = true;
+		o2.inPurgeable = true;
+		o2.inTempStorage = new byte[32 * 1024];
+
+		is = DSATabApplication.getInstance().getBaseContext().getContentResolver().openInputStream(uri);
+		bis = new BufferedInputStream(is);
+
+		b = BitmapFactory.decodeStream(is, null, o2);
+		bis.close();
+
+		return b;
 	}
 
 	public static void unbindDrawables(View view) {

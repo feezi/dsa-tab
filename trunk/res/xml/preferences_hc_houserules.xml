@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-           android:icon="@drawable/ic_menu_home" android:key="houseRules">
+           android:icon="@drawable/ic_menu_home" android:key="houseRules" android:title="Hausregeln verwenden">
                 
     <PreferenceCategory android:title="Hausregeln verwenden"
                 android:summary="Spezielle Hausregeln konfigurieren die vom offiziellen Regelwerk abweichen">

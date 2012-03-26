@@ -12,8 +12,8 @@ import com.dsatab.data.enums.AttributeType;
 
 public class AuModificator extends AbstractModificator {
 
-	public static final double LEVEL_1 = 0.33;
-	public static final double LEVEL_2 = 0.25;
+	public static final float LEVEL_1 = 0.33f;
+	public static final float LEVEL_2 = 0.25f;
 
 	public AuModificator(Hero hero) {
 		super(hero);
@@ -22,7 +22,7 @@ public class AuModificator extends AbstractModificator {
 	@Override
 	public String getModificatorName() {
 
-		double ratio = hero.getAuRatio();
+		float ratio = hero.getAuRatio();
 		if (ratio < LEVEL_2) {
 			return "Ausdauer < 1/4";
 		} else if (ratio < LEVEL_1) {
@@ -36,7 +36,7 @@ public class AuModificator extends AbstractModificator {
 	@Override
 	public String getModificatorInfo() {
 		String info;
-		double ratio = hero.getAuRatio();
+		float ratio = hero.getAuRatio();
 		if (ratio < LEVEL_2) {
 			info = "AT,PA,INI -2";
 		} else if (ratio < LEVEL_1) {
@@ -54,7 +54,7 @@ public class AuModificator extends AbstractModificator {
 
 		if (probe instanceof CombatProbe || probe instanceof CombatShieldTalent
 				|| probe instanceof CombatDistanceTalent || probe instanceof CombatMeleeAttribute) {
-			double ratio = hero.getAuRatio();
+			float ratio = hero.getAuRatio();
 			if (ratio < LEVEL_2) {
 				modifier = -2;
 			} else if (ratio < LEVEL_1) {
@@ -71,7 +71,7 @@ public class AuModificator extends AbstractModificator {
 	@Override
 	public Modifier getModifier(AttributeType type) {
 		int modifier = 0;
-		double ratio = hero.getAuRatio();
+		float ratio = hero.getAuRatio();
 
 		if (ratio < LEVEL_2) {
 			if (type == AttributeType.ini || type == AttributeType.Initiative_Aktuell || AttributeType.isFight(type)) {

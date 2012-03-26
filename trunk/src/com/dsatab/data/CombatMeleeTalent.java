@@ -25,9 +25,9 @@ public class CombatMeleeTalent extends BaseCombatTalent {
 
 		for (Element node : nodes) {
 			Element item = (Element) node;
-			if (item.getName().equals(Xml.KEY_ATTACKE))
+			if (Xml.KEY_ATTACKE.equals(item.getName()))
 				at = new CombatMeleeAttribute(hero, this, item);
-			else if (item.getName().equals(Xml.KEY_PARADE))
+			else if (Xml.KEY_PARADE.equals(item.getName()))
 				pa = new CombatMeleeAttribute(hero, this, item);
 		}
 
