@@ -17,6 +17,7 @@
 package com.dsatab.activity.menu;
 
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
@@ -45,18 +46,40 @@ public class TabListener<T extends Fragment> implements ActionBar.TabListener {
 		this.tabIndex = tabIndex;
 	}
 
-	/* The following are each of the ActionBar.TabListener callbacks */
-
-	public void onTabSelected(Tab tab) {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.ActionBar.TabListener#onTabSelected(com.
+	 * actionbarsherlock.app.ActionBar.Tab,
+	 * android.support.v4.app.FragmentTransaction)
+	 */
+	@Override
+	public void onTabSelected(Tab tab, FragmentTransaction ft) {
 		mActivity.showTab(tabIndex);
 	}
 
-	public void onTabUnselected(Tab tab) {
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.ActionBar.TabListener#onTabReselected(com.
+	 * actionbarsherlock.app.ActionBar.Tab,
+	 * android.support.v4.app.FragmentTransaction)
+	 */
+	@Override
+	public void onTabReselected(Tab tab, FragmentTransaction ft) {
+		// User selected the already selected tab. Usually do nothing.
 	}
 
-	public void onTabReselected(Tab tab) {
-		// User selected the already selected tab. Usually do nothing.
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.ActionBar.TabListener#onTabUnselected(com.
+	 * actionbarsherlock.app.ActionBar.Tab,
+	 * android.support.v4.app.FragmentTransaction)
+	 */
+	@Override
+	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+
 	}
 
 }

@@ -1,14 +1,13 @@
 package com.dsatab.data;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -21,9 +20,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+import android.view.Display;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.dsatab.DSATabApplication;
@@ -281,12 +281,11 @@ public class Hero {
 		if (getPortraitUri() != null) {
 			try {
 
-				InputStream is = DSATabApplication.getInstance().getBaseContext().getContentResolver()
-						.openInputStream(getPortraitUri());
-				BufferedInputStream bis = new BufferedInputStream(is);
-				portraitBitmap = BitmapFactory.decodeStream(bis);
-				bis.close();
-				is.close();
+				WindowManager wm = (WindowManager) DSATabApplication.getInstance().getSystemService(
+						Context.WINDOW_SERVICE);
+				Display display = wm.getDefaultDisplay();
+
+				portraitBitmap = Util.decodeFile(getPortraitUri(), display.getWidth());
 			} catch (IOException e) {
 				Debug.error("Error getting bitmap", e);
 			}
@@ -451,7 +450,9 @@ public class Hero {
 			}
 
 			// handle bk elements
-			for (Element element : beidhaendigerKampfElements) {
+			for (Iterator<Element> iter = beidhaendigerKampfElements.iterator(); iter.hasNext();) {
+
+				Element element = iter.next();
 
 				int set = 0;
 				if (element.getAttribute(Xml.KEY_SET) != null) {
@@ -474,7 +475,7 @@ public class Hero {
 					} else {
 						Debug.warning("Incorrect BeidhaengierKampf setting " + bk);
 						getHeldElement().removeContent(element);
-						beidhaendigerKampfElements.remove(element);
+						iter.remove();
 					}
 				}
 
@@ -631,16 +632,20 @@ public class Hero {
 			case Konstitution:
 			case Körperkraft:
 				attr = getAttribute(AttributeType.at);
-				attr.setValue(attr.getReferenceValue());
+				if (attr != null)
+					attr.setValue(attr.getReferenceValue());
 
 				attr = getAttribute(AttributeType.pa);
-				attr.setValue(attr.getReferenceValue());
+				if (attr != null)
+					attr.setValue(attr.getReferenceValue());
 
 				attr = getAttribute(AttributeType.fk);
-				attr.setValue(attr.getReferenceValue());
+				if (attr != null)
+					attr.setValue(attr.getReferenceValue());
 
 				attr = getAttribute(AttributeType.ini);
-				attr.setValue(attr.getReferenceValue());
+				if (attr != null)
+					attr.setValue(attr.getReferenceValue());
 
 				// check for magic resistance changes:
 				attr = getAttribute(AttributeType.Magieresistenz);
@@ -679,18 +684,28 @@ public class Hero {
 				postLeRatioCheck();
 				break;
 			case Lebensenergie_Total:
-				getAttribute(AttributeType.Lebensenergie).setReferenceValue(value.getValue());
+				attr = getAttribute(AttributeType.Lebensenergie);
+				if (attr != null) {
+					attr.setReferenceValue(value.getValue());
+				}
 				postLeRatioCheck();
 				break;
 			case Ausdauer_Total:
-				getAttribute(AttributeType.Ausdauer).setReferenceValue(value.getValue());
+				attr = getAttribute(AttributeType.Ausdauer);
+				if (attr != null) {
+					attr.setReferenceValue(value.getValue());
+				}
 				postAuRatioCheck();
 				break;
 			case Astralenergie_Total:
-				getAttribute(AttributeType.Astralenergie).setReferenceValue(value.getValue());
+				attr = getAttribute(AttributeType.Astralenergie);
+				if (attr != null)
+					attr.setReferenceValue(value.getValue());
 				break;
 			case Karmaenergie_Total:
-				getAttribute(AttributeType.Karmaenergie).setReferenceValue(value.getValue());
+				attr = getAttribute(AttributeType.Karmaenergie);
+				if (attr != null)
+					attr.setReferenceValue(value.getValue());
 				break;
 			}
 		}
@@ -1290,7 +1305,7 @@ public class Hero {
 	protected void postLeRatioCheck() {
 
 		if (DSATabApplication.getPreferences().getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_LE_MODIFIER, true)) {
-			double newLeRatioCheck = getLeRatio();
+			float newLeRatioCheck = getLeRatio();
 
 			int newLeRatioLevel = 0;
 
@@ -1355,14 +1370,18 @@ public class Hero {
 	/**
 	 * @return
 	 */
-	public double getLeRatio() {
+	public float getLeRatio() {
 		Attribute le = getAttribute(AttributeType.Lebensenergie);
-		Integer value = le.getValue();
-		Integer ref = le.getReferenceValue();
-		if (value != null && ref != null) {
-			return ((double) value) / ref;
+		if (le != null) {
+			Integer value = le.getValue();
+			Integer ref = le.getReferenceValue();
+			if (value != null && ref != null) {
+				return ((float) value) / ref;
+			} else {
+				return 1.0f;
+			}
 		} else {
-			return 1.0;
+			return 1.0f;
 		}
 
 	}
@@ -1370,19 +1389,28 @@ public class Hero {
 	/**
 	 * @return
 	 */
-	public double getAuRatio() {
+	public float getAuRatio() {
 		Attribute au = getAttribute(AttributeType.Ausdauer);
-		return ((double) au.getValue()) / au.getReferenceValue();
+		if (au != null)
+			return ((float) au.getValue()) / au.getReferenceValue();
+		else
+			return 1.0f;
 	}
 
-	public double getAeRatio() {
+	public float getAeRatio() {
 		Attribute ae = getAttribute(AttributeType.Astralenergie);
-		return ((double) ae.getValue()) / ae.getReferenceValue();
+		if (ae != null)
+			return ((float) ae.getValue()) / ae.getReferenceValue();
+		else
+			return 1.0f;
 	}
 
-	public double getKeRatio() {
+	public float getKeRatio() {
 		Attribute ke = getAttribute(AttributeType.Karmaenergie);
-		return ((double) ke.getValue()) / ke.getReferenceValue();
+		if (ke != null)
+			return ((float) ke.getValue()) / ke.getReferenceValue();
+		else
+			return 1.0f;
 	}
 
 	public int getModifier(Probe probe) {

@@ -34,10 +34,10 @@
 		</activity>
 		
 		<activity android:name=".activity.DsaPreferenceActivityHC"
-		    android:theme="@android:style/Theme.Light"
+		    android:theme="@style/Theme.Sherlock.Light"
 			android:label="Einstellungen"></activity>
 		<activity android:name=".activity.DsaPreferenceActivity"
-		    android:theme="@android:style/Theme.Black"
+		    android:theme="@style/Theme.Sherlock"
 			android:label="Einstellungen"></activity>		
 		<activity android:name="com.dsatab.activity.ItemChooserActivity"		    
 			android:label="Inventar"></activity>

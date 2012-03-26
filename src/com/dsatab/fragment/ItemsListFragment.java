@@ -183,7 +183,7 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 
-		if (menuInfo instanceof AdapterContextMenuInfo) {
+		if (v == itemList && menuInfo instanceof AdapterContextMenuInfo) {
 			AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 			Item item = itemAdpater.getItem(info.position);
 

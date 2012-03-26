@@ -23,7 +23,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +30,7 @@ import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.view.WindowManager;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.dsatab.DSATabApplication;
 import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
@@ -39,7 +39,7 @@ import com.dsatab.data.Hero;
  * @author Ganymede
  * 
  */
-public class BaseFragmentActivity extends FragmentActivity implements IconContextItemSelectedListener {
+public class BaseFragmentActivity extends SherlockFragmentActivity implements IconContextItemSelectedListener {
 
 	private OnLongClickListener contextMenuListener = new OnLongClickListener() {
 

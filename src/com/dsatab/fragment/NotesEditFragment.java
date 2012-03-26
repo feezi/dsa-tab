@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -32,8 +33,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
@@ -89,11 +88,11 @@ public class NotesEditFragment extends BaseFragment implements OnClickListener, 
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * android.support.v4.app.Fragment#onCreateOptionsMenu(com.actionbarsherlock
-	 * .view.Menu, com.actionbarsherlock.view.MenuInflater)
+	 * android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu,
+	 * android.view.MenuInflater)
 	 */
 	@Override
-	public void onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(Menu menu, android.view.MenuInflater inflater) {
 		inflater.inflate(R.menu.accept_abort_menu, menu);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
@@ -102,11 +101,12 @@ public class NotesEditFragment extends BaseFragment implements OnClickListener, 
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * android.support.v4.app.Fragment#onOptionsItemSelected(com.actionbarsherlock
-	 * .view.MenuItem)
+	 * android.support.v4.app.Fragment#onOptionsItemSelected(android.view.MenuItem
+	 * )
 	 */
+
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(android.view.MenuItem item) {
 		if (item.getItemId() == R.id.option_accept) {
 			accept();
 			return true;
