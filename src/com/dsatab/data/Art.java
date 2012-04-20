@@ -14,7 +14,7 @@ import com.dsatab.common.Util;
 import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.xml.Xml;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 public class Art extends MarkableElement implements Value, Markable {
 

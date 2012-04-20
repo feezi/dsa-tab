@@ -55,7 +55,7 @@ public class EventListFilter extends OpenFilter<Event> {
 	}
 
 	protected boolean isFilterSet() {
-		return constraint != null || (types != null && !types.isEmpty());
+		return constraint != null || (types != null);
 	}
 
 	public boolean filter(Event m) {

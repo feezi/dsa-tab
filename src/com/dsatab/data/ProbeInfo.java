@@ -23,7 +23,7 @@ import android.text.TextUtils;
 
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 /**
  * @author Ganymede

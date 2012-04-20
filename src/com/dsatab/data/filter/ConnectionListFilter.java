@@ -55,7 +55,7 @@ public class ConnectionListFilter extends OpenFilter<Connection> {
 	}
 
 	protected boolean isFilterSet() {
-		return constraint != null || (types != null && !types.isEmpty());
+		return constraint != null || types != null;
 	}
 
 	public boolean filter(Connection m) {

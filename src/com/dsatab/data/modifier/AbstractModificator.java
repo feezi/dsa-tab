@@ -9,8 +9,15 @@ public abstract class AbstractModificator implements Modificator {
 
 	protected Hero hero;
 
+	protected boolean active;
+
 	public AbstractModificator(Hero hero) {
+		this(hero, true);
+	}
+
+	public AbstractModificator(Hero hero, boolean active) {
 		this.hero = hero;
+		this.active = active;
 	}
 
 	@Override
@@ -18,5 +25,20 @@ public abstract class AbstractModificator implements Modificator {
 
 	@Override
 	public abstract Modifier getModifier(AttributeType type);
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+		fireModificatorChanged();
+	}
+
+	protected void fireModificatorChanged() {
+		if (hero.getModificators().contains(this)) {
+			hero.fireModifierChangedEvent(this);
+		}
+	}
 
 }

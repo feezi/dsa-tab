@@ -21,7 +21,7 @@ import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero.CombatStyle;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 public class InlineEditDialog extends AlertDialog implements DialogInterface.OnClickListener, OnCheckedChangeListener,
 		OnWheelClickedListener {

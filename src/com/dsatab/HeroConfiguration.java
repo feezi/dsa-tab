@@ -47,7 +47,7 @@ import com.dsatab.fragment.NotesFragment;
 import com.dsatab.fragment.PurseFragment;
 import com.dsatab.fragment.SpellFragment;
 import com.dsatab.fragment.TalentFragment;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 /**
  * @author Ganymede
@@ -66,6 +66,9 @@ public class HeroConfiguration {
 	private static final String FIELD_META_TALENTS = "metaTalents";
 	private static final String FIELD_EVENTS = "events";
 
+	private static final String FIELD_LE_MODIFIER = "leModifier";
+	private static final String FIELD_AU_MODIFIER = "auModifier";
+
 	private List<TabInfo> tabInfosPortrait;
 	private List<TabInfo> tabInfosLandscape;
 
@@ -79,6 +82,8 @@ public class HeroConfiguration {
 	private CombatStyle combatStyle;
 	private boolean beCalculation;
 
+	private boolean leModifierActive;
+	private boolean auModifierActive;
 	private Hero hero;
 
 	/**
@@ -98,6 +103,9 @@ public class HeroConfiguration {
 
 		combatStyle = CombatStyle.Offensive;
 		beCalculation = true;
+
+		leModifierActive = true;
+		auModifierActive = true;
 	}
 
 	public HeroConfiguration(Hero hero, JSONObject in) throws JSONException, ClassNotFoundException {
@@ -222,6 +230,14 @@ public class HeroConfiguration {
 			combatStyle = CombatStyle.Offensive;
 		if (in.has(FIELD_BE_CALCULATION)) {
 			beCalculation = in.getBoolean(FIELD_BE_CALCULATION);
+		}
+
+		if (in.has(FIELD_LE_MODIFIER)) {
+			leModifierActive = in.getBoolean(FIELD_LE_MODIFIER);
+		}
+
+		if (in.has(FIELD_AU_MODIFIER)) {
+			auModifierActive = in.getBoolean(FIELD_AU_MODIFIER);
 		}
 
 	}
@@ -367,6 +383,22 @@ public class HeroConfiguration {
 		this.beCalculation = beCalculation;
 	}
 
+	public boolean isLeModifierActive() {
+		return leModifierActive;
+	}
+
+	public void setLeModifierActive(boolean leModifierActive) {
+		this.leModifierActive = leModifierActive;
+	}
+
+	public boolean isAuModifierActive() {
+		return auModifierActive;
+	}
+
+	public void setAuModifierActive(boolean auModifierActive) {
+		this.auModifierActive = auModifierActive;
+	}
+
 	public List<TabInfo> getDefaultTabs() {
 		Configuration configuration = DSATabApplication.getInstance().getResources().getConfiguration();
 		return getDefaultTabs(configuration.orientation);
@@ -455,6 +487,9 @@ public class HeroConfiguration {
 
 		out.put(FIELD_COMBAT_STYLE, combatStyle.name());
 		out.put(FIELD_BE_CALCULATION, beCalculation);
+		out.put(FIELD_LE_MODIFIER, leModifierActive);
+		out.put(FIELD_AU_MODIFIER, auModifierActive);
+
 		return out;
 	}
 

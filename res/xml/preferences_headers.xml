@@ -8,7 +8,7 @@
             android:summary="Einstellungen die Regeln von DSA betreffend." />
 
 	<header android:fragment="com.dsatab.activity.DsaPreferenceActivityHC$PrefsDisplayFragment"
-            android:icon="@drawable/ic_menu_monitor"
+            android:icon="@drawable/ic_menu_gallery"
             android:title="Darstellung"
             android:summary="Einstellungen die Darstellung von DsaTab betreffend." />
 

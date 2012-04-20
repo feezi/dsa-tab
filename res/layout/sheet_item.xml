@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_weight="1" android:layout_height="fill_parent" android:layout_margin="@dimen/page_margin" android:id="@+id/sheet_item">
-	<Gallery android:layout_above="@+id/imageView"
-		android:id="@+id/gal_gallery"
-				
-		android:layout_alignParentTop="true" android:layout_alignParentLeft="true"
+	
+	<Gallery android:id="@+id/gal_gallery" android:layout_alignParentTop="true" android:layout_alignParentLeft="true"
 		android:layout_alignParentRight="true" android:layout_width="fill_parent" android:layout_height="@dimen/gallery_thumb_height" android:visibility="visible"></Gallery>
 
 	<com.dsatab.view.CardView android:id="@+id/gal_imageView"
@@ -13,11 +11,7 @@
 		android:layout_width="fill_parent" android:layout_toRightOf="@+id/body_attack_button"
 		android:layout_toLeftOf="@+id/body_cloth_button" android:layout_alignWithParentIfMissing="true">
 	</com.dsatab.view.CardView>
-	<com.dsatab.view.GlossyImageButton android:layout_toLeftOf="@+id/gal_imageView"
-		android:layout_alignBottom="@+id/gal_imageView" android:id="@+id/body_search_button"
-		 android:layout_alignParentLeft="true"
-		android:src="@drawable/icon_search" android:scaleType="centerInside"
-		android:layout_width="@dimen/icon_button_size" android:layout_height="@dimen/icon_button_size" android:layout_marginBottom="2dp"/>
+		
 	<com.dsatab.view.GlossyImageButton android:id="@+id/body_attack_button"
 		android:layout_alignParentLeft="true" android:layout_height="@dimen/icon_button_size"
 		android:layout_width="@dimen/icon_button_size" android:src="@drawable/icon_longsword"
@@ -51,29 +45,9 @@
 		android:layout_width="@dimen/icon_button_size" android:src="@drawable/icon_special"
 		android:id="@+id/body_special_button" android:layout_below="@+id/body_items_button"
 		android:layout_alignParentRight="true"/>
+	
 	<include android:layout_height="wrap_content"
 		layout="@layout/item_listitem" android:id="@+id/inc_gal_item_view"
 		android:layout_width="fill_parent" android:layout_alignParentBottom="true"></include>
-
-	<LinearLayout
-	    android:id="@+id/body_search_container"
-	    android:background="@android:drawable/bottom_bar"
-	    android:layout_width="match_parent"
-	    android:layout_height="@dimen/icon_button_size" android:layout_alignParentBottom="true">
-
-		<ImageView
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:src="@drawable/ic_menu_search" android:scaleType="fitCenter" android:layout_gravity="center_vertical"/>
-
-		<AutoCompleteTextView
-		    android:id="@+id/body_autosearch"
-		    android:layout_width="fill_parent"
-		    android:layout_height="wrap_content"
-		    android:layout_weight="1" android:layout_gravity="center_vertical">
-
-		    <requestFocus />
-		</AutoCompleteTextView>
-
-	</LinearLayout>
+	
 </RelativeLayout>

@@ -7,10 +7,9 @@
         <item name="glossyButtonOverlay">@null</item>
         <item name="glossyButtonMask">@null</item>        
         <item name="android:listViewStyle">@style/Widget.ListView</item>
-
-        <!--  ActionBar settings -->
-        <!-- item name="actionBarTabStyle">@style/Widget.DsaTab.ActionBar.TabView</item  -->
-        <!-- item name="actionBarSize">@dimen/actionBarHeight</item -->
+        
+        <item name="actionBarTabStyle">@style/Widget.Sherlock.ActionBar.TabView</item>
+        <item name="android:actionBarTabStyle">@style/Widget.Sherlock.ActionBar.TabView</item>
     </style>
     
     <style name="DsaTabTheme.Light" parent="@Theme.Sherlock.Light.DarkActionBar">            
@@ -21,64 +20,64 @@
         <item name="glossyButtonMask">@null</item>        
         <item name="android:listViewStyle">@style/Widget.ListView</item>
         
-        <!--  ActionBar settings -->
-        <!--  item name="actionBarTabStyle">@style/Widget.DsaTab.Light.ActionBar.TabView</item  -->        
-        <!--  item name="actionBarSize">@dimen/actionBarHeight</item -->
+        <item name="actionBarTabStyle">@style/Widget.Sherlock.Light.ActionBar.TabView.Inverse</item>
+        <item name="android:actionBarTabStyle">@style/Widget.Sherlock.Light.ActionBar.TabView.Inverse</item>
     </style>
     
-    <style name="Theme.Dialog" parent="@android:style/Theme.Dialog">        
+    <style name="Theme.Dialog" parent="@Theme.Sherlock.Dialog">        
         <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
         <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
     </style>
     
-    <style name="DsaTabTheme.Abstract" parent="@DsaTabTheme.Light">
+    
+    <style name="DsaTabTheme.Light_Glossy" parent="@DsaTabTheme.Light">
         <item name="android:windowBackground">@drawable/bg_white</item>                        
         <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Glossy</item>
         <item name="glossyButtonStyle">@style/Widget.Button.Glossy</item>
         <item name="glossyButtonOverlay">@drawable/btn_glossy_gloss</item>
         <item name="glossyButtonMask">@drawable/btn_glossy_mask</item>
     </style>    
-    <style name="Theme.Dialog.Abstract" parent="@android:style/Theme.Dialog">        
+    <style name="Theme.Dialog.Light_Glossy" parent="@Theme.Sherlock.Light.Dialog">        
         <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Glossy</item>
         <item name="glossyButtonStyle">@style/Widget.Button.Glossy</item>
         <item name="glossyButtonOverlay">@drawable/btn_glossy_gloss</item>
         <item name="glossyButtonMask">@drawable/btn_glossy_mask</item>
     </style>
     	
-    <style name="DsaTabTheme.Map" parent="DsaTabTheme.Light">
-        <item name="android:windowBackground">@drawable/bg_map</item>
+    
+    
+    <style name="DsaTabTheme.Light_Plain" parent="DsaTabTheme.Light">
+        <item name="android:windowBackground">@drawable/bg_white</item>
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
+        <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
     </style>    
-    <style name="Theme.Dialog.Map" parent="@android:style/Theme.Dialog">        
-        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Glossy</item>
+    <style name="Theme.Dialog.Light_Plain" parent="@Theme.Sherlock.Light.Dialog">
         <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
         <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
     </style>
     
-    <style name="DsaTabTheme.Paper" parent="DsaTabTheme.Light">
-        <item name="android:windowBackground">@drawable/bg_paper_selector</item>
-        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
-        <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
-        <item name="glossyButtonOverlay">@null</item>
-        <item name="glossyButtonMask">@null</item>
-    </style>    
-    <style name="Theme.Dialog.Paper" parent="@android:style/Theme.Dialog">        
-        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Glossy</item>
-        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
-        <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
-    </style>
-    
-    <style name="DsaTabTheme.Dark" parent="DsaTabTheme">
-        <item name="android:windowBackground">@android:color/black</item>
+    <style name="DsaTabTheme.Dark_Glossy" parent="DsaTabTheme">
+        <item name="android:windowBackground">@drawable/bg_black</item>
         <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Glossy</item>
         <item name="glossyButtonStyle">@style/Widget.Button.Glossy</item>
         <item name="glossyButtonOverlay">@drawable/btn_glossy_gloss</item>
         <item name="glossyButtonMask">@drawable/btn_glossy_mask</item>
     </style>
-    <style name="Theme.Dialog.Dark" parent="@android:style/Theme.Dialog">        
+    <style name="Theme.Dialog.Dark_Glossy" parent="@Theme.Sherlock.Dialog">        
         <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Glossy</item>
         <item name="glossyButtonStyle">@style/Widget.Button.Glossy</item>
         <item name="glossyButtonOverlay">@drawable/btn_glossy_gloss</item>
         <item name="glossyButtonMask">@drawable/btn_glossy_mask</item>
+    </style>
+    
+    <style name="DsaTabTheme.Dark_Plain" parent="DsaTabTheme">
+        <item name="android:windowBackground">@drawable/bg_black</item>
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
+        <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
+    </style>
+    <style name="Theme.Dialog.Dark_Plain" parent="@Theme.Sherlock.Dialog">        
+        <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
+        <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
     </style>
     
     

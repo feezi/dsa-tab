@@ -58,9 +58,9 @@ import com.dsatab.data.SpecialFeature;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.modifier.Modificator;
+import com.dsatab.util.Debug;
 import com.dsatab.view.PortraitChooserDialog;
 import com.dsatab.view.PortraitViewDialog;
-import com.gandulf.guilib.util.Debug;
 
 public class CharacterFragment extends BaseFragment implements OnClickListener {
 
@@ -225,7 +225,7 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 
 		switch (requestCode) {
 		case ACTION_GALERY:
-			if (resultCode == Activity.RESULT_OK) {
+			if (resultCode == Activity.RESULT_OK && getHero() != null) {
 				Uri selectedImage = data.getData();
 				String[] filePathColumn = { MediaStore.Images.Media.DATA };
 

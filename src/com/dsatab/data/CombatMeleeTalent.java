@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.jdom.Element;
 
+import com.dsatab.DSATabApplication;
+import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
 import com.dsatab.xml.Xml;
@@ -48,34 +50,40 @@ public class CombatMeleeTalent extends BaseCombatTalent {
 
 	public Position getPosition(int w20) {
 
-		switch (type) {
+		if (DSATabApplication.getPreferences().getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_MORE_TARGET_ZONES,
+				false)) {
 
-		case Dolche:
-		case Fechtwaffen:
-			return Position.messer_dolch_stich[w20];
-		case Hiebwaffen:
-		case Kettenwaffen:
-		case Kettenstäbe:
-			return Position.hieb_ketten[w20];
-		case Schwerter:
-		case Säbel:
-			return Position.schwert_saebel[w20];
-		case Speere:
-			return Position.stangen_zweih_stich[w20];
-		case Stäbe:
-		case Zweihandflegel:
-		case Anderthalbhänder:
-		case Infanteriewaffen:
-		case Zweihandhiebwaffen:
-		case Zweihandschwerter:
-			return Position.stangen_zweih_hieb[w20];
-		case Raufen:
-		case Ringen:
-			return Position.box_rauf_hruru[w20];
-		case Peitsche:
-			return Position.fern_wurf[w20];
-		default:
-			return Position.fern_wurf[w20];
+			switch (type) {
+
+			case Dolche:
+			case Fechtwaffen:
+				return Position.messer_dolch_stich[w20];
+			case Hiebwaffen:
+			case Kettenwaffen:
+			case Kettenstäbe:
+				return Position.hieb_ketten[w20];
+			case Schwerter:
+			case Säbel:
+				return Position.schwert_saebel[w20];
+			case Speere:
+				return Position.stangen_zweih_stich[w20];
+			case Stäbe:
+			case Zweihandflegel:
+			case Anderthalbhänder:
+			case Infanteriewaffen:
+			case Zweihandhiebwaffen:
+			case Zweihandschwerter:
+				return Position.stangen_zweih_hieb[w20];
+			case Raufen:
+			case Ringen:
+				return Position.box_rauf_hruru[w20];
+			case Peitsche:
+				return Position.fern_wurf[w20];
+			default:
+				return Position.fern_wurf[w20];
+			}
+		} else {
+			return Position.official[w20];
 		}
 	}
 

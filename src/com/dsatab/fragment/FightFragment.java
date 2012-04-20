@@ -45,12 +45,12 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.actionbarsherlock.view.Menu;
 import com.commonsware.cwac.merge.MergeAdapter;
 import com.commonsware.cwac.sacklist.SackOfViewsAdapter;
 import com.dsatab.R;
@@ -74,7 +74,9 @@ import com.dsatab.data.items.Hand;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
+import com.dsatab.data.modifier.AbstractModificator;
 import com.dsatab.data.modifier.Modificator;
+import com.dsatab.util.Debug;
 import com.dsatab.view.ArcheryChooserDialog;
 import com.dsatab.view.EquippedItemChooserDialog;
 import com.dsatab.view.EvadeChooserDialog;
@@ -82,7 +84,6 @@ import com.dsatab.view.FightFilterSettings;
 import com.dsatab.view.FilterDialog;
 import com.dsatab.view.FilterSettings;
 import com.dsatab.view.FilterSettings.FilterType;
-import com.gandulf.guilib.util.Debug;
 
 public class FightFragment extends BaseFragment implements OnLongClickListener, OnClickListener, OnItemClickListener {
 
@@ -223,6 +224,67 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 				updateAusweichen();
 			}
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.SherlockFragment#onCreateOptionsMenu(com.
+	 * actionbarsherlock.view.Menu, com.actionbarsherlock.view.MenuInflater)
+	 */
+	@Override
+	public void onCreateOptionsMenu(Menu menu, com.actionbarsherlock.view.MenuInflater inflater) {
+		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_modifier_add, Menu.NONE,
+				"Modifikator hinzufügen");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		item.setIcon(R.drawable.ic_menu_add);
+
+		if (menu.findItem(R.id.option_fight_set) == null) {
+			item = menu.add(Menu.NONE, R.id.option_fight_set, Menu.NONE, "Set");
+			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+			item.setIcon(R.drawable.ic_menu_set);
+			if (item.getIcon() instanceof LevelListDrawable) {
+				((LevelListDrawable) item.getIcon()).setLevel(getHero().getActiveSet());
+			}
+		}
+
+		if (menu.findItem(R.id.option_filter) == null) {
+			item = menu.add(Menu.NONE, R.id.option_filter, Menu.NONE, "Filtern");
+			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+			item.setIcon(R.drawable.ic_menu_filter);
+		}
+
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.actionbarsherlock.app.SherlockFragment#onOptionsItemSelected(com.
+	 * actionbarsherlock.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+
+		if (item.getItemId() == R.id.option_modifier_add) {
+			startActivityForResult(new Intent(getActivity(), ModificatorEditActivity.class),
+					MainActivity.ACTION_ADD_MODIFICATOR);
+			return true;
+		} else {
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
 	}
 
 	/*
@@ -573,9 +635,6 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	public void onClick(View v) {
 
 		switch (v.getId()) {
-		case R.id.fight_set:
-			getHero().setActiveSet(getHero().getNextActiveSet());
-			break;
 		case R.id.fight_btn_picker:
 
 			int index = fightPickerTypes.indexOf(fightPickerType);
@@ -630,9 +689,6 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 		fightMergeAdapter.addAdapter(fightItemAdapter);
 
-		ImageButton fightSet = (ImageButton) findViewById(R.id.fight_set);
-		fightSet.setOnClickListener(this);
-
 		fightausweichen = getLayoutInflater(savedInstanceState).inflate(R.layout.item_listitem, null, false);
 		ImageButton iconLeft = (ImageButton) fightausweichen.findViewById(android.R.id.icon1);
 		iconLeft.setOnClickListener(getBaseActivity().getProbeListener());
@@ -660,10 +716,10 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 		fightModificatorAdapter = new FightModificatorAdapter(getActivity());
 
-		fightList.setOnItemClickListener(this);
 		fightMergeAdapter.addAdapter(fightModificatorAdapter);
 
 		fightList.setAdapter(fightMergeAdapter);
+		fightList.setOnItemClickListener(this);
 		registerForContextMenu(fightList);
 
 		fightPickerButton = (Button) findViewById(R.id.fight_btn_picker);
@@ -724,8 +780,6 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	 */
 	@Override
 	public void onHeroLoaded(Hero hero) {
-
-		updateSetButton();
 		fillFightItemDescriptions();
 
 		fightPickerTypes = new ArrayList<AttributeType>(4);
@@ -766,9 +820,9 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 
 	@Override
 	public void onModifierAdded(Modificator value) {
-		fightItemAdapter.notifyDataSetChanged();
-
 		fightModificatorAdapter.add(value);
+		fightItemAdapter.notifyDataSetChanged();
+		updateAusweichen();
 	}
 
 	/*
@@ -883,14 +937,14 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
-		if (v == fightList) {
+		if (parent == fightList) {
 
 			Object object = fightMergeAdapter.getItem(position);
 
-			if (object instanceof CustomModificator) {
-				CheckBox active = (CheckBox) v.findViewById(R.id.active);
-				if (active != null)
-					active.toggle();
+			if (object instanceof AbstractModificator) {
+				AbstractModificator modificator = (AbstractModificator) object;
+				modificator.setActive(!modificator.isActive());
+				fightModificatorAdapter.notifyDataSetChanged();
 			}
 		}
 
@@ -904,14 +958,8 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	@Override
 	public void onActiveSetChanged(int newSet, int oldSet) {
 		super.onActiveSetChanged(newSet, oldSet);
-		updateSetButton();
 		fillFightItemDescriptions();
-	}
-
-	private void updateSetButton() {
-		ImageButton fightSet = (ImageButton) findViewById(R.id.fight_set);
-		LevelListDrawable drawable = (LevelListDrawable) fightSet.getDrawable();
-		drawable.setLevel(getHero().getActiveSet());
+		getActivity().supportInvalidateOptionsMenu();
 	}
 
 	/*

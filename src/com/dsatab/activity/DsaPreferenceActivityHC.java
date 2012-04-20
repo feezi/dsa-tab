@@ -15,26 +15,30 @@
  */
 package com.dsatab.activity;
 
-import java.util.LinkedList;
 import java.util.List;
 
+import android.annotation.TargetApi;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 
-import com.dsatab.DsaTabConfiguration;
-import com.dsatab.DsaTabConfiguration.ArmorType;
-import com.dsatab.DsaTabConfiguration.WoundType;
+import com.actionbarsherlock.view.MenuItem;
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 
+@TargetApi(11)
 public class DsaPreferenceActivityHC extends BasePreferenceActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		getSupportActionBar().setDisplayShowHomeEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		int screen = getIntent().getIntExtra(INTENT_PREF_SCREEN, SCREEN_HOME);
 
@@ -48,6 +52,30 @@ public class DsaPreferenceActivityHC extends BasePreferenceActivity {
 
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			setResult(RESULT_OK);
+			finish();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.activity.BasePreferenceActivity#onSharedPreferenceChanged(
+	 * android.content.SharedPreferences, java.lang.String)
+	 */
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		handlePreferenceChange(findPreference(key), sharedPreferences, key);
+	}
+
 	/**
 	 * Populate the activity with the top-level headers.
 	 */
@@ -56,7 +84,84 @@ public class DsaPreferenceActivityHC extends BasePreferenceActivity {
 		loadHeadersFromResource(R.xml.preferences_headers, target);
 	}
 
-	public static class PrefsSetupFragment extends PreferenceFragment {
+	public static class BasePreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.preference.PreferenceFragment#onStart()
+		 */
+		@Override
+		public void onStart() {
+			super.onStart();
+
+			initPreferences(getPreferenceManager(), getPreferenceScreen());
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * android.preference.PreferenceFragment#onCreate(android.os.Bundle)
+		 */
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+
+			SharedPreferences preferences = DSATabApplication.getPreferences();
+			preferences.registerOnSharedPreferenceChangeListener(this);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.preference.PreferenceFragment#onDestroy()
+		 */
+		@Override
+		public void onDestroy() {
+			super.onDestroy();
+			SharedPreferences preferences = DSATabApplication.getPreferences();
+			preferences.unregisterOnSharedPreferenceChangeListener(this);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * android.content.SharedPreferences.OnSharedPreferenceChangeListener
+		 * #onSharedPreferenceChanged(android.content.SharedPreferences,
+		 * java.lang.String)
+		 */
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+			handlePreferenceChange(findPreference(key), sharedPreferences, key);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * android.preference.PreferenceFragment#onPreferenceTreeClick(android
+		 * .preference.PreferenceScreen, android.preference.Preference)
+		 */
+		@Override
+		public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+			if (preference.getKey().equals(KEY_DOWNLOAD_SCREEN)) {
+				((PreferenceActivity) getActivity()).startPreferenceFragment(new PrefsDownloadFragment(), true);
+				return true;
+			} else if (preference.getKey().equals(KEY_DISPALY_HEADER_SCREEN)) {
+				((PreferenceActivity) getActivity()).startPreferenceFragment(new PrefsDisplayHeaderFragment(), true);
+				return true;
+			} else if (preference.getKey().equals(KEY_HOUSE_RULES)) {
+				((PreferenceActivity) getActivity()).startPreferenceFragment(new PrefsHouseRulesFragment(), true);
+				return true;
+			} else {
+				return handlePreferenceTreeClick(getActivity(), preferenceScreen, preference);
+			}
+		}
+	}
+
+	public static class PrefsSetupFragment extends BasePreferenceFragment {
 
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
@@ -66,36 +171,30 @@ public class DsaPreferenceActivityHC extends BasePreferenceActivity {
 			addPreferencesFromResource(R.xml.preferences_hc_setup);
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * android.preference.PreferenceFragment#onPreferenceTreeClick(android
-		 * .preference.PreferenceScreen, android.preference.Preference)
-		 */
-		@Override
-		public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-
-			if (preference.getKey().equals(KEY_DOWNLOAD_SCREEN)) {
-				((PreferenceActivity) getActivity()).startPreferenceFragment(new PrefsDownloadFragment(), true);
-				return true;
-			} else
-				return handlePreferenceTreeClick(getActivity(), preferenceScreen, preference);
-		}
 	}
 
-	public static class PrefsDisplayFragment extends PreferenceFragment {
+	public static class PrefsDisplayFragment extends BasePreferenceFragment {
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 
 			// Load the preferences from an XML resource
-			addPreferencesFromResource(R.xml.preferences_display);
-
+			addPreferencesFromResource(R.xml.preferences_hc_display);
 		}
 	}
 
-	public static class PrefsDownloadFragment extends PreferenceFragment {
+	public static class PrefsDisplayHeaderFragment extends BasePreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+
+			// Load the preferences from an XML resource
+			addPreferencesFromResource(R.xml.preferences_hc_display_header);
+		}
+
+	}
+
+	public static class PrefsDownloadFragment extends BasePreferenceFragment {
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
@@ -104,21 +203,9 @@ public class DsaPreferenceActivityHC extends BasePreferenceActivity {
 			addPreferencesFromResource(R.xml.preferences_hc_download);
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * android.preference.PreferenceFragment#onPreferenceTreeClick(android
-		 * .preference.PreferenceScreen, android.preference.Preference)
-		 */
-		@Override
-		public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-			return handlePreferenceTreeClick(getActivity(), preferenceScreen, preference);
-		}
-
 	}
 
-	public static class PrefsHouseRulesFragment extends PreferenceFragment {
+	public static class PrefsHouseRulesFragment extends BasePreferenceFragment {
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
@@ -127,94 +214,25 @@ public class DsaPreferenceActivityHC extends BasePreferenceActivity {
 			addPreferencesFromResource(R.xml.preferences_hc_houserules);
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * android.preference.PreferenceFragment#onPreferenceTreeClick(android
-		 * .preference.PreferenceScreen, android.preference.Preference)
-		 */
-		@Override
-		public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-			return handlePreferenceTreeClick(getActivity(), preferenceScreen, preference);
-		}
-
 	}
 
-	public static class PrefsRulesFragment extends PreferenceFragment {
+	public static class PrefsRulesFragment extends BasePreferenceFragment {
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 
 			// Load the preferences from an XML resource
 			addPreferencesFromResource(R.xml.preferences_hc_rules);
-
-			ListPreference listPreference = (ListPreference) findPreference(KEY_ARMOR_TYPE);
-			if (listPreference != null) {
-				List<String> themeNames = new LinkedList<String>();
-				List<String> themeValues = new LinkedList<String>();
-
-				for (ArmorType themeValue : DsaTabConfiguration.ArmorType.values()) {
-					themeNames.add(themeValue.title());
-					themeValues.add(themeValue.name());
-				}
-
-				listPreference.setEntries(themeNames.toArray(new String[0]));
-				listPreference.setEntryValues(themeValues.toArray(new String[0]));
-			}
-
-			listPreference = (ListPreference) findPreference(KEY_WOUND_TYPE);
-			if (listPreference != null) {
-				List<String> armorNames = new LinkedList<String>();
-				List<String> armorValues = new LinkedList<String>();
-
-				for (WoundType themeValue : DsaTabConfiguration.WoundType.values()) {
-					armorNames.add(themeValue.title());
-					armorValues.add(themeValue.name());
-				}
-
-				listPreference.setEntries(armorNames.toArray(new String[0]));
-				listPreference.setEntryValues(armorValues.toArray(new String[0]));
-			}
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * android.preference.PreferenceFragment#onPreferenceTreeClick(android
-		 * .preference.PreferenceScreen, android.preference.Preference)
-		 */
-		@Override
-		public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-
-			if (preference.getKey().equals(KEY_HOUSE_RULES)) {
-				((PreferenceActivity) getActivity()).startPreferenceFragment(new PrefsHouseRulesFragment(), true);
-				return true;
-			} else
-				return handlePreferenceTreeClick(getActivity(), preferenceScreen, preference);
 		}
 	}
 
-	public static class PrefsInfoFragment extends PreferenceFragment {
+	public static class PrefsInfoFragment extends BasePreferenceFragment {
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 
 			// Load the preferences from an XML resource
 			addPreferencesFromResource(R.xml.preferences_info);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * android.preference.PreferenceFragment#onPreferenceTreeClick(android
-		 * .preference.PreferenceScreen, android.preference.Preference)
-		 */
-		@Override
-		public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-			return handlePreferenceTreeClick(getActivity(), preferenceScreen, preference);
 		}
 	}
 

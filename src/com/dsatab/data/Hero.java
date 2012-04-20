@@ -51,12 +51,12 @@ import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.AuModificator;
 import com.dsatab.data.modifier.LeModificator;
 import com.dsatab.data.modifier.Modificator;
+import com.dsatab.util.Debug;
 import com.dsatab.view.listener.HeroChangedListener;
 import com.dsatab.xml.DataManager;
 import com.dsatab.xml.DomUtil;
 import com.dsatab.xml.Xml;
 import com.dsatab.xml.XmlParser;
-import com.gandulf.guilib.util.Debug;
 
 public class Hero {
 
@@ -716,7 +716,7 @@ public class Hero {
 
 	}
 
-	void fireModifierChangedEvent(Modificator modifier) {
+	public void fireModifierChangedEvent(Modificator modifier) {
 		clearModifiersCache();
 		for (HeroChangedListener l : listener) {
 			l.onModifierChanged(modifier);
@@ -1755,6 +1755,24 @@ public class Hero {
 						}
 					}
 				}
+			} else if (equippedItem != null && equippedItem.getItemSpecification() instanceof DistanceWeapon) {
+				Item item = equippedItem.getItem();
+				DistanceWeapon distanceWeapon = (DistanceWeapon) equippedItem.getItemSpecification();
+
+				BaseCombatTalent talent = (BaseCombatTalent) equippedItem.getTalent();
+				if (talent != null && talent.getTalentSpezialisierung() != null
+						&& talent.getTalentSpezialisierung().equalsIgnoreCase(item.getName())) {
+
+					Debug.verbose("Talentspezialisierung " + item.getName() + " +2");
+
+					modifiers.add(new Modifier(2, SpecialFeature.TALENTSPEZIALISIERUNG_PREFIX + " "
+							+ talent.getTalentSpezialisierung()));
+
+				}
+
+				if (hasFeature(Advantage.ENTFERNUNGSSINN)) {
+					modifiers.add(new Modifier(2, Advantage.ENTFERNUNGSSINN));
+				}
 			}
 
 		}
@@ -1832,13 +1850,25 @@ public class Hero {
 			if (type == null) {
 				SpecialFeature specialFeature = new SpecialFeature(feat);
 				boolean add = true;
+
 				if (specialFeature.getName().startsWith(SpecialFeature.TALENTSPEZIALISIERUNG_PREFIX)) {
 					Talent talent = getTalent(specialFeature.getParameter1());
 					if (talent != null) {
 						talent.setTalentSpezialisierung(specialFeature.getParameter2());
 						add = false;
 					}
+				} else if (specialFeature.getName().startsWith(SpecialFeature.ZAUBERSPEZIALISIERUNG_PREFIX)) {
+					Spell spell = getSpell(specialFeature.getParameter1());
+					if (spell != null) {
+						spell.setZauberSpezialisierung(specialFeature.getParameter2());
+						add = false;
+					}
+				} else if (specialFeature.getName().startsWith(Talent.RITUAL_KENNTNIS_PREFIX)) {
+					// skipp specialfeature ritualkenntnis since it's listed as
+					// talent anyway.
+					add = false;
 				}
+
 				if (add) {
 					specialFeatures.add(specialFeature);
 				}
@@ -1954,6 +1984,8 @@ public class Hero {
 	public void addConnection(Connection connection) {
 		getConnections().add(connection);
 		getConnectionsElement().addContent(connection.getElement());
+
+		Collections.sort(getConnections(), new ConnectionComparator());
 	}
 
 	public void removeConnection(Connection connection) {
@@ -2023,6 +2055,7 @@ public class Hero {
 
 	public void addEvent(Event event) {
 		getHeroConfiguration().addEvent(event);
+		Collections.sort(getHeroConfiguration().getEvents(), new NotesComparator());
 	}
 
 	private Element getEventsElement() {
@@ -2073,6 +2106,8 @@ public class Hero {
 				getHeroConfiguration().addEvent(event);
 			}
 			notizElementFilled = true;
+
+			Collections.sort(getHeroConfiguration().getEvents(), new NotesComparator());
 		}
 
 		return getHeroConfiguration().getEvents();
@@ -2372,6 +2407,14 @@ public class Hero {
 		}
 
 		return talentByName.get(talentName);
+	}
+
+	public Spell getSpell(String spellName) {
+		for (Spell spell : getSpells()) {
+			if (spell.getName().equals(spellName))
+				return spell;
+		}
+		return null;
 	}
 
 	private void replaceCombatTalent(Talent oldTalent, Talent newTalent) {

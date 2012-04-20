@@ -15,7 +15,5 @@
    
    <ProgressBar android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/map_progress" android:layout_gravity="center" android:visibility="gone" android:indeterminate="true" android:indeterminateBehavior="repeat"></ProgressBar>
    <TextView android:text="Karte wird geladen" android:layout_height="fill_parent" android:layout_width="fill_parent" android:gravity="center" android:id="@+id/map_progress_text" android:visibility="gone"></TextView>
-   <com.dsatab.view.GlossyImageButton android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_gravity="bottom|left" android:layout_marginLeft="5dp" android:layout_marginBottom="5dp" android:src="@drawable/tab_map" android:id="@+id/open_map"/>
-   
    
 </FrameLayout>

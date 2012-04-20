@@ -1,7 +1,0 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    	
-<item android:id="@+id/option_load_subtype"
-          android:icon="@drawable/ic_menu_star"
-          android:title="Unterkategorie auswählen" />
-              
-</menu>

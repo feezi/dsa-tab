@@ -4,7 +4,7 @@
     <WebView android:layout_width="match_parent" android:layout_height="match_parent" android:id="@+id/tip_web" android:layout_above="@+id/tip_show"></WebView>
     <ImageButton android:layout_alignParentRight="true" android:id="@+id/tip_next" android:background="@drawable/arrow_right" android:layout_height="match_parent" android:layout_width="60dp" android:layout_centerHorizontal="true" android:layout_above="@+id/tip_show"></ImageButton>
     <ImageButton android:layout_alignParentLeft="true" android:id="@+id/tip_prev" android:layout_height="match_parent" android:background="@drawable/arrow_left" android:layout_width="60dp" android:layout_centerHorizontal="true" android:layout_alignBottom="@+id/tip_web"></ImageButton>
-    <CheckBox android:id="@+id/tip_show" android:layout_height="wrap_content" android:layout_width="wrap_content" android:checked="true" android:layout_above="@+id/tip_ok" android:layout_alignParentLeft="true" android:layout_alignParentRight="true" android:text="Tip des Tages anzeigen" android:layout_alignParentBottom="true"></CheckBox>
+    <CheckBox android:id="@+id/tip_show" android:layout_height="wrap_content" android:layout_width="wrap_content" android:checked="true" android:layout_alignParentLeft="true" android:layout_alignParentRight="true" android:text="Tip des Tages anzeigen" android:layout_alignParentBottom="true"></CheckBox>
 </RelativeLayout>
 
 		

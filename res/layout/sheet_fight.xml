@@ -7,10 +7,6 @@
 		android:layout_width="fill_parent" android:weightSum="1.0"
 		android:layout_margin="@dimen/page_margin"
 		android:gravity="center_horizontal">
-		<com.dsatab.view.GlossyImageButton  android:src="@drawable/set"
-			android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size"
-			android:layout_gravity="center_vertical" android:layout_marginRight="10dp"
-			android:id="@+id/fight_set" android:focusable="true"/>
 		
 		<com.dsatab.view.GlossyButton android:text="LE" android:layout_gravity="center_vertical"
 			android:id="@+id/fight_btn_picker" android:gravity="center"

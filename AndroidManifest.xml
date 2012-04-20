@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.dsatab" android:installLocation="auto"
-	android:versionCode="47" android:versionName="3.0-beta">
+	android:versionCode="49" android:versionName="3.1">
 	
 	<uses-sdk android:minSdkVersion="7" android:targetSdkVersion="14" />
 
@@ -24,7 +24,7 @@
 	
 	<application android:label="DsaTab" android:icon="@drawable/icon" android:theme="@style/DsaTabTheme"
 	    android:hardwareAccelerated="true" android:name="DSATabApplication" android:largeHeap="true">
-
+		
 		<activity android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified"
 			android:name="com.dsatab.activity.MainActivity" android:uiOptions="splitActionBarWhenNarrow">
 			<intent-filter>
@@ -44,7 +44,7 @@
 		
 		<activity android:name="com.dsatab.activity.NotesEditActivity"
 			android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified"
-			android:logo="@android:drawable/ic_menu_edit" 
+			android:logo="@android:drawable/ic_menu_edit"
 			android:label="Notiz bearbeiten" android:theme="@style/Theme.Dialog"></activity>
 		
 		<activity android:name=".activity.TabEditActivity"
@@ -68,7 +68,20 @@
 			<meta-data android:name="android.app.searchable"
 				android:resource="@xml/searchable" />
 		</activity>
-		
+				
+		<activity
+	      android:name="com.dropbox.client2.android.AuthActivity"
+	      android:launchMode="singleTask"
+	      android:configChanges="orientation|keyboard">
+	      <intent-filter>
+	        <!-- Change this to be db- followed by your app key -->
+	        <data android:scheme="db-00nrr4dxqnxmvi2" />
+	        <action android:name="android.intent.action.VIEW" />
+	        <category android:name="android.intent.category.BROWSABLE"/>
+	        <category android:name="android.intent.category.DEFAULT" />
+	      </intent-filter>
+	    </activity>
+	    
 	    <receiver android:name="com.gandulf.guilib.util.DownloadBroadcastReceiver" android:exported="false">
 	        <intent-filter>
 	            <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>

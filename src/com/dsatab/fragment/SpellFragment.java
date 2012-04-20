@@ -29,6 +29,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.actionbarsherlock.view.Menu;
 import com.dsatab.R;
 import com.dsatab.activity.MainActivity;
 import com.dsatab.data.Hero;
@@ -53,6 +54,17 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 	private SpellAdapter spellAdapter;
 
 	private SpellInfoDialog spellInfo;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -150,6 +162,22 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 		spellAdapter = new SpellAdapter(getBaseActivity(), getHero(), getHero().getSpells(), filterSettings);
 
 		spellList.setAdapter(spellAdapter);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.SherlockFragment#onCreateOptionsMenu(com.
+	 * actionbarsherlock.view.Menu, com.actionbarsherlock.view.MenuInflater)
+	 */
+	@Override
+	public void onCreateOptionsMenu(Menu menu, com.actionbarsherlock.view.MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		if (menu.findItem(R.id.option_filter) == null) {
+			com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_filter, Menu.NONE, "Filtern");
+			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+			item.setIcon(R.drawable.ic_menu_filter);
+		}
 	}
 
 	/*

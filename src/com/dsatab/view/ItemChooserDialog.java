@@ -1,5 +1,8 @@
 package com.dsatab.view;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.text.Editable;
@@ -21,9 +24,9 @@ import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.adapter.ItemAdapter;
+import com.dsatab.data.adapter.SpinnerSimpleAdapter;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.xml.DataManager;
-import com.gandulf.guilib.view.adapter.SpinnerSimpleAdapter;
 
 public class ItemChooserDialog extends AlertDialog implements android.view.View.OnClickListener, OnItemSelectedListener {
 
@@ -37,7 +40,7 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 
 	private SpinnerSimpleAdapter<ItemType> categoryAdapter;
 
-	private ItemType itemType = null;
+	private Collection<ItemType> itemTypes = null;
 
 	private boolean showOwnItems = true;
 
@@ -58,33 +61,33 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 
 		if (showOwnItems) {
 			itemAdapter = new ItemAdapter(getContext(), hero.getItems());
-			itemAdapter.filter(itemType, null, null);
+			itemAdapter.filter(itemTypes, null, null);
 			btnOtherItems.setVisibility(View.VISIBLE);
 			categorySpinner.setVisibility(View.GONE);
 		} else {
 			itemAdapter = new ItemAdapter(getContext(), DataManager.getItems());
-			itemAdapter.filter(itemType, null, null);
+			itemAdapter.filter(itemTypes, null, null);
 			btnOtherItems.setVisibility(View.GONE);
 			categorySpinner.setVisibility(View.VISIBLE);
 		}
 		itemList.setAdapter(itemAdapter);
 
-		if (itemType != null)
-			categorySpinner.setSelection(categoryAdapter.getPosition(itemType));
+		if (itemTypes != null)
+			categorySpinner.setSelection(categoryAdapter.getPosition(itemTypes.iterator().next()));
 
 	}
 
-	public void show(ItemType type) {
-		setItemType(type);
+	public void show(Collection<ItemType> types) {
+		setItemTypes(types);
 		show();
 	}
 
-	public ItemType getItemType() {
-		return itemType;
+	public Collection<ItemType> getItemTypes() {
+		return itemTypes;
 	}
 
-	public void setItemType(ItemType itemType) {
-		this.itemType = itemType;
+	public void setItemTypes(Collection<ItemType> itemType) {
+		this.itemTypes = itemType;
 
 	}
 
@@ -130,7 +133,9 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 
 	private void init() {
 
-		itemType = ItemType.Waffen;
+		itemTypes = new ArrayList<ItemType>();
+		itemTypes.add(ItemType.Waffen);
+
 		setTitle("Wähle einen Gegenstand...");
 
 		setCanceledOnTouchOutside(true);
@@ -151,7 +156,7 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 		categorySpinner = (Spinner) popupcontent.findViewById(R.id.popup_item_category);
 		categoryAdapter = new SpinnerSimpleAdapter<ItemType>(this.getContext(), ItemType.values());
 		categorySpinner.setAdapter(categoryAdapter);
-		categorySpinner.setSelection(categoryAdapter.getPosition(itemType));
+		categorySpinner.setSelection(categoryAdapter.getPosition(itemTypes.iterator().next()));
 		categorySpinner.setOnItemSelectedListener(this);
 
 		searchButton = (ImageButton) popupcontent.findViewById(R.id.popup_search_button);
@@ -179,7 +184,7 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 
 			@Override
 			public void afterTextChanged(Editable s) {
-				itemAdapter.filter(null, null, s.toString());
+				itemAdapter.filter((ItemType) null, null, s.toString());
 
 			}
 		});
@@ -224,7 +229,7 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 			showOwnItems = false;
 
 			itemAdapter = new ItemAdapter(getContext(), DataManager.getItems());
-			itemAdapter.filter(itemType, null, null);
+			itemAdapter.filter(itemTypes, null, null);
 			itemList.setAdapter(itemAdapter);
 
 			btnOtherItems.setVisibility(View.GONE);

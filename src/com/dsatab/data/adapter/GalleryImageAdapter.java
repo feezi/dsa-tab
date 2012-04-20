@@ -15,10 +15,10 @@
  */
 package com.dsatab.data.adapter;
 
+import java.util.Collection;
 import java.util.List;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Gallery;
@@ -31,8 +31,6 @@ import com.dsatab.view.CardView;
 
 public class GalleryImageAdapter extends OpenArrayAdapter<Item> {
 
-	private int mGalleryItemBackground;
-
 	private int width, height;
 
 	private ItemListFilter filter;
@@ -40,12 +38,14 @@ public class GalleryImageAdapter extends OpenArrayAdapter<Item> {
 	public GalleryImageAdapter(Context context, List<Item> items) {
 		super(context, 0, items);
 
-		TypedArray a = context.obtainStyledAttributes(R.styleable.Gallery);
-		mGalleryItemBackground = a.getResourceId(R.styleable.Gallery_android_galleryItemBackground, 0);
-
 		width = context.getResources().getDimensionPixelSize(R.dimen.gallery_thumb_width);
 		height = context.getResources().getDimensionPixelSize(R.dimen.gallery_thumb_height);
-		a.recycle();
+	}
+
+	public void filter(Collection<ItemType> types, String category, String constraint) {
+		getFilter().setTypes(types);
+		filter.setCategory(category);
+		filter.filter(constraint);
 	}
 
 	public void filter(ItemType type, String category, String constraint) {
@@ -91,13 +91,11 @@ public class GalleryImageAdapter extends OpenArrayAdapter<Item> {
 
 		if (convertView instanceof CardView) {
 			i = (CardView) convertView;
+			i.setLayoutParams(new Gallery.LayoutParams(width, height));
 		} else {
 			i = new CardView(getContext());
 			/* Set the Width/Height of the ImageView. */
-			i.setMaxWidth(width);
-			i.setMaxHeight(height);
 			i.setLayoutParams(new Gallery.LayoutParams(width, height));
-			i.setBackgroundResource(mGalleryItemBackground);
 		}
 		i.setItem(item);
 		return i;

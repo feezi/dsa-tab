@@ -15,17 +15,11 @@
  */
 package com.dsatab.activity;
 
-import java.util.LinkedList;
-import java.util.List;
-
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
 
-import com.dsatab.DsaTabConfiguration;
-import com.dsatab.DsaTabConfiguration.ArmorType;
-import com.dsatab.DsaTabConfiguration.WoundType;
 import com.dsatab.R;
 
 public class DsaPreferenceActivity extends BasePreferenceActivity {
@@ -48,34 +42,20 @@ public class DsaPreferenceActivity extends BasePreferenceActivity {
 			break;
 		}
 
-		ListPreference listPreference = (ListPreference) findPreference(KEY_ARMOR_TYPE);
-		if (listPreference != null) {
-			List<String> armorNames = new LinkedList<String>();
-			List<String> armorValues = new LinkedList<String>();
+		initPreferences(getPreferenceManager(), getPreferenceScreen());
 
-			for (ArmorType themeValue : DsaTabConfiguration.ArmorType.values()) {
-				armorNames.add(themeValue.title());
-				armorValues.add(themeValue.name());
-			}
+	}
 
-			listPreference.setEntries(armorNames.toArray(new String[0]));
-			listPreference.setEntryValues(armorValues.toArray(new String[0]));
-		}
-
-		listPreference = (ListPreference) findPreference(KEY_WOUND_TYPE);
-		if (listPreference != null) {
-			List<String> armorNames = new LinkedList<String>();
-			List<String> armorValues = new LinkedList<String>();
-
-			for (WoundType themeValue : DsaTabConfiguration.WoundType.values()) {
-				armorNames.add(themeValue.title());
-				armorValues.add(themeValue.name());
-			}
-
-			listPreference.setEntries(armorNames.toArray(new String[0]));
-			listPreference.setEntryValues(armorValues.toArray(new String[0]));
-		}
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.activity.BasePreferenceActivity#onSharedPreferenceChanged(
+	 * android.content.SharedPreferences, java.lang.String)
+	 */
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		handlePreferenceChange(findPreference(key), sharedPreferences, key);
 	}
 
 	/*

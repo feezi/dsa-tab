@@ -10,8 +10,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,11 +21,11 @@ import com.dsatab.activity.ModificatorEditActivity;
 import com.dsatab.common.Util;
 import com.dsatab.data.CustomModificator;
 import com.dsatab.data.filter.FightModificatorListFilter;
+import com.dsatab.data.modifier.AbstractModificator;
 import com.dsatab.data.modifier.Modificator;
 import com.dsatab.view.FightFilterSettings;
 
-public class FightModificatorAdapter extends OpenArrayAdapter<Modificator> implements OnCheckedChangeListener,
-		OnClickListener {
+public class FightModificatorAdapter extends OpenArrayAdapter<Modificator> implements OnClickListener {
 
 	private FightModificatorListFilter filter;
 
@@ -142,11 +140,11 @@ public class FightModificatorAdapter extends OpenArrayAdapter<Modificator> imple
 				// We need the layoutinflater to pick up the view from xml
 				// Pick up the TwoLineListItem defined in the xml file
 				titleLayout = (LinearLayout) inflater.inflate(R.layout.fight_sheet_modifier_title, parent, false);
-
 			} else {
 				titleLayout = (LinearLayout) convertView;
 			}
 			titleLayout.findViewById(R.id.fight_modifiers_add).setOnClickListener(this);
+
 			titleLayout.setTag(HEADER_TAG);
 			return titleLayout;
 		} else {
@@ -174,15 +172,20 @@ public class FightModificatorAdapter extends OpenArrayAdapter<Modificator> imple
 
 			Modificator item = getItem(position);
 
-			if (item instanceof CustomModificator) {
-				CustomModificator modificator = (CustomModificator) item;
+			if (item instanceof AbstractModificator) {
+				AbstractModificator modificator = (AbstractModificator) item;
 				holder.active.setVisibility(View.VISIBLE);
 				holder.active.setChecked(modificator.isActive());
-				holder.active.setOnCheckedChangeListener(this);
+				holder.active.setClickable(false);
+				holder.active.setFocusable(false);
 				holder.active.setTag(modificator);
-				holder.icon1.setVisibility(View.INVISIBLE);
 			} else {
 				holder.active.setVisibility(View.GONE);
+			}
+
+			if (item instanceof CustomModificator) {
+				holder.icon1.setVisibility(View.INVISIBLE);
+			} else {
 				holder.icon1.setVisibility(View.VISIBLE);
 			}
 
@@ -197,21 +200,6 @@ public class FightModificatorAdapter extends OpenArrayAdapter<Modificator> imple
 			Util.applyRowStyle(itemLayout, position);
 
 			return itemLayout;
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged
-	 * (android.widget.CompoundButton, boolean)
-	 */
-	@Override
-	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-		if (buttonView.getTag() instanceof CustomModificator) {
-			CustomModificator modificator = (CustomModificator) buttonView.getTag();
-			modificator.setActive(isChecked);
 		}
 	}
 

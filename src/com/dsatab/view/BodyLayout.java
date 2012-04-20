@@ -16,7 +16,7 @@ import com.dsatab.common.Util;
 import com.dsatab.data.ArmorAttribute;
 import com.dsatab.data.WoundAttribute;
 import com.dsatab.data.enums.Position;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 public class BodyLayout extends FrameLayout {
 
@@ -188,8 +188,6 @@ public class BodyLayout extends FrameLayout {
 
 		woundWidthMeasureSpec = MeasureSpec.makeMeasureSpec(woundSize, MeasureSpec.EXACTLY);
 		woundHeightMeasureSpec = MeasureSpec.makeMeasureSpec(woundSize, MeasureSpec.EXACTLY);
-
-		setBackgroundResource(R.drawable.character);
 	}
 
 	public OnLongClickListener getOnArmorLongClickListener() {

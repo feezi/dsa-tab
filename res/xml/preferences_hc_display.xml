@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" android:title="Darstellung">                
+                
+        <PreferenceCategory android:title="Darstellung">                                                      
+
+            <ListPreference
+				android:icon="@drawable/ic_menu_friendslist"
+                        android:title="Theme"
+                        android:summary="Bestimme das Aussehen von DsaTab. (Erfordert Neustart)"
+                        android:key="theme"
+                        android:defaultValue="paper"
+                        android:entries="@array/themes"
+                        android:entryValues="@array/themesValues"/>
+            
+            
+            <com.dsatab.view.PreferenceWithButton
+				android:icon="@drawable/ic_menu_friendslist"
+                android:title="Hintergrundbild auswählen"
+                android:summary="Hier kannst du das Standard Hintergrundbild überschreiben"
+                android:key="theme.bg.path" />
+            
+            <com.dsatab.view.PreferenceWithButton
+				android:icon="@drawable/ic_menu_friendslist"
+                android:title="Wunden Hintergrundbild auswählen"
+                android:summary="Hier kannst du das Standard Wunden-Hintergrundbild überschreiben"                
+                android:key="theme.wound.bg.path" />
+            
+			<ListPreference
+				android:icon="@drawable/ic_menu_always_landscape_portrait"
+                        android:title="Bildschirmausrichtung"
+                        android:summary="Definiere die Ausrichtung deiner Oberfläche."
+                        android:key="screen_orientation"
+                        android:defaultValue="auto"
+                        android:entries="@array/screenOrientation"
+                        android:entryValues="@array/screenOrientationValues"/>
+
+				<CheckBoxPreference
+				android:icon="@drawable/ic_menu_gallery"
+                        android:title="Vollbild"
+                        android:defaultValue="true"
+                        android:summary="Im Vollbildmodus wird weder die Titel- noch die Statusleiste angezeigt."
+                        android:key="fullscreen" />
+
+	</PreferenceCategory>
+	<PreferenceCategory android:title="Würfelleiste konfigurieren" android:summary="Hier kannst du die Würfelleiste konfigurieren.">                        
+				
+					<CheckBoxPreference
+						android:icon="@drawable/ic_menu_dice"
+                        android:title="Sofort würfeln"
+                        android:defaultValue="true"
+                        android:summaryOn="Beim Öffnen der Würfelleiste wird automatisch gewürfelt."
+                        android:summaryOff="Es können noch Modifikatoren angepasst werden befür manuell gewürfelt wird."
+                        android:key="autoRollDice" />
+                        
+					<CheckBoxPreference
+					android:icon="@drawable/ic_menu_wizard"
+	                        android:title="Wahrscheinlichkeit anzeigen"
+	                        android:defaultValue="false"
+	                        android:summary="Die Wahrscheinlichkeit mit der eine Probe gelingt wird angezeigt"
+	                        android:key="probeProbability" />
+					<CheckBoxPreference
+							android:icon="@drawable/ic_menu_dice"
+	                        android:title="Wurfanimation anzeigen"
+	                        android:defaultValue="true"
+	                        android:summaryOff="Das Würfelergebnis wird sofort ohne Verzögerung angezeigt."
+	                        android:summaryOn="Es wird bei jeden Wurf eine kurze Animation angezeigt"
+	                        android:key="animRollDice" />
+	                        
+	                        <CheckBoxPreference
+	                        android:icon="@drawable/ic_menu_sound"
+	                        android:title="Wurfelgeräusch abspielen"
+	                        android:defaultValue="true"
+	                        android:summaryOff="Es wird kein Geräusch abgespielt."
+	                        android:summaryOn="Jeder Probewurf wird musikalisch untermalt"
+	                        android:key="soundRollDice" />
+	                        
+	                        <CheckBoxPreference
+	                        android:icon="@drawable/ic_menu_sound"
+	                        android:title="Wurfelgeräusch abhängig vom Ergebnis"
+	                        android:defaultValue="true"
+	                        android:summaryOff="Es wird ein neutraler Würfelsound abgespielt."
+	                        android:summaryOn="Es wird je nach Ergebnis der Probe ein anderer Sound abgespielt."
+	                        android:key="soundResultDice"
+	                        android:dependency="soundRollDice" />
+	                        
+	                        <CheckBoxPreference
+	                        android:icon="@drawable/ic_menu_agenda"
+	                        android:title="Modifikatoren immer anzeigen"
+	                        android:defaultValue="false"
+	                        android:summaryOn="Die Liste der Modifikatoren wird immer angezeigt"
+	                        android:summaryOff="Die Liste wird nur auf Wunsch als Popup angezeigt"
+	                        android:key="probeShowModificators" />
+				</PreferenceCategory>
+				
+				<PreferenceCategory android:title="Kopfzeile konfigurieren" android:summary="Hier kannst du einstellen was alles in der Kopfzeile angezeigt werden soll.">                        
+				
+				<PreferenceScreen
+	           		android:icon="@drawable/ic_menu_friendslist"
+	                android:key="displayHeaderScreen"
+	                android:title="Kopfzeile konfigurieren"
+	                android:fragment="com.dsatab.activity.DsaPreferenceActivityHC$PrefsDisplayHeaderFragment"
+	                android:summary="Hier kannst du einstellen was alles in der Kopfzeile angezeigt werden soll."/>
+                                	
+                                                                                        
+        		</PreferenceCategory>        
+        
+</PreferenceScreen>

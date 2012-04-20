@@ -68,7 +68,7 @@ import com.dsatab.activity.DsaPreferenceActivity;
 import com.dsatab.activity.DsaPreferenceActivityHC;
 import com.dsatab.data.Hero;
 import com.dsatab.xml.XmlParser;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 

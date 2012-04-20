@@ -13,7 +13,7 @@
                         android:entries="@array/heldenAustauschProvider"
                         android:entryValues="@array/heldenAustauschProviderValues"/>
                 <EditTextPreference
-                android:icon="@drawable/ic_menu_friendslist"
+                	android:icon="@drawable/ic_menu_friendslist"
                 	android:title="Benutzername"
                 	android:summary="Benutzername der Heldenaustauschseite"
                 	android:key="exchange_username" />                
@@ -26,12 +26,19 @@
         </PreferenceCategory>
         <PreferenceCategory android:title="Setup">
         	<EditTextPreference
-        	android:icon="@drawable/ic_menu_save"
+        		android:icon="@drawable/ic_menu_save"
                 android:name="SDCard: Pfad zu DsaTab"
-                android:summary="Pfad auf der SD Karte zu den DsaTab Daten (Helden Profile, Karten Material, ...)"
+                android:summary="Pfad auf der SD Karte zu den DsaTab Daten (Karten Material, ...)"
                 android:defaultValue="dsatab/"
                 android:title="SD Karten Pfad"
                 android:key="sdcardPath" />
+			<EditTextPreference
+        		android:icon="@drawable/ic_menu_save"
+                android:name="SDCard: Pfad zu Helden Xml-Dateien"
+                android:summary="Pfad auf der SD Karte zu den DsaTab Helden Dateien"
+                android:defaultValue="dsatab/"
+                android:title="SD Karten Helden Pfad"
+                android:key="sdcardHeroPath" />        	
                 
            <PreferenceScreen
            android:icon="@drawable/ic_menu_download"

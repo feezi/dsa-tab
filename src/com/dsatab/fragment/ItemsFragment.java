@@ -38,15 +38,20 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.ItemChooserActivity;
 import com.dsatab.data.Hero;
 import com.dsatab.data.ItemLocationInfo;
 import com.dsatab.data.adapter.GridItemAdapter;
+import com.dsatab.data.adapter.SpinnerSimpleAdapter;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
+import com.dsatab.util.Debug;
 import com.dsatab.view.DeleteZone;
 import com.dsatab.view.GridCardView;
 import com.dsatab.view.ItemGridView;
@@ -56,8 +61,6 @@ import com.gandulf.guilib.drag.DragController;
 import com.gandulf.guilib.drag.DragLayer;
 import com.gandulf.guilib.drag.DragScroller;
 import com.gandulf.guilib.drag.DragSource;
-import com.gandulf.guilib.util.Debug;
-import com.gandulf.guilib.view.adapter.SpinnerSimpleAdapter;
 
 public class ItemsFragment extends BaseFragment implements View.OnLongClickListener, View.OnClickListener,
 		DragController.DragListener<ItemCard>, OnItemSelectedListener, DragScroller, OnItemClickListener,
@@ -242,6 +245,51 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.SherlockFragment#onCreateOptionsMenu(com.
+	 * actionbarsherlock.view.Menu, com.actionbarsherlock.view.MenuInflater)
+	 */
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_item_add, Menu.NONE,
+				"Gegenstand hinzufügen");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		item.setIcon(R.drawable.ic_menu_add);
+
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.actionbarsherlock.app.SherlockFragment#onOptionsItemSelected(com.
+	 * actionbarsherlock.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.option_item_add) {
+			selectItem(null, null);
+			return true;
+		} else {
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see
 	 * android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater,
 	 * android.view.ViewGroup, android.os.Bundle)
@@ -273,7 +321,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 		mScreenAdapter = new SpinnerSimpleAdapter<String>(getActivity(), new ArrayList<String>(10));
 		mScreenBtn.setAdapter(mScreenAdapter);
 
-		getView().findViewById(R.id.fight_add_item).setOnClickListener(this);
 		setupViews();
 
 		super.onActivityCreated(savedInstanceState);
@@ -708,10 +755,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 		case R.id.fight_inventory:
 			showScreen(Hero.MAXIMUM_SET_NUMBER);
 			return;
-
-		case R.id.fight_add_item:
-			selectItem(null, null);
-			break;
 		}
 
 	}

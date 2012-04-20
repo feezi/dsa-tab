@@ -60,7 +60,7 @@ import com.dsatab.data.Probe.ProbeType;
 import com.dsatab.data.SpecialFeature;
 import com.dsatab.data.Spell;
 import com.dsatab.data.enums.AttributeType;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 import com.gandulf.guilib.view.WrappingSlidingDrawer;
 
 public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickListener, OnWheelChangedListener,
@@ -740,7 +740,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 			if (taw < 0) {
 				valueModifier = taw;
 			} else {
-				effect = new Double(taw);
+				effect = Double.valueOf(taw);
 			}
 
 			// House rule preferences

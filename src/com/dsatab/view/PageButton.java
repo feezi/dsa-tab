@@ -38,6 +38,8 @@ public class PageButton extends Button {
 
 	private Drawable drawable;
 
+	private Rect bounds = new Rect();
+
 	private static final float SHRINK = 0.5f;
 
 	public PageButton(Context context, AttributeSet attrs, int defStyle) {
@@ -128,8 +130,7 @@ public class PageButton extends Button {
 	public void onDraw(Canvas canvas) {
 		int buttonSize = getHeight() - getPaddingTop() - getPaddingBottom();
 
-		Rect bounds = new Rect(getPaddingLeft(), getPaddingTop(), getWidth() - getPaddingRight(), getHeight()
-				- getPaddingBottom());
+		bounds.set(getPaddingLeft(), getPaddingTop(), getWidth() - getPaddingRight(), getHeight() - getPaddingBottom());
 
 		Gravity.apply(getGravity(), getButtonsWidth(level, buttonSize), buttonSize, bounds, container);
 

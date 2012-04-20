@@ -2,6 +2,8 @@ package com.dsatab.data;
 
 import org.jdom.Element;
 
+import com.dsatab.DSATabApplication;
+import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
@@ -96,7 +98,12 @@ public class CombatDistanceTalent extends BaseCombatTalent implements Value {
 	}
 
 	public Position getPosition(int w20) {
-		return Position.fern_wurf[w20];
+		if (DSATabApplication.getPreferences().getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_MORE_TARGET_ZONES,
+				false)) {
+			return Position.fern_wurf[w20];
+		} else {
+			return Position.official[w20];
+		}
 	}
 
 	@Override

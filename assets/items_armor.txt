@@ -1,6 +1,6 @@
 #;NAME                                                                  ;BE;Ko;Br;Rü;Ba;LH;RH;LF;RF;ZR;TR;St;
 A;Cyclopeische Tuchrüstung;;Torso										; 1; 0; 2; 2; 2; 0; 0; 0; 0; 0; 0; 0; 
-A;Legionärshelm;;Helm													; 1; 3; 0; 0; 0; 0; 0; 0; 0; 0; 1; 1;
+A;Legionärshelm;;Helm													; 1; 3; 0; 0; 0; 0; 0; 0; 0; 2; 1; 1;
 
 A;Armschiene (links), Leder;lederzeug_arme_links00_LQ.gif;Arme          ; 1; 0; 0; 0; 0; 1; 0; 0; 0; 0; 1; 0;Z;
 A;Armschiene (rechts), Leder;lederzeug_arme_rechts00_LQ.gif;Arme        ; 1; 0; 0; 0; 0; 0; 1; 0; 0; 0; 1; 0;Z;

@@ -225,4 +225,28 @@ public enum Position {
 		fern_wurf[19] = Position.Kopf;
 		fern_wurf[20] = Position.Kopf;
 	}
+
+	public static final Position[] official = new Position[21];
+	static {
+		official[1] = Position.LinkesBein;
+		official[2] = Position.RechtesBein;
+		official[3] = Position.LinkesBein;
+		official[4] = Position.RechtesBein;
+		official[5] = Position.LinkesBein;
+		official[6] = Position.RechtesBein;
+		official[7] = Position.Bauch;
+		official[8] = Position.Bauch;
+		official[9] = Position.LinkerArm;
+		official[10] = Position.RechterArm;
+		official[11] = Position.LinkerArm;
+		official[12] = Position.RechterArm;
+		official[13] = Position.LinkerArm;
+		official[14] = Position.RechterArm;
+		official[15] = Position.Brust;
+		official[16] = Position.Brust;
+		official[17] = Position.Brust;
+		official[18] = Position.Brust;
+		official[19] = Position.Kopf;
+		official[20] = Position.Kopf;
+	}
 }

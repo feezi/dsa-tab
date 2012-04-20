@@ -16,8 +16,6 @@ import com.dsatab.xml.Xml;
 
 public class DistanceWeapon extends ItemSpecification {
 
-	private static final long serialVersionUID = 8538598636617857056L;
-
 	private static final int DISTANCE_COUNT = 5;
 
 	private String tp;

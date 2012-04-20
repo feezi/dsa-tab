@@ -13,8 +13,7 @@ import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.MainActivity;
 
-public class FilterDialog extends AlertDialog implements android.view.View.OnClickListener,
-		DialogInterface.OnClickListener {
+public class FilterDialog extends AlertDialog implements DialogInterface.OnClickListener {
 
 	public static final String PREF_KEY_TALENT_FAVORITE = "SHOW_FAVORITE_TALENT";
 	public static final String PREF_KEY_TALENT_NORMAL = "SHOW_NORMAL_TALENT";
@@ -43,6 +42,9 @@ public class FilterDialog extends AlertDialog implements android.view.View.OnCli
 
 	private CheckBox armor, modifier, evade, includeModifier;
 
+	private boolean filterListVisible = true;
+	private boolean filterFightVisible = true;
+
 	private MainActivity main;
 
 	public FilterDialog(MainActivity context) {
@@ -55,8 +57,20 @@ public class FilterDialog extends AlertDialog implements android.view.View.OnCli
 		return main;
 	}
 
-	public void onClick(View v) {
+	public void setFilterListVisibile(boolean v) {
+		filterListVisible = v;
 
+		if (findViewById(R.id.popup_filter_list) != null) {
+			findViewById(R.id.popup_filter_list).setVisibility(filterListVisible ? View.VISIBLE : View.GONE);
+		}
+	}
+
+	public void setFilterFightVisibile(boolean v) {
+		filterFightVisible = v;
+
+		if (findViewById(R.id.popup_filter_fight) != null) {
+			findViewById(R.id.popup_filter_fight).setVisibility(filterFightVisible ? View.VISIBLE : View.GONE);
+		}
 	}
 
 	private void init() {

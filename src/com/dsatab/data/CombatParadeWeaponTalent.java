@@ -1,5 +1,7 @@
 package com.dsatab.data;
 
+import com.dsatab.DSATabApplication;
+import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
@@ -50,6 +52,11 @@ public class CombatParadeWeaponTalent extends CombatShieldTalent {
 	}
 
 	public Position getPosition(int w20) {
-		return Position.box_rauf_hruru[w20];
+		if (DSATabApplication.getPreferences().getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_MORE_TARGET_ZONES,
+				false)) {
+			return Position.box_rauf_hruru[w20];
+		} else {
+			return Position.official[w20];
+		}
 	}
 }

@@ -36,15 +36,15 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ListView;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.commonsware.cwac.merge.MergeAdapter;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
@@ -57,10 +57,9 @@ import com.dsatab.data.NotesComparator;
 import com.dsatab.data.adapter.ConnectionAdapter;
 import com.dsatab.data.adapter.EventAdapter;
 import com.dsatab.data.enums.EventCategory;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
-public class NotesFragment extends BaseFragment implements OnClickListener, OnItemClickListener,
-		OnMultiChoiceClickListener {
+public class NotesFragment extends BaseFragment implements OnItemClickListener, OnMultiChoiceClickListener {
 
 	public static final int ACTION_EDIT = 1;
 
@@ -68,7 +67,6 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 
 	private static final int CONTEXTMENU_DELETEITEM = 1;
 	private static final int CONTEXTMENU_EDITITEM = 2;
-	private static final int CONTEXTMENU_SORT_NOTES = 3;
 
 	private MediaRecorder mediaRecorder;
 	private MediaPlayer mediaPlayer;
@@ -85,6 +83,87 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 	private EventCategory[] categories;
 
 	private Object selectedObject = null;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.SherlockFragment#onCreateOptionsMenu(com.
+	 * actionbarsherlock.view.Menu, com.actionbarsherlock.view.MenuInflater)
+	 */
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_note_add, Menu.NONE,
+				"Notiz hinzufügen");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		item.setIcon(R.drawable.ic_menu_add);
+
+		item = menu.add(Menu.NONE, R.id.option_note_record, Menu.NONE, "Notiz aufnehmen");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		item.setIcon(R.drawable.ic_menu_mic);
+
+		item = menu.add(Menu.NONE, R.id.option_note_filter, Menu.NONE, "Filtern");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		item.setIcon(R.drawable.ic_menu_filter);
+
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.actionbarsherlock.app.SherlockFragment#onOptionsItemSelected(com.
+	 * actionbarsherlock.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+		if (item.getItemId() == R.id.option_note_add) {
+			editEvent(null, null);
+			return true;
+		} else if (item.getItemId() == R.id.option_note_record) {
+			recordEvent();
+			return true;
+		} else if (item.getItemId() == R.id.option_note_filter) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+			String[] categoryNames = new String[categories.length];
+			boolean[] categoriesSet = new boolean[categories.length];
+
+			for (int i = 0; i < categories.length; i++) {
+				categoryNames[i] = categories[i].name();
+				if (categoriesSelected.contains(categories[i]))
+					categoriesSet[i] = true;
+			}
+
+			builder.setMultiChoiceItems(categoryNames, categoriesSet, this);
+			builder.setTitle("Filtern");
+			builder.setIcon(R.drawable.ic_menu_search);
+
+			builder.show().setOnDismissListener(new DialogInterface.OnDismissListener() {
+
+				@Override
+				public void onDismiss(DialogInterface dialog) {
+					notesListAdapter.filter(null, new ArrayList<EventCategory>(categoriesSelected));
+					connectionsAdapter.filter(null, new ArrayList<EventCategory>(categoriesSelected));
+				}
+			});
+			return true;
+		} else {
+			return super.onOptionsItemSelected(item);
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -111,15 +190,9 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 		if (!recordingsDir.exists())
 			recordingsDir.mkdirs();
 
-		ImageButton speak = (ImageButton) findViewById(R.id.notes_btn_mic_add);
-		speak.setOnClickListener(this);
-
 		listView = (ListView) findViewById(android.R.id.list);
 		// notes
 		registerForContextMenu(listView);
-
-		findViewById(R.id.notes_spn_category).setOnClickListener(this);
-		findViewById(R.id.notes_btn_add).setOnClickListener(this);
 
 		// notes
 		listView.setOnItemClickListener(this);
@@ -168,7 +241,6 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 
 			menu.add(GROUP_NOTES, CONTEXTMENU_EDITITEM, 1, getString(R.string.menu_edit_item));
 			menu.add(GROUP_NOTES, CONTEXTMENU_DELETEITEM, 2, getString(R.string.menu_delete_item));
-			menu.add(GROUP_NOTES, CONTEXTMENU_SORT_NOTES, 3, getString(R.string.menu_sort_items));
 
 			if (menuInfo instanceof AdapterContextMenuInfo) {
 				AdapterContextMenuInfo adapterMenuInfo = (AdapterContextMenuInfo) menuInfo;
@@ -211,10 +283,6 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 						Debug.verbose("Editing " + event.getComment());
 						editEvent(event);
 						return true;
-					} else if (item.getItemId() == CONTEXTMENU_SORT_NOTES) {
-						notesListAdapter.sort(new NotesComparator());
-						connectionsAdapter.sort(new ConnectionComparator());
-						return true;
 					}
 				} else if (obj instanceof Connection) {
 					Connection connection = (Connection) obj;
@@ -226,10 +294,6 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 					} else if (item.getItemId() == CONTEXTMENU_EDITITEM) {
 						Debug.verbose("Editing " + connection.getName());
 						editConnection(connection);
-						return true;
-					} else if (item.getItemId() == CONTEXTMENU_SORT_NOTES) {
-						notesListAdapter.sort(new NotesComparator());
-						connectionsAdapter.sort(new ConnectionComparator());
 						return true;
 					}
 				}
@@ -282,100 +346,61 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-	 */
-	@Override
-	public void onClick(View v) {
-		if (v.getId() == R.id.notes_btn_mic_add) {
+	private void recordEvent() {
+		try {
+			final File currentAudio = new File(recordingsDir, "last.3gp");
 
-			try {
-				final File currentAudio = new File(recordingsDir, "last.3gp");
+			if (mediaRecorder == null)
+				initMediaRecorder();
 
-				if (mediaRecorder == null)
-					initMediaRecorder();
+			mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+			mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+			mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
-				mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-				mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-				mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-
-				mediaRecorder.setOutputFile(currentAudio.getAbsolutePath());
-				mediaRecorder.prepare();
-				mediaRecorder.start(); // Recording is now started
-
-				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-				builder.setIcon(android.R.drawable.ic_btn_speak_now);
-				builder.setTitle(R.string.recording);
-				builder.setMessage(R.string.recording_message);
-
-				builder.setPositiveButton(R.string.label_save, new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (mediaRecorder != null) {
-							mediaRecorder.stop();
-							mediaRecorder.reset();
-						}
-
-						File nowAudio = new File(recordingsDir, System.currentTimeMillis() + ".3gp");
-						currentAudio.renameTo(nowAudio);
-
-						editEvent(null, nowAudio.getAbsolutePath());
-					}
-				});
-
-				builder.setNegativeButton(R.string.label_cancel, new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (mediaRecorder != null) {
-							mediaRecorder.stop();
-							mediaRecorder.reset();
-						}
-						currentAudio.delete();
-					}
-				});
-
-				builder.show();
-			} catch (IllegalStateException e) {
-				Debug.error(e);
-			} catch (IOException e) {
-				Debug.error(e);
-			}
-
-		} else if (v.getId() == R.id.notes_btn_add) {
-			editEvent(null, null);
-		} else if (v.getId() == R.id.notes_spn_category) {
+			mediaRecorder.setOutputFile(currentAudio.getAbsolutePath());
+			mediaRecorder.prepare();
+			mediaRecorder.start(); // Recording is now started
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-			String[] categoryNames = new String[categories.length];
-			boolean[] categoriesSet = new boolean[categories.length];
+			builder.setIcon(android.R.drawable.ic_btn_speak_now);
+			builder.setTitle(R.string.recording);
+			builder.setMessage(R.string.recording_message);
 
-			for (int i = 0; i < categories.length; i++) {
-				categoryNames[i] = categories[i].name();
-				if (categoriesSelected.contains(categories[i]))
-					categoriesSet[i] = true;
-			}
-
-			builder.setMultiChoiceItems(categoryNames, categoriesSet, this);
-			builder.setTitle("Filtern");
-			builder.setIcon(R.drawable.ic_menu_search);
-
-			builder.show().setOnDismissListener(new DialogInterface.OnDismissListener() {
+			builder.setPositiveButton(R.string.label_save, new DialogInterface.OnClickListener() {
 
 				@Override
-				public void onDismiss(DialogInterface dialog) {
-					notesListAdapter.filter(null, new ArrayList<EventCategory>(categoriesSelected));
-					connectionsAdapter.filter(null, new ArrayList<EventCategory>(categoriesSelected));
+				public void onClick(DialogInterface dialog, int which) {
+					if (mediaRecorder != null) {
+						mediaRecorder.stop();
+						mediaRecorder.reset();
+					}
+
+					File nowAudio = new File(recordingsDir, System.currentTimeMillis() + ".3gp");
+					currentAudio.renameTo(nowAudio);
+
+					editEvent(null, nowAudio.getAbsolutePath());
 				}
 			});
 
-		}
+			builder.setNegativeButton(R.string.label_cancel, new DialogInterface.OnClickListener() {
 
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if (mediaRecorder != null) {
+						mediaRecorder.stop();
+						mediaRecorder.reset();
+					}
+					currentAudio.delete();
+				}
+			});
+
+			builder.show();
+		} catch (IllegalStateException e) {
+			Debug.error(e);
+		} catch (IOException e) {
+			Debug.error(e);
+		}
 	}
 
 	/*
@@ -387,12 +412,10 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 	 */
 	@Override
 	public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-
 		if (isChecked)
 			categoriesSelected.add(categories[which]);
 		else
 			categoriesSelected.remove(categories[which]);
-
 	}
 
 	private void editEvent(final Event event) {
@@ -406,6 +429,7 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 		Intent intent = new Intent(getActivity(), NotesEditActivity.class);
 		if (event != null) {
 			intent.putExtra(NotesEditFragment.INTENT_NAME_EVENT_TEXT, event.getComment());
+			intent.putExtra(NotesEditFragment.INTENT_NAME_EVENT_NAME, event.getName());
 			intent.putExtra(NotesEditFragment.INTENT_NAME_EVENT_CATEGORY, event.getCategory());
 		}
 		if (audioPath != null) {
@@ -468,6 +492,7 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 					connectionsAdapter.add(connection);
 				}
 
+				connectionsAdapter.sort(new ConnectionComparator());
 				connectionsAdapter.refilter();
 				connectionsAdapter.notifyDataSetChanged();
 
@@ -495,6 +520,7 @@ public class NotesFragment extends BaseFragment implements OnClickListener, OnIt
 					notesListAdapter.add(selectedEvent);
 				}
 
+				notesListAdapter.sort(new NotesComparator());
 				notesListAdapter.refilter();
 				notesListAdapter.notifyDataSetChanged();
 			}

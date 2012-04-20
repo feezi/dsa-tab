@@ -17,8 +17,8 @@ import com.dsatab.data.Hero;
 import com.dsatab.data.Purse;
 import com.dsatab.data.Purse.Currency;
 import com.dsatab.data.Purse.PurseUnit;
-import com.gandulf.guilib.util.Debug;
-import com.gandulf.guilib.view.adapter.SpinnerSimpleAdapter;
+import com.dsatab.data.adapter.SpinnerSimpleAdapter;
+import com.dsatab.util.Debug;
 
 public class PurseFragment extends BaseFragment implements OnItemSelectedListener, OnWheelChangedListener {
 
@@ -156,11 +156,7 @@ public class PurseFragment extends BaseFragment implements OnItemSelectedListene
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 		if (purse != null) {
-
 			Currency cur = (Currency) parent.getItemAtPosition(position);
-
-			Debug.verbose("On item selected " + cur);
-
 			purse.setActiveCurrency(cur);
 			updateCurrency(cur);
 		}

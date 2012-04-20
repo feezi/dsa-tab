@@ -2,17 +2,17 @@
 <resources>
 
 <array name="themes">
-	<item>Papier</item>
-	<item>Karte</item>
-	<item>Abstrakt</item>
-	<item>Dark</item>
+	<item>Light (Plain Buttons)</item>
+	<item>Light (Glossy Buttons)</item>
+	<item>Dark (Plain Buttons)</item>
+	<item>Dark (Glossy Buttons)</item>
 </array>
 
 <array name="themesValues">
-	<item>paper</item>
-	<item>map</item>
-	<item>abstract</item>
-	<item>dark</item>
+	<item>light_plain</item>
+	<item>light_glossy</item>
+	<item>dark_plain</item>
+	<item>dark_glossy</item>
 </array>
 
 <array name="screenOrientation">

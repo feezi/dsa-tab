@@ -27,7 +27,6 @@ import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.TalentGroup;
 import com.dsatab.data.TalentGroup.TalentGroupType;
 import com.dsatab.view.ListFilterSettings;
-import com.gandulf.guilib.util.Debug;
 
 public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 
@@ -116,7 +115,6 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 			return in;
 		} else {
 			List<Talent> result = new ArrayList<Talent>();
-			Debug.verbose("Filtering talents");
 			for (Talent t : in) {
 				if (filterSettings.isVisible(t)) {
 					result.add(t);

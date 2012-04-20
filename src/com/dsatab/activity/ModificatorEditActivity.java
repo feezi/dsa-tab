@@ -25,10 +25,10 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
+import com.dsatab.common.Util;
 
 public class ModificatorEditActivity extends BaseFragmentActivity implements OnClickListener {
 
@@ -52,6 +52,8 @@ public class ModificatorEditActivity extends BaseFragmentActivity implements OnC
 		getSupportActionBar().setDisplayShowTitleEnabled(true);
 		getSupportActionBar().setDisplayShowHomeEnabled(true);
 		getSupportActionBar().setDisplayUseLogoEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setHomeButtonEnabled(true);
 
 		cbActive = (CheckBox) findViewById(R.id.popup_edit_active);
 		etName = (EditText) findViewById(R.id.popup_edit_name);
@@ -80,7 +82,7 @@ public class ModificatorEditActivity extends BaseFragmentActivity implements OnC
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		new MenuInflater(this).inflate(R.menu.accept_abort_menu, menu);
+		Util.inflateAcceptAbortMenu(menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -92,8 +94,10 @@ public class ModificatorEditActivity extends BaseFragmentActivity implements OnC
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-
-		if (item.getItemId() == R.id.option_accept) {
+		if (item.getItemId() == android.R.id.home) {
+			cancel();
+			return true;
+		} else if (item.getItemId() == R.id.option_accept) {
 			accept();
 			return true;
 		} else if (item.getItemId() == R.id.option_cancel) {

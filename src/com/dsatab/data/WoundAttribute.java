@@ -11,27 +11,34 @@ import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.AbstractModificator;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 public class WoundAttribute extends AbstractModificator implements JSONable {
 
 	private static final String FIELD_POSITION = "position";
 	private static final String FIELD_VALUE = "value";
+	private static final String FIELD_ACTIVE = "active";
 
 	private Position position;
 
 	private Integer value;
 
 	public WoundAttribute(Hero hero, Position position) {
-		super(hero);
+		super(hero, true);
 		this.position = position;
 		this.value = 0;
+
 	}
 
 	public WoundAttribute(Hero hero, JSONObject json) throws JSONException {
 		super(hero);
 		this.value = json.getInt(FIELD_VALUE);
 		this.position = Position.valueOf(json.getString(FIELD_POSITION));
+
+		if (json.has(FIELD_ACTIVE))
+			active = json.getBoolean(FIELD_ACTIVE);
+		else
+			active = true;
 	}
 
 	public String getName() {
@@ -101,124 +108,133 @@ public class WoundAttribute extends AbstractModificator implements JSONable {
 
 	@Override
 	public Modifier getModifier(AttributeType type) {
-		int modifier = 0;
+		if (isActive()) {
+			int modifier = 0;
+			if (DSATabApplication.getInstance().getConfiguration().getWoundType() == WoundType.Trefferzonen) {
 
-		if (DSATabApplication.getInstance().getConfiguration().getWoundType() == WoundType.Trefferzonen) {
-
-			switch (getPosition()) {
-			case Kopf:
-				if (type == AttributeType.Mut || type == AttributeType.Klugheit || type == AttributeType.Intuition
-						|| type == AttributeType.ini || type == AttributeType.Initiative_Aktuell) {
-					modifier += -2 * getValue();
+				switch (getPosition()) {
+				case Kopf:
+					if (type == AttributeType.Mut || type == AttributeType.Klugheit || type == AttributeType.Intuition
+							|| type == AttributeType.ini || type == AttributeType.Initiative_Aktuell) {
+						modifier += -2 * getValue();
+					}
+					break;
+				case Bauch:
+					if (type == AttributeType.Körperkraft || type == AttributeType.at || type == AttributeType.fk
+							|| type == AttributeType.pa || type == AttributeType.Ausweichen) {
+						modifier += -1 * getValue();
+					} else if (type == AttributeType.Geschwindigkeit) {
+						modifier += -1 * getValue();
+					}
+					break;
+				case Brust:
+					if (type == AttributeType.Konstitution || type == AttributeType.Körperkraft
+							|| type == AttributeType.at || type == AttributeType.fk || type == AttributeType.pa
+							|| type == AttributeType.Ausweichen) {
+						modifier += -1 * getValue();
+					}
+					break;
+				case LeftLowerArm:
+				case RightLowerArm:
+					if (type == AttributeType.Fingerfertigkeit || type == AttributeType.Körperkraft
+							|| type == AttributeType.at || type == AttributeType.fk || type == AttributeType.pa
+							|| type == AttributeType.Ausweichen) {
+						modifier += -2 * getValue();
+					}
+					break;
+				case UpperLeg:
+				case LowerLeg:
+					if (type == AttributeType.Gewandtheit || type == AttributeType.ini
+							|| type == AttributeType.Initiative_Aktuell || type == AttributeType.at
+							|| type == AttributeType.pa || type == AttributeType.fk || type == AttributeType.Ausweichen) {
+						modifier += -2 * getValue();
+					} else if (type == AttributeType.Geschwindigkeit) {
+						modifier += -1 * getValue();
+					}
+					break;
 				}
-				break;
-			case Bauch:
-				if (type == AttributeType.Körperkraft || type == AttributeType.at || type == AttributeType.fk
-						|| type == AttributeType.pa || type == AttributeType.Ausweichen) {
-					modifier += -1 * getValue();
-				} else if (type == AttributeType.Geschwindigkeit) {
-					modifier += -1 * getValue();
-				}
-				break;
-			case Brust:
-				if (type == AttributeType.Konstitution || type == AttributeType.Körperkraft || type == AttributeType.at
-						|| type == AttributeType.fk || type == AttributeType.pa || type == AttributeType.Ausweichen) {
-					modifier += -1 * getValue();
-				}
-				break;
-			case LeftLowerArm:
-			case RightLowerArm:
-				if (type == AttributeType.Fingerfertigkeit || type == AttributeType.Körperkraft
-						|| type == AttributeType.at || type == AttributeType.fk || type == AttributeType.pa
+			} else {
+				if (type == AttributeType.at || type == AttributeType.pa || type == AttributeType.fk
+						|| type == AttributeType.Gewandtheit || type == AttributeType.Initiative_Aktuell
 						|| type == AttributeType.Ausweichen) {
 					modifier += -2 * getValue();
-				}
-				break;
-			case UpperLeg:
-			case LowerLeg:
-				if (type == AttributeType.Gewandtheit || type == AttributeType.ini
-						|| type == AttributeType.Initiative_Aktuell || type == AttributeType.at
-						|| type == AttributeType.pa || type == AttributeType.fk || type == AttributeType.Ausweichen) {
-					modifier += -2 * getValue();
 				} else if (type == AttributeType.Geschwindigkeit) {
 					modifier += -1 * getValue();
 				}
-				break;
 			}
+			return new Modifier(modifier, getModificatorName(), getModificatorInfo());
+
 		} else {
-			if (type == AttributeType.at || type == AttributeType.pa || type == AttributeType.fk
-					|| type == AttributeType.Gewandtheit || type == AttributeType.Initiative_Aktuell
-					|| type == AttributeType.Ausweichen) {
-				modifier += -2 * getValue();
-			} else if (type == AttributeType.Geschwindigkeit) {
-				modifier += -1 * getValue();
-			}
+			return null;
 		}
-		return new Modifier(modifier, getModificatorName(), getModificatorInfo());
 	}
 
 	@Override
 	public Modifier getModifier(Probe probe) {
-		int modifier = 0;
+		if (isActive()) {
+			int modifier = 0;
 
-		if (probe instanceof Attribute) {
-			Attribute attr = (Attribute) probe;
-			return getModifier(attr.getType());
-		} else if (probe instanceof CombatDistanceTalent || probe instanceof CombatShieldTalent
-				|| probe instanceof CombatMeleeAttribute || probe instanceof CombatProbe) {
+			if (probe instanceof Attribute) {
+				Attribute attr = (Attribute) probe;
+				return getModifier(attr.getType());
+			} else if (probe instanceof CombatDistanceTalent || probe instanceof CombatShieldTalent
+					|| probe instanceof CombatMeleeAttribute || probe instanceof CombatProbe) {
 
-			if (DSATabApplication.getInstance().getConfiguration().getWoundType() == WoundType.Trefferzonen) {
-				switch (getPosition()) {
-				case Kopf:
-					break;
-				case Bauch:
-				case Brust:
-					modifier += -1 * getValue();
-					break;
-				case LeftLowerArm:
-				case RightLowerArm:
+				if (DSATabApplication.getInstance().getConfiguration().getWoundType() == WoundType.Trefferzonen) {
+					switch (getPosition()) {
+					case Kopf:
+						break;
+					case Bauch:
+					case Brust:
+						modifier += -1 * getValue();
+						break;
+					case LeftLowerArm:
+					case RightLowerArm:
 
-					if (probe instanceof CombatProbe) {
-						CombatProbe combatProbe = (CombatProbe) probe;
+						if (probe instanceof CombatProbe) {
+							CombatProbe combatProbe = (CombatProbe) probe;
 
-						EquippedItem equippedItem = combatProbe.getEquippedItem();
+							EquippedItem equippedItem = combatProbe.getEquippedItem();
 
-						if (equippedItem != null && equippedItem.getItemSpecification() instanceof Weapon) {
-							Weapon w = (Weapon) equippedItem.getItemSpecification();
+							if (equippedItem != null && equippedItem.getItemSpecification() instanceof Weapon) {
+								Weapon w = (Weapon) equippedItem.getItemSpecification();
 
-							if (w.isTwoHanded()) {
-								modifier += -1 * getValue();
-								Debug.verbose("Zweihandwaffen Handwunde AT/PA-1*" + getValue());
-								break;
-							} else {
-								if (getPosition() == Position.LeftLowerArm) {
-									Debug.verbose("Angriff/Parade mit Hauptwaffe und Wunde auf linkem Arm ignoriert");
+								if (w.isTwoHanded()) {
+									modifier += -1 * getValue();
+									Debug.verbose("Zweihandwaffen Handwunde AT/PA-1*" + getValue());
+									break;
+								} else {
+									if (getPosition() == Position.LeftLowerArm) {
+										Debug.verbose("Angriff/Parade mit Hauptwaffe und Wunde auf linkem Arm ignoriert");
+										break;
+									}
+								}
+							}
+							if (equippedItem != null && equippedItem.getItemSpecification() instanceof Shield) {
+								// Shield w = (Shield)
+								// combatProbe.getEquippedItem().getItem();
+								if (getPosition() == Position.RightLowerArm) {
+									Debug.verbose("Angriff/Parade mit Schildwaffe und Wunde auf rechtem Arm ignoriert");
 									break;
 								}
 							}
 						}
-						if (equippedItem != null && equippedItem.getItemSpecification() instanceof Shield) {
-							// Shield w = (Shield)
-							// combatProbe.getEquippedItem().getItem();
-							if (getPosition() == Position.RightLowerArm) {
-								Debug.verbose("Angriff/Parade mit Schildwaffe und Wunde auf rechtem Arm ignoriert");
-								break;
-							}
-						}
+						Debug.verbose(" Wunde auf Arm AT/PA -2*" + getValue());
+						modifier += -2 * getValue();
+						break;
+					case UpperLeg:
+					case LowerLeg:
+						modifier += -2 * getValue();
+						break;
 					}
-					Debug.verbose(" Wunde auf Arm AT/PA -2*" + getValue());
+				} else {
 					modifier += -2 * getValue();
-					break;
-				case UpperLeg:
-				case LowerLeg:
-					modifier += -2 * getValue();
-					break;
 				}
-			} else {
-				modifier += -2 * getValue();
 			}
+			return new Modifier(modifier, getModificatorName(), getModificatorInfo());
+		} else {
+			return null;
 		}
-		return new Modifier(modifier, getModificatorName(), getModificatorInfo());
 	}
 
 	/**
@@ -232,6 +248,7 @@ public class WoundAttribute extends AbstractModificator implements JSONable {
 
 		out.put(FIELD_POSITION, position.name());
 		out.put(FIELD_VALUE, value);
+		out.put(FIELD_ACTIVE, isActive());
 
 		return out;
 	}

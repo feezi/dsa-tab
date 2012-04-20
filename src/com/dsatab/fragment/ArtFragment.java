@@ -72,6 +72,17 @@ public class ArtFragment extends BaseFragment implements OnItemClickListener, He
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see
 	 * android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater,
 	 * android.view.ViewGroup, android.os.Bundle)
@@ -203,6 +214,24 @@ public class ArtFragment extends BaseFragment implements OnItemClickListener, He
 
 		if (talents.isEmpty()) {
 			talentsView.setVisibility(View.GONE);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.SherlockFragment#onCreateOptionsMenu(com.
+	 * actionbarsherlock.view.Menu, com.actionbarsherlock.view.MenuInflater)
+	 */
+	@Override
+	public void onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu,
+			com.actionbarsherlock.view.MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+
+		if (menu.findItem(R.id.option_filter) == null) {
+			com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_filter, Menu.NONE, "Filtern");
+			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+			item.setIcon(R.drawable.ic_menu_filter);
 		}
 	}
 

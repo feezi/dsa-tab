@@ -38,6 +38,27 @@ public class LeModificator extends AbstractModificator {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.modifier.AbstractModificator#isActive()
+	 */
+	@Override
+	public boolean isActive() {
+		return hero.getHeroConfiguration().isLeModifierActive();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.modifier.AbstractModificator#setActive(boolean)
+	 */
+	@Override
+	public void setActive(boolean active) {
+		hero.getHeroConfiguration().setLeModifierActive(active);
+		super.setActive(active);
+	}
+
 	@Override
 	public String getModificatorInfo() {
 		String info = null;
@@ -55,55 +76,62 @@ public class LeModificator extends AbstractModificator {
 
 	@Override
 	public Modifier getModifier(Probe probe) {
+		if (isActive()) {
+			int modifier = 0;
+			float ratio = hero.getLeRatio();
 
-		int modifier = 0;
-		float ratio = hero.getLeRatio();
+			if (probe instanceof Attribute) {
+				Attribute attribute = (Attribute) probe;
+				return getModifier(attribute.getType());
+			} else if (probe instanceof Talent || probe instanceof Spell) {
 
-		if (probe instanceof Attribute) {
-			Attribute attribute = (Attribute) probe;
-			return getModifier(attribute.getType());
-		} else if (probe instanceof Talent || probe instanceof Spell) {
-
-			if (ratio < LEVEL_3) {
-				modifier = -9;
-			} else if (ratio < LEVEL_2) {
-				modifier = -6;
-			} else if (ratio < LEVEL_1) {
-				modifier = -3;
+				if (ratio < LEVEL_3) {
+					modifier = -9;
+				} else if (ratio < LEVEL_2) {
+					modifier = -6;
+				} else if (ratio < LEVEL_1) {
+					modifier = -3;
+				}
+			} else if (probe instanceof CombatProbe || probe instanceof CombatShieldTalent
+					|| probe instanceof CombatDistanceTalent || probe instanceof CombatMeleeAttribute) {
+				if (ratio < LEVEL_3) {
+					modifier = -3;
+				} else if (ratio < LEVEL_2) {
+					modifier = -2;
+				} else if (ratio < LEVEL_1) {
+					modifier = -1;
+				}
 			}
-		} else if (probe instanceof CombatProbe || probe instanceof CombatShieldTalent
-				|| probe instanceof CombatDistanceTalent || probe instanceof CombatMeleeAttribute) {
-			if (ratio < LEVEL_3) {
-				modifier = -3;
-			} else if (ratio < LEVEL_2) {
-				modifier = -2;
-			} else if (ratio < LEVEL_1) {
-				modifier = -1;
-			}
+
+			return new Modifier(modifier, getModificatorName(), getModificatorInfo());
+		} else {
+			return null;
 		}
-
-		return new Modifier(modifier, getModificatorName(), getModificatorInfo());
 	}
 
 	@Override
 	public Modifier getModifier(AttributeType type) {
-		int modifier = 0;
-		float ratio = hero.getLeRatio();
+		if (isActive()) {
+			int modifier = 0;
+			float ratio = hero.getLeRatio();
 
-		if (ratio < LEVEL_3) {
-			if (AttributeType.isEigenschaft(type) || AttributeType.isFight(type)) {
-				modifier = -3;
+			if (ratio < LEVEL_3) {
+				if (AttributeType.isEigenschaft(type) || AttributeType.isFight(type)) {
+					modifier = -3;
+				}
+			} else if (ratio < LEVEL_2) {
+				if (AttributeType.isEigenschaft(type) || AttributeType.isFight(type)) {
+					modifier = -2;
+				}
+			} else if (ratio < LEVEL_1) {
+				if (AttributeType.isEigenschaft(type) || AttributeType.isFight(type)) {
+					modifier = -1;
+				}
 			}
-		} else if (ratio < LEVEL_2) {
-			if (AttributeType.isEigenschaft(type) || AttributeType.isFight(type)) {
-				modifier = -2;
-			}
-		} else if (ratio < LEVEL_1) {
-			if (AttributeType.isEigenschaft(type) || AttributeType.isFight(type)) {
-				modifier = -1;
-			}
+			return new Modifier(modifier, getModificatorName(), getModificatorInfo());
+		} else {
+			return null;
 		}
-		return new Modifier(modifier, getModificatorName(), getModificatorInfo());
 	}
 
 }
