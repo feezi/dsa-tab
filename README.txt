@@ -5,5 +5,5 @@ To deploy this app you need the following Libraries in your Eclipse workspace:
 	Extract the directory library from the downloaded file and create a android library project named ActionBarSherlock with it.
 
 - GuiLib
-	Can be checked out from google code too: see http://code.google.com/p/guilib for furthr instructions
+	Can be checked out from google code too: see http://code.google.com/p/guilib for further instructions
 	Create a library project named GuiLib.
