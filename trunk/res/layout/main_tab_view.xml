@@ -7,12 +7,6 @@
 	    <!-- Preview: layout=@layout/attributes_list -->
 	</fragment>
 	
- <com.dsatab.view.MyViewPager
-        android:id="@+id/viewpager"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_above="@+id/inc_tabs" android:layout_below="@+id/inc_attributes"
-        />
-        	
+	<com.dsatab.view.MyViewPager android:id="@+id/viewpager" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_below="@+id/inc_attributes" />
 
 </RelativeLayout>

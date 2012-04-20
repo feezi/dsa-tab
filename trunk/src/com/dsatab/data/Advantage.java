@@ -21,6 +21,7 @@ public class Advantage {
 	public static final String WILDE_MAGIE = "Wilde Magie";
 	public static final String TOLLPATSCH = "Tollpatsch";
 	public static final String MAGIEDILLETANT = "Magiedilletant";
+	public static final String ENTFERNUNGSSINN = "Entfernungssinn";
 
 	public static final String MEISTERHANDWERK = "Meisterhandwerk";
 
@@ -30,7 +31,7 @@ public class Advantage {
 			"Ausdauernder Zauberer", "Ausrüstungsvorteil", "Balance", "Begabung für [Merkmal]",
 			"Begabung für [Ritual]", "Begabung für [Talent]", "Begabung für [Talentgruppe]", "Begabung für [Zauber]",
 			"Beidhändig", "Beseelte Knochenkeule", "Besonderer Besitz", "Breitgefächerte Bildung", "Dämmerungssicht",
-			"Eidetisches Gedächtnis", "Eigeboren", "Eisenaffine Aura", "Eisern", "Empathie", "Entfernungssinn",
+			"Eidetisches Gedächtnis", "Eigeboren", "Eisenaffine Aura", "Eisern", "Empathie", ENTFERNUNGSSINN,
 			"Ererbte Knochenkeule", "Feenfreund", FESTE_MATRIX, "Früher Vertrauter", "Flink", "Gebildet",
 			"Gefahreninstinkt", "Geräuschhexerei", "Geweiht [Angrosch]", "Geweiht [Gravesh]",
 			"Geweiht [nicht-alveranische Gottheit]", "Geweiht [H'Ranga]", "Geweiht [zwölfgöttliche Kirche]", "Glück",

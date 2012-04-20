@@ -38,6 +38,13 @@
                         android:defaultValue="false"
                         android:summary="Es werden erweitere Wundenzonen verwendet."                        
                         android:key="houseRules.moreWoundZones" />
+                    
+                    <CheckBoxPreference
+					    android:icon="@drawable/ic_menu_allfriends"
+                        android:title="Alternative Trefferzonen"
+                        android:defaultValue="false"
+                        android:summary="Es werden erweitere Trefferzonen verwendet."                        
+                        android:key="houseRules.moreTargetZones" />
                 
            </PreferenceCategory>     
         </PreferenceScreen>

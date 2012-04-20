@@ -6,33 +6,7 @@
     android:id="@+id/sheet_items_list"
     android:layout_height="fill_parent">
     
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/items_buttons" android:orientation="horizontal" android:layout_marginBottom="2.5dp">
-    
-    <com.dsatab.view.GlossyImageButton android:src="@android:drawable/ic_input_add" android:id="@+id/items_add" android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:layout_marginRight="2dp"/>
-        
-    <com.dsatab.view.GlossyImageButton android:id="@+id/body_attack_button"
-		android:layout_height="@dimen/icon_button_size"
-		android:layout_width="@dimen/icon_button_size" android:src="@drawable/icon_longsword"
-		android:layout_marginRight="2dp"/>
-	<com.dsatab.view.GlossyImageButton android:id="@+id/body_defense_button"
-		android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size"
-		android:src="@drawable/icon_metal_shield" 
-		android:layout_marginRight="2dp"/>
-	<com.dsatab.view.GlossyImageButton android:id="@+id/body_distance_button"
-		android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size"
-		android:src="@drawable/icon_longbow" 
-		android:layout_marginRight="2dp"/>
-	<com.dsatab.view.GlossyImageButton android:id="@+id/body_armor_button"
-		android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size"
-		android:src="@drawable/icon_steel_armor"
-		android:layout_marginRight="2dp"/>
-	<com.dsatab.view.GlossyImageButton android:layout_height="@dimen/icon_button_size"
-		android:layout_width="@dimen/icon_button_size" 
-		 android:id="@+id/body_misc_button" android:src="@drawable/icon_misc_multi"/>
-		</LinearLayout>
-    
-    
-    <ListView android:layout_width="fill_parent" android:id="@android:id/list" android:layout_height="fill_parent" style="@style/BorderPanel" android:layout_below="@+id/items_buttons" android:cacheColorHint="#00000000">
+    <ListView android:layout_width="fill_parent" android:id="@android:id/list" android:layout_height="fill_parent" style="@style/BorderPanel" android:cacheColorHint="#00000000">
 	</ListView>
 
 </RelativeLayout>

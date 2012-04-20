@@ -41,7 +41,7 @@ import com.dsatab.data.items.ItemType;
 import com.dsatab.data.items.MiscSpecification;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 public class XmlParser {
 

@@ -19,9 +19,12 @@ package com.dsatab.fragment;
 import java.util.List;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -30,7 +33,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
+import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.activity.ItemChooserActivity;
 import com.dsatab.activity.MainActivity;
 import com.dsatab.common.Util;
@@ -49,9 +56,40 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 
 	private BodyLayout bodyLayout;
 
-	ImageButton setButton;
-
 	TextView totalRs, totalBe;
+
+	ImageView bodyBackground;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.SherlockFragment#onCreateOptionsMenu(com.
+	 * actionbarsherlock.view.Menu, com.actionbarsherlock.view.MenuInflater)
+	 */
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+
+		if (menu.findItem(R.id.option_fight_set) == null) {
+			com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_fight_set, Menu.NONE, "Set");
+			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+			item.setIcon(R.drawable.ic_menu_set);
+			if (item.getIcon() instanceof LevelListDrawable) {
+				((LevelListDrawable) item.getIcon()).setLevel(getHero().getActiveSet());
+			}
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -65,7 +103,8 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 		View root = configureContainerView(inflater.inflate(R.layout.sheet_body, container, false));
 
 		bodyLayout = (BodyLayout) root.findViewById(R.id.body_layout);
-		setButton = (ImageButton) root.findViewById(R.id.fight_set);
+
+		bodyBackground = (ImageView) root.findViewById(R.id.body_background);
 
 		totalRs = (TextView) root.findViewById(R.id.body_total_rs);
 		totalBe = (TextView) root.findViewById(R.id.body_total_be);
@@ -80,14 +119,29 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-
-		setButton.setOnClickListener(this);
-
 		bodyLayout.setOnArmorClickListener(this);
 		bodyLayout.setOnArmorLongClickListener(getBaseActivity().getEditListener());
 		bodyLayout.setOnWoundClickListener(this);
 
+		updateBackground();
+
 		super.onActivityCreated(savedInstanceState);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.fragment.BaseFragment#onSharedPreferenceChanged(android.content
+	 * .SharedPreferences, java.lang.String)
+	 */
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		super.onSharedPreferenceChanged(sharedPreferences, key);
+
+		if (BasePreferenceActivity.KEY_STYLE_BG_WOUNDS_PATH.equals(key)) {
+			updateBackground();
+		}
 	}
 
 	/*
@@ -126,12 +180,6 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 
-		switch (v.getId()) {
-		case R.id.fight_set:
-			getHero().setActiveSet(getHero().getNextActiveSet());
-			break;
-		}
-
 		// wounds
 		if (v.getTag() instanceof WoundAttribute) {
 
@@ -155,6 +203,7 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 				Intent intent = new Intent(getActivity(), ItemChooserActivity.class);
 				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ARMOR_POSITION, value.getPosition());
 				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
+				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_SEARCHABLE, false);
 				startActivity(intent);
 			} else {
 				Toast.makeText(getActivity(), "Keine Einträge gefunden", Toast.LENGTH_SHORT).show();
@@ -188,15 +237,22 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 		super.onActiveSetChanged(newSet, oldSet);
 		updateView();
 		bodyLayout.setArmorAttributes(getHero().getArmorAttributes());
+		getActivity().supportInvalidateOptionsMenu();
 	}
 
 	private void updateView() {
-
-		LevelListDrawable drawable = (LevelListDrawable) setButton.getDrawable();
-		drawable.setLevel(getHero().getActiveSet());
-
 		totalRs.setText(Util.toString(getHero().getArmorRs()));
 		totalBe.setText(Util.toString(getHero().getArmorBe()));
+	}
+
+	private void updateBackground() {
+		SharedPreferences preferences = DSATabApplication.getPreferences();
+		if (preferences.contains(BasePreferenceActivity.KEY_STYLE_BG_WOUNDS_PATH)) {
+			String filePath = preferences.getString(BasePreferenceActivity.KEY_STYLE_BG_WOUNDS_PATH, null);
+			bodyBackground.setImageDrawable(Drawable.createFromPath(filePath));
+		} else {
+			bodyBackground.setImageResource(R.drawable.character);
+		}
 	}
 
 	/*

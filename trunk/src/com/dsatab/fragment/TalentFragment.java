@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 
+import com.actionbarsherlock.view.Menu;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.MainActivity;
@@ -62,6 +63,17 @@ public class TalentFragment extends BaseFragment implements HeroChangedListener 
 	private ExpandableListView talentList = null;
 
 	private ExpandableTalentAdapter talentAdapter = null;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -221,6 +233,22 @@ public class TalentFragment extends BaseFragment implements HeroChangedListener 
 				talentList.collapseGroup(i);
 		}
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.SherlockFragment#onCreateOptionsMenu(com.
+	 * actionbarsherlock.view.Menu, com.actionbarsherlock.view.MenuInflater)
+	 */
+	@Override
+	public void onCreateOptionsMenu(Menu menu, com.actionbarsherlock.view.MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		if (menu.findItem(R.id.option_filter) == null) {
+			com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_filter, Menu.NONE, "Filtern");
+			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+			item.setIcon(R.drawable.ic_menu_filter);
+		}
 	}
 
 	/*

@@ -57,7 +57,7 @@ public class EventAdapter extends OpenArrayAdapter<Event> {
 				if (icon2 != null) {
 					if (e.getAudioPath() != null) {
 						icon2.setVisibility(View.VISIBLE);
-						icon2.setImageResource(R.drawable.ic_lock_silent_mode_off);
+						icon2.setImageResource(R.drawable.ic_action_volume_on);
 					} else {
 						icon2.setVisibility(View.GONE);
 					}

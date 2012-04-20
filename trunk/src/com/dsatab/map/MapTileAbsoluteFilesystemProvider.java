@@ -180,7 +180,7 @@ public class MapTileAbsoluteFilesystemProvider extends MapTileFileStorageProvide
 					// allows other tile providers to do a better job.
 					try {
 						final Drawable drawable = mTileSource.getDrawable(file.getPath());
-						tileCandidateLoaded(pState, drawable);
+						tileLoaded(pState, drawable);
 						return null;
 					} catch (LowMemoryException e) {
 						// low memory so empty the queue

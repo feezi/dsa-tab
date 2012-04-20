@@ -36,7 +36,7 @@ import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.AbstractModificator;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 /**
  * @author Ganymede
@@ -75,13 +75,12 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 	private Map<String, Integer> modMap;
 
 	private String name, rules, comment;
-	private boolean active;
 
 	/**
 	 * @param hero
 	 */
 	public CustomModificator(Hero hero) {
-		super(hero);
+		super(hero, true);
 		this.id = UUID.randomUUID();
 	}
 
@@ -92,7 +91,12 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 		this.name = json.getString(FIELD_NAME);
 		this.rules = json.getString(FIELD_RULES);
 		this.comment = json.getString(FIELD_COMMENT);
-		this.active = json.getBoolean(FIELD_ACTIVE);
+
+		if (json.has(FIELD_ACTIVE))
+			this.active = json.getBoolean(FIELD_ACTIVE);
+		else
+			this.active = true;
+
 	}
 
 	public UUID getId() {
@@ -136,21 +140,6 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 
 	public void setComment(String info) {
 		this.comment = info;
-	}
-
-	public void setActive(boolean active) {
-		this.active = active;
-		fireModificatorChanged();
-	}
-
-	private void fireModificatorChanged() {
-		if (hero.getModificators().contains(this)) {
-			hero.fireModifierChangedEvent(this);
-		}
-	}
-
-	public boolean isActive() {
-		return active;
 	}
 
 	private Map<String, Integer> getModMap() {
@@ -346,7 +335,7 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 		out.put(FIELD_NAME, name);
 		out.put(FIELD_RULES, rules);
 		out.put(FIELD_COMMENT, comment);
-		out.put(FIELD_ACTIVE, active);
+		out.put(FIELD_ACTIVE, isActive());
 		return out;
 	}
 }

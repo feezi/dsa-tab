@@ -13,8 +13,6 @@ import com.dsatab.xml.Xml;
 
 public class Armor extends ItemSpecification {
 
-	private static final long serialVersionUID = 5895989410415630188L;
-
 	public static final String CATEGORY_ARME = "Arme";
 	public static final String CATEGORY_BEINE = "Beine";
 	public static final String CATEGORY_HELM = "Helm";

@@ -66,10 +66,12 @@ public class SpecialFeature {
 	public static final String KLINGENTAENZER = "Klingentänzer";
 
 	public static final String TALENTSPEZIALISIERUNG_PREFIX = "Talentspezialisierung ";
+	public static final String ZAUBERSPEZIALISIERUNG_PREFIX = "Zauberspezialisierung ";
 
 	private String name, additionalInfo, parameter1, parameter2, comment;
 
 	public SpecialFeature(Element element) {
+
 		this.name = element.getAttributeValue(Xml.KEY_NAME);
 		this.comment = element.getAttributeValue(Xml.KEY_KOMMENTAR);
 
@@ -101,6 +103,15 @@ public class SpecialFeature {
 
 		if (name.startsWith(TALENTSPEZIALISIERUNG_PREFIX)) {
 			child = element.getChild(Xml.KEY_TALENT);
+			if (child != null) {
+				this.parameter1 = child.getAttributeValue(Xml.KEY_NAME);
+			}
+			child = element.getChild(Xml.KEY_SPEZIALISIERUNG);
+			if (child != null) {
+				this.parameter2 = child.getAttributeValue(Xml.KEY_NAME);
+			}
+		} else if (name.startsWith(ZAUBERSPEZIALISIERUNG_PREFIX)) {
+			child = element.getChild(Xml.KEY_ZAUBER);
 			if (child != null) {
 				this.parameter1 = child.getAttributeValue(Xml.KEY_NAME);
 			}

@@ -24,8 +24,8 @@ import yuku.iconcontextmenu.IconContextMenu.IconContextItemSelectedListener;
 import yuku.iconcontextmenu.IconContextMenu.IconContextMenuInfo;
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,6 +36,7 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.SherlockFragment;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.MainActivity;
@@ -47,17 +48,17 @@ import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.modifier.Modificator;
+import com.dsatab.util.Debug;
 import com.dsatab.view.FilterSettings;
 import com.dsatab.view.FilterSettings.FilterType;
 import com.dsatab.view.listener.HeroChangedListener;
-import com.gandulf.guilib.util.Debug;
 
 /**
  * @author Ganymede
  * 
  */
-public abstract class BaseFragment extends Fragment implements HeroChangedListener, IconContextItemSelectedListener,
-		FilterChangedListener {
+public abstract class BaseFragment extends SherlockFragment implements HeroChangedListener,
+		IconContextItemSelectedListener, FilterChangedListener, OnSharedPreferenceChangeListener {
 
 	protected SharedPreferences preferences;
 
@@ -87,15 +88,6 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 	 */
 	public void onShown() {
 
-	}
-
-	protected boolean isOnScreen() {
-		if (getActivity() instanceof MainActivity) {
-			MainActivity mainActivity = (MainActivity) getActivity();
-			return mainActivity.isOnScreen(this);
-		}
-
-		return false;
 	}
 
 	protected void onAttachListener(Hero hero) {
@@ -185,7 +177,8 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 
 		Hero hero = getHero();
 		if (hero != null) {
-			Debug.verbose(getClass().getName() + " onActivity created and ONSCREEN CALLING HEROLOADED");
+			// Debug.verbose(getClass().getName() +
+			// " onActivity created and ONSCREEN CALLING HEROLOADED");
 			loadHero(hero);
 		}
 
@@ -197,12 +190,24 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see android.support.v4.app.Fragment#setUserVisibleHint(boolean)
+	 */
+	@Override
+	public void setUserVisibleHint(boolean isVisibleToUser) {
+		if (getUserVisibleHint() == false && isVisibleToUser == true)
+			onShown();
+
+		super.setUserVisibleHint(isVisibleToUser);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
 	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		// Debug.verbose(getClass().getName() + " create");
 		preferences = DSATabApplication.getPreferences();
 	}
 
@@ -466,6 +471,18 @@ public abstract class BaseFragment extends Fragment implements HeroChangedListen
 	}
 
 	public void onIconContextItemSelected(MenuItem item, Object info) {
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#
+	 * onSharedPreferenceChanged(android.content.SharedPreferences,
+	 * java.lang.String)
+	 */
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
 	}
 }

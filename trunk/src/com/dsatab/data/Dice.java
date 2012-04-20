@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 import android.text.TextUtils;
 
 import com.dsatab.common.Util;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 /**
  * @author Ganymede

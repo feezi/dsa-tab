@@ -17,7 +17,7 @@
 package com.dsatab.data.filter;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 
 import android.text.TextUtils;
 
@@ -33,7 +33,7 @@ import com.dsatab.data.items.ItemType;
  */
 public class ItemListFilter extends OpenFilter<Item> {
 
-	private List<ItemType> types;
+	private Collection<ItemType> types;
 
 	private String category;
 
@@ -44,11 +44,11 @@ public class ItemListFilter extends OpenFilter<Item> {
 		super(list);
 	}
 
-	public List<ItemType> getTypes() {
+	public Collection<ItemType> getTypes() {
 		return types;
 	}
 
-	public void setTypes(List<ItemType> type) {
+	public void setTypes(Collection<ItemType> type) {
 		this.types = type;
 	}
 
@@ -68,7 +68,7 @@ public class ItemListFilter extends OpenFilter<Item> {
 	}
 
 	protected boolean isFilterSet() {
-		return constraint != null || (types != null && !types.isEmpty()) || category != null;
+		return constraint != null || types != null || category != null;
 	}
 
 	public boolean filter(Item m) {

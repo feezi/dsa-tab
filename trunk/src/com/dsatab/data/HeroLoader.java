@@ -34,7 +34,7 @@ import com.dsatab.activity.MainActivity;
 import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.xml.Xml;
 import com.dsatab.xml.XmlParser;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 /**
  * @author Ganymede

@@ -30,6 +30,8 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.data.Hero;
@@ -45,7 +47,7 @@ import com.dsatab.data.items.Hand;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 public class Util {
 
@@ -452,13 +454,19 @@ public class Util {
 	}
 
 	public static int getThemeColors(Context context, int attr) {
-		return DSATabApplication.getInstance().getResources().getColor(getThemeResourceId(context, attr));
+		if (getThemeResourceId(context, attr) != 0)
+			return DSATabApplication.getInstance().getResources().getColor(getThemeResourceId(context, attr));
+		else
+			return 0;
 	}
 
 	public static int getThemeResourceId(Context context, int attr) {
 		TypedValue typedvalueattr = new TypedValue();
-		context.getTheme().resolveAttribute(attr, typedvalueattr, true);
-		return typedvalueattr.resourceId;
+		if (context.getTheme().resolveAttribute(attr, typedvalueattr, true)) {
+			return typedvalueattr.resourceId;
+		} else {
+			return 0;
+		}
 	}
 
 	public static void setTextColor(TextView tf, int modifier, boolean inverse) {
@@ -805,5 +813,18 @@ public class Util {
 			return defaultValue;
 		else
 			return value;
+	}
+
+	public static void inflateAcceptAbortMenu(Menu menu) {
+
+		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_accept, Menu.NONE,
+				android.R.string.ok);
+
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		item.setIcon(R.drawable.ic_action_done);
+
+		item = menu.add(Menu.NONE, R.id.option_cancel, Menu.NONE, android.R.string.cancel);
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		item.setIcon(R.drawable.ic_action_cancel);
 	}
 }

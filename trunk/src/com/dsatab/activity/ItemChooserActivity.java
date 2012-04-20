@@ -20,12 +20,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.data.items.Item;
 import com.dsatab.fragment.ItemChooserFragment;
 import com.dsatab.fragment.ItemChooserFragment.OnItemChooserListener;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 public class ItemChooserActivity extends BaseFragmentActivity implements OnItemChooserListener {
 
@@ -43,6 +44,8 @@ public class ItemChooserActivity extends BaseFragmentActivity implements OnItemC
 		getSupportActionBar().setDisplayShowTitleEnabled(true);
 		getSupportActionBar().setDisplayShowHomeEnabled(true);
 		getSupportActionBar().setDisplayUseLogoEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setHomeButtonEnabled(true);
 	}
 
 	/*
@@ -55,6 +58,23 @@ public class ItemChooserActivity extends BaseFragmentActivity implements OnItemC
 	public void onItemCanceled() {
 		setResult(Activity.RESULT_CANCELED);
 		finish();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected
+	 * (com.actionbarsherlock.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == android.R.id.home) {
+			onItemCanceled();
+			return true;
+		} else {
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	/*

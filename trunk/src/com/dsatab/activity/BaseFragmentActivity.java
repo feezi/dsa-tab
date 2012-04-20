@@ -22,6 +22,7 @@ import yuku.iconcontextmenu.IconContextMenu.IconContextItemSelectedListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -84,6 +85,18 @@ public class BaseFragmentActivity extends SherlockFragmentActivity implements Ic
 	protected void onDestroy() {
 		Util.unbindDrawables(getWindow().getDecorView());
 		super.onDestroy();
+	}
+
+	protected void applyPreferencesToTheme() {
+
+		SharedPreferences pref = DSATabApplication.getPreferences();
+		String bgPath = pref.getString(BasePreferenceActivity.KEY_STYLE_BG_PATH, null);
+
+		if (bgPath != null) {
+			getWindow().setBackgroundDrawable(Drawable.createFromPath(bgPath));
+		} else {
+			getWindow().setBackgroundDrawableResource(Util.getThemeResourceId(this, android.R.attr.windowBackground));
+		}
 	}
 
 	/*

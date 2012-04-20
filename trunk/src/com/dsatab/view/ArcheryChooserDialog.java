@@ -21,7 +21,7 @@ import com.dsatab.data.SpecialFeature;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
-import com.gandulf.guilib.view.adapter.SpinnerSimpleAdapter;
+import com.dsatab.data.adapter.SpinnerSimpleAdapter;
 
 public class ArcheryChooserDialog extends AlertDialog implements android.view.View.OnClickListener,
 		DialogInterface.OnClickListener {

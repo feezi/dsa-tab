@@ -18,7 +18,9 @@ package com.dsatab.fragment;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import android.app.Activity;
@@ -26,20 +28,12 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.database.DataSetObserver;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.TranslateAnimation;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -47,6 +41,9 @@ import android.widget.Gallery;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.common.Util;
@@ -58,15 +55,14 @@ import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.ItemType;
+import com.dsatab.util.Debug;
 import com.dsatab.view.CardView;
-import com.dsatab.view.FastAnimationSet;
-import com.dsatab.view.FastTranslateAnimation;
 import com.dsatab.view.ItemChooserDialog;
 import com.dsatab.view.ItemListItem;
 import com.dsatab.xml.DataManager;
-import com.gandulf.guilib.util.Debug;
 
-public class ItemChooserFragment extends BaseFragment implements View.OnClickListener, View.OnLongClickListener {
+public class ItemChooserFragment extends BaseFragment implements View.OnClickListener, View.OnLongClickListener,
+		DialogInterface.OnMultiChoiceClickListener {
 
 	public static final String INTENT_EXTRA_ITEM_CELL = "itemCell";
 	public static final String INTENT_EXTRA_ITEM_NAME = "itemName";
@@ -86,10 +82,6 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 	private ImageButton[] categoryButtons;
 
-	private ImageButton searchButton;
-	private View searchContainer;
-	private AutoCompleteTextView searchText;
-
 	private int cellNumber;
 
 	private GalleryImageAdapter imageAdapter;
@@ -101,24 +93,15 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 	private ItemSpecification selectedItemSpecification = null;
 
-	private ItemType cardType;
-
-	private AnimationSet mInAnimation;
-	private AnimationSet mOutAnimation;
-	private Animation mHandleInAnimation;
-	private Animation mHandleOutAnimation;
-
-	private static final int ORIENTATION_HORIZONTAL = 1;
-	private static final int ANIMATION_DURATION = 200;
-
 	boolean categorySelectable = true;
 	boolean searchable = true;
 
 	private OnItemChooserListener onItemChooserListener;
 
-	private Drawable itemDrawable;
-
 	private DataSetObserver dataSetObserver;
+
+	private Set<ItemType> categoriesSelected;
+	private ItemType[] categories;
 
 	public interface OnItemChooserListener {
 		public void onItemSelected(Item item, int cellNumber);
@@ -183,7 +166,10 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 
+		categories = ItemType.values();
+
 		String itemCategory = null;
+		ItemType cardType = null;
 
 		Bundle extra = getActivity().getIntent().getExtras();
 		if (extra != null) {
@@ -240,6 +226,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		}
 
 		gallery = (Gallery) findViewById(R.id.gal_gallery);
+		gallery.setSpacing(0);
 		imageView = (CardView) findViewById(R.id.gal_imageView);
 		imageView.setHighQuality(true);
 		itemView = (ItemListItem) findViewById(R.id.inc_gal_item_view);
@@ -350,16 +337,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		categoryButtons[6] = specialButton;
 		categoryButtons[7] = bagsButton;
 
-		searchButton = (ImageButton) findViewById(R.id.body_search_button);
-		searchText = (AutoCompleteTextView) findViewById(R.id.body_autosearch);
-		searchContainer = findViewById(R.id.body_search_container);
-
 		if (categorySelectable) {
-
-			for (ImageButton button : categoryButtons) {
-				button.setOnClickListener(this);
-				button.setOnLongClickListener(this);
-			}
 
 			weaponButton.setTag(ItemType.Waffen);
 			shieldButton.setTag(ItemType.Schilde);
@@ -370,46 +348,18 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			specialButton.setTag(ItemType.Schmuck);
 			bagsButton.setTag(ItemType.Behälter);
 
-			searchButton.setOnClickListener(this);
-			searchContainer.setVisibility(View.GONE);
-
-			List<String> itemNames = new ArrayList<String>(DataManager.getItemsMap().keySet());
-			Collections.sort(itemNames);
-
-			final ArrayAdapter<String> arrAdapter = new ArrayAdapter<String>(getActivity(),
-					android.R.layout.simple_dropdown_item_1line, itemNames);
-			searchText.setAdapter(arrAdapter);
-			createAnimations();
-
-			searchText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-				@Override
-				public void onFocusChange(View v, boolean hasFocus) {
-					if (!hasFocus) {
-						closeSearch();
-					}
-				}
-			});
-			searchText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-					searchText.clearFocus();
-
-					Item item = DataManager.getItemByName(arrAdapter.getItem(position));
-					if (item != null) {
-
-						Util.hideKeyboard(searchText);
-						chooseType(item.getSpecifications().get(0).getType(), item.getCategory(), item);
-					}
-				}
-			});
-
+			for (ImageButton button : categoryButtons) {
+				button.setOnClickListener(this);
+				button.setOnLongClickListener(this);
+				ItemType buttonType = (ItemType) button.getTag();
+				if (cardType == buttonType)
+					button.setSelected(true);
+			}
 		} else {
 			for (ImageButton button : categoryButtons) {
 				button.setVisibility(View.GONE);
 			}
 
-			searchButton.setVisibility(View.GONE);
-			searchContainer.setVisibility(View.GONE);
 		}
 
 		if (searchable && imageAdapter.getCount() > 1) {
@@ -423,6 +373,15 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		else if (gallery.getSelectedItem() != null) {
 			showCard((Item) gallery.getSelectedItem(), null, true);
 		}
+
+		if (cardType != null) {
+			categoriesSelected = new HashSet<ItemType>();
+			categoriesSelected.add(cardType);
+		} else {
+			categoriesSelected = new HashSet<ItemType>(Arrays.asList(categories));
+		}
+
+		getActivity().supportInvalidateOptionsMenu();
 
 		super.onActivityCreated(savedInstanceState);
 	}
@@ -443,49 +402,6 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	@Override
 	public void onHeroLoaded(Hero hero) {
 
-	}
-
-	private void createAnimations() {
-		int mOrientation = ORIENTATION_HORIZONTAL;
-
-		if (mInAnimation == null) {
-			mInAnimation = new FastAnimationSet();
-			final AnimationSet animationSet = mInAnimation;
-			animationSet.setInterpolator(new AccelerateInterpolator());
-			animationSet.addAnimation(new AlphaAnimation(0.0f, 1.0f));
-
-			if (mOrientation == ORIENTATION_HORIZONTAL) {
-				animationSet.addAnimation(new TranslateAnimation(Animation.ABSOLUTE, 0.0f, Animation.ABSOLUTE, 0.0f,
-						Animation.RELATIVE_TO_SELF, 1.0f, Animation.RELATIVE_TO_SELF, 0.0f));
-			} else {
-				animationSet.addAnimation(new TranslateAnimation(Animation.RELATIVE_TO_SELF, 1.0f,
-						Animation.RELATIVE_TO_SELF, 0.0f, Animation.ABSOLUTE, 0.0f, Animation.ABSOLUTE, 0.0f));
-			}
-			animationSet.setDuration(ANIMATION_DURATION);
-		}
-		if (mHandleInAnimation == null) {
-			mHandleInAnimation = new AlphaAnimation(0.0f, 1.0f);
-			mHandleInAnimation.setDuration(ANIMATION_DURATION);
-		}
-		if (mOutAnimation == null) {
-			mOutAnimation = new FastAnimationSet();
-			final AnimationSet animationSet = mOutAnimation;
-			animationSet.setInterpolator(new AccelerateInterpolator());
-			animationSet.addAnimation(new AlphaAnimation(1.0f, 0.0f));
-			if (mOrientation == ORIENTATION_HORIZONTAL) {
-				animationSet.addAnimation(new FastTranslateAnimation(Animation.ABSOLUTE, 0.0f, Animation.ABSOLUTE,
-						0.0f, Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 1.0f));
-			} else {
-				animationSet.addAnimation(new FastTranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
-						Animation.RELATIVE_TO_SELF, 1.0f, Animation.ABSOLUTE, 0.0f, Animation.ABSOLUTE, 0.0f));
-			}
-			animationSet.setDuration(ANIMATION_DURATION);
-		}
-		if (mHandleOutAnimation == null) {
-			mHandleOutAnimation = new AlphaAnimation(1.0f, 0.0f);
-			mHandleOutAnimation.setFillAfter(true);
-			mHandleOutAnimation.setDuration(ANIMATION_DURATION);
-		}
 	}
 
 	private void showItemChooserPopup() {
@@ -510,31 +426,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			});
 		}
 
-		itemChooserDialog.show(cardType);
-	}
-
-	private void toggleSearch() {
-		if (searchContainer.getVisibility() == View.VISIBLE)
-			closeSearch();
-		else
-			openSearch();
-	}
-
-	private void openSearch() {
-		searchText.setText("");
-		searchContainer.startAnimation(mInAnimation);
-		searchContainer.setVisibility(View.VISIBLE);
-		searchText.requestFocus();
-		searchButton.setSelected(true);
-	}
-
-	private void closeSearch() {
-		searchContainer.startAnimation(mOutAnimation);
-		searchContainer.setVisibility(View.INVISIBLE);
-		searchText.clearFocus();
-		searchButton.setSelected(false);
-
-		Util.hideKeyboard(searchText);
+		itemChooserDialog.show(categoriesSelected);
 	}
 
 	/*
@@ -545,9 +437,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	@Override
 	public void onClick(View v) {
 
-		if (v == searchButton) {
-			toggleSearch();
-		} else if (v == imageView) {
+		if (v == imageView) {
 			if (selectedCard != null) {
 				selectCard(selectedCard);
 			} else {
@@ -611,29 +501,92 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu,
-	 * android.view.MenuInflater)
+	 * @see com.actionbarsherlock.app.SherlockFragment#onCreateOptionsMenu(com.
+	 * actionbarsherlock.view.Menu, com.actionbarsherlock.view.MenuInflater)
 	 */
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.accept_abort_menu, menu);
-		if (categorySelectable) {
-			inflater.inflate(R.menu.gallery_menu, menu);
+
+		if (searchable) {
+			com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_search, Menu.NONE,
+					"Gegenstand suchen");
+
+			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+			item.setIcon(R.drawable.ic_menu_search);
+
+			final AutoCompleteTextView searchView = new AutoCompleteTextView(getSherlockActivity()
+					.getSupportActionBar().getThemedContext());
+
+			searchView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_search, 0, 0, 0);
+			searchView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+
+			List<String> itemNames = new ArrayList<String>(DataManager.getItemsMap().keySet());
+			Collections.sort(itemNames);
+			final ArrayAdapter<String> arrAdapter = new ArrayAdapter<String>(getSherlockActivity()
+					.getSupportActionBar().getThemedContext(), android.R.layout.simple_dropdown_item_1line, itemNames);
+			searchView.setAdapter(arrAdapter);
+
+			searchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					Item item = DataManager.getItemByName(arrAdapter.getItem(position));
+					if (item != null) {
+						Util.hideKeyboard(getView());
+						chooseType(item.getSpecifications().get(0).getType(), item.getCategory(), item);
+					}
+				}
+			});
+			item.setActionView(searchView);
+			searchView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		}
+
+		if (categorySelectable) {
+			// --
+
+			com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_item_filter, Menu.NONE,
+					"Filtern");
+			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+			item.setIcon(R.drawable.ic_menu_filter);
+		}
+		// --
+
+		Util.inflateAcceptAbortMenu(menu);
+
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.SherlockFragment#onPrepareOptionsMenu(com.
+	 * actionbarsherlock.view.Menu)
+	 */
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		com.actionbarsherlock.view.MenuItem item = menu.findItem(R.id.option_item_filter);
+		if (item != null) {
+			item.setVisible(categorySelectable);
+		}
+
+		item = menu.findItem(R.id.option_search);
+		if (item != null) {
+			item.setVisible(searchable);
+		}
+	}
+
 	private void chooseType(ItemType type, String category, Item item) {
-		this.cardType = type;
+
+		categoriesSelected.clear();
+		categoriesSelected.add(type);
 
 		for (ImageButton button : categoryButtons) {
-			button.setSelected(cardType.equals(button.getTag()));
+			button.setSelected(categoriesSelected.contains(button.getTag()));
 		}
 
 		foundItem = item;
 		gallery.setVisibility(View.VISIBLE);
-		imageAdapter.filter(cardType, category, null);
+		imageAdapter.filter(categoriesSelected, category, null);
 
 		if (foundItem != null)
 			showCard(foundItem, null, true);
@@ -662,10 +615,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.option_load_subtype) {
-			openSubCategoriesDialog(cardType);
-			return true;
-		} else if (item.getItemId() == R.id.option_accept) {
+		if (item.getItemId() == R.id.option_accept) {
 			if (selectedCard != null) {
 				selectCard(selectedCard);
 			}
@@ -673,8 +623,49 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		} else if (item.getItemId() == R.id.option_cancel) {
 			cancel();
 			return true;
+		} else if (item.getItemId() == R.id.option_item_filter) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+			String[] categoryNames = new String[categories.length];
+			boolean[] categoriesSet = new boolean[categories.length];
+
+			for (int i = 0; i < categories.length; i++) {
+				categoryNames[i] = categories[i].name();
+				if (categoriesSelected.contains(categories[i]))
+					categoriesSet[i] = true;
+			}
+
+			builder.setMultiChoiceItems(categoryNames, categoriesSet, this);
+			builder.setTitle("Filtern");
+			builder.setIcon(R.drawable.ic_menu_filter);
+
+			builder.show().setOnDismissListener(new DialogInterface.OnDismissListener() {
+
+				@Override
+				public void onDismiss(DialogInterface dialog) {
+					imageAdapter.filter(new ArrayList<ItemType>(categoriesSelected), null, null);
+				}
+			});
+			return true;
+
+		} else {
+			return super.onOptionsItemSelected(item);
 		}
-		return super.onOptionsItemSelected(item);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.content.DialogInterface.OnMultiChoiceClickListener#onClick(android
+	 * .content.DialogInterface, int, boolean)
+	 */
+	@Override
+	public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+		if (isChecked)
+			categoriesSelected.add(categories[which]);
+		else
+			categoriesSelected.remove(categories[which]);
 	}
 
 }

@@ -371,8 +371,7 @@ android:id="@+id/sheet_character"
 		</LinearLayout>
 
 		<TextView android:layout_height="wrap_content" android:text="Beidhändig, Gezielter Stich"
-			android:id="@+id/gen_specialfeatures" android:inputType="textMultiLine"
-			android:layout_marginTop="5dip" android:layout_width="fill_parent"
+			android:id="@+id/gen_specialfeatures" android:layout_marginTop="5dip" android:layout_width="fill_parent"
 			android:layout_below="@+id/gen_attributes3" style="@style/TextLabel.Small" android:background="@drawable/border_patch" android:padding="10dip"></TextView>
 
 

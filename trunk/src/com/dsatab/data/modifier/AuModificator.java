@@ -19,6 +19,27 @@ public class AuModificator extends AbstractModificator {
 		super(hero);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.modifier.AbstractModificator#isActive()
+	 */
+	@Override
+	public boolean isActive() {
+		return hero.getHeroConfiguration().isAuModifierActive();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.modifier.AbstractModificator#setActive(boolean)
+	 */
+	@Override
+	public void setActive(boolean active) {
+		hero.getHeroConfiguration().setAuModifierActive(active);
+		super.setActive(active);
+	}
+
 	@Override
 	public String getModificatorName() {
 
@@ -49,40 +70,49 @@ public class AuModificator extends AbstractModificator {
 
 	@Override
 	public Modifier getModifier(Probe probe) {
+		if (isActive()) {
+			int modifier = 0;
 
-		int modifier = 0;
-
-		if (probe instanceof CombatProbe || probe instanceof CombatShieldTalent
-				|| probe instanceof CombatDistanceTalent || probe instanceof CombatMeleeAttribute) {
-			float ratio = hero.getAuRatio();
-			if (ratio < LEVEL_2) {
-				modifier = -2;
-			} else if (ratio < LEVEL_1) {
-				modifier = -1;
+			if (probe instanceof CombatProbe || probe instanceof CombatShieldTalent
+					|| probe instanceof CombatDistanceTalent || probe instanceof CombatMeleeAttribute) {
+				float ratio = hero.getAuRatio();
+				if (ratio < LEVEL_2) {
+					modifier = -2;
+				} else if (ratio < LEVEL_1) {
+					modifier = -1;
+				}
+			} else if (probe instanceof Attribute) {
+				Attribute attr = (Attribute) probe;
+				return getModifier(attr.getType());
 			}
-		} else if (probe instanceof Attribute) {
-			Attribute attr = (Attribute) probe;
-			return getModifier(attr.getType());
-		}
 
-		return new Modifier(modifier, getModificatorName(), getModificatorInfo());
+			return new Modifier(modifier, getModificatorName(), getModificatorInfo());
+		} else {
+			return null;
+		}
 	}
 
 	@Override
 	public Modifier getModifier(AttributeType type) {
-		int modifier = 0;
-		float ratio = hero.getAuRatio();
+		if (isActive()) {
+			int modifier = 0;
+			float ratio = hero.getAuRatio();
 
-		if (ratio < LEVEL_2) {
-			if (type == AttributeType.ini || type == AttributeType.Initiative_Aktuell || AttributeType.isFight(type)) {
-				modifier = -2;
+			if (ratio < LEVEL_2) {
+				if (type == AttributeType.ini || type == AttributeType.Initiative_Aktuell
+						|| AttributeType.isFight(type)) {
+					modifier = -2;
+				}
+			} else if (ratio < LEVEL_1) {
+				if (type == AttributeType.ini || type == AttributeType.Initiative_Aktuell
+						|| AttributeType.isFight(type)) {
+					modifier = -1;
+				}
 			}
-		} else if (ratio < LEVEL_1) {
-			if (type == AttributeType.ini || type == AttributeType.Initiative_Aktuell || AttributeType.isFight(type)) {
-				modifier = -1;
-			}
+			return new Modifier(modifier, getModificatorName(), getModificatorInfo());
+		} else {
+			return null;
 		}
-		return new Modifier(modifier, getModificatorName(), getModificatorInfo());
 	}
 
 }

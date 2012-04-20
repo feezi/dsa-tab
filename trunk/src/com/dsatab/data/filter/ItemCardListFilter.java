@@ -70,7 +70,7 @@ public class ItemCardListFilter extends OpenFilter<ItemCard> {
 	}
 
 	protected boolean isFilterSet() {
-		return constraint != null || (types != null && !types.isEmpty()) || category != null;
+		return constraint != null || types != null || category != null;
 	}
 
 	public boolean filter(ItemCard m) {

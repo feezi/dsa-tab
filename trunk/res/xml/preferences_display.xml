@@ -4,7 +4,7 @@
         <PreferenceCategory android:title="Darstellung">                                                      
 
             <ListPreference
-				android:icon="@drawable/ic_menu_database"
+				android:icon="@drawable/ic_menu_friendslist"
                         android:title="Theme"
                         android:summary="Bestimme das Aussehen von DsaTab. (Erfordert Neustart)"
                         android:key="theme"
@@ -12,7 +12,32 @@
                         android:entries="@array/themes"
                         android:entryValues="@array/themesValues"/>
             
-				<ListPreference
+            
+            <Preference
+				android:icon="@drawable/ic_menu_friendslist"
+                android:title="Hintergrundbild auswählen"
+                android:summary="Hier kannst du das Standard Hintergrundbild überschreiben"                
+                android:key="theme.bg" />
+            <Preference
+				android:icon="@drawable/ic_menu_delete"
+                android:title="Hintergrundbild löschen"
+                android:summary="Es wird wieder das Standard Hintergrundbild verwendet"                
+                android:key="theme.bg.delete" />
+            
+            
+            <Preference
+				android:icon="@drawable/ic_menu_friendslist"
+                android:title="Wunden Hintergrundbild auswählen"
+                android:summary="Hier kannst du das Standard Wunden-Hintergrundbild überschreiben"                
+                android:key="theme.wound.bg" />
+            
+            <Preference
+				android:icon="@drawable/ic_menu_delete"
+                android:title="Wunden Hintergrundbild löschen"
+                android:summary="Es wird wieder das Standard Wunden-Hintergrundbild verwendet"                
+                android:key="theme.wound.bg.delete" />
+            
+			<ListPreference
 				android:icon="@drawable/ic_menu_always_landscape_portrait"
                         android:title="Bildschirmausrichtung"
                         android:summary="Definiere die Ausrichtung deiner Oberfläche."
@@ -22,7 +47,7 @@
                         android:entryValues="@array/screenOrientationValues"/>
 
 				<CheckBoxPreference
-				android:icon="@drawable/ic_menu_monitor"
+				android:icon="@drawable/ic_menu_gallery"
                         android:title="Vollbild"
                         android:defaultValue="true"
                         android:summary="Im Vollbildmodus wird weder die Titel- noch die Statusleiste angezeigt."
@@ -79,12 +104,13 @@
 	                        android:key="probeShowModificators" />
 				</PreferenceCategory>
 				
+		<PreferenceScreen android:title="Kopfzeile konfigurieren" android:summary="Hier kannst du einstellen was alles in der Kopfzeile angezeigt werden soll.">
 				<PreferenceCategory android:title="Kopfzeile konfigurieren" android:summary="Hier kannst du einstellen was alles in der Kopfzeile angezeigt werden soll.">                        
 				
 				
                 
                 <CheckBoxPreference
-                android:icon="@drawable/ic_menu_database"
+                android:icon="@drawable/ic_menu_friendslist"
                         android:title="Name anzeigen"
                         android:defaultValue="true"                        
                         android:summaryOn="Zeige den Namen des aktuellen Helden an"
@@ -92,49 +118,49 @@
                         android:key="header_name" />
                         
                         <CheckBoxPreference
-                        android:icon="@drawable/ic_menu_database"
+                        android:icon="@drawable/ic_menu_friendslist"
                         android:title="Lebensenergie anzeigen"
                         android:defaultValue="true"                                                
                         android:key="header_le" />
                         
                         <CheckBoxPreference
-                        android:icon="@drawable/ic_menu_database"
+                        android:icon="@drawable/ic_menu_friendslist"
                         android:title="Ausdauer anzeigen"
                         android:defaultValue="true"                                                
                         android:key="header_au" />
                         
                         <CheckBoxPreference
-                        android:icon="@drawable/ic_menu_database"
+                        android:icon="@drawable/ic_menu_friendslist"
                         android:title="Astralenergie anzeigen"
                         android:defaultValue="true"                                                
                         android:key="header_ae" />
                         
                         <CheckBoxPreference
-                        android:icon="@drawable/ic_menu_database"
+                        android:icon="@drawable/ic_menu_friendslist"
                         android:title="Karmaenergie anzeigen"
                         android:defaultValue="true"                                                
                         android:key="header_ke" />
                         
                         <CheckBoxPreference
-                        android:icon="@drawable/ic_menu_database"
+                        android:icon="@drawable/ic_menu_friendslist"
                         android:title="Behinderung anzeigen"
                         android:defaultValue="true"                                                
                         android:key="header_be" />
                         
                         <CheckBoxPreference
-                        android:icon="@drawable/ic_menu_database"
+                        android:icon="@drawable/ic_menu_friendslist"
                         android:title="Magieresistenz anzeigen"
                         android:defaultValue="true"                                                
                         android:key="header_mr" />
                         
                         <CheckBoxPreference
-                        android:icon="@drawable/ic_menu_database"
+                        android:icon="@drawable/ic_menu_friendslist"
                         android:title="Geschwindigkeit anzeigen"
                         android:defaultValue="true"                                                
                         android:key="header_gs" />
                         
                         <CheckBoxPreference
-                        android:icon="@drawable/ic_menu_database"
+                        android:icon="@drawable/ic_menu_friendslist"
                         android:title="Wundschwellen anzeigen"
                         android:defaultValue="true"                                                
                         android:key="header_ws" />
@@ -142,6 +168,7 @@
                 
 
                                                                                         
-        </PreferenceCategory>        
-        
+        </PreferenceCategory>
+                
+        </PreferenceScreen>
 </PreferenceScreen>

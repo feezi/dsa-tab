@@ -18,7 +18,6 @@ package com.dsatab.fragment;
 
 import java.util.List;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -35,7 +34,6 @@ import android.widget.TextView;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.BasePreferenceActivity;
-import com.dsatab.activity.MainActivity;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Value;
@@ -426,15 +424,16 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.support.v4.app.Fragment#onActivityResult(int, int,
-	 * android.content.Intent)
+	 * @see
+	 * com.dsatab.fragment.BaseFragment#onSharedPreferenceChanged(android.content
+	 * .SharedPreferences, java.lang.String)
 	 */
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == MainActivity.ACTION_PREFERENCES) {
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (key.startsWith("header_")) {
 			updateView();
 		}
-		super.onActivityResult(requestCode, resultCode, data);
+		super.onSharedPreferenceChanged(sharedPreferences, key);
 	}
 
 }

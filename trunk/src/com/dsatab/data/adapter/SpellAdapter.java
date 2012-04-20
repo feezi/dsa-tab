@@ -21,6 +21,7 @@ import java.util.List;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,7 +36,7 @@ import com.dsatab.data.Spell;
 import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.filter.FilterableListFilter;
 import com.dsatab.view.ListFilterSettings;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 /**
  * 
@@ -51,7 +52,7 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 
 	private Hero hero;
 
-	private Bitmap indicatorStar, indicatorHouse;
+	private Bitmap indicatorStar, indicatorHouse, indicatorFlash;
 
 	private LayoutInflater inflater;
 
@@ -71,6 +72,7 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 
 		indicatorStar = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_star);
 		indicatorHouse = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_house);
+		indicatorFlash = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_flash);
 
 		inflater = LayoutInflater.from(getContext());
 
@@ -156,12 +158,15 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 
 		if (holder.indicator != null) {
 
-			if (spell.isHouseSpell()) {
-				holder.indicator.setVisibility(View.VISIBLE);
-				holder.indicator.setImageBitmap(indicatorHouse);
-			} else if (spell.hasFlag(Flags.Begabung) || spell.hasFlag(Flags.ÜbernatürlicheBegabung)) {
+			if (spell.hasFlag(Flags.Begabung) || spell.hasFlag(Flags.ÜbernatürlicheBegabung)) {
 				holder.indicator.setVisibility(View.VISIBLE);
 				holder.indicator.setImageBitmap(indicatorStar);
+			} else if (!TextUtils.isEmpty(spell.getZauberSpezialisierung())) {
+				holder.indicator.setVisibility(View.VISIBLE);
+				holder.indicator.setImageBitmap(indicatorFlash);
+			} else if (spell.isHouseSpell()) {
+				holder.indicator.setVisibility(View.VISIBLE);
+				holder.indicator.setImageBitmap(indicatorHouse);
 			} else {
 				holder.indicator.setVisibility(View.INVISIBLE);
 			}

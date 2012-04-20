@@ -37,6 +37,8 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 	private String variant;
 	private boolean houseSpell;
 
+	private String zauberSpezialisierung;
+
 	private EnumSet<Flags> flags = EnumSet.noneOf(Flags.class);
 
 	public Spell(Hero hero, Element element, Map<String, SpellInfo> spellInfos) {
@@ -99,6 +101,14 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 	@Override
 	public ProbeType getProbeType() {
 		return ProbeType.ThreeOfThree;
+	}
+
+	public String getZauberSpezialisierung() {
+		return zauberSpezialisierung;
+	}
+
+	public void setZauberSpezialisierung(String zauberSpezialisierung) {
+		this.zauberSpezialisierung = zauberSpezialisierung;
 	}
 
 	/*

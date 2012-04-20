@@ -25,7 +25,7 @@ import android.view.WindowManager;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.dsatab.DSATabApplication;
 import com.dsatab.common.Util;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 /**
  * @author Ganymede

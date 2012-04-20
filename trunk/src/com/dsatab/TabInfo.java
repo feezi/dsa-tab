@@ -209,7 +209,12 @@ public class TabInfo implements Parcelable, JSONable {
 	}
 
 	public String getFragmentTagName(int tab) {
-		return "android:switcher:" + containerId + ":" + getId().toString() + ":" + tab;
+		if (tab == 0 && getPrimaryActivityClazz() != null)
+			return "android:switcher:" + getId().toString() + ":" + tab;
+		else if (tab == 1 && getSecondaryActivityClazz() != null)
+			return "android:switcher:" + getId().toString() + ":" + tab;
+		else
+			return null;
 	}
 
 	public int getTabCount() {

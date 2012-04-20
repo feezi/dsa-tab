@@ -1,29 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-<!-- Orientation of a widget. -->
-    <attr name="direction">
-        <!-- Vertical widget. -->
-        <enum name="vertical" value="0" />
-        <!-- Horizontal widget. -->
-        <enum name="horizontal" value="1" />
-    </attr>
                 
     <declare-styleable name="Theme">
         <attr name="glossyImageButtonStyle" format="reference"/>
         <attr name="glossyButtonStyle" format="reference"/>
         <attr name="glossyButtonOverlay" format="reference"/>
         <attr name="glossyButtonMask" format="reference"/>
-    </declare-styleable>
-    
-    <declare-styleable name="Gallery">
-        <attr name="android:galleryItemBackground" />
-    </declare-styleable>
-    
-     <declare-styleable name="ItemListItem">
-        <attr name="android:text"/>
-        <attr name="android:textColor"/>
-        <attr name="android:textSize"/>
     </declare-styleable>
         
 </resources>

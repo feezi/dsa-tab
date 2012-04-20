@@ -54,8 +54,6 @@
         <Spinner android:layout_width="wrap_content" android:id="@+id/screen_set_button" android:layout_height="match_parent" android:layout_gravity="center"></Spinner>
         
             <com.dsatab.view.GlossyImageButton android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:id="@+id/fight_inventory" android:src="@drawable/inventory" android:layout_gravity="center"/>
-            
-            <com.dsatab.view.GlossyImageButton android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:id="@+id/fight_add_item" android:src="@drawable/ic_input_add" android:layout_gravity="center" android:layout_marginLeft="2.5dp"/>
         </LinearLayout>
         
     </FrameLayout>

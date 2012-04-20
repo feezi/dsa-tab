@@ -97,7 +97,7 @@ W;Ogerschelle;ogerschelle00_LQ.gif;Kettenwaffen                         ;2W+2;15
 W;Peitsche;peitsche00_LQ.gif;Kettenwaffen                               ;1W;14/5;0/-;0;4;S;;Peitsche;
 W;(Lang-)Schwert;langschwert00_LQ.gif;Schwerter                         ;1W+4;11/4;0/0;0;1;N;;Schwerter;
 W;Arbach;;Schwerter                                         ;1W+4;12/3;0/-1;0;2;N;;Säbel;Schwerter;
-W;Barbarenschwert;;Schwerter                                ;1W+5;12/3;0/-1;-1;4;N;;Schwerter;
+W;Barbarenschwert;;Schwerter                                ;1W+5;12/3;0/-1;-1;4;N;;Schwerter;Hiebwaffen
 W;Breitschwert;breitschwert00_LQ.gif;Schwerter                          ;1W+4;12/3;0/-1;0;1;N;;Schwerter;
 W;Kurzschwert;kurzschwert00_LQ.gif;Schwerter                            ;1W+2;11/4;0/-1;0;1;HN;;Dolche;Säbel;Schwerter;
 W;Robbentöter;;Schwerter                                    ;1W+3;12/4;0/0;0;2;N;;Fechtwaffen;Säbel;Schwerter;
@@ -223,7 +223,7 @@ S;Linkhand mit Klingenfänger;linkhand00_LQ.gif;Parierwaffe              ;0/2;1;
 S;Linkhand und Klingenbrecher;linkhand00_LQ.gif;Parierwaffe             ;0/2;1;0;P;Dolche;
 S;Panzerarm;;Parierwaffe                                    ;-2/1;0;-2;SP;Raufen;
 S;Buckler;buckler00_LQ.gif;Schilde                                      ;0/1;0;0;SP;Raufen;
-S;Holzschild;holzschild00_LQ.gif;Schilde                      ;-1/-3;-1;3;S;Raufen;
+S;Holzschild;holzschild00_LQ.gif;Schilde                      ;-1/3;-1;3;S;Raufen;
 S;Holzschild (verstärkt);holzschild_verstaerkt01_LQ.gif;Schilde         ;-2/3;-1;0;S;Raufen;
 S;Großschild;;Schilde                                       ;-2/5;-2;2;S;Raufen;
 S;Lederschild;;Schilde                                      ;-1/3;0;5;S;Raufen;

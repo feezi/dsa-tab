@@ -29,7 +29,7 @@ import com.dsatab.data.filter.ItemCardListFilter;
 import com.dsatab.data.items.ItemCard;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.view.GridCardView;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 public class GridItemAdapter extends OpenArrayAdapter<ItemCard> {
 
@@ -40,17 +40,6 @@ public class GridItemAdapter extends OpenArrayAdapter<ItemCard> {
 
 	public GridItemAdapter(Context context) {
 		super(context, 0, new ArrayList<ItemCard>());
-
-		// TypedArray a = context.obtainStyledAttributes(R.styleable.Gallery);
-		// mGalleryItemBackground =
-		// a.getResourceId(R.styleable.Gallery_android_galleryItemBackground,
-		// 0);
-		//
-		// width =
-		// context.getResources().getDimensionPixelSize(R.dimen.gallery_thumb_width);
-		// height =
-		// context.getResources().getDimensionPixelSize(R.dimen.gallery_thumb_height);
-		// a.recycle();
 
 		width = getContext().getResources().getDimensionPixelSize(R.dimen.workspace_cell_width);
 		height = getContext().getResources().getDimensionPixelSize(R.dimen.workspace_cell_height);

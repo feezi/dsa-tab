@@ -30,7 +30,6 @@ import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -39,19 +38,20 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.actionbarsherlock.view.Menu;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.common.HeroExchange;
 import com.dsatab.common.HeroExchange.OnHeroExchangeListener;
 import com.dsatab.common.Util;
 import com.dsatab.data.HeroFileInfo;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 /**
  * 
  * 
  */
-public class HeroChooserActivity extends BaseActivity implements AdapterView.OnItemClickListener, OnClickListener {
+public class HeroChooserActivity extends BaseActivity implements AdapterView.OnItemClickListener {
 
 	public static final String INTENT_NAME_HERO_PATH = "heroPath";
 
@@ -80,6 +80,9 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 		setTheme(DSATabApplication.getInstance().getCustomTheme());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.popup_hero_chooser);
+
+		getSupportActionBar().setDisplayShowHomeEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		List<HeroFileInfo> heroes = null;
 
@@ -132,8 +135,6 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 		list.setAdapter(adapter);
 		registerForContextMenu(list);
 		list.setOnItemClickListener(this);
-
-		findViewById(R.id.popup_hero_import).setOnClickListener(this);
 
 		updateViews();
 
@@ -191,8 +192,16 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu) {
-		com.actionbarsherlock.view.MenuInflater inflater = new com.actionbarsherlock.view.MenuInflater(this);
-		inflater.inflate(R.menu.hero_chooser_menu, menu);
+
+		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_hero_import, Menu.NONE,
+				"Aus Heldenaustausch importieren");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		item.setIcon(R.drawable.ic_menu_account_list);
+
+		item = menu.add(Menu.NONE, R.id.option_settings, Menu.NONE, "Einstellungen");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+		item.setIcon(R.drawable.ic_menu_preferences);
+
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -200,9 +209,29 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
 
 		switch (item.getItemId()) {
+		case R.id.option_hero_import:
+			HeroExchange exchange = new HeroExchange(this);
+			exchange.setOnHeroExchangeListener(new OnHeroExchangeListener() {
+				@Override
+				public void onHeroExported() {
+				}
 
+				@Override
+				public void onHeroLoaded(String path) {
+					Intent intent = new Intent();
+					intent.putExtra(INTENT_NAME_HERO_PATH, path);
+					setResult(RESULT_OK, intent);
+					finish();
+				}
+			});
+			exchange.importHero();
+			return true;
 		case R.id.option_settings:
 			BasePreferenceActivity.startPreferenceActivity(this);
+			return true;
+		case android.R.id.home:
+			setResult(RESULT_CANCELED);
+			finish();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -282,35 +311,6 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 			updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
 		}
 		super.onActivityResult(requestCode, resultCode, data);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-	 */
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.popup_hero_import:
-			HeroExchange exchange = new HeroExchange(this);
-			exchange.setOnHeroExchangeListener(new OnHeroExchangeListener() {
-				@Override
-				public void onHeroExported() {
-				}
-
-				@Override
-				public void onHeroLoaded(String path) {
-					Intent intent = new Intent();
-					intent.putExtra(INTENT_NAME_HERO_PATH, path);
-					setResult(RESULT_OK, intent);
-					finish();
-				}
-			});
-			exchange.importHero();
-			break;
-		}
-
 	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

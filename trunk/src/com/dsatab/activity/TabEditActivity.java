@@ -39,6 +39,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.commonsware.cwac.tlv.TouchListView;
 import com.commonsware.cwac.tlv.TouchListView.DropListener;
@@ -47,6 +48,7 @@ import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.TabInfo;
 import com.dsatab.common.Util;
+import com.dsatab.data.adapter.SpinnerSimpleAdapter;
 import com.dsatab.fragment.ArtFragment;
 import com.dsatab.fragment.BaseFragment;
 import com.dsatab.fragment.BodyFragment;
@@ -61,7 +63,6 @@ import com.dsatab.fragment.PurseFragment;
 import com.dsatab.fragment.SpellFragment;
 import com.dsatab.fragment.TalentFragment;
 import com.dsatab.view.GlossyImageButton;
-import com.gandulf.guilib.view.adapter.SpinnerSimpleAdapter;
 
 public class TabEditActivity extends BaseFragmentActivity implements OnItemClickListener, OnClickListener,
 		OnItemSelectedListener, DropListener, RemoveListener, OnCheckedChangeListener {
@@ -96,9 +97,8 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 			return;
 		}
 
-		getSupportActionBar().setDisplayShowTitleEnabled(true);
 		getSupportActionBar().setDisplayShowHomeEnabled(true);
-		getSupportActionBar().setDisplayUseLogoEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		List<Integer> avatars = DSATabApplication.getInstance().getConfiguration().getTabIcons();
 
@@ -152,22 +152,50 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 
 	@Override
 	public boolean onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu) {
-		com.actionbarsherlock.view.MenuInflater menuInflater = new com.actionbarsherlock.view.MenuInflater(this);
-		menuInflater.inflate(R.menu.tab_menu, menu);
+		com.actionbarsherlock.view.MenuItem item = menu
+				.add(Menu.NONE, R.id.option_tab_add, Menu.NONE, "Tab hinzufügen");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		item.setIcon(R.drawable.ic_menu_add);
+
+		item = menu.add(Menu.NONE, R.id.option_tab_delete, Menu.NONE, "Tab entfernen");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		item.setIcon(R.drawable.ic_menu_delete);
+
+		item = menu.add(Menu.NONE, R.id.option_tab_reset, Menu.NONE, "Tabs zurücksetzen");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		item.setIcon(R.drawable.ic_menu_revert);
+
 		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.actionbarsherlock.app.SherlockFragmentActivity#onPrepareOptionsMenu
+	 * (com.actionbarsherlock.view.Menu)
+	 */
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		MenuItem item = menu.findItem(R.id.option_tab_delete);
+		if (item != null) {
+			item.setEnabled(currentInfo != null);
+		}
+
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
 		switch (item.getItemId()) {
-		case R.id.option_add:
+		case R.id.option_tab_add:
 			TabInfo info = new TabInfo();
 			getTabs().add(info);
 			tabsAdapter.notifyDataSetChanged();
 			updateView(info);
 			break;
-		case R.id.option_delete:
+		case R.id.option_tab_delete:
 			getTabs().remove(currentInfo);
 			updateView(null);
 			tabsAdapter.notifyDataSetChanged();
@@ -178,6 +206,9 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 			tabsList.setAdapter(tabsAdapter);
 			updateView(null);
 			break;
+		case android.R.id.home:
+			setResult(RESULT_CANCELED);
+			finish();
 		}
 
 		return false;
@@ -205,6 +236,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		diceslider.setEnabled(info != null);
 		iconSpinner.setEnabled(info != null);
 
+		invalidateOptionsMenu();
 	}
 
 	protected List<TabInfo> getTabs() {

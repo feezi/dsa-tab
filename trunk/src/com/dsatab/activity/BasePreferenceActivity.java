@@ -18,6 +18,8 @@ package com.dsatab.activity;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -25,12 +27,21 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceGroup;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.provider.MediaStore;
+import android.provider.MediaStore.Images.Media;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -38,10 +49,14 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabConfiguration;
+import com.dsatab.DsaTabConfiguration.ArmorType;
+import com.dsatab.DsaTabConfiguration.WoundType;
 import com.dsatab.R;
+import com.dsatab.util.Debug;
+import com.dsatab.view.PreferenceWithButton;
 import com.dsatab.view.TipOfTheDayDialog;
 import com.gandulf.guilib.util.AbstractDownloader;
-import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.util.DownloaderWrapper;
 import com.gandulf.guilib.util.ResUtil;
 import com.gandulf.guilib.view.VersionInfoDialog;
@@ -76,6 +91,7 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 	public static final String KEY_HOUSE_RULES_AU_MODIFIER = "houseRules.auModifier";
 	public static final String KEY_HOUSE_RULES_EASIER_WOUNDS = "houseRules.easierWounds";
 	public static final String KEY_HOUSE_RULES_MORE_WOUND_ZONES = "houseRules.moreWoundZones";
+	public static final String KEY_HOUSE_RULES_MORE_TARGET_ZONES = "houseRules.moreTargetZones";
 
 	public static final String KEY_ARMOR_TYPE = "armorType";
 
@@ -84,11 +100,15 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 	public static final String KEY_FULLSCREEN = "fullscreen";
 
 	public static final String KEY_SETUP_SDCARD_PATH = "sdcardPath";
+	public static final String KEY_SETUP_SDCARD_HERO_PATH = "sdcardHeroPath";
 
 	public static final String KEY_DOWNLOAD_SCREEN = "downloadMediaScreen";
 	public static final String KEY_DOWNLOAD_ALL = "downloadAll";
 	public static final String KEY_DOWNLOAD_MAPS = "downloadMaps";
+	public static final String KEY_DOWNLOAD_BACKGROUNDS = "downloadBackgrounds";
 	public static final String KEY_DOWNLOAD_OSMMAPS = "downloadOSMMaps";
+
+	public static final String KEY_DISPALY_HEADER_SCREEN = "displayHeaderScreen";
 
 	public static final String KEY_DOWNLOAD_WESNOTH_PORTRAITS = "downloadWesnothPortraits";
 
@@ -99,6 +119,14 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 	public static final String KEY_INFOS = "infos";
 	public static final String KEY_DONATE = "donate";
 	public static final String KEY_THEME = "theme";
+
+	public static final String KEY_STYLE_BG_PATH = "theme.bg.path";
+	public static final String KEY_STYLE_BG_DELETE = "theme.bg.delete";
+	public static final int ACTION_PICK_BG_PATH = 1001;
+	public static final int ACTION_PICK_BG_WOUNDS_PATH = 1002;
+
+	public static final String KEY_STYLE_BG_WOUNDS_PATH = "theme.wound.bg.path";
+	public static final String KEY_STYLE_BG_WOUNDS_DELETE = "theme.wound.bg.delete";
 
 	public static final String KEY_FULL_VERSION = "fullVersion";
 
@@ -141,6 +169,8 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 
 	public static final String PATH_OSM_MAP_PACK = "http://dsa-tab.googlecode.com/files/dsatab-osmmap-v1.zip";
 
+	public static final String PATH_BACKGROUNDS = "http://dsa-tab.googlecode.com/files/dsatab-backgrounds.zip";
+
 	private static final String[] RESTART_KEYS = { KEY_THEME };
 	static {
 		Arrays.sort(RESTART_KEYS);
@@ -158,6 +188,87 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 		}
 	}
 
+	public static void initPreferences(PreferenceManager mgr, PreferenceScreen screen) {
+
+		OnClickListener buttonClickListener = new OnClickListener() {
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick(View v) {
+
+				Preference preference = (Preference) v.getTag();
+
+				if (preference != null) {
+					if (preference.getKey().equals(KEY_STYLE_BG_PATH)) {
+						handlePreferenceClick(v.getContext(), BasePreferenceActivity.KEY_STYLE_BG_DELETE);
+					} else if (preference.getKey().equals(KEY_STYLE_BG_WOUNDS_PATH)) {
+						handlePreferenceClick(v.getContext(), BasePreferenceActivity.KEY_STYLE_BG_WOUNDS_DELETE);
+					}
+				}
+			}
+		};
+
+		PreferenceWithButton pref = (PreferenceWithButton) mgr.findPreference(KEY_STYLE_BG_PATH);
+		if (pref != null) {
+			pref.setButtonClickListener(buttonClickListener);
+		}
+
+		pref = (PreferenceWithButton) mgr.findPreference(KEY_STYLE_BG_WOUNDS_PATH);
+		if (pref != null) {
+			pref.setButtonClickListener(buttonClickListener);
+		}
+
+		ListPreference listPreference = (ListPreference) mgr.findPreference(KEY_ARMOR_TYPE);
+		if (listPreference != null) {
+			List<String> themeNames = new LinkedList<String>();
+			List<String> themeValues = new LinkedList<String>();
+
+			for (ArmorType themeValue : DsaTabConfiguration.ArmorType.values()) {
+				themeNames.add(themeValue.title());
+				themeValues.add(themeValue.name());
+			}
+
+			listPreference.setEntries(themeNames.toArray(new String[0]));
+			listPreference.setEntryValues(themeValues.toArray(new String[0]));
+		}
+
+		listPreference = (ListPreference) mgr.findPreference(KEY_WOUND_TYPE);
+		if (listPreference != null) {
+			List<String> armorNames = new LinkedList<String>();
+			List<String> armorValues = new LinkedList<String>();
+
+			for (WoundType themeValue : DsaTabConfiguration.WoundType.values()) {
+				armorNames.add(themeValue.title());
+				armorValues.add(themeValue.name());
+			}
+
+			listPreference.setEntries(armorNames.toArray(new String[0]));
+			listPreference.setEntryValues(armorValues.toArray(new String[0]));
+		}
+		SharedPreferences sharedPreferences = mgr.getSharedPreferences();
+
+		initPreferenceScreen(screen, sharedPreferences);
+
+	}
+
+	private static void initPreferenceScreen(PreferenceGroup screen, SharedPreferences sharedPreferences) {
+
+		final int count = screen.getPreferenceCount();
+
+		for (int i = 0; i < count; i++) {
+			Preference preference = screen.getPreference(i);
+
+			if (preference instanceof PreferenceGroup) {
+				initPreferenceScreen((PreferenceGroup) preference, sharedPreferences);
+			} else {
+				handlePreferenceChange(preference, sharedPreferences, preference.getKey());
+			}
+		}
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -172,6 +283,19 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see android.preference.PreferenceActivity#onDestroy()
+	 */
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		SharedPreferences preferences = DSATabApplication.getPreferences();
+		preferences.unregisterOnSharedPreferenceChangeListener(this);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.app.Activity#onPause()
 	 */
 	@Override
@@ -181,6 +305,66 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 					Toast.LENGTH_LONG).show();
 		}
 		super.onStop();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.preference.PreferenceActivity#onActivityResult(int, int,
+	 * android.content.Intent)
+	 */
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+		if (resultCode == RESULT_OK) {
+			if (requestCode == ACTION_PICK_BG_PATH) {
+				handleImagePick(KEY_STYLE_BG_PATH, data);
+			} else if (requestCode == ACTION_PICK_BG_WOUNDS_PATH) {
+				handleImagePick(KEY_STYLE_BG_WOUNDS_PATH, data);
+			}
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	protected void handleImagePick(String prefKey, Intent data) {
+
+		Uri selectedImage = data.getData();
+		String[] filePathColumn = { MediaStore.Images.Media.DATA, MediaStore.Images.Media.BUCKET_ID };
+
+		Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+		cursor.moveToFirst();
+
+		int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+		int bucketIndex = cursor.getColumnIndex(filePathColumn[1]);
+		String filePath = cursor.getString(columnIndex);
+		String bucketId = cursor.getString(bucketIndex);
+
+		cursor.close();
+		File file = new File(filePath);
+		if (file.exists()) {
+			SharedPreferences preferences = DSATabApplication.getPreferences();
+			Editor edit = preferences.edit();
+			edit.putString(prefKey, filePath);
+			edit.commit();
+
+			Toast.makeText(this, "Hintergrundbild wurde verändert.", Toast.LENGTH_SHORT);
+		}
+
+	}
+
+	protected static void pickImage(Activity activity, int action) {
+
+		Uri targetUri = Media.EXTERNAL_CONTENT_URI;
+		String folderPath = DSATabApplication.getDirectory(DSATabApplication.DIR_PORTRAITS).getAbsolutePath();
+		String folderBucketId = Integer.toString(folderPath.toLowerCase().hashCode());
+
+		targetUri = targetUri.buildUpon().appendQueryParameter(MediaStore.Images.Media.BUCKET_ID, folderBucketId)
+				.build();
+
+		Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+		photoPickerIntent.setData(targetUri);
+
+		activity.startActivityForResult(Intent.createChooser(photoPickerIntent, "Bild auswählen"), action);
 	}
 
 	protected static void cleanOldFiles() {
@@ -222,39 +406,82 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 		window.getDecorView().requestLayout();
 	}
 
-	protected static boolean handlePreferenceTreeClick(Context context, PreferenceScreen screen, Preference preference) {
+	protected static boolean handlePreferenceClick(Context context, String key) {
+		if (key.equals(KEY_STYLE_BG_WOUNDS_DELETE)) {
+			SharedPreferences preferences = DSATabApplication.getPreferences();
+			Editor edit = preferences.edit();
+			edit.remove(KEY_STYLE_BG_WOUNDS_PATH);
+			edit.commit();
+
+			Toast.makeText(context, "Wunden-Hintergrundbild wurde zurückgesetzt.", Toast.LENGTH_SHORT).show();
+			return true;
+		} else if (key.equals(KEY_STYLE_BG_DELETE)) {
+			SharedPreferences preferences = DSATabApplication.getPreferences();
+			Editor edit = preferences.edit();
+			edit.remove(KEY_STYLE_BG_PATH);
+			edit.commit();
+
+			Toast.makeText(context, "Hintergrundbild wurde zurückgesetzt.", Toast.LENGTH_SHORT).show();
+			return true;
+		}
+
+		return false;
+
+	}
+
+	protected static void handlePreferenceChange(Preference preference, SharedPreferences sharedPreferences, String key) {
+
+		if (preference != null) {
+			if (KEY_THEME.equals(key)) {
+				preference.setSummary("Aktuelles Theme: " + DSATabApplication.getInstance().getCustomThemeName());
+			} else if (KEY_STYLE_BG_PATH.equals(key)) {
+				((PreferenceWithButton) preference)
+						.setWidgetVisibility(sharedPreferences.contains(KEY_STYLE_BG_PATH) ? View.VISIBLE : View.GONE);
+			} else if (KEY_STYLE_BG_WOUNDS_PATH.equals(key)) {
+				((PreferenceWithButton) preference).setWidgetVisibility(sharedPreferences
+						.contains(KEY_STYLE_BG_WOUNDS_PATH) ? View.VISIBLE : View.GONE);
+			}
+		}
+	}
+
+	protected static boolean handlePreferenceTreeClick(Activity context, PreferenceScreen screen, Preference preference) {
 
 		AbstractDownloader downloader;
-		if (preference.getKey().equals(KEY_DOWNLOAD_ALL)) {
+		if (KEY_DOWNLOAD_ALL.equals(preference.getKey())) {
 			cleanOldFiles();
 			downloader = DownloaderWrapper.getInstance(DSATabApplication.getDsaTabPath(), context);
 			downloader.addPath(context.getString(R.string.path_items));
 			downloader.addPath(PATH_WESNOTH_PORTRAITS);
 			downloader.downloadZip();
 			return true;
-		} else if (preference.getKey().equals(KEY_DOWNLOAD_MAPS)) {
+		} else if (KEY_DOWNLOAD_MAPS.equals(preference.getKey())) {
 			downloader = DownloaderWrapper.getInstance(DSATabApplication.getDsaTabPath() + DSATabApplication.DIR_MAPS,
 					context);
 			downloader.addPath(PATH_OFFICIAL_MAP_PACK);
 			downloader.downloadZip();
 			return true;
-		} else if (preference.getKey().equals(KEY_DOWNLOAD_ITEMS)) {
+		} else if (KEY_DOWNLOAD_ITEMS.equals(preference.getKey())) {
 			cleanOldFiles();
 			downloader = DownloaderWrapper.getInstance(DSATabApplication.getDsaTabPath(), context);
 			downloader.addPath(context.getString(R.string.path_items));
 			downloader.downloadZip();
 			return true;
-		} else if (preference.getKey().equals(KEY_DOWNLOAD_WESNOTH_PORTRAITS)) {
+		} else if (KEY_DOWNLOAD_WESNOTH_PORTRAITS.equals(preference.getKey())) {
 			downloader = DownloaderWrapper.getInstance(DSATabApplication.getDsaTabPath(), context);
 			downloader.addPath(PATH_WESNOTH_PORTRAITS);
 			downloader.downloadZip();
 			return true;
-		} else if (preference.getKey().equals(KEY_DOWNLOAD_OSMMAPS)) {
+		} else if (KEY_DOWNLOAD_BACKGROUNDS.equals(preference.getKey())) {
+			downloader = DownloaderWrapper.getInstance(DSATabApplication.getDsaTabPath(), context);
+			downloader.addPath(PATH_BACKGROUNDS);
+			downloader.downloadZip();
+			return true;
+		} else if (KEY_DOWNLOAD_OSMMAPS.equals(preference.getKey())) {
 			downloader = DownloaderWrapper.getInstance(DSATabApplication.getDsaTabPath(), context);
 			downloader.addPath(PATH_OSM_MAP_PACK);
 			downloader.downloadZip();
 			return true;
-		} else if (preference.getKey().equals(KEY_CREDITS)) {
+		} else if (KEY_CREDITS.equals(preference.getKey())) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
 			builder.setTitle(R.string.title_credits);
 			builder.setCancelable(true);
@@ -308,6 +535,16 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 				}
 			});
 			builder.show();
+		} else if (preference.getKey().equals(KEY_STYLE_BG_PATH)) {
+			pickImage(context, ACTION_PICK_BG_PATH);
+			return true;
+		} else if (preference.getKey().equals(KEY_STYLE_BG_WOUNDS_PATH)) {
+			pickImage(context, ACTION_PICK_BG_WOUNDS_PATH);
+			return true;
+		} else if (preference.getKey().equals(KEY_STYLE_BG_WOUNDS_DELETE)) {
+			return handlePreferenceClick(context, KEY_STYLE_BG_WOUNDS_DELETE);
+		} else if (preference.getKey().equals(KEY_STYLE_BG_DELETE)) {
+			return handlePreferenceClick(context, KEY_STYLE_BG_DELETE);
 		}
 
 		return false;

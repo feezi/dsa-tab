@@ -15,11 +15,15 @@
  */
 package com.dsatab.fragment;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -32,9 +36,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageButton;
 import android.widget.ListView;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.ItemChooserActivity;
@@ -46,7 +51,8 @@ import com.dsatab.data.items.ItemType;
 import com.dsatab.view.ItemChooserDialog;
 import com.dsatab.xml.DataManager;
 
-public class ItemsListFragment extends BaseFragment implements View.OnClickListener, OnItemClickListener {
+public class ItemsListFragment extends BaseFragment implements OnItemClickListener,
+		DialogInterface.OnMultiChoiceClickListener {
 
 	private static final int GROUP_INVENTORY = 1;
 	private static final int ACTION_CHOOSE_CARD = 2;
@@ -62,6 +68,9 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 	private Item selectedItem;
 
 	private ItemChooserDialog itemChooserDialog;
+
+	private Set<ItemType> categoriesSelected;
+	private ItemType[] categories;
 
 	/*
 	 * (non-Javadoc)
@@ -176,6 +185,80 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.SherlockFragment#onCreateOptionsMenu(com.
+	 * actionbarsherlock.view.Menu, com.actionbarsherlock.view.MenuInflater)
+	 */
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_item_add, Menu.NONE,
+				"Gegenstand hinzufügen");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		item.setIcon(R.drawable.ic_menu_add);
+
+		item = menu.add(Menu.NONE, R.id.option_item_filter, Menu.NONE, "Filtern");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		item.setIcon(R.drawable.ic_menu_filter);
+
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.actionbarsherlock.app.SherlockFragment#onOptionsItemSelected(com.
+	 * actionbarsherlock.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+		if (item.getItemId() == R.id.option_item_add) {
+			showItemPopup();
+			return true;
+		} else if (item.getItemId() == R.id.option_item_filter) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+			String[] categoryNames = new String[categories.length];
+			boolean[] categoriesSet = new boolean[categories.length];
+
+			for (int i = 0; i < categories.length; i++) {
+				categoryNames[i] = categories[i].name();
+				if (categoriesSelected.contains(categories[i]))
+					categoriesSet[i] = true;
+			}
+
+			builder.setMultiChoiceItems(categoryNames, categoriesSet, this);
+			builder.setTitle("Filtern");
+			builder.setIcon(R.drawable.ic_menu_filter);
+
+			builder.show().setOnDismissListener(new DialogInterface.OnDismissListener() {
+
+				@Override
+				public void onDismiss(DialogInterface dialog) {
+					itemAdpater.filter(new ArrayList<ItemType>(categoriesSelected), null, null);
+				}
+			});
+			return true;
+
+		} else {
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see
 	 * android.support.v4.app.Fragment#onCreateContextMenu(android.view.ContextMenu
 	 * , android.view.View, android.view.ContextMenu.ContextMenuInfo)
@@ -222,28 +305,8 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 		itemList.setOnItemClickListener(this);
 		registerForContextMenu(itemList);
 
-		ImageButton btnAdd = (ImageButton) findViewById(R.id.items_add);
-		btnAdd.setOnClickListener(this);
-
-		ImageButton filter = (ImageButton) findViewById(R.id.body_attack_button);
-		filter.setOnClickListener(this);
-		filter.setTag(ItemType.Waffen);
-
-		filter = (ImageButton) findViewById(R.id.body_defense_button);
-		filter.setOnClickListener(this);
-		filter.setTag(ItemType.Schilde);
-
-		filter = (ImageButton) findViewById(R.id.body_distance_button);
-		filter.setOnClickListener(this);
-		filter.setTag(ItemType.Fernwaffen);
-
-		filter = (ImageButton) findViewById(R.id.body_armor_button);
-		filter.setOnClickListener(this);
-		filter.setTag(ItemType.Rüstung);
-
-		filter = (ImageButton) findViewById(R.id.body_misc_button);
-		filter.setOnClickListener(this);
-		filter.setTag(Arrays.asList(ItemType.Kleidung, ItemType.Behälter, ItemType.Sonstiges, ItemType.Schmuck));
+		categories = ItemType.values();
+		categoriesSelected = new HashSet<ItemType>(Arrays.asList(categories));
 
 		super.onActivityCreated(savedInstanceState);
 	}
@@ -281,53 +344,16 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.view.View.OnClickListener#onClick(android.view.View)
+	 * @see
+	 * android.content.DialogInterface.OnMultiChoiceClickListener#onClick(android
+	 * .content.DialogInterface, int, boolean)
 	 */
 	@Override
-	public void onClick(View v) {
-
-		switch (v.getId()) {
-		case R.id.items_add:
-			showItemPopup();
-			break;
-		}
-
-		if (v.getTag() instanceof ItemType) {
-			ItemType type = (ItemType) v.getTag();
-
-			findViewById(R.id.body_attack_button).setSelected(false);
-			findViewById(R.id.body_defense_button).setSelected(false);
-			findViewById(R.id.body_distance_button).setSelected(false);
-			findViewById(R.id.body_armor_button).setSelected(false);
-			findViewById(R.id.body_misc_button).setSelected(false);
-
-			if (itemAdpater.getFilter().getTypes() != null && itemAdpater.getFilter().getTypes().contains(type)) {
-				itemAdpater.filter(null, null, null);
-				v.setSelected(false);
-			} else {
-				v.setSelected(true);
-				itemAdpater.filter(Arrays.asList(type), null, null);
-			}
-		} else if (v.getTag() instanceof List) {
-			@SuppressWarnings("unchecked")
-			List<ItemType> type = (List<ItemType>) v.getTag();
-
-			findViewById(R.id.body_attack_button).setSelected(false);
-			findViewById(R.id.body_defense_button).setSelected(false);
-			findViewById(R.id.body_distance_button).setSelected(false);
-			findViewById(R.id.body_armor_button).setSelected(false);
-			findViewById(R.id.body_misc_button).setSelected(true);
-
-			if (itemAdpater.getFilter().getTypes() != null && itemAdpater.getFilter().getTypes().containsAll(type)) {
-				itemAdpater.filter(null, null, null);
-				v.setSelected(false);
-			} else {
-				v.setSelected(true);
-				itemAdpater.filter(type, null, null);
-			}
-
-		}
-
+	public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+		if (isChecked)
+			categoriesSelected.add(categories[which]);
+		else
+			categoriesSelected.remove(categories[which]);
 	}
 
 	private void showItemPopup() {
@@ -359,7 +385,7 @@ public class ItemsListFragment extends BaseFragment implements View.OnClickListe
 		}
 
 		if (itemAdpater.getFilter().getTypes() != null && !itemAdpater.getFilter().getTypes().isEmpty()) {
-			itemChooserDialog.setItemType(itemAdpater.getFilter().getTypes().get(0));
+			itemChooserDialog.setItemTypes(itemAdpater.getFilter().getTypes());
 		}
 
 		itemChooserDialog.show();

@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout 	
-	android:minHeight="40dp"
-	 xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent" android:layout_height="wrap_content">
-	
-<TextView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_height="wrap_content" android:ellipsize="end" android:gravity="center_vertical" style="@style/TextViewTitle" android:id="@+id/talent_list_headeritem" android:paddingBottom="3dip" android:paddingTop="7dip" android:text="Groupname" android:layout_width="match_parent" android:paddingLeft="45dip">
-</TextView>
-<ImageView
-	    android:id="@+id/talent_list_item_indicator"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:src="@drawable/indicator_house" android:layout_gravity="top|right" android:visibility="invisible"/>
-    
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent" android:layout_height="wrap_content" android:minHeight="40dp">	
+	<TextView android:layout_height="wrap_content" android:ellipsize="end" android:gravity="center_vertical" style="@style/TextViewTitle" android:id="@+id/talent_list_headeritem" android:paddingBottom="3dip" android:paddingTop="7dip" android:text="Groupname" android:layout_width="match_parent" android:paddingLeft="45dip"/>
+	<ImageView
+		    android:id="@+id/talent_list_item_indicator"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:src="@drawable/indicator_house" android:layout_gravity="top|right" android:visibility="invisible"/>    
 </FrameLayout>

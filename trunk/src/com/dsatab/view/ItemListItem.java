@@ -16,7 +16,6 @@
 package com.dsatab.view;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.View;
@@ -24,7 +23,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TwoLineListItem;
 
-import com.dsatab.R;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemSpecification;
 
@@ -70,13 +68,6 @@ public class ItemListItem extends TwoLineListItem {
 	 * @param attrs
 	 */
 	private void init(AttributeSet attrs) {
-
-		if (!isInEditMode() && attrs != null) {
-			TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.ItemListItem);
-			textColor = a.getColor(R.styleable.ItemListItem_android_textColor, Color.TRANSPARENT);
-			// Don't forget this
-			a.recycle();
-		}
 
 	}
 

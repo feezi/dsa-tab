@@ -21,7 +21,7 @@ import org.json.JSONObject;
 
 import com.dsatab.common.DsaMath;
 import com.dsatab.data.items.EquippedItem;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.util.Debug;
 
 /**
  * @author Ganymede

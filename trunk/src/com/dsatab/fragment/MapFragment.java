@@ -42,15 +42,16 @@ import android.util.FloatMath;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.BasePreferenceActivity;
@@ -58,11 +59,11 @@ import com.dsatab.common.Util;
 import com.dsatab.common.WrapMotionEvent;
 import com.dsatab.data.Hero;
 import com.dsatab.map.MapTileProviderLocal;
+import com.dsatab.util.Debug;
 import com.gandulf.guilib.util.AbstractDownloader;
-import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.util.DownloaderWrapper;
 
-public class MapFragment extends BaseFragment implements OnTouchListener, OnClickListener {
+public class MapFragment extends BaseFragment implements OnTouchListener {
 
 	/**
 	 * 
@@ -83,7 +84,7 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 	}
 
 	private ImageView imageMapView;
-	private ImageButton chooseMap;
+
 	private MapView osmMapView;
 
 	private Matrix matrix = new Matrix();
@@ -109,6 +110,50 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.SherlockFragment#onCreateOptionsMenu(com.
+	 * actionbarsherlock.view.Menu, com.actionbarsherlock.view.MenuInflater)
+	 */
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_map_choose, Menu.NONE,
+				"Karte auswählen");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		item.setIcon(R.drawable.ic_menu_mapmode);
+
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.actionbarsherlock.app.SherlockFragment#onOptionsItemSelected(com.
+	 * actionbarsherlock.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.option_map_choose) {
+			showMapChooser();
+			return true;
+		} else {
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see
 	 * android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater,
 	 * android.view.ViewGroup, android.os.Bundle)
@@ -118,7 +163,7 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.sheet_map, container, false);
 
 		imageMapView = (ImageView) root.findViewById(R.id.imageView);
-		chooseMap = (ImageButton) root.findViewById(R.id.open_map);
+
 		return configureContainerView(root);
 	}
 
@@ -169,7 +214,6 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 
-		chooseMap.setOnClickListener(this);
 		imageMapView.setOnTouchListener(this);
 
 		List<String> mapFiles = new ArrayList<String>();
@@ -251,8 +295,6 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 			imageMapView.setVisibility(View.GONE);
 			if (osmMapView != null)
 				osmMapView.setVisibility(View.GONE);
-
-			chooseMap.setVisibility(View.GONE);
 
 			empty.setText(Util.getText(R.string.message_map_empty, path));
 
@@ -452,27 +494,18 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 				matrix.setValues(Util.parseFloats(coords));
 			}
 
-			if (isOnScreen()) {
+			if (getUserVisibleHint()) {
 				loadMap(lastMap);
 			}
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.fragment.BaseFragment#onShown()
-	 */
-	@Override
-	public void onShown() {
-		String lastMap = preferences.getString(PREF_KEY_LAST_MAP, null);
-		if (!TextUtils.isEmpty(lastMap)) {
-			loadMap(lastMap);
+	private void showMapChooser() {
+		if (this.mapFiles == null || this.mapFiles.length == 0) {
+			Toast.makeText(getActivity(), "Keine Karten gefunden", Toast.LENGTH_SHORT).show();
+			return;
 		}
 
-	}
-
-	private void showMapChooser() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle("Karte auswählen");
 		builder.setItems(mapNames, new DialogInterface.OnClickListener() {
@@ -553,18 +586,4 @@ public class MapFragment extends BaseFragment implements OnTouchListener, OnClic
 		point.set(x / 2, y / 2);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-	 */
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.open_map:
-			showMapChooser();
-			break;
-		}
-
-	}
 }

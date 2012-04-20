@@ -31,7 +31,12 @@ public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnCl
 	public void setSpell(Spell spell) {
 		this.spell = spell;
 		if (spell != null) {
-			setTitle(spell.getName());
+			String title = spell.getName();
+			if (!TextUtils.isEmpty(spell.getZauberSpezialisierung())) {
+				title += " (" + spell.getZauberSpezialisierung() + ")";
+			}
+
+			setTitle(title);
 			set(R.id.popup_spell_castduration, spell.getCastDuration());
 			set(R.id.popup_spell_row_comment, R.id.popup_spell_comment, spell.getComments());
 			set(R.id.popup_spell_costs, spell.getCosts());

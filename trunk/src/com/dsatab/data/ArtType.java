@@ -79,10 +79,9 @@ public enum ArtType {
 	}
 
 	public static ArtType getTypeOfArt(String artName) {
-		ArtType[] types = ArtType.values();
-		ArtType result = null;
-		result = artMappings.get(artName);
+		ArtType result = artMappings.get(artName);
 		if (result == null) {
+			ArtType[] types = ArtType.values();
 			for (ArtType type : types) {
 				if (artName.startsWith(type.prefix)) {
 					result = type;

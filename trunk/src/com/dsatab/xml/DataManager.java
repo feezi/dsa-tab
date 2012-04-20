@@ -15,7 +15,6 @@
  */
 package com.dsatab.xml;
 
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,8 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.v4.util.LruCache;
 
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemSpecification;
@@ -46,9 +48,39 @@ public class DataManager {
 
 	private static List<String> cardCategories;
 
-	private static SoftReference<Map<String, SoftReference<Bitmap>>> bitmapsMap;
+	private static LruCache<String, Bitmap> mMemoryCache;
 
 	private static Map<ItemType, List<String>> cardTypeCategories;
+
+	public static void init(Context context) {
+
+		// Get memory class of this device, exceeding this amount will throw an
+		// OutOfMemory exception.
+		final int memClass = ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass();
+
+		// Use 1/8th of the available memory for this memory cache.
+		final int cacheSize = 1024 * 1024 * memClass / 8;
+
+		mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+			@Override
+			protected int sizeOf(String key, Bitmap bitmap) {
+				// The cache size will be measured in bytes rather than number
+				// of items.
+				return bitmap.getRowBytes() * bitmap.getHeight();
+			}
+		};
+
+	}
+
+	private static void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+		if (getBitmapFromMemCache(key) == null) {
+			mMemoryCache.put(key, bitmap);
+		}
+	}
+
+	private static Bitmap getBitmapFromMemCache(String key) {
+		return mMemoryCache.get(key);
+	}
 
 	public static Map<String, Item> getItemsMap() {
 		if (itemsMap == null || itemsMap.get() == null) {
@@ -77,27 +109,11 @@ public class DataManager {
 	}
 
 	public static Bitmap getBitmap(String path) {
-
-		Map<String, SoftReference<Bitmap>> b = null;
-		if (bitmapsMap == null || bitmapsMap.get() == null) {
-			b = new HashMap<String, SoftReference<Bitmap>>();
-			bitmapsMap = new SoftReference<Map<String, SoftReference<Bitmap>>>(b);
-		} else {
-			b = bitmapsMap.get();
-		}
-
-		SoftReference<Bitmap> bitmapRef = b.get(path);
-
-		Bitmap bitmap = null;
-		if (bitmapRef == null || bitmapRef.get() == null) {
+		Bitmap bitmap = getBitmapFromMemCache(path);
+		if (bitmap == null) {
 			bitmap = BitmapFactory.decodeFile(path);
-
-			bitmapRef = new SoftReference<Bitmap>(bitmap);
-			b.put(path, bitmapRef);
-		} else {
-			bitmap = bitmapRef.get();
+			addBitmapToMemoryCache(path, bitmap);
 		}
-
 		return bitmap;
 	}
 

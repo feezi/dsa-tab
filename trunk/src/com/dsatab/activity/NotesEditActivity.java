@@ -19,6 +19,7 @@ package com.dsatab.activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.fragment.NotesEditFragment.OnNotesEditListener;
@@ -39,7 +40,25 @@ public class NotesEditActivity extends BaseFragmentActivity implements OnNotesEd
 		getSupportActionBar().setDisplayShowTitleEnabled(true);
 		getSupportActionBar().setDisplayShowHomeEnabled(true);
 		getSupportActionBar().setDisplayUseLogoEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setHomeButtonEnabled(true);
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected
+	 * (com.actionbarsherlock.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == android.R.id.home) {
+			onNoteCanceled();
+			return true;
+		} else {
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	/*

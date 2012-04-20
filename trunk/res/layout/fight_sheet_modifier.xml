@@ -3,24 +3,18 @@
     android:layout_width="fill_parent"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:padding="2.5dp"
-    android:layout_height="wrap_content">
-
+    android:layout_height="wrap_content">    
+    
     <ImageView android:layout_alignParentLeft="true"
 	    android:layout_centerVertical="true"
 	    android:src="@drawable/icon_patch"
 		android:id="@android:id/icon1" android:layout_marginRight="5dip" android:layout_height="wrap_content" android:layout_width="wrap_content">
 	</ImageView>
 	
-    <CheckBox android:id="@+id/active" android:layout_width="wrap_content" android:layout_centerVertical="true" android:layout_marginLeft="5dip"
-        android:layout_alignLeft="@android:id/icon1"
-        android:focusable="false"
-        android:layout_alignRight="@android:id/icon1"
-        android:layout_height="wrap_content"></CheckBox>
-        
     <TextView android:id="@android:id/text1"        
         android:layout_width="wrap_content"
         android:layout_toRightOf="@android:id/icon1"
-        android:layout_alignParentRight="true"
+        android:layout_toLeftOf="@+id/active"        
         android:layout_alignWithParentIfMissing="true"        
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -35,6 +29,9 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textStyle="normal"/>
         
-    
+	<CheckBox android:id="@+id/active" android:layout_width="wrap_content" android:layout_centerVertical="true" android:layout_marginLeft="5dip"
+	    android:layout_alignParentRight="true"
+        android:focusable="false"        
+        android:layout_height="wrap_content"></CheckBox>    
 
 </TwoLineListItem>

@@ -94,23 +94,25 @@ public class GlossyImageButton extends ImageButton implements Checkable {
 	 */
 	private void init() {
 
-		int overlayId = Util.getThemeResourceId(getContext(), R.attr.glossyButtonOverlay);
-		if (overlayId > 0) {
-			mGlossDrawable = getResources().getDrawable(R.drawable.btn_glossy_gloss);
-			if (!isInEditMode())
-				mGlossDrawable.setCallback(this);
-		}
+		if (!isInEditMode()) {
+			int overlayId = Util.getThemeResourceId(getContext(), R.attr.glossyButtonOverlay);
+			if (overlayId > 0) {
+				mGlossDrawable = getResources().getDrawable(R.drawable.btn_glossy_gloss);
+				if (!isInEditMode())
+					mGlossDrawable.setCallback(this);
+			}
 
-		int maskId = Util.getThemeResourceId(getContext(), R.attr.glossyButtonMask);
-		if (maskId > 0) {
-			mMaskDrawable = getResources().getDrawable(maskId);
-			if (!isInEditMode())
-				mMaskDrawable.setCallback(this);
+			int maskId = Util.getThemeResourceId(getContext(), R.attr.glossyButtonMask);
+			if (maskId > 0) {
+				mMaskDrawable = getResources().getDrawable(maskId);
+				if (!isInEditMode())
+					mMaskDrawable.setCallback(this);
 
-			mMaskedPaint = new Paint();
-			mMaskedPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+				mMaskedPaint = new Paint();
+				mMaskedPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
 
-			mCopyPaint = new Paint();
+				mCopyPaint = new Paint();
+			}
 		}
 
 	}

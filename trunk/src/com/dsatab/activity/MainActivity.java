@@ -17,18 +17,17 @@ package com.dsatab.activity;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
-import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -55,8 +54,15 @@ import com.dsatab.data.Hero;
 import com.dsatab.data.HeroLoader;
 import com.dsatab.data.Probe;
 import com.dsatab.data.Value;
+import com.dsatab.data.adapter.DualFragment;
+import com.dsatab.data.adapter.TabPagerMemoryAdapter;
+import com.dsatab.fragment.ArtFragment;
 import com.dsatab.fragment.AttributeListFragment;
 import com.dsatab.fragment.BaseFragment;
+import com.dsatab.fragment.FightFragment;
+import com.dsatab.fragment.SpellFragment;
+import com.dsatab.fragment.TalentFragment;
+import com.dsatab.util.Debug;
 import com.dsatab.view.DiceSlider;
 import com.dsatab.view.FightFilterSettings;
 import com.dsatab.view.FilterDialog;
@@ -67,11 +73,10 @@ import com.dsatab.view.ListFilterSettings;
 import com.dsatab.view.MyViewPager;
 import com.dsatab.view.TipOfTheDayDialog;
 import com.dsatab.view.listener.ShakeListener;
-import com.gandulf.guilib.util.Debug;
 import com.gandulf.guilib.view.VersionInfoDialog;
 
 public class MainActivity extends BaseFragmentActivity implements OnClickListener, OnPageChangeListener,
-		LoaderManager.LoaderCallbacks<Hero> {
+		LoaderManager.LoaderCallbacks<Hero>, OnSharedPreferenceChangeListener {
 
 	protected static final String INTENT_TAB_INFO = "tabInfo";
 
@@ -195,7 +200,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 	protected EditListener editListener;
 
-	private TabPagerAdapter viewPagerAdapter;
+	private TabPagerMemoryAdapter viewPagerAdapter;
 
 	public Hero getHero() {
 		return DSATabApplication.getInstance().getHero();
@@ -218,22 +223,12 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 			InlineEditFightDialog inlineEditFightdialog = new InlineEditFightDialog(context, (CombatMeleeTalent) value);
 			inlineEditFightdialog.setTitle(value.getName());
 			inlineEditFightdialog.show();
-		} else {
+		} else if (value != null) {
 			InlineEditDialog inlineEditdialog = new InlineEditDialog(context, value);
 			inlineEditdialog.setTitle(value.getName());
 			inlineEditdialog.show();
 		}
 
-	}
-
-	public boolean isOnScreen(BaseFragment fragment) {
-		if (tabInfo != null) {
-			for (int i = 0; i < tabInfo.getTabCount(); i++) {
-				if (tabInfo.getFragmentTagName(i).equals(fragment.getTag()))
-					return true;
-			}
-		}
-		return false;
 	}
 
 	@Override
@@ -294,11 +289,8 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	@Override
 	public void onPageSelected(int position) {
 
-		final int count = getHeroConfiguration().getTabs().size();
-		for (int i = 0; i < count; i++) {
-			if (i == position)
-				getSupportActionBar().getTabAt(i).select();
-		}
+		if (getSupportActionBar().getSelectedNavigationIndex() != position)
+			getSupportActionBar().getTabAt(position).select();
 
 		tabInfo = getHeroConfiguration().getTab(position);
 
@@ -309,10 +301,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		else
 			hideDiceSlider();
 
-		for (BaseFragment fragment : getPageFragments()) {
-			fragment.onShown();
-			fragment.setMenuVisibility(isOnScreen(fragment));
-		}
+		// invalidateOptionsMenu();
 	}
 
 	private void loadHero() {
@@ -450,10 +439,11 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 			} else {
 				unregisterShakeDice();
 			}
+
 		}
 
-		for (BaseFragment fragment : getVisibleFragments()) {
-			fragment.onActivityResult(requestCode, resultCode, data);
+		if (viewPagerAdapter != null && viewPagerAdapter.getCurrentFragments() != null) {
+			viewPagerAdapter.getCurrentFragments().onActivityResult(requestCode, resultCode, data);
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
@@ -474,7 +464,10 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setTheme(DSATabApplication.getInstance().getCustomTheme());
+		applyPreferencesToTheme();
 		super.onCreate(savedInstanceState);
+
+		DSATabApplication.getPreferences().registerOnSharedPreferenceChangeListener(this);
 
 		// start tracing to "/sdcard/calc.trace"
 		// android.os.Debug.startMethodTracing("dsatab");
@@ -494,6 +487,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 		Configuration configuration = getResources().getConfiguration();
 
+		Debug.verbose("onCreate Orientation =" + configuration.orientation);
 		if (DsaPreferenceActivity.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)
 				&& configuration.orientation != Configuration.ORIENTATION_LANDSCAPE) {
 			Debug.verbose("Setting landscape");
@@ -518,8 +512,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		}
 
 		viewPager = (MyViewPager) findViewById(R.id.viewpager);
-		viewPagerAdapter = new TabPagerAdapter(this, getSupportFragmentManager(), getHeroConfiguration());
-		viewPager.setAdapter(viewPagerAdapter);
 
 		if (savedInstanceState != null) {
 			tabInfo = savedInstanceState.getParcelable(KEY_TAB_INFO);
@@ -530,7 +522,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		}
 
 		setupDiceSilder();
-		tabInfo = refreshTabInfo();
 
 		if (!showNewsInfoPopup()) {
 			showTipPopup();
@@ -543,29 +534,30 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	private void setupTabs() {
 
 		if (viewPagerAdapter == null) {
-			viewPagerAdapter = new TabPagerAdapter(this, getSupportFragmentManager(), getHeroConfiguration());
+			viewPagerAdapter = new TabPagerMemoryAdapter(this, getSupportFragmentManager(), getHeroConfiguration());
 			viewPager.setAdapter(viewPagerAdapter);
 		} else {
 			viewPagerAdapter.setConfiguration(getHeroConfiguration());
 		}
-		viewPager.setOnPageChangeListener(this);
 
+		viewPager.setOnPageChangeListener(null);
 		ActionBar bar = getSupportActionBar();
 
 		List<TabInfo> tabs = getHeroConfiguration().getTabs();
 		int tabCount = tabs.size();
 
 		bar.removeAllTabs();
-
 		for (int i = 0; i < tabCount; i++) {
 			TabInfo tabInfo = tabs.get(i);
 			bar.addTab(bar.newTab().setIcon(tabInfo.getTabResourceId()).setTabListener(new TabListener(this, i)));
-
-			if (tabInfo == this.tabInfo)
-				bar.getTabAt(i).select();
-
 		}
 
+		viewPager.setOnPageChangeListener(this);
+		for (int i = 0; i < tabCount; i++) {
+			TabInfo tabInfo = tabs.get(i);
+			if (tabInfo == this.tabInfo)
+				bar.getTabAt(i).select();
+		}
 	}
 
 	private boolean showNewsInfoPopup() {
@@ -659,7 +651,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		if (tabInfo != null) {
 			// check wether tabinfo is uptodate (within current tabconfig
 			if (tabs.contains(tabInfo)) {
-
 				Debug.verbose("Tab found using old one.");
 				return tabInfo;
 			}
@@ -703,7 +694,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 						if (activityClazz.equals(tab.getPrimaryActivityClazz())
 								|| activityClazz.equals(tab.getSecondaryActivityClazz())) {
 
-							Debug.verbose("3 New tab found with same primary clazz or secondar clazz :" + tab);
+							Debug.verbose("3 New tab found with same primary clazz or secondary clazz :" + tab);
 							return tab;
 
 						}
@@ -711,7 +702,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 				}
 			}
 		}
-
 		Debug.verbose("No tab found using first first one:" + tabs.get(0));
 
 		// last resort set tabinfo to first one if no matching one is found
@@ -721,7 +711,8 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	public boolean showTab(int index) {
 
 		if (index >= 0 && index < getHeroConfiguration().getTabs().size()) {
-			viewPager.setCurrentItem(index, false);
+			if (viewPager.getCurrentItem() != index)
+				viewPager.setCurrentItem(index, false);
 			return true;
 		} else {
 			return false;
@@ -783,51 +774,29 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 			showTab(tabInfo);
 		}
 
-		for (BaseFragment fragment : getVisibleFragments()) {
-			fragment.loadHero(hero);
+		if (viewPagerAdapter.getCurrentFragments() != null) {
+			viewPagerAdapter.getCurrentFragments().loadHero(hero);
 		}
+
+		BaseFragment f = (BaseFragment) getSupportFragmentManager().findFragmentByTag(AttributeListFragment.TAG);
+		if (f != null && f.isAdded())
+			f.loadHero(hero);
 
 	}
 
 	protected void onHeroUnloaded(Hero hero) {
 
-		for (BaseFragment fragment : getVisibleFragments()) {
-			fragment.unloadHero(hero);
+		Debug.verbose("Unload hero " + hero.getName());
+
+		if (viewPagerAdapter.getCurrentFragments() != null) {
+			viewPagerAdapter.getCurrentFragments().unloadHero(hero);
 		}
-
-	}
-
-	private List<BaseFragment> getPageFragments() {
-		LinkedList<BaseFragment> visibleFragments = new LinkedList<BaseFragment>();
-
-		if (tabInfo != null) {
-			FragmentManager fragmentManager = getSupportFragmentManager();
-			for (int i = 0; i < tabInfo.getTabCount(); i++) {
-				BaseFragment f = (BaseFragment) fragmentManager.findFragmentByTag(tabInfo.getFragmentTagName(i));
-				if (f != null && f.isVisible())
-					visibleFragments.add(f);
-			}
-		}
-
-		return visibleFragments;
-	}
-
-	private List<BaseFragment> getVisibleFragments() {
-		LinkedList<BaseFragment> visibleFragments = new LinkedList<BaseFragment>();
-		FragmentManager fragmentManager = getSupportFragmentManager();
-		if (tabInfo != null) {
-			for (int i = 0; i < tabInfo.getTabCount(); i++) {
-				BaseFragment f = (BaseFragment) fragmentManager.findFragmentByTag(tabInfo.getFragmentTagName(i));
-				if (f != null && f.isVisible())
-					visibleFragments.add(f);
-			}
-		}
-
-		BaseFragment f = (BaseFragment) fragmentManager.findFragmentByTag(AttributeListFragment.TAG);
+		BaseFragment f = (BaseFragment) getSupportFragmentManager().findFragmentByTag(AttributeListFragment.TAG);
 		if (f != null && f.isAdded())
-			visibleFragments.add(f);
+			f.unloadHero(hero);
 
-		return visibleFragments;
+		viewPagerAdapter.onDestroy();
+		viewPagerAdapter = null;
 	}
 
 	public boolean checkProbe(Probe probe) {
@@ -873,7 +842,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	@Override
 	protected void onStart() {
 		AnalyticsManager.startSession(this);
-
 		super.onStart();
 	}
 
@@ -886,6 +854,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	protected void onDestroy() {
 		onHeroUnloaded(getHero());
 		unregisterShakeDice();
+		DSATabApplication.getPreferences().unregisterOnSharedPreferenceChangeListener(this);
 
 		// android.os.Debug.stopMethodTracing();
 		super.onDestroy();
@@ -927,8 +896,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 
-		getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
 		loadHero();
 
 		// setupTabs();
@@ -944,9 +911,55 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		com.actionbarsherlock.view.MenuInflater menuInflater = new com.actionbarsherlock.view.MenuInflater(this);
-		menuInflater.inflate(R.menu.main_menu, menu);
-		return true;
+
+		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_load_hero, Menu.NONE, "Held laden");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+		item.setIcon(R.drawable.ic_menu_archive);
+
+		item = menu.add(Menu.NONE, R.id.option_save_hero, Menu.NONE, "Held speichern");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+		item.setIcon(R.drawable.ic_menu_save);
+
+		item = menu.add(Menu.NONE, R.id.option_export_hero, Menu.NONE, "Held exportieren");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+		item.setIcon(R.drawable.ic_menu_upload);
+
+		item = menu.add(Menu.NONE, R.id.option_edit_tabs, Menu.NONE, "Tabs anpassen");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+		item.setIcon(R.drawable.ic_menu_account_list);
+
+		item = menu.add(Menu.NONE, R.id.option_settings, 99, "Einstellungen");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+		item.setIcon(R.drawable.ic_menu_preferences);
+
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.actionbarsherlock.app.SherlockFragmentActivity#onPrepareOptionsMenu
+	 * (com.actionbarsherlock.view.Menu)
+	 */
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		com.actionbarsherlock.view.MenuItem item = menu.findItem(R.id.option_fight_set);
+		if (item != null) {
+			switch (getHero().getActiveSet()) {
+			case 0:
+				item.setIcon(R.drawable.ic_menu_set_1);
+				break;
+			case 1:
+				item.setIcon(R.drawable.ic_menu_set_2);
+				break;
+			case 2:
+				item.setIcon(R.drawable.ic_menu_set_3);
+				break;
+			}
+		}
+
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
@@ -969,6 +982,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		}
 		case R.id.option_filter:
 			FilterDialog dialog = new FilterDialog(this);
+
 			dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
 				@Override
 				public void onDismiss(DialogInterface dialog) {
@@ -997,26 +1011,33 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 							FilterDialog.PREF_KEY_SHOW_EVADE, false), pref.getBoolean(
 							FilterDialog.PREF_KEY_INCLUDE_MODIFIER, true));
 
-					FragmentManager fragmentManager = getSupportFragmentManager();
-					for (int i = 0; i < tabInfo.getTabCount(); i++) {
-						BaseFragment fragment = (BaseFragment) fragmentManager.findFragmentByTag(tabInfo
-								.getFragmentTagName(i));
+					if (viewPagerAdapter != null && viewPagerAdapter.getCurrentFragments() != null) {
+						DualFragment fragment = viewPagerAdapter.getCurrentFragments();
 						if (fragment != null) {
 							fragment.onFilterChanged(FilterType.Talent, talentSettings);
 							fragment.onFilterChanged(FilterType.Spell, spellSettings);
 							fragment.onFilterChanged(FilterType.Art, artSettings);
 							fragment.onFilterChanged(FilterType.Fight, fightSettings);
+
 						}
 					}
-
 				}
 			});
 
 			dialog.show();
+
+			dialog.setFilterFightVisibile(viewPagerAdapter.getCurrentFragments().contains(FightFragment.class));
+			dialog.setFilterListVisibile(viewPagerAdapter.getCurrentFragments().contains(TalentFragment.class,
+					SpellFragment.class, ArtFragment.class));
 			return true;
 
 		case R.id.option_edit_tabs:
 			startActivityForResult(new Intent(this, TabEditActivity.class), ACTION_EDIT_TAB);
+			return true;
+		case R.id.option_fight_set:
+			if (getHero() != null) {
+				getHero().setActiveSet(getHero().getNextActiveSet());
+			}
 			return true;
 		}
 
@@ -1032,7 +1053,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	 */
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
+		// super.onSaveInstanceState(outState);
 		outState.putParcelable(KEY_TAB_INFO, tabInfo);
 	}
 
@@ -1043,10 +1064,38 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	 */
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
-		super.onRestoreInstanceState(savedInstanceState);
+		// super.onRestoreInstanceState(savedInstanceState);
 		if (savedInstanceState.containsKey(KEY_TAB_INFO))
 			tabInfo = savedInstanceState.getParcelable(KEY_TAB_INFO);
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#
+	 * onSharedPreferenceChanged(android.content.SharedPreferences,
+	 * java.lang.String)
+	 */
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		// Debug.verbose(key + " changed");
+
+		if (BasePreferenceActivity.KEY_STYLE_BG_PATH.equals(key)) {
+			applyPreferencesToTheme();
+		}
+
+		if (viewPagerAdapter != null) {
+			for (DualFragment fragment : viewPagerAdapter.getDualFragments()) {
+				if (fragment != null) {
+					fragment.onSharedPreferenceChanged(sharedPreferences, key);
+				}
+			}
+		}
+
+		BaseFragment f = (BaseFragment) getSupportFragmentManager().findFragmentByTag(AttributeListFragment.TAG);
+		if (f != null && f.isAdded())
+			f.onSharedPreferenceChanged(sharedPreferences, key);
 	}
 
 	protected void showHeroChooser() {

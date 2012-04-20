@@ -1,5 +1,6 @@
 package com.dsatab.data.adapter;
 
+import java.util.Collection;
 import java.util.List;
 
 import android.content.Context;
@@ -27,6 +28,12 @@ public class ItemAdapter extends OpenArrayAdapter<Item> {
 	public ItemAdapter(Context context, List<Item> objects) {
 		super(context, 0, objects);
 		inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	}
+
+	public void filter(Collection<ItemType> type, String category, String constraint) {
+		getFilter().setTypes(type);
+		filter.setCategory(category);
+		filter.filter(constraint);
 	}
 
 	public void filter(ItemType type, String category, String constraint) {
