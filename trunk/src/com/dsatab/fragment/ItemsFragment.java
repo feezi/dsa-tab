@@ -162,6 +162,9 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 						// the icon is already in the screen no need to add it
 						// again
 					} else {
+						// we have to set it before adding otherwise it will not
+						// be set on fireItemAdded call
+						item.getItemInfo().setScreen(mCurrentScreen);
 
 						hero.addItem(getBaseActivity(), item, null, getActiveSet(), new Hero.ItemAddedCallback() {
 
@@ -184,9 +187,9 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 								GridCardView cardView = (GridCardView) mWorkspace.getChildAt(cell);
 								if (cardView != null) {
 									cardView.setItem(item);
-								} else {
-									itemAdapter.notifyDataSetChanged();
 								}
+
+								itemAdapter.sort(ItemCard.CELL_NUMBER_COMPARATOR);
 
 							}
 
@@ -216,9 +219,9 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 								GridCardView cardView = (GridCardView) mWorkspace.getChildAt(cell);
 								if (cardView != null) {
 									cardView.setItem(item);
-								} else {
-									itemAdapter.notifyDataSetChanged();
 								}
+
+								itemAdapter.sort(ItemCard.CELL_NUMBER_COMPARATOR);
 
 							}
 						});
@@ -262,7 +265,7 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
-		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_item_add, Menu.NONE,
+		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_item_add_table, Menu.NONE,
 				"Gegenstand hinzufügen");
 		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		item.setIcon(R.drawable.ic_menu_add);
@@ -279,7 +282,7 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.option_item_add) {
+		if (item.getItemId() == R.id.option_item_add_table) {
 			selectItem(null, null);
 			return true;
 		} else {
@@ -373,7 +376,7 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	}
 
 	public static boolean handleDrop(Context context, ItemCard dragInfo, GridCardView source, GridCardView target,
-			GridView mGrid, int mCellNumber) {
+			GridView mGrid, final int mCellNumber) {
 
 		final Hero hero = DSATabApplication.getInstance().getHero();
 		final Integer mCurrentScreen = (Integer) mGrid.getTag();
@@ -416,12 +419,20 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 			// drag a item from inventory to set (equip it)
 			else if (!ItemsFragment.isSetIndex(oldScreen) && ItemsFragment.isSetIndex(mCurrentScreen)) {
 				Debug.verbose("Equipping  item on set " + mCurrentScreen);
-				EquippedItem equippedItem = hero.addEquippedItem(context, item, null, mCurrentScreen);
+				hero.addEquippedItem(context, item, null, null, mCurrentScreen, new Hero.ItemAddedCallback() {
 
-				// equippedItem.getItemInfo().setCellX(x);
-				equippedItem.getItemInfo().setCellNumber(mCellNumber);
+					@Override
+					public void onItemAdded(Item item) {
+					}
 
-				hero.fireItemChangedEvent(equippedItem);
+					@Override
+					public void onEquippedItemAdded(EquippedItem item) {
+						// equippedItem.getItemInfo().setCellX(x);
+						item.getItemInfo().setCellNumber(mCellNumber);
+						hero.fireItemChangedEvent(item);
+					}
+				});
+
 			}
 		}
 
@@ -608,7 +619,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 				for (Item item : hero.getItems()) {
 
 					itemAdapter.add(item);
-
 					// if (item.getItemInfo().getScreen() !=
 					// ItemLocationInfo.INVALID_POSITION
 					// && item.getItemInfo().getScreen() != mCurrentScreen)
@@ -790,6 +800,11 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	@Override
 	public void onItemAdded(Item item) {
 		if (item.getItemInfo().getScreen() == mCurrentScreen) {
+			// skip items that are equippable since they will be equipped using
+			// a onItemEquipped Event. this would cause duplicates
+			if (item.isEquipable() && isSetIndex(mCurrentScreen))
+				return;
+
 			itemAdapter.add(item);
 		}
 	}

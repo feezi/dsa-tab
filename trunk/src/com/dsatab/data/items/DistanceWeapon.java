@@ -12,28 +12,45 @@ import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.common.Util;
 import com.dsatab.data.Dice;
 import com.dsatab.data.enums.CombatTalentType;
+import com.dsatab.db.CombatTalentTypeWrapper;
 import com.dsatab.xml.Xml;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
+@DatabaseTable(tableName = "item_distance_weapon")
 public class DistanceWeapon extends ItemSpecification {
 
 	private static final int DISTANCE_COUNT = 5;
 
+	@DatabaseField(generatedId = true)
+	protected int id;
+
+	@DatabaseField
 	private String tp;
-
-	private String distance[];
+	@DatabaseField
 	private String distances;
-
-	private String tpDistance[];
+	@DatabaseField
 	private String tpDistances;
+	@DatabaseField(foreign = true)
+	private CombatTalentTypeWrapper combatTalentTypeWrapper;
 
-	private CombatTalentType combatTalentType;
+	// cache for split tpDistances string
+	private String tpDistance[];
+	// cache for split distances string
+	private String distance[];
+
+	/**
+	 * no arg constructor for ormlite
+	 */
+	public DistanceWeapon() {
+
+	}
 
 	public DistanceWeapon(Item item) {
 		super(item, ItemType.Fernwaffen, 0);
 	}
 
 	public String getTp() {
-
 		return tp;
 	}
 
@@ -42,9 +59,7 @@ public class DistanceWeapon extends ItemSpecification {
 	}
 
 	public String getDistances() {
-		if (distances == null && distance != null) {
-			distances = "(" + TextUtils.join("/", distance) + ")";
-		}
+		initDistances();
 		return distances;
 	}
 
@@ -58,7 +73,8 @@ public class DistanceWeapon extends ItemSpecification {
 
 	}
 
-	public int getDistanceCount() {
+	protected int getDistanceCount() {
+		initDistances();
 		if (distance != null)
 			return distance.length;
 		else
@@ -66,6 +82,7 @@ public class DistanceWeapon extends ItemSpecification {
 	}
 
 	public String getDistance(int index) {
+		initDistances();
 		if (distance != null)
 			return distance[index];
 		else
@@ -78,28 +95,52 @@ public class DistanceWeapon extends ItemSpecification {
 		}
 		this.distance[index] = value;
 		this.distances = null;
+		initDistances();
 	}
 
 	public void setDistances(String[] distances) {
 		this.distance = distances;
 		this.distances = null;
+		initDistances();
 	}
 
 	public void setDistances(String distances) {
 		this.distances = distances;
-		this.distance = Util.splitDistanceString(distances);
+		this.distance = null;
+		initDistances();
+	}
+
+	private void initDistances() {
+		if (distance != null && distances != null)
+			return;
+
+		if (distances != null)
+			this.distance = Util.splitDistanceString(distances);
+		else if (distance != null) {
+			distances = "(" + TextUtils.join("/", distance) + ")";
+		}
+	}
+
+	private void initTpDistances() {
+		if (tpDistance != null && tpDistances != null)
+			return;
+
+		if (tpDistances != null)
+			this.tpDistance = Util.splitDistanceString(tpDistances);
+		else if (distance != null) {
+			tpDistances = "(" + TextUtils.join("/", tpDistance) + ")";
+		}
 	}
 
 	public String getTpDistances() {
-		if (tpDistances == null && tpDistance != null) {
-			tpDistances = "(" + TextUtils.join("/", tpDistance) + ")";
-		}
+		initTpDistances();
 		return tpDistances;
 	}
 
 	public void setTpDistances(String tpDistances) {
 		this.tpDistances = tpDistances;
-		this.tpDistance = Util.splitDistanceString(tpDistances);
+		this.tpDistance = null;
+		initTpDistances();
 	}
 
 	public void setTpDistances(int index, String value) {
@@ -108,14 +149,21 @@ public class DistanceWeapon extends ItemSpecification {
 		}
 		this.tpDistance[index] = value;
 		this.tpDistances = null;
+		initTpDistances();
 	}
 
 	public CombatTalentType getCombatTalentType() {
-		return combatTalentType;
+		if (combatTalentTypeWrapper != null)
+			return combatTalentTypeWrapper.get();
+		else
+			return null;
 	}
 
 	public void setCombatTalentType(CombatTalentType combatTalentType) {
-		this.combatTalentType = combatTalentType;
+		if (combatTalentType != null)
+			this.combatTalentTypeWrapper = new CombatTalentTypeWrapper(combatTalentType);
+		else
+			this.combatTalentTypeWrapper = null;
 	}
 
 	/*

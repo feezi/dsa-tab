@@ -42,7 +42,11 @@ public class CombatParadeWeaponTalent extends CombatShieldTalent {
 			// hauptwaffe (-6) + evtl. linkhand parierwaffen
 			if (paradeItem != null && paradeItem.getSecondaryItem() != null) {
 				EquippedItem equippedWeapon = paradeItem.getSecondaryItem();
-				baseValue = equippedWeapon.getTalent().getDefense().getValue();
+				// check wether mainweapon has a defense value
+				if (equippedWeapon.getTalent().getDefense() != null)
+					baseValue = equippedWeapon.getTalent().getDefense().getValue();
+				else
+					baseValue = 0;
 			} else {
 				baseValue = hero.getAttributeValue(AttributeType.pa);
 			}

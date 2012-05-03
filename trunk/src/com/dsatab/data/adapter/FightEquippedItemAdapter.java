@@ -163,15 +163,28 @@ public class FightEquippedItemAdapter extends OpenArrayAdapter<EquippedItem> {
 			holder.icon2.setImageResource(R.drawable.icon_shield);
 			holder.icon2.setVisibility(View.VISIBLE);
 			if (equippedItem.getTalent() != null) {
-				holder.icon2.setEnabled(true);
-				holder.icon1.setEnabled(true);
 
-				CombatProbe at = equippedItem.getCombatProbeAttacke();
-				holder.icon1.setTag(at);
-				holder.icon1.setOnClickListener(probeListener);
-				CombatProbe pa = equippedItem.getCombatProbeDefense();
-				holder.icon2.setTag(pa);
-				holder.icon2.setOnClickListener(probeListener);
+				CombatProbe pa = null, at = null;
+
+				if (weapon.isAttackable()) {
+					holder.icon1.setEnabled(true);
+					holder.icon1.setVisibility(View.VISIBLE);
+					at = equippedItem.getCombatProbeAttacke();
+					holder.icon1.setTag(at);
+					holder.icon1.setOnClickListener(probeListener);
+				} else {
+					holder.icon1.setVisibility(View.INVISIBLE);
+				}
+
+				if (weapon.isDefendable()) {
+					holder.icon2.setEnabled(true);
+					holder.icon2.setVisibility(View.VISIBLE);
+					pa = equippedItem.getCombatProbeDefense();
+					holder.icon2.setTag(pa);
+					holder.icon2.setOnClickListener(probeListener);
+				} else {
+					holder.icon2.setVisibility(View.INVISIBLE);
+				}
 
 				Util.appendValue(hero, title, at, pa, getFilter().getSettings().isIncludeModifiers());
 			} else {

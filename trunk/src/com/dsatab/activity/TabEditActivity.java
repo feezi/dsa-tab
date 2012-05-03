@@ -86,6 +86,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		setTheme(DSATabApplication.getInstance().getCustomTheme());
+		applyPreferencesToTheme();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.popup_edit_tab);
 

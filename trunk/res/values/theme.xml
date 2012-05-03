@@ -6,10 +6,18 @@
         <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
         <item name="glossyButtonOverlay">@null</item>
         <item name="glossyButtonMask">@null</item>        
-        <item name="android:listViewStyle">@style/Widget.ListView</item>
+        <item name="android:listViewStyle">@style/Widget.ListView</item>        
+        <item name="android:soundEffectsEnabled">false</item>
         
         <item name="actionBarTabStyle">@style/Widget.Sherlock.ActionBar.TabView</item>
         <item name="android:actionBarTabStyle">@style/Widget.Sherlock.ActionBar.TabView</item>
+    </style>
+    
+    <style name="Theme.Preferences" parent="@Theme.Sherlock">
+        <item name="android:soundEffectsEnabled">false</item>
+    </style>
+    <style name="Theme.Preferences.Light" parent="@Theme.Sherlock.Light.DarkActionBar">
+        <item name="android:soundEffectsEnabled">false</item>
     </style>
     
     <style name="DsaTabTheme.Light" parent="@Theme.Sherlock.Light.DarkActionBar">            
@@ -19,6 +27,7 @@
         <item name="glossyButtonOverlay">@null</item>
         <item name="glossyButtonMask">@null</item>        
         <item name="android:listViewStyle">@style/Widget.ListView</item>
+        <item name="android:soundEffectsEnabled">false</item>
         
         <item name="actionBarTabStyle">@style/Widget.Sherlock.Light.ActionBar.TabView.Inverse</item>
         <item name="android:actionBarTabStyle">@style/Widget.Sherlock.Light.ActionBar.TabView.Inverse</item>
@@ -27,6 +36,7 @@
     <style name="Theme.Dialog" parent="@Theme.Sherlock.Dialog">        
         <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
         <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
+        <item name="android:soundEffectsEnabled">false</item>
     </style>
     
     
@@ -42,6 +52,7 @@
         <item name="glossyButtonStyle">@style/Widget.Button.Glossy</item>
         <item name="glossyButtonOverlay">@drawable/btn_glossy_gloss</item>
         <item name="glossyButtonMask">@drawable/btn_glossy_mask</item>
+        <item name="android:soundEffectsEnabled">false</item>
     </style>
     	
     
@@ -54,6 +65,7 @@
     <style name="Theme.Dialog.Light_Plain" parent="@Theme.Sherlock.Light.Dialog">
         <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
         <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
+        <item name="android:soundEffectsEnabled">false</item>
     </style>
     
     <style name="DsaTabTheme.Dark_Glossy" parent="DsaTabTheme">
@@ -68,6 +80,7 @@
         <item name="glossyButtonStyle">@style/Widget.Button.Glossy</item>
         <item name="glossyButtonOverlay">@drawable/btn_glossy_gloss</item>
         <item name="glossyButtonMask">@drawable/btn_glossy_mask</item>
+        <item name="android:soundEffectsEnabled">false</item>
     </style>
     
     <style name="DsaTabTheme.Dark_Plain" parent="DsaTabTheme">
@@ -78,6 +91,7 @@
     <style name="Theme.Dialog.Dark_Plain" parent="@Theme.Sherlock.Dialog">        
         <item name="glossyImageButtonStyle">@style/Widget.ImageButton.Plain</item>
         <item name="glossyButtonStyle">@style/Widget.Button.Plain</item>
+        <item name="android:soundEffectsEnabled">false</item>
     </style>
     
     

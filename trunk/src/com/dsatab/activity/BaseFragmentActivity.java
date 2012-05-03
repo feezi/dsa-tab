@@ -16,15 +16,18 @@
  */
 package com.dsatab.activity;
 
+import java.io.File;
+
 import yuku.androidsdk.com.android.internal.view.menu.MenuBuilder;
 import yuku.iconcontextmenu.IconContextMenu;
 import yuku.iconcontextmenu.IconContextMenu.IconContextItemSelectedListener;
-import android.content.Intent;
+import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,7 +37,6 @@ import android.view.WindowManager;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.dsatab.DSATabApplication;
 import com.dsatab.common.Util;
-import com.dsatab.data.Hero;
 
 /**
  * @author Ganymede
@@ -93,52 +95,15 @@ public class BaseFragmentActivity extends SherlockFragmentActivity implements Ic
 		String bgPath = pref.getString(BasePreferenceActivity.KEY_STYLE_BG_PATH, null);
 
 		if (bgPath != null) {
-			getWindow().setBackgroundDrawable(Drawable.createFromPath(bgPath));
+
+			WindowManager wm = (WindowManager) DSATabApplication.getInstance().getSystemService(Context.WINDOW_SERVICE);
+			Display display = wm.getDefaultDisplay();
+			Bitmap bg = Util.decodeFile(new File(bgPath), Math.max(display.getWidth(), display.getHeight()));
+			BitmapDrawable drawable = new BitmapDrawable(bg);
+			getWindow().setBackgroundDrawable(drawable);
 		} else {
 			getWindow().setBackgroundDrawableResource(Util.getThemeResourceId(this, android.R.attr.windowBackground));
 		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.FragmentActivity#onActivityResult(int, int,
-	 * android.content.Intent)
-	 */
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == MainActivity.ACTION_PREFERENCES) {
-
-			SharedPreferences preferences = DSATabApplication.getPreferences();
-
-			String orientation = preferences.getString(BasePreferenceActivity.KEY_SCREEN_ORIENTATION,
-					BasePreferenceActivity.DEFAULT_SCREEN_ORIENTATION);
-
-			if (BasePreferenceActivity.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)) {
-				if (getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-					// You need to check if your desired orientation isn't
-					// already set because setting orientation restarts your
-					// Activity which takes long
-					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-				}
-			} else if (BasePreferenceActivity.SCREEN_ORIENTATION_PORTRAIT.equals(orientation)) {
-				if (getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-				}
-			} else if (BasePreferenceActivity.SCREEN_ORIENTATION_AUTO.equals(orientation)) {
-				if (getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_SENSOR) {
-					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
-				}
-			}
-
-			updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
-
-			if (DSATabApplication.getInstance().getHero() != null) {
-				Hero hero = DSATabApplication.getInstance().getHero();
-				hero.firePreferencesChanged();
-			}
-		}
-		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	protected void updateFullscreenStatus(boolean bUseFullscreen) {

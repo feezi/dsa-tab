@@ -17,10 +17,10 @@ package com.dsatab.data.adapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
 
 import android.content.Context;
 import android.util.Log;
@@ -171,7 +171,7 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 	 * @param objects
 	 *            The objects to represent in the ListView.
 	 */
-	public OpenArrayAdapter(Context context, int textViewResourceId, List<T> objects) {
+	public OpenArrayAdapter(Context context, int textViewResourceId, Collection<T> objects) {
 		init(context, textViewResourceId, 0, new ArrayList<T>(objects));
 	}
 
@@ -189,7 +189,7 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 	 * @param objects
 	 *            The objects to represent in the ListView.
 	 */
-	public OpenArrayAdapter(Context context, int resource, int textViewResourceId, List<T> objects) {
+	public OpenArrayAdapter(Context context, int resource, int textViewResourceId, Collection<T> objects) {
 		init(context, resource, textViewResourceId, new ArrayList<T>(objects));
 	}
 
@@ -205,7 +205,7 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 			synchronized (mLock) {
 				mOriginalValues.add(object);
 
-				// add object to current filtered objects too if it pases the
+				// add object to current filtered objects too if it passes the
 				// filter
 				if (getFilter().filter(object))
 					mObjects.add(object);

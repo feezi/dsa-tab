@@ -55,10 +55,9 @@ public class CustomAttribute extends Attribute implements JSONable {
 	 * @param hero
 	 */
 	public CustomAttribute(Hero hero, JSONObject json) throws JSONException {
-		super(null, hero);
+		super(null, AttributeType.valueOf(json.getString(FIELD_TYPE)), hero);
 
 		this.name = json.getString(FIELD_NAME);
-		this.type = AttributeType.valueOf(json.getString(FIELD_TYPE));
 		if (json.has(FIELD_VALUE))
 			this.value = json.getInt(FIELD_VALUE);
 		if (json.has(FIELD_ERSCHWERNIS))

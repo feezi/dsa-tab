@@ -50,11 +50,14 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable {
 			}
 		}
 
-		if (this.type == AttributeType.Ausweichen)
-			probeInfo.setErschwernis(0);
-
-		if (this.type.hasBe())
-			probeInfo.applyBePattern(CONSTANT_BE);
+		if (this.type != null) {
+			if (this.type == AttributeType.Ausweichen) {
+				probeInfo.setErschwernis(0);
+			}
+			if (this.type.hasBe()) {
+				probeInfo.applyBePattern(CONSTANT_BE);
+			}
+		}
 
 	}
 

@@ -31,7 +31,10 @@ public class InlineEditFightDialog extends AlertDialog implements DialogInterfac
 	private WheelView editAt;
 	private WheelView editPa;
 
-	private TextView textFreeValue;
+	private TextView textFreeValue, textFreeLabel;
+	private View labels;
+
+	private boolean singleValued;
 
 	public InlineEditFightDialog(Context context, CombatMeleeTalent value) {
 		super(context);
@@ -46,6 +49,8 @@ public class InlineEditFightDialog extends AlertDialog implements DialogInterfac
 	public void setValue(CombatMeleeTalent combatTalent) {
 		this.talent = combatTalent;
 
+		singleValued = false;
+
 		valueTotal = combatTalent;
 		valueAt = combatTalent.getAttack();
 		valuePa = combatTalent.getDefense();
@@ -56,50 +61,79 @@ public class InlineEditFightDialog extends AlertDialog implements DialogInterfac
 		if (valueAt != null) {
 			editAtAdapter.setRange(valueAt.getMinimum(), valueAt.getMaximum());
 			editAt.setCurrentItem(editAtAdapter.getPosition(valueAt.getValue()));
-
-			editAt.setEnabled(true);
 		} else {
-			editAt.setEnabled(false);
+			singleValued = true;
 		}
 
 		if (valuePa != null) {
 			editPaAdapter.setRange(valuePa.getMinimum(), valuePa.getMaximum());
 			editPa.setCurrentItem(editPaAdapter.getPosition(valuePa.getValue()));
-			editPa.setEnabled(true);
+
 		} else {
-			editPa.setEnabled(false);
+			singleValued = true;
 		}
 		if (getButton(BUTTON_NEGATIVE) != null)
 			getButton(BUTTON_NEGATIVE).setEnabled(valueTotal.getReferenceValue() != null);
+
+		if (singleValued) {
+
+			// we have to add the baseValue of the singlevalued entry
+			if (valueAt != null) {
+				editTextAdapter.setRange(valueAt.getBaseValue() + valueTotal.getMinimum(), valueAt.getBaseValue()
+						+ valueTotal.getMaximum());
+				editText.setCurrentItem(editTextAdapter.getPosition(valueAt.getBaseValue() + valueTotal.getValue()));
+			} else if (valuePa != null) {
+				editTextAdapter.setRange(valuePa.getBaseValue() + valueTotal.getMinimum(), valuePa.getBaseValue()
+						+ valueTotal.getMaximum());
+				editText.setCurrentItem(editTextAdapter.getPosition(valuePa.getBaseValue() + valueTotal.getValue()));
+			}
+
+			editAt.setVisibility(View.GONE);
+			editPa.setVisibility(View.GONE);
+			labels.setVisibility(View.GONE);
+			textFreeValue.setVisibility(View.GONE);
+			textFreeLabel.setVisibility(View.GONE);
+		} else {
+			editAt.setVisibility(View.VISIBLE);
+			editPa.setVisibility(View.VISIBLE);
+			labels.setVisibility(View.VISIBLE);
+			textFreeValue.setVisibility(View.VISIBLE);
+			textFreeLabel.setVisibility(View.VISIBLE);
+		}
 
 		updateView();
 	}
 
 	private void updateView() {
 
-		int talent = editTextAdapter.getItem(editText.getCurrentItem());
-		int free = talent;
-		if (editAt.isEnabled()) {
-			free -= (editAtAdapter.getItem(editAt.getCurrentItem()) - valueAt.getBaseValue());
-		}
-		if (editPa.isEnabled()) {
-			free -= (editPaAdapter.getItem(editPa.getCurrentItem()) - valuePa.getBaseValue());
-		}
-		if (free < 0)
-			textFreeValue.setTextColor(getContext().getResources().getColor(R.color.ValueRed));
-		else if (free > 0)
-			textFreeValue.setTextColor(getContext().getResources().getColor(R.color.ValueGreen));
-		else {
-			textFreeValue.setTextColor(Util.getThemeColors(getContext(), android.R.attr.textColorPrimary));
-		}
+		if (singleValued) {
 
-		textFreeValue.setText(Util.toString(free));
+		} else {
 
-		editAtAdapter.setRange(valueAt.getMinimum(), valueAt.getBaseValue() + talent);
-		editPaAdapter.setRange(valuePa.getMinimum(), valuePa.getBaseValue() + talent);
+			int talent = editTextAdapter.getItem(editText.getCurrentItem());
+			int free = talent;
+			if (valueAt != null) {
+				free -= (editAtAdapter.getItem(editAt.getCurrentItem()) - valueAt.getBaseValue());
+				editAtAdapter.setRange(valueAt.getMinimum(), valueAt.getBaseValue() + talent);
+			}
+			if (valuePa != null) {
+				free -= (editPaAdapter.getItem(editPa.getCurrentItem()) - valuePa.getBaseValue());
+				editPaAdapter.setRange(valuePa.getMinimum(), valuePa.getBaseValue() + talent);
+			}
 
-		if (getButton(BUTTON_POSITIVE) != null)
-			getButton(BUTTON_POSITIVE).setEnabled(free >= 0);
+			if (free < 0)
+				textFreeValue.setTextColor(getContext().getResources().getColor(R.color.ValueRed));
+			else if (free > 0)
+				textFreeValue.setTextColor(getContext().getResources().getColor(R.color.ValueGreen));
+			else {
+				textFreeValue.setTextColor(Util.getThemeColors(getContext(), android.R.attr.textColorPrimary));
+			}
+			textFreeValue.setText(Util.toString(free));
+
+			if (getButton(BUTTON_POSITIVE) != null)
+				getButton(BUTTON_POSITIVE).setEnabled(free >= 0);
+
+		}
 
 	}
 
@@ -115,12 +149,24 @@ public class InlineEditFightDialog extends AlertDialog implements DialogInterfac
 		switch (which) {
 		case BUTTON_POSITIVE:
 
-			valueTotal.setValue(editTextAdapter.getItem(editText.getCurrentItem()));
-			if (valueAt != null)
-				valueAt.setValue(editAtAdapter.getItem(editAt.getCurrentItem()));
-			if (valuePa != null)
-				valuePa.setValue(editPaAdapter.getItem(editPa.getCurrentItem()));
-
+			if (singleValued) {
+				if (valueAt != null) {
+					valueTotal.setValue(editTextAdapter.getItem(editText.getCurrentItem()) - valueAt.getBaseValue());
+					valueAt.setValue(valueAt.getBaseValue() + valueTotal.getValue());
+				}
+				if (valuePa != null) {
+					valueTotal.setValue(editTextAdapter.getItem(editText.getCurrentItem()) - valuePa.getBaseValue());
+					valuePa.setValue(valuePa.getBaseValue() + valueTotal.getValue());
+				}
+			} else {
+				valueTotal.setValue(editTextAdapter.getItem(editText.getCurrentItem()));
+				if (valueAt != null) {
+					valueAt.setValue(editAtAdapter.getItem(editAt.getCurrentItem()));
+				}
+				if (valuePa != null) {
+					valuePa.setValue(editPaAdapter.getItem(editPa.getCurrentItem()));
+				}
+			}
 			Util.hideKeyboard(editText);
 			dismiss();
 			break;
@@ -159,6 +205,9 @@ public class InlineEditFightDialog extends AlertDialog implements DialogInterfac
 		editPa.setViewAdapter(editPaAdapter);
 
 		textFreeValue = (TextView) popupcontent.findViewById(R.id.popup_edit_free_value);
+		textFreeLabel = (TextView) popupcontent.findViewById(R.id.popup_edit_free_label);
+
+		labels = popupcontent.findViewById(R.id.popup_edit_labels);
 
 		editText.setOnWheelChangedListeners(this);
 		editPa.setOnWheelChangedListeners(this);
@@ -179,7 +228,6 @@ public class InlineEditFightDialog extends AlertDialog implements DialogInterfac
 	@Override
 	public void onWheelChanged(WheelView wheel, int oldValue, int newValue) {
 		updateView();
-
 	}
 
 }

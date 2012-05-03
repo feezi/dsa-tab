@@ -2,15 +2,21 @@ package com.dsatab.data.items;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.jdom.Element;
+
+import android.text.TextUtils;
 
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.Position;
 import com.dsatab.xml.DomUtil;
 import com.dsatab.xml.Xml;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
+@DatabaseTable(tableName = "item_armor")
 public class Armor extends ItemSpecification {
 
 	public static final String CATEGORY_ARME = "Arme";
@@ -19,23 +25,41 @@ public class Armor extends ItemSpecification {
 	public static final String CATEGORY_FULL = "Komplettrüstung";
 	public static final String CATEGORY_TORSO = "Torso";
 
-	private int stars;
+	@DatabaseField(generatedId = true)
+	protected int id;
 
+	@DatabaseField
+	private int stars;
+	@DatabaseField
 	private boolean zonenHalfBe;
+	@DatabaseField
+	private int zonenRs = 0;
+	@DatabaseField
+	private int totalRs = 0;
+	@DatabaseField
+	private float totalBe;
+	@DatabaseField
+	private String rsHelper;
+	@DatabaseField
+	private int totalPieces = 1;
 
 	private HashMap<Position, Integer> rs;
 
-	private int zonenRs = 0;
-	private int totalRs = 0;
-	private float totalBe;
-
+	// cache for max value of rs
 	private int maxRs = 0;
 
+	// cache for info string
 	private String info = null;
+
+	/**
+	 * no arg constructor for ormlite
+	 */
+	public Armor() {
+
+	}
 
 	public Armor(Item item) {
 		super(item, ItemType.Rüstung, 0);
-		rs = new HashMap<Position, Integer>(Position.values().length);
 	}
 
 	public float getTotalBe() {
@@ -105,7 +129,17 @@ public class Armor extends ItemSpecification {
 		this.stars = stars;
 	}
 
+	public int getTotalPieces() {
+		return totalPieces;
+	}
+
+	public void setTotalPieces(int totalPieces) {
+		this.totalPieces = totalPieces;
+	}
+
 	public int getRs(Position pos) {
+		initRs();
+
 		Integer i = rs.get(pos);
 
 		if (i == null)
@@ -115,9 +149,42 @@ public class Armor extends ItemSpecification {
 	}
 
 	public void setRs(Position pos, int rs) {
+		initRs();
+
 		this.rs.put(pos, rs);
 
+		fillRsHelper();
+
 		maxRs = Math.max(maxRs, rs);
+	}
+
+	private void fillRsHelper() {
+		StringBuilder sb = new StringBuilder();
+		for (Entry<Position, Integer> entry : this.rs.entrySet()) {
+			sb.append(",");
+			sb.append(entry.getKey().name());
+			sb.append(":");
+			sb.append(Integer.toString(entry.getValue()));
+		}
+		if (sb.length() > 0)
+			rsHelper = sb.substring(1);
+		else
+			rsHelper = null;
+	}
+
+	private void initRs() {
+		if (rs == null) {
+			rs = new HashMap<Position, Integer>(Position.values().length);
+			if (!TextUtils.isEmpty(rsHelper)) {
+				String[] rsHelperArray = rsHelper.split(",");
+
+				for (String item : rsHelperArray) {
+					String[] pair = item.split(":");
+
+					this.rs.put(Position.valueOf(pair[0]), Integer.parseInt(pair[1]));
+				}
+			}
+		}
 	}
 
 	public int getZonenRs() {

@@ -317,6 +317,9 @@ public class TabPagerMemoryAdapter extends PagerAdapter {
 					mFragmentTags.add(fragmentName);
 					mCurTransaction.add(tabContainer.getId(), dualFragment.get(i), fragmentName);
 				}
+
+				mCurTransaction.commitAllowingStateLoss();
+				mCurTransaction = mFragmentManager.beginTransaction();
 			}
 
 		}

@@ -17,6 +17,7 @@
 package com.dsatab.view;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
@@ -48,7 +49,7 @@ public class CardView extends ImageView {
 
 	private boolean calculated = false;
 
-	private boolean highQuality;
+	private boolean highQuality = false;
 
 	private static int TEXT_PADDING = 20;
 
@@ -98,6 +99,10 @@ public class CardView extends ImageView {
 
 	public ItemCard getItem() {
 		return item;
+	}
+
+	public void setItem(Cursor c) {
+
 	}
 
 	public void setItem(ItemCard item) {

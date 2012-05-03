@@ -18,15 +18,28 @@ package com.dsatab.data.items;
 
 import org.jdom.Element;
 
+import com.j256.ormlite.field.DatabaseField;
+
 public abstract class ItemSpecification {
 
+	@DatabaseField(foreign = true)
 	protected Item item;
 
+	@DatabaseField
 	protected ItemType type;
 
+	@DatabaseField
 	protected String specificationLabel;
 
+	@DatabaseField
 	protected int version;
+
+	/**
+	 * 
+	 */
+	public ItemSpecification() {
+
+	}
 
 	public ItemSpecification(Item item, ItemType type, int version) {
 		this.item = item;

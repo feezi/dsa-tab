@@ -38,6 +38,7 @@ public class ItemChooserActivity extends BaseFragmentActivity implements OnItemC
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setTheme(DSATabApplication.getInstance().getCustomTheme());
+		applyPreferencesToTheme();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_item_chooser);
 

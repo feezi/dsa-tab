@@ -206,7 +206,7 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 		if (talent instanceof CombatMeleeTalent) {
 			CombatMeleeTalent meleeTalent = (CombatMeleeTalent) talent;
 
-			if (meleeTalent.getAttack() != null || meleeTalent.getAttack().getValue() != null) {
+			if (meleeTalent.getAttack() != null && meleeTalent.getAttack().getValue() != null) {
 				int modifier = 0;
 				if (filterSettings.isIncludeModifiers()) {
 					modifier = hero.getModifier(meleeTalent.getAttack());
@@ -233,7 +233,7 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 				holder.text5.setTag(R.id.TAG_KEY_PROBE, meleeTalent.getDefense());
 				Util.setVisibility(holder.text5, true, holder.text1);
 			} else {
-				Util.setVisibility(holder.text5, false, holder.text1);
+				holder.text5.setVisibility(View.INVISIBLE);
 			}
 
 		} else if (talent instanceof CombatDistanceTalent) {

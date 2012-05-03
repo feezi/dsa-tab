@@ -41,16 +41,19 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.HeroFileInfo;
 import com.dsatab.map.BitmapTileSource;
+import com.dsatab.util.DatabaseHelper;
 import com.dsatab.util.Debug;
 import com.dsatab.xml.DataManager;
 import com.dsatab.xml.Xml;
 import com.dsatab.xml.XmlParser;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
 
 public class DSATabApplication extends Application implements OnSharedPreferenceChangeListener {
 
@@ -60,6 +63,8 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	public static final String TILESOURCE_AVENTURIEN = "AVENTURIEN";
 
 	public static final String FLURRY_APP_ID = "AK17DSVJZBNH35G554YR";
+
+	public static final String BUGSENSE_API_KEY = "4b4062da";
 
 	public static final String SD_CARD_PATH_PREFIX = Environment.getExternalStorageDirectory().getAbsolutePath()
 			+ File.separator;
@@ -102,6 +107,8 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	public Hero hero = null;
 
 	private DsaTabConfiguration configuration;
+
+	private DatabaseHelper databaseHelper = null;
 
 	private Typeface poorRichFont;
 
@@ -276,13 +283,45 @@ public class DSATabApplication extends Application implements OnSharedPreference
 		}
 	}
 
+	public int getCustomPreferencesTheme() {
+		String theme = getPreferences().getString(BasePreferenceActivity.KEY_THEME, THEME_DEFAULT);
+
+		if (THEME_LIGHT_PLAIN.equals(theme)) {
+			return R.style.Theme_Preferences_Light;
+		} else if (THEME_LIGHT_GLOSSY.equals(theme)) {
+			return R.style.Theme_Preferences_Light;
+		} else if (THEME_DARK_PLAIN.equals(theme)) {
+			return R.style.Theme_Preferences;
+		} else if (THEME_DARK_GLOSSY.equals(theme)) {
+			return R.style.Theme_Preferences;
+		} else {
+			return R.style.Theme_Preferences_Light;
+		}
+	}
+
+	public String getCustomThemeValue() {
+		String theme = getPreferences().getString(BasePreferenceActivity.KEY_THEME, THEME_DEFAULT);
+
+		List<String> themeValues = Arrays.asList(getResources().getStringArray(R.array.themesValues));
+		int index = themeValues.indexOf(theme);
+		if (index >= 0 && index < themeValues.size()) {
+			return themeValues.get(index);
+		} else
+			return themeValues.get(0);
+
+	}
+
 	public String getCustomThemeName() {
 		String theme = getPreferences().getString(BasePreferenceActivity.KEY_THEME, THEME_DEFAULT);
 
 		List<String> themeValues = Arrays.asList(getResources().getStringArray(R.array.themesValues));
 		int index = themeValues.indexOf(theme);
 
-		return getResources().getStringArray(R.array.themes)[index];
+		String[] themes = getResources().getStringArray(R.array.themes);
+		if (index >= 0 && index < themes.length)
+			return themes[index];
+		else
+			return themes[0];
 	}
 
 	public int getCustomDialogTheme() {
@@ -316,6 +355,9 @@ public class DSATabApplication extends Application implements OnSharedPreference
 		boolean stats = getPreferences().getBoolean(BasePreferenceActivity.KEY_USAGE_STATS, true);
 
 		AnalyticsManager.setEnabled(stats);
+		if (stats) {
+			BugSenseHandler.setup(this, BUGSENSE_API_KEY);
+		}
 
 		Debug.verbose("AnalytisManager enabled = " + AnalyticsManager.isEnabled());
 
@@ -379,6 +421,16 @@ public class DSATabApplication extends Application implements OnSharedPreference
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * 
+	 */
+	public void release() {
+		if (databaseHelper != null) {
+			OpenHelperManager.releaseHelper();
+			databaseHelper = null;
+		}
 	}
 
 	public List<HeroFileInfo> getHeroes() {
@@ -495,6 +547,13 @@ public class DSATabApplication extends Application implements OnSharedPreference
 				}
 			}
 		}
+	}
+
+	public DatabaseHelper getDBHelper() {
+		if (databaseHelper == null) {
+			databaseHelper = OpenHelperManager.getHelper(getApplicationContext(), DatabaseHelper.class);
+		}
+		return databaseHelper;
 	}
 
 }

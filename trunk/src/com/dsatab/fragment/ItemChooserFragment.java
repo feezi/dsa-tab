@@ -15,9 +15,10 @@
  */
 package com.dsatab.fragment;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,17 +27,21 @@ import java.util.UUID;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter.CursorToStringConverter;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.BaseAdapter;
+import android.widget.FilterQueryProvider;
 import android.widget.Gallery;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -50,6 +55,7 @@ import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.ItemLocationInfo;
 import com.dsatab.data.adapter.GalleryImageAdapter;
+import com.dsatab.data.adapter.GalleryImageCursorAdapter;
 import com.dsatab.data.enums.Position;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
@@ -60,6 +66,7 @@ import com.dsatab.view.CardView;
 import com.dsatab.view.ItemChooserDialog;
 import com.dsatab.view.ItemListItem;
 import com.dsatab.xml.DataManager;
+import com.j256.ormlite.stmt.PreparedQuery;
 
 public class ItemChooserFragment extends BaseFragment implements View.OnClickListener, View.OnLongClickListener,
 		DialogInterface.OnMultiChoiceClickListener {
@@ -84,7 +91,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 	private int cellNumber;
 
-	private GalleryImageAdapter imageAdapter;
+	private BaseAdapter imageAdapter;
 
 	private ItemChooserDialog itemChooserDialog;
 
@@ -102,6 +109,8 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 	private Set<ItemType> categoriesSelected;
 	private ItemType[] categories;
+
+	PreparedQuery<Item> allItems;
 
 	public interface OnItemChooserListener {
 		public void onItemSelected(Item item, int cellNumber);
@@ -167,9 +176,14 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	public void onActivityCreated(Bundle savedInstanceState) {
 
 		categories = ItemType.values();
-
 		String itemCategory = null;
-		ItemType cardType = null;
+
+		try {
+			allItems = DSATabApplication.getInstance().getDBHelper().getDao(Item.class).queryBuilder().prepare();
+		} catch (SQLException e) {
+			Debug.error(e);
+		}
+		categoriesSelected = new HashSet<ItemType>();
 
 		Bundle extra = getActivity().getIntent().getExtras();
 		if (extra != null) {
@@ -187,9 +201,8 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 				String itemType = extra.getString(INTENT_EXTRA_ITEM_TYPE);
 				itemCategory = extra.getString(INTENT_EXTRA_ITEM_CATEGORY);
 
-				cardType = ItemType.Waffen;
 				if (itemType != null) {
-					cardType = ItemType.valueOf(itemType);
+					categoriesSelected.add(ItemType.valueOf(itemType));
 				}
 
 				if (itemId != null) {
@@ -211,16 +224,14 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 					if (selectedItemSpecification == null) {
 						selectedItemSpecification = foundItem.getSpecifications().get(0);
 					}
-
-					cardType = selectedItemSpecification.getType();
+					categoriesSelected.add(selectedItemSpecification.getType());
 					itemCategory = foundItem.getCategory();
-					Debug.verbose("Displaying " + itemName + " " + cardType + "/" + itemCategory + " : " + foundItem);
 				}
 			} else {
 				if (selectedItemSpecification == null) {
 					selectedItemSpecification = foundItem.getSpecifications().get(0);
 				}
-				cardType = selectedItemSpecification.getType();
+				categoriesSelected.add(selectedItemSpecification.getType());
 				itemCategory = foundItem.getCategory();
 			}
 		}
@@ -247,10 +258,9 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			}
 			imageAdapter = new GalleryImageAdapter(getActivity(), items);
 		} else {
-
 			if (searchable) {
-				imageAdapter = new GalleryImageAdapter(getActivity(), DataManager.getItems());
-				imageAdapter.filter(cardType, itemCategory, null);
+				Cursor c = DataManager.getItemsCursor(null, categoriesSelected, itemCategory);
+				imageAdapter = new GalleryImageCursorAdapter(getActivity(), c);
 			} else {
 				if (foundItem != null)
 					imageAdapter = new GalleryImageAdapter(getActivity(), Arrays.asList(foundItem));
@@ -258,11 +268,13 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 					imageAdapter = new GalleryImageAdapter(getActivity(), new ArrayList<Item>(0));
 			}
 		}
+
 		gallery.setAdapter(imageAdapter);
 		gallery.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Item card = (Item) gallery.getItemAtPosition(position);
+				Cursor c = (Cursor) gallery.getItemAtPosition(position);
+				Item card = DataManager.getItemByCursor(c);
 				foundItem = null;
 				showCard(card, null, false);
 			}
@@ -282,12 +294,13 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			Toast.makeText(getActivity(), "Keine Einträge gefunden", Toast.LENGTH_SHORT).show();
 			cancel();
 		} else {
-			int index = 0;
-			if (foundItem != null) {
-				index = imageAdapter.getPositionByName(foundItem);
-			}
-			Debug.verbose("Showing index " + index);
-			gallery.setSelection(index, false);
+			// TODO getPosition
+			// int index = 0;
+			// if (foundItem != null) {
+			// index = imageAdapter.getPositionByName(foundItem);
+			// }
+			// Debug.verbose("Showing index " + index);
+			// gallery.setSelection(index, false);
 
 		}
 
@@ -301,16 +314,19 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			public void onChanged() {
 				if (foundItem == null) {
 					Item item = null;
-					if (imageAdapter.getCount() > 0)
-						item = imageAdapter.getItem(0);
-
+					if (imageAdapter.getCount() > 0) {
+						Cursor cursor = (Cursor) imageAdapter.getItem(0);
+						item = DataManager.getItemByCursor(cursor);
+					}
 					if (item != null) {
 						showCard(item, null, true);
 					}
 				} else {
-					int index = imageAdapter.getPosition(foundItem);
-					if (index >= 0)
-						gallery.setSelection(index, false);
+					// TODO getPosition
+					// int index = imageAdapter.getPosition(foundItem);
+					// if (index >= 0) {
+					// gallery.setSelection(index, false);
+					// }
 				}
 			}
 		};
@@ -352,7 +368,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 				button.setOnClickListener(this);
 				button.setOnLongClickListener(this);
 				ItemType buttonType = (ItemType) button.getTag();
-				if (cardType == buttonType)
+				if (categoriesSelected.contains(buttonType))
 					button.setSelected(true);
 			}
 		} else {
@@ -371,14 +387,14 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		if (foundItem != null)
 			showCard(foundItem, selectedItemSpecification, true);
 		else if (gallery.getSelectedItem() != null) {
-			showCard((Item) gallery.getSelectedItem(), null, true);
+			if (gallery.getSelectedItem() instanceof Cursor) {
+				showCard(DataManager.getItemByCursor((Cursor) gallery.getSelectedItem()), null, true);
+			} else if (gallery.getSelectedItem() instanceof Item)
+				showCard((Item) gallery.getSelectedItem(), null, true);
 		}
 
-		if (cardType != null) {
-			categoriesSelected = new HashSet<ItemType>();
-			categoriesSelected.add(cardType);
-		} else {
-			categoriesSelected = new HashSet<ItemType>(Arrays.asList(categories));
+		if (categoriesSelected.isEmpty()) {
+			categoriesSelected.addAll(Arrays.asList(categories));
 		}
 
 		getActivity().supportInvalidateOptionsMenu();
@@ -388,6 +404,32 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 	public OnItemChooserListener getOnItemChooserListener() {
 		return onItemChooserListener;
+	}
+
+	protected void filter(ItemType cardType, String itemCategory, String constraint) {
+		if (imageAdapter instanceof GalleryImageAdapter) {
+			((GalleryImageAdapter) imageAdapter).filter(cardType, itemCategory, constraint);
+		} else if (imageAdapter instanceof GalleryImageCursorAdapter) {
+			GalleryImageCursorAdapter cursorAdapter = (GalleryImageCursorAdapter) imageAdapter;
+			Cursor cursor;
+			if (cardType != null) {
+				cursor = DataManager.getItemsCursor(constraint, Arrays.asList(cardType), itemCategory);
+			} else {
+				cursor = DataManager.getItemsCursor(constraint, null, itemCategory);
+			}
+			cursorAdapter.changeCursor(cursor);
+		}
+	}
+
+	protected void filter(Collection<ItemType> cardTypes, String itemCategory, String constraint) {
+		if (imageAdapter instanceof GalleryImageAdapter) {
+			((GalleryImageAdapter) imageAdapter).filter(cardTypes, itemCategory, null);
+		} else if (imageAdapter instanceof GalleryImageCursorAdapter) {
+			GalleryImageCursorAdapter cursorAdapter = (GalleryImageCursorAdapter) imageAdapter;
+			Cursor cursor = DataManager.getItemsCursor(null, cardTypes, itemCategory);
+			cursorAdapter.changeCursor(cursor);
+		}
+
 	}
 
 	public void setOnItemChooserListener(OnItemChooserListener itemChooserListener) {
@@ -492,9 +534,11 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		itemView.setVisibility(View.VISIBLE);
 
 		if (animate) {
-			int index = imageAdapter.getPosition(card);
-			if (index >= 0)
-				gallery.setSelection(index);
+			// TODO getPosition
+			// int index = imageAdapter.getPosition(card);
+			// if (index >= 0) {
+			// gallery.setSelection(index);
+			// }
 		}
 	}
 
@@ -520,16 +564,51 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			searchView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_search, 0, 0, 0);
 			searchView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 
-			List<String> itemNames = new ArrayList<String>(DataManager.getItemsMap().keySet());
-			Collections.sort(itemNames);
-			final ArrayAdapter<String> arrAdapter = new ArrayAdapter<String>(getSherlockActivity()
-					.getSupportActionBar().getThemedContext(), android.R.layout.simple_dropdown_item_1line, itemNames);
-			searchView.setAdapter(arrAdapter);
+			final int[] to = new int[] { android.R.id.text1 };
+			final String[] from = new String[] { "name" };
 
+			// Create a SimpleCursorAdapter for the State Name field.
+			final SimpleCursorAdapter adapter = new SimpleCursorAdapter(getSherlockActivity().getSupportActionBar()
+					.getThemedContext(), android.R.layout.simple_dropdown_item_1line, null, from, to, 0);
+
+			// Set the CursorToStringConverter, to provide the labels for the
+			// choices to be displayed in the AutoCompleteTextView.
+			adapter.setCursorToStringConverter(new CursorToStringConverter() {
+				public String convertToString(android.database.Cursor cursor) {
+					// Get the label for this row out of the "state" column
+					if (cursor != null) {
+						final int columnIndex = cursor.getColumnIndexOrThrow("name");
+						final String str = cursor.getString(columnIndex);
+
+						return str;
+					} else
+						return null;
+				}
+			});
+
+			// Set the FilterQueryProvider, to run queries for choices
+			// that match the specified input.
+			adapter.setFilterQueryProvider(new FilterQueryProvider() {
+				public Cursor runQuery(CharSequence constraint) {
+					// Search for states whose names begin with the specified
+					// letters.
+					Cursor cursor = DataManager.getItemsCursor(constraint, null, null);
+					return cursor;
+				}
+			});
+			searchView.setAdapter(adapter);
 			searchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 				@Override
 				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-					Item item = DataManager.getItemByName(arrAdapter.getItem(position));
+					// Get the cursor, positioned to the corresponding row in
+					// the
+					// result set
+					Cursor cursor = (Cursor) adapter.getItem(position);
+
+					// Get the state's capital from this row in the database.
+					String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
+
+					Item item = DataManager.getItemByName(name);
 					if (item != null) {
 						Util.hideKeyboard(getView());
 						chooseType(item.getSpecifications().get(0).getType(), item.getCategory(), item);
@@ -586,7 +665,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 		foundItem = item;
 		gallery.setVisibility(View.VISIBLE);
-		imageAdapter.filter(categoriesSelected, category, null);
+		filter(categoriesSelected, category, null);
 
 		if (foundItem != null)
 			showCard(foundItem, null, true);
@@ -594,7 +673,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 	private void openSubCategoriesDialog(final ItemType cardType) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		final String[] subCategories = DataManager.getCardCategories(cardType).toArray(new String[0]);
+		final String[] subCategories = cardType.getCategories().toArray(new String[0]);
 		builder.setItems(subCategories, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -643,7 +722,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 				@Override
 				public void onDismiss(DialogInterface dialog) {
-					imageAdapter.filter(new ArrayList<ItemType>(categoriesSelected), null, null);
+					filter(new ArrayList<ItemType>(categoriesSelected), null, null);
 				}
 			});
 			return true;

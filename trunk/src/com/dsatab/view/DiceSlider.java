@@ -71,6 +71,9 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 	private static final int HANDLE_MELEE_FAILURE = 3;
 	private static final int HANDLE_DISTANCE_FAILURE = 4;
 
+	private View slideHandleButton;
+	private boolean sliderVisible = true;
+
 	private TableLayout tblDiceProbe;
 	private TextView tfDiceTalent, tfDiceTalentValue, tfDiceProbesAttr, tfDiceProbesAttrValues, tfEffect,
 			tfEffectValue;
@@ -122,6 +125,47 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 	public DiceSlider(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
+	}
+
+	public View getSlideHandleButton() {
+		return slideHandleButton;
+	}
+
+	public void setSlideHandleButton(View slideHandleButton) {
+		this.slideHandleButton = slideHandleButton;
+	}
+
+	public boolean isSliderVisible() {
+		return sliderVisible;
+	}
+
+	public void setSliderVisible(boolean sliderVisible) {
+		this.sliderVisible = sliderVisible;
+		if (this.sliderVisible) {
+			showSlideHandle();
+		} else {
+			hideSlideHandle();
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void showSlideHandle() {
+		if (getSlideHandleButton().getVisibility() != View.VISIBLE) {
+			getSlideHandleButton().setVisibility(View.VISIBLE);
+			getHandle().startAnimation(AnimationUtils.makeInChildBottomAnimation(getContext()));
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void hideSlideHandle() {
+		if (getSlideHandleButton().getVisibility() != View.GONE) {
+			getSlideHandleButton().startAnimation(AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_out));
+			getSlideHandleButton().setVisibility(View.GONE);
+		}
 	}
 
 	/**
@@ -318,8 +362,12 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		executeButton.setVisibility(View.GONE);
 		tfArea.setVisibility(View.GONE);
 		tfDiceTalent.setText(null);
-		if (modifiersContainer != null)
+		if (modifiersContainer != null) {
 			modifiersContainer.setVisibility(View.GONE);
+		}
+		if (!sliderVisible) {
+			hideSlideHandle();
+		}
 	}
 
 	private boolean isModifiersPopup() {
@@ -333,7 +381,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 	 */
 	@Override
 	public void onDrawerOpened() {
-
+		showSlideHandle();
 	}
 
 	/*

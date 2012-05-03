@@ -308,7 +308,7 @@ public class ArtFragment extends BaseFragment implements OnItemClickListener, He
 	}
 
 	private void loadHeroArts(Hero hero) {
-		artAdapter = new ArtAdapter(getBaseActivity(), hero.getArts(), filterSettings);
+		artAdapter = new ArtAdapter(getBaseActivity(), hero.getArts().values(), filterSettings);
 		liturigeList.setAdapter(artAdapter);
 	}
 

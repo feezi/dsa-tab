@@ -16,7 +16,7 @@
  */
 package com.dsatab.data.adapter;
 
-import java.util.List;
+import java.util.Collection;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -51,7 +51,7 @@ public class ArtAdapter extends OpenArrayAdapter<Art> {
 
 	private Bitmap indicatorStar;
 
-	public ArtAdapter(Context context, List<Art> liturgies, ListFilterSettings filterSettings) {
+	public ArtAdapter(Context context, Collection<Art> liturgies, ListFilterSettings filterSettings) {
 		super(context, 0, 0, liturgies);
 
 		this.filterSettings = filterSettings;

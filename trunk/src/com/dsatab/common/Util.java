@@ -365,10 +365,14 @@ public class Util {
 	public static void setVisibility(View view, boolean visible, View expander) {
 		if (visible && view.getVisibility() != View.VISIBLE) {
 
+			if (view.getVisibility() == View.GONE) {
+				// weight of text5 is added to text1 if invisible
+				((LinearLayout.LayoutParams) expander.getLayoutParams()).weight -= ((LinearLayout.LayoutParams) view
+						.getLayoutParams()).weight;
+			}
+
 			view.setVisibility(View.VISIBLE);
-			// weight of text5 is added to text1 if invisible
-			((LinearLayout.LayoutParams) expander.getLayoutParams()).weight -= ((LinearLayout.LayoutParams) view
-					.getLayoutParams()).weight;
+
 		}
 
 		if (!visible && view.getVisibility() == View.VISIBLE) {

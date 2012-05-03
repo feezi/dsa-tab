@@ -103,8 +103,8 @@ public class CombatProbe extends BaseProbe {
 	public String toString() {
 
 		return (isAttack() ? "Angriff mit " : "Parade mit ")
-				+ (getEquippedItem() != null ? (getEquippedItem().getItem().getTitle() + "(" + getName() + ")") : probe
-						.getName());
+				+ (getEquippedItem() != null ? (getEquippedItem().getItem().getTitle() + "(" + getName() + ")")
+						: getName());
 	}
 
 }

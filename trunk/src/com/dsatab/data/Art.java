@@ -1,20 +1,23 @@
 package com.dsatab.data;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.Map;
 
 import org.jdom.Element;
 
 import android.text.TextUtils;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.common.Util;
 import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.enums.AttributeType;
-import com.dsatab.xml.Xml;
 import com.dsatab.util.Debug;
+import com.dsatab.xml.Xml;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.SelectArg;
 
 public class Art extends MarkableElement implements Value, Markable {
 
@@ -50,6 +53,9 @@ public class Art extends MarkableElement implements Value, Markable {
 
 	};
 
+	private static SelectArg nameArg, gradeArg;
+	private static PreparedQuery<ArtInfo> nameQuery, nameGradeQuery;
+
 	private ArtType type;
 
 	private Hero hero;
@@ -64,7 +70,7 @@ public class Art extends MarkableElement implements Value, Markable {
 
 	private boolean customProbe;
 
-	public Art(Hero hero, Element element, Map<String, ArtInfo> artInfos) {
+	public Art(Hero hero, Element element) {
 		super(element);
 		this.hero = hero;
 
@@ -91,10 +97,28 @@ public class Art extends MarkableElement implements Value, Markable {
 			}
 		}
 
-		if (grade != null) {
-			info = artInfos.get(name + " " + grade);
+		// TODO Check for art that do not have a grade on first grade. to get
+		// loaded right!!!
+		initQueries();
+		nameArg.setValue(name);
+		if (grade == null) {
+			info = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class).queryForFirst(nameQuery);
 		} else {
-			info = artInfos.get(name);
+			gradeArg.setValue(grade);
+			info = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class)
+					.queryForFirst(nameGradeQuery);
+
+			// if we find no art with grade, try without
+			if (info == null) {
+				info = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class)
+						.queryForFirst(nameQuery);
+				if (info != null)
+					Debug.warning("Art with grade could not be found using the one without grade: " + name);
+			}
+		}
+
+		if (info == null) {
+			Debug.warning("No unique art found for " + name + " : " + grade);
 		}
 
 		switch (type) {
@@ -128,6 +152,26 @@ public class Art extends MarkableElement implements Value, Markable {
 		if (info == null) {
 			Debug.warning("No info found for liturige:" + element.getAttributeValue(Xml.KEY_NAME).trim());
 		}
+	}
+
+	private static void initQueries() {
+		if (nameArg != null)
+			return;
+
+		try {
+			nameArg = new SelectArg();
+			gradeArg = new SelectArg();
+
+			nameQuery = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class).queryBuilder()
+					.where().eq("name", nameArg).prepare();
+
+			nameGradeQuery = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class).queryBuilder()
+					.where().eq("name", nameArg).and().eq("grade", gradeArg).prepare();
+
+		} catch (SQLException e) {
+			Debug.error(e);
+		}
+
 	}
 
 	public ArtType getType() {

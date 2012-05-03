@@ -1,17 +1,21 @@
 package com.dsatab.data;
 
+import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.Map;
 
 import org.jdom.Element;
 
 import android.text.TextUtils;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.common.Util;
 import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.util.Debug;
 import com.dsatab.xml.Xml;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.SelectArg;
 
 public class Spell extends MarkableElement implements Value, XmlWriteable {
 
@@ -28,6 +32,9 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 
 	};
 
+	private static SelectArg nameArg;
+	private static PreparedQuery<SpellInfo> nameQuery;
+
 	private Hero hero;
 	private String name;
 	private Integer value;
@@ -41,14 +48,39 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 
 	private EnumSet<Flags> flags = EnumSet.noneOf(Flags.class);
 
-	public Spell(Hero hero, Element element, Map<String, SpellInfo> spellInfos) {
+	private static void initQueries() {
+		if (nameArg != null)
+			return;
+
+		try {
+			nameArg = new SelectArg();
+
+			nameQuery = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(SpellInfo.class).queryBuilder()
+					.where().eq("name", nameArg).prepare();
+
+		} catch (SQLException e) {
+			Debug.error(e);
+		}
+
+	}
+
+	public Spell(Hero hero, Element element) {
 		super(element);
 		this.hero = hero;
 
 		this.probeInfo.applyProbePattern(element.getAttributeValue(Xml.KEY_PROBE));
 		this.name = element.getAttributeValue(Xml.KEY_NAME);
 		this.value = Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
-		this.info = spellInfos.get(name);
+
+		Debug.warning("Searching for spell info :" + name);
+		initQueries();
+		nameArg.setValue(name);
+		this.info = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(SpellInfo.class)
+				.queryForFirst(nameQuery);
+
+		if (info == null) {
+			Debug.warning("No  spell info found for " + name);
+		}
 
 		if (info == null) {
 			info = new SpellInfo();

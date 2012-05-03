@@ -16,7 +16,7 @@
  */
 package com.dsatab.data.adapter;
 
-import java.util.List;
+import java.util.Collection;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -35,8 +35,8 @@ import com.dsatab.data.Hero;
 import com.dsatab.data.Spell;
 import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.filter.FilterableListFilter;
-import com.dsatab.view.ListFilterSettings;
 import com.dsatab.util.Debug;
+import com.dsatab.view.ListFilterSettings;
 
 /**
  * 
@@ -61,7 +61,7 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 	 * @param textViewResourceId
 	 * @param objects
 	 */
-	public SpellAdapter(Context context, Hero hero, List<Spell> spells, ListFilterSettings settings) {
+	public SpellAdapter(Context context, Hero hero, Collection<Spell> spells, ListFilterSettings settings) {
 		super(context, 0, 0, spells);
 
 		this.hero = hero;

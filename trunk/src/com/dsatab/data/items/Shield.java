@@ -1,6 +1,5 @@
 package com.dsatab.data.items;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.jdom.Element;
@@ -9,61 +8,33 @@ import android.text.TextUtils;
 
 import com.dsatab.R;
 import com.dsatab.common.Util;
-import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.xml.Xml;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
-public class Shield extends ItemSpecification {
+@DatabaseTable(tableName = "item_shield")
+public class Shield extends CloseCombatItem {
 
-	private static final long serialVersionUID = -1317930157801685718L;
+	@DatabaseField(generatedId = true)
+	protected int id;
 
-	private Integer bf;
-
-	private Integer ini;
-
-	private Integer wmAt;
-	private Integer wmPa;
-
+	@DatabaseField
 	private boolean shield;
+	@DatabaseField
 	private boolean paradeWeapon;
 
-	private List<CombatTalentType> combatTalentType = new LinkedList<CombatTalentType>();
-
+	// transient cache for the info string
 	private String info;
+
+	/**
+	 * no arg constructor for ormlite
+	 */
+	public Shield() {
+
+	}
 
 	public Shield(Item item) {
 		super(item, ItemType.Schilde, 0);
-	}
-
-	public Integer getBf() {
-		return bf;
-	}
-
-	public void setBf(Integer bf) {
-		this.bf = bf;
-	}
-
-	public Integer getIni() {
-		return ini;
-	}
-
-	public void setIni(Integer ini) {
-		this.ini = ini;
-	}
-
-	public Integer getWmAt() {
-		return wmAt;
-	}
-
-	public void setWmAt(Integer wmAt) {
-		this.wmAt = wmAt;
-	}
-
-	public Integer getWmPa() {
-		return wmPa;
-	}
-
-	public void setWmPa(Integer wmPa) {
-		this.wmPa = wmPa;
 	}
 
 	public boolean isShield() {
@@ -80,21 +51,6 @@ public class Shield extends ItemSpecification {
 
 	public void setParadeWeapon(boolean paradeWeapon) {
 		this.paradeWeapon = paradeWeapon;
-	}
-
-	public CombatTalentType getCombatTalentType() {
-		if (combatTalentType.isEmpty())
-			return null;
-		else
-			return combatTalentType.get(0);
-	}
-
-	public List<CombatTalentType> getCombatTalentTypes() {
-		return combatTalentType;
-	}
-
-	public void setCombatTalentType(List<CombatTalentType> type) {
-		this.combatTalentType = type;
 	}
 
 	/*
