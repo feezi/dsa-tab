@@ -20,5 +20,7 @@
 	<include android:layout_width="fill_parent"
 		android:layout_height="fill_parent" layout="@layout/dice_slider_content"
 		android:id="@+id/inc_dice_slider_content"></include>
+	
+	
 </com.dsatab.view.DiceSlider>
 </LinearLayout>

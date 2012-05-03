@@ -146,13 +146,17 @@ public class DsaPreferenceActivityHC extends BasePreferenceActivity {
 		 */
 		@Override
 		public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-			if (preference.getKey().equals(KEY_DOWNLOAD_SCREEN)) {
+			if (KEY_DOWNLOAD_SCREEN.equals(preference.getKey())) {
 				((PreferenceActivity) getActivity()).startPreferenceFragment(new PrefsDownloadFragment(), true);
 				return true;
-			} else if (preference.getKey().equals(KEY_DISPALY_HEADER_SCREEN)) {
+			} else if (KEY_DISPALY_HEADER_SCREEN.equals(preference.getKey())) {
 				((PreferenceActivity) getActivity()).startPreferenceFragment(new PrefsDisplayHeaderFragment(), true);
 				return true;
-			} else if (preference.getKey().equals(KEY_HOUSE_RULES)) {
+			} else if (KEY_DISPALY_DICE_SLIDER_SCREEN.equals(preference.getKey())) {
+				((PreferenceActivity) getActivity())
+						.startPreferenceFragment(new PrefsDisplayDiceSliderFragment(), true);
+				return true;
+			} else if (KEY_HOUSE_RULES.equals(preference.getKey())) {
 				((PreferenceActivity) getActivity()).startPreferenceFragment(new PrefsHouseRulesFragment(), true);
 				return true;
 			} else {
@@ -192,6 +196,16 @@ public class DsaPreferenceActivityHC extends BasePreferenceActivity {
 			addPreferencesFromResource(R.xml.preferences_hc_display_header);
 		}
 
+	}
+
+	public static class PrefsDisplayDiceSliderFragment extends BasePreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+
+			// Load the preferences from an XML resource
+			addPreferencesFromResource(R.xml.preferences_hc_display_diceslider);
+		}
 	}
 
 	public static class PrefsDownloadFragment extends BasePreferenceFragment {

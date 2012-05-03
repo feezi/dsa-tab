@@ -29,7 +29,6 @@ import com.dsatab.data.filter.ItemCardListFilter;
 import com.dsatab.data.items.ItemCard;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.view.GridCardView;
-import com.dsatab.util.Debug;
 
 public class GridItemAdapter extends OpenArrayAdapter<ItemCard> {
 
@@ -96,7 +95,8 @@ public class GridItemAdapter extends OpenArrayAdapter<ItemCard> {
 		for (int i = 0; i < count; i++) {
 			card = mObjects.get(i);
 			card.getItemInfo().setCellNumber((i * 2) + 1);
-			Debug.verbose(card.getItem().getName() + " " + card.getItemInfo().getCellNumber());
+			// Debug.verbose(card.getItem().getName() + " " +
+			// card.getItemInfo().getCellNumber());
 		}
 	}
 
@@ -131,7 +131,6 @@ public class GridItemAdapter extends OpenArrayAdapter<ItemCard> {
 	@Override
 	public void notifyDataSetChanged() {
 		Collections.sort(mObjects, ItemCard.CELL_NUMBER_COMPARATOR);
-
 		super.notifyDataSetChanged();
 	}
 

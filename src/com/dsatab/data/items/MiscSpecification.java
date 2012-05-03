@@ -19,12 +19,21 @@ package com.dsatab.data.items;
 import org.jdom.Element;
 
 import com.dsatab.R;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
-/**
- * 
- * 
- */
+@DatabaseTable(tableName = "item_misc")
 public class MiscSpecification extends ItemSpecification {
+
+	@DatabaseField(generatedId = true)
+	protected int id;
+
+	/**
+	 * no arg constructor for ormlite
+	 */
+	public MiscSpecification() {
+
+	}
 
 	/**
 	 * @param item
@@ -56,8 +65,7 @@ public class MiscSpecification extends ItemSpecification {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.dsatab.data.items.ItemSpecification#setElement(org.jdom.Element)
+	 * @see com.dsatab.data.items.ItemSpecification#setElement(org.jdom.Element)
 	 */
 	@Override
 	public void setElement(Element element) {

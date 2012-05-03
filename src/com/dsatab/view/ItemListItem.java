@@ -25,6 +25,7 @@ import android.widget.TwoLineListItem;
 
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemSpecification;
+import com.dsatab.util.Debug;
 
 /**
  * @author Seraphim
@@ -107,6 +108,8 @@ public class ItemListItem extends TwoLineListItem {
 	}
 
 	public void setItem(Item e) {
+		if (e.getSpecifications().isEmpty())
+			Debug.error("Item without spec found " + e.getName());
 		setItem(e, e.getSpecifications().get(0));
 	}
 

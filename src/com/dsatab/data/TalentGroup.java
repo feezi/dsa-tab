@@ -12,7 +12,7 @@ public class TalentGroup {
 
 	public static String[] NAHKAMPF_TALENTS = { "Dolche", "Hiebwaffen", "Raufen", "Ringen", "Säbel",
 			"Anderthalbhänder", "Fechtwaffen", "Infanteriewaffen", "Kettenstäbe", "Kettenwaffen", "Lanzenreiten",
-			"Peitsche", "Schwerter", "Speere", "Stäbe", "Zweihandflegel", "Zweihandhiebwaffen",
+			Talent.PEITSCHE, "Schwerter", "Speere", "Stäbe", "Zweihandflegel", "Zweihandhiebwaffen",
 			"Zweihandschwerter/-säbel", "Bastardstäbe" };
 
 	public static String[] FERNKAMPF_TALENTS = { "Wurfmesser", "Armbrust", "Blasrohr", "Bogen", "Diskus", "Schleuder",

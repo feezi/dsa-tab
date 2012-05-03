@@ -7,7 +7,8 @@ public enum AttributeType {
 			"AU Total"), Astralenergie("AE"), Astralenergie_Total("AE"), Karmaenergie("KE"), Karmaenergie_Total(
 			"KE Total"), Magieresistenz("MR"), ini("INI", true, true), Initiative_Aktuell("INI", true, false), at("AT",
 			true, true, false), pa("PA", true, true, false), fk("FK", true, true, false), Behinderung("BE", false), Ausweichen(
-			"AW", true, true), Geschwindigkeit("GS", true, false, false);
+			"AW", true, true), Geschwindigkeit("GS", true, false, false), Entrueckung("ENT", false), Verzueckung("VZ",
+			false), Erschoepfung("ERS", false);
 
 	private String code = null;
 	private boolean be;

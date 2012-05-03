@@ -59,6 +59,7 @@ import com.dsatab.activity.MainActivity;
 import com.dsatab.activity.ModificatorEditActivity;
 import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.common.Util;
+import com.dsatab.data.Advantage;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.CombatTalent;
 import com.dsatab.data.CustomModificator;
@@ -782,7 +783,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	public void onHeroLoaded(Hero hero) {
 		fillFightItemDescriptions();
 
-		fightPickerTypes = new ArrayList<AttributeType>(4);
+		fightPickerTypes = new ArrayList<AttributeType>(6);
 		fightPickerTypes.add(AttributeType.Lebensenergie);
 		fightPickerTypes.add(AttributeType.Ausdauer);
 
@@ -793,8 +794,14 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		if (hero.getAttributeValue(AttributeType.Karmaenergie) != null
 				&& hero.getAttributeValue(AttributeType.Karmaenergie) >= 0) {
 			fightPickerTypes.add(AttributeType.Karmaenergie);
+			fightPickerTypes.add(AttributeType.Entrueckung);
 		}
+		if (getHero().hasFeature(Advantage.MONDSUECHTIG)) {
+			fightPickerTypes.add(AttributeType.Verzueckung);
+		}
+
 		fightPickerTypes.add(AttributeType.Initiative_Aktuell);
+		fightPickerTypes.add(AttributeType.Erschoepfung);
 
 		if (!fightPickerTypes.contains(fightPickerType)) {
 			fightPickerType = fightPickerTypes.get(0);

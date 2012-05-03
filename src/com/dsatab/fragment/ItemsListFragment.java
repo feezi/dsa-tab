@@ -25,6 +25,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.ContextMenu;
@@ -202,7 +203,7 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
-		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_item_add, Menu.NONE,
+		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_item_add_list, Menu.NONE,
 				"Gegenstand hinzufügen");
 		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		item.setIcon(R.drawable.ic_menu_add);
@@ -223,7 +224,7 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 	 */
 	@Override
 	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
-		if (item.getItemId() == R.id.option_item_add) {
+		if (item.getItemId() == R.id.option_item_add_list) {
 			showItemPopup();
 			return true;
 		} else if (item.getItemId() == R.id.option_item_filter) {
@@ -371,11 +372,19 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 				 */
 				@Override
 				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-					Item item = (Item) parent.getAdapter().getItem(position);
+					Object obj = parent.getAdapter().getItem(position);
+					Item item = null;
+					if (obj instanceof Item)
+						item = (Item) obj;
+					else if (obj instanceof Cursor) {
+						item = DataManager.getItemByCursor((Cursor) obj);
+					}
 
 					if (item != null) {
 						item = item.duplicate();
-						getHero().addItem(getActivity(), item, null);
+						// we only add the item here we do not assign it to a
+						// set yet
+						getHero().addItem(item);
 						itemAdpater.add(item);
 					}
 

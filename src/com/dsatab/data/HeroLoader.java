@@ -32,9 +32,9 @@ import com.dsatab.DSATabApplication;
 import com.dsatab.HeroConfiguration;
 import com.dsatab.activity.MainActivity;
 import com.dsatab.common.DsaTabRuntimeException;
+import com.dsatab.util.Debug;
 import com.dsatab.xml.Xml;
 import com.dsatab.xml.XmlParser;
-import com.dsatab.util.Debug;
 
 /**
  * @author Ganymede
@@ -105,7 +105,7 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 			}
 
 			fis = new FileInputStream(file);
-			hero = XmlParser.readHero(path, fis);
+			hero = XmlParser.readHero(path, fis, this);
 			hero.setHeroConfiguration(loadHeroConfiguration());
 			if (hero != null) {
 				Debug.verbose("Hero successfully parsed");
@@ -135,6 +135,7 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 					Debug.error(e);
 				}
 			}
+
 		}
 	}
 
@@ -169,11 +170,9 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 						heroConfiguration = null;
 					}
 				}
-
 			}
 
 			if (heroConfiguration == null) {
-
 				heroConfiguration = new HeroConfiguration(hero);
 				heroConfiguration.reset();
 			}

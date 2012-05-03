@@ -16,10 +16,14 @@
  */
 package com.dsatab.activity;
 
-import android.content.Intent;
+import java.io.File;
+
+import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.WindowManager;
 
 import com.actionbarsherlock.app.SherlockActivity;
@@ -46,6 +50,21 @@ public class BaseActivity extends SherlockActivity {
 		super.onCreate(savedInstanceState);
 	}
 
+	protected void applyPreferencesToTheme() {
+		SharedPreferences pref = DSATabApplication.getPreferences();
+		String bgPath = pref.getString(BasePreferenceActivity.KEY_STYLE_BG_PATH, null);
+
+		if (bgPath != null) {
+			WindowManager wm = (WindowManager) DSATabApplication.getInstance().getSystemService(Context.WINDOW_SERVICE);
+			Display display = wm.getDefaultDisplay();
+			Bitmap bg = Util.decodeFile(new File(bgPath), Math.max(display.getWidth(), display.getHeight()));
+			BitmapDrawable drawable = new BitmapDrawable(bg);
+			getWindow().setBackgroundDrawable(drawable);
+		} else {
+			getWindow().setBackgroundDrawableResource(Util.getThemeResourceId(this, android.R.attr.windowBackground));
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -68,34 +87,6 @@ public class BaseActivity extends SherlockActivity {
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 		updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onActivityResult(int, int,
-	 * android.content.Intent)
-	 */
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-		if (requestCode == MainActivity.ACTION_PREFERENCES) {
-
-			SharedPreferences preferences = DSATabApplication.getPreferences();
-
-			String orientation = preferences.getString(BasePreferenceActivity.KEY_SCREEN_ORIENTATION,
-					BasePreferenceActivity.DEFAULT_SCREEN_ORIENTATION);
-			if (BasePreferenceActivity.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)) {
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-			} else if (BasePreferenceActivity.SCREEN_ORIENTATION_PORTRAIT.equals(orientation)) {
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-			} else if (BasePreferenceActivity.SCREEN_ORIENTATION_AUTO.equals(orientation)) {
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-			}
-
-			updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
-		}
-		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	protected void updateFullscreenStatus(boolean bUseFullscreen) {

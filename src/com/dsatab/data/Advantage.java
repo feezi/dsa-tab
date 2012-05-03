@@ -11,6 +11,10 @@ import com.dsatab.xml.Xml;
 
 public class Advantage {
 
+	/**
+	 * 
+	 */
+
 	private String name;
 	private String comment;
 	private String valueString;
@@ -22,6 +26,7 @@ public class Advantage {
 	public static final String TOLLPATSCH = "Tollpatsch";
 	public static final String MAGIEDILLETANT = "Magiedilletant";
 	public static final String ENTFERNUNGSSINN = "Entfernungssinn";
+	public static final String MONDSUECHTIG = "Mondsüchtig";
 
 	public static final String MEISTERHANDWERK = "Meisterhandwerk";
 
@@ -62,7 +67,7 @@ public class Advantage {
 			"Körpergebundene Kraft", "Konstruktionswahn", "Krankhafte Nekromantie", "Krankhafte Reinlichkeit",
 			"Krankheitsanfällig", "Kristallgebunden", "Kurzatmig", "Lahm", "Landangst", "Lästige Mindergeister",
 			"Lichtempfindlich", "Lichtscheu", "Madas Fluch", "Medium", "Meeresangst", "Miserable Eigenschaft",
-			"Mondsüchtig", "Moralkodex [Angrosch-Kult]", "Moralkodex [Badalikaner]", "Moralkodex [Boron-Kirche]",
+			MONDSUECHTIG, "Moralkodex [Angrosch-Kult]", "Moralkodex [Badalikaner]", "Moralkodex [Boron-Kirche]",
 			"Moralkodex [Bund des wahren Glaubens]", "Moralkodex [Dreischwesternorden]", "Moralkodex [Efferd-Kirche]",
 			"Moralkodex [Firun-Kirche]", "Moralkodex [Hesinde-Kirche]", "Moralkodex [H'Szint-Kult]",
 			"Moralkodex [Ifirn-Kirche]", "Moralkodex [Ingerimm-Kirche]", "Moralkodex [Kor-Kirche]",

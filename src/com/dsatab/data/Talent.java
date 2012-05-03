@@ -12,6 +12,8 @@ public class Talent extends MarkableElement implements Value, XmlWriteable {
 
 	public static final String ATHLETIK = "Athletik";
 
+	public static final String PEITSCHE = "Peitsche";
+
 	public static final String WILDNISLEBEN = "Wildnisleben";
 	public static final String TIERKUNDE = "Tierkunde";
 	public static final String FÄHRTENSUCHEN = "Fährtensuchen";

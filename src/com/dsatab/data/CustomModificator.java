@@ -51,6 +51,7 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 	public static final String KEY_PA = "pa";
 
 	public static final String KEY_ZAUBER = "zauber";
+	public static final String KEY_EIGENSCHAFTEN = "eigenschaften";
 	public static final String KEY_TALENTE = "talente";
 	public static final String KEY_LITURGIEN = "liturgien";
 
@@ -315,7 +316,12 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 	@Override
 	public Modifier getModifier(AttributeType type) {
 		if (isActive()) {
+
 			Integer modifier = getModifier(type.code());
+			if (modifier == null && AttributeType.isEigenschaft(type)) {
+				modifier = getModifier(KEY_EIGENSCHAFTEN);
+			}
+
 			if (modifier != null) {
 				return new Modifier(modifier, getModificatorName(), getRules());
 			}

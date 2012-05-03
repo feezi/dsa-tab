@@ -604,7 +604,7 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 			stringBuilder.appendBold(getString(R.string.specialfeatures));
 			stringBuilder.appendBold(": ");
 			boolean first = true;
-			for (SpecialFeature feature : hero.getSpecialFeatures()) {
+			for (SpecialFeature feature : hero.getSpecialFeatures().values()) {
 
 				if (!first) {
 					stringBuilder.append(", ");
@@ -629,7 +629,7 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 			stringBuilder.appendBold(": ");
 
 			boolean first = true;
-			for (Advantage advantage : hero.getAdvantages()) {
+			for (Advantage advantage : hero.getAdvantages().values()) {
 
 				if (!first) {
 					stringBuilder.append(", ");
@@ -654,7 +654,7 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 			stringBuilder.appendBold(": ");
 
 			boolean first = true;
-			for (Advantage disadvantage : hero.getDisadvantages()) {
+			for (Advantage disadvantage : hero.getDisadvantages().values()) {
 
 				if (!first) {
 					stringBuilder.append(", ");

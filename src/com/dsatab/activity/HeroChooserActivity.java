@@ -78,6 +78,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setTheme(DSATabApplication.getInstance().getCustomTheme());
+		applyPreferencesToTheme();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.popup_hero_chooser);
 

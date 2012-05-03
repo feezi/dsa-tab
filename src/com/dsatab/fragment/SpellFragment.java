@@ -159,7 +159,7 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 				true), preferences.getBoolean(FilterDialog.PREF_KEY_SPELL_UNUSED, false), preferences.getBoolean(
 				FilterDialog.PREF_KEY_SPELL_MODIFIERS, true));
 
-		spellAdapter = new SpellAdapter(getBaseActivity(), getHero(), getHero().getSpells(), filterSettings);
+		spellAdapter = new SpellAdapter(getBaseActivity(), getHero(), getHero().getSpells().values(), filterSettings);
 
 		spellList.setAdapter(spellAdapter);
 	}
@@ -223,31 +223,42 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 
 			switch (item.getItemId()) {
 			case R.id.option_edit_spell: {
-				MainActivity.showEditPopup(getActivity(), getSpell(child, position));
+				Spell spell = getSpell(child, position);
+				if (spell != null) {
+					MainActivity.showEditPopup(getActivity(), spell);
+				}
 				return true;
 			}
 			case R.id.option_mark_favorite_spell: {
 				Spell spell = getSpell(child, position);
-				spell.setFavorite(true);
-				spellAdapter.notifyDataSetChanged();
-
+				if (spell != null) {
+					spell.setFavorite(true);
+					spellAdapter.notifyDataSetChanged();
+				}
 				return true;
 			}
 			case R.id.option_mark_unused_spell: {
 				Spell spell = getSpell(child, position);
-				spell.setUnused(true);
-				spellAdapter.notifyDataSetChanged();
+				if (spell != null) {
+					spell.setUnused(true);
+					spellAdapter.notifyDataSetChanged();
+				}
 				return true;
 			}
 			case R.id.option_unmark_spell: {
 				Spell spell = getSpell(child, position);
-				spell.setFavorite(false);
-				spell.setUnused(false);
-				spellAdapter.notifyDataSetChanged();
+				if (spell != null) {
+					spell.setFavorite(false);
+					spell.setUnused(false);
+					spellAdapter.notifyDataSetChanged();
+				}
 				return true;
 			}
 			case R.id.option_view_spell: {
-				showInfo(getSpell(child, position));
+				Spell spell = getSpell(child, position);
+				if (spell != null) {
+					showInfo(spell);
+				}
 				return true;
 			}
 			}

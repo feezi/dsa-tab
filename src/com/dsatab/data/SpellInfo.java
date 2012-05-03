@@ -18,34 +18,42 @@ package com.dsatab.data;
 
 import android.text.TextUtils;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
 /**
  * @author Ganymede
  * 
  */
+@DatabaseTable(tableName = "spell")
 public class SpellInfo {
 
+	@DatabaseField(generatedId = true)
+	private long id;
+
+	@DatabaseField
 	private String name;
-
+	@DatabaseField
 	private String source;
-
+	@DatabaseField
 	private String probe;
-
+	@DatabaseField
 	private String complexity;
-
+	@DatabaseField
 	private String target;
-
+	@DatabaseField
 	private String range;
-
+	@DatabaseField
 	private String merkmale;
-
+	@DatabaseField
 	private String castDuration;
-
+	@DatabaseField
 	private String effect;
-
+	@DatabaseField
 	private String effectDuration;
-
+	@DatabaseField
 	private String representation;
-
+	@DatabaseField
 	private String costs;
 
 	/**
@@ -53,6 +61,14 @@ public class SpellInfo {
 	 */
 	public SpellInfo() {
 
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	public String getName() {

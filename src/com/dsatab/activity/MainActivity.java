@@ -34,7 +34,6 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -240,20 +239,18 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	}
 
 	public void showDiceSlider() {
-		if (diceSlider.getVisibility() != View.VISIBLE) {
-			diceSlider.setVisibility(View.VISIBLE);
-			diceSlider.getHandle().startAnimation(AnimationUtils.makeInChildBottomAnimation(this));
+		if (diceSlider != null) {
+			diceSlider.setSliderVisible(true);
 		}
 	}
 
 	public void hideDiceSlider() {
-		if (diceSlider.isOpened())
-			diceSlider.close();
-		if (diceSlider.getVisibility() != View.GONE) {
-			diceSlider.setVisibility(View.GONE);
-			diceSlider.getHandle().startAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_out));
+		if (diceSlider != null) {
+			if (diceSlider.isOpened()) {
+				diceSlider.close();
+			}
+			diceSlider.setSliderVisible(false);
 		}
-
 	}
 
 	/*
@@ -480,6 +477,8 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 		relMainLayout = (RelativeLayout) findViewById(R.id.gen_main_layout);
 
+		viewPager = (MyViewPager) findViewById(R.id.viewpager);
+
 		preferences = DSATabApplication.getPreferences();
 
 		String orientation = preferences.getString(BasePreferenceActivity.KEY_SCREEN_ORIENTATION,
@@ -499,9 +498,12 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 			Debug.verbose("Setting portrait");
 			return;
 		} else if (DsaPreferenceActivity.SCREEN_ORIENTATION_AUTO.equals(orientation)
-				&& getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_SENSOR) {
+				&& getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_SENSOR
+				&& getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
+
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			Debug.verbose("Setting sensor");
+			return;
 		}
 
 		probeListener = new ProbeListener(this);
@@ -510,8 +512,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		if (preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_SHAKE_ROLL_DICE, false)) {
 			registerShakeDice();
 		}
-
-		viewPager = (MyViewPager) findViewById(R.id.viewpager);
 
 		if (savedInstanceState != null) {
 			tabInfo = savedInstanceState.getParcelable(KEY_TAB_INFO);
@@ -613,6 +613,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		relMainLayout.addView(diceSliderContainer);
 
 		diceSlider = (DiceSlider) relMainLayout.findViewById(R.id.SlidingDrawer);
+		diceSlider.setSlideHandleButton(relMainLayout.findViewById(R.id.slideHandleButton));
 	}
 
 	protected boolean showNextTab() {
@@ -774,7 +775,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 			showTab(tabInfo);
 		}
 
-		if (viewPagerAdapter.getCurrentFragments() != null) {
+		if (viewPagerAdapter != null && viewPagerAdapter.getCurrentFragments() != null) {
 			viewPagerAdapter.getCurrentFragments().loadHero(hero);
 		}
 
@@ -785,18 +786,21 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	}
 
 	protected void onHeroUnloaded(Hero hero) {
-
-		Debug.verbose("Unload hero " + hero.getName());
-
-		if (viewPagerAdapter.getCurrentFragments() != null) {
+		if (hero != null) {
+			Debug.verbose("Unload hero " + hero.getName());
+		}
+		if (viewPagerAdapter != null && viewPagerAdapter.getCurrentFragments() != null) {
 			viewPagerAdapter.getCurrentFragments().unloadHero(hero);
 		}
 		BaseFragment f = (BaseFragment) getSupportFragmentManager().findFragmentByTag(AttributeListFragment.TAG);
-		if (f != null && f.isAdded())
+		if (f != null && f.isAdded()) {
 			f.unloadHero(hero);
+		}
 
-		viewPagerAdapter.onDestroy();
-		viewPagerAdapter = null;
+		if (viewPagerAdapter != null) {
+			viewPagerAdapter.onDestroy();
+			viewPagerAdapter = null;
+		}
 	}
 
 	public boolean checkProbe(Probe probe) {
@@ -1085,6 +1089,34 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 			applyPreferencesToTheme();
 		}
 
+		if (BasePreferenceActivity.KEY_SCREEN_ORIENTATION.equals(key)) {
+			String orientation = sharedPreferences.getString(BasePreferenceActivity.KEY_SCREEN_ORIENTATION,
+					BasePreferenceActivity.DEFAULT_SCREEN_ORIENTATION);
+
+			if (BasePreferenceActivity.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)) {
+				if (getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+					// You need to check if your desired orientation isn't
+					// already set because setting orientation restarts your
+					// Activity which takes long
+					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+				}
+			} else if (BasePreferenceActivity.SCREEN_ORIENTATION_PORTRAIT.equals(orientation)) {
+				if (getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+				}
+			} else if (BasePreferenceActivity.SCREEN_ORIENTATION_AUTO.equals(orientation)) {
+				if (getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_SENSOR) {
+					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+				}
+			}
+		}
+
+		if (BasePreferenceActivity.KEY_FULLSCREEN.equals(key)) {
+			updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
+		}
+
+		// notify other listeners (fragments, heroes)
+
 		if (viewPagerAdapter != null) {
 			for (DualFragment fragment : viewPagerAdapter.getDualFragments()) {
 				if (fragment != null) {
@@ -1096,6 +1128,11 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		BaseFragment f = (BaseFragment) getSupportFragmentManager().findFragmentByTag(AttributeListFragment.TAG);
 		if (f != null && f.isAdded())
 			f.onSharedPreferenceChanged(sharedPreferences, key);
+
+		Hero hero = DSATabApplication.getInstance().getHero();
+		if (hero != null) {
+			hero.onSharedPreferenceChanged(sharedPreferences, key);
+		}
 	}
 
 	protected void showHeroChooser() {

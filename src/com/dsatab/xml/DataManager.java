@@ -15,26 +15,31 @@
  */
 package com.dsatab.xml;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.util.LruCache;
+import android.text.TextUtils;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.data.items.Item;
-import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.ItemType;
+import com.dsatab.util.Debug;
+import com.j256.ormlite.android.AndroidCompiledStatement;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.StatementBuilder.StatementType;
+import com.j256.ormlite.stmt.Where;
+import com.j256.ormlite.support.DatabaseConnection;
 
 /**
  * @author Seraphim
@@ -42,15 +47,7 @@ import com.dsatab.data.items.ItemType;
  */
 public class DataManager {
 
-	private static WeakReference<Map<String, Item>> itemsMap;
-
-	private static WeakReference<List<Item>> items;
-
-	private static List<String> cardCategories;
-
 	private static LruCache<String, Bitmap> mMemoryCache;
-
-	private static Map<ItemType, List<String>> cardTypeCategories;
 
 	public static void init(Context context) {
 
@@ -82,29 +79,76 @@ public class DataManager {
 		return mMemoryCache.get(key);
 	}
 
-	public static Map<String, Item> getItemsMap() {
-		if (itemsMap == null || itemsMap.get() == null) {
-			itemsMap = new WeakReference<Map<String, Item>>(XmlParser.readItems());
+	public static Cursor getItemsCursor(CharSequence nameConstraint, Collection<ItemType> itemTypes, String itemCategory) {
+
+		try {
+
+			RuntimeExceptionDao<Item, UUID> itemDao = DSATabApplication.getInstance().getDBHelper().getItemDao();
+
+			PreparedQuery<Item> query = null;
+
+			QueryBuilder<Item, UUID> builder = itemDao.queryBuilder();
+
+			if (TextUtils.isEmpty(nameConstraint) && (itemTypes == null || itemTypes.isEmpty())
+					&& TextUtils.isEmpty(itemCategory)) {
+				query = builder.prepare();
+			} else {
+				Where<Item, UUID> where = builder.where();
+
+				if (!TextUtils.isEmpty(nameConstraint)) {
+					where = where.like("name", nameConstraint + "%").and();
+				}
+
+				if (!TextUtils.isEmpty(itemCategory)) {
+					where = where.eq("category", itemCategory).and();
+				}
+
+				if (itemTypes != null && !itemTypes.isEmpty()) {
+					for (ItemType type : itemTypes) {
+						where = where.like("itemTypes", "%;" + type.name() + ";%");
+					}
+					if (itemTypes.size() > 1) {
+						where = where.or(itemTypes.size());
+					}
+				}
+
+				Debug.verbose("WHERE: " + where.getStatement());
+				query = where.prepare();
+			}
+
+			Cursor cursor = getCursor(query);
+
+			return cursor;
+		} catch (SQLException e) {
+			Debug.error(e);
 		}
 
-		return itemsMap.get();
+		return null;
+
+	}
+
+	public static Cursor getCursor(PreparedQuery<?> query) {
+		Cursor cursor = null;
+		try {
+			DatabaseConnection databaseConnection = DSATabApplication.getInstance().getDBHelper().getConnectionSource()
+					.getReadOnlyConnection();
+
+			AndroidCompiledStatement compiledStatement = (AndroidCompiledStatement) query.compile(databaseConnection,
+					StatementType.SELECT);
+			cursor = compiledStatement.getCursor();
+		} catch (SQLException e) {
+
+			Debug.error(e);
+		}
+		return cursor;
 	}
 
 	public static List<Item> getItems() {
+		RuntimeExceptionDao<Item, UUID> itemDao = DSATabApplication.getInstance().getDBHelper().getItemDao();
+		List<Item> items = itemDao.queryForAll();
+		Collections.sort((List<Item>) items, Item.NAME_COMPARATOR);
 
-		if (items == null || items.get() == null) {
-			Collection<Item> itemsList = getItemsMap().values();
-
-			if (!(itemsList instanceof List))
-				itemsList = new ArrayList<Item>(itemsList);
-
-			Collections.sort((List<Item>) itemsList, Item.NAME_COMPARATOR);
-
-			items = new WeakReference<List<Item>>((List<Item>) itemsList);
-
-		}
-
-		return items.get();
+		return items;
 
 	}
 
@@ -117,57 +161,28 @@ public class DataManager {
 		return bitmap;
 	}
 
-	public static void reloadItemsMap() {
-		itemsMap = null;
+	public static Item getItemByCursor(Cursor cursor) {
+		String _id = cursor.getString(cursor.getColumnIndex("_id"));
+		return DataManager.getItemById(UUID.fromString(_id));
+	}
+
+	public static Item getItemById(UUID itemId) {
+		RuntimeExceptionDao<Item, UUID> itemDao = DSATabApplication.getInstance().getDBHelper().getItemDao();
+		Item item = itemDao.queryForId(itemId);
+		return item;
 	}
 
 	public static Item getItemByName(String name) {
-		return getItemsMap().get(name);
-	}
+		try {
+			RuntimeExceptionDao<Item, UUID> itemDao = DSATabApplication.getInstance().getDBHelper().getItemDao();
+			PreparedQuery<Item> query = itemDao.queryBuilder().where().eq("name", name).prepare();
 
-	public static List<String> getCardCategories() {
+			return itemDao.queryForFirst(query);
 
-		if (cardCategories == null) {
-
-			Set<String> categoryMap = new HashSet<String>();
-
-			for (Item card : getItemsMap().values()) {
-				categoryMap.add(card.getCategory());
-			}
-
-			cardCategories = new ArrayList<String>(categoryMap);
-
+		} catch (SQLException e) {
+			Debug.error(e);
 		}
-
-		return cardCategories;
-	}
-
-	public static List<String> getCardCategories(ItemType cardType) {
-
-		if (cardTypeCategories == null) {
-
-			cardTypeCategories = new HashMap<ItemType, List<String>>();
-
-			for (Item item : getItemsMap().values()) {
-
-				for (ItemSpecification spec : item.getSpecifications()) {
-					List<String> categoryList = cardTypeCategories.get(spec.getType());
-					if (categoryList == null) {
-						categoryList = new LinkedList<String>();
-						cardTypeCategories.put(spec.getType(), categoryList);
-					}
-
-					if (!categoryList.contains(item.getCategory()))
-						categoryList.add(item.getCategory());
-
-				}
-			}
-		}
-
-		List<String> result = cardTypeCategories.get(cardType);
-		if (result == null)
-			result = Collections.emptyList();
-		return result;
+		return null;
 	}
 
 }

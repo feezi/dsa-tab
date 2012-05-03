@@ -53,8 +53,11 @@
                         android:summary="Im Vollbildmodus wird weder die Titel- noch die Statusleiste angezeigt."
                         android:key="fullscreen" />
 
-</PreferenceCategory>
-<PreferenceCategory android:title="Würfelleiste konfigurieren" android:summary="Hier kannst du die Würfelleiste konfigurieren.">                        
+
+
+	<PreferenceScreen android:title="Würfelleiste konfigurieren" android:summary="Hier kannst du einstellen wie sich die Würfelleiste verhalten soll.">        
+	
+	<PreferenceCategory android:title="Würfelleiste konfigurieren" android:summary="Hier kannst du die Würfelleiste konfigurieren.">                        
 				
 					<CheckBoxPreference
 						android:icon="@drawable/ic_menu_dice"
@@ -103,7 +106,7 @@
 	                        android:summaryOff="Die Liste wird nur auf Wunsch als Popup angezeigt"
 	                        android:key="probeShowModificators" />
 				</PreferenceCategory>
-				
+		</PreferenceScreen>
 		<PreferenceScreen android:title="Kopfzeile konfigurieren" android:summary="Hier kannst du einstellen was alles in der Kopfzeile angezeigt werden soll.">
 				<PreferenceCategory android:title="Kopfzeile konfigurieren" android:summary="Hier kannst du einstellen was alles in der Kopfzeile angezeigt werden soll.">                        
 				
@@ -171,4 +174,6 @@
         </PreferenceCategory>
                 
         </PreferenceScreen>
+        
+	</PreferenceCategory>		
 </PreferenceScreen>

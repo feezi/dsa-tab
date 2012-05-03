@@ -10,12 +10,12 @@
 	<LinearLayout android:layout_height="wrap_content"
 		android:id="@+id/dice_dices" android:gravity="center" android:layout_width="fill_parent">
 		<TableLayout android:layout_width="wrap_content" android:shrinkColumns="0" android:id="@+id/dice_probe_table" android:layout_height="wrap_content">
-			<TableRow android:id="@+id/TableRow01" android:layout_height="wrap_content" android:layout_width="wrap_content">
+			<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
 				<TextView android:id="@+id/dice_taw" android:paddingRight="3dip" android:layout_height="wrap_content" android:text="TaW" android:layout_width="match_parent" android:gravity="center_horizontal" style="@style/TextLabel.Small.Inverse"></TextView>
 				<TextView android:id="@+id/dice_probe" android:gravity="center_horizontal" android:layout_height="wrap_content" android:text="(KK/KO/IN)" android:layout_width="match_parent" style="@style/TextLabel.Small.Inverse"></TextView>
 				<TextView android:id="@+id/dice_effect" android:layout_height="wrap_content" android:text="TaP*" android:layout_marginLeft="5dip" android:layout_width="match_parent" android:gravity="center_horizontal" style="@style/TextLabel.Small.Inverse"></TextView>
 			</TableRow>
-			<TableRow android:id="@+id/TableRow02" android:layout_height="wrap_content" android:layout_width="wrap_content">
+			<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
 				<TextView android:id="@+id/dice_talent_value" android:gravity="center_horizontal" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="5" android:textStyle="bold" android:paddingRight="5dp" android:paddingLeft="5dp" style="@style/TextValue.NoTouch.Inverse"></TextView>
 				<TextView android:id="@+id/dice_value" android:gravity="center_horizontal" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="13/15/9" style="@style/TextValue.NoTouch.Inverse"></TextView>
 				<TextView android:id="@+id/dice_effect_value" android:gravity="center_horizontal" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="5" android:layout_marginLeft="5dip" android:textStyle="bold" style="@style/TextValue.NoTouch.Inverse"></TextView>

@@ -3,6 +3,8 @@ package com.dsatab.data.items;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,9 +17,13 @@ import android.text.TextUtils;
 import com.dsatab.DSATabApplication;
 import com.dsatab.common.Util;
 import com.dsatab.data.ItemLocationInfo;
-import com.dsatab.xml.Xml;
 import com.dsatab.util.Debug;
+import com.dsatab.xml.Xml;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
 
+@DatabaseTable(tableName = "item")
 public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard {
 
 	private static final long serialVersionUID = 7011220901677479470L;
@@ -34,27 +40,45 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		}
 	};
 
-	static final String POSTFIX_LQ = "_LQ.gif";
-	static final String POSTFIX_HQ = "_HQ.jpg";
+	public static final String POSTFIX_LQ = "_LQ.gif";
+	public static final String POSTFIX_HQ = "_HQ.jpg";
 
 	public static final String BLANK_PATH = "blank_w_LQ.gif";
 	public static final String BLANK_PATH_HQ = "blank_w_HQ.jpg";
 
 	private transient Element element;
 
+	@DatabaseField(id = true, columnName = "_id")
 	private UUID id;
 
+	@DatabaseField
 	private String name;
-
+	@DatabaseField
 	private String title;
-
+	@DatabaseField
 	private String category;
-
+	@DatabaseField
+	private String itemTypes;
+	@DatabaseField
 	public String path = BLANK_PATH;
 
-	private ItemLocationInfo itemInfo;
+	// we need these wrapper since ormlite does not inheritance for
+	// ItemSpecification yet. All these collections will be merged into
+	// itemSpecs which is used by the app
+	@ForeignCollectionField(eager = true)
+	private Collection<Weapon> weaponSpecsHelper = new ArrayList<Weapon>();
+	@ForeignCollectionField(eager = true)
+	private Collection<Shield> shieldSpecsHelper = new ArrayList<Shield>();
+	@ForeignCollectionField(eager = true)
+	private Collection<DistanceWeapon> distanceWeaponSpecsHelper = new ArrayList<DistanceWeapon>();
+	@ForeignCollectionField(eager = true)
+	private Collection<Armor> armorSpecsHelper = new ArrayList<Armor>();
+	@ForeignCollectionField(eager = true)
+	private Collection<MiscSpecification> miscSpecsHelper = new ArrayList<MiscSpecification>();
 
 	private List<ItemSpecification> itemSpecs;
+
+	private ItemLocationInfo itemInfo;
 
 	private List<EquippedItem> equippedItems;
 
@@ -63,12 +87,11 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	public Item() {
 		id = UUID.randomUUID();
 		itemInfo = new ItemLocationInfo();
-		itemSpecs = new LinkedList<ItemSpecification>();
 	}
 
 	@SuppressWarnings("unchecked")
 	public <T extends ItemSpecification> T getSpecification(Class<T> type) {
-		for (ItemSpecification itemSpecification : itemSpecs) {
+		for (ItemSpecification itemSpecification : getSpecifications()) {
 			if (itemSpecification.getClass() == type)
 				return (T) itemSpecification;
 		}
@@ -83,7 +106,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 
 	public void addSpecification(ItemSpecification itemSpecification) {
 		int version = 0;
-		for (ItemSpecification specification : itemSpecs) {
+		for (ItemSpecification specification : getSpecifications()) {
 			if (specification.getClass().equals(itemSpecification.getClass())) {
 				version++;
 			}
@@ -94,10 +117,36 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 			itemSpecification.setElement(element);
 		}
 		itemSpecs.add(itemSpecification);
+
+		if (itemSpecification.getType() != null) {
+			if (TextUtils.isEmpty(itemTypes))
+				itemTypes = ";";
+			itemTypes = itemTypes.concat(itemSpecification.getType().name() + ";");
+		}
+
+		if (itemSpecification instanceof Weapon) {
+			weaponSpecsHelper.add((Weapon) itemSpecification);
+		} else if (itemSpecification instanceof Shield) {
+			shieldSpecsHelper.add((Shield) itemSpecification);
+		} else if (itemSpecification instanceof DistanceWeapon) {
+			distanceWeaponSpecsHelper.add((DistanceWeapon) itemSpecification);
+		} else if (itemSpecification instanceof Armor) {
+			armorSpecsHelper.add((Armor) itemSpecification);
+		} else if (itemSpecification instanceof MiscSpecification) {
+			miscSpecsHelper.add((MiscSpecification) itemSpecification);
+		}
 	}
 
 	public List<ItemSpecification> getSpecifications() {
-		return itemSpecs;
+		if (itemSpecs == null) {
+			itemSpecs = new ArrayList<ItemSpecification>();
+			itemSpecs.addAll(weaponSpecsHelper);
+			itemSpecs.addAll(shieldSpecsHelper);
+			itemSpecs.addAll(distanceWeaponSpecsHelper);
+			itemSpecs.addAll(armorSpecsHelper);
+			itemSpecs.addAll(miscSpecsHelper);
+		}
+		return Collections.unmodifiableList(itemSpecs);
 	}
 
 	public List<String> getSpecificationNames() {
@@ -113,7 +162,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	}
 
 	public boolean hasSpecification(Class<? extends ItemSpecification> type) {
-		for (ItemSpecification itemSpecification : itemSpecs) {
+		for (ItemSpecification itemSpecification : getSpecifications()) {
 			if (itemSpecification.getClass() == type)
 				return true;
 		}
@@ -169,7 +218,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 			}
 		}
 
-		for (ItemSpecification specification : itemSpecs) {
+		for (ItemSpecification specification : getSpecifications()) {
 			specification.setElement(element);
 		}
 	}
@@ -230,7 +279,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	}
 
 	public boolean isEquipable() {
-		for (ItemSpecification specification : itemSpecs) {
+		for (ItemSpecification specification : getSpecifications()) {
 			if (specification.type.isEquipable())
 				return true;
 		}
@@ -253,13 +302,13 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	}
 
 	public String getInfo() {
-		if (itemSpecs.isEmpty()) {
+		if (getSpecifications().isEmpty()) {
 			if (getCount() > 1)
 				return getCount() + " Stück";
 			else
 				return "";
 		} else
-			return itemSpecs.get(0).getInfo();
+			return getSpecifications().get(0).getInfo();
 	}
 
 	@Override
@@ -305,10 +354,10 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	}
 
 	public int getResourceId() {
-		if (itemSpecs.isEmpty())
+		if (getSpecifications().isEmpty())
 			return 0;
 		else
-			return itemSpecs.get(0).getResourceId();
+			return getSpecifications().get(0).getResourceId();
 
 	}
 

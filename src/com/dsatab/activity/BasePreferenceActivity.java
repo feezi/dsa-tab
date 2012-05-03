@@ -109,6 +109,7 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 	public static final String KEY_DOWNLOAD_OSMMAPS = "downloadOSMMaps";
 
 	public static final String KEY_DISPALY_HEADER_SCREEN = "displayHeaderScreen";
+	public static final String KEY_DISPALY_DICE_SLIDER_SCREEN = "displayDiceSliderScreen";
 
 	public static final String KEY_DOWNLOAD_WESNOTH_PORTRAITS = "downloadWesnothPortraits";
 
@@ -271,6 +272,7 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		// setTheme(DSATabApplication.getInstance().getCustomPreferencesTheme());
 		super.onCreate(savedInstanceState);
 
 		SharedPreferences preferences = DSATabApplication.getPreferences();
@@ -407,7 +409,7 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 	}
 
 	protected static boolean handlePreferenceClick(Context context, String key) {
-		if (key.equals(KEY_STYLE_BG_WOUNDS_DELETE)) {
+		if (KEY_STYLE_BG_WOUNDS_DELETE.equals(key)) {
 			SharedPreferences preferences = DSATabApplication.getPreferences();
 			Editor edit = preferences.edit();
 			edit.remove(KEY_STYLE_BG_WOUNDS_PATH);
@@ -415,7 +417,7 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 
 			Toast.makeText(context, "Wunden-Hintergrundbild wurde zurückgesetzt.", Toast.LENGTH_SHORT).show();
 			return true;
-		} else if (key.equals(KEY_STYLE_BG_DELETE)) {
+		} else if (KEY_STYLE_BG_DELETE.equals(key)) {
 			SharedPreferences preferences = DSATabApplication.getPreferences();
 			Editor edit = preferences.edit();
 			edit.remove(KEY_STYLE_BG_PATH);
@@ -499,7 +501,7 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 			});
 			builder.show();
 			return true;
-		} else if (preference.getKey().equals(KEY_INFOS)) {
+		} else if (KEY_INFOS.equals(preference.getKey())) {
 			VersionInfoDialog newsDialog = new VersionInfoDialog(context);
 			newsDialog.setDonateContentId(R.raw.donate);
 			newsDialog.setDonateVersion(DSATabApplication.getInstance().isLiteVersion());
@@ -509,16 +511,16 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 			newsDialog.setIcon(R.drawable.icon);
 			newsDialog.show(true);
 			return true;
-		} else if (preference.getKey().equals(KEY_TIP_TODAY)) {
+		} else if (KEY_TIP_TODAY.equals(preference.getKey())) {
 			TipOfTheDayDialog newsDialog = new TipOfTheDayDialog(context);
 			newsDialog.show();
 			return true;
-		} else if (preference.getKey().equals(KEY_DONATE)) {
+		} else if (KEY_DONATE.equals(preference.getKey())) {
 			Uri uriUrl = Uri.parse(DSATabApplication.PAYPAL_DONATION_URL);
 			final Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uriUrl);
 			context.startActivity(launchBrowser);
 			return true;
-		} else if (preference.getKey().equals(KEY_DSA_LICENSE)) {
+		} else if (KEY_DSA_LICENSE.equals(preference.getKey())) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
 			builder.setTitle(R.string.title_credits);
 			builder.setCancelable(true);
@@ -535,15 +537,15 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 				}
 			});
 			builder.show();
-		} else if (preference.getKey().equals(KEY_STYLE_BG_PATH)) {
+		} else if (KEY_STYLE_BG_PATH.equals(preference.getKey())) {
 			pickImage(context, ACTION_PICK_BG_PATH);
 			return true;
-		} else if (preference.getKey().equals(KEY_STYLE_BG_WOUNDS_PATH)) {
+		} else if (KEY_STYLE_BG_WOUNDS_PATH.equals(preference.getKey())) {
 			pickImage(context, ACTION_PICK_BG_WOUNDS_PATH);
 			return true;
-		} else if (preference.getKey().equals(KEY_STYLE_BG_WOUNDS_DELETE)) {
+		} else if (KEY_STYLE_BG_WOUNDS_DELETE.equals(preference.getKey())) {
 			return handlePreferenceClick(context, KEY_STYLE_BG_WOUNDS_DELETE);
-		} else if (preference.getKey().equals(KEY_STYLE_BG_DELETE)) {
+		} else if (KEY_STYLE_BG_DELETE.equals(preference.getKey())) {
 			return handlePreferenceClick(context, KEY_STYLE_BG_DELETE);
 		}
 

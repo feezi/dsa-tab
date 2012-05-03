@@ -42,6 +42,7 @@ import com.dsatab.activity.ItemChooserActivity;
 import com.dsatab.activity.MainActivity;
 import com.dsatab.common.Util;
 import com.dsatab.data.ArmorAttribute;
+import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Value;
 import com.dsatab.data.WoundAttribute;
@@ -266,8 +267,44 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 		if (value instanceof ArmorAttribute) {
 			ArmorAttribute rs = (ArmorAttribute) value;
 			bodyLayout.setArmorAttribute(rs);
+		} else if (value instanceof Attribute) {
+			Attribute attribute = (Attribute) value;
+
+			switch (attribute.getType()) {
+			case Behinderung:
+				totalBe.setText(Util.toString(getHero().getArmorBe()));
+				break;
+			}
 		}
 		super.onValueChanged(value);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.fragment.BaseFragment#onItemEquipped(com.dsatab.data.items
+	 * .EquippedItem)
+	 */
+	@Override
+	public void onItemEquipped(EquippedItem item) {
+		if (item.isArmor()) {
+			totalRs.setText(Util.toString(getHero().getArmorRs()));
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.fragment.BaseFragment#onItemUnequipped(com.dsatab.data.items
+	 * .EquippedItem)
+	 */
+	@Override
+	public void onItemUnequipped(EquippedItem item) {
+		if (item.isArmor()) {
+			totalRs.setText(Util.toString(getHero().getArmorRs()));
+		}
 	}
 
 }

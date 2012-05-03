@@ -26,7 +26,16 @@ public class Debug {
 
 	private static String tag = DSATabApplication.TAG;
 
+	private static boolean TRACE = true;
+
 	protected static boolean debugMode = com.dsatab.BuildConfig.DEBUG;
+
+	public static void trace(String message) {
+		if (!debugMode || !TRACE)
+			return;
+
+		Log.d(tag, "TRACE:" + message);
+	}
 
 	/**
 	 * Prints a warning to LogCat with information

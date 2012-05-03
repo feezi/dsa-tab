@@ -9,12 +9,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
@@ -30,6 +31,7 @@ import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.common.Util;
 import com.dsatab.data.ArtInfo;
 import com.dsatab.data.Hero;
+import com.dsatab.data.HeroLoader;
 import com.dsatab.data.SpellInfo;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
@@ -42,34 +44,32 @@ import com.dsatab.data.items.MiscSpecification;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.util.Debug;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.SelectArg;
 
 public class XmlParser {
 
 	public static final String ENCODING = "UTF-8";
 
-	public static Map<String, Item> readItems() {
-
-		Map<String, Item> items = new HashMap<String, Item>();
+	public static void fillItems() {
 
 		try {
-			readItems("items.txt", items);
+			readItems("items.txt");
 
 			if (DSATabApplication.getPreferences().getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_MORE_WOUND_ZONES,
 					false)) {
-				readItems("items_armor_house.txt", items);
+				readItems("items_armor_house.txt");
 			} else {
-				readItems("items_armor.txt", items);
+				readItems("items_armor.txt");
 			}
 		} catch (IOException e) {
 			throw new DsaTabRuntimeException("Could not parse items from items.txt", e);
 		}
 
-		return items;
-
 	}
 
-	public static Map<String, ArtInfo> readArts() {
-		Map<String, ArtInfo> items = new HashMap<String, ArtInfo>();
+	public static void fillArts() {
 
 		BufferedReader r = null;
 		try {
@@ -78,6 +78,9 @@ public class XmlParser {
 
 			String line;
 			StringSplitter splitter = new TextUtils.SimpleStringSplitter(';');
+
+			RuntimeExceptionDao<ArtInfo, Integer> artDao = DSATabApplication.getInstance().getDBHelper()
+					.getRuntimeDao(ArtInfo.class);
 
 			Iterator<String> i = null;
 
@@ -114,22 +117,8 @@ public class XmlParser {
 					if (i.hasNext())
 						item.setMerkmale(i.next().trim());
 
-					if (items.containsKey(item.getName())) {
-						String nameWithGrade = item.getName() + " " + Util.intToGrade(item.getGrade());
+					artDao.create(item);
 
-						if (items.containsKey(nameWithGrade)) {
-							// liturgie is already stored duplicate skip it
-							Debug.verbose("Duplicate Liturgie info found: " + nameWithGrade);
-						} else {
-							items.put(nameWithGrade, item);
-						}
-					} else {
-						// to liturgies with the lowest grad are stored without
-						// grade info too (heldensoftware does not add a grade
-						// to their name
-						items.put(item.getName(), item);
-						items.put(item.getName() + " " + Util.intToGrade(item.getGrade()), item);
-					}
 				} catch (StringIndexOutOfBoundsException e) {
 					Debug.warning("Could not parse:" + line);
 				}
@@ -145,11 +134,9 @@ public class XmlParser {
 			}
 		}
 
-		return items;
 	}
 
-	public static Map<String, SpellInfo> readSpells() {
-		Map<String, SpellInfo> items = new HashMap<String, SpellInfo>();
+	public static void fillSpells() {
 
 		BufferedReader r = null;
 		try {
@@ -160,6 +147,9 @@ public class XmlParser {
 			StringSplitter splitter = new TextUtils.SimpleStringSplitter(';');
 
 			Iterator<String> i = null;
+
+			RuntimeExceptionDao<SpellInfo, Integer> spellDao = DSATabApplication.getInstance().getDBHelper()
+					.getRuntimeDao(SpellInfo.class);
 
 			SpellInfo item = null;
 			while ((line = r.readLine()) != null) {
@@ -196,8 +186,7 @@ public class XmlParser {
 					if (i.hasNext())
 						item.setEffect(i.next().trim());
 
-					items.put(item.getName(), item);
-
+					spellDao.create(item);
 				} catch (StringIndexOutOfBoundsException e) {
 					Debug.warning("Could not parse:" + line);
 				}
@@ -213,10 +202,9 @@ public class XmlParser {
 			}
 		}
 
-		return items;
 	}
 
-	private static void readItems(String file, Map<String, Item> items) throws IOException {
+	private static void readItems(String file) throws IOException {
 		BufferedReader r = null;
 		try {
 			r = new BufferedReader(new InputStreamReader(DSATabApplication.getInstance().getAssets().open(file),
@@ -226,6 +214,32 @@ public class XmlParser {
 			StringSplitter splitter = new TextUtils.SimpleStringSplitter(';');
 
 			List<Position> armorPositions = DSATabApplication.getInstance().getConfiguration().getArmorPositions();
+
+			RuntimeExceptionDao<Weapon, Integer> weaponDao = DSATabApplication.getInstance().getDBHelper()
+					.getRuntimeDao(Weapon.class);
+
+			RuntimeExceptionDao<Shield, Integer> shieldDao = DSATabApplication.getInstance().getDBHelper()
+					.getRuntimeDao(Shield.class);
+
+			RuntimeExceptionDao<Armor, Integer> armorDao = DSATabApplication.getInstance().getDBHelper()
+					.getRuntimeDao(Armor.class);
+
+			RuntimeExceptionDao<DistanceWeapon, Integer> distanceWeaponDao = DSATabApplication.getInstance()
+					.getDBHelper().getRuntimeDao(DistanceWeapon.class);
+
+			RuntimeExceptionDao<MiscSpecification, Integer> miscspecDao = DSATabApplication.getInstance().getDBHelper()
+					.getRuntimeDao(MiscSpecification.class);
+
+			RuntimeExceptionDao<Item, UUID> itemDao = DSATabApplication.getInstance().getDBHelper().getItemDao();
+
+			PreparedQuery<Item> nameQuery = null;
+			SelectArg nameArg = null;
+			try {
+				nameArg = new SelectArg();
+				nameQuery = itemDao.queryBuilder().where().eq("name", nameArg).prepare();
+			} catch (SQLException e) {
+				Debug.error(e);
+			}
 
 			Iterator<String> i = null;
 			ItemType type = null;
@@ -261,34 +275,43 @@ public class XmlParser {
 					specLabel = null;
 				}
 
-				if (items.containsKey(item.getName())) {
-					item = items.get(item.getName());
-				} else {
-					items.put(item.getName(), item);
-				}
+				nameArg.setValue(item.getName());
+				Item existingItem = itemDao.queryForFirst(nameQuery);
+				if (existingItem != null)
+					item = existingItem;
 
 				// Debug.verbose(line);
 				if (line.startsWith("W;")) {
 					Weapon w = readWeapon(item, i);
 					w.setSpecificationLabel(specLabel);
 					item.addSpecification(w);
+					weaponDao.create(w);
 				} else if (line.startsWith("D;")) {
 					DistanceWeapon w = readDistanceWeapon(item, i);
 					w.setSpecificationLabel(specLabel);
 					item.addSpecification(w);
+					distanceWeaponDao.create(w);
 				} else if (line.startsWith("A;")) {
 					Armor w = readArmor(item, i, armorPositions);
 					w.setSpecificationLabel(specLabel);
 					item.addSpecification(w);
+					armorDao.create(w);
 				} else if (line.startsWith("S;")) {
 					Shield w = readShield(item, i);
 					w.setSpecificationLabel(specLabel);
 					item.addSpecification(w);
+					shieldDao.create(w);
 				} else {
 					MiscSpecification m = new MiscSpecification(item, type);
 					m.setSpecificationLabel(specLabel);
 					item.addSpecification(m);
+					miscspecDao.create(m);
 				}
+
+				if (existingItem == null)
+					itemDao.create(item);
+				else
+					itemDao.update(item);
 
 			}
 		} finally {
@@ -332,7 +355,7 @@ public class XmlParser {
 				w.setTwoHanded(true);
 
 			while (i.hasNext()) { // type
-				w.getCombatTalentTypes().add(CombatTalentType.valueOf(i.next()));
+				w.addCombatTalentType(CombatTalentType.valueOf(i.next()));
 			}
 
 			return w;
@@ -372,6 +395,10 @@ public class XmlParser {
 			String mod = i.next();
 			if (mod.contains("Z"))
 				w.setZonenHalfBe(true);
+		}
+		if (i.hasNext()) {
+			int pieces = Util.parseInt(i.next());
+			w.setTotalPieces(pieces);
 		}
 		return w;
 	}
@@ -429,7 +456,8 @@ public class XmlParser {
 	}
 
 	public static void writeItems() {
-		Map<String, Item> items = readItems();
+		Map<String, Item> items = null;
+		// TODO read items from database;
 
 		try {
 
@@ -642,14 +670,14 @@ public class XmlParser {
 			w.setShield(true);
 
 		while (i.hasNext()) { // type
-			w.getCombatTalentTypes().add(CombatTalentType.valueOf(i.next()));
+			w.addCombatTalentType(CombatTalentType.valueOf(i.next()));
 		}
 
 		return w;
 
 	}
 
-	public static Hero readHero(String path, InputStream in) throws JDOMException, IOException {
+	public static Hero readHero(String path, InputStream in, HeroLoader heroLoader) throws JDOMException, IOException {
 
 		Hero hero = null;
 
@@ -675,7 +703,7 @@ public class XmlParser {
 		else {
 			Debug.error("Error: DOM was null.");
 		}
-		hero = new Hero(path, dom);
+		hero = new Hero(path, dom, heroLoader);
 		Debug.verbose("Hero object created: " + hero.toString());
 
 		return hero;

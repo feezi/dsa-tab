@@ -1,6 +1,5 @@
 package com.dsatab.data.items;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.jdom.Element;
@@ -12,29 +11,36 @@ import com.dsatab.R;
 import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.common.Util;
 import com.dsatab.data.Dice;
-import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.xml.Xml;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
-public class Weapon extends ItemSpecification {
+@DatabaseTable(tableName = "item_weapon")
+public class Weapon extends CloseCombatItem {
 
+	@DatabaseField(generatedId = true)
+	protected int id;
+
+	@DatabaseField
 	private String tp;
-
+	@DatabaseField
 	private Integer tpKKMin;
+	@DatabaseField
 	private Integer tpKKStep;
-
-	private Integer bf;
-
-	private Integer ini;
-
-	private Integer wmAt;
-	private Integer wmPa;
-
+	@DatabaseField
 	private boolean twoHanded;
+	@DatabaseField
 	private String distance;
 
-	private List<CombatTalentType> combatTalentType = new LinkedList<CombatTalentType>();
-
+	// transient cache for the info string
 	private String info;
+
+	/**
+	 * no arg constructor for ormlite
+	 */
+	public Weapon() {
+
+	}
 
 	public Weapon(Item item, int version) {
 		super(item, ItemType.Waffen, version);
@@ -104,38 +110,6 @@ public class Weapon extends ItemSpecification {
 		this.tp = tp;
 	}
 
-	public Integer getBf() {
-		return bf;
-	}
-
-	public void setBf(Integer bf) {
-		this.bf = bf;
-	}
-
-	public Integer getIni() {
-		return ini;
-	}
-
-	public void setIni(Integer ini) {
-		this.ini = ini;
-	}
-
-	public Integer getWmAt() {
-		return wmAt;
-	}
-
-	public void setWmAt(Integer wmAt) {
-		this.wmAt = wmAt;
-	}
-
-	public Integer getWmPa() {
-		return wmPa;
-	}
-
-	public void setWmPa(Integer wmPa) {
-		this.wmPa = wmPa;
-	}
-
 	public Integer getTpKKMin() {
 		return tpKKMin;
 	}
@@ -166,21 +140,6 @@ public class Weapon extends ItemSpecification {
 
 	public void setDistance(String distance) {
 		this.distance = distance;
-	}
-
-	public CombatTalentType getCombatTalentType() {
-		if (combatTalentType.isEmpty())
-			return null;
-		else
-			return combatTalentType.get(0);
-	}
-
-	public List<CombatTalentType> getCombatTalentTypes() {
-		return combatTalentType;
-	}
-
-	public void setCombatTalentType(List<CombatTalentType> type) {
-		this.combatTalentType = type;
 	}
 
 	@Override
@@ -300,6 +259,14 @@ public class Weapon extends ItemSpecification {
 		}
 		return info;
 
+	}
+
+	public boolean isAttackable() {
+		return wmAt != null;
+	}
+
+	public boolean isDefendable() {
+		return wmPa != null;
 	}
 
 }
