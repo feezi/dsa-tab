@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.dsatab.view.EquippedItemListItem
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:minHeight="?android:attr/listPreferredItemHeight"
+	android:layout_width="fill_parent" android:layout_height="wrap_content" android:padding="2.5dp">
+
+	<com.dsatab.view.GlossyImageButton android:layout_alignParentLeft="true"
+		android:id="@android:id/icon1"  android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:visibility="visible" android:layout_marginRight="2.5dp" android:focusable="false" android:clickable="false"/>
+
+	<TextView android:id="@android:id/text1"
+		android:layout_marginTop="1dip" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_toRightOf="@android:id/icon1"
+		android:lines="1" android:singleLine="true"
+		android:marqueeRepeatLimit="marquee_forever" android:ellipsize="marquee"
+		android:scrollHorizontally="true"
+    	android:layout_alignWithParentIfMissing="true" android:textAppearance="?android:attr/textAppearanceMedium"
+		android:textStyle="bold" android:layout_toLeftOf="@+id/set1"/>
+
+	<TextView android:id="@android:id/text2" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_below="@android:id/text1"
+		android:layout_alignLeft="@android:id/text1"
+		android:layout_alignRight="@android:id/text1"
+		android:textAppearance="?android:attr/textAppearanceMedium" android:textStyle="normal" />
+
+	<com.dsatab.view.GlossyImageButton android:id="@+id/set1" android:layout_height="@dimen/icon_button_size"
+		android:layout_width="@dimen/icon_button_size" 
+		android:visibility="visible" android:src="@drawable/set1"
+		android:layout_toLeftOf="@+id/set2" android:layout_marginLeft="2.5dp" android:clickable="false" android:focusable="false"/>
+	
+	
+	<com.dsatab.view.GlossyImageButton android:id="@+id/set2" android:layout_height="@dimen/icon_button_size"
+		android:layout_width="@dimen/icon_button_size"
+		android:visibility="visible" android:src="@drawable/set2"
+		android:layout_toLeftOf="@+id/set3" android:layout_marginLeft="1dip" android:clickable="false" android:focusable="false"/>
+	
+	
+	<com.dsatab.view.GlossyImageButton android:layout_alignParentRight="true"
+		android:id="@+id/set3" android:layout_height="@dimen/icon_button_size"
+		android:layout_width="@dimen/icon_button_size"  android:src="@drawable/set3"
+		android:visibility="visible" android:layout_marginLeft="1dip" android:clickable="false" android:focusable="false"/>
+
+	<TextView
+	    android:id="@+id/icon_1_overlay"
+	    android:textColor="#dddddd"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"	    
+	    android:layout_alignLeft="@android:id/icon1"
+	    android:layout_alignBottom="@android:id/icon1"
+	    android:text="1"
+	    android:textAppearance="?android:attr/textAppearanceSmall" android:background="@drawable/ic_notification_overlay"/>
+
+	
+
+</com.dsatab.view.EquippedItemListItem>

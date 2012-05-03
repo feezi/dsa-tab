@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.dsatab.view.ItemListItem
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:minHeight="?android:attr/listPreferredItemHeight"
+	android:padding="2.5dp"
+	android:layout_width="fill_parent" android:layout_height="wrap_content">
+
+	<com.dsatab.view.GlossyImageButton android:layout_alignParentLeft="true"
+	    android:layout_centerVertical="true"
+		android:id="@android:id/icon1" android:layout_marginRight="5dip" android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:visibility="visible"/>
+	
+	<TextView android:id="@android:id/text1"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_toRightOf="@android:id/icon1"
+		android:layout_alignParentTop="true"
+		android:layout_toLeftOf="@android:id/icon2" android:lines="1" android:singleLine="true"
+		android:marqueeRepeatLimit="marquee_forever" android:ellipsize="marquee"
+		android:scrollHorizontally="true"
+    	android:layout_alignWithParentIfMissing="true" android:textAppearance="?android:attr/textAppearanceMedium"
+		android:textStyle="bold" />
+
+	<TextView android:id="@android:id/text2" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_below="@android:id/text1"
+		android:layout_alignLeft="@android:id/text1" android:layout_alignRight="@android:id/text1"
+		android:textAppearance="?android:attr/textAppearanceMedium" android:textStyle="normal" />
+
+	<com.dsatab.view.GlossyImageButton android:layout_alignParentRight="true"
+	    android:layout_centerVertical="true"
+		android:id="@android:id/icon2" android:layout_height="@dimen/icon_button_size"
+		android:layout_width="@dimen/icon_button_size"
+		android:visibility="gone" android:layout_marginLeft="5dip"/>
+	
+</com.dsatab.view.ItemListItem>

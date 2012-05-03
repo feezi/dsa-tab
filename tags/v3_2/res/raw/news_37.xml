@@ -1,0 +1,18 @@
+<div>
+<h2>Version 2.5.3</h2>
+<h4>Features</h4>
+<ul>
+<li>Ausrüstungseiten wachsen nun dynamisch mit der Anzahl an Gegenständen im Inventar.</li>
+<li>Die Vorteile Talentspezialisierungen, Begabung für XYZ und Talentschub werden nun direkt in den jeweiligen Listen markiert (* Talentspezialisierung, ° Begabung für XYZ).</li>
+<li>Notizen die aus der Heldensoftware übernommen werden, sind als solche gekennzeichnet.</li>
+<li>Bei Waffen mit mehreren möglichen Talenten kann nun in der Kampfübersicht zwischen den Talenten gwechselt werden.</li>
+</ul>
+<h4>Bug Fixes</h4>
+<ul>
+<li>Performance Verbesserungen</li>
+<li>Basisinformationen werden nun korrekt auf und zugeklappt.</li>
+<li>Die Geldbörse merkt sich die zuletzt ausgewählte Währung.</li>
+<li>Charakterbilder werden nun immer vollständig angezeigt.</li>
+</ul>
+
+</div>

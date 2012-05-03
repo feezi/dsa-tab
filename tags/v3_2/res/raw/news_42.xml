@@ -1,0 +1,16 @@
+<div>
+<h2>Version 2.5.6</h2>
+<h4>Features</h4>
+<ul>
+<li>Themes wurden hinzugefügt (Auswählbar über die Einstellungen).</li>
+</ul>
+
+<h4>Bug Fixes</h4>
+<ul>
+<li>LE,AU,Ke Werte verändern sich jetzt nach dem Speichern und einem Neustart von DsaTab nun nichtmehr.</li>
+<li>Zusätzliche Rituale werden erkannt: Apport, Bannschwert, ... </li>
+<li>Android 2.1 wird wieder vollständig unterstützt.</li>
+<li>Goldenen Dreiecke in den Talent- Zauberlisten erscheien nicht mehr willkürlich.</li>
+</ul>
+
+</div>

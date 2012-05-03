@@ -1,0 +1,16 @@
+<div>
+<h2>Version 1.7</h2>
+<h4>Features</h4>
+<ul>
+<li>Gegenstände/Talente von "Die Dunklen Zeiten" hinzugefügt (vermutlich unvollständig, da ich die Box selber noch nicht besitze)</li>
+<li>Der In-App PayPal Support wurde entfernt, da er zu viele Berechtigungen benötigte und noch etwas buggy war. Ab jetzt kann (wieder) ganz normal über das Web gespendet werden.</li>
+<li>Es wird nun JDom statt dem Standard Parser Harmony verwendet. Das sollte sämtliche Probleme mit Umlauten beheben.</li>
+</ul>
+
+<h4>Bug Fixes</h4>
+<ul>
+<li>Wieder mit Helden-Sotware 5.1.3 kompatibel</li>
+<li>Der herunterladbare Inhalt wurde nach Google-Code verschoben. Dadurch sollte er jetzt verlässlicher verfügbar sein.</li>
+<li>Unnötige Berechtigung "Telefonstatus lesen" (READ_PHONE_STATE) entfernt, da sie anscheinend nicht (merh) enötigt wird.</li>
+</ul>
+</div>

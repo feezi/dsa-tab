@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    		  xmlns:tlv="http://schemas.android.com/apk/res/com.dsatab"    
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" android:orientation="vertical">
+
+    <LinearLayout android:layout_height="wrap_content" android:layout_width="match_parent" android:layout_weight="1">
+		
+    <com.commonsware.cwac.tlv.TouchListView
+        android:id="@+id/popup_tab_list"
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:drawSelectorOnTop="false"
+        
+        tlv:normal_height="@dimen/tab_size"               
+                
+        tlv:grabber="@+id/drag"
+        tlv:remove_mode="fling"
+        android:layout_marginLeft="10dp" android:layout_marginRight="10dp" android:layout_marginTop="10dp" android:layout_marginBottom="10dp"/>    
+    
+	<LinearLayout 
+		android:padding="5dip" android:id="@+id/popup_edit_layout"
+		android:layout_height="match_parent" android:layout_width="wrap_content" android:orientation="vertical" android:layout_weight="1">
+	
+		<TextView android:layout_height="wrap_content"
+			android:layout_width="wrap_content"  android:text="Primär" android:gravity="left|center_vertical" android:id="@+id/popup_edit_primary_label"/>
+		
+		<Spinner android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/popup_edit_primary" ></Spinner>
+		
+		<TextView android:layout_height="wrap_content"
+			android:layout_width="wrap_content" android:text="Sekundär" android:gravity="left|center_vertical" android:id="@+id/popup_edit_secondary_label" android:layout_marginRight="10dp"/>
+		
+		<Spinner android:id="@+id/popup_edit_secondary" android:layout_height="wrap_content" android:layout_width="match_parent"></Spinner>
+		
+		<TextView android:layout_height="wrap_content"
+			android:layout_width="wrap_content"  android:text="Icon" android:gravity="left|center_vertical" android:id="@+id/popup_edit_icon_label"/>
+		<Spinner
+		    android:id="@+id/popup_edit_icon"  android:layout_width="match_parent"   android:layout_height="wrap_content" />
+		
+		<CheckBox android:layout_width="match_parent" android:layout_height="wrap_content"  android:id="@+id/popup_edit_diceslider" android:text="Würfel anzeigen"></CheckBox>
+		
+	</LinearLayout>
+	</LinearLayout>
+	
+	<LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/popup_edit_buttons" android:paddingTop="5dp" style="@android:style/ButtonBar">
+			<Button android:layout_height="wrap_content" android:id="@+id/popup_edit_ok" android:layout_weight="1" android:layout_width="0dp" android:text="@string/label_ok"></Button>
+			<Button android:layout_height="wrap_content" android:id="@+id/popup_edit_cancel" android:layout_weight="1" android:layout_width="0dp" android:text="@string/label_cancel"></Button>
+		</LinearLayout>
+</LinearLayout>

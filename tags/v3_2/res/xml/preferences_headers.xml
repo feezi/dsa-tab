@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <header android:fragment="com.dsatab.activity.DsaPreferenceActivityHC$PrefsRulesFragment"
+            android:icon="@drawable/ic_menu_dice"
+            
+            android:title="Regeln"
+            android:summary="Einstellungen die Regeln von DSA betreffend." />
+
+	<header android:fragment="com.dsatab.activity.DsaPreferenceActivityHC$PrefsDisplayFragment"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Darstellung"
+            android:summary="Einstellungen die Darstellung von DsaTab betreffend." />
+
+	<header android:fragment="com.dsatab.activity.DsaPreferenceActivityHC$PrefsSetupFragment"
+            android:icon="@drawable/ic_menu_settings"
+            android:title="Setup"
+            android:summary="Systemeinstellungen DsaTab betreffend." />
+
+	<header android:fragment="com.dsatab.activity.DsaPreferenceActivityHC$PrefsInfoFragment"
+            android:icon="@drawable/ic_menu_info_details"
+            android:title="Informationen"
+            android:summary="Alle möglichen Informationen rund um DsaTab." />                            
+     
+    <header android:icon="@drawable/ic_menu_love"
+            android:title="Spenden"
+            android:summary="Bringt dich direkt zur Spendenseite.">
+        <intent android:action="android.intent.action.VIEW"
+                android:data="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=gandulf%2ek%40gmx%2enet&amp;lc=DE&amp;item_name=Gandulf&amp;item_number=DsaTab&amp;currency_code=EUR&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" />
+    </header>
+ 
+</preference-headers>

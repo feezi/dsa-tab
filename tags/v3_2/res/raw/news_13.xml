@@ -1,0 +1,18 @@
+<div>
+
+<h2>Version 1.6</h2>
+
+<h4>Neue Features</h4>
+<ul>
+<li>Einführung eines Lite Modus, der ziemlich lästig nach Spenden bettelt. Man kann aber in den Einstellungen ganz einfach kostenlos auf die Vollversion umsteigen.</li>
+<li>Spenden können jetzt direkt in der App über Paypal abgewickelt werden.</li>
+<li>Talente und Zaubersprüche können nun gefiltert werden. Über das Kontextmenü kann eine Talent als Favorit oder ungenützt markiert werden. Die Filtereinstellungen kann man auf den einzelen Seiten über das Menü einstellen.</li>
+<li>Verschiedene Verwendungsarten von Waffen werden unterstützt (Orknase beid-/einhändig, Wurfspeer Fern-/Nahkampf).</li>  
+</ul>
+
+<h4>Bugfixes</h4>
+<ul>
+<li>Werte der Orknase korrigiert</li>
+<li>Stufe wird jetzt korrekt nach 4.1 angezeigt</li>
+</ul>
+</div>

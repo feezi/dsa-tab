@@ -1,0 +1,16 @@
+<div>
+<h2>Version 1.5</h2>
+<h4>Neue Features</h4>
+<ul>
+<li>DsaTab unterstützt nun den offiziellen Helden-Austausch. Einfach einen Account auf http://www.orkenspalter.de/helden oder http://helden.draschenfels.de anlegen und schon kann man über das DsaTab Menu Helden importieren und exportieren.</li>
+<li>Abenteuerpunkte sind jetzt editierbar. Freie Abenteuerpunkte werden automatisch erhöht und können dann in der Heldensoftware verwendet werden.</li>
+<li>Es werden die Zauberinformatioen aus der Heldensoftware übernommen und angezeigt. Ein Tap auf den Zaubernamen öffnet ein Popup.</li>  
+</ul>
+
+<h4>Bugfixes</h4>
+<ul>
+<li>Bei Helden ohne das Talent Athletik kam es zu einem Absturz</li>
+<li>Wahrscheinlichkeitsberechnung bei Eigenschaften lieferte falsches Ergebnis. Es wurde immer die Wahrscheinlichkeit der Hausregeln angezeigt.</li>
+<li>Magierstäbe Varianten werden nun unterstützt (kurz, sehr kurz, Kristalk.)</li>
+</ul>
+</div>

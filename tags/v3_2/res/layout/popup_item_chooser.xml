@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/popup_item_chooser_layout" android:layout_height="wrap_content"
+	android:layout_width="fill_parent" android:addStatesFromChildren="true"
+	android:padding="5dip">
+	<ListView android:layout_height="wrap_content" android:id="@+id/popup_item_list"
+		android:layout_width="fill_parent" android:layout_above="@+id/popup_item_all"
+		android:layout_alignParentRight="true" android:layout_below="@+id/popup_item_category" android:layout_alignWithParentIfMissing="true">
+	</ListView>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_alignParentBottom="true"
+		android:layout_alignParentRight="true" android:id="@+id/popup_item_all" android:text="andere">
+	</Button>
+	<Spinner android:layout_height="wrap_content" android:layout_alignParentTop="true" android:layout_width="fill_parent" android:id="@+id/popup_item_category" android:layout_toLeftOf="@+id/popup_search_button" android:layout_alignBottom="@+id/popup_search_button"></Spinner>
+	<com.dsatab.view.GlossyImageButton android:layout_height="@dimen/icon_button_size" android:scaleType="centerInside" android:layout_width="@dimen/icon_button_size" android:src="@drawable/icon_search" android:layout_alignParentRight="true" android:id="@+id/popup_search_button" android:layout_marginLeft="2.5dp"/>
+	<EditText android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/popup_autosearch" android:layout_toLeftOf="@+id/popup_search_button" android:layout_alignBottom="@+id/popup_search_button" android:visibility="invisible" android:layout_alignTop="@+id/popup_search_button" android:hint="Suchen">
+		
+	</EditText>
+</RelativeLayout>

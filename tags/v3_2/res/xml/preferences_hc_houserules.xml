@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+           android:icon="@drawable/ic_menu_home" android:key="houseRules" android:title="Hausregeln verwenden">
+                
+    <PreferenceCategory android:title="Hausregeln verwenden"
+                android:summary="Spezielle Hausregeln konfigurieren die vom offiziellen Regelwerk abweichen">
+                
+                <CheckBoxPreference
+					android:icon="@drawable/ic_menu_dice"
+                        android:title="2 von 3 Würfen"
+                        android:defaultValue="false"
+                        android:summary="Bei Proben auf einen Würfel wird auf die besten 2 aus 3 Würfen gewürfelt."                        
+                        android:key="houseRules.2of3Dice" />
+                    
+                    <CheckBoxPreference
+					    android:icon="@drawable/ic_menu_love"
+                        android:title="Niedrige LE Modifikatoren"
+                        android:defaultValue="true"
+                        android:summary="Modifikatoren durch niedrige Lebensenergie verwenden."                        
+                        android:key="houseRules.leModifier" />
+					<CheckBoxPreference
+					    android:icon="@drawable/ic_menu_love"
+                        android:title="Niedrige AU Modifikatoren"
+                        android:defaultValue="true"
+                        android:summary="Modifikatoren durch niedrige Ausdauer verwenden."                        
+                        android:key="houseRules.auModifier" />                    
+                    
+                    <CheckBoxPreference
+					    android:icon="@drawable/ic_menu_star"
+                        android:title="Leichtere Wunden"
+                        android:defaultValue="false"
+                        android:summary="Wundschwelle liegt wei KO/3 statt den üblichen KO/2."                        
+                        android:key="houseRules.easierWounds" />
+                    
+                    <CheckBoxPreference
+					    android:icon="@drawable/ic_menu_allfriends"
+                        android:title="Alternative Wundenzonen"
+                        android:defaultValue="false"
+                        android:summary="Es werden erweitere Wundenzonen verwendet."                        
+                        android:key="houseRules.moreWoundZones" />
+                    
+                    <CheckBoxPreference
+					    android:icon="@drawable/ic_menu_allfriends"
+                        android:title="Alternative Trefferzonen"
+                        android:defaultValue="false"
+                        android:summary="Es werden erweitere Trefferzonen verwendet."                        
+                        android:key="houseRules.moreTargetZones" />
+                
+           </PreferenceCategory>     
+        </PreferenceScreen>

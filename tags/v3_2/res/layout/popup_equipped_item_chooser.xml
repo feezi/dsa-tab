@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_height="wrap_content"
+	android:layout_width="fill_parent" android:addStatesFromChildren="true" android:padding="5dip" android:id="@+id/popup_equipped_item_chooser_layout">
+
+
+	<ListView android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/popup_equipped_item_list">
+
+			</ListView>
+</RelativeLayout>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android" android:alwaysDrawnWithCache="false" android:padding="5dip" android:id="@+id/popup_hero_chooser_layout">
+
+<GridView android:id="@+id/popup_hero_chooser_list" android:layout_width="fill_parent" android:verticalSpacing="5dip" android:horizontalSpacing="5dip" android:gravity="center" style="@style/BorderPanel" android:layout_below="@+id/textView1" android:layout_height="fill_parent" android:numColumns="auto_fit" android:columnWidth="@dimen/portrait_width_small" android:stretchMode="spacingWidthUniform"></GridView>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/popup_hero_empty" android:text="Keine Helden gefunden" android:gravity="center" android:drawableTop="@drawable/ic_menu_clear_playlist" android:layout_centerInParent="true"></TextView>
+<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_alignParentTop="true" android:layout_alignParentLeft="true" android:text="Vorhandene Helden" android:id="@+id/textView1" android:textAppearance="?android:attr/textAppearanceLarge"></TextView>
+
+</RelativeLayout>

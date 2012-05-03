@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_weight="1" android:id="@+id/sheet_notes"
+	android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_margin="@dimen/page_margin" android:layout_width="fill_parent">
+    <Spinner android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentLeft="true" android:layout_alignParentRight="true" android:id="@+id/sp_currency"></Spinner>
+	<TableLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_alignParentBottom="true" android:layout_below="@+id/sp_currency" android:stretchColumns="0,1,2,3" android:shrinkColumns="0,1,2,3">
+		<TableRow android:layout_width="fill_parent" android:layout_height="wrap_content">
+			<TextView android:text="Dukaten" android:layout_height="wrap_content" android:gravity="center_horizontal" android:layout_width="0dp" android:ellipsize="end" android:layout_weight="1" android:id="@+id/tv_currency1" style="@style/TextLabel.Small" android:textStyle="bold" android:background="@color/Brighter"></TextView>
+			<TextView android:text="Silber" android:layout_height="wrap_content" android:gravity="center_horizontal" android:layout_width="0dp" android:ellipsize="end" android:layout_weight="1" android:id="@+id/tv_currency2" style="@style/TextLabel.Small" android:textStyle="bold" android:background="@color/Brighter"></TextView>
+			<TextView android:text="Heller" android:layout_height="wrap_content" android:gravity="center_horizontal" android:layout_width="0dp" android:ellipsize="end" android:layout_weight="1" android:id="@+id/tv_currency3" style="@style/TextLabel.Small" android:textStyle="bold" android:background="@color/Brighter"></TextView>
+			<TextView android:text="Kreuzer" android:layout_height="wrap_content" android:gravity="center_horizontal" android:layout_width="0dp" android:ellipsize="end" android:layout_weight="1" android:id="@+id/tv_currency4" style="@style/TextLabel.Small" android:textStyle="bold" android:background="@color/Brighter"></TextView>
+		</TableRow>
+		<TableRow android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="1">
+			<kankan.wheel.widget.WheelView android:layout_width="0dp" android:layout_weight="1" android:id="@+id/popup_purse_dukat" android:layout_height="match_parent"/>
+			<kankan.wheel.widget.WheelView android:layout_width="0dp" android:layout_weight="1" android:id="@+id/popup_purse_silver" android:layout_height="match_parent"/>
+			<kankan.wheel.widget.WheelView android:layout_width="0dp" android:layout_weight="1" android:id="@+id/popup_purse_heller" android:layout_height="match_parent"/>
+			<kankan.wheel.widget.WheelView android:layout_width="0dp" android:layout_weight="1" android:id="@+id/popup_purse_kreuzer" android:layout_height="match_parent"/>				 
+		</TableRow>
+	</TableLayout>
+</RelativeLayout>

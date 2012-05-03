@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+           android:icon="@drawable/ic_menu_download" android:key="downloadMediaScreen" android:title="Portraits, Bilder, etc herunterladen">
+                
+    <PreferenceCategory android:title="Portraits, Bilder, etc herunterladen"
+                android:summary="Ladet zusätzliche Charakter Portraits, etc. aus dem Internet herunter.">
+                <Preference
+                android:icon="@drawable/ic_menu_download"
+                android:title="Alles herunterladen"
+                android:summary="Portraits, Gegenstände (ca. 19 MB)"
+                android:key="downloadAll" />
+                <!--   Preference
+                android:title="Portraits herunterladen"
+                android:summary="Aus dem unveröffentlichen Band 'Von Rand und Namen' - Copyright FanPro (400 kB)"
+                android:key="downloadRangPortraits" / -->
+                <Preference
+                android:icon="@drawable/ic_menu_allfriends"
+                android:title="Portraits herunterladen"
+                android:summary="Aus dem Spiel 'Battle for Wesnoth' - Copyright www.wesnoth.org (800 kB)"
+                android:key="downloadWesnothPortraits" />
+                <Preference
+                android:icon="@drawable/ic_menu_mapmode"
+                android:title="Karten herunterladen"
+                android:summary="Gesammltes Kartenwerk - Copyright Ulisses (ca. 26 MB)"                
+                android:key="downloadMaps"/>
+                
+                <Preference
+                android:icon="@drawable/ic_menu_mapmode"
+                android:title="Aventurien Karte herunterladen"
+                android:summary="Aventurien Karte als GoogleMaps Variante - Copyright Ulisses (ca. 10 MB)"                
+                android:key="downloadOSMMaps"/>
+                
+                <Preference
+                android:icon="@drawable/ic_menu_wizard"
+                android:title="Gegenstände herunterladen"
+                android:summary="Bilder aus 'Lanze, Helm und Federvieh' (ca. 18 MB)"                
+                android:key="downloadItems" />
+                
+                <Preference
+                android:icon="@drawable/ic_menu_wizard"
+                android:title="Hintergründe herunterladen"
+                android:summary="Bilder aus DSA Fanpacket (ca. 10 MB)"                
+                android:key="downloadBackgrounds" />
+                
+                
+           </PreferenceCategory>     
+        </PreferenceScreen>

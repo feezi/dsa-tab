@@ -1,0 +1,17 @@
+<div>
+<h2>Version 1.4.2</h2>
+<h4>Neue Features</h4>
+<ul>
+<li>Gegenstände die bisher nicht erkannt wurden, werden nun als beschriftete Kärtchen angezeigt</li>  
+<li>Für Geräten mit kleineren Displays gibt es nun angepasste Gegenstandsbilder.
+	Dadurch wird der Speicherbedarf reduziert. Einfach die Gegenstände nocheinmal herunterladen
+	und die Alten werden überschrieben.</li>
+<li>Durch schnelles Wischen kann zwischen den einzelnen Tabs gewechselt werden, mit der Ausnahme des Karten- und Inventartabs</li>
+</ul>
+
+<h4>Bugfixes</h4>
+<ul>
+<li>Drap&amp;Drop der Gegenstände im Inventar überarbeitet</li>
+<li>Fehler, der im Zusammenhang mit Schilden oder Zweitwaffe auftrat, wurde behoben</li> 
+</ul>
+</div>

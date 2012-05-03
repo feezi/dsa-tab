@@ -1,0 +1,42 @@
+package com.dsatab.data.adapter;
+
+import java.util.List;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+
+import com.dsatab.R;
+import com.dsatab.data.items.EquippedItem;
+import com.dsatab.data.items.Item;
+import com.dsatab.view.ItemListItem;
+
+public class EquippedItemAdapter extends ArrayAdapter<EquippedItem> {
+
+	LayoutInflater inflater;
+
+	public EquippedItemAdapter(Context context, int textViewResourceId, List<EquippedItem> objects) {
+		super(context, textViewResourceId, objects);
+		inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		// View view = super.getView(position, convertView, parent);
+
+		ItemListItem view;
+		if (!(convertView instanceof ItemListItem)) {
+			view = (ItemListItem) inflater.inflate(R.layout.item_listitem, parent, false);
+		} else {
+			view = (ItemListItem) convertView;
+		}
+
+		EquippedItem equippedItem = getItem(position);
+		Item e = equippedItem.getItem();
+		view.setItem(e);
+
+		return view;
+	}
+}

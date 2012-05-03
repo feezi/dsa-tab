@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:id="@+id/gen_main_layout">
+
+	<fragment android:name="com.dsatab.fragment.AttributeListFragment" android:tag="attributeListFragment" android:id="@+id/inc_attributes" android:layout_alignParentTop="true" android:layout_height="wrap_content" android:layout_width="fill_parent" class="com.dsatab.fragment.AttributeListFragment">
+	    <!-- Preview: layout=@layout/attributes_list -->
+	</fragment>
+	
+	<com.dsatab.view.MyViewPager android:id="@+id/viewpager" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_below="@+id/inc_attributes" />
+
+</RelativeLayout>

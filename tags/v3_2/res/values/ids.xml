@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <item type="id" name="fragmentContainer0" />
+  <item type="id" name="fragmentContainer1" />
+  <item type="id" name="fragmentContainer2" />
+  <item type="id" name="fragmentContainer3" />
+  <item type="id" name="fragmentContainer4" />
+  <item type="id" name="fragmentContainer5" />
+  <item type="id" name="fragmentContainer6" />
+  <item type="id" name="fragmentContainer7" />
+  <item type="id" name="fragmentContainer8" />
+  <item type="id" name="fragmentContainer9" />
+  <item type="id" name="fragmentContainer10" />
+  <item type="id" name="fragmentContainer11" />
+  <item type="id" name="fragmentContainer12" />
+  <item type="id" name="fragmentContainer13" />
+  <item type="id" name="fragmentContainer14" />
+  <item type="id" name="fragmentContainer15" />
+  
+  <item type="id" name="option_item_add_list" />
+  <item type="id" name="option_item_add_table" />
+  <item type="id" name="option_item_filter" />
+  
+  <item type="id" name="option_note_add" />
+  <item type="id" name="option_note_filter" />
+  <item type="id" name="option_note_record" />
+  
+  <item type="id" name="option_modifier_add" />
+  <item type="id" name="option_map_choose" />
+  
+  <item type="id" name="option_fight_set" />
+  
+  <item type="id" name="option_load_hero" />
+  <item type="id" name="option_save_hero" />
+  <item type="id" name="option_export_hero" />
+  <item type="id" name="option_filter" />
+  <item type="id" name="option_edit_tabs" />
+  <item type="id" name="option_settings" />
+  
+  <item type="id" name="option_search" />
+  
+  <item type="id" name="option_load_subtype" />
+  <item type="id" name="option_hero_import" />
+  
+  <item type="id" name="option_tab_reset" />
+  <item type="id" name="option_tab_add" />
+  <item type="id" name="option_tab_delete" />
+  
+  <item type="id" name="option_accept" />
+  <item type="id" name="option_cancel" />  
+  
+  
+  
+</resources>

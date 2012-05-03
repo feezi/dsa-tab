@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="fill_parent"
+	android:layout_height="wrap_content" xmlns:android="http://schemas.android.com/apk/res/android"
+	android:padding="5dip"
+	android:id="@+id/popup_edit_layout">
+
+	<include android:layout_height="wrap_content" layout="@layout/item_listitem"
+		android:id="@+id/inc_evade_item" android:layout_width="fill_parent"></include>
+
+	<TextView android:layout_below="@+id/inc_evade_item"
+		android:layout_height="wrap_content" android:layout_width="wrap_content"
+		android:text="Entfernung" android:id="@+id/evade_distance_text"
+		android:layout_alignParentLeft="true" android:layout_alignBottom="@+id/evade_distance"
+		android:layout_centerInParent="false" android:gravity="center_vertical"
+		style="@style/TextLabel"></TextView>
+
+	<Spinner android:layout_height="wrap_content"
+		android:layout_below="@+id/inc_evade_item" android:layout_width="fill_parent"
+		android:id="@+id/evade_distance" android:layout_toRightOf="@+id/evade_distance_text"
+		android:entries="@array/evadeDistance"></Spinner>
+	<TextView android:layout_height="wrap_content"
+		android:layout_width="wrap_content" android:layout_alignParentLeft="true"
+		android:layout_below="@id/evade_distance" android:gravity="center_vertical"
+		android:text="Gegner" android:id="@+id/evade_enemy_text"
+		android:layout_alignBottom="@+id/evade_enemy" style="@style/TextLabel"></TextView>
+	<Spinner android:layout_height="wrap_content"
+		android:layout_width="fill_parent" android:layout_below="@+id/evade_distance"
+		android:layout_toRightOf="@+id/evade_enemy_text"
+		android:layout_alignLeft="@+id/evade_distance" android:id="@+id/evade_enemy"
+		android:entries="@array/evadeEnemy"></Spinner>
+
+	<ListView
+	    android:id="@+id/evade_others"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentLeft="true"
+	    android:layout_below="@+id/evade_enemy_text" android:entries="@array/evadeModificationStrings">
+	</ListView>
+
+</RelativeLayout>
