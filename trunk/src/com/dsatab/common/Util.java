@@ -18,6 +18,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.LevelListDrawable;
 import android.net.Uri;
+import android.os.Environment;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.SpannedString;
@@ -181,17 +182,49 @@ public class Util {
 
 	public static String checkFileWriteAccess(File file) {
 		String error = null;
-		if (file.exists()) {
-			if (!file.canWrite()) {
-				error = "DsaTab erhielt keine Schreibrechte für folgende Datei:"
-						+ file.getAbsolutePath()
-						+ ". Der häufigste Grund hierfür ist, dass die SD-Karte gerade vom PC verwendet wird. Trenne am besten das Kabel zwischen Smartphone und PC und versuche es erneut.";
-			}
-		} else if (file.getParentFile().exists() && !file.getParentFile().canWrite()) {
-			error = "DsaTab erhielt keine Schreibrechte für folgende Datei:"
-					+ file.getAbsolutePath()
-					+ ". Der häufigste Grund hierfür ist, dass die SD-Karte gerade vom PC verwendet wird. Trenne am besten das Kabel zwischen Smartphone und PC und versuche es erneut.";
 
+		String MEDIA_MOUNTED = " Der häufigste Grund hierfür ist, dass die SD-Karte gerade vom PC verwendet wird. Trenne am besten das Kabel zwischen Smartphone und PC und versuche es erneut. ";
+
+		String state = Environment.getExternalStorageState();
+		if (Environment.MEDIA_BAD_REMOVAL.equals(state)) {
+			// Memory Card was removed before it was unmounted
+			error = "SD-Karte wurde entfernt ohne das die unmounted wurde.";
+		} else if (Environment.MEDIA_CHECKING.equals(state)) {
+			// Memory Card is present and being disk-checked
+			error = "SD-Karte ist vorhanden, wird aber gerade üerprüft.";
+		} else if (Environment.MEDIA_MOUNTED.equals(state)) {
+			// fine
+		} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+			// Memory Card is present and mounted with readonly access
+			error = "SD-Karte ist nur mit Leseberechtigungen gemounted." + MEDIA_MOUNTED;
+		} else if (Environment.MEDIA_NOFS.equals(state)) {
+			// Memory Card is present but is blank or using unsupported file
+			// system
+			error = "SD-Karte ist vorhanden, aber leer oder mit einem nicht unterstützten Dateisystem formatiert.";
+		} else if (Environment.MEDIA_REMOVED.equals(state)) {
+			// Memory Card is not present
+			error = "Keine SD-Karte vrohanden.";
+		} else if (Environment.MEDIA_SHARED.equals(state)) {
+			// Memory Card is present but shared via USB mass storage
+			error = "SD-Karte ist vorhanden, wird aber derzeit über den USB Massespeicher geteilt." + MEDIA_MOUNTED;
+		} else if (Environment.MEDIA_UNMOUNTABLE.equals(state)) {
+			// Memory Card is present but cannot be mounted
+			error = "SD-Karte ist vorhanden, kann aber nicht gemounted werden." + MEDIA_MOUNTED;
+		} else if (Environment.MEDIA_UNMOUNTED.equals(state)) {
+			// Memory Card is present but not mounted
+			error = "SD-Karte ist vorhadnen, derzeit aber nicht gemounted.";
+		}
+
+		if (error == null) {
+			if (file.exists()) {
+				if (!file.canWrite()) {
+					error = "DsaTab erhielt keine Schreibrechte für folgende Datei:" + file.getAbsolutePath() + "."
+							+ MEDIA_MOUNTED;
+				}
+			} else if (file.getParentFile().exists() && !file.getParentFile().canWrite()) {
+				error = "DsaTab erhielt keine Schreibrechte für folgende Datei:" + file.getAbsolutePath() + ". "
+						+ MEDIA_MOUNTED;
+			}
 		}
 
 		return error;

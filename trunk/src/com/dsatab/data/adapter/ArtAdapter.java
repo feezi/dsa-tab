@@ -32,6 +32,7 @@ import android.widget.TextView;
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.Art;
+import com.dsatab.data.ArtInfo;
 import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.filter.FilterableListFilter;
 import com.dsatab.view.ListFilterSettings;
@@ -130,14 +131,15 @@ public class ArtAdapter extends OpenArrayAdapter<Art> {
 		Art art = getItem(position);
 
 		holder.text1.setText(art.getFullName());
+		ArtInfo artInfo = art.getInfo();
 
 		StringBuilder info = new StringBuilder();
-		if (!TextUtils.isEmpty(art.getTarget())) {
-			info.append(art.getTarget());
+		if (artInfo != null && !TextUtils.isEmpty(artInfo.getTarget())) {
+			info.append(artInfo.getTarget());
 		}
-		if (!TextUtils.isEmpty(art.getRange())) {
+		if (artInfo != null && !TextUtils.isEmpty(artInfo.getRange())) {
 			info.append(",");
-			info.append(art.getRange());
+			info.append(artInfo.getRange());
 		}
 		if (!TextUtils.isEmpty(art.getCastDuration())) {
 			info.append(",");
@@ -149,8 +151,9 @@ public class ArtAdapter extends OpenArrayAdapter<Art> {
 		if (art.hasCustomProbe()) {
 			holder.text3.setText(art.getProbeInfo().getAttributesString());
 		} else {
-			if (!TextUtils.isEmpty(art.getEffectDuration()))
-				holder.text3.setText(art.getEffectDuration());
+
+			if (artInfo != null && !TextUtils.isEmpty(artInfo.getEffectDuration()))
+				holder.text3.setText(artInfo.getEffectDuration());
 			else
 				holder.text3.setText(null);
 		}

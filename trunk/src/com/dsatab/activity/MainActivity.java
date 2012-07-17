@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -815,26 +816,29 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	}
 
 	private void unregisterShakeDice() {
-
-		if (mShaker != null) {
-			mShaker.setOnShakeListener(null);
-			mShaker = null;
+		if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_ACCELEROMETER)) {
+			if (mShaker != null) {
+				mShaker.setOnShakeListener(null);
+				mShaker = null;
+			}
 		}
 	}
 
 	private void registerShakeDice() {
+		if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_ACCELEROMETER)) {
+			if (mShaker == null) {
 
-		if (mShaker == null) {
+				final Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+				mShaker = new ShakeListener(this);
+				mShaker.setOnShakeListener(new ShakeListener.OnShakeListener() {
+					public void onShake() {
+						vibe.vibrate(100);
+						if (diceSlider != null)
+							diceSlider.rollDice20();
+					}
+				});
 
-			final Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-			mShaker = new ShakeListener(this);
-			mShaker.setOnShakeListener(new ShakeListener.OnShakeListener() {
-				public void onShake() {
-					vibe.vibrate(100);
-					if (diceSlider != null)
-						diceSlider.rollDice20();
-				}
-			});
+			}
 		}
 	}
 
@@ -961,6 +965,15 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 				item.setIcon(R.drawable.ic_menu_set_3);
 				break;
 			}
+		}
+
+		item = menu.findItem(R.id.option_save_hero);
+		if (item != null) {
+			item.setEnabled(getHero() != null);
+		}
+		item = menu.findItem(R.id.option_export_hero);
+		if (item != null) {
+			item.setEnabled(getHero() != null);
 		}
 
 		return super.onPrepareOptionsMenu(menu);

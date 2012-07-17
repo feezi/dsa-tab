@@ -202,6 +202,10 @@ public class Art extends MarkableElement implements Value, Markable {
 		}
 	}
 
+	public ArtInfo getInfo() {
+		return info;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -330,69 +334,6 @@ public class Art extends MarkableElement implements Value, Markable {
 		}
 
 		return castduration;
-	}
-
-	public String getEffectDuration() {
-		if (info != null)
-			return info.getEffectDuration();
-		else
-			return null;
-	}
-
-	public int getGrade() {
-		if (info != null)
-			return info.getGrade();
-		else
-			return -1;
-	}
-
-	public String getOrigin() {
-		if (info != null)
-			return info.getOrigin();
-		else
-			return null;
-	}
-
-	public String getRange() {
-		if (info != null)
-			return info.getRange();
-		else
-			return null;
-	}
-
-	public String getRangeDetailed() {
-		if (info != null)
-			return info.getRangeDetailed();
-		else
-			return null;
-	}
-
-	public String getSource() {
-		if (info != null)
-			return info.getSource();
-		else
-			return null;
-	}
-
-	public String getMerkmale() {
-		if (info != null)
-			return info.getMerkmale();
-		else
-			return null;
-	}
-
-	public String getTarget() {
-		if (info != null)
-			return info.getTarget();
-		else
-			return null;
-	}
-
-	public String getTargetDetailed() {
-		if (info != null)
-			return info.getTargetDetailed();
-		else
-			return null;
 	}
 
 }

@@ -67,8 +67,8 @@ import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.activity.DsaPreferenceActivity;
 import com.dsatab.activity.DsaPreferenceActivityHC;
 import com.dsatab.data.Hero;
-import com.dsatab.xml.XmlParser;
 import com.dsatab.util.Debug;
+import com.dsatab.xml.XmlParser;
 
 public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 
@@ -302,6 +302,11 @@ public class HeroExchange implements OnCancelListener, OnCheckedChangeListener {
 
 	public void exportHero(Hero hero) {
 
+		if (hero == null) {
+			Toast.makeText(context, "Held kann nicht exportiert werden, da noch kein Held geladen wurde.",
+					Toast.LENGTH_SHORT).show();
+			return;
+		}
 		Debug.verbose("Exporting " + hero.getName());
 
 		if (!checkSettings())

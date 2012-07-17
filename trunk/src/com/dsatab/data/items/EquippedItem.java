@@ -445,9 +445,13 @@ public class EquippedItem implements ItemCard {
 		return element.getAttributeValue(itemNameField);
 	}
 
+	public String getItemSlot() {
+		return element.getAttributeValue(Xml.KEY_SLOT);
+	}
+
 	public Item getItem() {
 		if (item == null && getItemName() != null) {
-			item = hero.getItem(getItemName());
+			item = hero.getItem(getItemName(), getItemSlot());
 		}
 
 		return item;

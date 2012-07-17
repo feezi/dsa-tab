@@ -56,6 +56,11 @@ public class SpellInfo {
 	@DatabaseField
 	private String costs;
 
+	@DatabaseField
+	private String comments;
+	@DatabaseField
+	private String variant;
+
 	/**
 	 * 
 	 */
@@ -261,6 +266,22 @@ public class SpellInfo {
 
 	public void setRepresentation(String rep) {
 		this.representation = rep;
+	}
+
+	public String getComments() {
+		return comments;
+	}
+
+	public void setComments(String comments) {
+		this.comments = comments;
+	}
+
+	public String getVariant() {
+		return variant;
+	}
+
+	public void setVariant(String variant) {
+		this.variant = variant;
 	}
 
 	public String getSource() {

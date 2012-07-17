@@ -69,7 +69,7 @@ public class GlossyButton extends Button {
 		}
 
 		int maskId = Util.getThemeResourceId(getContext(), R.attr.glossyButtonMask);
-		if (maskId > 0) {
+		if (maskId > 0 && !isInEditMode()) {
 			mMaskDrawable = getResources().getDrawable(maskId);
 			if (!isInEditMode())
 				mMaskDrawable.setCallback(this);

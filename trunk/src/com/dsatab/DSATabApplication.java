@@ -520,9 +520,14 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	}
 
 	public void saveHero() {
+		if (hero == null) {
+			Toast.makeText(getApplicationContext(),
+					"Held kann nicht gespeichert werden, da noch kein Held geladen wurde.", Toast.LENGTH_SHORT).show();
+			return;
+		}
 		FileOutputStream out = null;
+		File destFile = new File(hero.getPath());
 		try {
-			File destFile = new File(hero.getPath());
 			String error = Util.checkFileWriteAccess(destFile);
 			if (error != null) {
 				Toast.makeText(this, error, Toast.LENGTH_LONG).show();

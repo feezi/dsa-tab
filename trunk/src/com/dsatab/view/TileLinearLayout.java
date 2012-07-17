@@ -50,7 +50,6 @@ public class TileLinearLayout extends LinearLayout {
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		super.onSizeChanged(w, h, oldw, oldh);
 		backgroundStretched = false;
-		init();
 	}
 
 	private void init() {
@@ -62,6 +61,7 @@ public class TileLinearLayout extends LinearLayout {
 			int width = getWidth();
 			int height = getHeight();
 			if (width > 0 && height > 0) {
+				Bitmap oldbitmap = bd.getBitmap();
 				int intrinsicHeight = bd.getIntrinsicHeight();
 				int intrinsicWidth = bd.getIntrinsicWidth();
 
@@ -85,11 +85,17 @@ public class TileLinearLayout extends LinearLayout {
 					dest.set(0, 0, width, clampSize);
 					canvas.drawBitmap(bd.getBitmap(), src, dest, null);
 				}
+				// cleanup old drawable/bitmap
+				oldbitmap.recycle();
+				bd.setCallback(null);
+
+				// create new drawable;
 				BitmapDrawable bitmapDrawable = new BitmapDrawable(bitmap);
 				bitmapDrawable.setTileModeX(TileMode.MIRROR);
 				bitmapDrawable.setBounds(0, 0, intrinsicWidth, height);
 				setBackgroundDrawable(bitmapDrawable);
 				backgroundStretched = true;
+
 			}
 		}
 	}
@@ -97,7 +103,6 @@ public class TileLinearLayout extends LinearLayout {
 	protected void onDraw(android.graphics.Canvas canvas) {
 		init();
 		super.onDraw(canvas);
-
 	};
 
 }

@@ -16,6 +16,7 @@
  */
 package com.dsatab.view;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Canvas;
@@ -77,6 +78,7 @@ public class CardView extends ImageView {
 	/**
 	 * 
 	 */
+	@TargetApi(11)
 	private void init() {
 
 		setDrawingCacheEnabled(false);

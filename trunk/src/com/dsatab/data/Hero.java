@@ -2321,6 +2321,8 @@ public class Hero {
 						}
 					}
 				}
+				// be in gesamtrüstung is being rounded
+				be = Math.round(be);
 				break;
 
 			}
@@ -2634,15 +2636,22 @@ public class Hero {
 		return spellsByName;
 	}
 
-	public Item getItem(String name) {
-
+	public Item getItem(String name, String slot) {
 		for (Item item : getItems()) {
 			if (item.getName().equals(name)) {
-				return item;
+				if (slot != null) {
+					if (slot.equals(item.getSlot()))
+						return item;
+				} else {
+					return item;
+				}
 			}
 		}
-
 		return null;
+	}
+
+	public Item getItem(String name) {
+		return getItem(name, null);
 	}
 
 	public Item getItem(UUID id) {
