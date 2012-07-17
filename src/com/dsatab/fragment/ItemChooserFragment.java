@@ -174,7 +174,13 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
+		Hero hero = DSATabApplication.getInstance().getHero();
 
+		if (hero == null) {
+			Toast.makeText(getActivity(), "Fehler: Kein Held geladen.", Toast.LENGTH_SHORT).show();
+			getActivity().finish();
+			return;
+		}
 		categories = ItemType.values();
 		String itemCategory = null;
 
@@ -206,12 +212,10 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 				}
 
 				if (itemId != null) {
-					Hero hero = DSATabApplication.getInstance().getHero();
 					foundItem = hero.getItem(itemId);
 				}
 
 				if (equippedItemId != null) {
-					Hero hero = DSATabApplication.getInstance().getHero();
 					EquippedItem selectedEquippedItem = hero.getEquippedItem(equippedItemId);
 					foundItem = selectedEquippedItem.getItem();
 					selectedItemSpecification = selectedEquippedItem.getItemSpecification();
@@ -249,7 +253,6 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 		if (extra != null && extra.containsKey(INTENT_EXTRA_ARMOR_POSITION)) {
 			Position pos = (Position) extra.getSerializable(INTENT_EXTRA_ARMOR_POSITION);
-			Hero hero = DSATabApplication.getInstance().getHero();
 
 			List<EquippedItem> equippedItems = hero.getArmor(pos);
 			List<Item> items = new ArrayList<Item>(equippedItems.size());

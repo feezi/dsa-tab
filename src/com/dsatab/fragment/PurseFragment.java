@@ -123,7 +123,9 @@ public class PurseFragment extends BaseFragment implements OnItemSelectedListene
 	public void onWheelChanged(WheelView wheel, int oldValue, int newValue) {
 		if (purse != null) {
 			PurseUnit unit = (PurseUnit) wheel.getTag();
-			purse.setCoins(unit, pickerAdapter.getItem(wheel.getCurrentItem()));
+			if (unit != null) {
+				purse.setCoins(unit, pickerAdapter.getItem(wheel.getCurrentItem()));
+			}
 		}
 	}
 

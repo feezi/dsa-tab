@@ -3,21 +3,29 @@ package com.dsatab.view;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.data.Spell;
+import com.dsatab.data.SpellInfo;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnClickListener {
 
 	private Spell spell;
 
 	private View popupcontent = null;
+
+	private boolean editMode = false;
 
 	public SpellInfoDialog(Context context) {
 		super(context);
@@ -36,20 +44,26 @@ public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnCl
 				title += " (" + spell.getZauberSpezialisierung() + ")";
 			}
 
+			SpellInfo info = spell.getInfo();
+
 			setTitle(title);
-			set(R.id.popup_spell_castduration, spell.getCastDuration());
+
+			if (info != null) {
+				set(R.id.popup_spell_castduration, info.getCastDurationDetailed());
+				set(R.id.popup_spell_costs, info.getCosts());
+				set(R.id.popup_spell_effect, info.getEffect());
+				set(R.id.popup_spell_target, info.getTargetDetailed());
+				set(R.id.popup_spell_range, info.getRangeDetailed());
+				set(R.id.popup_spell_effectduration, info.getEffectDuration());
+				set(R.id.popup_spell_representation, info.getRepresentation());
+				set(R.id.popup_spell_source, info.getSource());
+				set(R.id.popup_spell_complexity, info.getComplexity());
+				set(R.id.popup_spell_merkmal, info.getMerkmale());
+			}
 			set(R.id.popup_spell_row_comment, R.id.popup_spell_comment, spell.getComments());
-			set(R.id.popup_spell_costs, spell.getCosts());
-			set(R.id.popup_spell_effect, spell.getEffect());
-			set(R.id.popup_spell_target, spell.getTarget());
-			set(R.id.popup_spell_range, spell.getRange());
-			set(R.id.popup_spell_effectduration, spell.getEffectDuration());
-			set(R.id.popup_spell_representation, spell.getRepresantation());
 			set(R.id.popup_spell_row_variant, R.id.popup_spell_variant, spell.getVariant());
-			set(R.id.popup_spell_source, spell.getSource());
-			set(R.id.popup_spell_complexity, spell.getComplexity());
-			set(R.id.popup_spell_merkmal, spell.getMerkmale());
 		}
+
 	}
 
 	private void init() {
@@ -59,7 +73,8 @@ public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnCl
 		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		setView(popupcontent);
 
-		setButton(AlertDialog.BUTTON_NEUTRAL, getContext().getString(R.string.label_ok), this);
+		setButton(AlertDialog.BUTTON_POSITIVE, getContext().getString(R.string.label_ok), this);
+		setButton(AlertDialog.BUTTON_NEGATIVE, getContext().getString(R.string.label_edit), this);
 
 		TableLayout table = (TableLayout) popupcontent.findViewById(R.id.popup_spell_table);
 
@@ -77,14 +92,124 @@ public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnCl
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see android.app.AlertDialog#onCreate(android.os.Bundle)
+	 */
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if (editMode) {
+					SpellInfo info = spell.getInfo();
+
+					info.setCastDuration(getValue(R.id.popup_spell_castduration_edit));
+					info.setCosts(getValue(R.id.popup_spell_costs_edit));
+					info.setEffect(getValue(R.id.popup_spell_effect_edit));
+					info.setTarget(getValue(R.id.popup_spell_target_edit));
+					info.setRange(getValue(R.id.popup_spell_range_edit));
+					info.setEffectDuration(getValue(R.id.popup_spell_effectduration_edit));
+					info.setRepresentation(getValue(R.id.popup_spell_representation_edit));
+					info.setSource(getValue(R.id.popup_spell_source_edit));
+					info.setComplexity(getValue(R.id.popup_spell_complexity_edit));
+					info.setMerkmale(getValue(R.id.popup_spell_merkmal_edit));
+
+					spell.setComments(getValue(R.id.popup_spell_comment_edit));
+					spell.setVariant(getValue(R.id.popup_spell_variant_edit));
+
+					RuntimeExceptionDao<SpellInfo, Long> dao = DSATabApplication.getInstance().getDBHelper()
+							.getRuntimeExceptionDao(SpellInfo.class);
+					dao.createOrUpdate(info);
+
+					Toast.makeText(getContext(), "Zauberinformationen wurden gespeichert", Toast.LENGTH_SHORT).show();
+					SpellInfoDialog.this.dismiss();
+				} else {
+					SpellInfoDialog.this.dismiss();
+				}
+
+			}
+		});
+		getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if (editMode)
+					SpellInfoDialog.this.dismiss();
+				else
+					switchMode(true);
+			}
+		});
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Dialog#onStart()
+	 */
+	@Override
+	protected void onStart() {
+		super.onStart();
+		switchMode(false);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see
 	 * android.content.DialogInterface.OnClickListener#onClick(android.content
 	 * .DialogInterface, int)
 	 */
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
-		if (which == AlertDialog.BUTTON_NEUTRAL) {
-			dialog.dismiss();
+	}
+
+	/**
+	 * @param b
+	 */
+	private void switchMode(boolean edit) {
+		this.editMode = edit;
+		if (spell != null) {
+			SpellInfo info = spell.getInfo();
+
+			edit(0, R.id.popup_spell_castduration, R.id.popup_spell_castduration_edit, info.getCastDurationDetailed(),
+					edit);
+			edit(0, R.id.popup_spell_costs, R.id.popup_spell_costs_edit, info.getCosts(), edit);
+			edit(0, R.id.popup_spell_effect, R.id.popup_spell_effect_edit, info.getEffect(), edit);
+			edit(0, R.id.popup_spell_target, R.id.popup_spell_target_edit, info.getTargetDetailed(), edit);
+			edit(0, R.id.popup_spell_range, R.id.popup_spell_range_edit, info.getRangeDetailed(), edit);
+			edit(0, R.id.popup_spell_effectduration, R.id.popup_spell_effectduration_edit, info.getEffectDuration(),
+					edit);
+			edit(0, R.id.popup_spell_representation, R.id.popup_spell_representation_edit, info.getRepresentation(),
+					edit);
+			edit(0, R.id.popup_spell_source, R.id.popup_spell_source_edit, info.getSource(), edit);
+			edit(0, R.id.popup_spell_complexity, R.id.popup_spell_complexity_edit, info.getComplexity(), edit);
+			edit(0, R.id.popup_spell_merkmal, R.id.popup_spell_merkmal_edit, info.getMerkmale(), edit);
+
+			edit(R.id.popup_spell_row_comment, R.id.popup_spell_comment, R.id.popup_spell_comment_edit,
+					spell.getComments(), edit);
+			edit(R.id.popup_spell_row_variant, R.id.popup_spell_variant, R.id.popup_spell_variant_edit,
+					spell.getVariant(), edit);
+
+			if (findViewById(R.id.popup_spell_hero_values_row) != null) {
+				if (findViewById(R.id.popup_spell_row_comment) != null
+						&& findViewById(R.id.popup_spell_row_comment).getVisibility() == View.GONE
+						&& findViewById(R.id.popup_spell_row_variant) != null
+						&& findViewById(R.id.popup_spell_row_variant).getVisibility() == View.GONE) {
+					findViewById(R.id.popup_spell_hero_values_row).setVisibility(View.GONE);
+				} else {
+					findViewById(R.id.popup_spell_hero_values_row).setVisibility(View.VISIBLE);
+				}
+			}
+		}
+
+		if (edit) {
+			getButton(AlertDialog.BUTTON_NEGATIVE).setText(R.string.label_cancel);
+			getButton(AlertDialog.BUTTON_POSITIVE).setText(R.string.label_save);
+		} else {
+			getButton(AlertDialog.BUTTON_NEGATIVE).setText(R.string.label_edit);
+			getButton(AlertDialog.BUTTON_POSITIVE).setText(R.string.label_ok);
 		}
 
 	}
@@ -99,8 +224,32 @@ public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnCl
 	}
 
 	private void set(int tfid, String v) {
-		if (popupcontent.findViewById(tfid) != null)
-			((TextView) popupcontent.findViewById(tfid)).setText(v);
+		TextView tf = (TextView) popupcontent.findViewById(tfid);
+		if (tf != null) {
+			tf.setText(v);
+		}
+	}
+
+	private String getValue(int etid) {
+		return ((EditText) findViewById(etid)).getText().toString();
+	}
+
+	private void edit(int rowId, int tfid, int etid, String v, boolean edit) {
+		int editVisibility = edit ? View.VISIBLE : View.GONE;
+		int viewVisibility = edit ? View.GONE : View.VISIBLE;
+
+		TextView tf = (TextView) popupcontent.findViewById(tfid);
+		TextView et = (TextView) popupcontent.findViewById(etid);
+
+		if (tf != null && et != null) {
+			tf.setVisibility(viewVisibility);
+			et.setVisibility(editVisibility);
+			et.setText(v);
+		}
+
+		if (edit && rowId != 0) {
+			findViewById(rowId).setVisibility(View.VISIBLE);
+		}
 	}
 
 }

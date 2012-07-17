@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.dsatab.R;
 import com.dsatab.data.Art;
+import com.dsatab.data.ArtInfo;
 
 public class ArtInfoDialog extends AlertDialog implements DialogInterface.OnClickListener {
 
@@ -30,19 +31,22 @@ public class ArtInfoDialog extends AlertDialog implements DialogInterface.OnClic
 	public void setArt(Art art) {
 		this.art = art;
 
+		ArtInfo info = art.getInfo();
+
 		setTitle(art.getFullName());
 		set(R.id.popup_liturgie_type, art.getType().getName());
 		set(R.id.popup_liturgie_costs, art.getCosts());
 		set(R.id.popup_liturgie_effect, art.getEffect());
 		set(R.id.popup_liturgie_probe, art.getProbeInfo().toString());
-		set(R.id.popup_liturgie_castduration, art.getCastDurationDetailed());
-		set(R.id.popup_liturgie_effectduration, art.getEffectDuration());
-		set(R.id.popup_liturgie_origin, art.getOrigin());
-		set(R.id.popup_liturgie_range, art.getRangeDetailed());
-		set(R.id.popup_liturgie_target, art.getTargetDetailed());
-
-		set(R.id.popup_liturgie_merkmal, art.getSource());
-		set(R.id.popup_liturgie_source, art.getMerkmale());
+		if (info != null) {
+			set(R.id.popup_liturgie_castduration, info.getCastDurationDetailed());
+			set(R.id.popup_liturgie_effectduration, info.getEffectDuration());
+			set(R.id.popup_liturgie_origin, info.getOrigin());
+			set(R.id.popup_liturgie_range, info.getRangeDetailed());
+			set(R.id.popup_liturgie_target, info.getTargetDetailed());
+			set(R.id.popup_liturgie_merkmal, info.getSource());
+			set(R.id.popup_liturgie_source, info.getMerkmale());
+		}
 
 	}
 

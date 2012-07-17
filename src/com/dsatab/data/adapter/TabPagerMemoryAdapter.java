@@ -123,6 +123,11 @@ public class TabPagerMemoryAdapter extends PagerAdapter {
 		freeContainerIds.add(R.id.fragmentContainer13);
 		freeContainerIds.add(R.id.fragmentContainer14);
 		freeContainerIds.add(R.id.fragmentContainer15);
+		freeContainerIds.add(R.id.fragmentContainer16);
+		freeContainerIds.add(R.id.fragmentContainer17);
+		freeContainerIds.add(R.id.fragmentContainer18);
+		freeContainerIds.add(R.id.fragmentContainer19);
+		freeContainerIds.add(R.id.fragmentContainer20);
 	}
 
 	/*
@@ -348,8 +353,10 @@ public class TabPagerMemoryAdapter extends PagerAdapter {
 	@Override
 	public void destroyItem(ViewGroup container, int position, Object object) {
 		TabInfo tabInfo = null;
+		View tabContainer = null;
 		if (object instanceof View) {
-			tabInfo = (TabInfo) ((View) object).getTag();
+			tabContainer = (View) object;
+			tabInfo = (TabInfo) tabContainer.getTag();
 		}
 
 		if (mCurTransaction == null) {
@@ -382,7 +389,6 @@ public class TabPagerMemoryAdapter extends PagerAdapter {
 				}
 			}
 		}
-
 	}
 
 	@Override

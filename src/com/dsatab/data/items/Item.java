@@ -185,6 +185,14 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		this.name = name;
 	}
 
+	public String getSlot() {
+		if (element != null) {
+			return element.getAttributeValue(Xml.KEY_SLOT);
+		} else {
+			return null;
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

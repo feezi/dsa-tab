@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -249,6 +250,16 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 			listPreference.setEntries(armorNames.toArray(new String[0]));
 			listPreference.setEntryValues(armorValues.toArray(new String[0]));
 		}
+
+		Preference shakeDice = mgr.findPreference(KEY_PROBE_SHAKE_ROLL_DICE);
+		if (shakeDice != null) {
+			shakeDice.setEnabled(DSATabApplication.getInstance().getPackageManager()
+					.hasSystemFeature(PackageManager.FEATURE_SENSOR_ACCELEROMETER));
+			if (!shakeDice.isEnabled()) {
+				shakeDice.setSummary("Dein Smartphone verfügt nicht über den benötigten Sensor.");
+			}
+		}
+
 		SharedPreferences sharedPreferences = mgr.getSharedPreferences();
 
 		initPreferenceScreen(screen, sharedPreferences);

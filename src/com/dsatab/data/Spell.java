@@ -195,57 +195,36 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 		return element;
 	}
 
-	public String getSource() {
-		return info.getSource();
-	}
-
 	public String getComments() {
-		return comments;
+		if (TextUtils.isEmpty(comments))
+			return info != null ? info.getComments() : null;
+		else
+			return comments;
 	}
 
-	public String getComplexity() {
-		return info.getComplexity();
-	}
-
-	public String getTarget() {
-		return info.getTargetDetailed();
-	}
-
-	public String getMerkmale() {
-		return info.getMerkmale();
-	}
-
-	public String getEffect() {
-		return info.getEffect();
+	public void setComments(String comment) {
+		this.comments = comment;
+		if (element != null) {
+			element.setAttribute(Xml.KEY_ANMERKUNGEN, comment);
+		}
 	}
 
 	public boolean isHouseSpell() {
 		return houseSpell;
 	}
 
-	public String getCosts() {
-		return info.getCosts();
-	}
-
-	public String getRange() {
-		return info.getRangeDetailed();
-	}
-
-	public String getRepresantation() {
-		return info.getRepresentation();
-	}
-
 	public String getVariant() {
-		return variant;
+		if (TextUtils.isEmpty(variant))
+			return info != null ? info.getVariant() : null;
+		else
+			return variant;
 	}
 
-	public String getEffectDuration() {
-		return info.getEffectDurationDetailed();
-
-	}
-
-	public String getCastDuration() {
-		return info.getCastDurationDetailed();
+	public void setVariant(String s) {
+		this.variant = s;
+		if (element != null) {
+			element.setAttribute(Xml.KEY_VARIANTE, s);
+		}
 	}
 
 	/*
