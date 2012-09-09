@@ -54,6 +54,9 @@
   <item type="id" name="option_accept" />
   <item type="id" name="option_cancel" />  
   
-  
+  <item type="id" name="TAG_KEY_VALUE" />
+    <item type="id" name="TAG_KEY_PROBE" />
+    <item type="id" name="TAG_CARD_TYPE" />
+    <item type="id" name="TAG_CARD_POSITION" />
   
 </resources>

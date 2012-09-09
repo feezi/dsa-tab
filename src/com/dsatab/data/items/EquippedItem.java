@@ -13,6 +13,7 @@ import android.content.DialogInterface;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.common.Util;
 import com.dsatab.data.CombatProbe;
@@ -20,6 +21,8 @@ import com.dsatab.data.CombatTalent;
 import com.dsatab.data.Hero;
 import com.dsatab.data.ItemLocationInfo;
 import com.dsatab.data.enums.CombatTalentType;
+import com.dsatab.exception.InconsistentDataException;
+import com.dsatab.util.Debug;
 import com.dsatab.xml.DataManager;
 import com.dsatab.xml.Xml;
 
@@ -71,13 +74,17 @@ public class EquippedItem implements ItemCard {
 	}
 
 	public EquippedItem(Hero hero, Element element, Item item) {
+
+		assert element != null : "Element has to ne set in equipped item";
+
 		this.id = UUID.randomUUID();
 		this.hero = hero;
 		this.element = element;
 		this.item = item;
 		this.itemInfo = new ItemLocationInfo();
+		this.itemInfo.setElement(element);
 
-		setElement(element, item);
+		applyElement();
 
 	}
 
@@ -294,10 +301,7 @@ public class EquippedItem implements ItemCard {
 		element.setAttribute(Xml.KEY_SET, Util.toString(set));
 	}
 
-	public void setElement(Element element, Item inItem) {
-		this.element = element;
-		this.itemInfo.setElement(element);
-		this.item = inItem;
+	private void applyElement() {
 
 		if (item != null) {
 			if (item.hasSpecification(Weapon.class) || item.hasSpecification(DistanceWeapon.class)) {
@@ -333,48 +337,45 @@ public class EquippedItem implements ItemCard {
 			}
 		}
 
-		if (element != null) {
-			if (element.getAttribute(Xml.KEY_SLOT) == null)
-				element.setAttribute(Xml.KEY_SLOT, "0");
-			if (getName().startsWith(NAME_PREFIX_NK)) {
-				itemNameField = WAFFENNAME;
-				nameId = Util.parseInt(getName().substring(NAME_PREFIX_NK.length()));
-			} else if (getName().startsWith(NAME_PREFIX_FK)) {
-				itemNameField = WAFFENNAME;
-				nameId = Util.parseInt(getName().substring(NAME_PREFIX_FK.length()));
-				if (getItem().hasSpecification(DistanceWeapon.class)) {
-					DistanceWeapon weapon = getItem().getSpecification(DistanceWeapon.class);
-					talent = hero.getCombatTalent(weapon.getCombatTalentType().getName());
+		if (element.getAttribute(Xml.KEY_SLOT) == null)
+			element.setAttribute(Xml.KEY_SLOT, "0");
+		if (getName().startsWith(NAME_PREFIX_NK)) {
+			itemNameField = WAFFENNAME;
+			nameId = Util.parseInt(getName().substring(NAME_PREFIX_NK.length()));
+		} else if (getName().startsWith(NAME_PREFIX_FK)) {
+			itemNameField = WAFFENNAME;
+			nameId = Util.parseInt(getName().substring(NAME_PREFIX_FK.length()));
+			if (getItem().hasSpecification(DistanceWeapon.class)) {
+				DistanceWeapon weapon = getItem().getSpecification(DistanceWeapon.class);
+				talent = hero.getCombatTalent(weapon.getCombatTalentType().getName());
+			}
+		} else if (getName().startsWith(NAME_PREFIX_SCHILD)) {
+			itemNameField = SCHILDNAME;
+			nameId = Util.parseInt(getName().substring(NAME_PREFIX_SCHILD.length()));
+
+			Item item = DataManager.getItemByName(getItemName());
+
+			if (item != null && item.hasSpecification(Shield.class)) {
+				Shield shield = item.getSpecification(Shield.class);
+
+				if (getUsageType() == null) {
+					if (shield.isShield())
+						setUsageType(UsageType.Schild);
+					else if (shield.isParadeWeapon())
+						setUsageType(UsageType.Paradewaffe);
 				}
-			} else if (getName().startsWith(NAME_PREFIX_SCHILD)) {
-				itemNameField = SCHILDNAME;
-				nameId = Util.parseInt(getName().substring(NAME_PREFIX_SCHILD.length()));
 
-				Item item = DataManager.getItemByName(getItemName());
-
-				if (item != null && item.hasSpecification(Shield.class)) {
-					Shield shield = item.getSpecification(Shield.class);
-
-					if (getUsageType() == null) {
-						if (shield.isShield())
-							setUsageType(UsageType.Schild);
-						else if (shield.isParadeWeapon())
-							setUsageType(UsageType.Paradewaffe);
-					}
-
-					if (shield.isShield() && getUsageType() == UsageType.Schild)
-						talent = hero.getCombatShieldTalent();
-					else if (shield.isParadeWeapon() && getUsageType() == UsageType.Paradewaffe)
-						talent = hero.getCombatParadeWeaponTalent(this);
-				} else {
+				if (shield.isShield() && getUsageType() == UsageType.Schild)
 					talent = hero.getCombatShieldTalent();
-				}
-
-			} else if (getName().startsWith(NAME_PREFIX_RUESTUNG)) {
-				itemNameField = RUESTUNGSNAME;
-				nameId = Util.parseInt(getName().substring(NAME_PREFIX_RUESTUNG.length()));
+				else if (shield.isParadeWeapon() && getUsageType() == UsageType.Paradewaffe)
+					talent = hero.getCombatParadeWeaponTalent(this);
+			} else {
+				talent = hero.getCombatShieldTalent();
 			}
 
+		} else if (getName().startsWith(NAME_PREFIX_RUESTUNG)) {
+			itemNameField = RUESTUNGSNAME;
+			nameId = Util.parseInt(getName().substring(NAME_PREFIX_RUESTUNG.length()));
 		}
 
 	}
@@ -426,11 +427,11 @@ public class EquippedItem implements ItemCard {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.dsatab.data.items.ItemCard#getHQFile()
+	 * @see com.dsatab.data.items.ItemCard#hasImage()
 	 */
 	@Override
-	public File getHQFile() {
-		return getItem().getHQFile();
+	public boolean hasImage() {
+		return getItem().hasImage();
 	}
 
 	public int getNameId() {
@@ -452,6 +453,12 @@ public class EquippedItem implements ItemCard {
 	public Item getItem() {
 		if (item == null && getItemName() != null) {
 			item = hero.getItem(getItemName(), getItemSlot());
+
+			if (item == null) {
+				BugSenseHandler.log(Debug.CATEGORY_DATA, new InconsistentDataException(
+						"Unable to find an item with the name '" + getItemName() + "' in slot '" + getItemSlot()
+								+ "'. xml=" + element.toString()));
+			}
 		}
 
 		return item;

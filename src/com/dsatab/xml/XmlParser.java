@@ -20,6 +20,7 @@ import java.util.UUID;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
+import org.json.JSONException;
 import org.xml.sax.InputSource;
 
 import android.text.TextUtils;
@@ -677,7 +678,8 @@ public class XmlParser {
 
 	}
 
-	public static Hero readHero(String path, InputStream in, HeroLoader heroLoader) throws JDOMException, IOException {
+	public static Hero readHero(String path, InputStream in, HeroLoader heroLoader) throws JDOMException, IOException,
+			JSONException {
 
 		Hero hero = null;
 

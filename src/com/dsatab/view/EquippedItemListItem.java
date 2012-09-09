@@ -129,6 +129,19 @@ public class EquippedItemListItem extends TwoLineListItem {
 		return icon1;
 	}
 
+	public ImageButton getSet(int set) {
+		switch (set) {
+		case 0:
+			return set1;
+		case 1:
+			return set2;
+		case 2:
+			return set3;
+		default:
+			return null;
+		}
+	}
+
 	public ImageButton getSet1() {
 		return set1;
 	}

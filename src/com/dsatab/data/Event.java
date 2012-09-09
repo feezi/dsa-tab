@@ -1,5 +1,6 @@
 package com.dsatab.data;
 
+import java.util.Comparator;
 import java.util.StringTokenizer;
 
 import org.jdom.Element;
@@ -12,6 +13,15 @@ import com.dsatab.xml.Xml;
 
 public class Event implements JSONable {
 
+	public static final Comparator<Event> COMPARATOR = new Comparator<Event>() {
+		@Override
+		public int compare(Event object1, Event object2) {
+			int compare1 = object1.getCategory().compareTo(object2.getCategory());
+			int compare2 = (int) (object1.getTime() - object2.getTime());
+
+			return compare1 * 10000 + compare2;
+		}
+	};
 	private static final String SEPERATOR = ";";
 	private static final String PREFIX_AUDIO = "AUDIO:";
 	private static final String PREFIX_CATEGORY = "CATEGORY:";

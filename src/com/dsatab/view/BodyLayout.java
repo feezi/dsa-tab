@@ -64,7 +64,7 @@ public class BodyLayout extends FrameLayout {
 	private OnClickListener onArmorClickListener, onWoundClickListener;
 	private OnLongClickListener onArmorLongClickListener;
 
-	public class LayoutParams extends FrameLayout.LayoutParams {
+	public static class LayoutParams extends FrameLayout.LayoutParams {
 		private Position position;
 		private int row;
 

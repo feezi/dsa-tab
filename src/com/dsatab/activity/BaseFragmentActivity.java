@@ -98,7 +98,7 @@ public class BaseFragmentActivity extends SherlockFragmentActivity implements Ic
 
 			WindowManager wm = (WindowManager) DSATabApplication.getInstance().getSystemService(Context.WINDOW_SERVICE);
 			Display display = wm.getDefaultDisplay();
-			Bitmap bg = Util.decodeFile(new File(bgPath), Math.max(display.getWidth(), display.getHeight()));
+			Bitmap bg = Util.decodeBitmap(new File(bgPath), Math.max(display.getWidth(), display.getHeight()));
 			BitmapDrawable drawable = new BitmapDrawable(bg);
 			getWindow().setBackgroundDrawable(drawable);
 		} else {

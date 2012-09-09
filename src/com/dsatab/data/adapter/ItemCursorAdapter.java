@@ -35,9 +35,11 @@ public class ItemCursorAdapter extends SimpleCursorAdapter {
 			view = (ItemListItem) convertView;
 		}
 
-		Cursor item = (Cursor) getItem(position);
-		view.setItem(DataManager.getItemByCursor(item));
-
+		// this seems to be called even after stop in some rare occasions...
+		if (!getCursor().isClosed()) {
+			Cursor item = (Cursor) getItem(position);
+			view.setItem(DataManager.getItemByCursor(item));
+		}
 		return view;
 	}
 

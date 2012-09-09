@@ -1,7 +1,6 @@
 package com.dsatab.view;
 
 import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,12 +21,13 @@ import android.widget.Toast;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.MainActivity;
+import com.dsatab.common.Util;
 
 public class PortraitChooserDialog extends AlertDialog implements AdapterView.OnItemClickListener {
 
 	private MainActivity main;
 
-	private List<URI> portraitPaths;
+	private List<Uri> portraitPaths;
 
 	public PortraitChooserDialog(MainActivity context) {
 		super(context);
@@ -48,11 +48,11 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 
 		File[] files = portraitDir.listFiles();
 		if (files != null) {
-			portraitPaths = new ArrayList<URI>(files.length);
+			portraitPaths = new ArrayList<Uri>(files.length);
 
 			for (File file : files) {
 				if (file.isFile()) {
-					portraitPaths.add(file.toURI());
+					portraitPaths.add(Uri.fromFile(file));
 				}
 			}
 		}
@@ -87,13 +87,13 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 		dismiss();
 	}
 
-	class PortraitAdapter extends ArrayAdapter<URI> {
+	class PortraitAdapter extends ArrayAdapter<Uri> {
 
-		public PortraitAdapter(Context context, List<URI> objects) {
+		public PortraitAdapter(Context context, List<Uri> objects) {
 			super(context, 0, objects);
 		}
 
-		public PortraitAdapter(Context context, URI[] objects) {
+		public PortraitAdapter(Context context, Uri[] objects) {
 			super(context, 0, objects);
 		}
 
@@ -108,8 +108,8 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 				tv.setScaleType(ScaleType.CENTER_INSIDE);
 			}
 
-			URI file = getItem(position);
-			tv.setImageURI(Uri.parse(file.toString()));
+			Uri file = getItem(position);
+			tv.setImageBitmap(Util.decodeBitmap(file, 200));
 
 			return tv;
 		}

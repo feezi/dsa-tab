@@ -16,6 +16,8 @@
  */
 package com.dsatab.activity.menu;
 
+import java.lang.ref.WeakReference;
+
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 
@@ -29,7 +31,7 @@ import com.dsatab.activity.MainActivity;
  */
 public class TabListener<T extends Fragment> implements ActionBar.TabListener {
 
-	private final MainActivity mActivity;
+	private final WeakReference<MainActivity> mActivityRef;
 
 	private final int tabIndex;
 
@@ -42,7 +44,7 @@ public class TabListener<T extends Fragment> implements ActionBar.TabListener {
 	 *            The index of the tab to show
 	 */
 	public TabListener(MainActivity activity, int tabIndex) {
-		this.mActivity = activity;
+		this.mActivityRef = new WeakReference<MainActivity>(activity);
 		this.tabIndex = tabIndex;
 	}
 
@@ -55,7 +57,10 @@ public class TabListener<T extends Fragment> implements ActionBar.TabListener {
 	 */
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
-		mActivity.showTab(tabIndex);
+		MainActivity mainActivity = mActivityRef.get();
+		if (mainActivity != null) {
+			mainActivity.showTab(tabIndex);
+		}
 	}
 
 	/*

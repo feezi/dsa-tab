@@ -20,20 +20,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.support.v4.content.AsyncTaskLoader;
 
 import com.dsatab.DSATabApplication;
-import com.dsatab.HeroConfiguration;
 import com.dsatab.activity.MainActivity;
 import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.util.Debug;
-import com.dsatab.xml.Xml;
 import com.dsatab.xml.XmlParser;
 
 /**
@@ -106,7 +101,6 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 
 			fis = new FileInputStream(file);
 			hero = XmlParser.readHero(path, fis, this);
-			hero.setHeroConfiguration(loadHeroConfiguration());
 			if (hero != null) {
 				Debug.verbose("Hero successfully parsed");
 
@@ -137,52 +131,6 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 			}
 
 		}
-	}
-
-	public HeroConfiguration loadHeroConfiguration() throws IOException, JSONException, ClassNotFoundException {
-
-		FileInputStream fis = null;
-		HeroConfiguration heroConfiguration = null;
-		try {
-
-			File file = new File(hero.getPath() + ".dsatab");
-
-			if (file.exists() && file.length() > 0) {
-				fis = new FileInputStream(file);
-
-				byte[] data = new byte[(int) file.length()];
-				fis.read(data);
-
-				JSONObject jsonObject = new JSONObject(new String(data));
-				heroConfiguration = new HeroConfiguration(hero, jsonObject);
-			} else {
-
-				String tabConfig = hero.getHeldElement().getAttributeValue(Xml.TAB_CONFIG);
-				if (tabConfig != null) {
-					try {
-						JSONObject jsonObject = new JSONObject(tabConfig);
-						heroConfiguration = new HeroConfiguration(hero, jsonObject);
-					} catch (JSONException e) {
-						Debug.error(e);
-						heroConfiguration = null;
-					} catch (ClassNotFoundException e) {
-						Debug.error(e);
-						heroConfiguration = null;
-					}
-				}
-			}
-
-			if (heroConfiguration == null) {
-				heroConfiguration = new HeroConfiguration(hero);
-				heroConfiguration.reset();
-			}
-		} finally {
-			if (fis != null)
-				fis.close();
-		}
-
-		return heroConfiguration;
-
 	}
 
 }

@@ -2,12 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.dsatab"
     android:installLocation="auto"
-    android:versionCode="51"
-    android:versionName="3.2.1" >
+    android:versionCode="52"
+    android:versionName="3.3.1" >
 
-    <uses-sdk
-        android:minSdkVersion="7"
-        android:targetSdkVersion="14" />
+    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="14" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -103,22 +101,6 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
-        <activity
-            android:name="com.dropbox.client2.android.AuthActivity"
-            android:configChanges="orientation|keyboard"
-            android:launchMode="singleTask" >
-            <intent-filter>
-
-                <!-- Change this to be db- followed by your app key -->
-                <data android:scheme="db-00nrr4dxqnxmvi2" />
-
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
         <receiver
             android:name="com.gandulf.guilib.util.DownloadBroadcastReceiver"
             android:exported="false" >
@@ -129,6 +111,10 @@
 
         <service
             android:name="com.gandulf.guilib.util.UnzipIntentService"
+            android:exported="false" >
+        </service>
+        <service
+            android:name="com.dsatab.common.ExportHeroService"
             android:exported="false" >
         </service>
 

@@ -33,7 +33,7 @@ import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Spell;
-import com.dsatab.data.Talent.Flags;
+import com.dsatab.data.Spell.Flags;
 import com.dsatab.data.filter.FilterableListFilter;
 import com.dsatab.util.Debug;
 import com.dsatab.view.ListFilterSettings;
@@ -52,7 +52,7 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 
 	private Hero hero;
 
-	private Bitmap indicatorStar, indicatorHouse, indicatorFlash;
+	private Bitmap indicatorStar, indicatorStarGray, indicatorHouse, indicatorFlash;
 
 	private LayoutInflater inflater;
 
@@ -71,6 +71,7 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 			filter(filterSettings);
 
 		indicatorStar = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_star);
+		indicatorStarGray = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_star_gray);
 		indicatorHouse = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_house);
 		indicatorFlash = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_flash);
 
@@ -157,16 +158,18 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 		Util.setVisibility(holder.text5, false, holder.text1);
 
 		if (holder.indicator != null) {
-
-			if (spell.hasFlag(Flags.Begabung) || spell.hasFlag(Flags.ÜbernatürlicheBegabung)) {
-				holder.indicator.setVisibility(View.VISIBLE);
-				holder.indicator.setImageBitmap(indicatorStar);
-			} else if (!TextUtils.isEmpty(spell.getZauberSpezialisierung())) {
+			if (!TextUtils.isEmpty(spell.getZauberSpezialisierung())) {
 				holder.indicator.setVisibility(View.VISIBLE);
 				holder.indicator.setImageBitmap(indicatorFlash);
-			} else if (spell.isHouseSpell()) {
+			} else if (spell.hasFlag(Flags.ÜbernatürlicheBegabung)) {
+				holder.indicator.setVisibility(View.VISIBLE);
+				holder.indicator.setImageBitmap(indicatorStar);
+			} else if (spell.hasFlag(Flags.Hauszauber)) {
 				holder.indicator.setVisibility(View.VISIBLE);
 				holder.indicator.setImageBitmap(indicatorHouse);
+			} else if (spell.hasFlag(Flags.Begabung)) {
+				holder.indicator.setVisibility(View.VISIBLE);
+				holder.indicator.setImageBitmap(indicatorStarGray);
 			} else {
 				holder.indicator.setVisibility(View.INVISIBLE);
 			}

@@ -59,10 +59,10 @@ public class ItemLocationInfo implements Serializable, Cloneable {
 		return cellNumber;
 	}
 
-	public void setCellNumber(int cellX) {
-		this.cellNumber = cellX;
+	public void setCellNumber(int cellNumber) {
+		this.cellNumber = cellNumber;
 		if (element != null)
-			element.setAttribute(Xml.KEY_CELL_NUMBER, Util.toString(cellX));
+			element.setAttribute(Xml.KEY_CELL_NUMBER, Util.toString(cellNumber));
 	}
 
 	public void setElement(Element element) {
@@ -89,7 +89,6 @@ public class ItemLocationInfo implements Serializable, Cloneable {
 	 */
 	@Override
 	public String toString() {
-
 		return cellNumber + " on " + screen;
 	}
 
@@ -100,7 +99,6 @@ public class ItemLocationInfo implements Serializable, Cloneable {
 	 */
 	@Override
 	public boolean equals(Object o) {
-
 		if (o == null)
 			return false;
 

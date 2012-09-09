@@ -10,7 +10,6 @@ import android.text.TextUtils;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.common.Util;
-import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.util.Debug;
 import com.dsatab.xml.Xml;
@@ -42,9 +41,12 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 
 	private String comments;
 	private String variant;
-	private boolean houseSpell;
 
 	private String zauberSpezialisierung;
+
+	public enum Flags {
+		Begabung, ÜbernatürlicheBegabung, Hauszauber
+	}
 
 	private EnumSet<Flags> flags = EnumSet.noneOf(Flags.class);
 
@@ -110,8 +112,10 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 
 		this.comments = element.getAttributeValue(Xml.KEY_ANMERKUNGEN);
 		this.variant = element.getAttributeValue(Xml.KEY_VARIANTE);
-		if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_HAUSZAUBER)))
-			this.houseSpell = Boolean.valueOf(element.getAttributeValue(Xml.KEY_HAUSZAUBER));
+		if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_HAUSZAUBER))
+				&& Boolean.valueOf(element.getAttributeValue(Xml.KEY_HAUSZAUBER))) {
+			addFlag(Flags.Hauszauber);
+		}
 	}
 
 	public String getName() {
@@ -207,10 +211,6 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 		if (element != null) {
 			element.setAttribute(Xml.KEY_ANMERKUNGEN, comment);
 		}
-	}
-
-	public boolean isHouseSpell() {
-		return houseSpell;
 	}
 
 	public String getVariant() {

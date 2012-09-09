@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +40,8 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 
 	private Hero hero;
 
+	private Bitmap indicatorStar, indicatorStarGray, indicatorHouse, indicatorFlash, indicatorFlashGray;
+
 	private ListFilterSettings filterSettings;
 
 	private ProbeListener probeListener;
@@ -57,6 +61,12 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 		groupsMap = new HashMap<TalentGroup.TalentGroupType, List<Talent>>();
 
 		inflater = LayoutInflater.from(context);
+
+		indicatorStar = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_star);
+		indicatorStarGray = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_star_gray);
+		indicatorHouse = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_house);
+		indicatorFlash = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_flash);
+		indicatorFlashGray = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_flash_gray);
 
 	}
 
@@ -267,14 +277,18 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 		}
 
 		if (holder.indicator != null) {
-
-			if (talent.hasFlag(Flags.Begabung) || talent.hasFlag(Flags.Talentschub)
-					|| talent.hasFlag(Flags.Meisterhandwerk)) {
+			if (!TextUtils.isEmpty(talent.getTalentSpezialisierung())) {
 				holder.indicator.setVisibility(View.VISIBLE);
-				holder.indicator.setImageResource(R.drawable.indicator_star);
-			} else if (!TextUtils.isEmpty(talent.getTalentSpezialisierung())) {
+				holder.indicator.setImageBitmap(indicatorFlash);
+			} else if (talent.hasFlag(Flags.Meisterhandwerk)) {
 				holder.indicator.setVisibility(View.VISIBLE);
-				holder.indicator.setImageResource(R.drawable.indicator_flash);
+				holder.indicator.setImageBitmap(indicatorHouse);
+			} else if (talent.hasFlag(Flags.Talentschub)) {
+				holder.indicator.setVisibility(View.VISIBLE);
+				holder.indicator.setImageBitmap(indicatorStar);
+			} else if (talent.hasFlag(Flags.Begabung)) {
+				holder.indicator.setVisibility(View.VISIBLE);
+				holder.indicator.setImageBitmap(indicatorStarGray);
 			} else {
 				holder.indicator.setVisibility(View.INVISIBLE);
 			}

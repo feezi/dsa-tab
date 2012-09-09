@@ -49,6 +49,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.common.Util;
@@ -179,6 +180,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		if (hero == null) {
 			Toast.makeText(getActivity(), "Fehler: Kein Held geladen.", Toast.LENGTH_SHORT).show();
 			getActivity().finish();
+			super.onActivityCreated(savedInstanceState);
 			return;
 		}
 		categories = ItemType.values();
@@ -187,8 +189,9 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		try {
 			allItems = DSATabApplication.getInstance().getDBHelper().getDao(Item.class).queryBuilder().prepare();
 		} catch (SQLException e) {
-			Debug.error(e);
+			BugSenseHandler.log(Debug.CATEGORY_DATABASE, e);
 		}
+
 		categoriesSelected = new HashSet<ItemType>();
 
 		Bundle extra = getActivity().getIntent().getExtras();
@@ -452,7 +455,6 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	private void showItemChooserPopup() {
 		if (itemChooserDialog == null) {
 			itemChooserDialog = new ItemChooserDialog(getActivity(), DSATabApplication.getInstance().getHero());
-			itemChooserDialog.setShowOwnItems(false);
 			itemChooserDialog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 				/*
 				 * (non-Javadoc)
@@ -463,10 +465,12 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 				 */
 				@Override
 				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-					Item selectedItem = (Item) parent.getAdapter().getItem(position);
-					chooseType(selectedItem.getSpecifications().get(0).getType(), selectedItem.getCategory(),
-							selectedItem);
+					Item item = itemChooserDialog.getItem(position);
+					if (item != null) {
+						chooseType(item.getSpecifications().get(0).getType(), item.getCategory(), item);
+					}
 					itemChooserDialog.dismiss();
+
 				}
 			});
 		}

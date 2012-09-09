@@ -73,7 +73,7 @@
 			
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal" android:id="@+id/dice_dice_result"
-		android:layout_width="fill_parent" android:layout_marginTop="10dip" android:layout_height="@dimen/dices_size" android:layout_gravity="center_vertical">
+		android:layout_width="fill_parent" android:layout_marginTop="10dip" android:minHeight="@dimen/dices_size" android:layout_height="wrap_content" android:layout_gravity="center_vertical">
 
 	</LinearLayout>
 

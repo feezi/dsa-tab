@@ -86,7 +86,7 @@ public class GalleryImageCursorAdapter extends SimpleCursorAdapter {
 
 	class ItemCardCursor implements ItemCard {
 
-		private File file, hqFile;
+		private File file;
 		private String title;
 
 		/**
@@ -95,16 +95,29 @@ public class GalleryImageCursorAdapter extends SimpleCursorAdapter {
 		public ItemCardCursor(Cursor c) {
 
 			this.title = c.getString(c.getColumnIndex("title"));
+			String name = c.getString(c.getColumnIndex("name"));
+
 			if (TextUtils.isEmpty(title)) {
-				this.title = c.getString(c.getColumnIndex("name"));
+				this.title = name;
 			}
 
 			String path = c.getString(c.getColumnIndex("path"));
-			if (!TextUtils.isEmpty(path)) {
+			if (file == null && !TextUtils.isEmpty(path)) {
 				this.file = new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), path);
+				if (!file.exists())
+					file = null;
+			}
 
-				String hqPath = path.replace(Item.POSTFIX_LQ, Item.POSTFIX_HQ);
-				this.hqFile = new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), hqPath);
+			if (file == null && !TextUtils.isEmpty(title)) {
+				this.file = new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), title + Item.POSTFIX);
+				if (!file.exists())
+					file = null;
+			}
+
+			if (file == null && !TextUtils.isEmpty(name) && !name.equals(title)) {
+				this.file = new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), name + Item.POSTFIX);
+				if (!file.exists())
+					file = null;
 			}
 
 		}
@@ -116,19 +129,21 @@ public class GalleryImageCursorAdapter extends SimpleCursorAdapter {
 
 		@Override
 		public File getFile() {
-
 			return file;
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.dsatab.data.items.ItemCard#hasImage()
+		 */
 		@Override
-		public File getHQFile() {
-
-			return hqFile;
+		public boolean hasImage() {
+			return file != null;
 		}
 
 		@Override
 		public String getTitle() {
-
 			return title;
 		}
 

@@ -1,25 +1,42 @@
-<LinearLayout android:layout_weight="1" android:layout_height="fill_parent" android:id="@+id/sheet_fight"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:dsatab="http://schemas.android.com/apk/res/com.dsatab" android:layout_margin="@dimen/page_margin" android:layout_width="fill_parent" android:orientation="vertical">
-	
-	<LinearLayout android:layout_height="wrap_content"
-		android:id="@+id/fight_le_layout"
-		android:layout_width="fill_parent" android:weightSum="1.0"
-		android:layout_margin="@dimen/page_margin"
-		android:gravity="center_horizontal">
-		
-		<com.dsatab.view.GlossyButton android:text="LE" android:layout_gravity="center_vertical"
-			android:id="@+id/fight_btn_picker" android:gravity="center"
-			android:layout_width="wrap_content" android:layout_height="@dimen/icon_button_size" android:layout_marginRight="10dp"/>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:dsatab="http://schemas.android.com/apk/res/com.dsatab"
+    android:id="@+id/sheet_fight"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_margin="@dimen/page_margin"
+    android:layout_weight="1"
+    android:orientation="vertical" >
 
-		<kankan.wheel.widget.WheelView
-			android:id="@+id/fight_picker" dsatab:visibleItems="@integer/fight_wheel_items" dsatab:orientation="vertical" android:layout_height="@dimen/icon_button_size" android:layout_width="fill_parent"/>
-	</LinearLayout>
+    <LinearLayout
+        android:id="@+id/fight_le_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/page_margin"
+        android:gravity="center_horizontal"
+        android:weightSum="1.0" >
 
-	<ListView
-	    android:id="@+id/fight_list"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content" style="@style/BorderPanel">
-	</ListView>
+        <com.dsatab.view.GlossyButton
+            android:id="@+id/fight_btn_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/icon_button_size"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="10dp"
+            android:gravity="center"
+            android:text="@string/label_le" />
+
+        <kankan.wheel.widget.WheelView
+            android:id="@+id/fight_picker"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/icon_button_size"
+            dsatab:orientation="vertical"
+            dsatab:visibleItems="@integer/fight_wheel_items" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/fight_list"
+        style="@style/BorderPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </ListView>
 
 </LinearLayout>

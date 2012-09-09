@@ -50,10 +50,8 @@ import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.NotesEditActivity;
 import com.dsatab.data.Connection;
-import com.dsatab.data.ConnectionComparator;
 import com.dsatab.data.Event;
 import com.dsatab.data.Hero;
-import com.dsatab.data.NotesComparator;
 import com.dsatab.data.adapter.ConnectionAdapter;
 import com.dsatab.data.adapter.EventAdapter;
 import com.dsatab.data.enums.EventCategory;
@@ -492,7 +490,7 @@ public class NotesFragment extends BaseFragment implements OnItemClickListener, 
 					connectionsAdapter.add(connection);
 				}
 
-				connectionsAdapter.sort(new ConnectionComparator());
+				connectionsAdapter.sort(Connection.NAME_COMPARATOR);
 				connectionsAdapter.refilter();
 				connectionsAdapter.notifyDataSetChanged();
 
@@ -520,7 +518,7 @@ public class NotesFragment extends BaseFragment implements OnItemClickListener, 
 					notesListAdapter.add(selectedEvent);
 				}
 
-				notesListAdapter.sort(new NotesComparator());
+				notesListAdapter.sort(Event.COMPARATOR);
 				notesListAdapter.refilter();
 				notesListAdapter.notifyDataSetChanged();
 			}

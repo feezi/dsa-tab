@@ -1,19 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-   xmlns:android="http://schemas.android.com/apk/res/android"
-   android:layout_weight="1"
-   android:id="@+id/sheet_map"
-   android:layout_height="fill_parent" android:layout_width="fill_parent" style="@style/BorderPanel">
-   
-   <TextView android:visibility="gone" android:text="Keine Karten gefunden" android:gravity="center" android:id="@+android:id/empty" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:drawableTop="@drawable/ic_menu_clear_playlist" android:drawablePadding="10dp"></TextView>
-   
-   <ImageView android:id="@+id/imageView"
-      android:layout_width="fill_parent"
-      android:layout_height="fill_parent"
-      android:scaleType="matrix">
-   </ImageView>
-   
-   <ProgressBar android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/map_progress" android:layout_gravity="center" android:visibility="gone" android:indeterminate="true" android:indeterminateBehavior="repeat"></ProgressBar>
-   <TextView android:text="Karte wird geladen" android:layout_height="fill_parent" android:layout_width="fill_parent" android:gravity="center" android:id="@+id/map_progress_text" android:visibility="gone"></TextView>
-   
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sheet_map"
+    style="@style/BorderPanel"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_weight="1" >
+
+    <TextView
+        android:id="@+android:id/empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:drawablePadding="10dp"
+        android:drawableTop="@drawable/ic_menu_clear_playlist"
+        android:gravity="center"
+        android:text="@string/message_maps_emoty"
+        android:visibility="gone" >
+    </TextView>
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scaleType="matrix" >
+    </ImageView>
+
+    <ProgressBar
+        android:id="@+id/map_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminate="true"
+        android:indeterminateBehavior="repeat"
+        android:visibility="gone" >
+    </ProgressBar>
+
+    <TextView
+        android:id="@+id/map_progress_text"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:text="@string/message_map_loading"
+        android:visibility="gone" >
+    </TextView>
+
 </FrameLayout>

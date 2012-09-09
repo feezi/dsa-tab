@@ -83,7 +83,7 @@ public class DistanceWeapon extends ItemSpecification {
 
 	public String getDistance(int index) {
 		initDistances();
-		if (distance != null)
+		if (distance != null && distance.length > index)
 			return distance[index];
 		else
 			return null;

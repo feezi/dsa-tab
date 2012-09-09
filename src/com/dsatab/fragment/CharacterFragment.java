@@ -238,7 +238,7 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 				cursor.close();
 				File file = new File(filePath);
 				if (file.exists()) {
-					Bitmap yourSelectedImage = Util.decodeFile(new File(filePath), 300);
+					Bitmap yourSelectedImage = Util.decodeBitmap(new File(filePath), 300);
 
 					File outputfile = saveBitmap(yourSelectedImage);
 					if (outputfile != null) {

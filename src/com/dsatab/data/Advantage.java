@@ -11,10 +11,6 @@ import com.dsatab.xml.Xml;
 
 public class Advantage {
 
-	/**
-	 * 
-	 */
-
 	private String name;
 	private String comment;
 	private String valueString;

@@ -13,11 +13,11 @@
     
 	<com.dsatab.view.BodyLayout android:id="@+id/body_layout" android:layout_height="fill_parent" android:layout_width="fill_parent"/>
 	
-	<TextView android:layout_width="wrap_content" android:gravity="center" android:layout_height="wrap_content" android:layout_below="@+id/body_total_be" android:layout_alignLeft="@+id/body_total_be" android:layout_alignRight="@+id/body_total_be" android:text="BE"></TextView>
+	<TextView android:layout_width="wrap_content" android:gravity="center" android:layout_height="wrap_content" android:layout_below="@+id/body_total_be" android:layout_alignLeft="@+id/body_total_be" android:layout_alignRight="@+id/body_total_be" android:text="@string/label_be"></TextView>
 	
-	<TextView android:padding="5dp" android:background="@drawable/icon_armor_btn" android:layout_width="wrap_content" android:gravity="center" android:layout_margin="5dp" android:height="50dp" android:layout_height="wrap_content" android:width="50dp" android:textSize="30dp" android:layout_alignParentRight="true" android:id="@+id/body_total_be" android:text="4" android:textColor="@android:color/primary_text_light"></TextView>
+	<TextView android:padding="5dp" android:background="@drawable/icon_armor_btn" android:layout_width="wrap_content" android:gravity="center" android:layout_margin="5dp" android:height="50dp" android:layout_height="wrap_content" android:width="50dp" android:textSize="30dp" android:layout_alignParentRight="true" android:id="@+id/body_total_be" android:text="" android:textColor="@android:color/primary_text_light"></TextView>
 	
-	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/icon_armor_btn" android:text="8" android:gravity="center" android:textSize="30dp" android:id="@+id/body_total_rs" android:width="50dp" android:height="50dp" android:padding="5dp" android:layout_margin="5dp" android:textColor="@android:color/primary_text_light"></TextView>
-	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_below="@+id/body_total_rs" android:layout_alignLeft="@+id/body_total_rs" android:layout_alignRight="@+id/body_total_rs" android:text="Total" android:gravity="center"></TextView>
+	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/icon_armor_btn" android:text="" android:gravity="center" android:textSize="30dp" android:id="@+id/body_total_rs" android:width="50dp" android:height="50dp" android:padding="5dp" android:layout_margin="5dp" android:textColor="@android:color/primary_text_light"></TextView>
+	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_below="@+id/body_total_rs" android:layout_alignLeft="@+id/body_total_rs" android:layout_alignRight="@+id/body_total_rs" android:text="@string/label_total" android:gravity="center"></TextView>
 	
 </RelativeLayout>

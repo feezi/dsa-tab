@@ -15,6 +15,7 @@
  */
 package com.dsatab.xml;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,11 +26,13 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.DSATabApplication;
+import com.dsatab.common.Util;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.util.Debug;
@@ -46,6 +49,8 @@ import com.j256.ormlite.support.DatabaseConnection;
  * 
  */
 public class DataManager {
+
+	private static final int MAX_IMAGE_SIZE = 300;
 
 	private static LruCache<String, Bitmap> mMemoryCache;
 
@@ -121,6 +126,7 @@ public class DataManager {
 			return cursor;
 		} catch (SQLException e) {
 			Debug.error(e);
+			BugSenseHandler.log(Debug.CATEGORY_DATABASE, e);
 		}
 
 		return null;
@@ -152,11 +158,18 @@ public class DataManager {
 
 	}
 
-	public static Bitmap getBitmap(String path) {
-		Bitmap bitmap = getBitmapFromMemCache(path);
+	public static Bitmap getBitmap(File file, int suggestedSize) {
+		if (file != null)
+			return getBitmap(Uri.fromFile(file), suggestedSize);
+		else
+			return null;
+	}
+
+	public static Bitmap getBitmap(Uri uri, int suggestedSize) {
+		Bitmap bitmap = getBitmapFromMemCache(uri.toString() + "x" + suggestedSize);
 		if (bitmap == null) {
-			bitmap = BitmapFactory.decodeFile(path);
-			addBitmapToMemoryCache(path, bitmap);
+			bitmap = Util.decodeBitmap(uri, suggestedSize);
+			addBitmapToMemoryCache(uri.toString() + "x" + suggestedSize, bitmap);
 		}
 		return bitmap;
 	}

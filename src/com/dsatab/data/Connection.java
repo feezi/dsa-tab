@@ -16,6 +16,8 @@
  */
 package com.dsatab.data;
 
+import java.util.Comparator;
+
 import org.jdom.Element;
 
 import com.dsatab.data.enums.EventCategory;
@@ -26,6 +28,13 @@ import com.dsatab.xml.Xml;
  * 
  */
 public class Connection {
+
+	public static Comparator<Connection> NAME_COMPARATOR = new Comparator<Connection>() {
+		@Override
+		public int compare(Connection object1, Connection object2) {
+			return object1.getName().compareTo(object2.getName());
+		}
+	};
 
 	private Element element;
 
