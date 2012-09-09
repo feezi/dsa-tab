@@ -6,7 +6,7 @@ import java.util.Collection;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.support.v4.widget.CursorAdapter;
+import android.database.Cursor;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -14,8 +14,6 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -26,27 +24,23 @@ import android.widget.Spinner;
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
-import com.dsatab.data.adapter.ItemAdapter;
 import com.dsatab.data.adapter.ItemCursorAdapter;
 import com.dsatab.data.adapter.SpinnerSimpleAdapter;
+import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.xml.DataManager;
 
 public class ItemChooserDialog extends AlertDialog implements android.view.View.OnClickListener, OnItemSelectedListener {
 
-	private BaseAdapter itemAdapter = null;
+	private ItemCursorAdapter itemAdapter = null;
 
 	private ListView itemList;
-
-	private Button btnOtherItems;
 
 	private Spinner categorySpinner;
 
 	private SpinnerSimpleAdapter<ItemType> categoryAdapter;
 
 	private Collection<ItemType> itemTypes = null;
-
-	private boolean showOwnItems = true;
 
 	private ImageButton searchButton;
 	private EditText searchText;
@@ -62,21 +56,15 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 	@Override
 	protected void onStart() {
 		super.onStart();
-		if (showOwnItems) {
-			itemAdapter = new ItemAdapter(getContext(), hero.getItems());
-			filter(itemTypes, null, null);
-			btnOtherItems.setVisibility(View.VISIBLE);
-			categorySpinner.setVisibility(View.GONE);
-		} else {
-			itemAdapter = new ItemCursorAdapter(getContext(), DataManager.getItemsCursor(null, itemTypes, null));
-			btnOtherItems.setVisibility(View.GONE);
 
-			if (searchText.getVisibility() == View.VISIBLE) {
-				// do not show category spinner we are in search mode
-			} else {
-				categorySpinner.setVisibility(View.VISIBLE);
-			}
+		itemAdapter = new ItemCursorAdapter(getContext(), DataManager.getItemsCursor(null, itemTypes, null));
+
+		if (searchText.getVisibility() == View.VISIBLE) {
+			// do not show category spinner we are in search mode
+		} else {
+			categorySpinner.setVisibility(View.VISIBLE);
 		}
+
 		itemList.setAdapter(itemAdapter);
 
 		if (itemTypes != null)
@@ -93,19 +81,14 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 	protected void onStop() {
 		super.onStop();
 
-		if (itemAdapter instanceof CursorAdapter) {
-			if (((CursorAdapter) itemAdapter).getCursor() != null) {
-				((CursorAdapter) itemAdapter).getCursor().close();
-			}
+		if (itemAdapter.getCursor() != null) {
+			itemAdapter.getCursor().close();
 		}
+
 	}
 
 	public void filter(Collection<ItemType> type, String category, String constraint) {
-		if (itemAdapter instanceof ItemAdapter) {
-			((ItemAdapter) itemAdapter).filter(itemTypes, null, null);
-		} else if (itemAdapter instanceof CursorAdapter) {
-			((CursorAdapter) itemAdapter).changeCursor(DataManager.getItemsCursor(constraint, type, category));
-		}
+		itemAdapter.changeCursor(DataManager.getItemsCursor(constraint, type, category));
 	}
 
 	public void show(Collection<ItemType> types) {
@@ -180,9 +163,6 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 
 		itemList = (ListView) popupcontent.findViewById(R.id.popup_item_list);
 
-		btnOtherItems = (Button) popupcontent.findViewById(R.id.popup_item_all);
-		btnOtherItems.setOnClickListener(this);
-
 		categorySpinner = (Spinner) popupcontent.findViewById(R.id.popup_item_category);
 		categoryAdapter = new SpinnerSimpleAdapter<ItemType>(this.getContext(), ItemType.values());
 		categorySpinner.setAdapter(categoryAdapter);
@@ -253,16 +233,6 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 		case R.id.popup_search_button:
 			toggleSearch();
 			break;
-		case R.id.popup_item_all:
-
-			showOwnItems = false;
-			itemAdapter = new ItemAdapter(getContext(), DataManager.getItems());
-			filter(itemTypes, null, null);
-			itemList.setAdapter(itemAdapter);
-
-			btnOtherItems.setVisibility(View.GONE);
-			categorySpinner.setVisibility(View.VISIBLE);
-			break;
 		}
 
 	}
@@ -275,12 +245,11 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 		itemList.setOnItemClickListener(onItemClickListener);
 	}
 
-	public boolean isShowOwnItems() {
-		return showOwnItems;
-	}
-
-	public void setShowOwnItems(boolean showOwnItems) {
-		this.showOwnItems = showOwnItems;
+	public Item getItem(int position) {
+		if (!itemAdapter.getCursor().isClosed())
+			return DataManager.getItemByCursor((Cursor) itemAdapter.getItem(position));
+		else
+			return null;
 	}
 
 }

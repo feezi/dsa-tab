@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -214,10 +215,6 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 			HeroExchange exchange = new HeroExchange(this);
 			exchange.setOnHeroExchangeListener(new OnHeroExchangeListener() {
 				@Override
-				public void onHeroExported() {
-				}
-
-				@Override
 				public void onHeroLoaded(String path) {
 					Intent intent = new Intent();
 					intent.putExtra(INTENT_NAME_HERO_PATH, path);
@@ -260,10 +257,14 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 		return super.onContextItemSelected(item);
 	}
 
-	class HeroAdapter extends ArrayAdapter<HeroFileInfo> {
+	static class HeroAdapter extends ArrayAdapter<HeroFileInfo> {
+
+		LayoutInflater layoutInflater;
 
 		public HeroAdapter(Context context, int textViewResourceId, List<HeroFileInfo> objects) {
 			super(context, textViewResourceId, objects);
+
+			layoutInflater = LayoutInflater.from(context);
 		}
 
 		@Override
@@ -273,7 +274,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 			if (convertView instanceof ViewGroup) {
 				layout = (ViewGroup) convertView;
 			} else {
-				layout = (ViewGroup) getLayoutInflater().inflate(R.layout.hero_chooser_item, null);
+				layout = (ViewGroup) layoutInflater.inflate(R.layout.hero_chooser_item, null);
 				layout.setFocusable(false);
 				layout.setClickable(false);
 			}

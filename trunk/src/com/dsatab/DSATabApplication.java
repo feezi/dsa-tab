@@ -47,8 +47,8 @@ import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.HeroFileInfo;
+import com.dsatab.db.DatabaseHelper;
 import com.dsatab.map.BitmapTileSource;
-import com.dsatab.util.DatabaseHelper;
 import com.dsatab.util.Debug;
 import com.dsatab.xml.DataManager;
 import com.dsatab.xml.Xml;
@@ -541,7 +541,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 			saveHeroConfiguration();
 			Toast.makeText(this, getString(R.string.hero_saved, hero.getName()), Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
-			Toast.makeText(this, "Held konnte nicht gespeichert werden.", Toast.LENGTH_LONG);
+			Toast.makeText(this, "Held konnte nicht gespeichert werden.", Toast.LENGTH_LONG).show();
 			throw new DsaTabRuntimeException(e);
 		} finally {
 			if (out != null) {

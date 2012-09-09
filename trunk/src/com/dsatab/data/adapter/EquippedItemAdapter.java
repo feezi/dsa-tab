@@ -19,7 +19,7 @@ public class EquippedItemAdapter extends ArrayAdapter<EquippedItem> {
 
 	public EquippedItemAdapter(Context context, int textViewResourceId, List<EquippedItem> objects) {
 		super(context, textViewResourceId, objects);
-		inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		inflater = LayoutInflater.from(context);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package com.dsatab.view;
 
+import java.lang.ref.WeakReference;
 import java.security.SecureRandom;
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -89,7 +90,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 	private Animation shakeDice20;
 	private Animation shakeDice6;
 
-	private DiceHandler mHandler = new DiceHandler();
+	private DiceHandler mHandler;
 
 	private Random rnd = new SecureRandom();
 
@@ -172,6 +173,8 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 	 * 
 	 */
 	private void init() {
+		mHandler = new DiceHandler(this);
+
 		effectFormat.setMaximumFractionDigits(1);
 		if (!isInEditMode()) {
 			preferences = DSATabApplication.getPreferences();
@@ -180,6 +183,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 			soundNeutral = sounds.load(getContext(), R.raw.dice, 1);
 			soundWin = sounds.load(getContext(), R.raw.dice_win, 1);
 			soundFail = sounds.load(getContext(), R.raw.dice_fail, 1);
+
 		}
 	}
 
@@ -1002,7 +1006,6 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		int width = getResources().getDimensionPixelSize(R.dimen.dices_size);
 		int padding = getResources().getDimensionPixelSize(R.dimen.dices_padding);
 
-		Debug.verbose("Adding dice with ref " + referenceValue);
 		res.setWidth((int) width);
 		res.setHeight((int) width);
 
@@ -1101,35 +1104,47 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 	}
 
-	class DiceHandler extends Handler {
+	static class DiceHandler extends Handler {
+
+		private final WeakReference<DiceSlider> diceSliderRef;
+
+		/**
+		 * 
+		 */
+		public DiceHandler(DiceSlider diceSlider) {
+			this.diceSliderRef = new WeakReference<DiceSlider>(diceSlider);
+		}
 
 		@Override
 		public void handleMessage(Message msg) {
+			DiceSlider diceSlider = diceSliderRef.get();
 
-			int result = msg.arg1;
+			if (diceSlider != null) {
+				int result = msg.arg1;
 
-			switch (msg.what) {
-			case HANDLE_DICE_6: {
-				showDice6(result);
-				dice6Count--;
-				break;
-			}
-			case HANDLE_DICE_20: {
-				showDice20(result, msg.arg2);
-				dice20Count--;
-				break;
-			}
-			case HANDLE_DISTANCE_FAILURE:
-				Toast.makeText(getContext(), getFailureDistance(), Toast.LENGTH_LONG).show();
-				break;
-			case HANDLE_MELEE_FAILURE:
-				Toast.makeText(getContext(), getFailureMelee(), Toast.LENGTH_LONG).show();
-				break;
+				switch (msg.what) {
+				case HANDLE_DICE_6: {
+					diceSlider.showDice6(result);
+					diceSlider.dice6Count--;
+					break;
+				}
+				case HANDLE_DICE_20: {
+					diceSlider.showDice20(result, msg.arg2);
+					diceSlider.dice20Count--;
+					break;
+				}
+				case HANDLE_DISTANCE_FAILURE:
+					Toast.makeText(diceSlider.getContext(), diceSlider.getFailureDistance(), Toast.LENGTH_LONG).show();
+					break;
+				case HANDLE_MELEE_FAILURE:
+					Toast.makeText(diceSlider.getContext(), diceSlider.getFailureMelee(), Toast.LENGTH_LONG).show();
+					break;
+				}
 			}
 		}
 	}
 
-	class ProbeData {
+	static class ProbeData {
 		Integer[] value = new Integer[3];
 
 		Integer[] dice = new Integer[3];

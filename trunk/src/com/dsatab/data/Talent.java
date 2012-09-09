@@ -54,7 +54,7 @@ public class Talent extends MarkableElement implements Value, XmlWriteable {
 	private String talentSpezialisierung;
 
 	public enum Flags {
-		Meisterhandwerk, Begabung, Talentschub, ÜbernatürlicheBegabung
+		Meisterhandwerk, Begabung, Talentschub
 	}
 
 	private EnumSet<Flags> flags = EnumSet.noneOf(Flags.class);

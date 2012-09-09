@@ -25,7 +25,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.ContextMenu;
@@ -360,8 +359,6 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 	private void showItemPopup() {
 		if (itemChooserDialog == null) {
 			itemChooserDialog = new ItemChooserDialog(getActivity(), DSATabApplication.getInstance().getHero());
-			itemChooserDialog.setShowOwnItems(false);
-
 			itemChooserDialog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 				/*
 				 * (non-Javadoc)
@@ -372,13 +369,7 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 				 */
 				@Override
 				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-					Object obj = parent.getAdapter().getItem(position);
-					Item item = null;
-					if (obj instanceof Item)
-						item = (Item) obj;
-					else if (obj instanceof Cursor) {
-						item = DataManager.getItemByCursor((Cursor) obj);
-					}
+					Item item = itemChooserDialog.getItem(position);
 
 					if (item != null) {
 						item = item.duplicate();

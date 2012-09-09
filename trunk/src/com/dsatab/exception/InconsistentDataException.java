@@ -14,43 +14,34 @@
  *  You should have received a copy of the GNU General Public License
  *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.dsatab.view;
+package com.dsatab.exception;
 
-import android.content.Context;
-import android.support.v4.view.ViewPager;
-import android.util.AttributeSet;
-import android.view.MotionEvent;
+import com.dsatab.common.DsaTabRuntimeException;
 
 /**
  * @author Ganymede
  * 
  */
-public class MyViewPager extends ViewPager {
+public class InconsistentDataException extends DsaTabRuntimeException {
 
-	private boolean draggable = true;
+	public InconsistentDataException() {
+		super();
 
-	public MyViewPager(Context context, AttributeSet attrs) {
-		super(context, attrs);
 	}
 
-	public MyViewPager(Context context) {
-		super(context);
+	public InconsistentDataException(String detailMessage, Throwable throwable) {
+		super(detailMessage, throwable);
+
 	}
 
-	public boolean isDraggable() {
-		return draggable;
+	public InconsistentDataException(String detailMessage) {
+		super(detailMessage);
+
 	}
 
-	public void setDraggable(boolean draggable) {
-		this.draggable = draggable;
-	}
+	public InconsistentDataException(Throwable throwable) {
+		super(throwable);
 
-	@Override
-	public boolean onInterceptTouchEvent(MotionEvent ev) {
-		if (!draggable)
-			return false;
-		else
-			return super.onInterceptTouchEvent(ev);
 	}
 
 }

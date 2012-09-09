@@ -30,8 +30,6 @@ import android.widget.ImageView;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.common.Util;
-import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
 import com.dsatab.xml.DataManager;
 
@@ -39,6 +37,9 @@ import com.dsatab.xml.DataManager;
  * 
  */
 public class CardView extends ImageView {
+
+	private static final int HQ_IMAGE_SIZE = 300;
+	private static final int LQ_IMAGE_SIZE = 120;
 
 	private ItemCard item;
 
@@ -109,25 +110,20 @@ public class CardView extends ImageView {
 
 	public void setItem(ItemCard item) {
 		this.item = item;
-		hasCardImage = false;
 		calculated = false;
 		setTag(item);
 
-		if (highQuality && item != null && item.getHQFile() != null && item.getHQFile().isFile()
-				&& !item.getHQFile().getName().equals(Item.BLANK_PATH_HQ)) {
+		if (item != null && item.hasImage()) {
+			if (highQuality) {
+				setImageBitmap(DataManager.getBitmap(item.getFile(), HQ_IMAGE_SIZE));
+				setScaleType(ScaleType.FIT_CENTER);
+			} else {
+				setImageBitmap(DataManager.getBitmap(item.getFile(), LQ_IMAGE_SIZE));
+				setScaleType(ScaleType.FIT_CENTER);
+			}
 			hasCardImage = true;
-			setImageBitmap(Util.decodeFile(item.getHQFile(), 400));
-			setScaleType(ScaleType.FIT_CENTER);
-		}
-
-		if (!hasCardImage && item != null && item.getFile() != null && item.getFile().isFile()
-				&& !item.getFile().getName().equals(Item.BLANK_PATH)) {
-			hasCardImage = true;
-			setImageBitmap(DataManager.getBitmap(item.getFile().getAbsolutePath()));
-			setScaleType(ScaleType.FIT_CENTER);
-		}
-
-		if (!hasCardImage) {
+		} else {
+			hasCardImage = false;
 			setImageResource(R.drawable.item_card);
 			setScaleType(ScaleType.FIT_XY);
 		}

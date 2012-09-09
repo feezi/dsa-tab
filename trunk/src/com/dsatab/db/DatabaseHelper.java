@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.dsatab.util;
+package com.dsatab.db;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -52,7 +52,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	private static final String DATABASE_NAME = "dsatab.db";
 	// any time you make changes to your database objects, you may have to
 	// increase the database version
-	private static final int DATABASE_VERSION = 19;
+	private static final int DATABASE_VERSION = 21;
 
 	// the DAO object we use to access the SimpleData table
 	private RuntimeExceptionDao<Item, UUID> itemRuntimeDao = null;
@@ -139,6 +139,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	 */
 	public <T> RuntimeExceptionDao<T, Integer> getRuntimeDao(Class<T> clazz) {
 
+		@SuppressWarnings("unchecked")
 		RuntimeExceptionDao<T, Integer> runtimeDao = (RuntimeExceptionDao<T, Integer>) runtimeDaos.get(clazz);
 
 		if (runtimeDao == null) {

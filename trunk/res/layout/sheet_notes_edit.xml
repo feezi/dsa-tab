@@ -4,11 +4,11 @@
 	<ScrollView android:layout_height="wrap_content" android:layout_above="@+id/popup_notes_buttons" android:layout_width="match_parent" android:layout_alignParentTop="true" android:fillViewport="true" android:padding="5dp">
 	<LinearLayout android:layout_height="wrap_content" android:orientation="vertical" android:layout_width="fill_parent">
 		<Spinner android:layout_width="fill_parent" android:id="@+id/popup_notes_spn_category" android:layout_height="wrap_content"></Spinner>
-		<EditText android:layout_height="wrap_content" android:inputType="textPersonName" android:id="@+id/popup_notes_edit_name" android:layout_width="fill_parent" android:hint="Name">
+		<EditText android:layout_height="wrap_content" android:inputType="textPersonName" android:id="@+id/popup_notes_edit_name" android:layout_width="fill_parent" android:hint="@string/label_name">
 			<requestFocus></requestFocus>
 		</EditText>
-		<EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/popup_notes_edit_so" android:hint="Sozialstatus"></EditText>
-		<EditText android:layout_width="fill_parent" android:id="@+id/popup_notes_edit_text" android:hint="Notiz" android:minHeight="50dip" android:inputType="text|textMultiLine" android:gravity="top" android:layout_height="0dp" android:layout_weight="1"></EditText>
+		<EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/popup_notes_edit_so" android:hint="@string/label_social_state"></EditText>
+		<EditText android:layout_width="fill_parent" android:id="@+id/popup_notes_edit_text" android:hint="@string/label_note" android:minHeight="50dip" android:inputType="text|textMultiLine" android:gravity="top" android:layout_height="0dp" android:layout_weight="1"></EditText>
 	</LinearLayout>
 	</ScrollView>
 	<LinearLayout android:layout_height="wrap_content" android:layout_alignParentBottom="true" android:layout_width="fill_parent" android:id="@+id/popup_notes_buttons" android:paddingLeft="5dp" android:paddingRight="5dp" android:paddingTop="5dp" style="@android:style/ButtonBar">

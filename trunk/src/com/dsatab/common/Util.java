@@ -4,6 +4,9 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Arrays;
@@ -135,23 +138,42 @@ public class Util {
 				Html.toHtml(new SpannedString(DSATabApplication.getInstance().getText(resourceId))), formatArgs));
 	}
 
-	public static Bitmap decodeFile(final File f, final int suggestedSize) {
+	public static Bitmap decodeBitmap(final File f, final int suggestedSize) {
 		if (f == null) {
 			return null;
 		}
 		if (f.exists() == false) {
 			return null;
 		}
-		// return BitmapFactory.decodeFile(f.getAbsolutePath());
+
+		return decodeBitmap(Uri.fromFile(f), suggestedSize);
+	}
+
+	public static Bitmap decodeBitmap(Uri uri, int maxImageSize) {
 		try {
-			// System.gc();
-			// decode image size
-			final BitmapFactory.Options o = new BitmapFactory.Options();
-			o.inJustDecodeBounds = true;
-			BitmapFactory.decodeFile(f.getAbsolutePath(), o);
-			// Find the correct scale value. It should be the power of
-			// 2.
-			final int requiredSize = suggestedSize;
+
+			Bitmap b = null;
+			InputStream is = null;
+			BufferedInputStream bis = null;
+
+			// Decode image size
+			BitmapFactory.Options o;
+			try {
+				is = DSATabApplication.getInstance().getBaseContext().getContentResolver().openInputStream(uri);
+				bis = new BufferedInputStream(is);
+
+				o = new BitmapFactory.Options();
+				o.inJustDecodeBounds = true;
+				BitmapFactory.decodeStream(bis, null, o);
+			} finally {
+				if (is != null)
+					is.close();
+			}
+			is = null;
+			bis = null;
+
+			// Find the correct scale value.It should be the power of 2
+			final int requiredSize = maxImageSize;
 			int widthTmp = o.outWidth, heightTmp = o.outHeight;
 			int scale = 1;
 			while (true) {
@@ -162,17 +184,25 @@ public class Util {
 				heightTmp /= 2;
 				scale *= 2;
 			}
-			// decode with inSampleSize
-			final BitmapFactory.Options o2 = new BitmapFactory.Options();
+
+			// Decode with inSampleSize
+			BitmapFactory.Options o2 = new BitmapFactory.Options();
 			o2.inSampleSize = scale;
-			Bitmap bitmap = null;
+			o2.inDither = false;
+			o2.inInputShareable = true;
+			o2.inPurgeable = true;
+			o2.inTempStorage = new byte[32 * 1024];
+
 			try {
-				bitmap = BitmapFactory.decodeFile(f.getAbsolutePath(), o2);
-			} catch (final Throwable e) {
-				Debug.error(e);
-				System.gc();
+				is = DSATabApplication.getInstance().getBaseContext().getContentResolver().openInputStream(uri);
+				bis = new BufferedInputStream(is);
+				b = BitmapFactory.decodeStream(bis, null, o2);
+			} finally {
+				if (is != null)
+					is.close();
 			}
-			return bitmap;
+			return b;
+
 		} catch (final Throwable e) {
 			Debug.error(e);
 			System.gc();
@@ -247,44 +277,6 @@ public class Util {
 			floats[i] = Float.parseFloat(st.nextToken());
 		}
 		return floats;
-	}
-
-	public static Bitmap decodeFile(Uri uri, int maxImageSize) throws IOException {
-		Bitmap b = null;
-
-		InputStream is = DSATabApplication.getInstance().getBaseContext().getContentResolver().openInputStream(uri);
-		BufferedInputStream bis = new BufferedInputStream(is);
-
-		// Decode image size
-		BitmapFactory.Options o = new BitmapFactory.Options();
-		o.inJustDecodeBounds = true;
-
-		BitmapFactory.decodeStream(is, null, o);
-		bis.close();
-
-		int scale = 1;
-		if (o.outHeight > maxImageSize || o.outWidth > maxImageSize) {
-			scale = (int) Math.pow(
-					2.0,
-					(int) Math.round(Math.log(maxImageSize / (double) Math.max(o.outHeight, o.outWidth))
-							/ Math.log(0.5)));
-		}
-
-		// Decode with inSampleSize
-		BitmapFactory.Options o2 = new BitmapFactory.Options();
-		o2.inSampleSize = scale;
-		o2.inDither = false;
-		o2.inInputShareable = true;
-		o2.inPurgeable = true;
-		o2.inTempStorage = new byte[32 * 1024];
-
-		is = DSATabApplication.getInstance().getBaseContext().getContentResolver().openInputStream(uri);
-		bis = new BufferedInputStream(is);
-
-		b = BitmapFactory.decodeStream(is, null, o2);
-		bis.close();
-
-		return b;
 	}
 
 	public static void unbindDrawables(View view) {
@@ -863,5 +855,29 @@ public class Util {
 		item = menu.add(Menu.NONE, R.id.option_cancel, Menu.NONE, android.R.string.cancel);
 		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		item.setIcon(R.drawable.ic_action_cancel);
+	}
+
+	public static InputStream openHttpConnection(String urlString) throws IOException {
+		InputStream in = null;
+		int response = -1;
+
+		URL url = new URL(urlString);
+		URLConnection conn = url.openConnection();
+
+		if (!(conn instanceof HttpURLConnection))
+			throw new IOException("Not an HTTP connection");
+
+		HttpURLConnection httpConn = (HttpURLConnection) conn;
+		httpConn.setAllowUserInteraction(false);
+		httpConn.setInstanceFollowRedirects(true);
+		httpConn.setRequestMethod("GET");
+		httpConn.connect();
+
+		response = httpConn.getResponseCode();
+		if (response == HttpURLConnection.HTTP_OK) {
+			in = httpConn.getInputStream();
+		}
+
+		return in;
 	}
 }

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,11 +39,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		}
 	};
 
-	public static final String POSTFIX_LQ = "_LQ.gif";
-	public static final String POSTFIX_HQ = "_HQ.jpg";
-
-	public static final String BLANK_PATH = "blank_w_LQ.gif";
-	public static final String BLANK_PATH_HQ = "blank_w_HQ.jpg";
+	public static final String POSTFIX = ".jpg";
 
 	private transient Element element;
 
@@ -60,7 +55,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	@DatabaseField
 	private String itemTypes;
 	@DatabaseField
-	public String path = BLANK_PATH;
+	public String path = null;
 
 	// we need these wrapper since ormlite does not inheritance for
 	// ItemSpecification yet. All these collections will be merged into
@@ -80,9 +75,8 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 
 	private ItemLocationInfo itemInfo;
 
-	private List<EquippedItem> equippedItems;
-
 	private Boolean hasCardImage;
+	private File imageFile;
 
 	public Item() {
 		id = UUID.randomUUID();
@@ -96,12 +90,6 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 				return (T) itemSpecification;
 		}
 		return null;
-	}
-
-	public List<EquippedItem> getEquippedItems() {
-		if (equippedItems == null)
-			equippedItems = new LinkedList<EquippedItem>();
-		return equippedItems;
 	}
 
 	public void addSpecification(ItemSpecification itemSpecification) {
@@ -248,10 +236,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	}
 
 	public String getPath() {
-		if (path != null)
-			return path;
-		else
-			return null;
+		return path;
 	}
 
 	public void setCategory(String category) {
@@ -260,30 +245,37 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 
 	public void setPath(String path) {
 		if (TextUtils.isEmpty(path))
-			path = BLANK_PATH;
+			path = null;
 
+		this.imageFile = null;
+		this.hasCardImage = null;
 		this.path = path;
 	}
 
 	public File getFile() {
-		if (getPath() != null)
-			return new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), getPath());
-		else
-			return null;
-	}
+		if (imageFile == null) {
+			if (!TextUtils.isEmpty(path)) {
+				imageFile = new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), path);
+				if (!imageFile.exists())
+					imageFile = null;
+			}
 
-	public File getHQFile() {
-		if (getHQPath() != null)
-			return new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), getHQPath());
-		else
-			return null;
-	}
+			// try to find a image with title of item in cards directory
+			if (imageFile == null && !TextUtils.isEmpty(title)) {
+				imageFile = new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), title + POSTFIX);
+				if (!imageFile.exists())
+					imageFile = null;
+			}
 
-	public String getHQPath() {
-		if (path != null)
-			return path.replace(POSTFIX_LQ, POSTFIX_HQ);
-		else
-			return null;
+			// try to find a image with name of item in cards directory
+			if (imageFile == null && !TextUtils.isEmpty(name)) {
+				imageFile = new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), name + POSTFIX);
+				if (!imageFile.exists())
+					imageFile = null;
+			}
+
+		}
+		return imageFile;
 	}
 
 	public boolean isEquipable() {
@@ -295,15 +287,9 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	}
 
 	public boolean hasImage() {
-
 		if (hasCardImage == null) {
-
-			File lqFile = getFile();
-			if (lqFile == null || !lqFile.isFile())
-				hasCardImage = false;
-			else
-				hasCardImage = (!lqFile.getName().equals(Item.BLANK_PATH));
-
+			File file = getFile();
+			hasCardImage = file != null && file.isFile();
 		}
 		return hasCardImage;
 

@@ -57,8 +57,8 @@ import com.dsatab.R;
 import com.dsatab.util.Debug;
 import com.dsatab.view.PreferenceWithButton;
 import com.dsatab.view.TipOfTheDayDialog;
-import com.gandulf.guilib.util.AbstractDownloader;
-import com.gandulf.guilib.util.DownloaderWrapper;
+import com.gandulf.guilib.download.AbstractDownloader;
+import com.gandulf.guilib.download.DownloaderWrapper;
 import com.gandulf.guilib.util.ResUtil;
 import com.gandulf.guilib.view.VersionInfoDialog;
 
@@ -360,7 +360,7 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 			edit.putString(prefKey, filePath);
 			edit.commit();
 
-			Toast.makeText(this, "Hintergrundbild wurde verändert.", Toast.LENGTH_SHORT);
+			Toast.makeText(this, "Hintergrundbild wurde verändert.", Toast.LENGTH_SHORT).show();
 		}
 
 	}

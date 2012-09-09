@@ -32,10 +32,8 @@ import android.os.Vibrator;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -97,11 +95,8 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	// protected List<BaseFragment> fragments;
 
 	private DiceSlider diceSlider;
-	private View diceSliderContainer;
 
 	private ShakeListener mShaker;
-
-	private RelativeLayout relMainLayout;
 
 	private MyViewPager viewPager;
 
@@ -476,8 +471,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-		relMainLayout = (RelativeLayout) findViewById(R.id.gen_main_layout);
-
 		viewPager = (MyViewPager) findViewById(R.id.viewpager);
 
 		preferences = DSATabApplication.getPreferences();
@@ -522,7 +515,8 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 			tabInfo = getIntent().getParcelableExtra(INTENT_TAB_INFO);
 		}
 
-		setupDiceSilder();
+		diceSlider = (DiceSlider) findViewById(R.id.SlidingDrawer);
+		diceSlider.setSlideHandleButton(findViewById(R.id.slideHandleButton));
 
 		if (!showNewsInfoPopup()) {
 			showTipPopup();
@@ -602,19 +596,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 			tabConfig = getHero().getHeroConfiguration();
 		}
 		return tabConfig;
-	}
-
-	protected void setupDiceSilder() {
-		if (diceSliderContainer != null)
-			relMainLayout.removeView(diceSliderContainer);
-
-		diceSliderContainer = LayoutInflater.from(this).inflate(R.layout.dice_slider, relMainLayout, false);
-		RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) diceSliderContainer.getLayoutParams();
-		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		relMainLayout.addView(diceSliderContainer);
-
-		diceSlider = (DiceSlider) relMainLayout.findViewById(R.id.SlidingDrawer);
-		diceSlider.setSlideHandleButton(relMainLayout.findViewById(R.id.slideHandleButton));
 	}
 
 	protected boolean showNextTab() {

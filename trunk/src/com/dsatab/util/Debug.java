@@ -24,6 +24,10 @@ import com.dsatab.DSATabApplication;
  */
 public class Debug {
 
+	public static final String CATEGORY_DATA = "characterData";
+
+	public static final String CATEGORY_DATABASE = "database";
+
 	private static String tag = DSATabApplication.TAG;
 
 	private static boolean TRACE = true;

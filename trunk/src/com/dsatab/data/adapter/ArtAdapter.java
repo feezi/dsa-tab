@@ -32,8 +32,8 @@ import android.widget.TextView;
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.Art;
+import com.dsatab.data.Art.Flags;
 import com.dsatab.data.ArtInfo;
-import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.filter.FilterableListFilter;
 import com.dsatab.view.ListFilterSettings;
 
@@ -50,7 +50,7 @@ public class ArtAdapter extends OpenArrayAdapter<Art> {
 
 	private LayoutInflater inflater;
 
-	private Bitmap indicatorStar;
+	private Bitmap indicatorStarGray;
 
 	public ArtAdapter(Context context, Collection<Art> liturgies, ListFilterSettings filterSettings) {
 		super(context, 0, 0, liturgies);
@@ -60,7 +60,7 @@ public class ArtAdapter extends OpenArrayAdapter<Art> {
 			filter(filterSettings);
 
 		inflater = LayoutInflater.from(getContext());
-		indicatorStar = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_star);
+		indicatorStarGray = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_star_gray);
 	}
 
 	public void filter(ListFilterSettings settings) {
@@ -166,7 +166,7 @@ public class ArtAdapter extends OpenArrayAdapter<Art> {
 		if (holder.indicator != null) {
 			if (art.hasFlag(Flags.Begabung)) {
 				holder.indicator.setVisibility(View.VISIBLE);
-				holder.indicator.setImageBitmap(indicatorStar);
+				holder.indicator.setImageBitmap(indicatorStarGray);
 			} else {
 				holder.indicator.setVisibility(View.INVISIBLE);
 			}

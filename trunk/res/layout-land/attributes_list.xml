@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.dsatab.view.TileLinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/gen_attributes"
+    android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-	android:layout_width="fill_parent"
-	android:id="@+id/gen_attributes"
-	android:paddingTop="2dp" android:paddingLeft="5dp" android:paddingRight="5dp" android:paddingBottom="2dp" android:background="@drawable/bg_topbar" android:orientation="horizontal">
+    android:background="@color/ValueBlack"
+    android:orientation="horizontal"
+    android:paddingBottom="2dp"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
+    android:paddingTop="2dp" >
         	
 	<TextView android:text="Character Name" android:layout_height="wrap_content" android:id="@+id/attr_name" android:ellipsize="end" android:singleLine="true" android:layout_width="wrap_content" style="@style/TextValue.Small.NoTouch.Inverse" android:layout_marginRight="5dp" android:layout_weight="1" android:gravity="left|center_vertical"></TextView>
 		
@@ -88,4 +93,4 @@
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" style="@style/TextValue.Small.Inverse"
 			android:id="@+id/attr_kk" android:singleLine="true" android:ellipsize="none" android:layout_weight="0" android:layout_marginRight="10dp"></TextView>	
-</com.dsatab.view.TileLinearLayout>
+</LinearLayout>

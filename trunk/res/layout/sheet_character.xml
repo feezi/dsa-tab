@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-android:id="@+id/sheet_character"
+<ScrollView android:id="@+id/sheet_character"
 	android:layout_height="fill_parent" android:layout_weight="1"
 	android:fillViewport="true"
-	android:scrollbarStyle="outsideOverlay" android:layout_margin="@dimen/page_margin" android:layout_width="fill_parent">
+	android:scrollbarStyle="outsideOverlay" android:layout_margin="@dimen/page_margin" android:layout_width="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android">
 	<RelativeLayout android:layout_height="wrap_content"
 		android:layout_width="fill_parent" android:id="@+id/gen_char_sheet">
 		<ImageView android:id="@+id/gen_portrait" android:src="@drawable/profile_blank"
@@ -22,7 +21,7 @@ android:id="@+id/sheet_character"
 			<TableRow android:layout_width="wrap_content"
 				android:layout_height="wrap_content">
 				<TextView android:layout_width="wrap_content"
-					android:layout_height="wrap_content" android:text="Söldner"
+					android:layout_height="wrap_content"
 					android:id="@+id/gen_ausbildung" android:ellipsize="middle"
 					android:layout_span="4" style="@style/TextValue.Small.NoTouch" android:layout_gravity="left|center_vertical" android:gravity="left"></TextView>
 			</TableRow>
@@ -112,7 +111,7 @@ android:id="@+id/sheet_character"
 		<LinearLayout android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:layout_below="@+id/gen_portrait"
 			android:layout_alignParentLeft="true" android:id="@+id/gen_attributes_layout"
-			android:layout_marginTop="5dp">
+			android:layout_marginTop="5dp" android:baselineAligned="false">
 			<TableLayout android:id="@+id/gen_attributes"
 				android:shrinkColumns="0" android:paddingLeft="7.5dp" style="@style/BorderPanel"
 				android:layout_width="wrap_content" android:layout_height="match_parent" android:layout_weight="0.6" android:stretchColumns="0" android:paddingRight="7.5dp">
@@ -369,10 +368,19 @@ android:id="@+id/sheet_character"
 				android:singleLine="true"
 				android:ellipsize="none" android:gravity="center"></TextView>
 		</LinearLayout>
-
-		<TextView android:layout_height="wrap_content" android:text="Beidhändig, Gezielter Stich"
-			android:id="@+id/gen_specialfeatures" android:layout_marginTop="5dip" android:layout_width="fill_parent"
-			android:layout_below="@+id/gen_attributes3" style="@style/TextLabel.Small" android:background="@drawable/border_patch" android:padding="10dip"></TextView>
+
+		<TextView
+		    android:id="@+id/gen_specialfeatures"
+		    style="@style/TextLabel.Small"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_below="@+id/gen_attributes3"
+		    android:layout_marginTop="5dip"
+		    android:background="@drawable/border_patch"
+		    android:ellipsize="none"
+		    android:padding="10dip"
+		    android:text="" >
+</TextView>
 
 
 	</RelativeLayout>

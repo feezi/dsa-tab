@@ -41,9 +41,6 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.commonsware.cwac.tlv.TouchListView;
-import com.commonsware.cwac.tlv.TouchListView.DropListener;
-import com.commonsware.cwac.tlv.TouchListView.RemoveListener;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.TabInfo;
@@ -63,6 +60,9 @@ import com.dsatab.fragment.PurseFragment;
 import com.dsatab.fragment.SpellFragment;
 import com.dsatab.fragment.TalentFragment;
 import com.dsatab.view.GlossyImageButton;
+import com.mobeta.android.dslv.DragSortListView;
+import com.mobeta.android.dslv.DragSortListView.DropListener;
+import com.mobeta.android.dslv.DragSortListView.RemoveListener;
 
 public class TabEditActivity extends BaseFragmentActivity implements OnItemClickListener, OnClickListener,
 		OnItemSelectedListener, DropListener, RemoveListener, OnCheckedChangeListener {
@@ -76,8 +76,9 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 
 	private TabInfo currentInfo = null;
 
-	private TouchListView tabsList;
+	private DragSortListView tabsList;
 	private TabsAdapter tabsAdapter;
+	private TabIconAdapter iconAdapter;
 
 	private List<TabInfo> tabs;
 
@@ -108,13 +109,12 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 
 		spinner1 = (Spinner) findViewById(R.id.popup_edit_primary);
 
-		tabsList = (TouchListView) findViewById(R.id.popup_tab_list);
+		tabsList = (DragSortListView) findViewById(R.id.popup_tab_list);
 		tabsList.setDropListener(this);
 		tabsList.setRemoveListener(this);
 		tabsList.setOnItemClickListener(this);
 		tabsList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-
-		tabsList.setItemHeightExpanded(tabsList.getItemHeightNormal() * 2);
+		// tabsList.setItemHeightExpanded(tabsList.getItemHeightNormal() * 2);
 
 		tabs = new ArrayList<TabInfo>(DSATabApplication.getInstance().getHero().getHeroConfiguration().getTabs());
 
@@ -139,7 +139,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		spinner2.setOnItemSelectedListener(this);
 
 		iconSpinner = (Spinner) findViewById(R.id.popup_edit_icon);
-		TabIconAdapter iconAdapter = new TabIconAdapter(this, avatars);
+		iconAdapter = new TabIconAdapter(this, avatars);
 		iconSpinner.setAdapter(iconAdapter);
 		iconSpinner.setOnItemSelectedListener(this);
 
@@ -218,6 +218,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	protected void updateView(TabInfo info) {
 
 		currentInfo = info;
+		tabsAdapter.setSelectedTab(info);
 
 		if (info != null) {
 			Class<? extends BaseFragment> clazz1 = info.getPrimaryActivityClazz();
@@ -371,6 +372,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 
 	protected void setSelectedTabIcon(int position) {
 		selectedPosition = position;
+		iconAdapter.setSelectedIndex(position);
 		// check new position
 		iconSpinner.setSelection(position);
 
@@ -380,14 +382,24 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		}
 	}
 
-	class TabIconAdapter extends ArrayAdapter<Integer> {
+	static class TabIconAdapter extends ArrayAdapter<Integer> {
 
 		LayoutInflater inflater;
+
+		private int selectedIndex;
 
 		public TabIconAdapter(Context context, List<Integer> objects) {
 			super(context, 0, objects);
 
 			inflater = LayoutInflater.from(getContext());
+		}
+
+		public int getSelectedIndex() {
+			return selectedIndex;
+		}
+
+		public void setSelectedIndex(int selectedIndex) {
+			this.selectedIndex = selectedIndex;
 		}
 
 		/*
@@ -422,16 +434,18 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 			imageButton.setFocusable(false);
 			imageButton.setClickable(false);
 			imageButton.setImageResource(getItem(position));
-			imageButton.setChecked(selectedPosition >= 0 && selectedPosition == position);
+			imageButton.setChecked(selectedIndex >= 0 && selectedIndex == position);
 
 			return view;
 		}
 
 	}
 
-	class TabsAdapter extends ArrayAdapter<TabInfo> {
+	static class TabsAdapter extends ArrayAdapter<TabInfo> {
 
 		LayoutInflater inflater;
+
+		TabInfo selectedTab;
 
 		/**
 		 * 
@@ -440,6 +454,14 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 			super(context, 0, objects);
 
 			inflater = LayoutInflater.from(getContext());
+		}
+
+		public TabInfo getSelectedTab() {
+			return selectedTab;
+		}
+
+		public void setSelectedTab(TabInfo selectedTab) {
+			this.selectedTab = selectedTab;
 		}
 
 		/*
@@ -464,7 +486,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 			imageButton.setFocusable(false);
 			imageButton.setClickable(false);
 			imageButton.setImageResource(info.getTabResourceId());
-			imageButton.setChecked(info == currentInfo);
+			imageButton.setChecked(info == selectedTab);
 
 			return view;
 		}

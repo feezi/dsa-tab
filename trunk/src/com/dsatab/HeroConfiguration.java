@@ -108,7 +108,7 @@ public class HeroConfiguration {
 		auModifierActive = true;
 	}
 
-	public HeroConfiguration(Hero hero, JSONObject in) throws JSONException, ClassNotFoundException {
+	public HeroConfiguration(Hero hero, JSONObject in) throws JSONException {
 		this.hero = hero;
 		JSONArray array = null;
 		if (in.has(FIELD_TABS_PORTRAIT)) {
@@ -116,8 +116,12 @@ public class HeroConfiguration {
 			tabInfosPortrait = new ArrayList<TabInfo>(array.length());
 			for (int i = 0; i < array.length(); i++) {
 				JSONObject tab = array.getJSONObject(i);
-				TabInfo info = new TabInfo(tab);
-				tabInfosPortrait.add(info);
+				try {
+					TabInfo info = new TabInfo(tab);
+					tabInfosPortrait.add(info);
+				} catch (ClassNotFoundException e) {
+					Debug.error(e);
+				}
 			}
 		} else {
 			tabInfosPortrait = new ArrayList<TabInfo>();
@@ -128,8 +132,12 @@ public class HeroConfiguration {
 			tabInfosLandscape = new ArrayList<TabInfo>(array.length());
 			for (int i = 0; i < array.length(); i++) {
 				JSONObject tab = array.getJSONObject(i);
-				TabInfo info = new TabInfo(tab);
-				tabInfosLandscape.add(info);
+				try {
+					TabInfo info = new TabInfo(tab);
+					tabInfosLandscape.add(info);
+				} catch (ClassNotFoundException e) {
+					Debug.error(e);
+				}
 			}
 		} else {
 			tabInfosLandscape = new ArrayList<TabInfo>();

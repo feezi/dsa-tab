@@ -17,6 +17,7 @@ package com.dsatab.fragment;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,8 +61,8 @@ import com.dsatab.common.WrapMotionEvent;
 import com.dsatab.data.Hero;
 import com.dsatab.map.MapTileProviderLocal;
 import com.dsatab.util.Debug;
-import com.gandulf.guilib.util.AbstractDownloader;
-import com.gandulf.guilib.util.DownloaderWrapper;
+import com.gandulf.guilib.download.AbstractDownloader;
+import com.gandulf.guilib.download.DownloaderWrapper;
 
 public class MapFragment extends BaseFragment implements OnTouchListener {
 
@@ -82,6 +83,9 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 	public enum TouchMode {
 		None, Drag, Zoom;
 	}
+
+	private ProgressBar progress;
+	private TextView progressText;
 
 	private ImageView imageMapView;
 
@@ -163,6 +167,9 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.sheet_map, container, false);
 
 		imageMapView = (ImageView) root.findViewById(R.id.imageView);
+
+		progress = (ProgressBar) root.findViewById(R.id.map_progress);
+		progressText = (TextView) root.findViewById(R.id.map_progress_text);
 
 		return configureContainerView(root);
 	}
@@ -331,37 +338,47 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 				osmMapView.setVisibility(View.GONE);
 			imageMapView.setVisibility(View.VISIBLE);
 
-			loadImageTask = new LoadImageTask();
+			progress.setVisibility(View.VISIBLE);
+			progressText.setVisibility(View.VISIBLE);
+			progress.setIndeterminate(true);
+
+			loadImageTask = new LoadImageTask(this);
 			loadImageTask.execute(filePath);
 
 		}
 	}
 
-	private class LoadImageTask extends AsyncTask<String, String, Bitmap> {
+	private void mapLoaded(BitmapDrawable bitmap) {
 
-		ProgressBar progress;
-		TextView progressText;
+		progress.setVisibility(View.GONE);
+		progressText.setVisibility(View.GONE);
 
-		/*
-		 * (non-Javadoc)
+		if (bitmap != null) {
+			this.bitmap = bitmap;
+			imageMapView.setImageDrawable(bitmap);
+			imageMapView.setImageMatrix(matrix);
+		} else {
+
+		}
+
+		loadImageTask = null;
+	}
+
+	private static class LoadImageTask extends AsyncTask<String, String, Bitmap> {
+
+		private WeakReference<MapFragment> mapFragmentRef;
+
+		/**
 		 * 
-		 * @see android.os.AsyncTask#onPreExecute()
 		 */
-		@Override
-		protected void onPreExecute() {
-			progress = (ProgressBar) findViewById(R.id.map_progress);
-			progressText = (TextView) findViewById(R.id.map_progress_text);
-
-			progress.setVisibility(View.VISIBLE);
-			progressText.setVisibility(View.VISIBLE);
-			progress.setIndeterminate(true);
-
+		public LoadImageTask(MapFragment mapFragment) {
+			mapFragmentRef = new WeakReference<MapFragment>(mapFragment);
 		}
 
 		protected Bitmap doInBackground(String... urls) {
 			File file = new File(DSATabApplication.getDirectory(DSATabApplication.DIR_MAPS), urls[0]);
 			publishProgress(file.getName());
-			return Util.decodeFile(file, 1000);
+			return Util.decodeBitmap(file, 1000);
 		}
 
 		/*
@@ -379,20 +396,20 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 				onCancelled(result);
 				return;
 			}
-			progress.setVisibility(View.GONE);
-			progressText.setVisibility(View.GONE);
 
-			if (getActivity() != null) {
+			MapFragment mapFragment = mapFragmentRef.get();
+			if (mapFragment != null && mapFragment.getActivity() != null) {
+
 				if (result != null) {
-					Toast.makeText(getActivity(), "Karte geladen.", Toast.LENGTH_SHORT).show();
-					bitmap = new BitmapDrawable(getResources(), result);
-					imageMapView.setImageDrawable(bitmap);
-					imageMapView.setImageMatrix(matrix);
+					Toast.makeText(mapFragment.getActivity(), "Karte geladen.", Toast.LENGTH_SHORT).show();
+					mapFragment.mapLoaded(new BitmapDrawable(mapFragment.getResources(), result));
 				} else {
-					Toast.makeText(getActivity(), "Konnte Karte nicht laden.", Toast.LENGTH_SHORT).show();
+					Toast.makeText(mapFragment.getActivity(), "Konnte Karte nicht laden.", Toast.LENGTH_SHORT).show();
+					mapFragment.mapLoaded(null);
 				}
+
 			}
-			loadImageTask = null;
+
 		}
 
 		/*
@@ -401,10 +418,10 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 		 * @see android.os.AsyncTask#onCancelled(java.lang.Object)
 		 */
 		protected void onCancelled(Bitmap result) {
-			progress.setVisibility(View.GONE);
-			progressText.setVisibility(View.GONE);
-
-			loadImageTask = null;
+			MapFragment mapFragment = mapFragmentRef.get();
+			if (mapFragment != null && mapFragment.getActivity() != null) {
+				mapFragment.mapLoaded(null);
+			}
 		}
 	}
 
