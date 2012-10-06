@@ -29,6 +29,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -53,7 +54,7 @@ import com.dsatab.data.HeroLoader;
 import com.dsatab.data.Probe;
 import com.dsatab.data.Value;
 import com.dsatab.data.adapter.DualFragment;
-import com.dsatab.data.adapter.TabPagerMemoryAdapter;
+import com.dsatab.data.adapter.TabPagerAdapter;
 import com.dsatab.fragment.ArtFragment;
 import com.dsatab.fragment.AttributeListFragment;
 import com.dsatab.fragment.BaseFragment;
@@ -195,7 +196,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 	protected EditListener editListener;
 
-	private TabPagerMemoryAdapter viewPagerAdapter;
+	private TabPagerAdapter viewPagerAdapter;
 
 	public Hero getHero() {
 		return DSATabApplication.getInstance().getHero();
@@ -529,7 +530,9 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	private void setupTabs() {
 
 		if (viewPagerAdapter == null) {
-			viewPagerAdapter = new TabPagerMemoryAdapter(this, getSupportFragmentManager(), getHeroConfiguration());
+			// viewPagerAdapter = new TabPagerMemoryAdapter(this,
+			// getSupportFragmentManager(), getHeroConfiguration());
+			viewPagerAdapter = new TabPagerAdapter(this, getSupportFragmentManager(), getHeroConfiguration());
 			viewPager.setAdapter(viewPagerAdapter);
 		} else {
 			viewPagerAdapter.setConfiguration(getHeroConfiguration());
@@ -1112,9 +1115,9 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		// notify other listeners (fragments, heroes)
 
 		if (viewPagerAdapter != null) {
-			for (DualFragment fragment : viewPagerAdapter.getDualFragments()) {
+			for (Fragment fragment : viewPagerAdapter.getFragments()) {
 				if (fragment != null) {
-					fragment.onSharedPreferenceChanged(sharedPreferences, key);
+					((BaseFragment) fragment).onSharedPreferenceChanged(sharedPreferences, key);
 				}
 			}
 		}

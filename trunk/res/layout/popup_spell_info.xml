@@ -57,7 +57,7 @@
 			<EditText android:layout_height="wrap_content" android:layout_width="fill_parent" android:text="" android:id="@+id/popup_spell_complexity_edit" android:visibility="gone" android:layout_weight="1"/>
 		</TableRow>
 		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_hero_values_row">
-		    <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Charakter spezifische Werte:" style="@style/TextLabel.Popup" android:textStyle="italic"></TextView>
+		    <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_span="3" android:text="Charakter spezifische Werte:" style="@style/TextLabel.Popup" android:textStyle="italic"></TextView>
 		</TableRow>
 		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_spell_row_comment">
 			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Kommentar" style="@style/TextLabel.Popup"></TextView>
