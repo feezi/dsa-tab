@@ -2011,24 +2011,20 @@ public class Hero {
 
 		for (Element feat : sfs) {
 			Advantage adv = new Advantage(feat);
-			boolean add = true;
 			if (adv.getName().equals(Advantage.BEGABUNG_FUER_TALENT)) {
 				Talent talent = getTalent(adv.getValueAsString());
 				if (talent != null) {
 					talent.addFlag(Flags.Begabung);
-					add = false;
 				}
 			} else if (adv.getName().equals(Advantage.TALENTSCHUB)) {
 				Talent talent = getTalent(adv.getValueAsString());
 				if (talent != null) {
 					talent.addFlag(Flags.Talentschub);
-					add = false;
 				}
 			} else if (adv.getName().equals(Advantage.MEISTERHANDWERK)) {
 				Talent talent = getTalent(adv.getValueAsString());
 				if (talent != null) {
 					talent.addFlag(Flags.Meisterhandwerk);
-					add = false;
 				}
 			} else if (adv.getName().equals(Advantage.BEGABUNG_FUER_TALENTGRUPPE)) {
 				try {
@@ -2036,7 +2032,6 @@ public class Hero {
 					TalentGroup talentGroup = getTalentGroups().get(groupType);
 					if (talentGroup != null) {
 						talentGroup.addFlag(Flags.Begabung);
-						add = false;
 					}
 				} catch (Exception e) {
 					Debug.warning("Begabung für [Talentgruppe], unknown talentgroup:" + adv.getValueAsString());
@@ -2045,33 +2040,37 @@ public class Hero {
 				Spell spell = getSpells().get(adv.getValueAsString());
 				if (spell != null) {
 					spell.addFlag(com.dsatab.data.Spell.Flags.Begabung);
-					add = false;
 				}
 
 			} else if (adv.getName().equals(Advantage.BEGABUNG_FUER_RITUAL)) {
 				Art art = getArts().get(adv.getValueAsString());
 				if (art != null) {
 					art.addFlag(com.dsatab.data.Art.Flags.Begabung);
-					add = false;
 				}
 
 			} else if (adv.getName().equals(Advantage.UEBERNATUERLICHE_BEGABUNG)) {
 				Spell spell = getSpells().get(adv.getValueAsString());
 				if (spell != null) {
 					spell.addFlag(com.dsatab.data.Spell.Flags.ÜbernatürlicheBegabung);
-					add = false;
 
 				}
 			}
+			
+			Map<String, Advantage> targetList;
 
-			if (add) {
-				if (Advantage.isNachteil(adv.getName())) {
-					disadvantagesByName.put(adv.getName(), adv);
-				} else if (Advantage.isVorteil(adv.getName()))
-					advantagesByName.put(adv.getName(), adv);
-				else {
-					Debug.warning("Not recognised value: " + feat.getAttributeValue(Xml.KEY_NAME));
-				}
+			if (Advantage.isNachteil(adv.getName())) {
+				targetList = disadvantagesByName;
+			} else if (Advantage.isVorteil(adv.getName()))
+				targetList = advantagesByName;
+			else {
+				Debug.warning("Not recognised value: " + feat.getAttributeValue(Xml.KEY_NAME));
+				return;
+			}
+			Advantage existingAdv = targetList.get(adv.getName());
+			if(existingAdv == null){
+				targetList.put(adv.getName(), adv);
+			}else{
+				existingAdv.addValue(adv.getValueAsString());
 			}
 		}
 	}

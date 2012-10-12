@@ -1,10 +1,10 @@
 package com.dsatab.data;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.jdom.Element;
-
-import android.text.TextUtils;
 
 import com.dsatab.common.Util;
 import com.dsatab.xml.Xml;
@@ -13,7 +13,7 @@ public class Advantage {
 
 	private String name;
 	private String comment;
-	private String valueString;
+	private List<String> values;
 
 	public static final String AUSDAUERND = "Ausdauernd";
 	public static final String NATUERLICHER_RUESTUNGSSCHUTZ = "Natürlicher Rüstungsschutz";
@@ -112,7 +112,8 @@ public class Advantage {
 	public Advantage(Element element) {
 
 		this.name = element.getAttributeValue(Xml.KEY_NAME);
-		this.valueString = element.getAttributeValue(Xml.KEY_VALUE);
+		this.values = new LinkedList<String>();
+		this.values.add(element.getAttributeValue(Xml.KEY_VALUE));
 		this.comment = element.getAttributeValue(Xml.KEY_COMMENT);
 	}
 
@@ -125,21 +126,28 @@ public class Advantage {
 	}
 
 	public Integer getValue() {
-		if (valueString != null)
-			return Util.parseInt(valueString);
+		if (values.get(0) != null)
+			return Util.parseInt(values.get(0));
 		else
 			return null;
 	}
 
 	public String getValueAsString() {
-		return valueString;
+		return values.get(0);
 	}
 
 	@Override
 	public String toString() {
-		if (!TextUtils.isEmpty(valueString))
-			return getName() + " " + valueString;
-		else
-			return getName();
+		if(values.isEmpty()){
+ 			return getName();
+		}else if(values.size() == 1){
+			return getName() + " " + values.get(0);
+		}else{
+			return getName() + " " + values.toString();
+		}	
+	}
+	
+	public void addValue(String value) {
+		this.values.add(value);
 	}
 }
