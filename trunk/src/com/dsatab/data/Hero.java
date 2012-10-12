@@ -1783,32 +1783,7 @@ public class Hero {
 					}
 				}
 
-				// check for beidhändiger kampf
-				if (equippedItem.getHand() == Hand.links) {
-					EquippedItem equippedSecondaryWeapon = equippedItem.getSecondaryItem();
-
-					if (equippedSecondaryWeapon != null
-							&& equippedSecondaryWeapon.getItem().hasSpecification(Weapon.class)) {
-						int m = -9;
-
-						if (hasFeature(SpecialFeature.LINKHAND))
-							m += 3;
-
-						if (hasFeature(SpecialFeature.BEIDHAENDIGER_KAMPF_1))
-							m += 3;
-
-						if (hasFeature(SpecialFeature.BEIDHAENDIGER_KAMPF_2))
-							m += 3;
-
-						modifiers
-								.add(new Modifier(m, "Beidhändigerkampf Links",
-										"Beim Beidhändigenkampf bekommt man je nach Sonderfertigkeiten bei aktionen mit der linken Hand Abzüge."));
-
-						Debug.verbose("Beidhändiger Kampf mit Links " + Util.toProbe(m));
-
-					}
-
-				}
+				addModForBeidhändigerKampf(modifiers, equippedItem);
 
 				// modify weapon attack with shield wmAt modifier if second
 				// weapon is shield
@@ -1897,6 +1872,40 @@ public class Hero {
 		}
 
 		return modifiers;
+	}
+	
+	/**
+	 * Adds modifiers for lefthanded battle.
+	 * 
+	 * @param modifiers
+	 * @param equippedItem
+	 */
+	private void addModForBeidhändigerKampf(List<Modifier> modifiers,
+			EquippedItem equippedItem) {
+		// check for beidhändiger kampf
+		if (equippedItem.getHand() == Hand.links) {
+			EquippedItem equippedSecondaryWeapon = equippedItem.getSecondaryItem();
+			if (equippedSecondaryWeapon != null
+					&& equippedSecondaryWeapon.getItem().hasSpecification(Weapon.class)) {
+				int m = 0;
+				if (!hasFeature(Advantage.BEIDHAENDIG)) {
+					m = -9;
+					if (hasFeature(SpecialFeature.LINKHAND))
+						m += 3;
+					if (hasFeature(SpecialFeature.BEIDHAENDIGER_KAMPF_1))
+						m += 3;
+					if (hasFeature(SpecialFeature.BEIDHAENDIGER_KAMPF_2))
+						m += 3;
+				}
+
+				modifiers
+						.add(new Modifier(
+								m,
+								"Beidhändigerkampf Links",
+								"Beim Beidhändigenkampf bekommt man je nach Sonderfertigkeiten bei aktionen mit der linken Hand Abzüge."));
+				Debug.verbose("Beidhändiger Kampf mit Links " + Util.toProbe(m));
+			}
+		}
 	}
 
 	public int getModifier(AttributeType type) {

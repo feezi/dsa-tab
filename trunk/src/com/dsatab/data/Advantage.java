@@ -23,6 +23,7 @@ public class Advantage {
 	public static final String MAGIEDILLETANT = "Magiedilletant";
 	public static final String ENTFERNUNGSSINN = "Entfernungssinn";
 	public static final String MONDSUECHTIG = "Mondsüchtig";
+	public static final String BEIDHAENDIG ="Beidhändig";
 
 	public static final String MEISTERHANDWERK = "Meisterhandwerk";
 
@@ -31,7 +32,7 @@ public class Advantage {
 			"Akademische Ausbildung (Magier)", "Altersresistenz", "Astrale Regeneration", "Astralmacht", AUSDAUERND,
 			"Ausdauernder Zauberer", "Ausrüstungsvorteil", "Balance", "Begabung für [Merkmal]",
 			"Begabung für [Ritual]", "Begabung für [Talent]", "Begabung für [Talentgruppe]", "Begabung für [Zauber]",
-			"Beidhändig", "Beseelte Knochenkeule", "Besonderer Besitz", "Breitgefächerte Bildung", "Dämmerungssicht",
+			BEIDHAENDIG, "Beseelte Knochenkeule", "Besonderer Besitz", "Breitgefächerte Bildung", "Dämmerungssicht",
 			"Eidetisches Gedächtnis", "Eigeboren", "Eisenaffine Aura", "Eisern", "Empathie", ENTFERNUNGSSINN,
 			"Ererbte Knochenkeule", "Feenfreund", FESTE_MATRIX, "Früher Vertrauter", "Flink", "Gebildet",
 			"Gefahreninstinkt", "Geräuschhexerei", "Geweiht [Angrosch]", "Geweiht [Gravesh]",
