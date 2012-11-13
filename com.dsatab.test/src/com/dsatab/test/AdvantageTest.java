@@ -13,23 +13,26 @@ public class AdvantageTest extends AndroidTestCase {
 		super();
 	}
 	
+	//Advantages without a value consist of only the name
 	public void testToStringWithNoValue(){
-		org.jdom.Element element = new Element("Advantage");
+		org.jdom.Element element = new Element(Xml.KEY_VORTEIL);
 		element.setAttribute(Xml.KEY_NAME, Advantage.BEIDHAENDIG);
 		Advantage advantage = new Advantage(element);
 		assertEquals(Advantage.BEIDHAENDIG, advantage.toString());
 	}
 	
+	//Advantages with exactly one value consist of the name and the value
 	public void testToStringWithOneValue(){
-		org.jdom.Element element = new Element("Advantage");
+		org.jdom.Element element = new Element(Xml.KEY_VORTEIL);
 		element.setAttribute(Xml.KEY_NAME, "Neugier");
 		element.setAttribute(Xml.KEY_VALUE, "7");
 		Advantage advantage = new Advantage(element);
 		assertEquals("Neugier 7", advantage.toString());
 	}
 	
+	//Multiple values in advantages are shown in brackets
 	public void testToStringWithMultipleValues(){
-		org.jdom.Element element = new Element("Advantage");
+		org.jdom.Element element = new Element(Xml.KEY_VORTEIL);
 		element.setAttribute(Xml.KEY_NAME, "Herausragender Sinn");
 		element.setAttribute(Xml.KEY_VALUE, "Gehör");
 		Advantage advantage = new Advantage(element);
@@ -37,8 +40,9 @@ public class AdvantageTest extends AndroidTestCase {
 		assertEquals("Herausragender Sinn [Gehör, Geruch]", advantage.toString());
 	}
 	
+	//Empty values will be omitted
 	public void testToStringWithEmptyValue(){
-		org.jdom.Element element = new Element("Advantage");
+		org.jdom.Element element = new Element(Xml.KEY_VORTEIL);
 		element.setAttribute(Xml.KEY_NAME, Advantage.BEIDHAENDIG);
 		element.setAttribute(Xml.KEY_VALUE, "");
 		Advantage advantage = new Advantage(element);
