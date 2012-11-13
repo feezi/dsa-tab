@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.jdom.Element;
 
+import android.text.TextUtils;
+
 import com.dsatab.common.Util;
 import com.dsatab.xml.Xml;
 
@@ -23,7 +25,7 @@ public class Advantage {
 	public static final String MAGIEDILLETANT = "Magiedilletant";
 	public static final String ENTFERNUNGSSINN = "Entfernungssinn";
 	public static final String MONDSUECHTIG = "Mondsüchtig";
-	public static final String BEIDHAENDIG ="Beidhändig";
+	public static final String BEIDHAENDIG = "Beidhändig";
 
 	public static final String MEISTERHANDWERK = "Meisterhandwerk";
 
@@ -115,7 +117,7 @@ public class Advantage {
 		this.name = element.getAttributeValue(Xml.KEY_NAME);
 		this.values = new LinkedList<String>();
 		String value = element.getAttributeValue(Xml.KEY_VALUE);
-		if (!TextUtils.isEmpty(value)){
+		if (!TextUtils.isEmpty(value)) {
 			this.values.add(value);
 		}
 		this.comment = element.getAttributeValue(Xml.KEY_COMMENT);
@@ -145,15 +147,15 @@ public class Advantage {
 
 	@Override
 	public String toString() {
-		if(values.isEmpty()){
- 			return getName();
-		}else if(values.size() == 1){
+		if (values.isEmpty()) {
+			return getName();
+		} else if (values.size() == 1) {
 			return getName() + " " + values.get(0);
-		}else{
+		} else {
 			return getName() + " " + values.toString();
-		}	
+		}
 	}
-	
+
 	public void addValue(String value) {
 		this.values.add(value);
 	}
