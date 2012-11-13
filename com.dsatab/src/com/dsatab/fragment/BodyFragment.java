@@ -274,6 +274,9 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 			case Behinderung:
 				totalBe.setText(Util.toString(getHero().getArmorBe()));
 				break;
+			default:
+				// do nothing
+				break;
 			}
 		}
 		super.onValueChanged(value);

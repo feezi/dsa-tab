@@ -306,6 +306,9 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 			fillAttributeValue((TextView) view.findViewById(R.id.attr_kk), AttributeType.Körperkraft);
 			fillAttributeLabel((TextView) view.findViewById(R.id.attr_kk_label), AttributeType.Körperkraft);
 			break;
+		default:
+			// do nothing
+			break;
 		}
 	}
 

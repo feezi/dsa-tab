@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.jdom.Element;
 
-import android.text.TextUtils;
-
 import com.dsatab.common.Util;
 import com.dsatab.xml.Xml;
 
@@ -116,10 +114,7 @@ public class Advantage {
 
 		this.name = element.getAttributeValue(Xml.KEY_NAME);
 		this.values = new LinkedList<String>();
-		String value = element.getAttributeValue(Xml.KEY_VALUE);
-		if (!TextUtils.isEmpty(value)){
-			this.values.add(value);
-		}
+		this.values.add(element.getAttributeValue(Xml.KEY_VALUE));
 		this.comment = element.getAttributeValue(Xml.KEY_COMMENT);
 	}
 
@@ -132,17 +127,14 @@ public class Advantage {
 	}
 
 	public Integer getValue() {
-		if (values.size() == 1)
+		if (values.get(0) != null)
 			return Util.parseInt(values.get(0));
 		else
 			return null;
 	}
 
 	public String getValueAsString() {
-		if (values.size() == 1)
-			return values.get(0);
-		else
-			return null;
+		return values.get(0);
 	}
 
 	@Override

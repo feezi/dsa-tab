@@ -73,6 +73,9 @@ public class WoundAttribute extends AbstractModificator implements JSONable {
 			case LowerLeg:
 				info = "GE,INI,AT,PA -2; GS -1";
 				break;
+			default:
+				// do nothing
+				break;
 			}
 		} else {
 			info = "AT,PA,FK,GE,INI -2; GS -1";
@@ -152,6 +155,9 @@ public class WoundAttribute extends AbstractModificator implements JSONable {
 						modifier += -1 * getValue();
 					}
 					break;
+				default:
+					// do nothing
+					break;
 				}
 			} else {
 				if (type == AttributeType.at || type == AttributeType.pa || type == AttributeType.fk
@@ -225,6 +231,9 @@ public class WoundAttribute extends AbstractModificator implements JSONable {
 					case UpperLeg:
 					case LowerLeg:
 						modifier += -2 * getValue();
+						break;
+					default:
+						// do nothing
 						break;
 					}
 				} else {

@@ -2,6 +2,7 @@ package com.dsatab.common;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -203,6 +204,9 @@ public class Util {
 			}
 			return b;
 
+		} catch (final FileNotFoundException e) {
+			Debug.warning("Could not find bitmap file for:" + uri);
+			return null;
 		} catch (final Throwable e) {
 			Debug.error(e);
 			System.gc();
@@ -700,6 +704,14 @@ public class Util {
 	public static String toString(Integer wmAt) {
 		if (wmAt != null)
 			return Integer.toString(wmAt);
+		else
+			return MINUS;
+
+	}
+
+	public static String toString(Long wmAt) {
+		if (wmAt != null)
+			return Long.toString(wmAt);
 		else
 			return MINUS;
 

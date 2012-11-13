@@ -17,6 +17,13 @@
             android:title="Setup"
             android:summary="Systemeinstellungen DsaTab betreffend." />
 
+	<header android:icon="@drawable/ic_menu_account_list"
+            android:title="Tabs anpassen"
+            android:summary="Anpassen welche Tabs beim aktuellen Helden angzeigt werden sollen.">
+        <intent android:targetPackage="com.dsatab"
+        	android:targetClass="com.dsatab.activity.TabEditActivity" />
+    </header>
+    
 	<header android:fragment="com.dsatab.activity.DsaPreferenceActivityHC$PrefsInfoFragment"
             android:icon="@drawable/ic_menu_info_details"
             android:title="Informationen"
@@ -28,5 +35,6 @@
         <intent android:action="android.intent.action.VIEW"
                 android:data="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=gandulf%2ek%40gmx%2enet&amp;lc=DE&amp;item_name=Gandulf&amp;item_number=DsaTab&amp;currency_code=EUR&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" />
     </header>
+    
  
 </preference-headers>

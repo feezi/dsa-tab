@@ -23,7 +23,6 @@ import android.widget.Spinner;
 
 import com.dsatab.R;
 import com.dsatab.common.Util;
-import com.dsatab.data.Hero;
 import com.dsatab.data.adapter.ItemCursorAdapter;
 import com.dsatab.data.adapter.SpinnerSimpleAdapter;
 import com.dsatab.data.items.Item;
@@ -45,11 +44,8 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 	private ImageButton searchButton;
 	private EditText searchText;
 
-	private Hero hero;
-
-	public ItemChooserDialog(Context context, Hero hero) {
+	public ItemChooserDialog(Context context) {
 		super(context);
-		this.hero = hero;
 		init();
 	}
 

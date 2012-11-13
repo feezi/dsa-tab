@@ -46,7 +46,6 @@ import com.dsatab.HeroConfiguration;
 import com.dsatab.R;
 import com.dsatab.TabInfo;
 import com.dsatab.activity.menu.TabListener;
-import com.dsatab.common.HeroExchange;
 import com.dsatab.common.Util;
 import com.dsatab.data.CombatMeleeTalent;
 import com.dsatab.data.Hero;
@@ -84,7 +83,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	private static final String KEY_HERO_PATH = "HERO_PATH";
 
 	public static final int ACTION_PREFERENCES = 1000;
-	private static final int ACTION_EDIT_TAB = 1001;
 	public static final int ACTION_ADD_MODIFICATOR = 1003;
 	protected static final int ACTION_CHOOSE_HERO = 1004;
 	public static final int ACTION_EDIT_MODIFICATOR = 1005;
@@ -344,10 +342,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-		if (requestCode == ACTION_EDIT_TAB && resultCode == RESULT_OK) {
-			setupTabs();
-		}
 
 		// int icon = data.getIntExtra(TabEditActivity.INTENT_ICON, 0);
 		// Class<? extends BaseFragment> class1 = (Class<? extends
@@ -904,21 +898,13 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
-		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_load_hero, Menu.NONE, "Held laden");
+		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_load_hero, Menu.NONE, "Helden");
 		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
 		item.setIcon(R.drawable.ic_menu_archive);
 
 		item = menu.add(Menu.NONE, R.id.option_save_hero, Menu.NONE, "Held speichern");
 		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
 		item.setIcon(R.drawable.ic_menu_save);
-
-		item = menu.add(Menu.NONE, R.id.option_export_hero, Menu.NONE, "Held exportieren");
-		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-		item.setIcon(R.drawable.ic_menu_upload);
-
-		item = menu.add(Menu.NONE, R.id.option_edit_tabs, Menu.NONE, "Tabs anpassen");
-		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-		item.setIcon(R.drawable.ic_menu_account_list);
 
 		item = menu.add(Menu.NONE, R.id.option_settings, 99, "Einstellungen");
 		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
@@ -976,11 +962,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		case R.id.option_settings:
 			BasePreferenceActivity.startPreferenceActivity(this);
 			return true;
-		case R.id.option_export_hero: {
-			HeroExchange exchange = new HeroExchange(this);
-			exchange.exportHero(getHero());
-			return true;
-		}
 		case R.id.option_filter:
 			FilterDialog dialog = new FilterDialog(this);
 
@@ -1032,9 +1013,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 					SpellFragment.class, ArtFragment.class));
 			return true;
 
-		case R.id.option_edit_tabs:
-			startActivityForResult(new Intent(this, TabEditActivity.class), ACTION_EDIT_TAB);
-			return true;
 		case R.id.option_fight_set:
 			if (getHero() != null) {
 				getHero().setActiveSet(getHero().getNextActiveSet());
@@ -1110,6 +1088,10 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 		if (BasePreferenceActivity.KEY_FULLSCREEN.equals(key)) {
 			updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
+		}
+
+		if (BasePreferenceActivity.KEY_MODIFY_TABS.equals(key)) {
+			setupTabs();
 		}
 
 		// notify other listeners (fragments, heroes)

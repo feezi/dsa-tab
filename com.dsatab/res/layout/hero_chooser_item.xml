@@ -1,7 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	style="@style/BorderPanel.Black" android:orientation="vertical" android:weightSum="1" android:layout_height="wrap_content" android:layout_width="wrap_content" android:focusable="false">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/BorderPanel.Black"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:focusable="false">
 
-	<ImageView android:id="@+id/imageView" android:scaleType="centerInside" android:src="@drawable/profile_blank" android:layout_height="@dimen/portrait_height_small" android:layout_width="@dimen/portrait_width_small" android:focusable="false" android:layout_gravity="center"></ImageView>
-	<TextView android:text="" android:layout_height="wrap_content" android:gravity="center_horizontal" android:layout_width="fill_parent" android:id="@+id/textView" android:singleLine="true" android:ellipsize="marquee" android:marqueeRepeatLimit="marquee_forever" android:textAppearance="?android:attr/textAppearanceSmall" android:focusable="false" android:textColor="@android:color/primary_text_dark"></TextView>
-</LinearLayout>
+    <ImageView
+        android:id="@android:id/icon"
+        android:layout_width="@dimen/portrait_width_small"
+        android:layout_height="@dimen/portrait_height_small"
+        android:layout_gravity="center"
+        android:focusable="false"
+        android:scaleType="centerInside"
+        android:src="@drawable/profile_blank">
+    </ImageView>
+    
+    <ImageView
+        android:id="@+id/hero_cloud"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_marginBottom="10dp"
+        android:focusable="false"
+        android:src="@drawable/hero_cloud_dark">
+    </ImageView>
+
+    <TextView
+        android:id="@android:id/text1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|fill_horizontal"
+        android:ellipsize="marquee"
+        android:focusable="false"
+        android:gravity="center_horizontal"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
+        android:background="@color/Darker"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@android:color/primary_text_dark" >
+    </TextView>
+
+</FrameLayout>

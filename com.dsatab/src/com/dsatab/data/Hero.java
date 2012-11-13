@@ -751,6 +751,9 @@ public class Hero {
 				if (attr != null)
 					attr.setReferenceValue(value.getValue());
 				break;
+			default:
+				// do nothing
+				break;
 			}
 		}
 
@@ -1700,7 +1703,10 @@ public class Hero {
 				if (hasFeature(SpecialFeature.UNSTET)) {
 					modifiers.add(new Modifier(-2, SpecialFeature.UNSTET));
 				}
-
+				break;
+			default:
+				// do nothing
+				break;
 			}
 
 		} else if (probe instanceof CombatProbe) {
@@ -1873,20 +1879,18 @@ public class Hero {
 
 		return modifiers;
 	}
-	
+
 	/**
 	 * Adds modifiers for lefthanded battle.
 	 * 
 	 * @param modifiers
 	 * @param equippedItem
 	 */
-	private void addModForBeidhändigerKampf(List<Modifier> modifiers,
-			EquippedItem equippedItem) {
+	private void addModForBeidhändigerKampf(List<Modifier> modifiers, EquippedItem equippedItem) {
 		// check for beidhändiger kampf
 		if (equippedItem.getHand() == Hand.links) {
 			EquippedItem equippedSecondaryWeapon = equippedItem.getSecondaryItem();
-			if (equippedSecondaryWeapon != null
-					&& equippedSecondaryWeapon.getItem().hasSpecification(Weapon.class)) {
+			if (equippedSecondaryWeapon != null && equippedSecondaryWeapon.getItem().hasSpecification(Weapon.class)) {
 				int m = 0;
 				if (!hasFeature(Advantage.BEIDHAENDIG)) {
 					m = -9;
@@ -1899,9 +1903,7 @@ public class Hero {
 				}
 
 				modifiers
-						.add(new Modifier(
-								m,
-								"Beidhändigerkampf Links",
+						.add(new Modifier(m, "Beidhändigerkampf Links",
 								"Beim Beidhändigenkampf bekommt man je nach Sonderfertigkeiten bei aktionen mit der linken Hand Abzüge."));
 				Debug.verbose("Beidhändiger Kampf mit Links " + Util.toProbe(m));
 			}
@@ -2064,7 +2066,7 @@ public class Hero {
 
 				}
 			}
-			
+
 			Map<String, Advantage> targetList;
 
 			if (Advantage.isNachteil(adv.getName())) {
@@ -2076,9 +2078,9 @@ public class Hero {
 				return;
 			}
 			Advantage existingAdv = targetList.get(adv.getName());
-			if(existingAdv == null){
+			if (existingAdv == null) {
 				targetList.put(adv.getName(), adv);
-			}else{
+			} else {
 				existingAdv.addValue(adv.getValueAsString());
 			}
 		}
@@ -2151,6 +2153,12 @@ public class Hero {
 
 		return found;
 
+	}
+
+	public void addChangeEvent(ChangeEvent event) {
+		if (ereignisse != null) {
+			ereignisse.addContent(event.getElement());
+		}
 	}
 
 	public void addEvent(Event event) {

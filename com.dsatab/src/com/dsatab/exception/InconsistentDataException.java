@@ -24,6 +24,8 @@ import com.dsatab.common.DsaTabRuntimeException;
  */
 public class InconsistentDataException extends DsaTabRuntimeException {
 
+	private static final long serialVersionUID = -3303083601903889609L;
+
 	public InconsistentDataException() {
 		super();
 

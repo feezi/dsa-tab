@@ -50,8 +50,6 @@ import com.j256.ormlite.support.DatabaseConnection;
  */
 public class DataManager {
 
-	private static final int MAX_IMAGE_SIZE = 300;
-
 	private static LruCache<String, Bitmap> mMemoryCache;
 
 	public static void init(Context context) {

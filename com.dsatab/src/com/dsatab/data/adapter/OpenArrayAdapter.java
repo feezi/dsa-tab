@@ -28,7 +28,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
@@ -481,68 +480,69 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 	 * from the list.
 	 * </p>
 	 */
-	private class ArrayFilter extends Filter {
-		@Override
-		protected FilterResults performFiltering(CharSequence prefix) {
-			FilterResults results = new FilterResults();
-
-			if (mOriginalValues == null) {
-				synchronized (mLock) {
-					mOriginalValues = new ArrayList<T>(mObjects);
-				}
-			}
-
-			if (prefix == null || prefix.length() == 0) {
-				synchronized (mLock) {
-					ArrayList<T> list = new ArrayList<T>(mOriginalValues);
-					results.values = list;
-					results.count = list.size();
-				}
-			} else {
-				String prefixString = prefix.toString().toLowerCase();
-
-				final List<T> values = mOriginalValues;
-				final int count = values.size();
-
-				final ArrayList<T> newValues = new ArrayList<T>(count);
-
-				for (int i = 0; i < count; i++) {
-					final T value = values.get(i);
-					final String valueText = value.toString().toLowerCase();
-
-					// First match against the whole, non-splitted value
-					if (valueText.startsWith(prefixString)) {
-						newValues.add(value);
-					} else {
-						final String[] words = valueText.split(" ");
-						final int wordCount = words.length;
-
-						for (int k = 0; k < wordCount; k++) {
-							if (words[k].startsWith(prefixString)) {
-								newValues.add(value);
-								break;
-							}
-						}
-					}
-				}
-
-				results.values = newValues;
-				results.count = newValues.size();
-			}
-
-			return results;
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		protected void publishResults(CharSequence constraint, FilterResults results) {
-			// noinspection unchecked
-			mObjects = (List<T>) results.values;
-			if (results.count > 0) {
-				notifyDataSetChanged();
-			} else {
-				notifyDataSetInvalidated();
-			}
-		}
-	}
+	// private class ArrayFilter extends Filter {
+	// @Override
+	// protected FilterResults performFiltering(CharSequence prefix) {
+	// FilterResults results = new FilterResults();
+	//
+	// if (mOriginalValues == null) {
+	// synchronized (mLock) {
+	// mOriginalValues = new ArrayList<T>(mObjects);
+	// }
+	// }
+	//
+	// if (prefix == null || prefix.length() == 0) {
+	// synchronized (mLock) {
+	// ArrayList<T> list = new ArrayList<T>(mOriginalValues);
+	// results.values = list;
+	// results.count = list.size();
+	// }
+	// } else {
+	// String prefixString = prefix.toString().toLowerCase();
+	//
+	// final List<T> values = mOriginalValues;
+	// final int count = values.size();
+	//
+	// final ArrayList<T> newValues = new ArrayList<T>(count);
+	//
+	// for (int i = 0; i < count; i++) {
+	// final T value = values.get(i);
+	// final String valueText = value.toString().toLowerCase();
+	//
+	// // First match against the whole, non-splitted value
+	// if (valueText.startsWith(prefixString)) {
+	// newValues.add(value);
+	// } else {
+	// final String[] words = valueText.split(" ");
+	// final int wordCount = words.length;
+	//
+	// for (int k = 0; k < wordCount; k++) {
+	// if (words[k].startsWith(prefixString)) {
+	// newValues.add(value);
+	// break;
+	// }
+	// }
+	// }
+	// }
+	//
+	// results.values = newValues;
+	// results.count = newValues.size();
+	// }
+	//
+	// return results;
+	// }
+	//
+	// @SuppressWarnings("unchecked")
+	// @Override
+	// protected void publishResults(CharSequence constraint, FilterResults
+	// results) {
+	// // noinspection unchecked
+	// mObjects = (List<T>) results.values;
+	// if (results.count > 0) {
+	// notifyDataSetChanged();
+	// } else {
+	// notifyDataSetInvalidated();
+	// }
+	// }
+	// }
 }

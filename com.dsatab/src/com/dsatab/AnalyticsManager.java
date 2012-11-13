@@ -18,8 +18,6 @@ package com.dsatab;
 
 import android.content.Context;
 
-import com.flurry.android.FlurryAgent;
-
 /**
  * 
  * 
@@ -30,7 +28,7 @@ public class AnalyticsManager {
 
 	public static void setEnabled(boolean b) {
 		enabled = b;
-		FlurryAgent.setLogEnabled(b);
+		// FlurryAgent.setLogEnabled(b);
 	}
 
 	public static boolean isEnabled() {
@@ -38,17 +36,17 @@ public class AnalyticsManager {
 	}
 
 	public static void startSession(Context context) {
-		if (enabled)
-			FlurryAgent.onStartSession(context, DSATabApplication.FLURRY_APP_ID);
+		// if (enabled)
+		// FlurryAgent.onStartSession(context, DSATabApplication.FLURRY_APP_ID);
 	}
 
 	public static void endSession(Context context) {
-		if (enabled)
-			FlurryAgent.onEndSession(context);
+		// if (enabled)
+		// FlurryAgent.onEndSession(context);
 	}
 
 	public static void onEvent(String event) {
-		if (enabled)
-			FlurryAgent.onEvent(event);
+		// if (enabled)
+		// FlurryAgent.onEvent(event);
 	}
 }
