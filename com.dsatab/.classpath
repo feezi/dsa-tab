@@ -3,16 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="lib" path="libs/apache-mime4j-0.6.1.jar"/>
-	<classpathentry kind="lib" path="libs/httpclient-4.1.1.jar"/>
-	<classpathentry kind="lib" path="libs/httpcore-4.1.jar"/>
-	<classpathentry kind="lib" path="libs/httpmime-4.1.1.jar"/>
-	<classpathentry kind="lib" path="libs/FlurryAgent.jar"/>
-	<classpathentry kind="lib" path="libs/slf4j-android-1.5.8.jar"/>
-	<classpathentry kind="lib" path="libs/osmdroid-android-3.0.7.jar"/>
-	<classpathentry kind="lib" path="libs/ormlite-core-4.40.jar" sourcepath="libs/sources/ormlite-core-4.40-sources.jar"/>
-	<classpathentry kind="lib" path="libs/jdom-1.1.1-android-fork.jar"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry kind="lib" path="libs/ormlite-android-4.40.jar" sourcepath="libs/sources/ormlite-android-4.40-sources.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
