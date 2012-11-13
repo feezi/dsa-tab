@@ -40,7 +40,6 @@ import android.widget.ListView;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
-import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.ItemChooserActivity;
 import com.dsatab.data.Hero;
@@ -358,7 +357,7 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 
 	private void showItemPopup() {
 		if (itemChooserDialog == null) {
-			itemChooserDialog = new ItemChooserDialog(getActivity(), DSATabApplication.getInstance().getHero());
+			itemChooserDialog = new ItemChooserDialog(getActivity());
 			itemChooserDialog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 				/*
 				 * (non-Javadoc)

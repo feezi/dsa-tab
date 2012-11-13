@@ -316,6 +316,9 @@ public class BodyLayout extends FrameLayout {
 					case LowerLeg:
 						lowerLegWidth += child.getMeasuredWidth();
 						break;
+					default:
+						// do nothing
+						break;
 					}
 				}
 			}
@@ -394,6 +397,9 @@ public class BodyLayout extends FrameLayout {
 						cr = lowerLegX = lowerLegX + child.getMeasuredWidth();
 						ct = lowerLegY;
 						cb = ct + child.getMeasuredHeight();
+						break;
+					default:
+						// do nothing
 						break;
 					}
 					// armor
@@ -497,6 +503,9 @@ public class BodyLayout extends FrameLayout {
 						cr = cl + child.getMeasuredWidth();
 						ct = (int) (height * (OFFSET_LOWER_LEG_Y) + woundSize);
 						cb = ct + child.getMeasuredHeight();
+						break;
+					default:
+						// do nothing
 						break;
 					}
 				}

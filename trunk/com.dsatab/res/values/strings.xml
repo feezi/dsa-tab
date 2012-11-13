@@ -67,6 +67,8 @@
     <string name="label_delete">Löschen</string>
     <string name="settings">Einstellungen</string>
     <string name="menu_view_item">Eintrag betrachten</string>
+    <string name="menu_download_item">Eintrag herunterladen</string>
+    <string name="menu_upload_item">Eintrag hochladen</string>
     <string name="menu_show_comments">Kommentare einblenden</string>
     <string name="menu_hide_comments">Kommentare ausblenden</string>
     <string name="message_spell_empty">"Keine Zaubersprüche gefunden."\n\n
@@ -109,4 +111,9 @@
     <string name="label_size">Größe</string>
     <string name="label_misc_modifications">Sonstige Modifikatoren</string>
 
+	<string name="pref_sdcardPath_description">Pfad auf der SD Karte zu den DsaTab Daten (Karten Material, ...)</string>
+	<string name="pref_sdcardPath_title">Internal Storage: Pfad zu DsaTab</string>
+	<string name="pref_sdcardHeroPath_description">Pfad auf der SD Karte zu den DsaTab Helden Dateien</string>
+	<string name="pref_sdcardHeroPath_title">Internal Storage: Pfad zu Helden Xml-Dateien</string>
+	
 </resources>

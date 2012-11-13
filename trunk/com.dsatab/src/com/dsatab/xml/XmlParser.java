@@ -1,20 +1,13 @@
 package com.dsatab.xml;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.jdom.JDOMException;
@@ -39,7 +32,6 @@ import com.dsatab.data.enums.Position;
 import com.dsatab.data.items.Armor;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.Item;
-import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.data.items.MiscSpecification;
 import com.dsatab.data.items.Shield;
@@ -424,213 +416,219 @@ public class XmlParser {
 		return null;
 	}
 
-	private static void appendItem(BufferedWriter r, Item i, String category) throws IOException {
-		int lineLength = i.getName().length();
-		r.append(i.getName());
+	// private static void appendItem(BufferedWriter r, Item i, String category)
+	// throws IOException {
+	// int lineLength = i.getName().length();
+	// r.append(i.getName());
+	//
+	// lineLength++;
+	// r.append(";");
+	// if (i.path != null) {
+	// r.append(i.path);
+	// lineLength += i.path.length();
+	// }
+	// r.append(";");
+	// lineLength++;
+	// if (i.getCategory() == null) {
+	// r.append(category);
+	// lineLength += category.length();
+	// } else {
+	// r.append(i.getCategory());
+	// lineLength += i.getCategory().length();
+	// }
+	//
+	// int totalpad = 70 - lineLength;
+	//
+	// while (totalpad > 0) {
+	// r.append(" ");
+	// totalpad--;
+	// }
+	//
+	// r.append(";");
+	// lineLength++;
+	//
+	// }
 
-		lineLength++;
-		r.append(";");
-		if (i.path != null) {
-			r.append(i.path);
-			lineLength += i.path.length();
-		}
-		r.append(";");
-		lineLength++;
-		if (i.getCategory() == null) {
-			r.append(category);
-			lineLength += category.length();
-		} else {
-			r.append(i.getCategory());
-			lineLength += i.getCategory().length();
-		}
-
-		int totalpad = 70 - lineLength;
-
-		while (totalpad > 0) {
-			r.append(" ");
-			totalpad--;
-		}
-
-		r.append(";");
-		lineLength++;
-
-	}
-
-	public static void writeItems() {
-		Map<String, Item> items = null;
-		// TODO read items from database;
-
-		try {
-
-			File itemsFile = new File(DSATabApplication.getDsaTabPath(), "items_new.txt");
-			OutputStreamWriter itemsWriter = new OutputStreamWriter(new FileOutputStream(itemsFile), ENCODING);
-			BufferedWriter itemsW = new BufferedWriter(itemsWriter, 1024 * 8);
-
-			List<Item> its = new ArrayList<Item>(items.values());
-			Collections.sort(its);
-
-			BufferedWriter r = itemsW;
-			String guessCategory = null;
-
-			for (Item item : its) {
-
-				for (ItemSpecification i : item.getSpecifications()) {
-					if (i instanceof Weapon) {
-
-						Weapon w = (Weapon) i;
-
-						guessCategory = null;
-						if (item.getCategory() == null) {
-
-							if (w.getCombatTalentType() == CombatTalentType.Zweihandhiebwaffen) {
-								guessCategory = "Zweihandhiebwaffen und -flegel";
-							} else if (w.getCombatTalentType() == CombatTalentType.Zweihandflegel) {
-								guessCategory = "Zweihandhiebwaffen und -flegel";
-							} else if (w.getCombatTalentType() == CombatTalentType.Zweihandschwerter) {
-								guessCategory = "Zweihandschwerter und -säbel";
-							} else if (w.getCombatTalentType() == CombatTalentType.Speere) {
-								guessCategory = "Speere und Stäbe";
-							} else if (w.getCombatTalentType() == CombatTalentType.Stäbe) {
-								guessCategory = "Speere und Stäbe";
-							} else if (w.getCombatTalentTypes().size() == 1) {
-								guessCategory = w.getCombatTalentType().name();
-							}
-
-						}
-
-						r.append("W;");
-						appendItem(r, item, guessCategory);
-						r.append(w.getTp());
-						r.append(";");
-						r.append(Util.toString(w.getTpKKMin()) + "/" + Util.toString(w.getTpKKStep()));
-						r.append(";");
-						r.append(Util.toString(w.getWmAt()) + "/" + Util.toString(w.getWmPa()));
-						r.append(";");
-						r.append(Util.toString(w.getIni()));
-						r.append(";");
-						r.append(Util.toString(w.getBf()));
-						r.append(";");
-						r.append(w.getDistance());
-						r.append(";");
-						r.append(w.isTwoHanded() ? "Z" : "");
-						r.append(";");
-
-						for (CombatTalentType t : w.getCombatTalentTypes()) {
-							r.append(t.name());
-							r.append(";");
-						}
-					} else if (i instanceof DistanceWeapon) {
-
-						DistanceWeapon w = (DistanceWeapon) i;
-
-						guessCategory = null;
-						if (item.getCategory() == null) {
-
-							if (w.getCombatTalentType() == CombatTalentType.Armbrust) {
-								guessCategory = "Schusswaffen";
-							} else if (w.getCombatTalentType() == CombatTalentType.Bogen) {
-								guessCategory = "Schusswaffen";
-							} else if (w.getCombatTalentType() == CombatTalentType.Blasrohr) {
-								guessCategory = "Schusswaffen";
-							} else if (w.getCombatTalentType() == CombatTalentType.Wurfbeile) {
-								guessCategory = "Wurfwaffen";
-							} else if (w.getCombatTalentType() == CombatTalentType.Wurfmesser) {
-								guessCategory = "Wurfwaffen";
-							} else if (w.getCombatTalentType() == CombatTalentType.Wurfspeere) {
-								guessCategory = "Wurfwaffen";
-							} else if (w.getCombatTalentType() == CombatTalentType.Schleuder) {
-								guessCategory = "Wurfwaffen";
-							}
-
-						}
-
-						r.append("D;");
-						appendItem(r, item, guessCategory);
-						r.append(w.getTp());
-						r.append(";");
-						r.append(w.getDistances());
-						r.append(";");
-						r.append(w.getTpDistances());
-						r.append(";");
-						r.append(w.getCombatTalentType().name());
-						r.append(";");
-
-					} else if (i instanceof Shield) {
-
-						Shield w = (Shield) i;
-						guessCategory = null;
-
-						if (item.getCategory() == null) {
-							if (w.isParadeWeapon()) {
-								guessCategory = "Dolche";
-							} else {
-								guessCategory = "Schilde";
-							}
-						}
-
-						r.append("S;");
-						appendItem(r, item, guessCategory);
-						r.append(w.getWmAt() + "/" + w.getWmPa());
-						r.append(";");
-						r.append(Util.toString(w.getIni()));
-						r.append(";");
-						r.append(Util.toString(w.getBf()));
-						r.append(";");
-						r.append(w.isShield() ? "S" : "");
-						r.append(w.isParadeWeapon() ? "P" : "");
-						r.append(";");
-
-						for (CombatTalentType t : w.getCombatTalentTypes()) {
-							r.append(t.name());
-							r.append(";");
-						}
-
-					} else if (i instanceof Armor) {
-
-						Armor w = (Armor) i;
-						r.append("A;");
-						appendItem(r, item, null);
-
-						if (w.getTotalBe() < 10)
-							r.append(" ");
-						r.append(Util.toString(w.getTotalBe()));
-						r.append(";");
-
-						for (Position pos : DSATabApplication.getInstance().getConfiguration().getArmorPositions()) {
-							int rs = w.getRs(pos);
-							if (rs < 10)
-								r.append(" ");
-							r.append(Util.toString(rs));
-							r.append(";");
-						}
-
-						r.append(Util.toString(w.getZonenRs()));
-						r.append(";");
-						r.append(Util.toString(w.getTotalRs()));
-						r.append(";");
-						r.append(Util.toString(w.getStars()));
-						r.append(";");
-						if (w.isZonenHalfBe()) {
-							r.append("Z");
-							r.append(";");
-						}
-
-					} else {
-						r = itemsW;
-						r.append(i.getType().character());
-						r.append(";");
-						appendItem(r, item, null);
-					}
-
-					r.append("\n");
-				}
-			}
-
-			itemsW.close();
-		} catch (IOException e) {
-			Debug.error(e);
-		}
-	}
+	// public static void writeItems() {
+	// Map<String, Item> items = null;
+	// // TODO read items from database;
+	//
+	// try {
+	//
+	// File itemsFile = new File(DSATabApplication.getDsaTabPath(),
+	// "items_new.txt");
+	// OutputStreamWriter itemsWriter = new OutputStreamWriter(new
+	// FileOutputStream(itemsFile), ENCODING);
+	// BufferedWriter itemsW = new BufferedWriter(itemsWriter, 1024 * 8);
+	//
+	// List<Item> its = new ArrayList<Item>(items.values());
+	// Collections.sort(its);
+	//
+	// BufferedWriter r = itemsW;
+	// String guessCategory = null;
+	//
+	// for (Item item : its) {
+	//
+	// for (ItemSpecification i : item.getSpecifications()) {
+	// if (i instanceof Weapon) {
+	//
+	// Weapon w = (Weapon) i;
+	//
+	// guessCategory = null;
+	// if (item.getCategory() == null) {
+	//
+	// if (w.getCombatTalentType() == CombatTalentType.Zweihandhiebwaffen) {
+	// guessCategory = "Zweihandhiebwaffen und -flegel";
+	// } else if (w.getCombatTalentType() == CombatTalentType.Zweihandflegel) {
+	// guessCategory = "Zweihandhiebwaffen und -flegel";
+	// } else if (w.getCombatTalentType() == CombatTalentType.Zweihandschwerter)
+	// {
+	// guessCategory = "Zweihandschwerter und -säbel";
+	// } else if (w.getCombatTalentType() == CombatTalentType.Speere) {
+	// guessCategory = "Speere und Stäbe";
+	// } else if (w.getCombatTalentType() == CombatTalentType.Stäbe) {
+	// guessCategory = "Speere und Stäbe";
+	// } else if (w.getCombatTalentTypes().size() == 1) {
+	// guessCategory = w.getCombatTalentType().name();
+	// }
+	//
+	// }
+	//
+	// r.append("W;");
+	// appendItem(r, item, guessCategory);
+	// r.append(w.getTp());
+	// r.append(";");
+	// r.append(Util.toString(w.getTpKKMin()) + "/" +
+	// Util.toString(w.getTpKKStep()));
+	// r.append(";");
+	// r.append(Util.toString(w.getWmAt()) + "/" + Util.toString(w.getWmPa()));
+	// r.append(";");
+	// r.append(Util.toString(w.getIni()));
+	// r.append(";");
+	// r.append(Util.toString(w.getBf()));
+	// r.append(";");
+	// r.append(w.getDistance());
+	// r.append(";");
+	// r.append(w.isTwoHanded() ? "Z" : "");
+	// r.append(";");
+	//
+	// for (CombatTalentType t : w.getCombatTalentTypes()) {
+	// r.append(t.name());
+	// r.append(";");
+	// }
+	// } else if (i instanceof DistanceWeapon) {
+	//
+	// DistanceWeapon w = (DistanceWeapon) i;
+	//
+	// guessCategory = null;
+	// if (item.getCategory() == null) {
+	//
+	// if (w.getCombatTalentType() == CombatTalentType.Armbrust) {
+	// guessCategory = "Schusswaffen";
+	// } else if (w.getCombatTalentType() == CombatTalentType.Bogen) {
+	// guessCategory = "Schusswaffen";
+	// } else if (w.getCombatTalentType() == CombatTalentType.Blasrohr) {
+	// guessCategory = "Schusswaffen";
+	// } else if (w.getCombatTalentType() == CombatTalentType.Wurfbeile) {
+	// guessCategory = "Wurfwaffen";
+	// } else if (w.getCombatTalentType() == CombatTalentType.Wurfmesser) {
+	// guessCategory = "Wurfwaffen";
+	// } else if (w.getCombatTalentType() == CombatTalentType.Wurfspeere) {
+	// guessCategory = "Wurfwaffen";
+	// } else if (w.getCombatTalentType() == CombatTalentType.Schleuder) {
+	// guessCategory = "Wurfwaffen";
+	// }
+	//
+	// }
+	//
+	// r.append("D;");
+	// appendItem(r, item, guessCategory);
+	// r.append(w.getTp());
+	// r.append(";");
+	// r.append(w.getDistances());
+	// r.append(";");
+	// r.append(w.getTpDistances());
+	// r.append(";");
+	// r.append(w.getCombatTalentType().name());
+	// r.append(";");
+	//
+	// } else if (i instanceof Shield) {
+	//
+	// Shield w = (Shield) i;
+	// guessCategory = null;
+	//
+	// if (item.getCategory() == null) {
+	// if (w.isParadeWeapon()) {
+	// guessCategory = "Dolche";
+	// } else {
+	// guessCategory = "Schilde";
+	// }
+	// }
+	//
+	// r.append("S;");
+	// appendItem(r, item, guessCategory);
+	// r.append(w.getWmAt() + "/" + w.getWmPa());
+	// r.append(";");
+	// r.append(Util.toString(w.getIni()));
+	// r.append(";");
+	// r.append(Util.toString(w.getBf()));
+	// r.append(";");
+	// r.append(w.isShield() ? "S" : "");
+	// r.append(w.isParadeWeapon() ? "P" : "");
+	// r.append(";");
+	//
+	// for (CombatTalentType t : w.getCombatTalentTypes()) {
+	// r.append(t.name());
+	// r.append(";");
+	// }
+	//
+	// } else if (i instanceof Armor) {
+	//
+	// Armor w = (Armor) i;
+	// r.append("A;");
+	// appendItem(r, item, null);
+	//
+	// if (w.getTotalBe() < 10)
+	// r.append(" ");
+	// r.append(Util.toString(w.getTotalBe()));
+	// r.append(";");
+	//
+	// for (Position pos :
+	// DSATabApplication.getInstance().getConfiguration().getArmorPositions()) {
+	// int rs = w.getRs(pos);
+	// if (rs < 10)
+	// r.append(" ");
+	// r.append(Util.toString(rs));
+	// r.append(";");
+	// }
+	//
+	// r.append(Util.toString(w.getZonenRs()));
+	// r.append(";");
+	// r.append(Util.toString(w.getTotalRs()));
+	// r.append(";");
+	// r.append(Util.toString(w.getStars()));
+	// r.append(";");
+	// if (w.isZonenHalfBe()) {
+	// r.append("Z");
+	// r.append(";");
+	// }
+	//
+	// } else {
+	// r = itemsW;
+	// r.append(i.getType().character());
+	// r.append(";");
+	// appendItem(r, item, null);
+	// }
+	//
+	// r.append("\n");
+	// }
+	// }
+	//
+	// itemsW.close();
+	// } catch (IOException e) {
+	// Debug.error(e);
+	// }
+	// }
 
 	private static ItemType parseBase(Item item, Iterator<String> i) {
 

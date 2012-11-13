@@ -280,6 +280,9 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable {
 				case Ausweichen:
 					currentBaseValue = (int) hero.getAttributeValue(AttributeType.pa);
 					break;
+				default:
+					// do nothing
+					break;
 				}
 			}
 		}

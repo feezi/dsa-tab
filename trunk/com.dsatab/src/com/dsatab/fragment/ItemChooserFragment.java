@@ -454,7 +454,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 	private void showItemChooserPopup() {
 		if (itemChooserDialog == null) {
-			itemChooserDialog = new ItemChooserDialog(getActivity(), DSATabApplication.getInstance().getHero());
+			itemChooserDialog = new ItemChooserDialog(getActivity());
 			itemChooserDialog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 				/*
 				 * (non-Javadoc)

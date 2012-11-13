@@ -38,6 +38,7 @@ import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.view.Menu;
 import com.dsatab.DSATabApplication;
@@ -57,9 +58,12 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 	public static final String INTENT_NAME_HERO_PATH = "heroPath";
 
 	private static final int CONTEXTMENU_DELETEITEM = 1;
+	private static final int CONTEXTMENU_DOWNLOADITEM = 2;
+	private static final int CONTEXTMENU_UPLOADITEM = 3;
 
 	private static final String DUMMY_FILE = "Dummy.xml";
 	private static final String DUMMY_NAME = "Dummy";
+
 	private GridView list;
 	private HeroAdapter adapter;
 	private boolean dummy;
@@ -181,6 +185,15 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		if (v.getId() == R.id.popup_hero_chooser_list) {
+
+			AdapterContextMenuInfo adapterContextMenuInfo = (AdapterContextMenuInfo) menuInfo;
+			HeroFileInfo heroFilenfo = adapter.getItem(adapterContextMenuInfo.position);
+
+			if (heroFilenfo.isOnline()) {
+				menu.add(0, CONTEXTMENU_DOWNLOADITEM, 0, getString(R.string.menu_download_item));
+			}
+			// hero export disabled for now!
+			menu.add(0, CONTEXTMENU_UPLOADITEM, 0, getString(R.string.menu_upload_item)).setEnabled(false);
 			menu.add(0, CONTEXTMENU_DELETEITEM, 0, getString(R.string.menu_delete_item));
 		}
 		super.onCreateContextMenu(menu, v, menuInfo);
@@ -212,17 +225,43 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 
 		switch (item.getItemId()) {
 		case R.id.option_hero_import:
+
 			HeroExchange exchange = new HeroExchange(this);
 			exchange.setOnHeroExchangeListener(new OnHeroExchangeListener() {
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see com.dsatab.common.HeroExchange.OnHeroExchangeListener#
+				 * onHeroLoaded(java.lang.String)
+				 */
 				@Override
 				public void onHeroLoaded(String path) {
-					Intent intent = new Intent();
-					intent.putExtra(INTENT_NAME_HERO_PATH, path);
-					setResult(RESULT_OK, intent);
-					finish();
+				}
+
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see com.dsatab.common.HeroExchange.OnHeroExchangeListener#
+				 * onHeroInfoLoaded(com.dsatab.data.HeroOnlineInfo)
+				 */
+				@Override
+				public void onHeroInfoLoaded(HeroFileInfo info) {
+
+					for (int i = 0; i < adapter.getCount(); i++) {
+						HeroFileInfo heroInfo = adapter.getItem(i);
+
+						if (heroInfo.getKey() != null && heroInfo.getKey().equals(info.getKey())) {
+							heroInfo.id = info.id;
+							// heroInfo.name = info.name;
+							adapter.notifyDataSetChanged();
+							// found
+							return;
+						}
+					}
+					adapter.add(info);
 				}
 			});
-			exchange.importHero();
+			exchange.syncHeroes();
 			return true;
 		case R.id.option_settings:
 			BasePreferenceActivity.startPreferenceActivity(this);
@@ -253,6 +292,32 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 			adapter.notifyDataSetChanged();
 
 			return true;
+		} else if (item.getItemId() == CONTEXTMENU_DOWNLOADITEM) {
+			AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
+			final HeroFileInfo heroInfo = (HeroFileInfo) list.getItemAtPosition(menuInfo.position);
+
+			HeroExchange exchange = new HeroExchange(this);
+			exchange.setOnHeroExchangeListener(new OnHeroExchangeListener() {
+				@Override
+				public void onHeroLoaded(String path) {
+					Toast.makeText(HeroChooserActivity.this, heroInfo.getName() + " wurde erfolgreich heruntergeladen",
+							Toast.LENGTH_SHORT).show();
+				}
+
+				@Override
+				public void onHeroInfoLoaded(HeroFileInfo info) {
+				}
+			});
+
+			exchange.importHero(heroInfo);
+
+		} else if (item.getItemId() == CONTEXTMENU_UPLOADITEM) {
+			AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
+			final HeroFileInfo heroInfo = (HeroFileInfo) list.getItemAtPosition(menuInfo.position);
+
+			HeroExchange exchange = new HeroExchange(this);
+			exchange.exportHero(heroInfo.getFile());
+			return true;
 		}
 		return super.onContextItemSelected(item);
 	}
@@ -279,18 +344,22 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 				layout.setClickable(false);
 			}
 
-			TextView tv = (TextView) layout.findViewById(R.id.textView);
-			ImageView iv = (ImageView) layout.findViewById(R.id.imageView);
+			TextView tv = (TextView) layout.findViewById(android.R.id.text1);
+			ImageView iv = (ImageView) layout.findViewById(android.R.id.icon);
+			ImageView cloud = (ImageView) layout.findViewById(R.id.hero_cloud);
 
 			HeroFileInfo hero = getItem(position);
 			tv.setText(hero.getName());
 
 			if (hero.getPortraitUri() != null) {
 				iv.setImageURI(Uri.parse(hero.getPortraitUri()));
-			} else {
-				iv.setImageResource(R.drawable.profile_blank);
 			}
 
+			if (hero.isOnline()) {
+				cloud.setVisibility(View.VISIBLE);
+			} else {
+				cloud.setVisibility(View.GONE);
+			}
 			return layout;
 		}
 	}
@@ -317,10 +386,30 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		HeroFileInfo hero = (HeroFileInfo) parent.getItemAtPosition(position);
-		Intent intent = new Intent();
-		intent.putExtra(INTENT_NAME_HERO_PATH, hero.getFile().toString());
-		setResult(RESULT_OK, intent);
-		finish();
+
+		if (hero.getFile() != null) {
+			Intent intent = new Intent();
+			intent.putExtra(INTENT_NAME_HERO_PATH, hero.getFile().toString());
+			setResult(RESULT_OK, intent);
+			finish();
+		} else {
+			HeroExchange exchange = new HeroExchange(this);
+			exchange.setOnHeroExchangeListener(new OnHeroExchangeListener() {
+				@Override
+				public void onHeroLoaded(String path) {
+					Intent intent = new Intent();
+					intent.putExtra(INTENT_NAME_HERO_PATH, path);
+					setResult(RESULT_OK, intent);
+					finish();
+				}
+
+				@Override
+				public void onHeroInfoLoaded(HeroFileInfo info) {
+				}
+			});
+
+			exchange.importHero(hero);
+		}
 	}
 
 }

@@ -55,6 +55,8 @@ import com.dsatab.DsaTabConfiguration.ArmorType;
 import com.dsatab.DsaTabConfiguration.WoundType;
 import com.dsatab.R;
 import com.dsatab.util.Debug;
+import com.dsatab.view.DirectoryChooserDialogHelper;
+import com.dsatab.view.DirectoryChooserDialogHelper.Result;
 import com.dsatab.view.PreferenceWithButton;
 import com.dsatab.view.TipOfTheDayDialog;
 import com.gandulf.guilib.download.AbstractDownloader;
@@ -138,6 +140,7 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 
 	public static final String KEY_EXCHANGE_USERNAME = "exchange_username";
 	public static final String KEY_EXCHANGE_PASSWORD = "exchange_password";
+	public static final String KEY_EXCHANGE_TOKEN = "exchange_token";
 
 	public static final String KEY_USAGE_STATS = "usage_stats";
 
@@ -156,6 +159,8 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 	public static final String KEY_HEADER_MR = "header_mr";
 	public static final String KEY_HEADER_GS = "header_gs";
 	public static final String KEY_HEADER_WS = "header_ws";
+
+	public static final String KEY_MODIFY_TABS = "modifyTabs";
 
 	public static final String DEFAULT_EXCHANGE_PROVIDER = "http://helden.draschenfels.de/";
 
@@ -190,7 +195,7 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 		}
 	}
 
-	public static void initPreferences(PreferenceManager mgr, PreferenceScreen screen) {
+	public static void initPreferences(final PreferenceManager mgr, final PreferenceScreen screen) {
 
 		OnClickListener buttonClickListener = new OnClickListener() {
 			/*
@@ -205,9 +210,11 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 
 				if (preference != null) {
 					if (preference.getKey().equals(KEY_STYLE_BG_PATH)) {
-						handlePreferenceClick(v.getContext(), BasePreferenceActivity.KEY_STYLE_BG_DELETE);
+						handlePreferenceClick(v.getContext(), BasePreferenceActivity.KEY_STYLE_BG_DELETE,
+								mgr.getSharedPreferences());
 					} else if (preference.getKey().equals(KEY_STYLE_BG_WOUNDS_PATH)) {
-						handlePreferenceClick(v.getContext(), BasePreferenceActivity.KEY_STYLE_BG_WOUNDS_DELETE);
+						handlePreferenceClick(v.getContext(), BasePreferenceActivity.KEY_STYLE_BG_WOUNDS_DELETE,
+								mgr.getSharedPreferences());
 					}
 				}
 			}
@@ -419,9 +426,8 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 		window.getDecorView().requestLayout();
 	}
 
-	protected static boolean handlePreferenceClick(Context context, String key) {
+	protected static boolean handlePreferenceClick(Context context, String key, final SharedPreferences preferences) {
 		if (KEY_STYLE_BG_WOUNDS_DELETE.equals(key)) {
-			SharedPreferences preferences = DSATabApplication.getPreferences();
 			Editor edit = preferences.edit();
 			edit.remove(KEY_STYLE_BG_WOUNDS_PATH);
 			edit.commit();
@@ -429,12 +435,47 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 			Toast.makeText(context, "Wunden-Hintergrundbild wurde zurückgesetzt.", Toast.LENGTH_SHORT).show();
 			return true;
 		} else if (KEY_STYLE_BG_DELETE.equals(key)) {
-			SharedPreferences preferences = DSATabApplication.getPreferences();
 			Editor edit = preferences.edit();
 			edit.remove(KEY_STYLE_BG_PATH);
 			edit.commit();
 
 			Toast.makeText(context, "Hintergrundbild wurde zurückgesetzt.", Toast.LENGTH_SHORT).show();
+			return true;
+		} else if (KEY_SETUP_SDCARD_PATH.equals(key)) {
+			Result res = new Result() {
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see com.dsatab.view.DirectoryChooserDialogHelper.Result#
+				 * onChooseDirectory(java.lang.String)
+				 */
+				@Override
+				public void onChooseDirectory(String dir) {
+					Editor edit = preferences.edit();
+					edit.putString(KEY_SETUP_SDCARD_PATH, dir);
+					edit.commit();
+				}
+			};
+			DirectoryChooserDialogHelper helper = new DirectoryChooserDialogHelper(context, res,
+					DSATabApplication.getDsaTabHeroPath());
+			return true;
+		} else if (KEY_SETUP_SDCARD_HERO_PATH.equals(key)) {
+			Result res = new Result() {
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see com.dsatab.view.DirectoryChooserDialogHelper.Result#
+				 * onChooseDirectory(java.lang.String)
+				 */
+				@Override
+				public void onChooseDirectory(String dir) {
+					Editor edit = preferences.edit();
+					edit.putString(KEY_SETUP_SDCARD_HERO_PATH, dir);
+					edit.commit();
+				}
+			};
+			DirectoryChooserDialogHelper helper = new DirectoryChooserDialogHelper(context, res,
+					DSATabApplication.getDsaTabHeroPath());
 			return true;
 		}
 
@@ -453,6 +494,13 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 			} else if (KEY_STYLE_BG_WOUNDS_PATH.equals(key)) {
 				((PreferenceWithButton) preference).setWidgetVisibility(sharedPreferences
 						.contains(KEY_STYLE_BG_WOUNDS_PATH) ? View.VISIBLE : View.GONE);
+			} else if (KEY_SETUP_SDCARD_PATH.equals(key)) {
+				preference.setSummary(DSATabApplication.getInstance().getString(R.string.pref_sdcardPath_description)
+						+ ": " + DSATabApplication.getRelativeDsaTabPath());
+			} else if (KEY_SETUP_SDCARD_HERO_PATH.equals(key)) {
+				preference.setSummary(DSATabApplication.getInstance().getString(
+						R.string.pref_sdcardHeroPath_description)
+						+ ": " + DSATabApplication.getRelativeDsaTabHeroPath());
 			}
 		}
 	}
@@ -555,9 +603,20 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 			pickImage(context, ACTION_PICK_BG_WOUNDS_PATH);
 			return true;
 		} else if (KEY_STYLE_BG_WOUNDS_DELETE.equals(preference.getKey())) {
-			return handlePreferenceClick(context, KEY_STYLE_BG_WOUNDS_DELETE);
+			return handlePreferenceClick(context, KEY_STYLE_BG_WOUNDS_DELETE,
+					PreferenceManager.getDefaultSharedPreferences(context));
 		} else if (KEY_STYLE_BG_DELETE.equals(preference.getKey())) {
-			return handlePreferenceClick(context, KEY_STYLE_BG_DELETE);
+			return handlePreferenceClick(context, KEY_STYLE_BG_DELETE,
+					PreferenceManager.getDefaultSharedPreferences(context));
+		} else if (KEY_MODIFY_TABS.equals(preference.getKey())) {
+			context.startActivity(new Intent(context, TabEditActivity.class));
+			return true;
+		} else if (KEY_SETUP_SDCARD_PATH.equals(preference.getKey())) {
+			handlePreferenceClick(context, preference.getKey(), PreferenceManager.getDefaultSharedPreferences(context));
+			return true;
+		} else if (KEY_SETUP_SDCARD_HERO_PATH.equals(preference.getKey())) {
+			handlePreferenceClick(context, preference.getKey(), PreferenceManager.getDefaultSharedPreferences(context));
+			return true;
 		}
 
 		return false;
@@ -572,7 +631,7 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key.equals(KEY_FULLSCREEN)) {
+		if (KEY_FULLSCREEN.equals(key)) {
 			updateFullscreenStatus(getWindow(), sharedPreferences.getBoolean(KEY_FULLSCREEN, true));
 		}
 

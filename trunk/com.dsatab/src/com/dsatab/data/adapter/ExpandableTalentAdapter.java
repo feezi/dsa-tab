@@ -40,7 +40,8 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 
 	private Hero hero;
 
-	private Bitmap indicatorStar, indicatorStarGray, indicatorHouse, indicatorFlash, indicatorFlashGray;
+	private Bitmap indicatorStar, indicatorStarGray, indicatorHouse, indicatorFlash;
+	// indicatorFlashGray;
 
 	private ListFilterSettings filterSettings;
 
@@ -66,7 +67,9 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 		indicatorStarGray = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_star_gray);
 		indicatorHouse = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_house);
 		indicatorFlash = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_flash);
-		indicatorFlashGray = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_flash_gray);
+		// indicatorFlashGray =
+		// BitmapFactory.decodeResource(context.getResources(),
+		// R.drawable.indicator_flash_gray);
 
 	}
 

@@ -15,10 +15,11 @@
  */
 package com.dsatab;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,9 +28,6 @@ import java.util.List;
 import org.json.JSONException;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.app.Application;
 import android.content.SharedPreferences;
@@ -39,6 +37,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.bugsense.trace.BugSenseHandler;
@@ -51,7 +50,6 @@ import com.dsatab.db.DatabaseHelper;
 import com.dsatab.map.BitmapTileSource;
 import com.dsatab.util.Debug;
 import com.dsatab.xml.DataManager;
-import com.dsatab.xml.Xml;
 import com.dsatab.xml.XmlParser;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 
@@ -373,6 +371,25 @@ public class DSATabApplication extends Application implements OnSharedPreference
 
 		disableConnectionReuseIfNecessary();
 
+		File token = new File(getBaseDirectory(), "token.txt");
+		if (token.exists()) {
+			try {
+				BufferedReader reader = new BufferedReader(new FileReader(token));
+				String tokenValue = reader.readLine();
+				reader.close();
+				if (!TextUtils.isEmpty(tokenValue)) {
+					Editor edit = getPreferences().edit();
+					edit.putString(BasePreferenceActivity.KEY_EXCHANGE_TOKEN, tokenValue.trim());
+					edit.commit();
+				}
+			} catch (FileNotFoundException e) {
+				Debug.error(e);
+			} catch (IOException e) {
+				Debug.error(e);
+			}
+
+		}
+
 	}
 
 	private void cleanUp() {
@@ -459,46 +476,11 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	}
 
 	private HeroFileInfo getHeroInfo(File file) {
-		String path = null, name = null;
-
-		FileInputStream fis = null;
 		try {
-			XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-			factory.setNamespaceAware(true);
-			XmlPullParser xpp = factory.newPullParser();
-
-			fis = new FileInputStream(file);
-			xpp.setInput(fis, XmlParser.ENCODING);
-
-			int eventType = xpp.getEventType();
-			while (eventType != XmlPullParser.END_DOCUMENT) {
-				if (eventType == XmlPullParser.START_TAG) {
-					if (xpp.getName().equals(Xml.KEY_HELD)) {
-						path = xpp.getAttributeValue(null, Xml.KEY_PORTRAIT_PATH);
-						name = xpp.getAttributeValue(null, Xml.KEY_NAME);
-						break;
-					}
-				}
-				eventType = xpp.next();
-			}
-		} catch (FileNotFoundException e) {
-			Debug.error(e);
-		} catch (XmlPullParserException e) {
-			Debug.error(e);
-		} catch (IOException e) {
-			Debug.error(e);
-		} finally {
-			try {
-				if (fis != null)
-					fis.close();
-			} catch (IOException e) {
-			}
-		}
-		if (name != null)
-			return new HeroFileInfo(name, file, path);
-		else
+			return new HeroFileInfo(file);
+		} catch (IllegalArgumentException e) {
 			return null;
-
+		}
 	}
 
 	public void saveHeroConfiguration() throws JSONException, IOException {

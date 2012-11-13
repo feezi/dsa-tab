@@ -6,34 +6,40 @@
                         
                 <ListPreference
                 	android:icon="@drawable/ic_menu_allfriends"
-                        android:title="Heldenaustausch Provider"
-                        android:summary="Wähle die Webseite aus, die für den Heldenaustausch verwendet werden soll."
-                        android:key="exchange_provider"
-                        android:defaultValue="http://helden.draschenfels.de/"
-                        android:entries="@array/heldenAustauschProvider"
-                        android:entryValues="@array/heldenAustauschProviderValues"/>
+                    android:title="Heldenaustausch Provider"
+                    android:summary="Wähle die Webseite aus, die für den Heldenaustausch verwendet werden soll."
+                    android:key="exchange_provider"
+                    android:defaultValue="http://helden.draschenfels.de/"
+                    android:entries="@array/heldenAustauschProvider"
+                    android:entryValues="@array/heldenAustauschProviderValues"/>
                 <EditTextPreference
-                android:icon="@drawable/ic_menu_friendslist"
+                	android:icon="@drawable/ic_menu_friendslist"
                 	android:title="Benutzername"
                 	android:summary="Benutzername der Heldenaustauschseite"
                 	android:key="exchange_username" />                
                 <EditTextPreference
-                android:icon="@drawable/ic_menu_account_list"
+                	android:icon="@drawable/ic_menu_account_list"
                 	android:title="Password"
                 	android:password="true"
                 	android:summary="Password der Heldenaustauschseite"
                 	android:key="exchange_password" />
+                
+                <EditTextPreference
+                	android:icon="@drawable/ic_menu_friendslist"
+                	android:title="Token"
+                	android:summary="Berechtigungstoken der Heldenaustauschseite"
+                	android:key="exchange_token" />
         
         </PreferenceCategory>
         <PreferenceCategory android:title="Setup">
-        	<EditTextPreference
+        	<Preference
         	android:icon="@drawable/ic_menu_save"
                 android:name="SDCard: Pfad zu DsaTab"
                 android:summary="Pfad auf der SD Karte zu den DsaTab Daten (Helden Profile, Karten Material, ...)"
                 android:defaultValue="dsatab/"
                 android:title="SD Karten Pfad"
                 android:key="sdcardPath" />
-			<EditTextPreference
+			<Preference
         		android:icon="@drawable/ic_menu_save"
                 android:name="SDCard: Pfad zu Helden Xml-Dateien"
                 android:summary="Pfad auf der SD Karte zu den DsaTab Helden Dateien"
@@ -86,13 +92,13 @@
                 
         </PreferenceScreen>
         
-        <CheckBoxPreference
+        <!-- CheckBoxPreference
         android:icon="@drawable/ic_menu_barcode"
                         android:title="Usage Statistics sammeln"
                         android:defaultValue="true"                        
                         android:summaryOn="Flurry sammelt anonyme Statistiken über die Verwendungsart von DsaTab"
                         android:summaryOff="Das Sammeln von Statistiken ist derzeit leider deaktiviert"
-                        android:key="usage_stats" />
+                        android:key="usage_stats" / -->
                         
         <CheckBoxPreference
         android:icon="@drawable/ic_menu_love"
@@ -103,6 +109,11 @@
                         android:key="fullVersion" />
                         
 
-	</PreferenceCategory>       
+	</PreferenceCategory>
+	
+        <Preference  android:icon="@drawable/ic_menu_account_list"
+            android:title="Tabs anpassen"
+            android:summary="Anpassen welche Tabs beim aktuellen Helden angzeigt werden sollen."
+            android:key="modifyTabs"/>
         
 </PreferenceScreen>

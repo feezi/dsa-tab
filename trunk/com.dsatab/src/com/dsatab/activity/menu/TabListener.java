@@ -18,7 +18,6 @@ package com.dsatab.activity.menu;
 
 import java.lang.ref.WeakReference;
 
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -29,7 +28,7 @@ import com.dsatab.activity.MainActivity;
  * @author Ganymede
  * 
  */
-public class TabListener<T extends Fragment> implements ActionBar.TabListener {
+public class TabListener implements ActionBar.TabListener {
 
 	private final WeakReference<MainActivity> mActivityRef;
 

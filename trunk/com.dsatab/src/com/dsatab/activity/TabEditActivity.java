@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import android.content.Context;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -285,6 +286,10 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 			Util.hideKeyboard(v);
 			DSATabApplication.getInstance().getHero().getHeroConfiguration().setTabs(tabs);
 			finish();
+
+			Editor edit = DSATabApplication.getPreferences().edit();
+			edit.putString(BasePreferenceActivity.KEY_MODIFY_TABS, "" + System.currentTimeMillis());
+			edit.commit();
 			break;
 		case R.id.popup_edit_cancel:
 			setResult(RESULT_CANCELED);

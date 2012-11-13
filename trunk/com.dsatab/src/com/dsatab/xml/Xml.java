@@ -161,4 +161,8 @@ public interface Xml {
 	public static final String KEY_GESBE = "gesbe";
 	public static final String KEY_ENTFERNUNG = "entfernung";
 
+	public static final String KEY_ID = "id";
+	public static final String KEY_ALT = "Alt";
+	public static final String KEY_NEU = "Neu";
+	public static final String KEY_INFO = "Info";
 }

@@ -139,6 +139,9 @@ public class CustomAttribute extends Attribute implements JSONable {
 
 		case Geschwindigkeit:
 			return getBaseValue();
+		default:
+			// do nothing
+			break;
 		}
 
 		return null;

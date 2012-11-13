@@ -100,7 +100,7 @@ public class Debug {
 	 * @param message
 	 *            The message to be passed on
 	 */
-	public static void warn(Throwable t) {
+	public static void warning(Throwable t) {
 		Log.w(tag, t.getMessage(), t);
 	}
 

@@ -917,6 +917,9 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 			case Körperkraft:
 				fightItemAdapter.notifyDataSetChanged();
 				break;
+			default:
+				// do nothing
+				break;
 			}
 		}
 

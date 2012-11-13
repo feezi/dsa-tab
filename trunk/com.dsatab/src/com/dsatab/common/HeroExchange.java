@@ -16,6 +16,8 @@
  */
 package com.dsatab.common;
 
+import java.io.File;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -41,6 +43,7 @@ import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.activity.DsaPreferenceActivity;
 import com.dsatab.activity.DsaPreferenceActivityHC;
 import com.dsatab.data.Hero;
+import com.dsatab.data.HeroFileInfo;
 import com.dsatab.util.Debug;
 
 public class HeroExchange implements OnCheckedChangeListener {
@@ -64,6 +67,8 @@ public class HeroExchange implements OnCheckedChangeListener {
 
 	public interface OnHeroExchangeListener {
 		public void onHeroLoaded(String path);
+
+		public void onHeroInfoLoaded(HeroFileInfo info);
 	};
 
 	public HeroExchange(Context context) {
@@ -81,17 +86,39 @@ public class HeroExchange implements OnCheckedChangeListener {
 	private boolean isConfigured() {
 		final SharedPreferences preferences = DSATabApplication.getPreferences();
 
-		if (preferences.contains(BasePreferenceActivity.KEY_EXCHANGE_USERNAME)
-				&& preferences.contains(BasePreferenceActivity.KEY_EXCHANGE_PASSWORD)
-				&& preferences.contains(BasePreferenceActivity.KEY_EXCHANGE_PROVIDER)) {
+		String user = preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME, "");
+		String password = preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME, "");
+		String provider = preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME, "");
+		String token = preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_TOKEN, "");
 
-			String user = preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME, "");
-			String password = preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME, "");
-			String provider = preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME, "");
+		return (!TextUtils.isEmpty(token) || (!TextUtils.isEmpty(user) && !TextUtils.isEmpty(password)))
+				&& !TextUtils.isEmpty(provider);
+	}
 
-			return !TextUtils.isEmpty(user) && !TextUtils.isEmpty(password) && !TextUtils.isEmpty(provider);
-		}
-		return false;
+	public void syncHeroes() {
+
+		if (!checkSettings())
+			return;
+
+		final SharedPreferences preferences = DSATabApplication.getPreferences();
+
+		ImportHeroesTaskNew importFileTask = new ImportHeroesTaskNew(context, preferences.getString(
+				BasePreferenceActivity.KEY_EXCHANGE_TOKEN, ""));
+		importFileTask.setOnHeroExchangeListener(onHeroExchangeListener);
+		importFileTask.execute();
+	}
+
+	public void importHero(HeroFileInfo heroInfo) {
+
+		if (!checkSettings())
+			return;
+
+		final SharedPreferences preferences = DSATabApplication.getPreferences();
+
+		ImportHeroTaskNew importFileTask = new ImportHeroTaskNew(context, heroInfo, preferences.getString(
+				BasePreferenceActivity.KEY_EXCHANGE_TOKEN, ""));
+		importFileTask.setOnHeroExchangeListener(onHeroExchangeListener);
+		importFileTask.execute();
 	}
 
 	public void importHero() {
@@ -242,15 +269,18 @@ public class HeroExchange implements OnCheckedChangeListener {
 			return true;
 	}
 
-	public void exportHero(Hero hero) {
+	public void exportHero(File heroFile) {
 
-		Debug.verbose("Exporting " + hero.getName());
+		Debug.verbose("Exporting " + heroFile.getName());
 
 		if (!checkSettings())
 			return;
 
-		Intent intent = new Intent(context, ExportHeroService.class);
-		context.startService(intent);
+		// Intent intent = new Intent(context, ExportHeroService.class);
+
+		// intent.putExtra(ExportHeroService.INTENT_FILE,
+		// heroFile.getAbsolutePath());
+		// context.startService(intent);
 	}
 
 }

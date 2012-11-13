@@ -50,6 +50,7 @@ public class DomUtil {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static List<Element> getChildrenByTagName(Element parent, Element subParent, String tagName) {
 		List<Element> children;
 

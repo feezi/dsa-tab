@@ -438,6 +438,9 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 			case Charisma:
 				fillAttribute(charAttributesList, attr);
 				break;
+			default:
+				// do nothing
+				break;
 			}
 
 		}
