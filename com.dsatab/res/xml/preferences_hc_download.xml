@@ -39,7 +39,7 @@
                 <Preference
                 android:icon="@drawable/ic_menu_wizard"
                 android:title="Hintergründe herunterladen"
-                android:summary="Bilder aus DSA Fanpacket (ca. 10 MB)"                
+                android:summary="Bilder aus DSA Fanpaket (ca. 10 MB)"                
                 android:key="downloadBackgrounds" />
                 
                 
