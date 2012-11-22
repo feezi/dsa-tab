@@ -114,8 +114,6 @@ public class DataManager {
 						where = where.or(itemTypes.size());
 					}
 				}
-
-				Debug.verbose("WHERE: " + where.getStatement());
 				query = where.prepare();
 			}
 

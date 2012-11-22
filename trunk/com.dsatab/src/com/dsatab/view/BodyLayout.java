@@ -16,7 +16,6 @@ import com.dsatab.common.Util;
 import com.dsatab.data.ArmorAttribute;
 import com.dsatab.data.WoundAttribute;
 import com.dsatab.data.enums.Position;
-import com.dsatab.util.Debug;
 
 public class BodyLayout extends FrameLayout {
 
@@ -121,7 +120,6 @@ public class BodyLayout extends FrameLayout {
 
 	public void setArmorAttributes(Map<Position, ArmorAttribute> attributes) {
 
-		Debug.verbose("setting armorattr " + attributes.size());
 		// remove old buttons if existing
 		for (TextView tv : armorButtons.values()) {
 			removeView(tv);

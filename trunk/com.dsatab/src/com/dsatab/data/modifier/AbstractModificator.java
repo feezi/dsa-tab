@@ -11,6 +11,8 @@ public abstract class AbstractModificator implements Modificator {
 
 	protected boolean active;
 
+	protected Modifier modifier;
+
 	public AbstractModificator(Hero hero) {
 		this(hero, true);
 	}
@@ -18,6 +20,7 @@ public abstract class AbstractModificator implements Modificator {
 	public AbstractModificator(Hero hero, boolean active) {
 		this.hero = hero;
 		this.active = active;
+		this.modifier = new Modifier(0, null);
 	}
 
 	@Override

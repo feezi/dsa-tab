@@ -90,7 +90,6 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		Debug.verbose(getClass().getName() + " createView");
 		View root = configureContainerView(inflater.inflate(R.layout.sheet_character, container, false));
 
 		detailsSwitch = (ImageButton) root.findViewById(R.id.details_switch);

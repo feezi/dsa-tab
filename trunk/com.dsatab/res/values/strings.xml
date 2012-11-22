@@ -115,5 +115,16 @@
 	<string name="pref_sdcardPath_title">Internal Storage: Pfad zu DsaTab</string>
 	<string name="pref_sdcardHeroPath_description">Pfad auf der SD Karte zu den DsaTab Helden Dateien</string>
 	<string name="pref_sdcardHeroPath_title">Internal Storage: Pfad zu Helden Xml-Dateien</string>
+	<string name="modifier_reichweite_jagdwaffe_schritt">Reichweite der Jagdwaffe unter %1$s Schritt</string>
+	<string name="modifier_wache_gefahreninstinkt">Gefahreninstinkt TaW/2</string>
+	<string name="modifier_wache_ausdauernd">Ausdauernd Pkt/3</string>
+	<string name="modifier_waffe_geringe_kk">Zu geringe Körperkraft</string>
+	<string name="modifier_waffe_waffenmodifikator_at">Waffenmodifikator At</string>
+	<string name="modifier_waffe_waffenmodifikator_pa">Waffenmodifikator Pa</string>
+	<string name="modifier_schildkampf_modifikator_at">Schildkampf Modifikator At</string>
+	<string name="modifier_schildmodifikator_at">Schildmodifikator At</string>
+	<string name="modifier_schildmodifikator_pa">Schildmodifikator PA</string>
+	<string name="modifier_shield_hauptwaffe_paradewert">Hauptwaffe hat Paradewert von %1$s. Schildparade %2$s</string>
+	<string name="modifier_behinderung">Behinderung %1$s</string>
 	
 </resources>

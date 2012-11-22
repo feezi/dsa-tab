@@ -43,7 +43,7 @@ public class AuModificator extends AbstractModificator {
 	@Override
 	public String getModificatorName() {
 
-		float ratio = hero.getAuRatio();
+		float ratio = hero.getRatio(AttributeType.Ausdauer);
 		if (ratio < LEVEL_2) {
 			return "Ausdauer < 1/4";
 		} else if (ratio < LEVEL_1) {
@@ -57,7 +57,7 @@ public class AuModificator extends AbstractModificator {
 	@Override
 	public String getModificatorInfo() {
 		String info;
-		float ratio = hero.getAuRatio();
+		float ratio = hero.getRatio(AttributeType.Ausdauer);
 		if (ratio < LEVEL_2) {
 			info = "AT,PA,INI -2";
 		} else if (ratio < LEVEL_1) {
@@ -75,7 +75,7 @@ public class AuModificator extends AbstractModificator {
 
 			if (probe instanceof CombatProbe || probe instanceof CombatShieldTalent
 					|| probe instanceof CombatDistanceTalent || probe instanceof CombatMeleeAttribute) {
-				float ratio = hero.getAuRatio();
+				float ratio = hero.getRatio(AttributeType.Ausdauer);
 				if (ratio < LEVEL_2) {
 					modifier = -2;
 				} else if (ratio < LEVEL_1) {
@@ -86,7 +86,10 @@ public class AuModificator extends AbstractModificator {
 				return getModifier(attr.getType());
 			}
 
-			return new Modifier(modifier, getModificatorName(), getModificatorInfo());
+			this.modifier.setModifier(modifier);
+			this.modifier.setTitle(getModificatorName());
+			this.modifier.setDescription(getModificatorInfo());
+			return this.modifier;
 		} else {
 			return null;
 		}
@@ -96,7 +99,7 @@ public class AuModificator extends AbstractModificator {
 	public Modifier getModifier(AttributeType type) {
 		if (isActive()) {
 			int modifier = 0;
-			float ratio = hero.getAuRatio();
+			float ratio = hero.getRatio(AttributeType.Ausdauer);
 
 			if (ratio < LEVEL_2) {
 				if (type == AttributeType.ini || type == AttributeType.Initiative_Aktuell
@@ -109,7 +112,11 @@ public class AuModificator extends AbstractModificator {
 					modifier = -1;
 				}
 			}
-			return new Modifier(modifier, getModificatorName(), getModificatorInfo());
+
+			this.modifier.setModifier(modifier);
+			this.modifier.setTitle(getModificatorName());
+			this.modifier.setDescription(getModificatorInfo());
+			return this.modifier;
 		} else {
 			return null;
 		}

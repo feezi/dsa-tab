@@ -102,7 +102,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 	private List<Modifier> modifiers;
 
-	private Modifier manualModifer;
+	private Modifier manualModifer, erschwernisModifier;
 
 	private ProbeData probeData;
 
@@ -174,6 +174,8 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 	 */
 	private void init() {
 		mHandler = new DiceHandler(this);
+
+		erschwernisModifier = new Modifier(0, "Probenerschwernis");
 
 		effectFormat.setMaximumFractionDigits(1);
 		if (!isInEditMode()) {
@@ -521,7 +523,6 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		if (!isOpened())
 			animateOpen();
 
-		Debug.verbose("Probe:" + probe);
 		clearDice();
 
 		Integer value1 = null;
@@ -543,7 +544,10 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		modifiers = hero.getModifiers(probe, true, true);
 
 		if (probe.getProbeInfo().getErschwernis() != null) {
-			modifiers.add(new Modifier(-1 * probe.getProbeInfo().getErschwernis(), "Probenerschwernis", null));
+			erschwernisModifier.setModifier(-1 * probe.getProbeInfo().getErschwernis());
+			modifiers.add(erschwernisModifier);
+		} else {
+
 		}
 
 		getManualModifier().setModifier(0);
@@ -618,25 +622,21 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 				if (info.value[0] != null && info.value[1] != null && info.value[2] != null) {
 					probability = DsaMath.testTalent(info.value[0], info.value[1], info.value[2], taw);
-					Debug.verbose("Change for success is :" + probability);
+					// Debug.verbose("Change for success is :" + probability);
 				}
 
 				break;
 			case TwoOfThree:
 
 				if (info.value[0] != null) {
-
 					probability = DsaMath.testEigen(info.value[0], taw);
-					Debug.verbose("Change for success is :" + probability);
-
+					// Debug.verbose("Change for success is :" + probability);
 				}
 				break;
 			case One:
 				if (info.value[0] != null) {
-
 					probability = DsaMath.testEigen(info.value[0], taw);
-					Debug.verbose("Change for success is :" + probability);
-
+					// Debug.verbose("Change for success is :" + probability);
 				}
 				break;
 			}
@@ -859,15 +859,15 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 				int effect3 = (info.value[2] + valueModifier) - info.dice[2];
 
 				if (effect1 < 0) {
-					Debug.verbose("Dice1 fail result=" + effect1);
+					// Debug.verbose("Dice1 fail result=" + effect1);
 					effect += effect1;
 				}
 				if (effect2 < 0) {
-					Debug.verbose("Dice2 fail result=" + effect2);
+					// Debug.verbose("Dice2 fail result=" + effect2);
 					effect += effect2;
 				}
 				if (effect3 < 0) {
-					Debug.verbose("Dice3 fail result=" + effect3);
+					// Debug.verbose("Dice3 fail result=" + effect3);
 					effect += effect3;
 				}
 				break;
@@ -897,7 +897,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 				int dice1 = dices[0];
 				int dice2 = dices[1];
 
-				Debug.verbose("Value Modifier (Be, Wm, Manuell) " + taw);
+				// Debug.verbose("Value Modifier (Be, Wm, Manuell) " + taw);
 
 				// check for success
 				int effect1 = info.value[0] - dice1 + taw;

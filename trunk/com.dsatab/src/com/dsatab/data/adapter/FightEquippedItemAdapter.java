@@ -192,12 +192,12 @@ public class FightEquippedItemAdapter extends OpenArrayAdapter<EquippedItem> {
 				holder.icon1.setEnabled(false);
 			}
 			if (getFilter().getSettings().isIncludeModifiers())
-				holder.text2.setText(weapon.getInfo(hero.getModifiedValue(AttributeType.Körperkraft),
+				holder.text2.setText(weapon.getInfo(hero.getModifiedValue(AttributeType.Körperkraft, true, true),
 						hero.getModifierTP(equippedItem)));
 			else
 				holder.text2.setText(weapon.getInfo());
 		} else if (itemSpecification instanceof Armor) {
-			Armor armor = (Armor) itemSpecification;
+			// Armor armor = (Armor) itemSpecification;
 			holder.icon2.setVisibility(View.GONE);
 		}
 

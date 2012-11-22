@@ -355,9 +355,9 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 		cursor.moveToFirst();
 
 		int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-		int bucketIndex = cursor.getColumnIndex(filePathColumn[1]);
+		// int bucketIndex = cursor.getColumnIndex(filePathColumn[1]);
 		String filePath = cursor.getString(columnIndex);
-		String bucketId = cursor.getString(bucketIndex);
+		// String bucketId = cursor.getString(bucketIndex);
 
 		cursor.close();
 		File file = new File(filePath);
@@ -442,7 +442,7 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 			Toast.makeText(context, "Hintergrundbild wurde zurückgesetzt.", Toast.LENGTH_SHORT).show();
 			return true;
 		} else if (KEY_SETUP_SDCARD_PATH.equals(key)) {
-			Result res = new Result() {
+			Result resultListener = new Result() {
 				/*
 				 * (non-Javadoc)
 				 * 
@@ -456,11 +456,10 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 					edit.commit();
 				}
 			};
-			DirectoryChooserDialogHelper helper = new DirectoryChooserDialogHelper(context, res,
-					DSATabApplication.getDsaTabHeroPath());
+			new DirectoryChooserDialogHelper(context, resultListener, DSATabApplication.getDsaTabHeroPath());
 			return true;
 		} else if (KEY_SETUP_SDCARD_HERO_PATH.equals(key)) {
-			Result res = new Result() {
+			Result resultListener = new Result() {
 				/*
 				 * (non-Javadoc)
 				 * 
@@ -474,8 +473,7 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 					edit.commit();
 				}
 			};
-			DirectoryChooserDialogHelper helper = new DirectoryChooserDialogHelper(context, res,
-					DSATabApplication.getDsaTabHeroPath());
+			new DirectoryChooserDialogHelper(context, resultListener, DSATabApplication.getDsaTabHeroPath());
 			return true;
 		}
 

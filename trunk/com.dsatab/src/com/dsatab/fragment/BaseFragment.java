@@ -48,7 +48,6 @@ import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.modifier.Modificator;
-import com.dsatab.util.Debug;
 import com.dsatab.view.FilterSettings;
 import com.dsatab.view.FilterSettings.FilterType;
 import com.dsatab.view.listener.HeroChangedListener;
@@ -75,7 +74,6 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 		if (getView() != null) {
 			Hero hero = getHero();
 			if (hero != null) {
-				Debug.verbose(getClass().getName() + " onActivityAttached CALLING HEROLOADED");
 				loadHero(hero);
 			}
 		}
@@ -333,7 +331,7 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 
 		if (attribute != null) {
 
-			int modifier = getHero().getModifier(type, includeBe, true);
+			int modifier = getHero().getModifier(attribute, includeBe, true);
 			Util.setText(tv, attribute, modifier, prefix, inverseColors);
 			tv.setTag(attribute);
 

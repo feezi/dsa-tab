@@ -39,6 +39,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
+import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Markable;
 import com.dsatab.data.Probe;
@@ -556,9 +557,9 @@ public class Util {
 
 	public static void appendValue(Hero hero, StyleableSpannableStringBuilder title, AttributeType type) {
 
-		Integer value1 = hero.getAttributeValue(type);
-		if (value1 != null) {
-			int modifier = hero.getModifier(type);
+		Attribute attr = hero.getAttribute(type);
+		if (attr != null && attr.getValue() != null) {
+			int modifier = hero.getModifier(attr);
 
 			int color;
 			if (modifier < 0)
@@ -570,7 +571,7 @@ public class Util {
 
 			}
 			title.append(" (");
-			title.appendColor(color, Util.toString(value1 + modifier));
+			title.appendColor(color, Util.toString(attr.getValue() + modifier));
 			title.append(")");
 		}
 

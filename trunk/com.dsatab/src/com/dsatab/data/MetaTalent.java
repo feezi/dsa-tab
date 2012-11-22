@@ -131,15 +131,16 @@ public class MetaTalent extends Talent implements JSONable {
 				}
 			}
 
-			Debug.verbose("Wild " + wildnis + " färten " + fährtensuche + " schleich " + schleichen + " tierk "
-					+ tierkunde + " fernk " + distance);
+			// Debug.verbose("Wild " + wildnis + " färten " + fährtensuche +
+			// " schleich " + schleichen + " tierk " + tierkunde + " fernk " +
+			// distance);
 
 			Integer minValue = DsaMath.min(wildnis, fährtensuche, schleichen, tierkunde, distance);
 
-			Debug.verbose("Minium value is " + minValue);
+			// Debug.verbose("Minium value is " + minValue);
 			int value = Math.round(DsaMath.sum(wildnis, fährtensuche, schleichen, tierkunde, distance) / 5.0f);
 
-			Debug.verbose("Sum value/5 is " + value);
+			// Debug.verbose("Sum value/5 is " + value);
 			if (minValue == null)
 				return null;
 			else {

@@ -60,7 +60,6 @@ import com.dsatab.common.Util;
 import com.dsatab.common.WrapMotionEvent;
 import com.dsatab.data.Hero;
 import com.dsatab.map.MapTileProviderLocal;
-import com.dsatab.util.Debug;
 import com.gandulf.guilib.download.AbstractDownloader;
 import com.gandulf.guilib.download.DownloaderWrapper;
 
@@ -320,7 +319,6 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 	}
 
 	private void loadMap(String filePath) {
-		Debug.verbose("loading map " + filePath);
 
 		if (activeMap != null && activeMap.equals(filePath)) {
 			return;
@@ -475,7 +473,6 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 		edit.commit();
 
 		// clear bitmap
-		Debug.verbose("Freeing map bitmap");
 		unloadMap();
 
 		super.onPause();
@@ -504,7 +501,6 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 		}
 
 		if (!TextUtils.isEmpty(lastMap)) {
-			Debug.verbose("Reloading map bitmap");
 
 			String coords = preferences.getString(PREF_KEY_LAST_MAP_COORDINATES, null);
 			if (coords != null) {

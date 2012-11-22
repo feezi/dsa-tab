@@ -92,8 +92,6 @@ public class PurseFragment extends BaseFragment implements OnItemSelectedListene
 
 		purse = hero.getPurse();
 
-		Debug.verbose("Loading purse with " + purse.getActiveCurrency());
-
 		if (purse.getActiveCurrency() == null) {
 			purse.setActiveCurrency(Currency.Mittelreich);
 		}

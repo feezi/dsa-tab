@@ -11,7 +11,6 @@ import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.AbstractModificator;
-import com.dsatab.util.Debug;
 
 public class WoundAttribute extends AbstractModificator implements JSONable {
 
@@ -168,8 +167,11 @@ public class WoundAttribute extends AbstractModificator implements JSONable {
 					modifier += -1 * getValue();
 				}
 			}
-			return new Modifier(modifier, getModificatorName(), getModificatorInfo());
 
+			this.modifier.setModifier(modifier);
+			this.modifier.setTitle(getModificatorName());
+			this.modifier.setDescription(getModificatorInfo());
+			return this.modifier;
 		} else {
 			return null;
 		}
@@ -207,11 +209,12 @@ public class WoundAttribute extends AbstractModificator implements JSONable {
 
 								if (w.isTwoHanded()) {
 									modifier += -1 * getValue();
-									Debug.verbose("Zweihandwaffen Handwunde AT/PA-1*" + getValue());
+									// Debug.verbose("Zweihandwaffen Handwunde AT/PA-1*"
+									// + getValue());
 									break;
 								} else {
 									if (getPosition() == Position.LeftLowerArm) {
-										Debug.verbose("Angriff/Parade mit Hauptwaffe und Wunde auf linkem Arm ignoriert");
+										// Debug.verbose("Angriff/Parade mit Hauptwaffe und Wunde auf linkem Arm ignoriert");
 										break;
 									}
 								}
@@ -220,12 +223,13 @@ public class WoundAttribute extends AbstractModificator implements JSONable {
 								// Shield w = (Shield)
 								// combatProbe.getEquippedItem().getItem();
 								if (getPosition() == Position.RightLowerArm) {
-									Debug.verbose("Angriff/Parade mit Schildwaffe und Wunde auf rechtem Arm ignoriert");
+									// Debug.verbose("Angriff/Parade mit Schildwaffe und Wunde auf rechtem Arm ignoriert");
 									break;
 								}
 							}
 						}
-						Debug.verbose(" Wunde auf Arm AT/PA -2*" + getValue());
+						// Debug.verbose(" Wunde auf Arm AT/PA -2*" +
+						// getValue());
 						modifier += -2 * getValue();
 						break;
 					case UpperLeg:
@@ -240,7 +244,11 @@ public class WoundAttribute extends AbstractModificator implements JSONable {
 					modifier += -2 * getValue();
 				}
 			}
-			return new Modifier(modifier, getModificatorName(), getModificatorInfo());
+
+			this.modifier.setModifier(modifier);
+			this.modifier.setTitle(getModificatorName());
+			this.modifier.setDescription(getModificatorInfo());
+			return this.modifier;
 		} else {
 			return null;
 		}
