@@ -29,7 +29,6 @@ import android.view.WindowManager;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.dsatab.DSATabApplication;
 import com.dsatab.common.Util;
-import com.dsatab.util.Debug;
 
 /**
  * @author Ganymede
@@ -72,7 +71,7 @@ public class BaseActivity extends SherlockActivity {
 	 */
 	@Override
 	protected void onDestroy() {
-		Debug.verbose("Unbinding drawbale to free memory");
+		// Debug.verbose("Unbinding drawbale to free memory");
 		Util.unbindDrawables(getWindow().getDecorView());
 
 		super.onDestroy();

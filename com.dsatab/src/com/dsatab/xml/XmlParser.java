@@ -698,13 +698,10 @@ public class XmlParser {
 
 		org.jdom.Document dom = saxBuilder.build(is);
 
-		if (dom != null)
-			Debug.verbose("Document sucessfully parsed");
-		else {
+		if (dom == null) {
 			Debug.error("Error: DOM was null.");
 		}
 		hero = new Hero(path, dom, heroLoader);
-		Debug.verbose("Hero object created: " + hero.toString());
 
 		return hero;
 	}

@@ -13,14 +13,11 @@ public class CombatProbe extends BaseProbe {
 
 	private boolean attack;
 
-	private Hero hero = null;
-
 	protected CombatTalentType type = null;
 
-	public CombatProbe(Hero hero, EquippedItem item, boolean attack) {
+	public CombatProbe(EquippedItem item, boolean attack) {
 		this.equippedItem = item;
 		this.attack = attack;
-		this.hero = hero;
 
 		this.combatTalent = item.getTalent();
 

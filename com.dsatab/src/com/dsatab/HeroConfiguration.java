@@ -458,8 +458,6 @@ public class HeroConfiguration {
 	}
 
 	public void reset() {
-		Debug.verbose("Restoring tabs");
-
 		tabInfosPortrait = getDefaultTabs(Configuration.ORIENTATION_PORTRAIT);
 		tabInfosLandscape = getDefaultTabs(Configuration.ORIENTATION_LANDSCAPE);
 	}

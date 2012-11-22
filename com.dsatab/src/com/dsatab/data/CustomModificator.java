@@ -168,9 +168,7 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 
 						// if (VALID_KEYS.contains(key)) {
 						// revert value since we deal with erschwernis
-						// intern,
-						// but
-						// declare it as bonus outside
+						// intern, but declare it as bonus outside
 						modMap.put(key, Util.parseInt(value));
 						// } else {
 						// modMap.put(key, Util.parseInt(value));
@@ -219,21 +217,24 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 				modifier = getModifier(item.getTalent().getCombatTalentType().getName() + POSTFIX_TP);
 
 			if (item.getItemSpecification() instanceof Weapon) {
-				Weapon weapon = (Weapon) item.getItemSpecification();
+				// Weapon weapon = (Weapon) item.getItemSpecification();
 
 				if (modifier == null)
 					modifier = getModifier(KEY_AT + POSTFIX_TP);
-			}
-
-			if (item.getItemSpecification() instanceof DistanceWeapon) {
-				DistanceWeapon weapon = (DistanceWeapon) item.getItemSpecification();
+			} else if (item.getItemSpecification() instanceof DistanceWeapon) {
+				// DistanceWeapon weapon = (DistanceWeapon)
+				// item.getItemSpecification();
 
 				if (modifier == null)
 					modifier = getModifier(KEY_FK + POSTFIX_TP);
 			}
 
-			if (modifier != null)
-				return new Modifier(modifier, getModificatorName(), getRules());
+			if (modifier != null) {
+				this.modifier.setModifier(modifier);
+				this.modifier.setTitle(getModificatorName());
+				this.modifier.setDescription(getRules());
+				return this.modifier;
+			}
 		}
 
 		return null;
@@ -299,7 +300,10 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 			}
 
 			if (modifier != null) {
-				return new Modifier(modifier, getModificatorName(), getRules());
+				this.modifier.setModifier(modifier);
+				this.modifier.setTitle(getModificatorName());
+				this.modifier.setDescription(getRules());
+				return this.modifier;
 			}
 		}
 		return null;
@@ -323,7 +327,10 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 			}
 
 			if (modifier != null) {
-				return new Modifier(modifier, getModificatorName(), getRules());
+				this.modifier.setModifier(modifier);
+				this.modifier.setTitle(getModificatorName());
+				this.modifier.setDescription(getRules());
+				return this.modifier;
 			}
 		}
 		return null;

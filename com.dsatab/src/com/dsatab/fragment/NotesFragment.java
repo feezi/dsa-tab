@@ -272,25 +272,21 @@ public class NotesFragment extends BaseFragment implements OnItemClickListener, 
 				if (obj instanceof Event) {
 					Event event = (Event) obj;
 					if (item.getItemId() == CONTEXTMENU_DELETEITEM) {
-						Debug.verbose("Deleting " + event.getComment());
 						getHero().removeEvent(event);
 						notesListAdapter.remove(event);
 						notesListAdapter.notifyDataSetChanged();
 						return true;
 					} else if (item.getItemId() == CONTEXTMENU_EDITITEM) {
-						Debug.verbose("Editing " + event.getComment());
 						editEvent(event);
 						return true;
 					}
 				} else if (obj instanceof Connection) {
 					Connection connection = (Connection) obj;
 					if (item.getItemId() == CONTEXTMENU_DELETEITEM) {
-						Debug.verbose("Deleting " + connection.getName());
 						getHero().removeConnection(connection);
 						connectionsAdapter.remove(connection);
 						return true;
 					} else if (item.getItemId() == CONTEXTMENU_EDITITEM) {
-						Debug.verbose("Editing " + connection.getName());
 						editConnection(connection);
 						return true;
 					}

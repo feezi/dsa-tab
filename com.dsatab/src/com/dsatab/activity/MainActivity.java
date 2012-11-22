@@ -310,7 +310,8 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	}
 
 	public Loader<Hero> onCreateLoader(int id, Bundle args) {
-		Debug.verbose("Creating loader for " + args.getString(KEY_HERO_PATH));
+		// Debug.verbose("Creating loader for " +
+		// args.getString(KEY_HERO_PATH));
 		return new HeroLoader(this, args.getString(KEY_HERO_PATH));
 	}
 
@@ -475,23 +476,23 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 		Configuration configuration = getResources().getConfiguration();
 
-		Debug.verbose("onCreate Orientation =" + configuration.orientation);
+		// Debug.verbose("onCreate Orientation =" + configuration.orientation);
 		if (DsaPreferenceActivity.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)
 				&& configuration.orientation != Configuration.ORIENTATION_LANDSCAPE) {
-			Debug.verbose("Setting landscape");
+			// Debug.verbose("Setting landscape");
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 			return;
 		} else if (DsaPreferenceActivity.SCREEN_ORIENTATION_PORTRAIT.equals(orientation)
 				&& configuration.orientation != Configuration.ORIENTATION_PORTRAIT) {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-			Debug.verbose("Setting portrait");
+			// Debug.verbose("Setting portrait");
 			return;
 		} else if (DsaPreferenceActivity.SCREEN_ORIENTATION_AUTO.equals(orientation)
 				&& getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_SENSOR
 				&& getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
 
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-			Debug.verbose("Setting sensor");
+			// Debug.verbose("Setting sensor");
 			return;
 		}
 
@@ -623,15 +624,12 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 			return null;
 		}
 
-		Debug.verbose("Refreshing tabs, old:" + tabInfo);
-
 		List<TabInfo> tabs = getHeroConfiguration().getTabs();
 
 		// if we have an existing tabinfo check if it's upto date
 		if (tabInfo != null) {
 			// check wether tabinfo is uptodate (within current tabconfig
 			if (tabs.contains(tabInfo)) {
-				Debug.verbose("Tab found using old one.");
 				return tabInfo;
 			}
 
@@ -640,8 +638,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 				if (Util.equalsOrNull(tab.getPrimaryActivityClazz(), tabInfo.getPrimaryActivityClazz())
 						&& Util.equalsOrNull(tab.getSecondaryActivityClazz(), tabInfo.getSecondaryActivityClazz())) {
-
-					Debug.verbose("1 New tab found with same primary and secondary clazz :" + tab);
 					return tab;
 				}
 			}
@@ -656,7 +652,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 				if (activityClazz != null) {
 					for (TabInfo tab : tabs) {
 						if (activityClazz.equals(tab.getPrimaryActivityClazz())) {
-							Debug.verbose("2 New tab found with same primary clazz :" + tab);
 							return tab;
 						}
 					}
@@ -673,8 +668,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 					for (TabInfo tab : tabs) {
 						if (activityClazz.equals(tab.getPrimaryActivityClazz())
 								|| activityClazz.equals(tab.getSecondaryActivityClazz())) {
-
-							Debug.verbose("3 New tab found with same primary clazz or secondary clazz :" + tab);
 							return tab;
 
 						}
@@ -682,7 +675,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 				}
 			}
 		}
-		Debug.verbose("No tab found using first first one:" + tabs.get(0));
 
 		// last resort set tabinfo to first one if no matching one is found
 		return tabs.get(0);
@@ -765,9 +757,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	}
 
 	protected void onHeroUnloaded(Hero hero) {
-		if (hero != null) {
-			Debug.verbose("Unload hero " + hero.getName());
-		}
 		if (viewPagerAdapter != null && viewPagerAdapter.getCurrentFragments() != null) {
 			viewPagerAdapter.getCurrentFragments().unloadHero(hero);
 		}
@@ -885,14 +874,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		loadHero();
 
 		// setupTabs();
-
-		if (savedInstanceState == null) {
-			Debug.verbose("New instance setup tabs");
-			showTab(tabInfo);
-		} else {
-			Debug.verbose("Old instance keep tabs");
-			showTab(tabInfo);
-		}
+		showTab(tabInfo);
 	}
 
 	@Override
@@ -949,6 +931,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		return super.onPrepareOptionsMenu(menu);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 

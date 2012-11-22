@@ -100,6 +100,7 @@ public class TabInfo implements Parcelable, JSONable {
 	/**
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public TabInfo(Parcel in) {
 		this.primaryActivityClazz = (Class<? extends BaseFragment>) in.readSerializable();
 		this.secondaryActivityClazz = (Class<? extends BaseFragment>) in.readSerializable();
@@ -115,6 +116,7 @@ public class TabInfo implements Parcelable, JSONable {
 	 * @param in
 	 * @throws JSONException
 	 */
+	@SuppressWarnings("unchecked")
 	public TabInfo(JSONObject in) throws JSONException, ClassNotFoundException {
 		tabResourceIndex = in.getInt(FIELD_TAB_RESOURCE_INDEX);
 		if (in.has(FIELD_DICE_SLIDER))

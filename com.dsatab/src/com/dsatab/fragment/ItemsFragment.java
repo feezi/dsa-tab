@@ -382,12 +382,14 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 		final Integer mCurrentScreen = (Integer) mGrid.getTag();
 		final int oldScreen = dragInfo.getItemInfo().getScreen();
 
-		Debug.verbose("onDragDrop " + oldScreen + " to " + mCurrentScreen + " to index " + mCellNumber);
+		// Debug.verbose("onDragDrop " + oldScreen + " to " + mCurrentScreen +
+		// " to index " + mCellNumber);
 
 		if (dragInfo instanceof EquippedItem) {
 			EquippedItem equippedItem = (EquippedItem) dragInfo;
 
-			Debug.verbose("Moving equippeditem from set " + oldScreen + " to " + mCurrentScreen);
+			// Debug.verbose("Moving equippeditem from set " + oldScreen +
+			// " to " + mCurrentScreen);
 
 			if (oldScreen == mCurrentScreen) {
 				equippedItem.getItemInfo().setCellNumber(mCellNumber);
@@ -418,7 +420,7 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 			}
 			// drag a item from inventory to set (equip it)
 			else if (!ItemsFragment.isSetIndex(oldScreen) && ItemsFragment.isSetIndex(mCurrentScreen)) {
-				Debug.verbose("Equipping  item on set " + mCurrentScreen);
+				// Debug.verbose("Equipping  item on set " + mCurrentScreen);
 				hero.addEquippedItem(context, item, null, null, mCurrentScreen, new Hero.ItemAddedCallback() {
 
 					@Override
@@ -677,8 +679,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 
 		if (screen >= 0 && screen <= Hero.MAXIMUM_SET_NUMBER) {
 			int oldScreen = mCurrentScreen;
-
-			Debug.verbose("Show screen " + screen);
 
 			mCurrentScreen = screen;
 

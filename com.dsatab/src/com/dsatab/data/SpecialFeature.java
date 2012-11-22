@@ -76,20 +76,21 @@ public class SpecialFeature {
 		this.comment = element.getAttributeValue(Xml.KEY_KOMMENTAR);
 
 		@SuppressWarnings("unchecked")
-		List<Element> children = element.getChildren(Xml.KEY_KULTUR);
-		if (children != null) {
+		List<Element> kulturChildren = element.getChildren(Xml.KEY_KULTUR);
+		if (kulturChildren != null) {
 			this.additionalInfo = "";
-			for (Element child : children) {
+			for (Element child : kulturChildren) {
 				if (!TextUtils.isEmpty(additionalInfo))
 					this.additionalInfo += ", ";
 				this.additionalInfo += child.getAttributeValue(Xml.KEY_NAME);
 			}
 		}
 
-		children = element.getChildren(Xml.KEY_AUSWAHL);
-		if (children != null) {
+		@SuppressWarnings("unchecked")
+		List<Element> auswahlChildren = element.getChildren(Xml.KEY_AUSWAHL);
+		if (auswahlChildren != null) {
 			this.additionalInfo = "";
-			for (Element child : children) {
+			for (Element child : auswahlChildren) {
 				if (!TextUtils.isEmpty(additionalInfo))
 					this.additionalInfo += ", ";
 				this.additionalInfo += child.getAttributeValue(Xml.KEY_NAME);

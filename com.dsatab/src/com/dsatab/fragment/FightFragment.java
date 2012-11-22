@@ -360,7 +360,8 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 					}
 					return;
 				} else if (menuItem instanceof CustomModificator) {
-					CustomModificator modificator = (CustomModificator) menuItem;
+					// CustomModificator modificator = (CustomModificator)
+					// menuItem;
 
 					MenuInflater menuInflater = getActivity().getMenuInflater();
 					menuInflater.inflate(R.menu.modifikator_popupmenu, menu);
@@ -379,6 +380,7 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 	 * android.support.v4.app.Fragment#onContextItemSelected(android.support
 	 * .v4.view.MenuItem)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 
@@ -874,16 +876,18 @@ public class FightFragment extends BaseFragment implements OnLongClickListener, 
 		}
 		fightPickerButton.setText(value.getType().code());
 
-		float ratio = 1.0f;
+		float ratio;
 
-		if (value.getType() == AttributeType.Lebensenergie) {
-			ratio = getHero().getLeRatio();
-		} else if (value.getType() == AttributeType.Ausdauer) {
-			ratio = getHero().getAuRatio();
-		} else if (value.getType() == AttributeType.Karmaenergie) {
-			ratio = getHero().getKeRatio();
-		} else if (value.getType() == AttributeType.Astralenergie) {
-			ratio = getHero().getAeRatio();
+		switch (value.getType()) {
+		case Lebensenergie:
+		case Ausdauer:
+		case Karmaenergie:
+		case Astralenergie:
+			ratio = getHero().getRatio(value.getType());
+			break;
+		default:
+			ratio = 1.0f;
+			break;
 		}
 
 		if (ratio < 0.5f)

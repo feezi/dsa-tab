@@ -490,7 +490,6 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			if (selectedCard != null) {
 				selectCard(selectedCard);
 			} else {
-				Debug.verbose("Nothing Selected.");
 				cancel();
 			}
 		} else if (v.getTag() instanceof ItemType) {
@@ -506,7 +505,6 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			if (selectedCard != null) {
 				selectCard(selectedCard);
 			} else {
-				Debug.verbose("Nothing Selected.");
 				cancel();
 			}
 			return true;

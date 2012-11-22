@@ -80,7 +80,7 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 	@Override
 	public Hero loadInBackground() {
 
-		Debug.verbose("Getting hero from " + path);
+		// Debug.verbose("Getting hero from " + path);
 		if (path == null) {
 			Debug.error("Error: Path was null ");
 			return null;
@@ -102,14 +102,15 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 			fis = new FileInputStream(file);
 			hero = XmlParser.readHero(path, fis, this);
 			if (hero != null) {
-				Debug.verbose("Hero successfully parsed");
+				// Debug.verbose("Hero successfully parsed");
 
 				Editor editor = preferences.edit();
 				editor.putString(MainActivity.PREF_LAST_HERO, hero.getPath());
 				editor.commit();
-				Debug.verbose("Stored path of current hero in prefs:" + hero.getPath());
-
-				Debug.verbose("Hero successfully loaded and return hero: " + hero.getName());
+				// Debug.verbose("Stored path of current hero in prefs:" +
+				// hero.getPath());
+				// Debug.verbose("Hero successfully loaded and return hero: " +
+				// hero.getName());
 			} else {
 				Debug.error("Hero could not be parsed, was null after XmlParserNew.readHero.");
 			}
