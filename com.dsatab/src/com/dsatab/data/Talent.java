@@ -1,14 +1,27 @@
 package com.dsatab.data;
 
+import java.util.Comparator;
 import java.util.EnumSet;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
-import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.xml.Xml;
 
-public class Talent extends MarkableElement implements Value, XmlWriteable {
+public class Talent extends MarkableElement implements Value {
+
+	public static final Comparator<Talent> NAME_COMPARATOR = new Comparator<Talent>() {
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+		 */
+		@Override
+		public int compare(Talent object1, Talent object2) {
+			return object1.getName().compareTo(object2.getName());
+		}
+
+	};
 
 	public static final String ATHLETIK = "Athletik";
 
@@ -47,7 +60,7 @@ public class Talent extends MarkableElement implements Value, XmlWriteable {
 
 	protected Hero hero;
 
-	private Integer value;
+	protected Integer value;
 
 	private String name;
 
@@ -59,19 +72,31 @@ public class Talent extends MarkableElement implements Value, XmlWriteable {
 
 	private EnumSet<Flags> flags = EnumSet.noneOf(Flags.class);
 
-	public Talent(Hero hero, Element element) {
-		super(element);
+	public static final String ARMBRUST = "Armbrust";
+
+	public static final String DOLCHE = "Dolche";
+
+	public static final String AKROBATIK = "Akrobatik";
+
+	public Talent(Hero hero) {
+		super();
 		this.hero = hero;
-		if (element != null) {
-			this.probeInfo.applyProbePattern(element.getAttributeValue(Xml.KEY_PROBE));
-			this.probeInfo.applyBePattern(element.getAttributeValue(Xml.KEY_BE));
-			this.name = element.getAttributeValue(Xml.KEY_NAME);
-			this.value = Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
-		}
 	}
 
 	public String getName() {
 		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setProbeBe(String be) {
+		this.probeInfo.applyBePattern(be);
+	}
+
+	public void setProbePattern(String pattern) {
+		this.probeInfo.applyProbePattern(pattern);
 	}
 
 	/*
@@ -144,10 +169,6 @@ public class Talent extends MarkableElement implements Value, XmlWriteable {
 		return 25;
 	}
 
-	public Element getElement() {
-		return element;
-	}
-
 	@Override
 	public String toString() {
 		return getName();
@@ -159,13 +180,13 @@ public class Talent extends MarkableElement implements Value, XmlWriteable {
 	 * @see com.dsatab.data.XmlWriteable#populateXml()
 	 */
 	@Override
-	public void populateXml() {
-		if (element != null) {
-			if (value != null)
-				element.setAttribute(Xml.KEY_VALUE, Integer.toString(value));
-			else
-				element.removeAttribute(Xml.KEY_VALUE);
-		}
+	public void populateXml(Element element) {
+		super.populateXml(element);
+
+		if (value != null)
+			element.setAttribute(Xml.KEY_VALUE, Integer.toString(value));
+		else
+			element.removeAttribute(Xml.KEY_VALUE);
 
 	}
 

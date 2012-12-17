@@ -18,10 +18,10 @@ import com.dsatab.activity.MainActivity;
 import com.dsatab.common.Util;
 import com.dsatab.data.CombatProbe;
 import com.dsatab.data.SpecialFeature;
+import com.dsatab.data.adapter.SpinnerSimpleAdapter;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
-import com.dsatab.data.adapter.SpinnerSimpleAdapter;
 
 public class ArcheryChooserDialog extends AlertDialog implements android.view.View.OnClickListener,
 		DialogInterface.OnClickListener {
@@ -130,22 +130,23 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 	protected void onStart() {
 
 		String[] distances = getContext().getResources().getStringArray(R.array.archeryDistance);
-		if (equippedItem != null && equippedItem.getItem().hasSpecification(DistanceWeapon.class)) {
+		if (equippedItem != null) {
 			DistanceWeapon item = (DistanceWeapon) equippedItem.getItem().getSpecification(DistanceWeapon.class);
+			if (item != null) {
+				String from, to;
 
-			String from, to;
+				for (int i = 0; i < distances.length; i++) {
+					to = item.getDistance(i);
 
-			for (int i = 0; i < distances.length; i++) {
-				to = item.getDistance(i);
+					if (to != null) {
+						distances[i] += " (";
+						if (i > 0) {
+							from = item.getDistance(i - 1);
+							distances[i] += from;
+						}
 
-				if (to != null) {
-					distances[i] += " (";
-					if (i > 0) {
-						from = item.getDistance(i - 1);
-						distances[i] += from;
+						distances[i] += " bis " + to + "m)";
 					}
-
-					distances[i] += " bis " + to + "m)";
 				}
 			}
 		}

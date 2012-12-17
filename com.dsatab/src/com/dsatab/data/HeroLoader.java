@@ -100,7 +100,7 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 			}
 
 			fis = new FileInputStream(file);
-			hero = XmlParser.readHero(path, fis, this);
+			hero = XmlParser.readHero(path, fis);
 			if (hero != null) {
 				// Debug.verbose("Hero successfully parsed");
 

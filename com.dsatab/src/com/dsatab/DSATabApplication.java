@@ -17,6 +17,7 @@ package com.dsatab;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -25,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.json.JSONException;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -50,6 +53,7 @@ import com.dsatab.db.DatabaseHelper;
 import com.dsatab.map.BitmapTileSource;
 import com.dsatab.util.Debug;
 import com.dsatab.xml.DataManager;
+import com.dsatab.xml.Xml;
 import com.dsatab.xml.XmlParser;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 
@@ -87,9 +91,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 
 	public static final String TAG = "DSATab";
 
-	public static final String THEME_LIGHT_GLOSSY = "light_glossy";
 	public static final String THEME_LIGHT_PLAIN = "light_plain";
-	public static final String THEME_DARK_GLOSSY = "dark_glossy";
 	public static final String THEME_DARK_PLAIN = "dark_plain";
 	public static final String THEME_DEFAULT = THEME_LIGHT_PLAIN;
 
@@ -269,31 +271,24 @@ public class DSATabApplication extends Application implements OnSharedPreference
 		String theme = getPreferences().getString(BasePreferenceActivity.KEY_THEME, THEME_DEFAULT);
 
 		if (THEME_LIGHT_PLAIN.equals(theme)) {
-			return R.style.DsaTabTheme_Light_Plain;
-		} else if (THEME_LIGHT_GLOSSY.equals(theme)) {
-			return R.style.DsaTabTheme_Light_Glossy;
+			return R.style.DsaTabTheme_Light;
 		} else if (THEME_DARK_PLAIN.equals(theme)) {
-			return R.style.DsaTabTheme_Dark_Plain;
-		} else if (THEME_DARK_GLOSSY.equals(theme)) {
-			return R.style.DsaTabTheme_Dark_Glossy;
+			return R.style.DsaTabTheme_Dark;
 		} else {
-			return R.style.DsaTabTheme_Light_Plain;
+			return R.style.DsaTabTheme_Light;
 		}
+
 	}
 
 	public int getCustomPreferencesTheme() {
 		String theme = getPreferences().getString(BasePreferenceActivity.KEY_THEME, THEME_DEFAULT);
 
 		if (THEME_LIGHT_PLAIN.equals(theme)) {
-			return R.style.Theme_Preferences_Light;
-		} else if (THEME_LIGHT_GLOSSY.equals(theme)) {
-			return R.style.Theme_Preferences_Light;
+			return R.style.DsaTabTheme_Light;
 		} else if (THEME_DARK_PLAIN.equals(theme)) {
-			return R.style.Theme_Preferences;
-		} else if (THEME_DARK_GLOSSY.equals(theme)) {
-			return R.style.Theme_Preferences;
+			return R.style.DsaTabTheme_Dark;
 		} else {
-			return R.style.Theme_Preferences_Light;
+			return R.style.DsaTabTheme_Light;
 		}
 	}
 
@@ -326,15 +321,11 @@ public class DSATabApplication extends Application implements OnSharedPreference
 		String theme = getPreferences().getString(BasePreferenceActivity.KEY_THEME, THEME_DEFAULT);
 
 		if (THEME_LIGHT_PLAIN.equals(theme)) {
-			return R.style.Theme_Dialog_Light_Plain;
-		} else if (THEME_LIGHT_GLOSSY.equals(theme)) {
-			return R.style.Theme_Dialog_Light_Glossy;
+			return R.style.Theme_Dialog_Light;
 		} else if (THEME_DARK_PLAIN.equals(theme)) {
-			return R.style.Theme_Dialog_Dark_Plain;
-		} else if (THEME_DARK_GLOSSY.equals(theme)) {
-			return R.style.Theme_Dialog_Dark_Glossy;
+			return R.style.Theme_Dialog_Dark;
 		} else {
-			return R.style.Theme_Dialog_Light_Plain;
+			return R.style.Theme_Dialog_Light;
 		}
 	}
 
@@ -515,9 +506,16 @@ public class DSATabApplication extends Application implements OnSharedPreference
 				Toast.makeText(this, error, Toast.LENGTH_LONG).show();
 				return;
 			}
+
+			FileInputStream fis = new FileInputStream(destFile);
+			Document dom = XmlParser.readDocument(fis);
+			fis.close();
+
+			Element heroElement = (Element) dom.getRootElement().getChild(Xml.KEY_HELD);
+			XmlParser.onPreHeroSaved(hero, heroElement);
+
 			out = new FileOutputStream(destFile);
-			hero.onPreHeroSaved();
-			XmlParser.writeHero(hero, out);
+			XmlParser.writeHero(hero, dom, out);
 			hero.onPostHeroSaved();
 
 			saveHeroConfiguration();

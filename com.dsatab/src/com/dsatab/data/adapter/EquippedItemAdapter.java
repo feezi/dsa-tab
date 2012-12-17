@@ -15,7 +15,7 @@ import com.dsatab.view.ItemListItem;
 
 public class EquippedItemAdapter extends ArrayAdapter<EquippedItem> {
 
-	LayoutInflater inflater;
+	private LayoutInflater inflater;
 
 	public EquippedItemAdapter(Context context, int textViewResourceId, List<EquippedItem> objects) {
 		super(context, textViewResourceId, objects);

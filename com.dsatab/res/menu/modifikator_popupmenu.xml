@@ -2,14 +2,12 @@
     
     <item android:id="@+id/option_edit"
           android:icon="@drawable/ic_menu_edit"
-          android:title="Modifikator bearbeiten" />
-          
-    <item android:id="@+id/option_add"
-          android:icon="@drawable/ic_menu_add"
-          android:title="Modifikator hinzufügen" />
+          android:showAsAction="withText|always"
+          android:title="Bearbeiten" />
     
     <item android:id="@+id/option_delete"
           android:icon="@drawable/ic_menu_delete"
-          android:title="Modifikator entfernen" />                    
+          android:showAsAction="withText|always"
+          android:title="Löschen" />                    
     
 </menu>

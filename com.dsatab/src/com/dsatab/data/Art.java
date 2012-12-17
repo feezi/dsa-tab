@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import android.text.TextUtils;
 
@@ -14,11 +14,10 @@ import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.util.Debug;
-import com.dsatab.xml.Xml;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.SelectArg;
 
-public class Art extends MarkableElement implements Value, Markable {
+public class Art extends MarkableElement implements Value {
 
 	public static final String LITURGIE_PREFIX = "Liturgie: ";
 	public static final String RITUAL_PREFIX = "Ritual: ";
@@ -65,6 +64,8 @@ public class Art extends MarkableElement implements Value, Markable {
 
 	private Talent kenntnis;
 
+	private String costs, effect, castDuration;
+
 	public enum Flags {
 		Begabung
 	}
@@ -73,21 +74,22 @@ public class Art extends MarkableElement implements Value, Markable {
 
 	private boolean customProbe;
 
-	public Art(Hero hero, Element element) {
-		super(element);
+	public Art(Hero hero) {
+		super();
 		this.hero = hero;
 
-		name = element.getAttributeValue(Xml.KEY_NAME).trim();
-		String grade = null;
+		initQueries();
+	}
 
-		type = ArtType.getTypeOfArt(name);
+	public static String normalizeName(String name) {
+		String grade;
+
+		name = name.trim();
+		ArtType type = ArtType.getTypeOfArt(name);
 		if (type != null) {
 			name = type.truncateName(name);
-		} else {
-			throw new DsaTabRuntimeException("Unknown Art type for: " + name);
 		}
 
-		// we have a grade specification in the name: Erdsegen (III)
 		if (name.endsWith(")")) {
 			grade = name.substring(name.lastIndexOf("(") + 1);
 			grade = grade.substring(0, grade.length() - 1);
@@ -100,61 +102,7 @@ public class Art extends MarkableElement implements Value, Markable {
 			}
 		}
 
-		// TODO Check for art that do not have a grade on first grade. to get
-		// loaded right!!!
-		initQueries();
-		nameArg.setValue(name);
-		if (grade == null) {
-			info = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class).queryForFirst(nameQuery);
-		} else {
-			gradeArg.setValue(grade);
-			info = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class)
-					.queryForFirst(nameGradeQuery);
-
-			// if we find no art with grade, try without
-			if (info == null) {
-				info = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class)
-						.queryForFirst(nameQuery);
-				if (info != null)
-					Debug.warning("Art with grade could not be found using the one without grade: " + name);
-			}
-		}
-
-		if (info == null) {
-			Debug.warning("No unique art found for " + name + " : " + grade);
-		}
-
-		switch (type) {
-		case Ritual:
-			kenntnis = hero.getTalent(Talent.GEISTER_ANRUFEN);
-			break;
-		default:
-			if (type.talentName() != null)
-				kenntnis = hero.getArtTalent(type.talentName());
-			break;
-		}
-
-		if (kenntnis != null) {
-			probeInfo = kenntnis.getProbeInfo().clone();
-		}
-
-		if (info != null && !TextUtils.isEmpty(info.getProbe())) {
-			probeInfo.applyProbePattern(info.getProbe());
-		}
-
-		if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_PROBE))) {
-			probeInfo.applyProbePattern(element.getAttributeValue(Xml.KEY_PROBE));
-		}
-
-		if (probeInfo.getErschwernis() == null && info != null && info.getGrade() >= 0) {
-			probeInfo.setErschwernis(info.getGrade() * 2 - 2);
-		}
-
-		checkCustomProbe();
-
-		if (info == null) {
-			Debug.warning("No info found for liturige:" + element.getAttributeValue(Xml.KEY_NAME).trim());
-		}
+		return name;
 	}
 
 	private static void initQueries() {
@@ -181,6 +129,24 @@ public class Art extends MarkableElement implements Value, Markable {
 		return type;
 	}
 
+	protected void setType(ArtType type) {
+		this.type = type;
+
+		switch (type) {
+		case Ritual:
+			kenntnis = hero.getTalent(Talent.GEISTER_ANRUFEN);
+			break;
+		default:
+			if (type.talentName() != null)
+				kenntnis = hero.getArtTalent(type.talentName());
+			break;
+		}
+
+		if (kenntnis != null) {
+			probeInfo = kenntnis.getProbeInfo().clone();
+		}
+	}
+
 	public String getFullName() {
 		if (info != null)
 			return info.getFullName();
@@ -203,6 +169,90 @@ public class Art extends MarkableElement implements Value, Markable {
 		} else {
 			return name;
 		}
+	}
+
+	public void setName(String name) {
+		this.name = name;
+
+		setType(ArtType.getTypeOfArt(name));
+		if (type != null) {
+			name = type.truncateName(name);
+		} else {
+			throw new DsaTabRuntimeException("Unknown Art type for: " + name);
+		}
+
+		String grade = null;
+
+		// we have a grade specification in the name: Erdsegen (III)
+		if (name.endsWith(")")) {
+			grade = name.substring(name.lastIndexOf("(") + 1);
+			grade = grade.substring(0, grade.length() - 1);
+
+			// we acutally found a grade (I)
+			if (Util.gradeToInt(grade) >= 0) {
+				name = name.substring(0, name.lastIndexOf("(")).trim();
+			} else {
+				grade = null;
+			}
+		}
+
+		// TODO Check for art that do not have a grade on first grade. to get
+		// loaded right!!!
+
+		nameArg.setValue(name);
+		if (grade == null) {
+			info = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class).queryForFirst(nameQuery);
+		} else {
+			gradeArg.setValue(grade);
+			info = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class)
+					.queryForFirst(nameGradeQuery);
+
+			// if we find no art with grade, try without
+			if (info == null) {
+				info = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class)
+						.queryForFirst(nameQuery);
+				if (info != null)
+					Debug.warning("Art with grade could not be found using the one without grade: " + name);
+			}
+		}
+
+		if (info == null) {
+			Debug.warning("No unique art found for " + name + " : " + grade);
+		}
+
+		if (info != null && !TextUtils.isEmpty(info.getProbe())) {
+			probeInfo.applyProbePattern(info.getProbe());
+		}
+
+		if (probeInfo.getErschwernis() == null && info != null && info.getGrade() >= 0) {
+			probeInfo.setErschwernis(info.getGrade() * 2 - 2);
+		}
+
+		if (getArtTalent() != null) {
+			customProbe = !Arrays.equals(probeInfo.getAttributeTypes(), getArtTalent().getProbeInfo()
+					.getAttributeTypes());
+		} else {
+			customProbe = true;
+		}
+
+	}
+
+	public void setProbePattern(String pattern) {
+
+		probeInfo.applyProbePattern(pattern);
+
+	}
+
+	public void setCosts(String costs) {
+		this.costs = costs;
+	}
+
+	public void setEffect(String effect) {
+		this.effect = effect;
+	}
+
+	public void setCastDuration(String castDuration) {
+		this.castDuration = castDuration;
 	}
 
 	public ArtInfo getInfo() {
@@ -229,15 +279,6 @@ public class Art extends MarkableElement implements Value, Markable {
 
 	public boolean hasCustomProbe() {
 		return customProbe;
-	}
-
-	private void checkCustomProbe() {
-		if (getArtTalent() != null) {
-			customProbe = !Arrays.equals(probeInfo.getAttributeTypes(), getArtTalent().getProbeInfo()
-					.getAttributeTypes());
-		} else {
-			customProbe = true;
-		}
 	}
 
 	@Override
@@ -290,24 +331,16 @@ public class Art extends MarkableElement implements Value, Markable {
 		return 25;
 	}
 
-	public Element getElement() {
-		return element;
-	}
-
 	public String getCosts() {
 
-		String cost = element.getAttributeValue(Xml.KEY_KOSTEN);
-
-		if (TextUtils.isEmpty(cost) && info != null) {
-			cost = info.getCosts();
+		if (TextUtils.isEmpty(costs) && info != null) {
+			return info.getCosts();
+		} else {
+			return costs;
 		}
-
-		return cost;
 	}
 
 	public String getEffect() {
-		String effect = element.getAttributeValue(Xml.KEY_WIRKUNG);
-
 		if (info != null) {
 			if (TextUtils.isEmpty(effect))
 				effect = info.getEffect();
@@ -319,24 +352,29 @@ public class Art extends MarkableElement implements Value, Markable {
 
 	public String getCastDuration() {
 
-		String castduration = element.getAttributeValue(Xml.KEY_DAUER);
-
-		if (TextUtils.isEmpty(castduration) && info != null) {
-			castduration = info.getCastDuration();
+		if (TextUtils.isEmpty(castDuration) && info != null) {
+			return info.getCastDuration();
+		} else {
+			return castDuration;
 		}
-
-		return castduration;
 	}
 
 	public String getCastDurationDetailed() {
-
-		String castduration = element.getAttributeValue(Xml.KEY_DAUER);
-
-		if (TextUtils.isEmpty(castduration) && info != null) {
-			castduration = info.getCastDurationDetailed();
+		if (TextUtils.isEmpty(castDuration) && info != null) {
+			return info.getCastDurationDetailed();
+		} else {
+			return castDuration;
 		}
+	}
 
-		return castduration;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.MarkableElement#populateXml(org.jdom2.Element)
+	 */
+	@Override
+	public void populateXml(Element element) {
+		super.populateXml(element);
 	}
 
 }

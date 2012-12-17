@@ -20,14 +20,10 @@ import com.dsatab.activity.MainActivity;
 import com.dsatab.activity.ModificatorEditActivity;
 import com.dsatab.common.Util;
 import com.dsatab.data.CustomModificator;
-import com.dsatab.data.filter.FightModificatorListFilter;
 import com.dsatab.data.modifier.AbstractModificator;
 import com.dsatab.data.modifier.Modificator;
-import com.dsatab.view.FightFilterSettings;
 
 public class FightModificatorAdapter extends OpenArrayAdapter<Modificator> implements OnClickListener {
-
-	private FightModificatorListFilter filter;
 
 	private LayoutInflater inflater;
 
@@ -88,24 +84,6 @@ public class FightModificatorAdapter extends OpenArrayAdapter<Modificator> imple
 	public void clear() {
 		super.clear();
 		add(null);
-	}
-
-	public void filter(FightFilterSettings settings) {
-		getFilter().setSettings(settings);
-		filter.filter((String) null);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.widget.ArrayAdapter#getFilter()
-	 */
-	@Override
-	public FightModificatorListFilter getFilter() {
-		if (filter == null)
-			filter = new FightModificatorListFilter(this);
-
-		return filter;
 	}
 
 	/*

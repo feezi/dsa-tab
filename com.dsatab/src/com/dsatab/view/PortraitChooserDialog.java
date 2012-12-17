@@ -105,7 +105,7 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 				tv = (ImageView) convertView;
 			} else {
 				tv = new ImageView(getContext());
-				tv.setScaleType(ScaleType.CENTER_INSIDE);
+				tv.setScaleType(ScaleType.CENTER_CROP);
 			}
 
 			Uri file = getItem(position);

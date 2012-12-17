@@ -16,13 +16,13 @@
  */
 package com.dsatab.data.items;
 
-import org.jdom.Element;
-
 import com.j256.ormlite.field.DatabaseField;
 
-public abstract class ItemSpecification {
+public abstract class ItemSpecification implements Cloneable {
 
-	@DatabaseField(foreign = true)
+	public static final String ITEM_ID_FIELD_NAME = "item_id";
+
+	@DatabaseField(foreign = true, foreignAutoRefresh = false, columnName = ITEM_ID_FIELD_NAME)
 	protected Item item;
 
 	@DatabaseField
@@ -47,6 +47,14 @@ public abstract class ItemSpecification {
 		this.version = version;
 	}
 
+	public Item getItem() {
+		return item;
+	}
+
+	public void setItem(Item item) {
+		this.item = item;
+	}
+
 	public abstract String getInfo();
 
 	public abstract String getName();
@@ -58,8 +66,6 @@ public abstract class ItemSpecification {
 	public void setSpecificationLabel(String specificationLabel) {
 		this.specificationLabel = specificationLabel;
 	}
-
-	public abstract void setElement(Element element);
 
 	public abstract int getResourceId();
 
@@ -75,4 +81,13 @@ public abstract class ItemSpecification {
 		this.version = version;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	protected ItemSpecification clone() throws CloneNotSupportedException {
+		return (ItemSpecification) super.clone();
+	}
 }

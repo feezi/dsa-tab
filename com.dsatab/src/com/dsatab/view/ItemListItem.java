@@ -19,9 +19,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TwoLineListItem;
 
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemSpecification;
@@ -31,7 +29,7 @@ import com.dsatab.util.Debug;
  * @author Seraphim
  * 
  */
-public class ItemListItem extends TwoLineListItem {
+public class ItemListItem extends CheckableTwoLineListItem {
 
 	private int textColor = 0;
 
@@ -99,12 +97,12 @@ public class ItemListItem extends TwoLineListItem {
 		super.onFinishInflate();
 	}
 
-	public ImageButton getIcon1() {
-		return (ImageButton) findViewById(android.R.id.icon1);
+	public ImageView getIcon1() {
+		return (ImageView) findViewById(android.R.id.icon1);
 	}
 
-	public ImageButton getIcon2() {
-		return (ImageButton) findViewById(android.R.id.icon2);
+	public ImageView getIcon2() {
+		return (ImageView) findViewById(android.R.id.icon2);
 	}
 
 	public void setItem(Item e) {

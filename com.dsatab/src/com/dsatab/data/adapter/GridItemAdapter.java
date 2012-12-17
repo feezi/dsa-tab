@@ -22,6 +22,7 @@ import java.util.Comparator;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.GridView;
 
 import com.dsatab.R;
@@ -152,6 +153,7 @@ public class GridItemAdapter extends OpenArrayAdapter<ItemCard> {
 			cardView = new GridCardView(getContext());
 			// cardView.setLayoutParams(new GridView.LayoutParams(width,
 			// height));
+			cardView.setLayoutParams(new AbsListView.LayoutParams(width, height));
 			cardView.setMinimumWidth(width);
 			cardView.setMinimumHeight(height);
 		}

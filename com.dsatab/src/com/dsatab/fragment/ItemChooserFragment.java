@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.database.Cursor;
@@ -142,18 +141,9 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		return inflater.inflate(R.layout.sheet_item, container, false);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.Fragment#onAttach(android.app.Activity)
-	 */
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (activity instanceof OnItemChooserListener) {
-			onItemChooserListener = (OnItemChooserListener) activity;
-		}
+	public void setOnItemChooserListener(OnItemChooserListener onItemChooserListener) {
+		this.onItemChooserListener = onItemChooserListener;
+		getSherlockActivity().invalidateOptionsMenu();
 	}
 
 	/*
@@ -438,10 +428,6 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 	}
 
-	public void setOnItemChooserListener(OnItemChooserListener itemChooserListener) {
-		this.onItemChooserListener = itemChooserListener;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -634,7 +620,9 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		}
 		// --
 
-		Util.inflateAcceptAbortMenu(menu);
+		if (onItemChooserListener != null) {
+			Util.inflateAcceptAbortMenu(menu);
+		}
 
 		super.onCreateOptionsMenu(menu, inflater);
 	}

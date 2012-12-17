@@ -65,11 +65,11 @@
 			android:layout_marginLeft="5dip" android:layout_height="@dimen/dice_size"
 			android:layout_width="@dimen/dice_size" android:scaleType="fitCenter"
 			android:soundEffectsEnabled="false" android:layout_gravity="center_vertical"></ImageView>
-		<com.dsatab.view.GlossyImageButton android:layout_marginLeft="5dip" android:id="@+id/dice_area"
+		<ImageButton android:layout_marginLeft="5dip" android:id="@+id/dice_area"
 			android:src="@drawable/icon_dummy" android:scaleType="fitCenter"
 			android:layout_gravity="center_vertical" android:layout_height="@dimen/dice_size"
 			android:layout_width="@dimen/dice_size" android:visibility="gone"/>
-		<com.dsatab.view.GlossyButton android:gravity="center" android:id="@+id/dice_execute" android:layout_gravity="center_vertical" android:text="Würfeln" android:drawableTop="@drawable/ic_menu_dice" android:minHeight="@dimen/dice_size" android:layout_width="@dimen/dice_size" android:layout_height="@dimen/dice_size" android:layout_marginLeft="5dp"/>
+		<Button android:gravity="center" android:id="@+id/dice_execute" android:layout_gravity="center_vertical" android:text="Würfeln" android:drawableTop="@drawable/ic_menu_dice" android:minHeight="@dimen/dice_size" android:layout_width="@dimen/dice_size" android:layout_height="@dimen/dice_size" android:layout_marginLeft="5dp"/>
 			
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal" android:id="@+id/dice_dice_result"

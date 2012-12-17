@@ -34,6 +34,7 @@ public class CombatParadeWeaponTalent extends CombatShieldTalent {
 		return "Parierwaffenparade";
 	}
 
+	@Override
 	protected int getBaseValue() {
 		int baseValue = 0;
 
@@ -43,10 +44,11 @@ public class CombatParadeWeaponTalent extends CombatShieldTalent {
 			if (paradeItem != null && paradeItem.getSecondaryItem() != null) {
 				EquippedItem equippedWeapon = paradeItem.getSecondaryItem();
 				// check wether mainweapon has a defense value
-				if (equippedWeapon.getTalent().getDefense() != null)
+				if (equippedWeapon.getTalent() instanceof CombatMeleeTalent
+						&& equippedWeapon.getTalent().getDefense() != null)
 					baseValue = equippedWeapon.getTalent().getDefense().getValue();
 				else
-					baseValue = 0;
+					baseValue = hero.getAttributeValue(AttributeType.pa);
 			} else {
 				baseValue = hero.getAttributeValue(AttributeType.pa);
 			}

@@ -699,7 +699,7 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 		if (selectedItem != null) {
 
 			Item item = selectedItem.getItem();
-
+			intent.setAction(Intent.ACTION_PICK);
 			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_ID, item.getId());
 			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_NAME, item.getName());
 			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CATEGORY, item.getCategory());

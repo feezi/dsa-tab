@@ -2,13 +2,14 @@ package com.dsatab.data;
 
 import java.util.List;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
 import com.dsatab.xml.Xml;
+import com.gandulf.guilib.util.Debug;
 
 public class CombatMeleeTalent extends BaseCombatTalent {
 
@@ -18,26 +19,34 @@ public class CombatMeleeTalent extends BaseCombatTalent {
 
 	private CombatTalentType type;
 
-	public CombatMeleeTalent(Hero hero, Element element, Element combatElement) {
-		super(hero, element, combatElement);
-		this.type = CombatTalentType.byName(getName());
-
-		@SuppressWarnings("unchecked")
-		List<Element> nodes = combatElement.getChildren();
-
-		for (Element node : nodes) {
-			Element item = (Element) node;
-			if (Xml.KEY_ATTACKE.equals(item.getName()))
-				at = new CombatMeleeAttribute(hero, this, item);
-			else if (Xml.KEY_PARADE.equals(item.getName()))
-				pa = new CombatMeleeAttribute(hero, this, item);
-		}
-
-		probeInfo.applyBePattern(type.getBe());
+	public CombatMeleeTalent(Hero hero, CombatMeleeAttribute at, CombatMeleeAttribute pa) {
+		super(hero);
+		if (at != null)
+			at.setCombatMeleeTalent(this);
+		if (pa != null)
+			pa.setCombatMeleeTalent(this);
+		this.at = at;
+		this.pa = pa;
 	}
 
 	public CombatTalentType getCombatTalentType() {
 		return type;
+	}
+
+	protected void setCombatTalentType(CombatTalentType type) {
+
+		this.type = type;
+
+		if (type == null)
+			Debug.verbose("No type found for " + getName());
+
+		this.probeInfo.applyBePattern(type.getBe());
+
+		// we have to set the talent again to refresh some values
+		if (at != null)
+			at.setCombatMeleeTalent(this);
+		if (pa != null)
+			pa.setCombatMeleeTalent(this);
 	}
 
 	public CombatMeleeAttribute getAttack() {
@@ -46,6 +55,11 @@ public class CombatMeleeTalent extends BaseCombatTalent {
 
 	public CombatMeleeAttribute getDefense() {
 		return pa;
+	}
+
+	public void setName(String name) {
+		super.setName(name);
+		setCombatTalentType(CombatTalentType.byName(getName()));
 	}
 
 	public Position getPosition(int w20) {
@@ -90,5 +104,27 @@ public class CombatMeleeTalent extends BaseCombatTalent {
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.Talent#populateXml(org.jdom2.Element)
+	 */
+	@Override
+	public void populateXml(Element element) {
+		if (Xml.KEY_KAMPFWERTE.equals(element.getName())) {
+			List<Element> nodes = element.getChildren();
+
+			for (Element node : nodes) {
+				Element item = (Element) node;
+				if (Xml.KEY_ATTACKE.equals(item.getName()))
+					at.populateXml(item);
+				else if (Xml.KEY_PARADE.equals(item.getName()))
+					at.populateXml(item);
+			}
+		} else {
+			super.populateXml(element);
+		}
 	}
 }

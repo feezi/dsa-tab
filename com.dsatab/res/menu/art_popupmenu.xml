@@ -2,16 +2,27 @@
 <group android:id="@+id/group_art">		
 	<item android:id="@+id/option_view_art"
           android:icon="@drawable/ic_menu_view"
-          android:title="Details anzeigen" />                    
+          android:showAsAction="withText|always"
+          android:title="Details" />                    
     
-    <item android:id="@+id/option_mark_favorite_art"
-          android:icon="@drawable/ic_menu_star"
-          android:title="Als Favorit markieren" />
-    <item android:id="@+id/option_mark_unused_art"
-          android:icon="@drawable/ic_menu_stop"
-          android:title="Als ungenützt markieren" />
-    <item android:id="@+id/option_unmark_art"
-          android:icon="@drawable/ic_menu_close_clear_cancel"
-          android:title="Markierung aufheben" />
+		<item android:id="@+id/option_mark"
+            android:icon="@drawable/ic_menu_star"            
+            android:showAsAction="withText|always"
+            android:title="Markierungen">
+		 <menu>
+		    <item android:id="@+id/option_mark_favorite_art"
+		          android:icon="@drawable/ic_menu_star"
+		          android:showAsAction="withText"
+		          android:title="Als Favorit markieren" />
+		    <item android:id="@+id/option_mark_unused_art"
+		          android:icon="@drawable/ic_menu_stop"
+		          android:showAsAction="withText"
+		          android:title="Als ungenützt markieren" />
+		    <item android:id="@+id/option_unmark_art"
+		          android:icon="@drawable/ic_menu_close_clear_cancel"
+		          android:showAsAction="withText"
+		          android:title="Markierung aufheben" />
+		    </menu>
+    </item>
 </group>    
 </menu>

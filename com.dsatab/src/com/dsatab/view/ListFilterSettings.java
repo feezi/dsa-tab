@@ -16,13 +16,29 @@
  */
 package com.dsatab.view;
 
+import java.io.Serializable;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.dsatab.data.JSONable;
 import com.dsatab.data.Markable;
 
 /**
  * 
  * 
  */
-public class ListFilterSettings implements FilterSettings {
+public class ListFilterSettings implements FilterSettings, JSONable, Serializable {
+
+	private static final long serialVersionUID = -128741208133727278L;
+
+	private static final String FIELD_INCLUDE_MODIFIERS = "includeModifiers";
+	private static final String FIELD_SHOW_NORMAL = "showNormal";
+	private static final String FIELD_SHOW_FAVORITE = "showFavorite";
+	private static final String FIELD_SHOW_UNUSED = "showUnused";
 
 	private boolean showNormal, showFavorite, showUnused;
 
@@ -35,11 +51,63 @@ public class ListFilterSettings implements FilterSettings {
 
 	}
 
+	public ListFilterSettings(JSONObject jsonObject) {
+		this.showFavorite = jsonObject.optBoolean(FIELD_SHOW_FAVORITE);
+		this.showNormal = jsonObject.optBoolean(FIELD_SHOW_NORMAL);
+		this.showUnused = jsonObject.optBoolean(FIELD_SHOW_UNUSED);
+		this.includeModifiers = jsonObject.optBoolean(FIELD_INCLUDE_MODIFIERS);
+	}
+
 	public ListFilterSettings(boolean fav, boolean normal, boolean unused, boolean incMod) {
 		this.showFavorite = fav;
 		this.showNormal = normal;
 		this.showUnused = unused;
 		this.includeModifiers = incMod;
+	}
+
+	/**
+	 * @param in
+	 */
+	public ListFilterSettings(Parcel in) {
+		boolean[] booleans = new boolean[4];
+		in.readBooleanArray(booleans);
+		showFavorite = booleans[0];
+		showNormal = booleans[1];
+		showUnused = booleans[2];
+		includeModifiers = booleans[3];
+	}
+
+	/**
+	 * Creator for the Parcelable
+	 */
+	public static final Parcelable.Creator<ListFilterSettings> CREATOR = new Parcelable.Creator<ListFilterSettings>() {
+		public ListFilterSettings createFromParcel(Parcel in) {
+			return new ListFilterSettings(in);
+		}
+
+		public ListFilterSettings[] newArray(int size) {
+			return new ListFilterSettings[size];
+		}
+	};
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.os.Parcelable#describeContents()
+	 */
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.os.Parcelable#writeToParcel(android.os.Parcel, int)
+	 */
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeBooleanArray(new boolean[] { showFavorite, showNormal, showUnused, includeModifiers });
 	}
 
 	public boolean isShowNormal() {
@@ -108,6 +176,31 @@ public class ListFilterSettings implements FilterSettings {
 		this.showUnused = unused;
 		this.includeModifiers = incMod;
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.JSONable#toJSONObject()
+	 */
+	@Override
+	public JSONObject toJSONObject() throws JSONException {
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put(FIELD_INCLUDE_MODIFIERS, includeModifiers);
+		jsonObject.put(FIELD_SHOW_FAVORITE, showFavorite);
+		jsonObject.put(FIELD_SHOW_NORMAL, showNormal);
+		jsonObject.put(FIELD_SHOW_UNUSED, showUnused);
+		return jsonObject;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return getClass().getName() + " " + showNormal + " " + showFavorite + " " + showUnused + " " + includeModifiers;
 	}
 
 }

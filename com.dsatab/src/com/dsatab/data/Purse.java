@@ -1,15 +1,17 @@
 package com.dsatab.data;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
-import com.dsatab.common.Util;
+import com.dsatab.xml.DomUtil;
 import com.dsatab.xml.Xml;
 
-public class Purse {
+public class Purse implements XmlWriteable {
 
 	public enum Currency {
 		AlAnfa("Al'Anfa", PurseUnit.Doublone, PurseUnit.Oreal, PurseUnit.KleinerOreal, PurseUnit.Dirham), Vallusa(
@@ -23,7 +25,7 @@ public class Purse {
 
 		private String name;
 
-		private PurseUnit[] purseUnits;
+		private List<PurseUnit> purseUnits;
 
 		private Currency(PurseUnit... purseUnits) {
 			this(null, purseUnits);
@@ -38,10 +40,10 @@ public class Purse {
 				name = name();
 
 			this.name = name;
-			this.purseUnits = purseUnits;
+			this.purseUnits = Arrays.asList(purseUnits);
 		}
 
-		public PurseUnit[] units() {
+		public List<PurseUnit> units() {
 			return purseUnits;
 		}
 
@@ -72,6 +74,14 @@ public class Purse {
 			this.name = name;
 		}
 
+		public Currency currency() {
+			for (Currency cur : Currency.values()) {
+				if (cur.units().contains(this))
+					return cur;
+			}
+			return null;
+		}
+
 		public String xmlName() {
 			return name;
 		}
@@ -87,25 +97,10 @@ public class Purse {
 
 	private Currency activeCurrency;
 
-	private Element element;
+	private Map<PurseUnit, Integer> coins;
 
-	private Map<PurseUnit, Element> coins;
-
-	public Purse(Element element) {
-		this.element = element;
-		coins = new HashMap<PurseUnit, Element>(4);
-
-		List<?> nodes = element.getChildren(Xml.KEY_MUENZE);
-
-		for (int i = 0; i < nodes.size(); i++) {
-			Element m = (Element) nodes.get(i);
-			PurseUnit w = PurseUnit.getByXmlName(m.getAttributeValue(Xml.KEY_NAME));
-			coins.put(w, m);
-		}
-
-		String active = element.getAttributeValue(Xml.KEY_ACTIVE);
-		if (active != null)
-			activeCurrency = Currency.valueOf(active);
+	public Purse() {
+		coins = new HashMap<PurseUnit, Integer>(4);
 	}
 
 	public Currency getActiveCurrency() {
@@ -114,30 +109,57 @@ public class Purse {
 
 	public void setActiveCurrency(Currency activeCurrency) {
 		this.activeCurrency = activeCurrency;
-		element.setAttribute(Xml.KEY_ACTIVE, activeCurrency.name());
 	}
 
 	public void setCoins(PurseUnit w, int value) {
-
-		Element m = coins.get(w);
-
-		if (m == null) {
-			m = new Element(Xml.KEY_MUENZE);
-			m.setAttribute(Xml.KEY_WAEHRUNG, activeCurrency.xmlName());
-			m.setAttribute(Xml.KEY_NAME, w.xmlName());
-			element.addContent(m);
-
-			coins.put(w, m);
-		}
-		m.setAttribute(Xml.KEY_ANZAHL, Util.toString(value));
+		coins.put(w, value);
 	}
 
 	public int getCoins(PurseUnit w) {
-		Element m = coins.get(w);
+		Integer m = coins.get(w);
 		if (m != null)
-			return Util.parseInt(m.getAttributeValue(Xml.KEY_ANZAHL));
+			return m;
 		else
 			return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
+	 */
+	@Override
+	public void populateXml(Element element) {
+		if (activeCurrency != null)
+			element.setAttribute(Xml.KEY_ACTIVE, activeCurrency.name());
+		else
+			element.removeAttribute(Xml.KEY_ACTIVE);
+
+		for (Entry<Purse.PurseUnit, Integer> entry : coins.entrySet()) {
+			boolean found = false;
+			for (Element p : DomUtil.getChildrenByTagName(element, Xml.KEY_MUENZE)) {
+				if (entry.getKey().xmlName().equals(p.getAttributeValue(Xml.KEY_NAME))) {
+					if (entry.getValue() != null)
+						p.setAttribute(Xml.KEY_ANZAHL, entry.getValue().toString());
+					else
+						p.setAttribute(Xml.KEY_ANZAHL, "0");
+
+					found = true;
+					break;
+				}
+			}
+			if (found == false) {
+				Element m = new Element(Xml.KEY_MUENZE);
+				m.setAttribute(Xml.KEY_WAEHRUNG, entry.getKey().currency().xmlName());
+				m.setAttribute(Xml.KEY_NAME, entry.getKey().xmlName());
+				if (entry.getValue() != null)
+					m.setAttribute(Xml.KEY_ANZAHL, entry.getValue().toString());
+				else
+					m.setAttribute(Xml.KEY_ANZAHL, "0");
+
+				element.addContent(m);
+			}
+		}
 	}
 
 }

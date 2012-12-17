@@ -20,6 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.dsatab.common.DsaMath;
+import com.dsatab.data.TalentGroup.MetaTalentType;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.util.Debug;
 
@@ -28,24 +29,6 @@ import com.dsatab.util.Debug;
  * 
  */
 public class MetaTalent extends Talent implements JSONable {
-
-	enum MetaTalentType {
-		PirschAnsitzJagd("Pirsch- und Ansitzjagd"), NahrungSammeln("Nahrung sammeln"), Kräutersuchen("Kräutersuche"), Wache(
-				"Wache halten");
-
-		/**
-		 * 
-		 */
-		private MetaTalentType(String name) {
-			this.name = name;
-		}
-
-		private String name;
-
-		public String getName() {
-			return name;
-		}
-	}
 
 	private static final String FIELD_META_TYPE = "metaType";
 
@@ -58,13 +41,13 @@ public class MetaTalent extends Talent implements JSONable {
 	private boolean favorite, unused;
 
 	public MetaTalent(Hero hero, MetaTalentType type) {
-		super(hero, null);
+		super(hero);
 
 		this.metaType = type;
 	}
 
 	public MetaTalent(Hero hero, JSONObject json) throws JSONException {
-		super(hero, null);
+		super(hero);
 
 		this.metaType = MetaTalentType.valueOf(json.getString(FIELD_META_TYPE));
 		this.favorite = json.getBoolean(FIELD_FAVORITE);

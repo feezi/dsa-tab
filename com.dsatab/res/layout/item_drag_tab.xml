@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+<com.dsatab.view.CheckableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
     android:layout_width="wrap_content"
     android:layout_height="@dimen/tab_size"
     android:paddingRight="5dp">
@@ -10,8 +10,8 @@
         android:layout_height="@dimen/tab_size"
         android:src="@drawable/ic_menu_chat_dashboard" android:paddingLeft="5dp" android:paddingRight="5dp" android:layout_gravity="bottom"/>
 
-	<com.dsatab.view.GlossyImageButton android:id="@+id/gen_tab" 
+	<ImageView android:id="@+id/gen_tab" 
 	    android:layout_marginTop="@dimen/tab_padding" android:layout_marginBottom="@dimen/tab_padding"
 		android:layout_height="@dimen/tab_icon_size" android:layout_width="@dimen/tab_icon_size" android:layout_gravity="bottom"/>
 		
-</LinearLayout>
+</com.dsatab.view.CheckableLinearLayout>

@@ -18,6 +18,8 @@ import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.ArmorAttribute;
 import com.dsatab.data.Attribute;
+import com.dsatab.data.CombatDistanceTalent;
+import com.dsatab.data.Experience;
 import com.dsatab.data.Hero.CombatStyle;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
@@ -52,6 +54,16 @@ public class InlineEditDialog extends AlertDialog implements DialogInterface.OnC
 			int currentValue = value.getValue();
 
 			wheelAdapter.setRange(value.getMinimum(), value.getMaximum());
+			if (value instanceof Experience) {
+				wheelAdapter.setStepSize(5);
+			} else {
+				wheelAdapter.setStepSize(1);
+			}
+			if (value instanceof CombatDistanceTalent) {
+				wheelAdapter.setBaseValue(((CombatDistanceTalent) value).getBaseValue());
+			} else {
+				wheelAdapter.setBaseValue(0);
+			}
 
 			editText.setCurrentItem(wheelAdapter.getPosition(currentValue));
 			editText.setEnabled(true);

@@ -19,7 +19,7 @@ package com.dsatab.xml;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * 
@@ -59,6 +59,14 @@ public class DomUtil {
 		} else {
 			children = parent.getChildren(tagName);
 		}
+
+		return children;
+
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<Element> getChildrenByTagName(Element parent, String tagName) {
+		List<Element> children = parent.getChildren(tagName);
 
 		return children;
 

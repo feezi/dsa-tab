@@ -3,27 +3,27 @@ package com.dsatab.data.items;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import android.text.TextUtils;
 
 import com.dsatab.DSATabApplication;
-import com.dsatab.common.Util;
 import com.dsatab.data.ItemLocationInfo;
+import com.dsatab.data.XmlWriteable;
 import com.dsatab.util.Debug;
 import com.dsatab.xml.Xml;
+import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "item")
-public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard {
+public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard, XmlWriteable {
 
 	private static final long serialVersionUID = 7011220901677479470L;
 
@@ -40,8 +40,6 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	};
 
 	public static final String POSTFIX = ".jpg";
-
-	private transient Element element;
 
 	@DatabaseField(id = true, columnName = "_id")
 	private UUID id;
@@ -61,15 +59,15 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	// ItemSpecification yet. All these collections will be merged into
 	// itemSpecs which is used by the app
 	@ForeignCollectionField(eager = true)
-	private Collection<Weapon> weaponSpecsHelper = new ArrayList<Weapon>();
+	private ForeignCollection<Weapon> weaponSpecsHelper;
 	@ForeignCollectionField(eager = true)
-	private Collection<Shield> shieldSpecsHelper = new ArrayList<Shield>();
+	private ForeignCollection<Shield> shieldSpecsHelper;
 	@ForeignCollectionField(eager = true)
-	private Collection<DistanceWeapon> distanceWeaponSpecsHelper = new ArrayList<DistanceWeapon>();
+	private ForeignCollection<DistanceWeapon> distanceWeaponSpecsHelper;
 	@ForeignCollectionField(eager = true)
-	private Collection<Armor> armorSpecsHelper = new ArrayList<Armor>();
+	private ForeignCollection<Armor> armorSpecsHelper;
 	@ForeignCollectionField(eager = true)
-	private Collection<MiscSpecification> miscSpecsHelper = new ArrayList<MiscSpecification>();
+	private ForeignCollection<MiscSpecification> miscSpecsHelper;
 
 	private List<ItemSpecification> itemSpecs;
 
@@ -77,10 +75,15 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 
 	private Boolean hasCardImage;
 	private File imageFile;
+	private int count;
+	private String slot;
 
 	public Item() {
 		id = UUID.randomUUID();
 		itemInfo = new ItemLocationInfo();
+
+		slot = "0";
+		count = 1;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -101,9 +104,6 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		}
 		itemSpecification.setVersion(version);
 
-		if (element != null) {
-			itemSpecification.setElement(element);
-		}
 		itemSpecs.add(itemSpecification);
 
 		if (itemSpecification.getType() != null) {
@@ -111,28 +111,21 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 				itemTypes = ";";
 			itemTypes = itemTypes.concat(itemSpecification.getType().name() + ";");
 		}
-
-		if (itemSpecification instanceof Weapon) {
-			weaponSpecsHelper.add((Weapon) itemSpecification);
-		} else if (itemSpecification instanceof Shield) {
-			shieldSpecsHelper.add((Shield) itemSpecification);
-		} else if (itemSpecification instanceof DistanceWeapon) {
-			distanceWeaponSpecsHelper.add((DistanceWeapon) itemSpecification);
-		} else if (itemSpecification instanceof Armor) {
-			armorSpecsHelper.add((Armor) itemSpecification);
-		} else if (itemSpecification instanceof MiscSpecification) {
-			miscSpecsHelper.add((MiscSpecification) itemSpecification);
-		}
 	}
 
 	public List<ItemSpecification> getSpecifications() {
 		if (itemSpecs == null) {
 			itemSpecs = new ArrayList<ItemSpecification>();
-			itemSpecs.addAll(weaponSpecsHelper);
-			itemSpecs.addAll(shieldSpecsHelper);
-			itemSpecs.addAll(distanceWeaponSpecsHelper);
-			itemSpecs.addAll(armorSpecsHelper);
-			itemSpecs.addAll(miscSpecsHelper);
+			if (weaponSpecsHelper != null)
+				itemSpecs.addAll(weaponSpecsHelper);
+			if (shieldSpecsHelper != null)
+				itemSpecs.addAll(shieldSpecsHelper);
+			if (distanceWeaponSpecsHelper != null)
+				itemSpecs.addAll(distanceWeaponSpecsHelper);
+			if (armorSpecsHelper != null)
+				itemSpecs.addAll(armorSpecsHelper);
+			if (miscSpecsHelper != null)
+				itemSpecs.addAll(miscSpecsHelper);
 		}
 		return Collections.unmodifiableList(itemSpecs);
 	}
@@ -174,11 +167,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	}
 
 	public String getSlot() {
-		if (element != null) {
-			return element.getAttributeValue(Xml.KEY_SLOT);
-		} else {
-			return null;
-		}
+		return slot;
 	}
 
 	/*
@@ -198,41 +187,20 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 			return getName();
 	}
 
-	public Element getElement() {
-		return element;
-	}
-
-	public void setElement(Element element) {
-		this.element = element;
-		this.itemInfo.setElement(element);
-
-		Element domallgemein = element.getChild(Xml.KEY_MOD_ALLGEMEIN);
-		if (domallgemein != null) {
-			Element name = domallgemein.getChild(Xml.KEY_NAME);
-			if (name != null) {
-				title = name.getAttributeValue(Xml.KEY_VALUE);
-			}
-		}
-
-		for (ItemSpecification specification : getSpecifications()) {
-			specification.setElement(element);
-		}
-	}
-
 	public String getCategory() {
 		return category;
 	}
 
 	public int getCount() {
-		Integer count = 1;
-
-		if (element != null) {
-			count = Util.parseInt(element.getAttributeValue(Xml.KEY_ANZAHL));
-			if (count == null)
-				count = 1;
-		}
-
 		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
+	}
+
+	public void setSlot(String slot) {
+		this.slot = slot;
 	}
 
 	public String getPath() {
@@ -241,6 +209,10 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 
 	public void setCategory(String category) {
 		this.category = category;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	public void setPath(String path) {
@@ -362,10 +334,21 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		return itemInfo;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return name;
+	}
+
 	public Item duplicate() {
 		Item item = null;
 		try {
 			item = (Item) clone();
+
 			item.id = UUID.randomUUID();
 		} catch (CloneNotSupportedException e) {
 			Debug.error(e);
@@ -382,7 +365,36 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	public Object clone() throws CloneNotSupportedException {
 		Item item = (Item) super.clone();
 		item.itemInfo = (ItemLocationInfo) itemInfo.clone();
+
+		item.itemSpecs = new ArrayList<ItemSpecification>(getSpecifications().size());
+
+		for (ItemSpecification specification : getSpecifications()) {
+			item.itemSpecs.add(specification.clone());
+		}
+
+		item.weaponSpecsHelper = null;
+		item.shieldSpecsHelper = null;
+		item.distanceWeaponSpecsHelper = null;
+		item.armorSpecsHelper = null;
+		item.miscSpecsHelper = null;
+
 		return item;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
+	 */
+	@Override
+	public void populateXml(Element element) {
+
+		element.setAttribute(Xml.KEY_NAME, getName());
+		element.setAttribute(Xml.KEY_ANZAHL, Integer.toString(count));
+		element.setAttribute(Xml.KEY_SLOT, slot);
+
+		if (itemInfo != null)
+			itemInfo.populateXml(element);
 	}
 
 }

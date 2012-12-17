@@ -18,13 +18,19 @@ package com.dsatab.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.app.ActionBar;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
+import com.dsatab.fragment.NotesEditFragment;
 import com.dsatab.fragment.NotesEditFragment.OnNotesEditListener;
 
 public class NotesEditActivity extends BaseFragmentActivity implements OnNotesEditListener {
+
+	private NotesEditFragment fragment;
 
 	/*
 	 * (non-Javadoc)
@@ -38,28 +44,36 @@ public class NotesEditActivity extends BaseFragmentActivity implements OnNotesEd
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_notes_edit);
 
-		getSupportActionBar().setDisplayShowTitleEnabled(true);
-		getSupportActionBar().setDisplayShowHomeEnabled(true);
-		getSupportActionBar().setDisplayUseLogoEnabled(true);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setHomeButtonEnabled(true);
-	}
+		fragment = (NotesEditFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_notes_edit);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected
-	 * (com.actionbarsherlock.view.MenuItem)
-	 */
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == android.R.id.home) {
-			onNoteCanceled();
-			return true;
-		} else {
-			return super.onOptionsItemSelected(item);
-		}
+		// Inflate a "Done/Discard" custom action bar view.
+		LayoutInflater inflater = LayoutInflater.from(this);
+		final View customActionBarView = inflater.inflate(R.layout.actionbar_custom_view_done_discard, null);
+		customActionBarView.findViewById(R.id.actionbar_done).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent();
+				intent.putExtras(fragment.accept());
+				setResult(RESULT_OK, intent);
+				finish();
+			}
+		});
+		customActionBarView.findViewById(R.id.actionbar_discard).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				fragment.cancel();
+				setResult(RESULT_CANCELED);
+				finish();
+			}
+		});
+
+		// Show the custom action bar view and hide the normal Home icon and
+		// title.
+		final ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM
+				| ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+		actionBar.setCustomView(customActionBarView, new ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+				ViewGroup.LayoutParams.MATCH_PARENT));
 	}
 
 	/*
@@ -71,8 +85,6 @@ public class NotesEditActivity extends BaseFragmentActivity implements OnNotesEd
 	 */
 	@Override
 	public void onNoteCanceled() {
-		setResult(RESULT_CANCELED);
-		finish();
 	}
 
 	/*
@@ -84,10 +96,6 @@ public class NotesEditActivity extends BaseFragmentActivity implements OnNotesEd
 	 */
 	@Override
 	public void onNoteSaved(Bundle data) {
-		Intent intent = new Intent();
-		intent.putExtras(data);
-		setResult(RESULT_OK, intent);
-		finish();
 	}
 
 }

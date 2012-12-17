@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <group android:id="@+id/group_note_list" >
+        <item
+            android:id="@+id/option_edit"
+            android:icon="@drawable/ic_menu_edit"
+            android:showAsAction="withText|always"
+            android:title="Bearbeiten"/>
+        <item
+            android:id="@+id/option_delete"
+            android:icon="@drawable/ic_menu_delete"
+            android:showAsAction="withText|always"
+            android:title="Löschen"/>
+    </group>
+
+</menu>

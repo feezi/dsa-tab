@@ -1,22 +1,17 @@
 package com.dsatab.data;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.xml.Xml;
 
-public class Attribute extends BaseProbe implements Value, XmlWriteable {
+public class Attribute extends BaseProbe implements Value, XmlWriteable, Cloneable {
 
 	/**
 	 * 
 	 */
 	private static final String CONSTANT_BE = "BE";
-	/**
-	 * 
-	 */
-
-	private Element element;
 
 	protected AttributeType type;
 
@@ -24,32 +19,25 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable {
 
 	protected Integer referenceValue;
 
-	protected transient Integer originalBaseValue;
-	protected transient Integer currentBaseValue;
-	protected transient Integer value;
-	protected transient Integer coreValue;
-	protected transient String name;
+	protected Integer originalBaseValue;
+	protected Integer currentBaseValue;
+	protected Integer value;
+	protected Integer mod;
+	protected Integer coreValue;
+	protected String name;
 
 	private boolean lazyInit = false;
 
-	public Attribute(Element element, Hero hero) {
-		this(element, null, hero);
+	public Attribute(Hero hero) {
+		this.hero = hero;
 	}
 
-	public Attribute(Element element, AttributeType defaultType, Hero hero) {
-		this.element = element;
-		this.hero = hero;
-		this.type = defaultType;
-		if (element != null) {
-			this.name = element.getAttributeValue(Xml.KEY_NAME);
-			if (this.type == null) {
-				this.type = AttributeType.valueOf(element.getAttributeValue(Xml.KEY_NAME));
-			}
-			if (isDSATabValue()) {
-				value = Util.parseInt(element.getAttributeValue(Xml.KEY_DSATAB_VALUE));
-			}
-		}
+	public AttributeType getType() {
+		return type;
+	}
 
+	public void setType(AttributeType type) {
+		this.type = type;
 		if (this.type != null) {
 			if (this.type == AttributeType.Ausweichen) {
 				probeInfo.setErschwernis(0);
@@ -58,11 +46,6 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable {
 				probeInfo.applyBePattern(CONSTANT_BE);
 			}
 		}
-
-	}
-
-	public AttributeType getType() {
-		return type;
 	}
 
 	public Hero getHero() {
@@ -93,18 +76,37 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable {
 
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	private void lazyInit() {
 		if (lazyInit)
 			return;
 
-		if (value == null) {
-			value = getCoreValue();
+		if (value != null && mod != null) {
+
+			// value and mod of 0 means not able to use it
+			if ((type == AttributeType.Karmaenergie || type == AttributeType.Astralenergie
+					|| type == AttributeType.Karmaenergie_Total || type == AttributeType.Astralenergie_Total)
+					&& value == 0 && mod == 0) {
+
+				if ((type == AttributeType.Astralenergie || type == AttributeType.Astralenergie_Total)
+						&& hero.hasFeature(Advantage.MAGIEDILLETANT)) {
+					value = 0;
+				} else {
+					value = null;
+				}
+			} else {
+				value += mod;
+			}
 		}
 
-		if (this.type == AttributeType.Astralenergie || this.type == AttributeType.Karmaenergie) {
-			if (getCoreValue() == null)
-				value = null;
-		}
+		if (value != null)
+			value += getBaseValue();
+		if (getReferenceValue() == null)
+			setReferenceValue(value);
+
 		lazyInit = true;
 	}
 
@@ -122,61 +124,20 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable {
 	}
 
 	public Integer getValue() {
-		lazyInit();
+		if (!lazyInit)
+			lazyInit();
 		return value;
 	}
 
-	private Integer getCoreValue() {
-		if (coreValue == null) {
-
-			org.jdom.Attribute valueAttribute = element.getAttribute(Xml.KEY_VALUE);
-
-			if (valueAttribute != null) {
-				coreValue = Integer.parseInt(valueAttribute.getValue());
-				int mod = 0;
-
-				org.jdom.Attribute modAttribute = element.getAttribute(Xml.KEY_MOD);
-				if (modAttribute != null && Util.isNotBlank(modAttribute.getValue()))
-					mod = Integer.parseInt(modAttribute.getValue());
-
-				// value and mod of 0 means not able to use it
-				if ((type == AttributeType.Karmaenergie || type == AttributeType.Astralenergie) && coreValue == 0
-						&& mod == 0) {
-
-					if (type == AttributeType.Astralenergie && hero.hasFeature(Advantage.MAGIEDILLETANT)) {
-						coreValue = 0;
-					} else {
-						coreValue = null;
-					}
-				} else {
-					coreValue += mod;
-				}
-
-			} else {
-				if (getType() == AttributeType.Ausweichen) {
-
-					coreValue = 0;
-					if (hero.hasFeature(SpecialFeature.AUSWEICHEN_1))
-						coreValue += 3;
-					if (hero.hasFeature(SpecialFeature.AUSWEICHEN_2))
-						coreValue += 3;
-					if (hero.hasFeature(SpecialFeature.AUSWEICHEN_3))
-						coreValue += 3;
-
-					Talent athletik = hero.getTalent(Talent.ATHLETIK);
-					if (athletik != null && athletik.getValue() >= 9) {
-						coreValue += (athletik.getValue() - 9) / 3;
-					}
-				}
-			}
-		}
-		if (coreValue != null)
-			return coreValue + getBaseValue();
-		else
-			return null;
+	public Integer getMod() {
+		return mod;
 	}
 
-	public void populateXml() {
+	public void setMod(Integer mod) {
+		this.mod = mod;
+	}
+
+	public void populateXml(Element element) {
 		if (element != null) {
 			if (getValue() != null) {
 				if (isDSATabValue()) {
@@ -195,14 +156,13 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable {
 	}
 
 	public void setValue(Integer value) {
-		Integer oldValue = getValue();
-		this.value = value;
-
-		if (oldValue != this.value)
+		if (!Util.equalsOrNull(this.value, value)) {
+			this.value = value;
 			hero.fireValueChangedEvent(this);
+		}
 	}
 
-	private boolean isDSATabValue() {
+	public boolean isDSATabValue() {
 		return type == AttributeType.Lebensenergie || type == AttributeType.Karmaenergie
 				|| type == AttributeType.Astralenergie || type == AttributeType.Ausdauer
 				|| type == AttributeType.Ausweichen;
@@ -225,6 +185,23 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable {
 		} else {
 			return false;
 		}
+	}
+
+	public boolean checkValue() {
+		boolean changed = false;
+		Integer value = getValue();
+		if (value != null) {
+			int max = getMaximum();
+			int min = getMinimum();
+			if (value > max) {
+				setValue(max);
+				changed = true;
+			} else if (value < min) {
+				setValue(min);
+				changed = true;
+			}
+		}
+		return changed;
 	}
 
 	public int getBaseValue() {
@@ -343,9 +320,6 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable {
 		case Behinderung:
 			return hero.getArmorBe();
 		default:
-			if (referenceValue == null)
-				referenceValue = getCoreValue();
-
 			return referenceValue;
 		}
 	}
@@ -406,5 +380,20 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable {
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Attribute clone() {
+		try {
+			return (Attribute) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

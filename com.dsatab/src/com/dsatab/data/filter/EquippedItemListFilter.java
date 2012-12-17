@@ -46,7 +46,7 @@ public class EquippedItemListFilter extends OpenFilter<EquippedItem> {
 	}
 
 	protected boolean isFilterSet() {
-		return constraint != null || (settings != null && !settings.isAllVisible());
+		return constraint != null || (settings != null && !settings.isShowArmor());
 	}
 
 	public boolean filter(EquippedItem m) {

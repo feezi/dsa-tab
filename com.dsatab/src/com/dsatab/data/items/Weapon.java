@@ -1,9 +1,5 @@
 package com.dsatab.data.items;
 
-import java.util.List;
-
-import org.jdom.Element;
-
 import android.text.TextUtils;
 
 import com.dsatab.DSATabApplication;
@@ -11,7 +7,6 @@ import com.dsatab.R;
 import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.common.Util;
 import com.dsatab.data.Dice;
-import com.dsatab.xml.Xml;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -51,55 +46,6 @@ public class Weapon extends CloseCombatItem {
 	 */
 	public Weapon(Item item) {
 		super(item, ItemType.Waffen, 0);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.items.Item#setElement(org.jdom.Element)
-	 */
-	@Override
-	public void setElement(Element element) {
-
-		@SuppressWarnings("unchecked")
-		List<Element> waffen = element.getChildren(Xml.KEY_NAHKAMPWAFFE);
-
-		for (Element waffe : waffen) {
-
-			if (waffe.getAttribute(Xml.KEY_VARIANTE) != null) {
-
-				int variante = Util.parseInt(waffe.getAttributeValue(Xml.KEY_VARIANTE));
-				if (variante == version) {
-					Element trefferpunkte = waffe.getChild(Xml.KEY_TREFFERPUNKTE);
-					if (trefferpunkte != null) {
-						String tp = trefferpunkte.getAttributeValue(Xml.KEY_TREFFERPUNKTE_MUL) + "W"
-								+ trefferpunkte.getAttributeValue(Xml.KEY_TREFFERPUNKTE_DICE) + "+"
-								+ trefferpunkte.getAttributeValue(Xml.KEY_TREFFERPUNKTE_SUM);
-						setTp(tp);
-					}
-
-					Element tpKK = waffe.getChild(Xml.KEY_TREFFERPUNKTE_KK);
-					if (tpKK != null) {
-						setTpKKMin(Util.parseInt(tpKK.getAttributeValue(Xml.KEY_TREFFERPUNKTE_KK_MIN)));
-						setTpKKStep(Util.parseInt(tpKK.getAttributeValue(Xml.KEY_TREFFERPUNKTE_KK_STEP)));
-					}
-					Element wm = waffe.getChild(Xml.KEY_WAFFENMODIF);
-					if (wm != null) {
-						setWmAt(Util.parseInt(wm.getAttributeValue(Xml.KEY_WAFFENMODIF_AT)));
-						setWmPa(Util.parseInt(wm.getAttributeValue(Xml.KEY_WAFFENMODIF_PA)));
-					}
-					Element bf = waffe.getChild(Xml.KEY_BRUCHFAKTOR);
-					if (bf != null) {
-						setBf(Util.parseInt(bf.getAttributeValue(Xml.KEY_BRUCHFAKTOR_AKT)));
-					}
-					Element ini = waffe.getChild(Xml.KEY_INI_MOD);
-					if (ini != null) {
-						setIni(Util.parseInt(ini.getAttributeValue(Xml.KEY_INI_MOD_INI)));
-					}
-				}
-			}
-
-		}
 	}
 
 	public String getTp() {

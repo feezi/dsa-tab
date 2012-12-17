@@ -19,9 +19,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import yuku.iconcontextmenu.IconContextMenu.IconContextMenuInfo;
 import android.app.Activity;
@@ -45,6 +43,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.dsatab.R;
@@ -52,6 +51,7 @@ import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.common.Util;
 import com.dsatab.data.Advantage;
 import com.dsatab.data.Attribute;
+import com.dsatab.data.Experience;
 import com.dsatab.data.Hero;
 import com.dsatab.data.HeroBaseInfo;
 import com.dsatab.data.SpecialFeature;
@@ -62,7 +62,7 @@ import com.dsatab.util.Debug;
 import com.dsatab.view.PortraitChooserDialog;
 import com.dsatab.view.PortraitViewDialog;
 
-public class CharacterFragment extends BaseFragment implements OnClickListener {
+public class CharacterFragment extends BaseAttributesFragment implements OnClickListener {
 
 	private static final String PREF_SHOW_FEATURE_COMMENTS = "SHOW_COMMENTS";
 	private static final String PREF_SHOW_BASEINFO = "SHOW_BASEINFO";
@@ -71,7 +71,9 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 	private static final int ACTION_GALERY = 2;
 	private static final int CONTEXTMENU_COMMENTS_TOGGLE = 14;
 
-	private TextView tfSpecialFeatures, tfExperience, tfTotalLp, tfTotalAu, tfTotalAe, tfTotalKe, tfGs, tfWs;
+	private TextView tfSpecialFeatures, tfSpecialFeaturesTitle, tfAdvantages, tfAdvantagesTitle, tfDisadvantages,
+			tfDisadvantgesTitle;
+	private TextView tfExperience, tfTotalLe, tfTotalAu, tfTotalAe, tfTotalKe, tfAT, tfPA, tfFK, tfINI, tfBE, tfST;
 
 	private View charAttributesList;
 
@@ -79,7 +81,12 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 
 	private ImageView portraitView;
 
-	private Map<Value, TextView[]> tfValues = new HashMap<Value, TextView[]>(50);
+	/**
+	 * 
+	 */
+	public CharacterFragment() {
+		this.inverseColors = false;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -99,13 +106,25 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 
 		tfTotalAe = (TextView) root.findViewById(R.id.attr_total_ae);
 		tfTotalKe = (TextView) root.findViewById(R.id.attr_total_ke);
-		tfTotalLp = (TextView) root.findViewById(R.id.attr_total_lp);
+		tfTotalLe = (TextView) root.findViewById(R.id.attr_total_le);
 		tfTotalAu = (TextView) root.findViewById(R.id.attr_total_au);
 
-		tfGs = (TextView) root.findViewById(R.id.attr_gs);
-		tfWs = (TextView) root.findViewById(R.id.attr_ws);
+		tfAT = (TextView) root.findViewById(R.id.attr_at);
+		tfPA = (TextView) root.findViewById(R.id.attr_pa);
+		tfFK = (TextView) root.findViewById(R.id.attr_fk);
+		tfINI = (TextView) root.findViewById(R.id.attr_ini);
+
+		tfBE = (TextView) root.findViewById(R.id.attr_be);
+		tfST = (TextView) root.findViewById(R.id.attr_st);
 
 		tfSpecialFeatures = (TextView) root.findViewById(R.id.gen_specialfeatures);
+		tfSpecialFeaturesTitle = (TextView) root.findViewById(R.id.gen_specialfeatures_title);
+
+		tfAdvantages = (TextView) root.findViewById(R.id.gen_advantages);
+		tfAdvantagesTitle = (TextView) root.findViewById(R.id.gen_advantages_title);
+
+		tfDisadvantages = (TextView) root.findViewById(R.id.gen_disadvantages);
+		tfDisadvantgesTitle = (TextView) root.findViewById(R.id.gen_disadvantages_title);
 
 		portraitView = (ImageView) root.findViewById(R.id.gen_portrait);
 		return root;
@@ -363,69 +382,57 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 			return;
 		}
 
-		TextView[] tvs = tfValues.get(value);
-		if (tvs != null) {
-			for (TextView tf : tvs) {
-				Util.setText(tf, value);
-			}
-		}
-
 		if (value instanceof Attribute) {
 			Attribute attr = (Attribute) value;
 
 			switch (attr.getType()) {
 			case Lebensenergie:
-				fillAttributeValue((TextView) findViewById(R.id.attr_lp), AttributeType.Lebensenergie);
+				fillAttributeValue(tfLE, attr);
 				break;
 			case Lebensenergie_Total:
-				fillAttributeValue((TextView) findViewById(R.id.attr_lp), AttributeType.Lebensenergie);
-				fillAttributeValue(tfTotalLp, AttributeType.Lebensenergie_Total);
+				fillAttributeValue(tfTotalLe, attr);
 				break;
 			case Astralenergie:
-				fillAttributeValue((TextView) findViewById(R.id.attr_ae), AttributeType.Astralenergie);
+				fillAttributeValue(tfAE, attr);
 				break;
 			case Astralenergie_Total:
-				fillAttributeValue((TextView) findViewById(R.id.attr_ae), AttributeType.Astralenergie);
-				fillAttributeValue(tfTotalAe, AttributeType.Astralenergie_Total);
+				fillAttributeValue(tfTotalAe, attr);
 				break;
 			case Ausdauer:
-				fillAttributeValue((TextView) findViewById(R.id.attr_au), AttributeType.Ausdauer);
+				fillAttributeValue(tfAU, attr);
 				break;
 			case Ausdauer_Total:
-				fillAttributeValue((TextView) findViewById(R.id.attr_au), AttributeType.Ausdauer);
-				fillAttributeValue(tfTotalAu, AttributeType.Ausdauer_Total);
+				fillAttributeValue(tfTotalAu, attr);
 				break;
 			case Karmaenergie:
-				fillAttributeValue((TextView) findViewById(R.id.attr_ke), AttributeType.Karmaenergie);
+				fillAttributeValue(tfKE, attr);
 				break;
 			case Karmaenergie_Total:
-				fillAttributeValue((TextView) findViewById(R.id.attr_ke), AttributeType.Karmaenergie);
-				fillAttributeValue(tfTotalKe, AttributeType.Karmaenergie_Total);
+				fillAttributeValue(tfTotalKe, attr);
 				break;
 			case Magieresistenz:
-				fillAttributeValue((TextView) findViewById(R.id.attr_mr), AttributeType.Magieresistenz);
+				fillAttributeValue(tfMR, attr);
 				break;
 			case Sozialstatus:
-				fillAttributeValue((TextView) findViewById(R.id.attr_so), AttributeType.Sozialstatus);
+				fillAttributeValue(tfSO, attr);
 				break;
 			case at:
-				fillAttributeValue((TextView) findViewById(R.id.attr_at), AttributeType.at);
+				fillAttributeValue(tfAT, attr);
 				break;
 			case pa:
-				fillAttributeValue((TextView) findViewById(R.id.attr_pa), AttributeType.pa);
+				fillAttributeValue(tfPA, attr);
 				break;
 			case fk:
-				fillAttributeValue((TextView) findViewById(R.id.attr_fk), AttributeType.fk);
+				fillAttributeValue(tfFK, attr);
 				break;
 			case ini:
-				fillAttributeValue((TextView) findViewById(R.id.attr_ini), AttributeType.ini);
+				fillAttributeValue(tfINI, attr);
 				break;
 			case Behinderung:
-				fillAttributeValue((TextView) findViewById(R.id.attr_be), AttributeType.Behinderung);
-				fillAttributeValue(tfGs, AttributeType.Geschwindigkeit);
+				fillAttributeValue(tfBE, attr);
 				break;
 			case Geschwindigkeit:
-				fillAttributeValue(tfGs, AttributeType.Geschwindigkeit);
+				fillAttributeValue(tfGS, attr);
 				break;
 			case Gewandtheit:
 			case Mut:
@@ -435,13 +442,15 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 			case Fingerfertigkeit:
 			case Konstitution:
 			case Charisma:
-				fillAttribute(charAttributesList, attr);
+				fillAttribute(attr, false);
 				break;
 			default:
 				// do nothing
 				break;
 			}
 
+		} else if (value instanceof Experience) {
+			Util.setText(tfExperience, value);
 		}
 	}
 
@@ -458,14 +467,20 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 
 		Util.setText(tfExperience, hero.getExperience(), null);
 		tfExperience.setTag(hero.getExperience());
-		tfValues.put(hero.getExperience(), new TextView[] { tfExperience });
 
-		fillAttributeValue((TextView) findViewById(R.id.attr_ae), AttributeType.Astralenergie);
-		fillAttributeValue((TextView) findViewById(R.id.attr_au), AttributeType.Ausdauer);
-		fillAttributeValue((TextView) findViewById(R.id.attr_ke), AttributeType.Karmaenergie);
-		fillAttributeValue((TextView) findViewById(R.id.attr_lp), AttributeType.Lebensenergie);
-		fillAttributeValue((TextView) findViewById(R.id.attr_mr), AttributeType.Magieresistenz);
-		fillAttributeValue((TextView) findViewById(R.id.attr_so), AttributeType.Sozialstatus);
+		TextView tfExperienceLabel = (TextView) findViewById(R.id.attr_abp_label);
+		tfExperienceLabel.setTag(hero.getExperience());
+		tfExperienceLabel.setOnLongClickListener(getBaseActivity().getEditListener());
+
+		fillAttributeValue(tfAE, AttributeType.Astralenergie);
+		fillAttributeValue(tfAU, AttributeType.Ausdauer);
+		fillAttributeValue(tfKE, AttributeType.Karmaenergie);
+		fillAttributeValue(tfLE, AttributeType.Lebensenergie);
+		fillAttributeValue(tfMR, AttributeType.Magieresistenz);
+		fillAttributeValue(tfSO, AttributeType.Sozialstatus);
+
+		fillAttributeLabel(tfLabelMR, AttributeType.Magieresistenz);
+		fillAttributeLabel(tfLabelSO, AttributeType.Sozialstatus);
 
 		fillAttributeLabel((TextView) findViewById(R.id.attr_at_label), AttributeType.at);
 		fillAttributeLabel((TextView) findViewById(R.id.attr_pa_label), AttributeType.pa);
@@ -473,7 +488,7 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 		fillAttributeLabel((TextView) findViewById(R.id.attr_ini_label), AttributeType.ini);
 		fillAttributeLabel((TextView) findViewById(R.id.attr_be_label), AttributeType.Behinderung);
 
-		fillAttributeValue(tfTotalLp, AttributeType.Lebensenergie_Total);
+		fillAttributeValue(tfTotalLe, AttributeType.Lebensenergie_Total);
 		fillAttributeValue(tfTotalAu, AttributeType.Ausdauer_Total);
 
 		if (hero.getAttributeValue(AttributeType.Karmaenergie) == null) {
@@ -490,10 +505,10 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 			findViewById(R.id.row_ae).setVisibility(View.VISIBLE);
 		}
 
-		Util.setText((TextView) findViewById(R.id.attr_st), hero.getLevel(), 0, null);
+		Util.setText(tfST, hero.getLevel(), 0, null);
 
 		int[] ws = hero.getWundschwelle();
-		tfWs.setText(ws[0] + "/" + ws[1] + "/" + ws[2]);
+		tfWS.setText(ws[0] + "/" + ws[1] + "/" + ws[2]);
 
 		updateBaseInfo(false);
 		//
@@ -506,18 +521,21 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 		portrait.setOnClickListener(this);
 		updatePortrait(hero);
 
+		TableLayout attribute2 = (TableLayout) findViewById(R.id.gen_attributes2);
+		Util.applyRowStyle(attribute2);
+
 	}
 
 	protected void updateValues() {
 		fillAttributesList(charAttributesList);
 
-		fillAttributeValue(tfGs, AttributeType.Geschwindigkeit);
+		fillAttributeValue(tfGS, AttributeType.Geschwindigkeit);
 
-		fillAttributeValue((TextView) findViewById(R.id.attr_at), AttributeType.at, false);
-		fillAttributeValue((TextView) findViewById(R.id.attr_pa), AttributeType.pa, false);
-		fillAttributeValue((TextView) findViewById(R.id.attr_fk), AttributeType.fk, false);
-		fillAttributeValue((TextView) findViewById(R.id.attr_ini), AttributeType.ini, false);
-		fillAttributeValue((TextView) findViewById(R.id.attr_be), AttributeType.Behinderung);
+		fillAttributeValue(tfAT, AttributeType.at, false);
+		fillAttributeValue(tfPA, AttributeType.pa, false);
+		fillAttributeValue(tfFK, AttributeType.fk, false);
+		fillAttributeValue(tfINI, AttributeType.ini, false);
+		fillAttributeValue(tfBE, AttributeType.Behinderung);
 	}
 
 	protected void updateBaseInfo(boolean animate) {
@@ -593,6 +611,27 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 			portraitView.setImageResource(R.drawable.profile_blank);
 	}
 
+	protected void fillAttributesList(View view) {
+
+		fillAttributeValue(tfMU, AttributeType.Mut);
+		fillAttributeValue(tfKL, AttributeType.Klugheit);
+		fillAttributeValue(tfIN, AttributeType.Intuition);
+		fillAttributeValue(tfCH, AttributeType.Charisma);
+		fillAttributeValue(tfFF, AttributeType.Fingerfertigkeit);
+		fillAttributeValue(tfGE, AttributeType.Gewandtheit, false);
+		fillAttributeValue(tfKO, AttributeType.Konstitution);
+		fillAttributeValue(tfKK, AttributeType.Körperkraft);
+
+		fillAttributeLabel(tfLabelMU, AttributeType.Mut);
+		fillAttributeLabel(tfLabelKL, AttributeType.Klugheit);
+		fillAttributeLabel(tfLabelIN, AttributeType.Intuition);
+		fillAttributeLabel(tfLabelCH, AttributeType.Charisma);
+		fillAttributeLabel(tfLabelFF, AttributeType.Fingerfertigkeit);
+		fillAttributeLabel(tfLabelGE, AttributeType.Gewandtheit);
+		fillAttributeLabel(tfLabelKO, AttributeType.Konstitution);
+		fillAttributeLabel(tfLabelKK, AttributeType.Körperkraft);
+	}
+
 	/**
 	 * @param hero
 	 */
@@ -603,8 +642,6 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 		StyleableSpannableStringBuilder stringBuilder = new StyleableSpannableStringBuilder();
 
 		if (!hero.getSpecialFeatures().isEmpty()) {
-			stringBuilder.appendBold(getString(R.string.specialfeatures));
-			stringBuilder.appendBold(": ");
 			boolean first = true;
 			for (SpecialFeature feature : hero.getSpecialFeatures().values()) {
 
@@ -621,15 +658,16 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 				}
 
 			}
-
+			tfSpecialFeaturesTitle.setVisibility(View.VISIBLE);
+			tfSpecialFeatures.setVisibility(View.VISIBLE);
+			tfSpecialFeatures.setText(stringBuilder);
+		} else {
+			tfSpecialFeatures.setVisibility(View.GONE);
+			tfSpecialFeaturesTitle.setVisibility(View.GONE);
 		}
 
 		if (!hero.getAdvantages().isEmpty()) {
-			if (stringBuilder.length() > 0)
-				stringBuilder.append("\n");
-			stringBuilder.appendBold(getString(R.string.advantages));
-			stringBuilder.appendBold(": ");
-
+			stringBuilder.clear();
 			boolean first = true;
 			for (Advantage advantage : hero.getAdvantages().values()) {
 
@@ -646,15 +684,16 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 				}
 
 			}
-
+			tfAdvantagesTitle.setVisibility(View.VISIBLE);
+			tfAdvantages.setVisibility(View.VISIBLE);
+			tfAdvantages.setText(stringBuilder);
+		} else {
+			tfAdvantages.setVisibility(View.GONE);
+			tfAdvantagesTitle.setVisibility(View.GONE);
 		}
 
 		if (!hero.getDisadvantages().isEmpty()) {
-			if (stringBuilder.length() > 0)
-				stringBuilder.append("\n");
-			stringBuilder.appendBold(getString(R.string.disadvantages));
-			stringBuilder.appendBold(": ");
-
+			stringBuilder.clear();
 			boolean first = true;
 			for (Advantage disadvantage : hero.getDisadvantages().values()) {
 
@@ -671,9 +710,14 @@ public class CharacterFragment extends BaseFragment implements OnClickListener {
 				}
 
 			}
+			tfDisadvantgesTitle.setVisibility(View.VISIBLE);
+			tfDisadvantages.setVisibility(View.VISIBLE);
+			tfDisadvantages.setText(stringBuilder);
+		} else {
+			tfDisadvantages.setVisibility(View.GONE);
+			tfDisadvantgesTitle.setVisibility(View.GONE);
 		}
 
-		tfSpecialFeatures.setText(stringBuilder);
 	}
 
 	/*

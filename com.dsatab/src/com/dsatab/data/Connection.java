@@ -18,7 +18,7 @@ package com.dsatab.data;
 
 import java.util.Comparator;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import com.dsatab.data.enums.EventCategory;
 import com.dsatab.xml.Xml;
@@ -27,7 +27,7 @@ import com.dsatab.xml.Xml;
  * @author Ganymede
  * 
  */
-public class Connection {
+public class Connection implements XmlWriteable {
 
 	public static Comparator<Connection> NAME_COMPARATOR = new Comparator<Connection>() {
 		@Override
@@ -36,52 +36,53 @@ public class Connection {
 		}
 	};
 
-	private Element element;
+	private String description, name, sozialStatus;
 
 	/**
 	 * 
 	 */
 	public Connection() {
-		this(new Element(Xml.KEY_VERBINDUNG));
-	}
 
-	/**
-	 * 
-	 */
-	public Connection(Element element) {
-		this.element = element;
 	}
 
 	public EventCategory getCategory() {
 		return EventCategory.Bekanntschaft;
 	}
 
-	public Element getElement() {
-		return element;
-	}
-
 	public String getDescription() {
-		return element.getAttributeValue(Xml.KEY_DESCRIPTION);
+		return description;
 	}
 
 	public void setDescription(String value) {
-		element.setAttribute(Xml.KEY_DESCRIPTION, value);
+		this.description = value;
 	}
 
 	public String getName() {
-		return element.getAttributeValue(Xml.KEY_NAME);
+		return name;
 	}
 
 	public void setName(String value) {
-		element.setAttribute(Xml.KEY_NAME, value);
+		this.name = value;
 	}
 
 	public String getSozialStatus() {
-		return element.getAttributeValue(Xml.KEY_SO);
+		return sozialStatus;
 	}
 
 	public void setSozialStatus(String value) {
-		element.setAttribute(Xml.KEY_SO, value);
+		this.sozialStatus = value;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
+	 */
+	@Override
+	public void populateXml(Element element) {
+		element.setAttribute(Xml.KEY_DESCRIPTION, description);
+		element.setAttribute(Xml.KEY_SO, sozialStatus);
+		element.setAttribute(Xml.KEY_NAME, name);
 	}
 
 }

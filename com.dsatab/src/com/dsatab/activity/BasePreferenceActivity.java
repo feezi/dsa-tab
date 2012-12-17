@@ -290,7 +290,7 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// setTheme(DSATabApplication.getInstance().getCustomPreferencesTheme());
+		setTheme(DSATabApplication.getInstance().getCustomPreferencesTheme());
 		super.onCreate(savedInstanceState);
 
 		SharedPreferences preferences = DSATabApplication.getPreferences();

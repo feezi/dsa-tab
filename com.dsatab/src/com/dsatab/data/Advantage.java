@@ -1,15 +1,12 @@
 package com.dsatab.data;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-
-import org.jdom.Element;
 
 import android.text.TextUtils;
 
 import com.dsatab.common.Util;
-import com.dsatab.xml.Xml;
 
 public class Advantage {
 
@@ -26,6 +23,8 @@ public class Advantage {
 	public static final String ENTFERNUNGSSINN = "Entfernungssinn";
 	public static final String MONDSUECHTIG = "Mondsüchtig";
 	public static final String BEIDHAENDIG = "Beidhändig";
+	public static final String GUTES_GEDAECHTNIS = "Gutes Gedächtnis";
+	public static final String EITELKEIT = "Eitelkeit";
 
 	public static final String MEISTERHANDWERK = "Meisterhandwerk";
 
@@ -39,7 +38,7 @@ public class Advantage {
 			"Ererbte Knochenkeule", "Feenfreund", FESTE_MATRIX, "Früher Vertrauter", "Flink", "Gebildet",
 			"Gefahreninstinkt", "Geräuschhexerei", "Geweiht [Angrosch]", "Geweiht [Gravesh]",
 			"Geweiht [nicht-alveranische Gottheit]", "Geweiht [H'Ranga]", "Geweiht [zwölfgöttliche Kirche]", "Glück",
-			"Glück im Spiel", "Gutaussehend", "Guter Ruf", "Gutes Gedächtnis", "Halbzauberer", "Herausragende Balance",
+			"Glück im Spiel", "Gutaussehend", "Guter Ruf", GUTES_GEDAECHTNIS, "Halbzauberer", "Herausragende Balance",
 			"Herausragende Eigenschaft", "Herausragender Sechster Sinn", "Herausragender Sinn",
 			"Herausragendes Aussehen", "Hitzeresistenz", "Hohe Lebenskraft", "Hohe Magieresistenz",
 			"Immunität gegen Gift", "Immunität gegen Krankheiten", "Innerer Kompass", "Kälteresistenz", "Kampfrausch",
@@ -59,7 +58,7 @@ public class Advantage {
 			"Arroganz", "Artefaktgebunden", "Astraler Block", "Autoritätsgläubig", "Behäbig", "Blutdurst",
 			"Blutrausch", "Brünstigkeit", "Charyptophilie", "Dunkelangst", "Elfische Weltsicht", "Einarmig",
 			"Einäugig", "Einbeinig", "Einbildungen", "Eingeschränkte Elementarnähe", "Eingeschränkter Sinn",
-			"Einhändig", "Eitelkeit", "Farbenblind", "Feind", "Feste Gewohnheit", "Festgefügtes Denken", "Fettleibig",
+			"Einhändig", EITELKEIT, "Farbenblind", "Feind", "Feste Gewohnheit", "Festgefügtes Denken", "Fettleibig",
 			"Fluch der Finsternis", "Geiz", "Gerechtigkeitswahn", "Gesucht", "Glasknochen", "Goldgier", "Grausamkeit",
 			"Größenwahn", "Heimwehkrank", "Herrschsucht", "Hitzeempfindlichkeit", "Höhenangst", "Impulsiv",
 			"Jagdfieber", "Jähzorn", "Kältestarre", "Kälteempfindlichkeit", "Kein Vertrauter", "Kleinwüchsig",
@@ -112,15 +111,13 @@ public class Advantage {
 		return Arrays.binarySearch(NACHTEILE, name) >= 0;
 	}
 
-	public Advantage(Element element) {
+	public Advantage() {
+		this.values = new ArrayList<String>();
+	}
 
-		this.name = element.getAttributeValue(Xml.KEY_NAME);
-		this.values = new LinkedList<String>();
-		String value = element.getAttributeValue(Xml.KEY_VALUE);
-		if (!TextUtils.isEmpty(value)) {
-			this.values.add(value);
-		}
-		this.comment = element.getAttributeValue(Xml.KEY_COMMENT);
+	public Advantage(String name) {
+		this();
+		this.name = name;
 	}
 
 	public String getName() {
@@ -131,9 +128,25 @@ public class Advantage {
 		return comment;
 	}
 
+	public List<String> getValues() {
+		return values;
+	}
+
+	public void setValues(List<String> values) {
+		this.values = values;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
 	public Integer getValue() {
 		if (values.size() == 1)
-			return Util.parseInt(values.get(0));
+			return Util.parseInteger(values.get(0));
 		else
 			return null;
 	}
@@ -157,6 +170,7 @@ public class Advantage {
 	}
 
 	public void addValue(String value) {
-		this.values.add(value);
+		if (!TextUtils.isEmpty(value))
+			this.values.add(value);
 	}
 }

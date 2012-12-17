@@ -16,7 +16,7 @@
  */
 package com.dsatab.data;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import com.dsatab.common.Util;
 import com.dsatab.xml.Xml;
@@ -25,25 +25,31 @@ import com.dsatab.xml.Xml;
  * 
  * 
  */
-public class EditableValue implements Value {
+public class EditableValue implements Value, XmlWriteable {
 
-	protected Element element;
 	private String name;
 
 	protected Hero hero;
 
-	private Integer minimum, maximum;
+	private Integer minimum, maximum, value;
+
+	public EditableValue(Hero hero, String name) {
+		this(hero, name, null);
+	}
 
 	/**
 	 * 
 	 */
-	public EditableValue(Hero hero, String name, Element e) {
+	public EditableValue(Hero hero, String name, Element element) {
 		this.hero = hero;
-		this.element = e;
+
 		this.name = name;
 
-		minimum = 0;
-		maximum = Integer.MAX_VALUE;
+		this.minimum = 0;
+		this.maximum = Integer.MAX_VALUE;
+		if (element != null) {
+			this.value = Util.parseInteger(element.getAttributeValue(Xml.KEY_VALUE));
+		}
 	}
 
 	/*
@@ -63,10 +69,7 @@ public class EditableValue implements Value {
 	 */
 	@Override
 	public Integer getValue() {
-		if (element.getAttribute(Xml.KEY_VALUE) != null)
-			return Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
-		else
-			return null;
+		return value;
 	}
 
 	/*
@@ -86,9 +89,9 @@ public class EditableValue implements Value {
 			if (maximum != null && value > maximum)
 				value = maximum;
 
-			element.setAttribute(Xml.KEY_VALUE, Util.toString(value));
+			this.value = value;
 		} else
-			element.setAttribute(Xml.KEY_VALUE, "");
+			this.value = null;
 
 		if (changed)
 			hero.fireValueChangedEvent(this);
@@ -148,6 +151,19 @@ public class EditableValue implements Value {
 	@Override
 	public Integer getReferenceValue() {
 		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
+	 */
+	@Override
+	public void populateXml(Element element) {
+		if (value != null) {
+			element.setAttribute(Xml.KEY_VALUE, Util.toString(value));
+		} else
+			element.removeAttribute(Xml.KEY_VALUE);
 	}
 
 }

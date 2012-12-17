@@ -16,13 +16,29 @@
  */
 package com.dsatab.view;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.dsatab.data.Markable;
 
 /**
  * 
  * 
  */
-public class FightFilterSettings implements FilterSettings {
+public class FightFilterSettings implements FilterSettings, Cloneable {
+
+	private static final long serialVersionUID = 2113054507904847696L;
+
+	private static final String FIELD_INCLUDE_MODIFIERS = "includeModifier";
+
+	private static final String FIELD_SHOW_ARMOR = "showArmor";
+
+	private static final String FIELD_SHOW_EVADE = "evade";
+
+	private static final String FIELD_SHOW_MODIFIER = "showModifier";
 
 	private boolean showArmor, showModifier, showEvade;
 
@@ -42,6 +58,58 @@ public class FightFilterSettings implements FilterSettings {
 		this.includeModifiers = incMod;
 	}
 
+	public FightFilterSettings(JSONObject jsonObject) {
+		this.showArmor = jsonObject.optBoolean(FIELD_SHOW_ARMOR);
+		this.showEvade = jsonObject.optBoolean(FIELD_SHOW_EVADE);
+		this.showModifier = jsonObject.optBoolean(FIELD_SHOW_MODIFIER);
+		this.includeModifiers = jsonObject.optBoolean(FIELD_INCLUDE_MODIFIERS);
+	}
+
+	/**
+	 * @param in
+	 */
+	public FightFilterSettings(Parcel in) {
+		boolean[] booleans = new boolean[4];
+		in.readBooleanArray(booleans);
+		showArmor = booleans[0];
+		showEvade = booleans[1];
+		showModifier = booleans[2];
+		includeModifiers = booleans[3];
+	}
+
+	/**
+	 * Creator for the Parcelable
+	 */
+	public static final Parcelable.Creator<FightFilterSettings> CREATOR = new Parcelable.Creator<FightFilterSettings>() {
+		public FightFilterSettings createFromParcel(Parcel in) {
+			return new FightFilterSettings(in);
+		}
+
+		public FightFilterSettings[] newArray(int size) {
+			return new FightFilterSettings[size];
+		}
+	};
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.os.Parcelable#describeContents()
+	 */
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.os.Parcelable#writeToParcel(android.os.Parcel, int)
+	 */
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeBooleanArray(new boolean[] { showArmor, showEvade, showModifier, includeModifiers });
+	}
+
 	public boolean isShowArmor() {
 		return showArmor;
 	}
@@ -54,7 +122,7 @@ public class FightFilterSettings implements FilterSettings {
 		return showModifier;
 	}
 
-	public void setShowModifier(boolean showFavorite) {
+	public void setShowModifiers(boolean showFavorite) {
 		this.showModifier = showFavorite;
 	}
 
@@ -108,6 +176,41 @@ public class FightFilterSettings implements FilterSettings {
 		this.showEvade = evade;
 		this.includeModifiers = incMod;
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.JSONable#toJSONObject()
+	 */
+	@Override
+	public JSONObject toJSONObject() throws JSONException {
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put(FIELD_INCLUDE_MODIFIERS, includeModifiers);
+		jsonObject.put(FIELD_SHOW_ARMOR, showArmor);
+		jsonObject.put(FIELD_SHOW_EVADE, showEvade);
+		jsonObject.put(FIELD_SHOW_MODIFIER, showModifier);
+		return jsonObject;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public FightFilterSettings clone() {
+		return new FightFilterSettings(showArmor, showModifier, showEvade, includeModifiers);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return getClass().getName() + " " + showArmor + " " + showEvade + " " + showModifier + " " + includeModifiers;
 	}
 
 }

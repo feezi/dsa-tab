@@ -4,19 +4,18 @@ import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.EnumSet;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import android.text.TextUtils;
 
 import com.dsatab.DSATabApplication;
-import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.util.Debug;
 import com.dsatab.xml.Xml;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.SelectArg;
 
-public class Spell extends MarkableElement implements Value, XmlWriteable {
+public class Spell extends MarkableElement implements Value {
 
 	public static final Comparator<Spell> NAME_COMPARATOR = new Comparator<Spell>() {
 		/*
@@ -66,16 +65,21 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 
 	}
 
-	public Spell(Hero hero, Element element) {
-		super(element);
+	public Spell(Hero hero) {
+		super();
 		this.hero = hero;
 
-		this.probeInfo.applyProbePattern(element.getAttributeValue(Xml.KEY_PROBE));
-		this.name = element.getAttributeValue(Xml.KEY_NAME);
-		this.value = Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
+		initQueries();
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 
 		Debug.warning("Searching for spell info :" + name);
-		initQueries();
 		nameArg.setValue(name);
 		this.info = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(SpellInfo.class)
 				.queryForFirst(nameQuery);
@@ -88,38 +92,6 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 			info = new SpellInfo();
 			info.setName(name);
 		}
-
-		if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_K)))
-			info.setComplexity(element.getAttributeValue(Xml.KEY_K));
-
-		if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_ZAUBERKOMMENTAR)))
-			info.setEffect(element.getAttributeValue(Xml.KEY_ZAUBERKOMMENTAR));
-
-		if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_KOSTEN)))
-			info.setCosts(element.getAttributeValue(Xml.KEY_KOSTEN));
-
-		if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_REICHWEITE)))
-			info.setRange(element.getAttributeValue(Xml.KEY_REICHWEITE));
-
-		if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_REPRESENTATION)))
-			info.setRepresentation(element.getAttributeValue(Xml.KEY_REPRESENTATION));
-
-		if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_WIRKUNGSDAUER)))
-			info.setEffectDuration(element.getAttributeValue(Xml.KEY_WIRKUNGSDAUER));
-
-		if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_ZAUBERDAUER)))
-			info.setCastDuration(element.getAttributeValue(Xml.KEY_ZAUBERDAUER));
-
-		this.comments = element.getAttributeValue(Xml.KEY_ANMERKUNGEN);
-		this.variant = element.getAttributeValue(Xml.KEY_VARIANTE);
-		if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_HAUSZAUBER))
-				&& Boolean.valueOf(element.getAttributeValue(Xml.KEY_HAUSZAUBER))) {
-			addFlag(Flags.Hauszauber);
-		}
-	}
-
-	public String getName() {
-		return name;
 	}
 
 	public boolean hasFlag(Flags flag) {
@@ -145,6 +117,10 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 
 	public void setZauberSpezialisierung(String zauberSpezialisierung) {
 		this.zauberSpezialisierung = zauberSpezialisierung;
+	}
+
+	public void setProbePattern(String pattern) {
+		this.probeInfo.applyProbePattern(pattern);
 	}
 
 	/*
@@ -195,10 +171,6 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 		return 25;
 	}
 
-	public Element getElement() {
-		return element;
-	}
-
 	public String getComments() {
 		if (TextUtils.isEmpty(comments))
 			return info != null ? info.getComments() : null;
@@ -208,9 +180,7 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 
 	public void setComments(String comment) {
 		this.comments = comment;
-		if (element != null) {
-			element.setAttribute(Xml.KEY_ANMERKUNGEN, comment);
-		}
+
 	}
 
 	public String getVariant() {
@@ -222,9 +192,6 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 
 	public void setVariant(String s) {
 		this.variant = s;
-		if (element != null) {
-			element.setAttribute(Xml.KEY_VARIANTE, s);
-		}
 	}
 
 	/*
@@ -233,13 +200,17 @@ public class Spell extends MarkableElement implements Value, XmlWriteable {
 	 * @see com.dsatab.data.XmlWriteable#populateXml()
 	 */
 	@Override
-	public void populateXml() {
-		if (element != null) {
-			if (value != null)
-				element.setAttribute(Xml.KEY_VALUE, Integer.toString(value));
-			else
-				element.removeAttribute(Xml.KEY_VALUE);
-		}
+	public void populateXml(Element element) {
+		super.populateXml(element);
+
+		if (value != null)
+			element.setAttribute(Xml.KEY_VALUE, Integer.toString(value));
+		else
+			element.removeAttribute(Xml.KEY_VALUE);
+
+		element.setAttribute(Xml.KEY_ANMERKUNGEN, comments);
+		element.setAttribute(Xml.KEY_VARIANTE, variant);
+
 	}
 
 }

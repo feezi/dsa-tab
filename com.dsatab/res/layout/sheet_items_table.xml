@@ -47,13 +47,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:layout_gravity="center">
             
-            <com.dsatab.view.GlossyImageButton android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:id="@+id/fight_set" android:src="@drawable/set" android:layout_gravity="center"/>
+            <ImageButton android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:id="@+id/fight_set" android:src="@drawable/set" android:layout_gravity="center"/>
         
 
             
         <Spinner android:layout_width="wrap_content" android:id="@+id/screen_set_button" android:layout_height="match_parent" android:layout_gravity="center"></Spinner>
         
-            <com.dsatab.view.GlossyImageButton android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:id="@+id/fight_inventory" android:src="@drawable/inventory" android:layout_gravity="center"/>
+            <ImageButton android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:id="@+id/fight_inventory" android:src="@drawable/inventory" android:layout_gravity="center"/>
         </LinearLayout>
         
     </FrameLayout>

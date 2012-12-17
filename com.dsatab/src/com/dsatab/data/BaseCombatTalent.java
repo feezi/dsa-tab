@@ -16,9 +16,6 @@
  */
 package com.dsatab.data;
 
-import java.util.Comparator;
-
-import org.jdom.Element;
 
 /**
  * 
@@ -26,27 +23,11 @@ import org.jdom.Element;
  */
 public abstract class BaseCombatTalent extends Talent implements CombatTalent {
 
-	public static final Comparator<BaseCombatTalent> NAME_COMPARATOR = new Comparator<BaseCombatTalent>() {
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-		 */
-		@Override
-		public int compare(BaseCombatTalent object1, BaseCombatTalent object2) {
-			return object1.getName().compareTo(object2.getName());
-		}
-
-	};
-
-	protected Element combatElement;
-
 	/**
 	 * 
 	 */
-	public BaseCombatTalent(Hero hero, Element element, Element combatElement) {
-		super(hero, element);
-		this.combatElement = combatElement;
+	public BaseCombatTalent(Hero hero) {
+		super(hero);
 	}
 
 }

@@ -1,34 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?> 
-<resources> 
+<resources xmlns:android="http://schemas.android.com/apk/res/android"> 
 	<style name="BorderPanel">
-    	<item name="android:background">@drawable/border_patch</item>
+    	<!-- <item name="android:background">@drawable/border_patch</item>
         <item name="android:paddingTop">5dp</item>
         <item name="android:paddingLeft">5dp</item>
         <item name="android:paddingRight">5dp</item>
         <item name="android:paddingBottom">5dp</item>
+         -->
     </style>
-    <style name="BorderPanel.Black" parent="@BorderPanel">
-    	<item name="android:background">@drawable/border_patch_black</item>        
-    </style>
-    
     <style name="Widget.ImageButton" parent="@android:style/Widget.ImageButton">    	
     	<item name="android:scaleType">fitCenter</item>    	        
         <item name="android:minWidth">@dimen/icon_button_size</item>
         <item name="android:minHeight">@dimen/icon_button_size</item>
         <item name="android:padding">2dp</item>
-    </style>
-    <style name="Widget.ImageButton.Glossy" parent="@Widget.ImageButton">
-    	<item name="android:background">@drawable/btn_glossy</item>    	
-    </style>
+    </style>    
     
     <style name="Widget.ImageButton.Plain" parent="@Widget.ImageButton">
     	<item name="android:background">@drawable/btn_plain</item>
     	<item name="android:padding">5dp</item>    	
-    </style>
-    
-    <style name="Widget.Button.Glossy" parent="@android:style/Widget.Button">
-    	<item name="android:background">@drawable/btn_glossy</item>
-        <item name="android:textColor">#FFFFFF</item>
     </style>
         
     <style name="Widget.Button.Plain" parent="@android:style/Widget.Button">
@@ -39,20 +28,28 @@
     <style name="TextValue" parent="@android:style/Widget.TextView">
         <item name="android:background">@drawable/btn_touch</item>
     	<item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
-    	<item name="android:minWidth">40dp</item>
-    	<item name="android:minHeight">40dp</item>
+    	<item name="android:minWidth">48dp</item>
+    	<item name="android:minHeight">48dp</item>
     	<item name="android:gravity">center</item>
         <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:layout_margin">2.5dp</item>
-        
-        <item name="android:ellipsize">end</item>
+		<item name="android:ellipsize">end</item>
+		<item name="android:layout_marginLeft">4dp</item>
+		<item name="android:layout_marginRight">4dp</item>
     </style>
+    
+    <style name="TextValue.Left">
+        <item name="android:background">@drawable/btn_touch_left</item>
+        <item name="android:layout_marginRight">0dp</item>        
+    </style>
+    <style name="TextValue.Right">
+        <item name="android:background">@drawable/btn_touch_right</item>
+        <item name="android:layout_marginLeft">0dp</item>        
+    </style>    
     
     <style name="TextValue.NoTouch">
         <item name="android:background">@null</item>
         <item name="android:minHeight">0dp</item>    	
         <item name="android:minWidth">0dp</item>
-        <item name="android:layout_margin">0dp</item>
     </style>
     
     <style name="TextValue.NoTouch.Inverse" >
@@ -64,7 +61,6 @@
     	<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
     	<item name="android:minWidth">30dp</item>
     	<item name="android:minHeight">25dp</item>
-        <item name="android:layout_margin">2dp</item>
     </style>
     
     <style name="TextValue.Small.Inverse">
@@ -88,6 +84,7 @@
     	<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:ellipsize">end</item>
+        <item name="android:layout_margin">4dp</item>
     </style>
     
     <style name="TextLabel.Inverse">
@@ -96,7 +93,14 @@
     </style>
             
     <style name="TextLabel.Small">
-    	<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>        
+    	<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+    	        
+    </style>
+    <style name="TextLabel.Mini">
+    	<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+    	<item name="android:textSize">9dp</item>
+    	<item name="android:textAllCaps">true</item>        
+    	<item name="android:gravity">right</item>
     </style>
     
     <style name="TextLabel.Small.Inverse">
@@ -128,43 +132,23 @@
         <item name="android:scaleType">fitXY</item>        
     </style>
     
-    <style name="Widget.ListView" parent="@android:style/Widget.ListView">        
-	    <item name="android:divider">#aa2b2b2b</item>
-	    <item name="android:dividerHeight">1dp</item>
-    </style>
-    
-    <style name="Widget.ListView.Probe">
-        <item name="android:scrollbarStyle">insideOverlay</item>	  
-	    <item name="android:cacheColorHint">#00000000</item>
-	    <item name="android:choiceMode">singleChoice</item>    
-    </style>
-    
     <style name="Widget.ExpandableListView.Probe" parent="@android:style/Widget.ExpandableListView">
         <item name="android:scrollbarStyle">insideOverlay</item>
 	    <item name="android:cacheColorHint">#00000000</item>
-	    <item name="android:choiceMode">singleChoice</item>
-	    <item name="android:divider">#aa2b2b2b</item>
-	    <item name="android:dividerHeight">1dp</item>
+	    <item name="android:dividerHeight">0dp</item>
     </style>
     
-    <style name="Widget.DsaTab.Light.ActionBar.TabView" parent="android:Widget">        
-        <item name="android:background">@drawable/btn_plain</item>
-        <item name="android:padding">5dp</item>
+    <style name="TableRow">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:minHeight">?android:attr/listPreferredItemHeight</item>
     </style>
-    
-    <style name="Widget.DsaTab.ActionBar.TabView" parent="android:Widget">        
-        <item name="android:background">@drawable/btn_plain</item>
-        <item name="android:padding">5dp</item>
+
+    <style name="TableRow.Even">
+        <item name="android:background">@color/RowEven</item>
     </style>
-    
-    <style name="Widget.Sherlock.ActionBar.TabView" parent="Widget">
-        <item name="android:gravity">center_horizontal</item>        
-        <item name="android:background">@drawable/abs__tab_indicator_ab_holo</item>
-        <item name="android:paddingLeft">2dip</item>
-        <item name="android:paddingRight">2dip</item>
+
+    <style name="TableRow.Odd">
+        <item name="android:background">@color/RowOdd</item>
     </style>
-    <style name="Widget.Sherlock.Light.ActionBar.TabView" parent="Widget.Sherlock.ActionBar.TabView">
-    </style>
-    <style name="Widget.Sherlock.Light.ActionBar.TabView.Inverse">
-    </style>
+        
 </resources>

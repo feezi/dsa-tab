@@ -8,15 +8,10 @@ import com.dsatab.data.enums.Position;
 
 public class CombatShieldTalent extends BaseCombatTalent {
 
-	protected Hero hero;
-
 	protected CombatTalentType type;
 
-	protected Integer value;
-
 	public CombatShieldTalent(Hero hero) {
-		super(hero, null, null);
-		this.hero = hero;
+		super(hero);
 		this.type = CombatTalentType.Raufen;
 
 		int value = 0;
@@ -74,13 +69,7 @@ public class CombatShieldTalent extends BaseCombatTalent {
 	}
 
 	protected int getBaseValue() {
-		int baseValue = 0;
-
-		if (hero != null) {
-			baseValue = hero.getAttributeValue(AttributeType.pa);
-		}
-
-		return baseValue;
+		return hero.getAttributeValue(AttributeType.pa);
 	}
 
 	public Position getPosition(int w20) {

@@ -17,18 +17,15 @@
 package com.dsatab.fragment;
 
 import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.dsatab.R;
 import com.dsatab.activity.MainActivity;
@@ -36,7 +33,6 @@ import com.dsatab.data.Hero;
 import com.dsatab.data.Spell;
 import com.dsatab.data.Value;
 import com.dsatab.data.adapter.SpellAdapter;
-import com.dsatab.view.FilterDialog;
 import com.dsatab.view.FilterSettings;
 import com.dsatab.view.FilterSettings.FilterType;
 import com.dsatab.view.ListFilterSettings;
@@ -47,13 +43,132 @@ import com.dsatab.view.listener.HeroChangedListener;
  * 
  * 
  */
-public class SpellFragment extends BaseFragment implements OnItemClickListener, HeroChangedListener {
+public class SpellFragment extends BaseListFragment implements OnItemClickListener, HeroChangedListener {
 
 	private ListView spellList;
 
 	private SpellAdapter spellAdapter;
 
 	private SpellInfoDialog spellInfo;
+
+	private final class SpellActionMode implements ActionMode.Callback {
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, com.actionbarsherlock.view.MenuItem item) {
+			boolean notifyChanged = false;
+
+			SparseBooleanArray checkedPositions = spellList.getCheckedItemPositions();
+			if (checkedPositions != null) {
+				for (int i = 0; i < checkedPositions.size(); i++) {
+					if (checkedPositions.valueAt(i)) {
+						Spell spell = spellAdapter.getItem(checkedPositions.keyAt(i));
+
+						switch (item.getItemId()) {
+						case R.id.option_edit_spell:
+							MainActivity.showEditPopup(getActivity(), spell);
+							mode.finish();
+							return true;
+						case R.id.option_view_spell:
+							showInfo(spell);
+							mode.finish();
+							return true;
+						case R.id.option_mark_favorite_spell:
+							spell.setFavorite(true);
+							notifyChanged = true;
+							break;
+						case R.id.option_mark_unused_spell:
+							spell.setUnused(true);
+							notifyChanged = true;
+							break;
+						case R.id.option_unmark_spell:
+							spell.setFavorite(false);
+							spell.setUnused(false);
+							notifyChanged = true;
+							break;
+						default:
+							return false;
+						}
+					}
+				}
+				if (notifyChanged) {
+					spellAdapter.notifyDataSetChanged();
+				}
+			}
+
+			mode.finish();
+			return true;
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			mode.getMenuInflater().inflate(R.menu.spell_popupmenu, menu);
+			mode.setTitle("Zauber");
+			return true;
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			mMode = null;
+			spellList.clearChoices();
+			spellAdapter.notifyDataSetChanged();
+		}
+
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			int selected = 0;
+			boolean marked = false;
+			SparseBooleanArray checkedPositions = spellList.getCheckedItemPositions();
+			if (checkedPositions != null) {
+				for (int i = 0; i < checkedPositions.size(); i++) {
+					if (checkedPositions.valueAt(i)) {
+						selected++;
+
+						Spell spell = spellAdapter.getItem(checkedPositions.keyAt(i));
+
+						marked |= spell.isFavorite() || spell.isUnused();
+					}
+				}
+			}
+
+			mode.setSubtitle(selected + " ausgewählt");
+
+			boolean changed = false;
+
+			if (selected != 1) {
+				if (menu.findItem(R.id.option_edit_spell).isEnabled()) {
+					menu.findItem(R.id.option_edit_spell).setEnabled(false);
+					changed = true;
+				}
+
+				if (menu.findItem(R.id.option_view_spell).isEnabled()) {
+					menu.findItem(R.id.option_view_spell).setEnabled(false);
+					changed = true;
+				}
+			} else {
+				if (!menu.findItem(R.id.option_edit_spell).isEnabled()) {
+					menu.findItem(R.id.option_edit_spell).setEnabled(true);
+					changed = true;
+				}
+				if (!menu.findItem(R.id.option_view_spell).isEnabled()) {
+					menu.findItem(R.id.option_view_spell).setEnabled(true);
+					changed = true;
+				}
+			}
+
+			if (marked) {
+				if (!menu.findItem(R.id.option_unmark_spell).isEnabled()) {
+					menu.findItem(R.id.option_unmark_spell).setEnabled(true);
+					changed = true;
+				}
+			} else {
+				if (menu.findItem(R.id.option_unmark_spell).isEnabled()) {
+					menu.findItem(R.id.option_unmark_spell).setEnabled(false);
+					changed = true;
+				}
+			}
+
+			return changed;
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -64,6 +179,8 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+
+		mCallback = new SpellActionMode();
 	}
 
 	/*
@@ -90,8 +207,10 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 
-		registerForContextMenu(spellList);
+		// registerForContextMenu(spellList);
 		spellList.setOnItemClickListener(this);
+		spellList.setOnItemLongClickListener(this);
+		spellList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
 		super.onActivityCreated(savedInstanceState);
 	}
@@ -137,6 +256,10 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 
 	}
 
+	protected ListFilterSettings getFilterSettings() {
+		return (ListFilterSettings) super.getFilterSettings();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -146,138 +269,23 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 	 */
 	@Override
 	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-		Spell spell = spellAdapter.getItem(position);
-		if (spell != null) {
-			getBaseActivity().checkProbe(spell);
+		if (mMode == null) {
+			Spell spell = spellAdapter.getItem(position);
+			if (spell != null) {
+				getBaseActivity().checkProbe(spell);
+			}
+			spellList.setItemChecked(position, false);
+		} else {
+			super.onItemClick(parent, v, position, id);
 		}
 	}
 
 	private void loadHeroSpells(Hero hero2) {
 
-		ListFilterSettings filterSettings = new ListFilterSettings(preferences.getBoolean(
-				FilterDialog.PREF_KEY_SPELL_FAVORITE, true), preferences.getBoolean(FilterDialog.PREF_KEY_SPELL_NORMAL,
-				true), preferences.getBoolean(FilterDialog.PREF_KEY_SPELL_UNUSED, false), preferences.getBoolean(
-				FilterDialog.PREF_KEY_SPELL_MODIFIERS, true));
-
-		spellAdapter = new SpellAdapter(getBaseActivity(), getHero(), getHero().getSpells().values(), filterSettings);
+		spellAdapter = new SpellAdapter(getBaseActivity(), getHero(), getHero().getSpells().values(),
+				getFilterSettings());
 
 		spellList.setAdapter(spellAdapter);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.actionbarsherlock.app.SherlockFragment#onCreateOptionsMenu(com.
-	 * actionbarsherlock.view.Menu, com.actionbarsherlock.view.MenuInflater)
-	 */
-	@Override
-	public void onCreateOptionsMenu(Menu menu, com.actionbarsherlock.view.MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
-		if (menu.findItem(R.id.option_filter) == null) {
-			com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_filter, Menu.NONE, "Filtern");
-			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-			item.setIcon(R.drawable.ic_menu_filter);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onCreateContextMenu(android.view.ContextMenu,
-	 * android.view.View, android.view.ContextMenu.ContextMenuInfo)
-	 */
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-
-		if (v == spellList) {
-
-			int position = ((AdapterContextMenuInfo) menuInfo).position;
-
-			if (position >= 0) {
-				MenuInflater inflater = new MenuInflater(getActivity());
-				inflater.inflate(R.menu.spell_popupmenu, menu);
-
-				Spell spell = spellAdapter.getItem(position);
-				menu.setHeaderTitle(spell.getName());
-				menu.findItem(R.id.option_unmark_spell).setVisible(spell.isFavorite() || spell.isUnused());
-				menu.findItem(R.id.option_mark_favorite_spell).setVisible(!spell.isFavorite());
-				menu.findItem(R.id.option_mark_unused_spell).setVisible(!spell.isUnused());
-			}
-		}
-		super.onCreateContextMenu(menu, v, menuInfo);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onContextItemSelected(android.view.MenuItem)
-	 */
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-
-		if (item.getGroupId() == R.id.group_spell && item.getMenuInfo() instanceof AdapterContextMenuInfo) {
-			AdapterContextMenuInfo menuInfo = ((AdapterContextMenuInfo) item.getMenuInfo());
-			int position = menuInfo.position;
-
-			View child = menuInfo.targetView;
-
-			switch (item.getItemId()) {
-			case R.id.option_edit_spell: {
-				Spell spell = getSpell(child, position);
-				if (spell != null) {
-					MainActivity.showEditPopup(getActivity(), spell);
-				}
-				return true;
-			}
-			case R.id.option_mark_favorite_spell: {
-				Spell spell = getSpell(child, position);
-				if (spell != null) {
-					spell.setFavorite(true);
-					spellAdapter.notifyDataSetChanged();
-				}
-				return true;
-			}
-			case R.id.option_mark_unused_spell: {
-				Spell spell = getSpell(child, position);
-				if (spell != null) {
-					spell.setUnused(true);
-					spellAdapter.notifyDataSetChanged();
-				}
-				return true;
-			}
-			case R.id.option_unmark_spell: {
-				Spell spell = getSpell(child, position);
-				if (spell != null) {
-					spell.setFavorite(false);
-					spell.setUnused(false);
-					spellAdapter.notifyDataSetChanged();
-				}
-				return true;
-			}
-			case R.id.option_view_spell: {
-				Spell spell = getSpell(child, position);
-				if (spell != null) {
-					showInfo(spell);
-				}
-				return true;
-			}
-			}
-
-		}
-
-		return super.onContextItemSelected(item);
-	}
-
-	private Spell getSpell(View child, int position) {
-		Spell spell = null;
-		if (child != null && child.getTag() instanceof Spell) {
-			spell = (Spell) child.getTag();
-		}
-
-		if (spellAdapter != null && spell == null && position >= 0 && position < spellAdapter.getCount()) {
-			spell = spellAdapter.getItem(position);
-		}
-		return spell;
 	}
 
 	/*
@@ -288,7 +296,8 @@ public class SpellFragment extends BaseFragment implements OnItemClickListener, 
 	 */
 	@Override
 	public void onFilterChanged(FilterType type, FilterSettings settings) {
-		if (type == FilterType.Spell && settings instanceof ListFilterSettings) {
+		if (spellAdapter != null && (type == null || type == FilterType.Spell)
+				&& settings instanceof ListFilterSettings) {
 			spellAdapter.filter((ListFilterSettings) settings);
 		}
 	}

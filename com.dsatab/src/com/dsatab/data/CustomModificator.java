@@ -169,7 +169,7 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 						// if (VALID_KEYS.contains(key)) {
 						// revert value since we deal with erschwernis
 						// intern, but declare it as bonus outside
-						modMap.put(key, Util.parseInt(value));
+						modMap.put(key, Util.parseInteger(value));
 						// } else {
 						// modMap.put(key, Util.parseInt(value));
 
@@ -211,7 +211,7 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 	public Modifier getModifier(EquippedItem item) {
 
 		if (isActive()) {
-			Integer modifier = getModifier(item.getItemName() + POSTFIX_TP);
+			Integer modifier = getModifier(item.getItem().getName() + POSTFIX_TP);
 
 			if (modifier == null && item.getTalent() != null)
 				modifier = getModifier(item.getTalent().getCombatTalentType().getName() + POSTFIX_TP);

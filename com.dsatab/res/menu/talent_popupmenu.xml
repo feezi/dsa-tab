@@ -2,20 +2,33 @@
 <group android:id="@+id/group_talent"> 
  	<item android:id="@+id/option_edit_talent"
           android:icon="@drawable/ic_menu_edit"
-          android:title="Wert bearbeiten" />
+          android:showAsAction="withText|always"
+          android:title="Bearbeiten" />
 
 	<item android:id="@+id/option_view_talent"
           android:icon="@drawable/ic_menu_view"
-          android:title="Details anzeigen" />          
-          
+          android:showAsAction="withText|always"
+          android:visible="false"
+          android:title="Details" />
+	          
+	<item android:id="@+id/option_mark"
+            android:icon="@drawable/ic_menu_star"            
+            android:showAsAction="withText|always"
+            android:title="Markierungen">
+		 <menu>          
     <item android:id="@+id/option_mark_favorite_talent"
           android:icon="@drawable/ic_menu_star"
+          android:showAsAction="withText"
           android:title="Als Favorit markieren" />
     <item android:id="@+id/option_mark_unused_talent"
           android:icon="@drawable/ic_menu_stop"
+          android:showAsAction="withText"
           android:title="Als ungenützt markieren" />
     <item android:id="@+id/option_unmark_talent"
           android:icon="@drawable/ic_menu_close_clear_cancel"
+          android:showAsAction="withText"
           android:title="Markierung aufheben" />
+    </menu>
+    </item>
 </group>    
 </menu>

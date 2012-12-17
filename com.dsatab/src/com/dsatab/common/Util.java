@@ -33,6 +33,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
@@ -51,6 +53,7 @@ import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Hand;
 import com.dsatab.data.items.Item;
+import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.util.Debug;
@@ -265,6 +268,17 @@ public class Util {
 		return error;
 	}
 
+	public static String join(String... strings) {
+		StringBuilder sb = new StringBuilder();
+
+		for (String s : strings) {
+			if (s != null) {
+				sb.append(s);
+			}
+		}
+		return sb.toString();
+	}
+
 	public static boolean isBlank(String str) {
 		return str == null || str.trim().length() == 0;
 	}
@@ -321,7 +335,7 @@ public class Util {
 		return sb.toString().trim();
 	}
 
-	public static Integer parseInt(String s) {
+	public static Integer parseInteger(String s) {
 
 		if (s == null)
 			return null;
@@ -338,6 +352,29 @@ public class Util {
 			i = Integer.valueOf(s);
 
 		return i;
+	}
+
+	public static int parseInt(String s, int defaultValue) {
+		if (s == null)
+			return defaultValue;
+
+		s = s.trim();
+
+		if (s.length() == 0 || MINUS.equals(s) || NULL.equals(s))
+			return defaultValue;
+
+		Integer i;
+		if (s.startsWith(PLUS))
+			i = Integer.valueOf(s.substring(1));
+		else
+			i = Integer.valueOf(s);
+
+		return i;
+
+	}
+
+	public static int parseInt(String s) {
+		return parseInt(s, 0);
 	}
 
 	public static Long parseLong(String s) {
@@ -365,7 +402,7 @@ public class Util {
 		if (row.getBackground() instanceof LevelListDrawable) {
 			levelListDrawable = (LevelListDrawable) row.getBackground();
 		} else {
-			row.setBackgroundResource(R.drawable.list_background_selector);
+			row.setBackgroundResource(R.drawable.list_selector_holo_light);
 			levelListDrawable = (LevelListDrawable) row.getBackground();
 		}
 
@@ -379,13 +416,23 @@ public class Util {
 
 	}
 
+	public static void applyRowStyle(TableLayout tableLayout) {
+		int rowIndex = 0;
+		for (int i = 0; i < tableLayout.getChildCount(); i++) {
+			TableRow row = (TableRow) tableLayout.getChildAt(i);
+			if (row.getVisibility() != View.GONE) {
+				applyRowStyle(row, rowIndex++);
+			}
+		}
+	}
+
 	public static void applyRowStyle(View row, int position) {
 		LevelListDrawable levelListDrawable;
 
 		if (row.getBackground() instanceof LevelListDrawable) {
 			levelListDrawable = (LevelListDrawable) row.getBackground();
 		} else {
-			row.setBackgroundResource(R.drawable.list_background_selector);
+			row.setBackgroundResource(R.drawable.list_selector_holo_light);
 			levelListDrawable = (LevelListDrawable) row.getBackground();
 		}
 
@@ -768,24 +815,30 @@ public class Util {
 			CombatTalentType type1 = null, type2 = null;
 			String atype1 = null, atype2 = null;
 
-			if (object1.hasSpecification(Weapon.class)) {
-				Weapon weapon = object1.getSpecification(Weapon.class);
-				type1 = weapon.getCombatTalentType();
-			} else if (object1.hasSpecification(DistanceWeapon.class)) {
-				DistanceWeapon weapon = object1.getSpecification(DistanceWeapon.class);
-				type1 = weapon.getCombatTalentType();
-			} else if (object1.hasSpecification(Armor.class)) {
-				atype1 = object1.getCategory();
+			for (ItemSpecification itemSpecification : object1.getSpecifications()) {
+				if (itemSpecification instanceof Weapon) {
+					type1 = ((Weapon) itemSpecification).getCombatTalentType();
+					break;
+				} else if (itemSpecification instanceof DistanceWeapon) {
+					type1 = ((DistanceWeapon) itemSpecification).getCombatTalentType();
+					break;
+				} else if (itemSpecification instanceof Armor) {
+					atype1 = object1.getCategory();
+					break;
+				}
 			}
 
-			if (object2.hasSpecification(Weapon.class)) {
-				Weapon weapon = object1.getSpecification(Weapon.class);
-				type2 = weapon.getCombatTalentType();
-			} else if (object2.hasSpecification(DistanceWeapon.class)) {
-				DistanceWeapon weapon = object1.getSpecification(DistanceWeapon.class);
-				type2 = weapon.getCombatTalentType();
-			} else if (object2.hasSpecification(Armor.class)) {
-				atype2 = object2.getCategory();
+			for (ItemSpecification itemSpecification : object2.getSpecifications()) {
+				if (itemSpecification instanceof Weapon) {
+					type2 = ((Weapon) itemSpecification).getCombatTalentType();
+					break;
+				} else if (itemSpecification instanceof DistanceWeapon) {
+					type2 = ((DistanceWeapon) itemSpecification).getCombatTalentType();
+					break;
+				} else if (itemSpecification instanceof Armor) {
+					atype2 = object1.getCategory();
+					break;
+				}
 			}
 
 			int compareType = 0;
@@ -893,4 +946,5 @@ public class Util {
 
 		return in;
 	}
+
 }

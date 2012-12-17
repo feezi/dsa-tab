@@ -20,8 +20,8 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.TwoLineListItem;
 
 import com.dsatab.R;
 import com.dsatab.common.Util;
@@ -33,11 +33,11 @@ import com.dsatab.data.items.ItemSpecification;
  * @author Seraphim
  * 
  */
-public class EquippedItemListItem extends TwoLineListItem {
+public class EquippedItemListItem extends CheckableTwoLineListItem {
 
 	private int textColor = 0;
 
-	private ImageButton icon1;
+	private ImageView icon1;
 	private ImageButton set1, set2, set3;
 	private TextView text1, text2;
 	private TextView countOverlay;
@@ -90,7 +90,7 @@ public class EquippedItemListItem extends TwoLineListItem {
 
 		text1 = getText1();
 		text2 = getText2();
-		icon1 = (ImageButton) findViewById(android.R.id.icon1);
+		icon1 = (ImageView) findViewById(android.R.id.icon1);
 
 		set1 = (ImageButton) findViewById(R.id.set1);
 		set2 = (ImageButton) findViewById(R.id.set2);
@@ -125,7 +125,7 @@ public class EquippedItemListItem extends TwoLineListItem {
 
 	}
 
-	public ImageButton getIcon1() {
+	public ImageView getIcon1() {
 		return icon1;
 	}
 

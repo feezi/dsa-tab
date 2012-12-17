@@ -30,6 +30,8 @@ import com.dsatab.util.Debug;
 
 public class ItemChooserActivity extends BaseFragmentActivity implements OnItemChooserListener {
 
+	private ItemChooserFragment fragment;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -41,6 +43,13 @@ public class ItemChooserActivity extends BaseFragmentActivity implements OnItemC
 		applyPreferencesToTheme();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_item_chooser);
+
+		fragment = (ItemChooserFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_item_chooser);
+
+		if (getIntent() != null && Intent.ACTION_VIEW.equals(getIntent().getAction()))
+			fragment.setOnItemChooserListener(null);
+		else
+			fragment.setOnItemChooserListener(this);
 
 		getSupportActionBar().setDisplayShowTitleEnabled(true);
 		getSupportActionBar().setDisplayShowHomeEnabled(true);

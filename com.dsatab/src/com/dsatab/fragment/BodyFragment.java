@@ -202,6 +202,7 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 			List<EquippedItem> equippedItems = getHero().getArmor(value.getPosition());
 			if (!equippedItems.isEmpty()) {
 				Intent intent = new Intent(getActivity(), ItemChooserActivity.class);
+				intent.setAction(Intent.ACTION_VIEW);
 				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ARMOR_POSITION, value.getPosition());
 				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
 				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_SEARCHABLE, false);
