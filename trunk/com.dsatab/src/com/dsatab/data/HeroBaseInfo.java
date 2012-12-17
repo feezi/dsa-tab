@@ -16,169 +16,152 @@
  */
 package com.dsatab.data;
 
-import java.util.List;
-
-import org.jdom.Element;
-
-import android.text.TextUtils;
-
-import com.dsatab.common.Util;
-import com.dsatab.xml.Xml;
-
 /**
  * @author Ganymede
  * 
  */
 public class HeroBaseInfo {
 
-	private Element basisElement, rasse, aussehen, ausbildungen, kultur, groesse;
+	private Integer weight, age, height;
+	private String eyeColor, education, look, hairColor, culture, race, rank, title;
 
 	/**
 	 * 
 	 */
-	public HeroBaseInfo(Element basisElement) {
-
-		this.basisElement = basisElement;
-
-		rasse = basisElement.getChild(Xml.KEY_RASSE);
-		ausbildungen = basisElement.getChild(Xml.KEY_AUSBILDUNGEN);
-		kultur = basisElement.getChild(Xml.KEY_KULTUR);
-		if (rasse != null) {
-			aussehen = rasse.getChild(Xml.KEY_AUSSEHEN);
-			groesse = rasse.getChild(Xml.KEY_GROESSE);
-		}
+	public HeroBaseInfo() {
 
 	}
 
 	public Integer getGewicht() {
-
-		if (groesse != null) {
-			return Util.parseInt(groesse.getAttributeValue(Xml.KEY_GEWICHT));
-		}
-
-		return null;
+		return weight;
 	}
 
 	public Integer getGroesse() {
-
-		if (groesse != null) {
-			return Util.parseInt(groesse.getAttributeValue(Xml.KEY_VALUE));
-		}
-
-		return null;
+		return height;
 	}
 
 	public Integer getAlter() {
-
-		if (aussehen != null) {
-			return Util.parseInt(aussehen.getAttributeValue(Xml.KEY_ALTER));
-		}
-
-		return null;
-
+		return age;
 	}
 
 	public String getAugenFarbe() {
-
-		if (aussehen != null) {
-			return aussehen.getAttributeValue(Xml.KEY_EYECOLOR);
-		}
-
-		return null;
+		return eyeColor;
 	}
 
 	public String getHaarFarbe() {
-
-		if (aussehen != null) {
-			return aussehen.getAttributeValue(Xml.KEY_HAIRCOLOR);
-		}
-
-		return null;
+		return hairColor;
 	}
 
 	public String getAusbildung() {
-
-		if (ausbildungen != null) {
-			@SuppressWarnings("unchecked")
-			List<Element> ausbildungElements = ausbildungen.getChildren();
-
-			StringBuilder sb = new StringBuilder();
-
-			for (Element ausbildung : ausbildungElements) {
-				String value = ausbildung.getAttributeValue(Xml.KEY_STRING);
-				if (!TextUtils.isEmpty(value)) {
-					if (sb.length() > 0)
-						sb.append(", ");
-					sb.append(value);
-				}
-			}
-			return sb.toString();
-		}
-
-		Element ausbildung = basisElement.getChild(Xml.KEY_AUSBILDUNG);
-		if (ausbildung != null) {
-			String value = ausbildung.getAttributeValue(Xml.KEY_STRING);
-			if (!TextUtils.isEmpty(value))
-				return value;
-		}
-
-		Element profession = basisElement.getChild(Xml.KEY_PROFESSION);
-		if (profession != null) {
-			String value = profession.getAttributeValue(Xml.KEY_STRING);
-			if (!TextUtils.isEmpty(value))
-				return value;
-		}
-
-		return null;
-
+		return education;
 	}
 
 	public String getAussehen() {
-
-		if (aussehen != null) {
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < 4; i++) {
-				sb.append(aussehen.getAttributeValue(Xml.KEY_AUSSEHENTEXT_PREFIX + i));
-				if (!TextUtils.isEmpty(aussehen.getAttributeValue(Xml.KEY_AUSSEHENTEXT_PREFIX + (i + 1))))
-					sb.append(", ");
-			}
-			return sb.toString();
-
-		}
-		return null;
+		return look;
 	}
 
 	public String getTitel() {
-
-		if (aussehen != null) {
-			return aussehen.getAttributeValue(Xml.KEY_TITEL);
-		}
-
-		return null;
+		return title;
 	}
 
 	public String getStand() {
-
-		if (aussehen != null) {
-			return aussehen.getAttributeValue(Xml.KEY_STAND);
-		}
-
-		return null;
+		return rank;
 	}
 
 	public String getRasse() {
-
-		if (rasse != null) {
-			return rasse.getAttributeValue(Xml.KEY_STRING);
-		} else
-			return null;
+		return race;
 	}
 
 	public String getKultur() {
-
-		if (kultur != null) {
-			return kultur.getAttributeValue(Xml.KEY_STRING);
-		} else
-			return null;
+		return culture;
 	}
+
+	public Integer getWeight() {
+		return weight;
+	}
+
+	public void setWeight(Integer weight) {
+		this.weight = weight;
+	}
+
+	public Integer getAge() {
+		return age;
+	}
+
+	public void setAge(Integer age) {
+		this.age = age;
+	}
+
+	public Integer getHeight() {
+		return height;
+	}
+
+	public void setHeight(Integer height) {
+		this.height = height;
+	}
+
+	public String getEyeColor() {
+		return eyeColor;
+	}
+
+	public void setEyeColor(String eyeColor) {
+		this.eyeColor = eyeColor;
+	}
+
+	public String getEducation() {
+		return education;
+	}
+
+	public void setEducation(String education) {
+		this.education = education;
+	}
+
+	public String getLook() {
+		return look;
+	}
+
+	public void setLook(String look) {
+		this.look = look;
+	}
+
+	public String getHairColor() {
+		return hairColor;
+	}
+
+	public void setHairColor(String hairColor) {
+		this.hairColor = hairColor;
+	}
+
+	public String getCulture() {
+		return culture;
+	}
+
+	public void setCulture(String culture) {
+		this.culture = culture;
+	}
+
+	public String getRace() {
+		return race;
+	}
+
+	public void setRace(String race) {
+		this.race = race;
+	}
+
+	public String getRank() {
+		return rank;
+	}
+
+	public void setRank(String rank) {
+		this.rank = rank;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
 }

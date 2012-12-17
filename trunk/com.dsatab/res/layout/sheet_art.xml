@@ -1,15 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sheet_art"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_margin="@dimen/page_margin"
+    android:layout_weight="1"
+    android:orientation="vertical" >
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/sheet_art" android:layout_weight="1" android:layout_height="fill_parent" android:orientation="vertical" android:layout_margin="@dimen/page_margin" android:layout_width="fill_parent">
+    <LinearLayout
+        android:id="@+id/art_talents"
+        style="@style/BorderPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+    </LinearLayout>
 
-	<LinearLayout android:layout_width="match_parent" android:id="@+id/art_talents" android:layout_height="wrap_content" style="@style/BorderPanel" android:layout_marginBottom="2.5dp" android:orientation="vertical">
-		
-	</LinearLayout>
-	
-<FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent" style="@style/BorderPanel"> 
-<ListView android:id="@+id/art_list"  android:layout_width="match_parent" android:childDivider="#00000000"
-		style="@style/Widget.ListView.Probe" android:layout_height="fill_parent"></ListView>
-		
-<TextView android:id="@+android:id/empty" android:text="@string/message_art_empty" android:layout_height="wrap_content" android:layout_width="wrap_content" android:gravity="center" android:drawableTop="@drawable/ic_menu_clear_playlist" android:drawablePadding="10dp" android:visibility="gone" android:layout_gravity="center"></TextView>
-</FrameLayout>		
+    <FrameLayout
+        style="@style/BorderPanel"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <ListView
+            android:id="@+id/art_list"            
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent">
+        </ListView>
+
+        <TextView
+            android:id="@+android:id/empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:drawablePadding="10dp"
+            android:drawableTop="@drawable/ic_menu_clear_playlist"
+            android:gravity="center"
+            android:text="@string/message_art_empty"
+            android:visibility="gone" >
+        </TextView>
+    </FrameLayout>
+
 </LinearLayout>

@@ -34,17 +34,13 @@ import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.dsatab.DSATabApplication;
-import com.dsatab.R;
+import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.activity.MainActivity;
-import com.dsatab.common.Util;
-import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Value;
-import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.modifier.Modificator;
@@ -59,7 +55,11 @@ import com.dsatab.view.listener.HeroChangedListener;
 public abstract class BaseFragment extends SherlockFragment implements HeroChangedListener,
 		IconContextItemSelectedListener, FilterChangedListener, OnSharedPreferenceChangeListener {
 
+	private static final String FILTER_SETTINGS = "FILTER_SETTINGS";
+
 	protected SharedPreferences preferences;
+
+	protected FilterSettings filterSettings;
 
 	/*
 	 * (non-Javadoc)
@@ -97,6 +97,25 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 	protected void onDetachListener(Hero hero) {
 		if (hero != null) {
 			hero.removeHeroChangedListener(this);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.support.v4.app.Fragment#onSaveInstanceState(android.os.Bundle)
+	 */
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putParcelable(FILTER_SETTINGS, filterSettings);
+	}
+
+	public void setTabInfo(FilterSettings filterSettings) {
+		this.filterSettings = filterSettings;
+		if (filterSettings != null) {
+			onFilterChanged(null, this.filterSettings);
 		}
 	}
 
@@ -173,6 +192,9 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
+		if (savedInstanceState != null) {
+			filterSettings = savedInstanceState.getParcelable(FILTER_SETTINGS);
+		}
 		Hero hero = getHero();
 		if (hero != null) {
 			// Debug.verbose(getClass().getName() +
@@ -229,126 +251,6 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 			return (MainActivity) getActivity();
 		else
 			return null;
-	}
-
-	protected void fillAttributesList(View view) {
-
-		fillAttributeValue((TextView) view.findViewById(R.id.attr_mu), AttributeType.Mut);
-		fillAttributeValue((TextView) view.findViewById(R.id.attr_kl), AttributeType.Klugheit);
-		fillAttributeValue((TextView) view.findViewById(R.id.attr_in), AttributeType.Intuition);
-		fillAttributeValue((TextView) view.findViewById(R.id.attr_ch), AttributeType.Charisma);
-		fillAttributeValue((TextView) view.findViewById(R.id.attr_ff), AttributeType.Fingerfertigkeit);
-		fillAttributeValue((TextView) view.findViewById(R.id.attr_ge), AttributeType.Gewandtheit, false);
-		fillAttributeValue((TextView) view.findViewById(R.id.attr_ko), AttributeType.Konstitution);
-		fillAttributeValue((TextView) view.findViewById(R.id.attr_kk), AttributeType.Körperkraft);
-
-		fillAttributeLabel((TextView) view.findViewById(R.id.attr_mu_label), AttributeType.Mut);
-		fillAttributeLabel((TextView) view.findViewById(R.id.attr_kl_label), AttributeType.Klugheit);
-		fillAttributeLabel((TextView) view.findViewById(R.id.attr_in_label), AttributeType.Intuition);
-		fillAttributeLabel((TextView) view.findViewById(R.id.attr_ch_label), AttributeType.Charisma);
-		fillAttributeLabel((TextView) view.findViewById(R.id.attr_ff_label), AttributeType.Fingerfertigkeit);
-		fillAttributeLabel((TextView) view.findViewById(R.id.attr_ge_label), AttributeType.Gewandtheit);
-		fillAttributeLabel((TextView) view.findViewById(R.id.attr_ko_label), AttributeType.Konstitution);
-		fillAttributeLabel((TextView) view.findViewById(R.id.attr_kk_label), AttributeType.Körperkraft);
-
-	}
-
-	protected void fillAttributeLabel(TextView tv, AttributeType type) {
-
-		if (!tv.isLongClickable()) {
-			if (type == AttributeType.Lebensenergie || type == AttributeType.Karmaenergie
-					|| type == AttributeType.Astralenergie || type == AttributeType.Ausdauer
-					|| type == AttributeType.Behinderung) {
-				tv.setOnClickListener(getBaseActivity().getEditListener());
-			} else if (type.probable()) {
-				tv.setOnClickListener(getBaseActivity().getProbeListener());
-			}
-			tv.setOnLongClickListener(getBaseActivity().getEditListener());
-		}
-		if (getHero() != null) {
-			tv.setTag(getHero().getAttribute(type));
-		}
-	}
-
-	protected void fillAttribute(View view, Attribute attr) {
-		switch (attr.getType()) {
-		case Mut:
-			fillAttributeValue((TextView) view.findViewById(R.id.attr_mu), AttributeType.Mut);
-			fillAttributeLabel((TextView) view.findViewById(R.id.attr_mu_label), AttributeType.Mut);
-			break;
-		case Klugheit:
-			fillAttributeValue((TextView) view.findViewById(R.id.attr_kl), AttributeType.Klugheit);
-			fillAttributeLabel((TextView) view.findViewById(R.id.attr_kl_label), AttributeType.Klugheit);
-			break;
-		case Intuition:
-			fillAttributeValue((TextView) view.findViewById(R.id.attr_in), AttributeType.Intuition);
-			fillAttributeLabel((TextView) view.findViewById(R.id.attr_in_label), AttributeType.Intuition);
-			break;
-		case Charisma:
-			fillAttributeValue((TextView) view.findViewById(R.id.attr_ch), AttributeType.Charisma);
-			fillAttributeLabel((TextView) view.findViewById(R.id.attr_ch_label), AttributeType.Charisma);
-			break;
-		case Fingerfertigkeit:
-			fillAttributeValue((TextView) view.findViewById(R.id.attr_ff), AttributeType.Fingerfertigkeit);
-			fillAttributeLabel((TextView) view.findViewById(R.id.attr_ff_label), AttributeType.Fingerfertigkeit);
-			break;
-		case Gewandtheit:
-			fillAttributeValue((TextView) view.findViewById(R.id.attr_ge), AttributeType.Gewandtheit);
-			fillAttributeLabel((TextView) view.findViewById(R.id.attr_ge_label), AttributeType.Gewandtheit);
-			break;
-		case Konstitution:
-			fillAttributeValue((TextView) view.findViewById(R.id.attr_ko), AttributeType.Konstitution);
-			fillAttributeLabel((TextView) view.findViewById(R.id.attr_ko_label), AttributeType.Konstitution);
-			break;
-		case Körperkraft:
-			fillAttributeValue((TextView) view.findViewById(R.id.attr_kk), AttributeType.Körperkraft);
-			fillAttributeLabel((TextView) view.findViewById(R.id.attr_kk_label), AttributeType.Körperkraft);
-			break;
-		default:
-			// do nothing
-			break;
-		}
-	}
-
-	protected void fillAttributeValue(TextView tv, AttributeType type) {
-		fillAttributeValue(tv, type, null, true, false);
-	}
-
-	protected void fillAttributeValue(TextView tv, AttributeType type, boolean includeBe) {
-		fillAttributeValue(tv, type, null, includeBe, false);
-	}
-
-	protected void fillAttributeValue(TextView tv, AttributeType type, String prefix) {
-		fillAttributeValue(tv, type, prefix, true, false);
-	}
-
-	protected void fillAttributeValue(TextView tv, AttributeType type, String prefix, boolean includeBe,
-			boolean inverseColors) {
-		if (getHero() == null || tv == null)
-			return;
-
-		Attribute attribute = getHero().getAttribute(type);
-
-		if (attribute != null) {
-
-			int modifier = getHero().getModifier(attribute, includeBe, true);
-			Util.setText(tv, attribute, modifier, prefix, inverseColors);
-			tv.setTag(attribute);
-
-			if (!tv.isLongClickable()) {
-
-				if (type.probable()) {
-					tv.setOnClickListener(getBaseActivity().getProbeListener());
-				} else if (type.editable()) {
-					tv.setOnClickListener(getBaseActivity().getEditListener());
-				}
-
-				if (type.editable())
-					tv.setOnLongClickListener(getBaseActivity().getEditListener());
-			}
-		} else {
-			tv.setText(null);
-		}
 	}
 
 	protected View findViewById(int id) {
@@ -484,6 +386,12 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (BasePreferenceActivity.KEY_MODIFY_TABS.equals(key)) {
+			onFilterChanged(null, getFilterSettings());
+		}
+	}
 
+	protected FilterSettings getFilterSettings() {
+		return filterSettings;
 	}
 }

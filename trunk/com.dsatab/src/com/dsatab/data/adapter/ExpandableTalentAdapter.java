@@ -54,7 +54,8 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 
 	public ExpandableTalentAdapter(Context context, Hero hero, ListFilterSettings settings) {
 		this.hero = hero;
-		this.filterSettings = settings;
+		this.filterSettings = new ListFilterSettings();
+		this.filterSettings.set(settings);
 
 		groups = new ArrayList<TalentGroupType>(Arrays.asList(TalentGroupType.values()));
 		groups.retainAll(hero.getTalentGroups().keySet());

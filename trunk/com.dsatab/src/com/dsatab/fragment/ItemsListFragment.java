@@ -27,17 +27,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.dsatab.R;
@@ -50,19 +49,15 @@ import com.dsatab.data.items.ItemType;
 import com.dsatab.view.ItemChooserDialog;
 import com.dsatab.xml.DataManager;
 
-public class ItemsListFragment extends BaseFragment implements OnItemClickListener,
+public class ItemsListFragment extends BaseListFragment implements OnItemClickListener,
 		DialogInterface.OnMultiChoiceClickListener {
 
-	private static final int GROUP_INVENTORY = 1;
 	private static final int ACTION_CHOOSE_CARD = 2;
 	private static final int ACTION_SHOW_CARD = 1;
 
-	private static final int CONTEXTMENU_REMOVE = 10;
-	private static final int CONTEXTMENU_SHOW = 11;
-
 	private ListView itemList;
 
-	private EquippedItemListAdapter itemAdpater;
+	private EquippedItemListAdapter itemAdapter;
 
 	private Item selectedItem;
 
@@ -70,6 +65,94 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 
 	private Set<ItemType> categoriesSelected;
 	private ItemType[] categories;
+
+	private final class ItemsActionMode implements ActionMode.Callback {
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, com.actionbarsherlock.view.MenuItem item) {
+			boolean notifyChanged = false;
+
+			SparseBooleanArray checkedPositions = itemList.getCheckedItemPositions();
+			if (checkedPositions != null) {
+				for (int i = 0; i < checkedPositions.size(); i++) {
+					if (checkedPositions.valueAt(i)) {
+						Item selectedItem = itemAdapter.getItem(checkedPositions.keyAt(i));
+						switch (item.getItemId()) {
+						case R.id.option_delete:
+							getHero().removeItem(selectedItem);
+							notifyChanged = false;
+							break;
+						case R.id.option_view:
+							selectItem(selectedItem);
+							mode.finish();
+							return true;
+						}
+
+					}
+
+				}
+				if (notifyChanged) {
+					itemAdapter.notifyDataSetChanged();
+				}
+			}
+			mode.finish();
+			return true;
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			mode.getMenuInflater().inflate(R.menu.item_list_popupmenu, menu);
+			mode.setTitle("Ausrüstung");
+			return true;
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			mMode = null;
+			itemList.clearChoices();
+			itemAdapter.notifyDataSetChanged();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * com.actionbarsherlock.view.ActionMode.Callback#onPrepareActionMode
+		 * (com.actionbarsherlock.view.ActionMode,
+		 * com.actionbarsherlock.view.Menu)
+		 */
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			SparseBooleanArray checkedPositions = itemList.getCheckedItemPositions();
+			int selected = 0;
+			boolean hasImage = false;
+			boolean changed = false;
+			com.actionbarsherlock.view.MenuItem view = menu.findItem(R.id.option_view);
+			if (checkedPositions != null) {
+				for (int i = 0; i < checkedPositions.size(); i++) {
+					if (checkedPositions.valueAt(i)) {
+						Item selectedItem = itemAdapter.getItem(checkedPositions.keyAt(i));
+						selected++;
+						hasImage |= selectedItem.hasImage();
+					}
+				}
+			}
+
+			mode.setSubtitle(selected + " ausgewählt");
+
+			if (selected == 1 && hasImage) {
+				if (!view.isEnabled()) {
+					view.setEnabled(true);
+					changed = true;
+				}
+			} else {
+				if (view.isEnabled()) {
+					view.setEnabled(false);
+					changed = true;
+				}
+			}
+			return changed;
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -127,8 +210,8 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 
 						@Override
 						public void onItemAdded(Item item) {
-							itemAdpater.add(item);
-							itemAdpater.notifyDataSetChanged();
+							itemAdapter.add(item);
+							itemAdapter.notifyDataSetChanged();
 						}
 
 						/*
@@ -140,7 +223,7 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 						 */
 						@Override
 						public void onEquippedItemAdded(EquippedItem item) {
-							itemAdpater.notifyDataSetChanged();
+							itemAdapter.notifyDataSetChanged();
 						}
 					});
 
@@ -154,42 +237,14 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * android.support.v4.app.Fragment#onContextItemSelected(android.view.MenuItem
-	 * )
-	 */
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		if (item.getGroupId() == GROUP_INVENTORY) {
-			switch (item.getItemId()) {
-			case CONTEXTMENU_REMOVE:
-				if (selectedItem != null) {
-					itemAdpater.remove(selectedItem);
-					getHero().removeItem(selectedItem);
-					selectedItem = null;
-				}
-				return true;
-
-			case CONTEXTMENU_SHOW:
-				if (selectedItem != null) {
-					selectItem(selectedItem);
-					selectedItem = null;
-				}
-				return true;
-			}
-		}
-		return super.onContextItemSelected(item);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see com.dsatab.fragment.BaseFragment#onCreate(android.os.Bundle)
 	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+
+		mCallback = new ItemsActionMode();
 	}
 
 	/*
@@ -245,7 +300,7 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 
 				@Override
 				public void onDismiss(DialogInterface dialog) {
-					itemAdpater.filter(new ArrayList<ItemType>(categoriesSelected), null, null);
+					itemAdapter.filter(new ArrayList<ItemType>(categoriesSelected), null, null);
 				}
 			});
 			return true;
@@ -253,31 +308,6 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 		} else {
 			return super.onOptionsItemSelected(item);
 		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.Fragment#onCreateContextMenu(android.view.ContextMenu
-	 * , android.view.View, android.view.ContextMenu.ContextMenuInfo)
-	 */
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-
-		if (v == itemList && menuInfo instanceof AdapterContextMenuInfo) {
-			AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-			Item item = itemAdpater.getItem(info.position);
-
-			selectedItem = item;
-
-			if (selectedItem.hasImage()) {
-				menu.add(GROUP_INVENTORY, CONTEXTMENU_SHOW, 0, getString(R.string.menu_view_item));
-			}
-			menu.add(GROUP_INVENTORY, CONTEXTMENU_REMOVE, 1, getString(R.string.menu_delete_item));
-
-		}
-		super.onCreateContextMenu(menu, v, menuInfo);
 	}
 
 	/*
@@ -302,7 +332,8 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 
 		itemList = (ListView) findViewById(android.R.id.list);
 		itemList.setOnItemClickListener(this);
-		registerForContextMenu(itemList);
+		itemList.setOnItemLongClickListener(this);
+		itemList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
 		categories = ItemType.values();
 		categoriesSelected = new HashSet<ItemType>(Arrays.asList(categories));
@@ -315,8 +346,8 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 		// has to be called to fill equippeditems of all items
 		getHero().getAllEquippedItems();
 
-		itemAdpater = new EquippedItemListAdapter(getActivity(), getHero(), getHero().getItems());
-		itemList.setAdapter(itemAdpater);
+		itemAdapter = new EquippedItemListAdapter(getActivity(), getHero(), getHero().getItems());
+		itemList.setAdapter(itemAdapter);
 
 	}
 
@@ -324,11 +355,11 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 		selectedItem = itemCard;
 		if (selectedItem != null) {
 			Intent intent = new Intent(getActivity(), ItemChooserActivity.class);
+			intent.setAction(Intent.ACTION_VIEW);
 			Item item = selectedItem.getItem();
 			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_ID, item.getId());
 			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_NAME, item.getName());
 			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CATEGORY, item.getCategory());
-
 			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CELL, itemCard.getItemInfo().getCellNumber());
 
 			startActivityForResult(intent, ACTION_SHOW_CARD);
@@ -337,7 +368,11 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		parent.showContextMenu();
+		if (mMode == null) {
+			itemList.setItemChecked(position, false);
+		} else {
+			super.onItemClick(parent, view, position, id);
+		}
 	}
 
 	/*
@@ -375,7 +410,7 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 						// we only add the item here we do not assign it to a
 						// set yet
 						getHero().addItem(item);
-						itemAdpater.add(item);
+						itemAdapter.add(item);
 					}
 
 					itemChooserDialog.dismiss();
@@ -383,8 +418,8 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 			});
 		}
 
-		if (itemAdpater.getFilter().getTypes() != null && !itemAdpater.getFilter().getTypes().isEmpty()) {
-			itemChooserDialog.setItemTypes(itemAdpater.getFilter().getTypes());
+		if (itemAdapter.getFilter().getTypes() != null && !itemAdapter.getFilter().getTypes().isEmpty()) {
+			itemChooserDialog.setItemTypes(itemAdapter.getFilter().getTypes());
 		}
 
 		itemChooserDialog.show();
@@ -399,7 +434,7 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 	 */
 	@Override
 	public void onItemAdded(Item item) {
-		itemAdpater.refilter();
+		itemAdapter.refilter();
 	}
 
 	/*
@@ -411,7 +446,7 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 	 */
 	@Override
 	public void onItemChanged(EquippedItem item) {
-		itemAdpater.notifyDataSetChanged();
+		itemAdapter.notifyDataSetChanged();
 	}
 
 	/*
@@ -423,7 +458,8 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 	 */
 	@Override
 	public void onItemRemoved(Item item) {
-		itemAdpater.refilter();
+		itemAdapter.remove(item);
+		itemAdapter.refilter();
 	}
 
 	/*
@@ -435,7 +471,7 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 	 */
 	@Override
 	public void onItemEquipped(EquippedItem item) {
-		itemAdpater.notifyDataSetChanged();
+		itemAdapter.notifyDataSetChanged();
 	}
 
 	/*
@@ -447,7 +483,7 @@ public class ItemsListFragment extends BaseFragment implements OnItemClickListen
 	 */
 	@Override
 	public void onItemUnequipped(EquippedItem item) {
-		itemAdpater.notifyDataSetChanged();
+		itemAdapter.notifyDataSetChanged();
 	}
 
 }

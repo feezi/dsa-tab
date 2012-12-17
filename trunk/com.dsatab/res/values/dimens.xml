@@ -11,15 +11,15 @@
 	<dimen name="portrait_height_small">60dp</dimen>
 	<dimen name="portrait_width_small">60dp</dimen>
 	
-	<dimen name="icon_button_size">50dp</dimen>
+	<dimen name="icon_button_size">48dp</dimen>
 	
 	<dimen name="tab_size">65dp</dimen>
 	<dimen name="tab_padding">7.5dp</dimen>
-	<dimen name="tab_icon_size">50dp</dimen>	
+	<dimen name="tab_icon_size">48dp</dimen>	
 
-	<dimen name="dice_size">70dp</dimen>	
+	<dimen name="dice_size">72dp</dimen>	
 	
-	<dimen name="dices_size">50dp</dimen>
+	<dimen name="dices_size">48dp</dimen>
 	<dimen name="dices_padding">2.5dp</dimen>
 	
 	<dimen name="wound_icon_size">25dp</dimen>	
@@ -34,6 +34,5 @@
 	<dimen name="workspace_cell_width">100dip</dimen>
     <dimen name="workspace_cell_height">150dip</dimen>
     <dimen name="workspace_cell_padding">5dip</dimen>
-    
-    <dimen name="expandable_icon_padding">10dp</dimen>
+        
 </resources>

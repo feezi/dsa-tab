@@ -5,7 +5,9 @@
     android:versionCode="52"
     android:versionName="3.3.1" >
 
-    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="14" />
+    <uses-sdk
+        android:minSdkVersion="7"
+        android:targetSdkVersion="17" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -39,7 +41,7 @@
         android:icon="@drawable/icon"
         android:label="DsaTab"
         android:largeHeap="true"
-        android:theme="@style/DsaTabTheme" >
+        android:theme="@style/DsaTabTheme.Dark" >
         <activity
             android:name="com.dsatab.activity.MainActivity"
             android:uiOptions="splitActionBarWhenNarrow"
@@ -52,13 +54,11 @@
         </activity>
         <activity
             android:name=".activity.DsaPreferenceActivityHC"
-            android:label="Einstellungen"
-            android:theme="@style/Theme.Preferences.Light" >
+            android:label="Einstellungen" >
         </activity>
         <activity
             android:name=".activity.DsaPreferenceActivity"
-            android:label="Einstellungen"
-            android:theme="@style/Theme.Preferences" >
+            android:label="Einstellungen" >
         </activity>
         <activity
             android:name="com.dsatab.activity.ItemChooserActivity"
@@ -68,21 +68,21 @@
             android:name="com.dsatab.activity.NotesEditActivity"
             android:label="Notiz bearbeiten"
             android:logo="@android:drawable/ic_menu_edit"
-            android:theme="@style/Theme.Dialog"
+            android:theme="@style/Theme.Dialog.Dark"
             android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified" >
         </activity>
         <activity
             android:name=".activity.TabEditActivity"
             android:label="Tab bearbeiten"
             android:logo="@android:drawable/ic_menu_edit"
-            android:theme="@style/Theme.Dialog"
+            android:theme="@style/Theme.Dialog.Dark"
             android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified" >
         </activity>
         <activity
             android:name=".activity.ModificatorEditActivity"
             android:label="Modifikator bearbeiten"
             android:logo="@android:drawable/ic_menu_edit"
-            android:theme="@style/Theme.Dialog"
+            android:theme="@style/Theme.Dialog.Dark"
             android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified" >
         </activity>
         <activity
@@ -101,6 +101,7 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
+
         <receiver
             android:name="com.gandulf.guilib.util.DownloadBroadcastReceiver"
             android:exported="false" >

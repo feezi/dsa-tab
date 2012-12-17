@@ -31,18 +31,17 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.commonsware.cwac.merge.MergeAdapter;
@@ -57,14 +56,9 @@ import com.dsatab.data.adapter.EventAdapter;
 import com.dsatab.data.enums.EventCategory;
 import com.dsatab.util.Debug;
 
-public class NotesFragment extends BaseFragment implements OnItemClickListener, OnMultiChoiceClickListener {
+public class NotesFragment extends BaseListFragment implements OnItemClickListener, OnMultiChoiceClickListener {
 
 	public static final int ACTION_EDIT = 1;
-
-	private static final int GROUP_NOTES = 2;
-
-	private static final int CONTEXTMENU_DELETEITEM = 1;
-	private static final int CONTEXTMENU_EDITITEM = 2;
 
 	private MediaRecorder mediaRecorder;
 	private MediaPlayer mediaPlayer;
@@ -82,6 +76,113 @@ public class NotesFragment extends BaseFragment implements OnItemClickListener, 
 
 	private Object selectedObject = null;
 
+	private final class NoteActionMode implements ActionMode.Callback {
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, com.actionbarsherlock.view.MenuItem item) {
+			boolean notifyNotesChanged = false;
+			boolean notifyConnectionsChanged = false;
+
+			notesListAdapter.setNotifyOnChange(false);
+			connectionsAdapter.setNotifyOnChange(false);
+
+			SparseBooleanArray checkedPositions = listView.getCheckedItemPositions();
+			if (checkedPositions != null) {
+				for (int i = 0; i < checkedPositions.size(); i++) {
+					if (checkedPositions.valueAt(i)) {
+						Object obj = mergeAdapter.getItem(checkedPositions.keyAt(i));
+						if (obj instanceof Event) {
+							Event event = (Event) obj;
+							if (item.getItemId() == R.id.option_delete) {
+								if (event.isDeletable()) {
+									getHero().removeEvent(event);
+									notesListAdapter.remove(event);
+									notifyNotesChanged = true;
+								}
+							} else if (item.getItemId() == R.id.option_edit) {
+								editEvent(event);
+								mode.finish();
+								break;
+							}
+						} else if (obj instanceof Connection) {
+							Connection connection = (Connection) obj;
+							if (item.getItemId() == R.id.option_delete) {
+								getHero().removeConnection(connection);
+								connectionsAdapter.remove(connection);
+								notifyConnectionsChanged = true;
+							} else if (item.getItemId() == R.id.option_edit) {
+								editConnection(connection);
+								mode.finish();
+								break;
+							}
+						}
+					}
+				}
+				if (notifyNotesChanged) {
+					notesListAdapter.notifyDataSetChanged();
+				}
+				if (notifyConnectionsChanged) {
+					connectionsAdapter.notifyDataSetChanged();
+				}
+			}
+			notesListAdapter.setNotifyOnChange(true);
+			connectionsAdapter.setNotifyOnChange(true);
+			mode.finish();
+			return true;
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			mode.getMenuInflater().inflate(R.menu.note_list_popupmenu, menu);
+			mode.setTitle("Notizen");
+			return true;
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			mMode = null;
+			listView.clearChoices();
+			mergeAdapter.notifyDataSetChanged();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * com.actionbarsherlock.view.ActionMode.Callback#onPrepareActionMode
+		 * (com.actionbarsherlock.view.ActionMode,
+		 * com.actionbarsherlock.view.Menu)
+		 */
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			SparseBooleanArray checkedPositions = listView.getCheckedItemPositions();
+
+			com.actionbarsherlock.view.MenuItem view = menu.findItem(R.id.option_delete);
+			int selected = 0;
+			boolean allDeletable = true;
+			if (checkedPositions != null) {
+				for (int i = 0; i < checkedPositions.size(); i++) {
+					if (checkedPositions.valueAt(i)) {
+						Object obj = mergeAdapter.getItem(checkedPositions.keyAt(i));
+						selected++;
+						if (obj instanceof Event) {
+							Event event = (Event) obj;
+							allDeletable &= event.isDeletable();
+						}
+					}
+				}
+			}
+
+			if (allDeletable != view.isEnabled()) {
+				view.setEnabled(allDeletable);
+				return true;
+			}
+
+			mode.setSubtitle(selected + " ausgewählt");
+
+			return false;
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -91,6 +192,8 @@ public class NotesFragment extends BaseFragment implements OnItemClickListener, 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+
+		mCallback = new NoteActionMode();
 	}
 
 	/*
@@ -189,11 +292,9 @@ public class NotesFragment extends BaseFragment implements OnItemClickListener, 
 			recordingsDir.mkdirs();
 
 		listView = (ListView) findViewById(android.R.id.list);
-		// notes
-		registerForContextMenu(listView);
-
-		// notes
+		listView.setOnItemLongClickListener(this);
 		listView.setOnItemClickListener(this);
+		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
 		categories = EventCategory.values();
 		categoriesSelected = new HashSet<EventCategory>(Arrays.asList(categories));
@@ -233,69 +334,6 @@ public class NotesFragment extends BaseFragment implements OnItemClickListener, 
 		mediaRecorder = new MediaRecorder();
 	}
 
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		if (v.getId() == android.R.id.list) {
-
-			menu.add(GROUP_NOTES, CONTEXTMENU_EDITITEM, 1, getString(R.string.menu_edit_item));
-			menu.add(GROUP_NOTES, CONTEXTMENU_DELETEITEM, 2, getString(R.string.menu_delete_item));
-
-			if (menuInfo instanceof AdapterContextMenuInfo) {
-				AdapterContextMenuInfo adapterMenuInfo = (AdapterContextMenuInfo) menuInfo;
-				Object obj = listView.getItemAtPosition(adapterMenuInfo.position);
-
-				if (obj instanceof Event) {
-					Event event = (Event) obj;
-					if (event.getCategory() == EventCategory.Heldensoftware) {
-						menu.findItem(CONTEXTMENU_DELETEITEM).setEnabled(false);
-					}
-				}
-			}
-		}
-
-		super.onCreateContextMenu(menu, v, menuInfo);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onContextItemSelected(android.view.MenuItem)
-	 */
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-
-		if (item.getGroupId() == GROUP_NOTES) {
-			if (item.getMenuInfo() instanceof AdapterContextMenuInfo) {
-				AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-				Object obj = listView.getItemAtPosition(menuInfo.position);
-
-				if (obj instanceof Event) {
-					Event event = (Event) obj;
-					if (item.getItemId() == CONTEXTMENU_DELETEITEM) {
-						getHero().removeEvent(event);
-						notesListAdapter.remove(event);
-						notesListAdapter.notifyDataSetChanged();
-						return true;
-					} else if (item.getItemId() == CONTEXTMENU_EDITITEM) {
-						editEvent(event);
-						return true;
-					}
-				} else if (obj instanceof Connection) {
-					Connection connection = (Connection) obj;
-					if (item.getItemId() == CONTEXTMENU_DELETEITEM) {
-						getHero().removeConnection(connection);
-						connectionsAdapter.remove(connection);
-						return true;
-					} else if (item.getItemId() == CONTEXTMENU_EDITITEM) {
-						editConnection(connection);
-						return true;
-					}
-				}
-			}
-		}
-		return super.onContextItemSelected(item);
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -306,37 +344,40 @@ public class NotesFragment extends BaseFragment implements OnItemClickListener, 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-		Object obj = listView.getItemAtPosition(position);
+		if (mMode == null) {
+			Object obj = listView.getItemAtPosition(position);
+			if (obj instanceof Event) {
+				Event event = (Event) obj;
 
-		if (obj instanceof Event) {
-			Event event = (Event) obj;
+				if (event.getAudioPath() != null) {
+					try {
+						if (mediaPlayer == null)
+							initMediaPlayer();
 
-			if (event.getAudioPath() != null) {
+						mediaPlayer.setDataSource(event.getAudioPath());
+						mediaPlayer.prepare();
+						mediaPlayer.start();
+						mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
-				try {
-					if (mediaPlayer == null)
-						initMediaPlayer();
+							@Override
+							public void onCompletion(MediaPlayer mp) {
+								mp.stop();
+								mp.reset();
+							}
+						});
+					} catch (IllegalArgumentException e) {
+						Debug.error(e);
+					} catch (IllegalStateException e) {
+						Debug.error(e);
+					} catch (IOException e) {
+						Debug.error(e);
+					}
 
-					mediaPlayer.setDataSource(event.getAudioPath());
-					mediaPlayer.prepare();
-					mediaPlayer.start();
-					mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-
-						@Override
-						public void onCompletion(MediaPlayer mp) {
-							mp.stop();
-							mp.reset();
-						}
-					});
-				} catch (IllegalArgumentException e) {
-					Debug.error(e);
-				} catch (IllegalStateException e) {
-					Debug.error(e);
-				} catch (IOException e) {
-					Debug.error(e);
 				}
-
 			}
+			listView.setItemChecked(position, false);
+		} else {
+			super.onItemClick(parent, view, position, id);
 		}
 	}
 
@@ -429,7 +470,7 @@ public class NotesFragment extends BaseFragment implements OnItemClickListener, 
 		if (audioPath != null) {
 			intent.putExtra(NotesEditFragment.INTENT_NAME_AUDIO_PATH, audioPath);
 		}
-		startActivityForResult(intent, ACTION_EDIT);
+		getActivity().startActivityForResult(intent, ACTION_EDIT);
 
 	}
 
@@ -442,7 +483,7 @@ public class NotesFragment extends BaseFragment implements OnItemClickListener, 
 			intent.putExtra(NotesEditFragment.INTENT_NAME_EVENT_SOZIALSTATUS, event.getSozialStatus());
 			intent.putExtra(NotesEditFragment.INTENT_NAME_EVENT_CATEGORY, event.getCategory());
 		}
-		startActivityForResult(intent, ACTION_EDIT);
+		getActivity().startActivityForResult(intent, ACTION_EDIT);
 
 	}
 

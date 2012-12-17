@@ -1,19 +1,17 @@
 package com.dsatab.data;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.xml.Xml;
 
-public class CombatMeleeAttribute extends BaseProbe implements Value {
+public class CombatMeleeAttribute extends BaseProbe implements Value, XmlWriteable {
 
-	private static final String PARADE = "Parade";
+	public static final String PARADE = "Parade";
 
-	private static final String ATTACKE = "Attacke";
+	public static final String ATTACKE = "Attacke";
 
-	private Element element;
-
-	private Integer referenceValue;
+	private Integer referenceValue, value;
 
 	private CombatMeleeTalent talent;
 
@@ -21,19 +19,8 @@ public class CombatMeleeAttribute extends BaseProbe implements Value {
 
 	private Hero hero;
 
-	public CombatMeleeAttribute(Hero hero, CombatMeleeTalent talent, Element element) {
+	public CombatMeleeAttribute(Hero hero) {
 		this.hero = hero;
-		this.talent = talent;
-		this.element = element;
-		if (Xml.KEY_ATTACKE.equals(element.getName()))
-			this.name = ATTACKE;
-		else if (Xml.KEY_PARADE.equals(element.getName()))
-			this.name = PARADE;
-
-		this.referenceValue = getValue();
-
-		probeInfo.applyBePattern(talent.getCombatTalentType().getBe());
-
 	}
 
 	public Integer getBaseValue() {
@@ -46,16 +33,33 @@ public class CombatMeleeAttribute extends BaseProbe implements Value {
 		return base;
 	}
 
+	public void setCombatMeleeTalent(CombatMeleeTalent talent) {
+		this.talent = talent;
+		if (talent.getCombatTalentType() != null) {
+			probeInfo.applyBePattern(talent.getCombatTalentType().getBe());
+		}
+	}
+
 	public int getMinimum() {
 		return getBaseValue();
 	}
 
 	public int getMaximum() {
-		return getBaseValue() + talent.getValue();
+		if (talent != null)
+			return getBaseValue() + talent.getValue();
+		else
+			return getBaseValue();
 	}
 
 	public String getName() {
-		return talent.getName() + " - " + name;
+		if (talent == null)
+			return name;
+		else
+			return talent.getName() + " - " + name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Override
@@ -83,12 +87,14 @@ public class CombatMeleeAttribute extends BaseProbe implements Value {
 	}
 
 	public Integer getReferenceValue() {
+		if (referenceValue == null)
+			this.referenceValue = getValue();
 		return referenceValue;
 	}
 
 	public Integer getValue() {
-		if (element.getAttribute(Xml.KEY_VALUE) != null)
-			return Integer.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
+		if (value != null)
+			return value;
 		else {
 			// TODO implement Verwandte Talente
 
@@ -99,13 +105,10 @@ public class CombatMeleeAttribute extends BaseProbe implements Value {
 	}
 
 	public void setValue(Integer value) {
-		if (value != null) {
-			element.setAttribute(Xml.KEY_VALUE, value.toString());
-		} else {
-			element.removeAttribute(Xml.KEY_VALUE);
+		if (this.value != value) {
+			this.value = value;
+			hero.fireValueChangedEvent(this);
 		}
-
-		hero.fireValueChangedEvent(this);
 	}
 
 	public boolean isAttack() {
@@ -114,6 +117,20 @@ public class CombatMeleeAttribute extends BaseProbe implements Value {
 
 	public CombatMeleeTalent getTalent() {
 		return talent;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
+	 */
+	@Override
+	public void populateXml(Element element) {
+		if (value != null) {
+			element.setAttribute(Xml.KEY_VALUE, value.toString());
+		} else {
+			element.removeAttribute(Xml.KEY_VALUE);
+		}
 	}
 
 	/*

@@ -1,5 +1,5 @@
 /**
- *  This file is part of Risk.
+ *  This file is part of DsaTab.
  *
  *  Risk is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with Risk.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.dsatab.activity;
 
@@ -25,21 +25,21 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.DSATabApplication;
@@ -60,25 +60,29 @@ import com.dsatab.fragment.NotesFragment;
 import com.dsatab.fragment.PurseFragment;
 import com.dsatab.fragment.SpellFragment;
 import com.dsatab.fragment.TalentFragment;
-import com.dsatab.view.GlossyImageButton;
+import com.dsatab.view.FightFilterSettings;
+import com.dsatab.view.ListFilterSettings;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
 import com.mobeta.android.dslv.DragSortListView.RemoveListener;
 
-public class TabEditActivity extends BaseFragmentActivity implements OnItemClickListener, OnClickListener,
-		OnItemSelectedListener, DropListener, RemoveListener, OnCheckedChangeListener {
+public class TabEditActivity extends BaseFragmentActivity implements OnItemClickListener, OnItemSelectedListener,
+		DropListener, RemoveListener, OnCheckedChangeListener {
 
 	private Spinner spinner1, spinner2, iconSpinner;
+
 	private CheckBox diceslider;
+
+	private LinearLayout addons[] = new LinearLayout[TabInfo.MAX_TABS_PER_PAGE];
 
 	private List<String> activities;
 	private List<Class<? extends BaseFragment>> activityValues;
-	private int selectedPosition = 0;
 
 	private TabInfo currentInfo = null;
 
 	private DragSortListView tabsList;
 	private TabsAdapter tabsAdapter;
+
 	private TabIconAdapter iconAdapter;
 
 	private List<TabInfo> tabs;
@@ -100,13 +104,13 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 			return;
 		}
 
-		getSupportActionBar().setDisplayShowHomeEnabled(true);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
 		List<Integer> avatars = DSATabApplication.getInstance().getConfiguration().getTabIcons();
 
 		diceslider = (CheckBox) findViewById(R.id.popup_edit_diceslider);
 		diceslider.setOnCheckedChangeListener(this);
+
+		addons[0] = (LinearLayout) findViewById(R.id.popup_edit_primary_addon);
+		addons[1] = (LinearLayout) findViewById(R.id.popup_edit_secondary_addon);
 
 		spinner1 = (Spinner) findViewById(R.id.popup_edit_primary);
 
@@ -144,12 +148,27 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		iconSpinner.setAdapter(iconAdapter);
 		iconSpinner.setOnItemSelectedListener(this);
 
-		Button ok = (Button) findViewById(R.id.popup_edit_ok);
-		ok.setOnClickListener(this);
-		Button cancel = (Button) findViewById(R.id.popup_edit_cancel);
-		cancel.setOnClickListener(this);
+		selectTabInfo(null);
 
-		updateView(null);
+		// Inflate a "Done" custom action bar view to serve as the "Up"
+		// affordance.
+		LayoutInflater inflater = LayoutInflater.from(this);
+		final View customActionBarView = inflater.inflate(R.layout.actionbar_custom_view_done, null);
+		customActionBarView.findViewById(R.id.actionbar_done).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				finish();
+			}
+		});
+
+		// Show the custom action bar view and hide the normal Home icon and
+		// title.
+		final ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM
+				| ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+		actionBar.setCustomView(customActionBarView);
+
+		setResult(RESULT_OK);
 	}
 
 	@Override
@@ -193,45 +212,40 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		switch (item.getItemId()) {
 		case R.id.option_tab_add:
 			TabInfo info = new TabInfo();
-			getTabs().add(info);
+			tabs.add(info);
 			tabsAdapter.notifyDataSetChanged();
-			updateView(info);
+			selectTabInfo(info);
 			break;
 		case R.id.option_tab_delete:
-			getTabs().remove(currentInfo);
-			updateView(null);
+			tabs.remove(currentInfo);
+			selectTabInfo(null);
 			tabsAdapter.notifyDataSetChanged();
 			break;
 		case R.id.option_tab_reset:
 			tabs = DSATabApplication.getInstance().getHero().getHeroConfiguration().getDefaultTabs();
 			tabsAdapter = new TabsAdapter(this, tabs);
 			tabsList.setAdapter(tabsAdapter);
-			updateView(null);
+			selectTabInfo(null);
 			break;
 		case android.R.id.home:
-			setResult(RESULT_CANCELED);
 			finish();
 		}
 
 		return false;
 	}
 
-	protected void updateView(TabInfo info) {
-
+	protected void selectTabInfo(TabInfo info) {
 		currentInfo = info;
-		tabsAdapter.setSelectedTab(info);
-
 		if (info != null) {
-			Class<? extends BaseFragment> clazz1 = info.getPrimaryActivityClazz();
-
+			Class<? extends BaseFragment> clazz1 = info.getActivityClazz(0);
 			spinner1.setSelection(activityValues.indexOf(clazz1));
 
-			Class<? extends BaseFragment> clazz2 = info.getSecondaryActivityClazz();
+			Class<? extends BaseFragment> clazz2 = info.getActivityClazz(1);
 			spinner2.setSelection(activityValues.indexOf(clazz2));
 
 			diceslider.setChecked(info.isDiceSlider());
 
-			setSelectedTabIcon(info.getTabResourceIndex());
+			iconSpinner.setSelection(info.getTabResourceIndex());
 		}
 
 		spinner1.setEnabled(info != null);
@@ -239,11 +253,82 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		diceslider.setEnabled(info != null);
 		iconSpinner.setEnabled(info != null);
 
+		updateTabInfoSettings(info);
+
 		invalidateOptionsMenu();
 	}
 
-	protected List<TabInfo> getTabs() {
-		return tabs;
+	protected void updateTabInfoSettings(TabInfo info) {
+		CheckBox check;
+		if (info != null && info.getFilterSettings() != null) {
+			for (int i = 0; i < info.getFilterSettings().length; i++) {
+				if (info.getFilterSettings()[i] instanceof ListFilterSettings) {
+					ListFilterSettings listFilterSettings = (ListFilterSettings) info.getFilterSettings()[i];
+
+					if (addons[i].findViewById(R.id.popup_edit_show_favorites) == null) {
+						addons[i].removeAllViews();
+						getLayoutInflater().inflate(R.layout.popup_edit_tab_list, addons[i]);
+					}
+
+					check = (CheckBox) addons[i].findViewById(R.id.popup_edit_show_normal);
+					check.setTag(listFilterSettings);
+					check.setOnCheckedChangeListener(this);
+
+					check.setChecked(listFilterSettings.isShowNormal());
+
+					check = (CheckBox) addons[i].findViewById(R.id.popup_edit_show_favorites);
+					check.setTag(listFilterSettings);
+					check.setOnCheckedChangeListener(this);
+					check.setChecked(listFilterSettings.isShowFavorite());
+
+					check = (CheckBox) addons[i].findViewById(R.id.popup_edit_show_unused);
+					check.setTag(listFilterSettings);
+					check.setOnCheckedChangeListener(this);
+					check.setChecked(listFilterSettings.isShowUnused());
+
+					check = (CheckBox) addons[i].findViewById(R.id.popup_edit_include_modifiers);
+					check.setTag(listFilterSettings);
+					check.setOnCheckedChangeListener(this);
+					check.setChecked(listFilterSettings.isIncludeModifiers());
+
+				} else if (info.getFilterSettings()[i] instanceof FightFilterSettings) {
+					FightFilterSettings fightFilterSettings = (FightFilterSettings) info.getFilterSettings()[i];
+
+					if (addons[i].findViewById(R.id.popup_edit_fight_show_armor) == null) {
+						addons[i].removeAllViews();
+						getLayoutInflater().inflate(R.layout.popup_edit_tab_fight, addons[i]);
+					}
+
+					check = (CheckBox) addons[i].findViewById(R.id.popup_edit_fight_include_modifier);
+					check.setTag(fightFilterSettings);
+					check.setOnCheckedChangeListener(this);
+					check.setChecked(fightFilterSettings.isIncludeModifiers());
+
+					check = (CheckBox) addons[i].findViewById(R.id.popup_edit_fight_show_armor);
+					check.setTag(fightFilterSettings);
+					check.setOnCheckedChangeListener(this);
+					check.setChecked(fightFilterSettings.isShowArmor());
+
+					check = (CheckBox) addons[i].findViewById(R.id.popup_edit_fight_show_evade);
+					check.setTag(fightFilterSettings);
+					check.setOnCheckedChangeListener(this);
+					check.setChecked(fightFilterSettings.isShowEvade());
+
+					check = (CheckBox) addons[i].findViewById(R.id.popup_edit_fight_show_modifier);
+					check.setTag(fightFilterSettings);
+					check.setOnCheckedChangeListener(this);
+					check.setChecked(fightFilterSettings.isShowModifier());
+
+				} else {
+					addons[i].removeAllViews();
+				}
+			}
+		} else {
+			for (int i = 0; i < addons.length; i++) {
+				addons[i].removeAllViews();
+			}
+		}
+
 	}
 
 	/*
@@ -253,12 +338,13 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	 */
 	@Override
 	public void drop(int from, int to) {
+		if (from != to) {
+			TabInfo tab = tabs.remove(from);
+			tabs.add(to, tab);
+			tabsList.moveCheckState(from, to);
+			tabsAdapter.notifyDataSetChanged();
 
-		TabInfo tab = getTabs().remove(from);
-
-		getTabs().add(to, tab);
-
-		tabsAdapter.notifyDataSetChanged();
+		}
 	}
 
 	/*
@@ -268,35 +354,37 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	 */
 	@Override
 	public void remove(int which) {
-		getTabs().remove(which);
+		tabs.remove(which);
 		tabsAdapter.notifyDataSetChanged();
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.view.View.OnClickListener#onClick(android.view.View)
+	 * @see android.support.v4.app.FragmentActivity#onBackPressed()
 	 */
 	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
+	public void onBackPressed() {
+		super.onBackPressed();
+		finish();
+	}
 
-		case R.id.popup_edit_ok:
-			setResult(RESULT_OK);
-			Util.hideKeyboard(v);
-			DSATabApplication.getInstance().getHero().getHeroConfiguration().setTabs(tabs);
-			finish();
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#finish()
+	 */
+	@Override
+	public void finish() {
 
-			Editor edit = DSATabApplication.getPreferences().edit();
-			edit.putString(BasePreferenceActivity.KEY_MODIFY_TABS, "" + System.currentTimeMillis());
-			edit.commit();
-			break;
-		case R.id.popup_edit_cancel:
-			setResult(RESULT_CANCELED);
-			Util.hideKeyboard(v);
-			finish();
-			break;
-		}
+		Util.hideKeyboard(tabsList);
+		DSATabApplication.getInstance().getHero().getHeroConfiguration().setTabs(tabs);
+
+		Editor edit = DSATabApplication.getPreferences().edit();
+		edit.putString(BasePreferenceActivity.KEY_MODIFY_TABS, "" + System.currentTimeMillis());
+		edit.commit();
+
+		super.finish();
 	}
 
 	/*
@@ -309,7 +397,46 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		if (currentInfo != null) {
-			currentInfo.setDiceSlider(isChecked);
+			ListFilterSettings listFilterSettings;
+			FightFilterSettings fightFilterSettings;
+			switch (buttonView.getId()) {
+
+			case R.id.popup_edit_diceslider:
+				currentInfo.setDiceSlider(isChecked);
+				break;
+			case R.id.popup_edit_show_favorites:
+				listFilterSettings = (ListFilterSettings) buttonView.getTag();
+				listFilterSettings.setShowFavorite(isChecked);
+				break;
+			case R.id.popup_edit_show_unused:
+				listFilterSettings = (ListFilterSettings) buttonView.getTag();
+				listFilterSettings.setShowUnused(isChecked);
+				break;
+			case R.id.popup_edit_show_normal:
+				listFilterSettings = (ListFilterSettings) buttonView.getTag();
+				listFilterSettings.setShowNormal(isChecked);
+				break;
+			case R.id.popup_edit_include_modifiers:
+				listFilterSettings = (ListFilterSettings) buttonView.getTag();
+				listFilterSettings.setIncludeModifiers(isChecked);
+				break;
+			case R.id.popup_edit_fight_include_modifier:
+				fightFilterSettings = (FightFilterSettings) buttonView.getTag();
+				fightFilterSettings.setIncludeModifiers(isChecked);
+				break;
+			case R.id.popup_edit_fight_show_modifier:
+				fightFilterSettings = (FightFilterSettings) buttonView.getTag();
+				fightFilterSettings.setShowModifiers(isChecked);
+				break;
+			case R.id.popup_edit_fight_show_armor:
+				fightFilterSettings = (FightFilterSettings) buttonView.getTag();
+				fightFilterSettings.setShowArmor(isChecked);
+				break;
+			case R.id.popup_edit_fight_show_evade:
+				fightFilterSettings = (FightFilterSettings) buttonView.getTag();
+				fightFilterSettings.setShowEvade(isChecked);
+				break;
+			}
 		}
 	}
 
@@ -325,10 +452,12 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		if (currentInfo != null) {
 			if (adapter == spinner1) {
 				Class<? extends BaseFragment> clazz1 = activityValues.get(spinner1.getSelectedItemPosition());
-				currentInfo.setPrimaryActivityClazz(clazz1);
+				currentInfo.setActivityClazz(0, clazz1);
+				updateTabInfoSettings(currentInfo);
 			} else if (adapter == spinner2) {
 				Class<? extends BaseFragment> clazz2 = activityValues.get(spinner2.getSelectedItemPosition());
-				currentInfo.setSecondaryActivityClazz(clazz2);
+				currentInfo.setActivityClazz(1, clazz2);
+				updateTabInfoSettings(currentInfo);
 			} else if (adapter == iconSpinner) {
 				currentInfo.setTabResourceIndex(position);
 			}
@@ -346,9 +475,11 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	public void onNothingSelected(AdapterView<?> adapter) {
 		if (currentInfo != null) {
 			if (adapter == spinner1) {
-				currentInfo.setPrimaryActivityClazz(null);
+				currentInfo.setActivityClazz(0, null);
+				updateTabInfoSettings(currentInfo);
 			} else if (adapter == spinner2) {
-				currentInfo.setSecondaryActivityClazz(null);
+				currentInfo.setActivityClazz(1, null);
+				updateTabInfoSettings(currentInfo);
 			} else if (adapter == iconSpinner) {
 				// currentInfo.setTabResourceIndex(0);
 			}
@@ -364,47 +495,20 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	 */
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
 		if (parent == tabsList) {
-			TabInfo info = tabsAdapter.getItem(position);
-
-			tabsAdapter.notifyDataSetChanged();
-			updateView(info);
 			tabsList.setItemChecked(position, true);
-		}
-
-	}
-
-	protected void setSelectedTabIcon(int position) {
-		selectedPosition = position;
-		iconAdapter.setSelectedIndex(position);
-		// check new position
-		iconSpinner.setSelection(position);
-
-		if (currentInfo != null) {
-			currentInfo.setTabResourceIndex(selectedPosition);
-			tabsAdapter.notifyDataSetChanged();
+			TabInfo info = tabsAdapter.getItem(position);
+			selectTabInfo(info);
 		}
 	}
 
 	static class TabIconAdapter extends ArrayAdapter<Integer> {
 
-		LayoutInflater inflater;
-
-		private int selectedIndex;
+		private LayoutInflater inflater;
 
 		public TabIconAdapter(Context context, List<Integer> objects) {
 			super(context, 0, objects);
-
 			inflater = LayoutInflater.from(getContext());
-		}
-
-		public int getSelectedIndex() {
-			return selectedIndex;
-		}
-
-		public void setSelectedIndex(int selectedIndex) {
-			this.selectedIndex = selectedIndex;
 		}
 
 		/*
@@ -434,12 +538,10 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 				view = (LinearLayout) inflater.inflate(R.layout.item_tab, parent, false);
 			}
 
-			GlossyImageButton imageButton = (GlossyImageButton) view.findViewById(R.id.gen_tab);
-
+			ImageView imageButton = (ImageView) view.findViewById(R.id.gen_tab);
 			imageButton.setFocusable(false);
 			imageButton.setClickable(false);
 			imageButton.setImageResource(getItem(position));
-			imageButton.setChecked(selectedIndex >= 0 && selectedIndex == position);
 
 			return view;
 		}
@@ -448,25 +550,14 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 
 	static class TabsAdapter extends ArrayAdapter<TabInfo> {
 
-		LayoutInflater inflater;
-
-		TabInfo selectedTab;
+		private LayoutInflater inflater;
 
 		/**
 		 * 
 		 */
 		public TabsAdapter(Context context, List<TabInfo> objects) {
 			super(context, 0, objects);
-
 			inflater = LayoutInflater.from(getContext());
-		}
-
-		public TabInfo getSelectedTab() {
-			return selectedTab;
-		}
-
-		public void setSelectedTab(TabInfo selectedTab) {
-			this.selectedTab = selectedTab;
 		}
 
 		/*
@@ -477,24 +568,23 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		 */
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			LinearLayout view;
+			View view;
 
 			if (convertView instanceof LinearLayout) {
-				view = (LinearLayout) convertView;
+				view = convertView;
 			} else {
-				view = (LinearLayout) inflater.inflate(R.layout.item_drag_tab, parent, false);
+				view = inflater.inflate(R.layout.item_drag_tab, parent, false);
 			}
-
-			GlossyImageButton imageButton = (GlossyImageButton) view.findViewById(R.id.gen_tab);
+			ImageView imageButton = (ImageView) view.findViewById(R.id.gen_tab);
 			TabInfo info = getItem(position);
 
 			imageButton.setFocusable(false);
 			imageButton.setClickable(false);
 			imageButton.setImageResource(info.getTabResourceId());
-			imageButton.setChecked(info == selectedTab);
+
+			Util.applyRowStyle(view, position);
 
 			return view;
 		}
 	}
-
 }

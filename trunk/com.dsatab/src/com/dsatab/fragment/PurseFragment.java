@@ -1,5 +1,7 @@
 package com.dsatab.fragment;
 
+import java.util.List;
+
 import kankan.wheel.widget.OnWheelChangedListener;
 import kankan.wheel.widget.WheelView;
 import kankan.wheel.widget.adapters.NumericWheelAdapter;
@@ -129,17 +131,17 @@ public class PurseFragment extends BaseFragment implements OnItemSelectedListene
 
 	private void updateCurrency(Currency c) {
 
-		PurseUnit[] units = c.units();
-		for (int i = 0; i < units.length; i++) {
+		List<PurseUnit> units = c.units();
+		for (int i = 0; i < units.size(); i++) {
 			picker[i].setVisibility(View.VISIBLE);
-			picker[i].setTag(units[i]);
-			picker[i].setCurrentItem(pickerAdapter.getPosition(purse.getCoins(units[i])));
+			picker[i].setTag(units.get(i));
+			picker[i].setCurrentItem(pickerAdapter.getPosition(purse.getCoins(units.get(i))));
 
 			labels[i].setVisibility(View.VISIBLE);
-			labels[i].setText(units[i].xmlName());
+			labels[i].setText(units.get(i).xmlName());
 		}
 
-		for (int i = units.length; i < 4; i++) {
+		for (int i = units.size(); i < 4; i++) {
 			picker[i].setVisibility(View.GONE);
 			picker[i].setTag(null);
 			labels[i].setVisibility(View.GONE);

@@ -2,10 +2,12 @@
 <resources>
                 
     <declare-styleable name="Theme">
-        <attr name="glossyImageButtonStyle" format="reference"/>
-        <attr name="glossyButtonStyle" format="reference"/>
-        <attr name="glossyButtonOverlay" format="reference"/>
-        <attr name="glossyButtonMask" format="reference"/>
+        <attr name="ImageButtonStyle" format="reference"/>
+        
+        <attr name="tableRowStyle" format="reference"/>
+        <attr name="tableRowEvenStyle" format="reference"/>
+        <attr name="tableRowOddStyle" format="reference"/>
+        
     </declare-styleable>
         
 </resources>

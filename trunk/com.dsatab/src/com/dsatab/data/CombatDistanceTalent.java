@@ -1,6 +1,6 @@
 package com.dsatab.data;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.activity.BasePreferenceActivity;
@@ -12,21 +12,30 @@ import com.dsatab.xml.Xml;
 
 public class CombatDistanceTalent extends BaseCombatTalent implements Value {
 
-	private Element element;
-
-	private Hero hero;
-
 	private CombatTalentType type;
 
 	private Integer referenceValue;
 
-	public CombatDistanceTalent(Hero hero, Element element) {
-		super(hero, element, null);
-		this.hero = hero;
-		this.element = element;
-		this.type = CombatTalentType.byName(getName());
-		this.referenceValue = getValue();
+	public CombatDistanceTalent(Hero hero) {
+		super(hero);
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.Talent#setName(java.lang.String)
+	 */
+	@Override
+	public void setName(String name) {
+		super.setName(name);
+		setCombatTalentType(CombatTalentType.byName(name));
+	}
+
+	/**
+	 * @param type
+	 */
+	private void setCombatTalentType(CombatTalentType type) {
+		this.type = type;
 		probeInfo.applyBePattern(type.getBe());
 	}
 
@@ -65,12 +74,14 @@ public class CombatDistanceTalent extends BaseCombatTalent implements Value {
 	}
 
 	public Integer getReferenceValue() {
+		if (referenceValue == null)
+			this.referenceValue = getValue();
 		return referenceValue;
 	}
 
 	public Integer getValue() {
-		if (element.getAttribute(Xml.KEY_VALUE) != null) {
-			return Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE)) + getBaseValue();
+		if (value != null) {
+			return value + getBaseValue();
 		} else
 			return null;
 	}
@@ -78,23 +89,20 @@ public class CombatDistanceTalent extends BaseCombatTalent implements Value {
 	public int getBaseValue() {
 		int baseValue = 0;
 
-		if (hero != null) {
-			if (type == CombatTalentType.Lanzenreiten)
-				baseValue = hero.getAttributeValue(AttributeType.at);
-			else if (type.isFk())
-				baseValue = hero.getAttributeValue(AttributeType.fk);
-		}
+		if (type == CombatTalentType.Lanzenreiten)
+			baseValue = hero.getAttributeValue(AttributeType.at);
+		else if (type.isFk())
+			baseValue = hero.getAttributeValue(AttributeType.fk);
 
 		return baseValue;
 	}
 
 	public void setValue(Integer value) {
-		if (value != null)
-			element.setAttribute(Xml.KEY_VALUE, Util.toString(value - getBaseValue()));
-		else
-			element.removeAttribute(Xml.KEY_VALUE);
+		if (this.value != value) {
+			this.value = value;
 
-		hero.fireValueChangedEvent(this);
+			hero.fireValueChangedEvent(this);
+		}
 	}
 
 	public Position getPosition(int w20) {
@@ -104,6 +112,22 @@ public class CombatDistanceTalent extends BaseCombatTalent implements Value {
 		} else {
 			return Position.official[w20];
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.Talent#populateXml(org.jdom2.Element)
+	 */
+	@Override
+	public void populateXml(Element element) {
+		super.populateXml(element);
+
+		if (value != null)
+			element.setAttribute(Xml.KEY_VALUE, Util.toString(value));
+		else
+			element.removeAttribute(Xml.KEY_VALUE);
+
 	}
 
 	@Override

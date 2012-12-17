@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.TwoLineListItem;
 
 import com.dsatab.R;
@@ -35,47 +36,54 @@ public class EventAdapter extends OpenArrayAdapter<Event> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View view = null;
+		ViewHolder holder = null;
+
 		if (convertView == null) {
 			view = mInflater.inflate(R.layout.event_list_item, parent, false);
 		} else {
 			view = convertView;
+			holder = (ViewHolder) view.getTag();
+		}
+		if (holder == null) {
+			holder = new ViewHolder();
+
+			holder.text1 = (TextView) view.findViewById(android.R.id.text1);
+			holder.text2 = (TextView) view.findViewById(android.R.id.text2);
+			holder.icon1 = (ImageView) view.findViewById(android.R.id.icon1);
+			holder.icon2 = (ImageView) view.findViewById(android.R.id.icon2);
+			view.setTag(holder);
 		}
 
-		if (view instanceof TwoLineListItem) {
-			TwoLineListItem editView = (TwoLineListItem) view;
+		TwoLineListItem editView = (TwoLineListItem) view;
 
-			Event e = getItem(position);
+		Event e = getItem(position);
 
-			if (e.getCategory() != null) {
+		if (e.getCategory() != null) {
 
-				ImageView icon1 = (ImageView) editView.findViewById(android.R.id.icon1);
-				if (icon1 != null) {
-					icon1.setImageResource(e.getCategory().getDrawableId());
-				}
-
-				ImageView icon2 = (ImageView) editView.findViewById(android.R.id.icon2);
-				if (icon2 != null) {
-					if (e.getAudioPath() != null) {
-						icon2.setVisibility(View.VISIBLE);
-						icon2.setImageResource(R.drawable.ic_action_volume_on);
-					} else {
-						icon2.setVisibility(View.GONE);
-					}
-
-				}
+			if (holder.icon1 != null) {
+				holder.icon1.setImageResource(e.getCategory().getDrawableId());
 			}
 
-			if (e.getCategory().hasName() && !TextUtils.isEmpty(e.getName())) {
-				editView.getText1().setText(e.getName());
-				editView.getText2().setText(e.getComment());
-				editView.getText2().setVisibility(View.VISIBLE);
-			} else {
-				editView.getText1().setText(e.getComment());
-				editView.getText2().setVisibility(View.GONE);
+			if (holder.icon2 != null) {
+				if (e.getAudioPath() != null) {
+					holder.icon2.setVisibility(View.VISIBLE);
+					holder.icon2.setImageResource(R.drawable.ic_action_volume_on);
+				} else {
+					holder.icon2.setVisibility(View.GONE);
+				}
 			}
-
-			Util.applyRowStyle(editView, position);
 		}
+
+		if (e.getCategory().hasName() && !TextUtils.isEmpty(e.getName())) {
+			holder.text1.setText(e.getName());
+			holder.text2.setText(e.getComment());
+			holder.text2.setVisibility(View.VISIBLE);
+		} else {
+			holder.text1.setText(e.getComment());
+			holder.text2.setVisibility(View.GONE);
+		}
+
+		Util.applyRowStyle(editView, position);
 
 		return view;
 	}
@@ -91,6 +99,11 @@ public class EventAdapter extends OpenArrayAdapter<Event> {
 			filter = new EventListFilter(this);
 
 		return filter;
+	}
+
+	private static class ViewHolder {
+		TextView text1, text2;
+		ImageView icon1, icon2;
 	}
 
 }

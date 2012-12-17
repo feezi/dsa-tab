@@ -90,7 +90,7 @@ public class ProbeInfo implements Cloneable {
 					attributeTypes[1] = AttributeType.byCode(matcher.group(3));
 					attributeTypes[2] = AttributeType.byCode(matcher.group(4));
 				}
-				erschwernis = Util.parseInt(matcher.group(5));
+				erschwernis = Util.parseInteger(matcher.group(5));
 			} else {
 				Debug.warning("No probe match found for " + s);
 			}
@@ -127,14 +127,14 @@ public class ProbeInfo implements Cloneable {
 				beFlag = BE_FLAG_ADDITION;
 			} else if (beModifier.startsWith("BE-")) {
 				try {
-					int beMinus = Util.parseInt(beModifier.substring(3));
+					int beMinus = Util.parseInteger(beModifier.substring(3));
 					beFlag = BE_FLAG_SUBTRACTION + Math.abs(beMinus);
 				} catch (NumberFormatException e) {
 					Debug.error(e);
 				}
 			} else if (beModifier.startsWith("BEX")) {
 				try {
-					int beMulti = Util.parseInt(beModifier.substring(3));
+					int beMulti = Util.parseInteger(beModifier.substring(3));
 					beFlag = BE_FLAG_MULTIPLY + beMulti;
 				} catch (NumberFormatException e) {
 					Debug.error(e);

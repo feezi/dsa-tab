@@ -45,17 +45,18 @@ import com.dsatab.view.listener.HeroChangedListener;
  * @author Ganymede
  * 
  */
-public class AttributeListFragment extends BaseFragment implements HeroChangedListener, OnClickListener {
+public class AttributeListFragment extends BaseAttributesFragment implements HeroChangedListener, OnClickListener {
 
 	public static final String TAG = "attributeListFragment";
 
 	private TextView tfName;
 
-	private TextView tfLabelLE, tfLabelAU, tfLabelKE, tfLabelAE, tfLabelBE, tfLabelGS, tfLabelWS, tfLabelMR;
-	private TextView tfLE, tfAU, tfKE, tfAE, tfBE, tfGS, tfWS, tfMR;
-
-	private TextView tfLabelMU, tfLabelKL, tfLabelIN, tfLabelCH, tfLabelFF, tfLabelGE, tfLabelKO, tfLabelKK;
-	private TextView tfMU, tfKL, tfIN, tfCH, tfFF, tfGE, tfKO, tfKK;
+	/**
+	 * 
+	 */
+	public AttributeListFragment() {
+		this.inverseColors = true;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -69,41 +70,6 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 		View view = inflater.inflate(R.layout.attributes_list, container, false);
 
 		tfName = (TextView) view.findViewById(R.id.attr_name);
-		tfLabelAE = (TextView) view.findViewById(R.id.attr_ae_label);
-		tfLabelAU = (TextView) view.findViewById(R.id.attr_au_label);
-		tfLabelKE = (TextView) view.findViewById(R.id.attr_ke_label);
-		tfLabelLE = (TextView) view.findViewById(R.id.attr_le_label);
-		tfLabelBE = (TextView) view.findViewById(R.id.attr_be_label);
-		tfLabelGS = (TextView) view.findViewById(R.id.attr_gs_label);
-		tfLabelWS = (TextView) view.findViewById(R.id.attr_ws_label);
-		tfLabelMR = (TextView) view.findViewById(R.id.attr_mr_label);
-
-		tfLabelMU = (TextView) view.findViewById(R.id.attr_mu_label);
-		tfLabelKL = (TextView) view.findViewById(R.id.attr_kl_label);
-		tfLabelIN = (TextView) view.findViewById(R.id.attr_in_label);
-		tfLabelCH = (TextView) view.findViewById(R.id.attr_ch_label);
-		tfLabelFF = (TextView) view.findViewById(R.id.attr_ff_label);
-		tfLabelGE = (TextView) view.findViewById(R.id.attr_ge_label);
-		tfLabelKO = (TextView) view.findViewById(R.id.attr_ko_label);
-		tfLabelKK = (TextView) view.findViewById(R.id.attr_kk_label);
-
-		tfAE = (TextView) view.findViewById(R.id.attr_ae);
-		tfAU = (TextView) view.findViewById(R.id.attr_au);
-		tfKE = (TextView) view.findViewById(R.id.attr_ke);
-		tfLE = (TextView) view.findViewById(R.id.attr_le);
-		tfBE = (TextView) view.findViewById(R.id.attr_be);
-		tfGS = (TextView) view.findViewById(R.id.attr_gs);
-		tfWS = (TextView) view.findViewById(R.id.attr_ws);
-		tfMR = (TextView) view.findViewById(R.id.attr_mr);
-
-		tfMU = (TextView) view.findViewById(R.id.attr_mu);
-		tfKL = (TextView) view.findViewById(R.id.attr_kl);
-		tfIN = (TextView) view.findViewById(R.id.attr_in);
-		tfCH = (TextView) view.findViewById(R.id.attr_ch);
-		tfFF = (TextView) view.findViewById(R.id.attr_ff);
-		tfGE = (TextView) view.findViewById(R.id.attr_ge);
-		tfKO = (TextView) view.findViewById(R.id.attr_ko);
-		tfKK = (TextView) view.findViewById(R.id.attr_kk);
 
 		return view;
 	}
@@ -254,7 +220,7 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 			case Fingerfertigkeit:
 			case Gewandtheit:
 			case Charisma:
-				fillAttribute(attr);
+				fillAttribute(attr, true);
 				break;
 			case Lebensenergie:
 				fillAttributeValue(tfLE, AttributeType.Lebensenergie, null, true, true);
@@ -408,45 +374,6 @@ public class AttributeListFragment extends BaseFragment implements HeroChangedLi
 			tfWS.setText(ws[0] + "/" + ws[1] + "/" + ws[2]);
 		}
 
-	}
-
-	protected void fillAttribute(Attribute attr) {
-		switch (attr.getType()) {
-		case Mut:
-			fillAttributeValue(tfMU, AttributeType.Mut, null, true, true);
-			fillAttributeLabel(tfLabelMU, AttributeType.Mut);
-			break;
-		case Klugheit:
-			fillAttributeValue(tfKL, AttributeType.Klugheit, null, true, true);
-			fillAttributeLabel(tfLabelKL, AttributeType.Klugheit);
-			break;
-		case Intuition:
-			fillAttributeValue(tfIN, AttributeType.Intuition, null, true, true);
-			fillAttributeLabel(tfLabelIN, AttributeType.Intuition);
-			break;
-		case Charisma:
-			fillAttributeValue(tfCH, AttributeType.Charisma, null, true, true);
-			fillAttributeLabel(tfLabelCH, AttributeType.Charisma);
-			break;
-		case Fingerfertigkeit:
-			fillAttributeValue(tfFF, AttributeType.Fingerfertigkeit, null, true, true);
-			fillAttributeLabel(tfLabelFF, AttributeType.Fingerfertigkeit);
-			break;
-		case Gewandtheit:
-			fillAttributeValue(tfGE, AttributeType.Gewandtheit, null, false, true);
-			fillAttributeLabel(tfLabelGE, AttributeType.Gewandtheit);
-			break;
-		case Konstitution:
-			fillAttributeValue(tfKO, AttributeType.Konstitution, null, true, true);
-			fillAttributeLabel(tfLabelKO, AttributeType.Konstitution);
-			break;
-		case Körperkraft:
-			fillAttributeValue(tfKK, AttributeType.Körperkraft, null, true, true);
-			fillAttributeLabel(tfLabelKK, AttributeType.Körperkraft);
-			break;
-		default:
-			break;
-		}
 	}
 
 	public void onHeroUnloaded(Hero hero) {

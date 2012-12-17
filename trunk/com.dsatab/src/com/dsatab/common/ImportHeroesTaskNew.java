@@ -199,9 +199,7 @@ public class ImportHeroesTaskNew extends AsyncTask<String, String, Integer> impl
 	 */
 	@Override
 	public void onCancel(DialogInterface dialog) {
-
 		cancel(true);
-
 	}
 
 }

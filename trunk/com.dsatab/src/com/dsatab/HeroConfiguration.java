@@ -17,7 +17,9 @@
 package com.dsatab;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -75,8 +77,8 @@ public class HeroConfiguration {
 	private List<CustomModificator> modificators;
 	private List<WoundAttribute> wounds;
 	private List<ArmorAttribute>[] armorAttributes;
-	private List<CustomAttribute> attributes;
-	private List<MetaTalent> metaTalents;
+	private Set<CustomAttribute> attributes;
+	private Set<MetaTalent> metaTalents;
 	private List<Event> events;
 
 	private CombatStyle combatStyle;
@@ -97,8 +99,8 @@ public class HeroConfiguration {
 		modificators = new ArrayList<CustomModificator>();
 		wounds = new ArrayList<WoundAttribute>();
 		armorAttributes = new ArrayList[Hero.MAXIMUM_SET_NUMBER];
-		attributes = new ArrayList<CustomAttribute>();
-		metaTalents = new ArrayList<MetaTalent>();
+		attributes = new HashSet<CustomAttribute>();
+		metaTalents = new HashSet<MetaTalent>();
 		events = new ArrayList<Event>();
 
 		combatStyle = CombatStyle.Offensive;
@@ -194,7 +196,7 @@ public class HeroConfiguration {
 
 		if (in.has(FIELD_ATTRIBUTES)) {
 			array = in.getJSONArray(FIELD_ATTRIBUTES);
-			attributes = new ArrayList<CustomAttribute>(array.length());
+			attributes = new HashSet<CustomAttribute>(array.length());
 			for (int i = 0; i < array.length(); i++) {
 				JSONObject tab = array.getJSONObject(i);
 				try {
@@ -205,19 +207,20 @@ public class HeroConfiguration {
 				}
 			}
 		} else {
-			attributes = new ArrayList<CustomAttribute>();
+			attributes = new HashSet<CustomAttribute>();
 		}
 
 		if (in.has(FIELD_META_TALENTS)) {
 			array = in.getJSONArray(FIELD_META_TALENTS);
-			metaTalents = new ArrayList<MetaTalent>(array.length());
+			metaTalents = new HashSet<MetaTalent>(array.length());
+
 			for (int i = 0; i < array.length(); i++) {
 				JSONObject tab = array.getJSONObject(i);
 				MetaTalent info = new MetaTalent(this.hero, tab);
 				metaTalents.add(info);
 			}
 		} else {
-			metaTalents = new ArrayList<MetaTalent>();
+			metaTalents = new HashSet<MetaTalent>();
 		}
 
 		if (in.has(FIELD_EVENTS)) {
@@ -315,7 +318,7 @@ public class HeroConfiguration {
 		metaTalents.remove(talent);
 	}
 
-	public List<MetaTalent> getMetaTalents() {
+	public Set<MetaTalent> getMetaTalents() {
 		return metaTalents;
 	}
 
@@ -371,7 +374,7 @@ public class HeroConfiguration {
 		events.remove(event);
 	}
 
-	public List<CustomAttribute> getAttributes() {
+	public Set<CustomAttribute> getAttributes() {
 		return attributes;
 	}
 
@@ -487,8 +490,8 @@ public class HeroConfiguration {
 		putArray(out, tabInfosPortrait, FIELD_TABS_PORTRAIT);
 		putArray(out, modificators, FIELD_MODIFICATORS);
 		putArray(out, wounds, FIELD_WOUNDS);
-		putArray(out, attributes, FIELD_ATTRIBUTES);
-		putArray(out, metaTalents, FIELD_META_TALENTS);
+		putArray(out, new ArrayList<CustomAttribute>(attributes), FIELD_ATTRIBUTES);
+		putArray(out, new ArrayList<MetaTalent>(metaTalents), FIELD_META_TALENTS);
 		putArray(out, events, FIELD_EVENTS);
 
 		out.put(FIELD_COMBAT_STYLE, combatStyle.name());

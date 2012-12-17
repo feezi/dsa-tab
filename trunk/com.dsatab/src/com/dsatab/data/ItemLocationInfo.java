@@ -17,18 +17,16 @@ package com.dsatab.data;
 
 import java.io.Serializable;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import com.dsatab.common.Util;
 import com.dsatab.xml.Xml;
 
-public class ItemLocationInfo implements Serializable, Cloneable {
+public class ItemLocationInfo implements Serializable, Cloneable, XmlWriteable {
 
 	private static final long serialVersionUID = -7504593992133518605L;
 
 	public static final int INVALID_POSITION = -1;
-
-	private Element element = null;
 
 	private int screen = INVALID_POSITION;
 
@@ -50,9 +48,6 @@ public class ItemLocationInfo implements Serializable, Cloneable {
 
 	public void setScreen(int screen) {
 		this.screen = screen;
-		if (element != null)
-			element.setAttribute(Xml.KEY_SCREEN, Util.toString(screen));
-
 	}
 
 	public int getCellNumber() {
@@ -61,25 +56,6 @@ public class ItemLocationInfo implements Serializable, Cloneable {
 
 	public void setCellNumber(int cellNumber) {
 		this.cellNumber = cellNumber;
-		if (element != null)
-			element.setAttribute(Xml.KEY_CELL_NUMBER, Util.toString(cellNumber));
-	}
-
-	public void setElement(Element element) {
-		this.element = element;
-
-		if (element == null)
-			return;
-
-		if (element.getAttribute(Xml.KEY_CELL_NUMBER) != null)
-			setCellNumber(Util.parseInt(element.getAttributeValue(Xml.KEY_CELL_NUMBER)));
-		if (element.getAttribute(Xml.KEY_SCREEN) != null) {
-			// there is only one inventory screen left...
-			int screen = Util.parseInt(element.getAttributeValue(Xml.KEY_SCREEN));
-			if (screen > Hero.MAXIMUM_SET_NUMBER)
-				screen = Hero.MAXIMUM_SET_NUMBER;
-			setScreen(screen);
-		}
 	}
 
 	/*
@@ -118,6 +94,17 @@ public class ItemLocationInfo implements Serializable, Cloneable {
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
+	 */
+	@Override
+	public void populateXml(Element element) {
+		element.setAttribute(Xml.KEY_SCREEN, Util.toString(screen));
+		element.setAttribute(Xml.KEY_CELL_NUMBER, Util.toString(cellNumber));
 	}
 
 }

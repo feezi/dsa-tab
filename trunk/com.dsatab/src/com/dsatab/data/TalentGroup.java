@@ -5,22 +5,21 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.dsatab.data.MetaTalent.MetaTalentType;
 import com.dsatab.data.Talent.Flags;
 
 public class TalentGroup {
 
-	public static String[] NAHKAMPF_TALENTS = { "Dolche", "Hiebwaffen", "Raufen", "Ringen", "Säbel",
-			"Anderthalbhänder", "Fechtwaffen", "Infanteriewaffen", "Kettenstäbe", "Kettenwaffen", "Lanzenreiten",
-			Talent.PEITSCHE, "Schwerter", "Speere", "Stäbe", "Zweihandflegel", "Zweihandhiebwaffen",
-			"Zweihandschwerter/-säbel", "Bastardstäbe" };
+	public static String[] NAHKAMPF_TALENTS = { Talent.DOLCHE, "Hiebwaffen", "Raufen", "Ringen", "Säbel", "Anderthalbhänder",
+			"Fechtwaffen", "Infanteriewaffen", "Kettenstäbe", "Kettenwaffen", "Lanzenreiten", Talent.PEITSCHE,
+			"Schwerter", "Speere", "Stäbe", "Zweihandflegel", "Zweihandhiebwaffen", "Zweihandschwerter/-säbel",
+			"Bastardstäbe" };
 
-	public static String[] FERNKAMPF_TALENTS = { "Wurfmesser", "Armbrust", "Blasrohr", "Bogen", "Diskus", "Schleuder",
+	public static String[] FERNKAMPF_TALENTS = { "Wurfmesser", Talent.ARMBRUST, "Blasrohr", "Bogen", "Diskus", "Schleuder",
 			"Wurfbeile", "Wurfspeere", "Belagerungswaffen" };
 
 	public static String[] KÖRPER_TALENTS = { "Athletik", "Klettern", "Körperbeherrschung", "Schleichen", "Schwimmen",
 			Talent.SELBSTBEHERRSCHUNG, Talent.SICH_VERSTECKEN, "Singen", Talent.SINNENSCHÄRFE, "Tanzen", "Zechen",
-			"Akrobatik", "Fliegen", "Gaukeleien", "Reiten", "Skifahren", "Stimmen imitieren", "Taschendiebstahl" };
+			Talent.AKROBATIK, "Fliegen", "Gaukeleien", "Reiten", "Skifahren", "Stimmen imitieren", "Taschendiebstahl" };
 
 	public static String[] GESELLSCHAFT_TALENTS = { "Menschenkenntnis", "Überreden", "Betören", "Etikette",
 			"Gassenwissen", "Lehren", "Sich verkleiden", "Überzeugen", "Galanterie", "Schauspielerei",
@@ -78,6 +77,24 @@ public class TalentGroup {
 			} else {
 				return Arrays.binarySearch(talents, talentName) >= 0;
 			}
+		}
+	}
+
+	public enum MetaTalentType {
+		PirschAnsitzJagd("Pirsch- und Ansitzjagd"), NahrungSammeln("Nahrung sammeln"), Kräutersuchen("Kräutersuche"), Wache(
+				"Wache halten");
+
+		/**
+		 * 
+		 */
+		private MetaTalentType(String name) {
+			this.name = name;
+		}
+
+		private String name;
+
+		public String getName() {
+			return name;
 		}
 	}
 

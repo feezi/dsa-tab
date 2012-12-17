@@ -1,14 +1,9 @@
 package com.dsatab.data.items;
 
-import java.util.List;
-
-import org.jdom.Element;
-
 import android.text.TextUtils;
 
 import com.dsatab.R;
 import com.dsatab.common.Util;
-import com.dsatab.xml.Xml;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -53,34 +48,6 @@ public class Shield extends CloseCombatItem {
 		this.paradeWeapon = paradeWeapon;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.items.ItemSpecification#setElement(org.jdom.Element)
-	 */
-	@Override
-	public void setElement(Element element) {
-
-		@SuppressWarnings("unchecked")
-		List<Element> waffen = element.getChildren(Xml.KEY_SCHILDWAFFE);
-
-		for (Element waffe : waffen) {
-			Element wm = waffe.getChild(Xml.KEY_WAFFENMODIF);
-			if (wm != null) {
-				setWmAt(Util.parseInt(wm.getAttributeValue(Xml.KEY_WAFFENMODIF_AT)));
-				setWmPa(Util.parseInt(wm.getAttributeValue(Xml.KEY_WAFFENMODIF_PA)));
-			}
-			Element bf = waffe.getChild(Xml.KEY_BRUCHFAKTOR);
-			if (bf != null) {
-				setBf(Util.parseInt(bf.getAttributeValue(Xml.KEY_BRUCHFAKTOR_AKT)));
-			}
-			Element ini = waffe.getChild(Xml.KEY_INI_MOD);
-			if (ini != null) {
-				setIni(Util.parseInt(ini.getAttributeValue(Xml.KEY_INI_MOD_INI)));
-			}
-		}
-	}
-
 	@Override
 	public int getResourceId() {
 		if (isParadeWeapon() && !isShield())
@@ -96,7 +63,14 @@ public class Shield extends CloseCombatItem {
 	 */
 	@Override
 	public String getName() {
-		return "Paradewaffe";
+		if (isShield() && isParadeWeapon())
+			return "Schild/Parierwaffe";
+		else if (isShield())
+			return "Schild";
+		else if (isParadeWeapon())
+			return "Parierwaffe";
+		else
+			return "NO SHIELD AND PARADES";
 	}
 
 	public String getInfo() {

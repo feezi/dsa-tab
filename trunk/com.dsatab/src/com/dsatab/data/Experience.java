@@ -16,15 +16,13 @@
  */
 package com.dsatab.data;
 
-import org.jdom.Element;
-
 public class Experience extends EditableValue {
 
 	/**
 	 * 
 	 */
-	public Experience(Hero hero, String name, Element e) {
-		super(hero, name, e);
+	public Experience(Hero hero, String name) {
+		super(hero, name);
 	}
 
 	/*

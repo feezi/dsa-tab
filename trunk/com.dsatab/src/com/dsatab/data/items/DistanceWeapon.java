@@ -1,9 +1,5 @@
 package com.dsatab.data.items;
 
-import java.util.List;
-
-import org.jdom.Element;
-
 import android.text.TextUtils;
 
 import com.dsatab.DSATabApplication;
@@ -13,14 +9,13 @@ import com.dsatab.common.Util;
 import com.dsatab.data.Dice;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.db.CombatTalentTypeWrapper;
-import com.dsatab.xml.Xml;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "item_distance_weapon")
 public class DistanceWeapon extends ItemSpecification {
 
-	private static final int DISTANCE_COUNT = 5;
+	public static final int DISTANCE_COUNT = 5;
 
 	@DatabaseField(generatedId = true)
 	protected int id;
@@ -67,7 +62,7 @@ public class DistanceWeapon extends ItemSpecification {
 		int count = getDistanceCount();
 
 		if (count >= 0)
-			return Util.parseInt(getDistance(count - 1));
+			return Util.parseInteger(getDistance(count - 1));
 		else
 			return 0;
 
@@ -216,50 +211,6 @@ public class DistanceWeapon extends ItemSpecification {
 		info.append(getTpDistances());
 
 		return info;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.items.ItemSpecification#setElement(org.jdom.Element)
-	 */
-	@Override
-	public void setElement(Element element) {
-		@SuppressWarnings("unchecked")
-		List<Element> waffen = element.getChildren(Xml.KEY_FERNKAMPWAFFE);
-
-		Element child;
-		for (Element waffe : waffen) {
-
-			child = waffe.getChild(Xml.KEY_ENTFERNUNG);
-			if (child != null) {
-				for (int i = 0; i < DISTANCE_COUNT; i++) {
-					String value = child.getAttributeValue("E" + i);
-					if (!TextUtils.isEmpty(value)) {
-						setDistances(i, value);
-					}
-				}
-			}
-
-			child = waffe.getChild(Xml.KEY_TPMOD);
-			if (child != null) {
-				for (int i = 0; i < DISTANCE_COUNT; i++) {
-					String value = child.getAttributeValue("M" + i);
-					if (!TextUtils.isEmpty(value)) {
-						setTpDistances(i, value);
-					}
-				}
-			}
-
-			child = waffe.getChild(Xml.KEY_TREFFERPUNKTE);
-			if (child != null) {
-				String tp = child.getAttributeValue(Xml.KEY_TREFFERPUNKTE_MUL) + "W"
-						+ child.getAttributeValue(Xml.KEY_TREFFERPUNKTE_DICE) + "+"
-						+ child.getAttributeValue(Xml.KEY_TREFFERPUNKTE_SUM);
-				setTp(tp);
-			}
-		}
-
 	}
 
 	public int getResourceId() {

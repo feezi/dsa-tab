@@ -18,7 +18,7 @@ package com.dsatab.data;
 
 import java.util.Date;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import com.dsatab.common.Util;
 import com.dsatab.xml.Xml;
@@ -27,91 +27,113 @@ import com.dsatab.xml.Xml;
  * @author Ganymede
  * 
  */
-public class ChangeEvent {
+public class ChangeEvent implements XmlWriteable {
 
 	// <ereignis Abenteuerpunkte="-4" Alt="1" Info="Gegenseitiges Lehren"
 	// Neu="2" obj="Wettervorhersage" text="Talent steigern"
 	// time="1309649750436" version="5.1.3"/>
 
-	private Element element;
+	private Date time;
+	private Integer xps, oldValue, newValue;
+	private String info, object, version, text;
 
 	/**
 	 * 
 	 */
 	public ChangeEvent() {
-		this.element = new Element(Xml.KEY_EREIGNIS);
+
 	}
 
 	public ChangeEvent(Element element) {
-		this.element = element;
+		time = new Date(Util.parseLong(element.getAttributeValue(Xml.KEY_TIME)));
+		xps = Util.parseInteger(element.getAttributeValue(Xml.KEY_ABENTEUERPUNKTE_UPPER));
+		oldValue = Util.parseInteger(element.getAttributeValue(Xml.KEY_ALT));
+		newValue = Util.parseInteger(element.getAttributeValue(Xml.KEY_NEU));
+		info = element.getAttributeValue(Xml.KEY_INFO);
+		object = element.getAttributeValue(Xml.KEY_OBJ);
+		version = element.getAttributeValue(Xml.KEY_VERSION);
+		text = element.getAttributeValue(Xml.KEY_TEXT);
 	}
 
 	public Integer getExperiencePoints() {
-		return Util.parseInt(element.getAttributeValue(Xml.KEY_ABENTEUERPUNKTE_UPPER));
+		return xps;
 	}
 
 	public void setExperiencePoints(Integer xp) {
-		element.setAttribute(Xml.KEY_ABENTEUERPUNKTE_UPPER, Util.toString(xp));
-	}
-
-	public Integer getOldValue() {
-		return Util.parseInt(element.getAttributeValue(Xml.KEY_ALT));
-	}
-
-	public void setOldValue(Integer v) {
-		element.setAttribute(Xml.KEY_ALT, Util.toString(v));
-	}
-
-	public Integer getNewValue() {
-		return Util.parseInt(element.getAttributeValue(Xml.KEY_NEU));
-	}
-
-	public void setNewValue(Integer v) {
-		element.setAttribute(Xml.KEY_NEU, Util.toString(v));
-	}
-
-	public String getInfo() {
-		return element.getAttributeValue(Xml.KEY_INFO);
-	}
-
-	public void setInfo(String v) {
-		element.setAttribute(Xml.KEY_INFO, v);
-	}
-
-	public String getText() {
-		return element.getAttributeValue(Xml.KEY_TEXT);
-	}
-
-	public void setText(String v) {
-		element.setAttribute(Xml.KEY_TEXT, v);
-	}
-
-	public String getVersion() {
-		return element.getAttributeValue(Xml.KEY_VERSION);
-	}
-
-	public void setVersion(String v) {
-		element.setAttribute(Xml.KEY_VERSION, v);
-	}
-
-	public String getObject() {
-		return element.getAttributeValue(Xml.KEY_OBJ);
-	}
-
-	public void setObject(String v) {
-		element.setAttribute(Xml.KEY_OBJ, v);
+		this.xps = xp;
 	}
 
 	public Date getTime() {
-		return new Date(Util.parseLong(element.getAttributeValue(Xml.KEY_TIME)));
+		return time;
 	}
 
-	public void setTime(Date v) {
-		element.setAttribute(Xml.KEY_TIME, Util.toString(v.getTime()));
+	public void setTime(Date time) {
+		this.time = time;
 	}
 
-	public Element getElement() {
-		return element;
+	public Integer getOldValue() {
+		return oldValue;
+	}
+
+	public void setOldValue(Integer oldValue) {
+		this.oldValue = oldValue;
+	}
+
+	public Integer getNewValue() {
+		return newValue;
+	}
+
+	public void setNewValue(Integer newValue) {
+		this.newValue = newValue;
+	}
+
+	public String getInfo() {
+		return info;
+	}
+
+	public void setInfo(String info) {
+		this.info = info;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public String getObject() {
+		return object;
+	}
+
+	public void setObject(String object) {
+		this.object = object;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
+	 */
+	@Override
+	public void populateXml(Element element) {
+		element.setAttribute(Xml.KEY_TIME, Util.toString(time.getTime()));
+		element.setAttribute(Xml.KEY_ABENTEUERPUNKTE_UPPER, Util.toString(xps));
+		element.setAttribute(Xml.KEY_ALT, Util.toString(oldValue));
+		element.setAttribute(Xml.KEY_NEU, Util.toString(newValue));
+		element.setAttribute(Xml.KEY_INFO, info);
+		element.setAttribute(Xml.KEY_OBJ, object);
+		element.setAttribute(Xml.KEY_VERSION, version);
+		element.setAttribute(Xml.KEY_TEXT, text);
 	}
 
 }

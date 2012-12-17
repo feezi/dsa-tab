@@ -2,17 +2,13 @@
 <resources>
 
 <array name="themes">
-	<item>Light (Plain Buttons)</item>
-	<item>Light (Glossy Buttons)</item>
-	<item>Dark (Plain Buttons)</item>
-	<item>Dark (Glossy Buttons)</item>
+	<item>Light</item>	
+	<item>Dark</item>	
 </array>
 
 <array name="themesValues">
 	<item>light_plain</item>
-	<item>light_glossy</item>
 	<item>dark_plain</item>
-	<item>dark_glossy</item>
 </array>
 
 <array name="screenOrientation">

@@ -55,7 +55,7 @@ public class Dice {
 				}
 				s = m.group(3);
 				if (!TextUtils.isEmpty(s)) {
-					dice.constant = Util.parseInt(s);
+					dice.constant = Util.parseInteger(s);
 				}
 			} catch (IllegalStateException e) {
 				Debug.error("unable to parse " + tp, e);

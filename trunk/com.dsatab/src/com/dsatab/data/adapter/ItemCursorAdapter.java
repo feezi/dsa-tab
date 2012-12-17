@@ -30,7 +30,7 @@ public class ItemCursorAdapter extends SimpleCursorAdapter {
 		ItemListItem view = null;
 
 		if (!(convertView instanceof ItemListItem)) {
-			view = (ItemListItem) inflater.inflate(R.layout.item_listitem, parent, false);
+			view = (ItemListItem) inflater.inflate(R.layout.item_listitem_view, parent, false);
 		} else {
 			view = (ItemListItem) convertView;
 		}

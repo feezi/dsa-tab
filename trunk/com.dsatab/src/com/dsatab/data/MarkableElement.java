@@ -16,7 +16,7 @@
  */
 package com.dsatab.data;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import com.dsatab.xml.Xml;
 
@@ -24,44 +24,46 @@ import com.dsatab.xml.Xml;
  * @author Ganymede
  * 
  */
-public abstract class MarkableElement extends BaseProbe implements Markable {
+public abstract class MarkableElement extends BaseProbe implements Markable, XmlWriteable {
 
-	protected Element element;
-
-	/**
-	 * 
-	 */
-	public MarkableElement(Element element) {
-		this.element = element;
-	}
+	private boolean unused, favorite;
 
 	public boolean isUnused() {
-		if (element != null && element.getAttribute(Xml.KEY_UNUSED) != null) {
-			return Boolean.valueOf(element.getAttributeValue(Xml.KEY_UNUSED));
-		} else {
-			return false;
-		}
+		return unused;
 	}
 
 	public boolean isFavorite() {
-		if (element != null && element.getAttribute(Xml.KEY_FAVORITE) != null) {
-			return Boolean.valueOf(element.getAttributeValue(Xml.KEY_FAVORITE));
-		} else {
-			return false;
-		}
+		return favorite;
 	}
 
 	public void setFavorite(boolean value) {
-		if (value)
-			element.setAttribute(Xml.KEY_FAVORITE, Boolean.TRUE.toString());
-		else
-			element.removeAttribute(Xml.KEY_FAVORITE);
+		this.favorite = value;
+		if (favorite)
+			this.unused = false;
 	}
 
 	public void setUnused(boolean value) {
-		if (value)
+		this.unused = value;
+		if (unused)
+			this.favorite = false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.XmlWriteable#populateXml()
+	 */
+	@Override
+	public void populateXml(Element element) {
+		if (favorite)
+			element.setAttribute(Xml.KEY_FAVORITE, Boolean.TRUE.toString());
+		else
+			element.removeAttribute(Xml.KEY_FAVORITE);
+
+		if (unused)
 			element.setAttribute(Xml.KEY_UNUSED, Boolean.TRUE.toString());
 		else
 			element.removeAttribute(Xml.KEY_UNUSED);
 	}
+
 }

@@ -52,10 +52,11 @@ public class ArtAdapter extends OpenArrayAdapter<Art> {
 
 	private Bitmap indicatorStarGray;
 
-	public ArtAdapter(Context context, Collection<Art> liturgies, ListFilterSettings filterSettings) {
+	public ArtAdapter(Context context, Collection<Art> liturgies, ListFilterSettings settings) {
 		super(context, 0, 0, liturgies);
 
-		this.filterSettings = filterSettings;
+		this.filterSettings = new ListFilterSettings();
+		this.filterSettings.set(settings);
 		if (!filterSettings.isAllVisible())
 			filter(filterSettings);
 

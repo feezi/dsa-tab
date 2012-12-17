@@ -1,8 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sheet_spell"
+    style="@style/BorderPanel"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_margin="@dimen/page_margin"
+    android:layout_weight="1" >
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/sheet_spell" android:layout_weight="1" android:layout_height="fill_parent" android:layout_width="fill_parent" style="@style/BorderPanel" android:layout_margin="@dimen/page_margin">
+    <ListView
+        android:id="@+id/spell_list"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+    </ListView>
 
-		<ListView android:id="@+id/spell_list" android:layout_height="fill_parent" android:layout_width="fill_parent" style="@style/Widget.ListView.Probe"></ListView>
-		
-		<TextView android:text="@string/message_spell_empty" android:id="@+android:id/empty" android:gravity="center" android:drawableTop="@drawable/ic_menu_clear_playlist" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:drawablePadding="10dp" android:visibility="gone"></TextView>
+    <TextView
+        android:id="@+android:id/empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:drawablePadding="10dp"
+        android:drawableTop="@drawable/ic_menu_clear_playlist"
+        android:gravity="center"
+        android:text="@string/message_spell_empty"
+        android:visibility="gone" >
+    </TextView>
+
 </FrameLayout>

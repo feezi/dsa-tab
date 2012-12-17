@@ -1,12 +1,6 @@
 package com.dsatab.data;
 
-import java.util.List;
-
-import org.jdom.Element;
-
 import android.text.TextUtils;
-
-import com.dsatab.xml.Xml;
 
 public class SpecialFeature {
 
@@ -70,57 +64,8 @@ public class SpecialFeature {
 
 	private String name, additionalInfo, parameter1, parameter2, comment;
 
-	public SpecialFeature(Element element) {
+	public SpecialFeature() {
 
-		this.name = element.getAttributeValue(Xml.KEY_NAME);
-		this.comment = element.getAttributeValue(Xml.KEY_KOMMENTAR);
-
-		@SuppressWarnings("unchecked")
-		List<Element> kulturChildren = element.getChildren(Xml.KEY_KULTUR);
-		if (kulturChildren != null) {
-			this.additionalInfo = "";
-			for (Element child : kulturChildren) {
-				if (!TextUtils.isEmpty(additionalInfo))
-					this.additionalInfo += ", ";
-				this.additionalInfo += child.getAttributeValue(Xml.KEY_NAME);
-			}
-		}
-
-		@SuppressWarnings("unchecked")
-		List<Element> auswahlChildren = element.getChildren(Xml.KEY_AUSWAHL);
-		if (auswahlChildren != null) {
-			this.additionalInfo = "";
-			for (Element child : auswahlChildren) {
-				if (!TextUtils.isEmpty(additionalInfo))
-					this.additionalInfo += ", ";
-				this.additionalInfo += child.getAttributeValue(Xml.KEY_NAME);
-			}
-		}
-
-		Element child = element.getChild(Xml.KEY_GEGENSTAND);
-		if (child != null) {
-			this.parameter1 = child.getAttributeValue(Xml.KEY_NAME);
-		}
-
-		if (name.startsWith(TALENTSPEZIALISIERUNG_PREFIX)) {
-			child = element.getChild(Xml.KEY_TALENT);
-			if (child != null) {
-				this.parameter1 = child.getAttributeValue(Xml.KEY_NAME);
-			}
-			child = element.getChild(Xml.KEY_SPEZIALISIERUNG);
-			if (child != null) {
-				this.parameter2 = child.getAttributeValue(Xml.KEY_NAME);
-			}
-		} else if (name.startsWith(ZAUBERSPEZIALISIERUNG_PREFIX)) {
-			child = element.getChild(Xml.KEY_ZAUBER);
-			if (child != null) {
-				this.parameter1 = child.getAttributeValue(Xml.KEY_NAME);
-			}
-			child = element.getChild(Xml.KEY_SPEZIALISIERUNG);
-			if (child != null) {
-				this.parameter2 = child.getAttributeValue(Xml.KEY_NAME);
-			}
-		}
 	}
 
 	public String getComment() {
@@ -131,8 +76,20 @@ public class SpecialFeature {
 		return name;
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
 	public String getAdditionalInfo() {
 		return additionalInfo;
+	}
+
+	public void setAdditionalInfo(String additionalInfo) {
+		this.additionalInfo = additionalInfo;
 	}
 
 	/**
@@ -155,6 +112,14 @@ public class SpecialFeature {
 	 */
 	public String getParameter2() {
 		return parameter2;
+	}
+
+	public void setParameter1(String parameter1) {
+		this.parameter1 = parameter1;
+	}
+
+	public void setParameter2(String parameter2) {
+		this.parameter2 = parameter2;
 	}
 
 	@Override

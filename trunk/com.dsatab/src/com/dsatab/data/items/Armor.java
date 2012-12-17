@@ -4,15 +4,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import org.jdom.Element;
-
 import android.text.TextUtils;
 
 import com.dsatab.R;
 import com.dsatab.common.Util;
 import com.dsatab.data.enums.Position;
-import com.dsatab.xml.DomUtil;
-import com.dsatab.xml.Xml;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -201,45 +197,6 @@ public class Armor extends ItemSpecification {
 
 	public void setTotalRs(int totalRs) {
 		this.totalRs = totalRs;
-	}
-
-	public void setElement(Element element) {
-
-		Element ruestung = element.getChild(Xml.KEY_RUESTUNG);
-
-		// revert changes made due to harmony parsing bug of umlauts
-		if (ruestung == null) {
-			ruestung = element.getChild(Xml.KEY_RUESTUNG_UE);
-			if (ruestung != null) {
-				ruestung.setName(Xml.KEY_RUESTUNG);
-			}
-		}
-
-		if (ruestung != null) {
-
-			String be = DomUtil.getChildValue(ruestung, Xml.KEY_GESAMT_BE, Xml.KEY_VALUE);
-			if (be != null) {
-				setTotalBe(Util.parseFloat(be));
-			}
-			for (Position pos : Position.values()) {
-				String rs = DomUtil.getChildValue(ruestung, pos.name().toLowerCase(), Xml.KEY_VALUE);
-				if (rs != null) {
-					setRs(pos, Util.parseInt(rs));
-				}
-			}
-
-			String rs = DomUtil.getChildValue(ruestung, Xml.KEY_RS, Xml.KEY_VALUE);
-			if (rs != null) {
-				setTotalRs(Util.parseInt(rs));
-			}
-
-			rs = DomUtil.getChildValue(ruestung, Xml.KEY_STERNE, Xml.KEY_VALUE);
-			if (rs != null) {
-				setStars(Util.parseInt(rs));
-			}
-
-		}
-
 	}
 
 	public int getResourceId() {

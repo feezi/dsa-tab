@@ -66,7 +66,8 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 
 		this.hero = hero;
 
-		this.filterSettings = settings;
+		this.filterSettings = new ListFilterSettings();
+		this.filterSettings.set(settings);
 		if (!filterSettings.isAllVisible())
 			filter(filterSettings);
 

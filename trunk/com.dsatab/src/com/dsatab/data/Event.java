@@ -3,15 +3,14 @@ package com.dsatab.data;
 import java.util.Comparator;
 import java.util.StringTokenizer;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.dsatab.common.Util;
 import com.dsatab.data.enums.EventCategory;
 import com.dsatab.xml.Xml;
 
-public class Event implements JSONable {
+public class Event implements JSONable, XmlWriteable {
 
 	public static final Comparator<Event> COMPARATOR = new Comparator<Event>() {
 		@Override
@@ -22,9 +21,6 @@ public class Event implements JSONable {
 			return compare1 * 10000 + compare2;
 		}
 	};
-	private static final String SEPERATOR = ";";
-	private static final String PREFIX_AUDIO = "AUDIO:";
-	private static final String PREFIX_CATEGORY = "CATEGORY:";
 
 	private static final String FIELD_NAME = "name";
 	private static final String FIELD_COMMENT = "comment";
@@ -41,8 +37,6 @@ public class Event implements JSONable {
 	private EventCategory category;
 
 	private long time;
-
-	private Element element;
 
 	public Event() {
 		this.time = System.currentTimeMillis();
@@ -74,60 +68,11 @@ public class Event implements JSONable {
 
 	public Event(Element element) {
 		this.category = EventCategory.Misc;
-		this.element = element;
-
-		if (element.getAttribute(Xml.KEY_KOMMENTAR) != null) {
-
-			String s = element.getAttributeValue(Xml.KEY_KOMMENTAR);
-			if (s != null) {
-				if (s.startsWith(PREFIX_CATEGORY)) {
-					this.category = EventCategory.valueOf(s.substring(PREFIX_CATEGORY.length(), s.indexOf(SEPERATOR)));
-					s = s.substring(s.indexOf(SEPERATOR) + 1);
-				}
-
-				if (s.startsWith(PREFIX_AUDIO)) {
-					this.audioPath = s.substring(PREFIX_AUDIO.length(), s.indexOf(SEPERATOR));
-					s = s.substring(s.indexOf(SEPERATOR) + 1);
-				}
-
-				this.comment = s;
-			}
-
-			if (element.getAttributeValue(Xml.KEY_TIME) == null)
-				this.time = System.currentTimeMillis();
-			else
-				this.time = Util.parseLong(element.getAttributeValue(Xml.KEY_TIME));
-
-		}
-
-		// special case for notiz elements they will be keep in the xml
-		if (element.getName().equals(Xml.KEY_NOTIZ)) {
-
-			this.category = EventCategory.Heldensoftware;
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i <= 11; i++) {
-				sb.append(element.getAttributeValue(Xml.KEY_NOTIZ_PREFIX + i));
-				sb.append("\n");
-			}
-			this.comment = sb.toString().trim();
-		}
-
 	}
 
 	public void setComment(String message) {
 		this.comment = message;
 
-		if (element != null && element.getAttribute(Xml.KEY_NOTIZ_PREFIX + "0") != null) {
-			StringTokenizer st = new StringTokenizer(message, "\n");
-
-			int tokens = st.countTokens();
-			for (int i = 0; i < tokens; i++) {
-				element.setAttribute(Xml.KEY_NOTIZ_PREFIX + i, st.nextToken());
-			}
-			for (int i = tokens; i <= 11; i++) {
-				element.setAttribute(Xml.KEY_NOTIZ_PREFIX + i, "");
-			}
-		}
 	}
 
 	public String getComment() {
@@ -154,20 +99,16 @@ public class Event implements JSONable {
 		this.audioPath = audioPath;
 	}
 
-	public Element getElement() {
-		return element;
-	}
-
-	public void setElement(Element element) {
-		this.element = element;
-	}
-
 	public String getName() {
 		return name;
 	}
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public boolean isDeletable() {
+		return category != EventCategory.Heldensoftware;
 	}
 
 	/**
@@ -179,7 +120,7 @@ public class Event implements JSONable {
 	public JSONObject toJSONObject() throws JSONException {
 		// do not return json for events with an element they are stored in the
 		// xml data
-		if (element != null)
+		if (category == EventCategory.Heldensoftware)
 			return null;
 
 		JSONObject out = new JSONObject();
@@ -191,6 +132,29 @@ public class Event implements JSONable {
 		out.put(FIELD_TIME, time);
 
 		return out;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
+	 */
+	@Override
+	public void populateXml(Element element) {
+
+		if (Xml.KEY_NOTIZ.equals(element.getName())) {
+			StringTokenizer st = new StringTokenizer(comment, "\n");
+
+			int tokens = st.countTokens();
+			for (int i = 0; i < tokens; i++) {
+				element.setAttribute(Xml.KEY_NOTIZ_PREFIX + i, st.nextToken());
+			}
+			// fill up empty values if necessary
+			for (int i = tokens; i <= 11; i++) {
+				element.setAttribute(Xml.KEY_NOTIZ_PREFIX + i, "");
+			}
+		}
+
 	}
 
 }

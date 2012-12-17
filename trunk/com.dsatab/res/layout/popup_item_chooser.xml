@@ -24,7 +24,7 @@
         android:layout_toLeftOf="@+id/popup_search_button" >
     </Spinner>
 
-    <com.dsatab.view.GlossyImageButton
+    <ImageButton
         android:id="@+id/popup_search_button"
         android:layout_width="@dimen/icon_button_size"
         android:layout_height="@dimen/icon_button_size"

@@ -16,11 +16,12 @@
  */
 package com.dsatab.data;
 
+import org.jdom2.Element;
+
 /**
  * @author Ganymede
  * 
  */
 public interface XmlWriteable {
-
-	public void populateXml();
+	public void populateXml(Element element);
 }

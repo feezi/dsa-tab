@@ -66,6 +66,8 @@
     <string name="label_save">Speichern</string>
     <string name="label_delete">Löschen</string>
     <string name="settings">Einstellungen</string>
+    <string name="menu_done">Fertig</string>
+    <string name="menu_discard">Verwerfen</string>
     <string name="menu_view_item">Eintrag betrachten</string>
     <string name="menu_download_item">Eintrag herunterladen</string>
     <string name="menu_upload_item">Eintrag hochladen</string>
