@@ -19,21 +19,17 @@ package com.dsatab.fragment;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.content.res.Resources;
 import android.util.SparseBooleanArray;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.ActionMode.Callback;
-import com.dsatab.R;
-import com.dsatab.common.Util;
 
 /**
  * @author Ganymede
@@ -119,21 +115,13 @@ public abstract class BaseListFragment extends BaseFragment implements OnItemLon
 		return mCallback;
 	}
 
-	// little hack to style actionmode done button
-	private void customizeActionModeCloseButton() {
-		int buttonId = Resources.getSystem().getIdentifier("action_mode_close_button", "id", "android");
-		View v = getActivity().findViewById(buttonId);
-		if (v == null) {
-			buttonId = R.id.abs__action_mode_close_button;
-			v = getActivity().findViewById(buttonId);
-		}
-		if (v == null)
-			return;
-		LinearLayout ll = (LinearLayout) v;
-		if (ll.getChildCount() > 1 && ll.getChildAt(1) != null) {
-			TextView tv = (TextView) ll.getChildAt(1);
-			tv.setTextColor(getResources().getColor(android.R.color.white));
-			tv.setBackgroundResource(Util.getThemeResourceId(getActivity(), R.attr.actionBarItemBackground));
+	protected void refreshEmptyView(Adapter adapter) {
+		if (adapter.isEmpty()) {
+			findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
+			findViewById(android.R.id.list).setVisibility(View.GONE);
+		} else {
+			findViewById(android.R.id.empty).setVisibility(View.GONE);
+			findViewById(android.R.id.list).setVisibility(View.VISIBLE);
 		}
 	}
 }

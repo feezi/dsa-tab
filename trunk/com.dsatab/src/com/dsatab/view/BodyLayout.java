@@ -12,10 +12,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.common.Util;
 import com.dsatab.data.ArmorAttribute;
 import com.dsatab.data.WoundAttribute;
 import com.dsatab.data.enums.Position;
+import com.dsatab.util.Util;
 
 public class BodyLayout extends FrameLayout {
 

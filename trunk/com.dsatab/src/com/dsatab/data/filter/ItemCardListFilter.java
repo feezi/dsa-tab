@@ -18,6 +18,7 @@ package com.dsatab.data.filter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import android.text.TextUtils;
 
@@ -100,7 +101,7 @@ public class ItemCardListFilter extends OpenFilter<ItemCard> {
 		}
 
 		if (constraint != null) {
-			valid &= item.getName().toLowerCase().startsWith(constraint);
+			valid &= item.getName().toLowerCase(Locale.GERMAN).startsWith(constraint);
 		}
 
 		return valid;

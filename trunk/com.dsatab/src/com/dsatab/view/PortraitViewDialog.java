@@ -32,7 +32,7 @@ public class PortraitViewDialog extends AlertDialog implements DialogInterface.O
 
 		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(
 				R.layout.popup_portrait_view, null, false);
-		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		setView(popupcontent);
 
 		final ImageView image = (ImageView) popupcontent.findViewById(R.id.portrait_view);
@@ -40,7 +40,7 @@ public class PortraitViewDialog extends AlertDialog implements DialogInterface.O
 		if (drawable != null)
 			image.setImageBitmap(drawable);
 		else
-			image.setImageResource(R.drawable.profile_blank);
+			image.setImageResource(R.drawable.profile_picture);
 
 		setButton(BUTTON_NEUTRAL, getContext().getString(R.string.label_ok), this);
 

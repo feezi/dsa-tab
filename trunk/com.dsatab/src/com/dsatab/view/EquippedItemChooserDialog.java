@@ -43,7 +43,7 @@ public class EquippedItemChooserDialog extends AlertDialog implements AdapterVie
 
 		selectedItem = null;
 
-		itemAdapter = new EquippedItemAdapter(getContext(), R.layout.item_listitem, equippedItems);
+		itemAdapter = new EquippedItemAdapter(getContext(), equippedItems);
 		itemList.setAdapter(itemAdapter);
 	}
 
@@ -66,7 +66,7 @@ public class EquippedItemChooserDialog extends AlertDialog implements AdapterVie
 
 		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(
 				R.layout.popup_equipped_item_chooser, null, false);
-		popupcontent.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.FILL_PARENT,
+		popupcontent.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
 				android.widget.LinearLayout.LayoutParams.WRAP_CONTENT));
 		setView(popupcontent);
 

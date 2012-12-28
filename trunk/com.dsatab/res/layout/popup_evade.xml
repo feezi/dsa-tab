@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/popup_edit_layout"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:padding="5dip" >
+    android:padding="4dip" >
 
     <include
         android:id="@+id/inc_evade_item"
@@ -14,7 +15,7 @@
 
     <TextView
         android:id="@+id/evade_distance_text"
-        style="@style/TextLabel"
+        style="@style/TextLabel.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/evade_distance"
@@ -31,12 +32,13 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/inc_evade_item"
         android:layout_toRightOf="@+id/evade_distance_text"
-        android:entries="@array/evadeDistance" >
+        android:entries="@array/evadeDistance"
+        tools:listitem="@android:layout/simple_spinner_item" >
     </Spinner>
 
     <TextView
         android:id="@+id/evade_enemy_text"
-        style="@style/TextLabel"
+        style="@style/TextLabel.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/evade_enemy"
@@ -53,7 +55,9 @@
         android:layout_alignLeft="@+id/evade_distance"
         android:layout_below="@+id/evade_distance"
         android:layout_toRightOf="@+id/evade_enemy_text"
-        android:entries="@array/evadeEnemy" >
+        android:entries="@array/evadeEnemy"
+        tools:listitem="@android:layout/simple_spinner_item" >
+
     </Spinner>
 
     <ListView
@@ -62,7 +66,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/evade_enemy_text"
-        android:entries="@array/evadeModificationStrings" >
+        android:entries="@array/evadeModificationStrings"
+        tools:listitem="@android:layout/simple_list_item_checked" >
+
     </ListView>
 
 </RelativeLayout>

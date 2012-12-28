@@ -50,7 +50,6 @@ public class DomUtil {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public static List<Element> getChildrenByTagName(Element parent, Element subParent, String tagName) {
 		List<Element> children;
 
@@ -64,7 +63,6 @@ public class DomUtil {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	public static List<Element> getChildrenByTagName(Element parent, String tagName) {
 		List<Element> children = parent.getChildren(tagName);
 
@@ -72,7 +70,6 @@ public class DomUtil {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	public static List<Element> getChildrenByTagName(Element parent, String subParentTagName, String tagName) {
 
 		List<Element> children = new LinkedList<Element>();

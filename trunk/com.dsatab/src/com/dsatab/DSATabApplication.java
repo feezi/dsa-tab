@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -46,12 +47,12 @@ import android.widget.Toast;
 import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.common.DsaTabRuntimeException;
-import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.HeroFileInfo;
 import com.dsatab.db.DatabaseHelper;
 import com.dsatab.map.BitmapTileSource;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Util;
 import com.dsatab.xml.DataManager;
 import com.dsatab.xml.Xml;
 import com.dsatab.xml.XmlParser;
@@ -118,10 +119,6 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	public static DSATabApplication getInstance() {
 		checkInstance();
 		return instance;
-	}
-
-	public boolean isLiteVersion() {
-		return !getPreferences().getBoolean(BasePreferenceActivity.KEY_FULL_VERSION, false);
 	}
 
 	protected static File getBaseDirectory() {
@@ -419,7 +416,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 		File[] files = profilesDir.listFiles();
 		if (files != null) {
 			for (File file : files) {
-				if (file.isFile() && file.getName().toLowerCase().endsWith(".xml")) {
+				if (file.isFile() && file.getName().toLowerCase(Locale.GERMAN).endsWith(".xml")) {
 					HeroFileInfo info = getHeroInfo(file);
 					if (info != null) {
 						result = true;
@@ -451,7 +448,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 		File[] files = profilesDir.listFiles();
 		if (files != null) {
 			for (File file : files) {
-				if (file.isFile() && file.getName().toLowerCase().endsWith(".xml")) {
+				if (file.isFile() && file.getName().toLowerCase(Locale.GERMAN).endsWith(".xml")) {
 					HeroFileInfo info = getHeroInfo(file);
 					if (info != null) {
 						heroes.add(info);

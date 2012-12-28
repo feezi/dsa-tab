@@ -24,6 +24,8 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -43,11 +45,11 @@ import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.common.HeroExchange;
-import com.dsatab.common.HeroExchange.OnHeroExchangeListener;
-import com.dsatab.common.Util;
+import com.dsatab.cloud.HeroExchange;
+import com.dsatab.cloud.HeroExchange.OnHeroExchangeListener;
 import com.dsatab.data.HeroFileInfo;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Util;
 
 /**
  * 
@@ -85,7 +87,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 		setTheme(DSATabApplication.getInstance().getCustomTheme());
 		applyPreferencesToTheme();
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.popup_hero_chooser);
+		setContentView(R.layout.sheet_hero_chooser);
 
 		getSupportActionBar().setDisplayShowHomeEnabled(true);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -197,6 +199,28 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 			menu.add(0, CONTEXTMENU_DELETEITEM, 0, getString(R.string.menu_delete_item));
 		}
 		super.onCreateContextMenu(menu, v, menuInfo);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.SherlockActivity#onPrepareOptionsMenu(com.
+	 * actionbarsherlock.view.Menu)
+	 */
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+
+		com.actionbarsherlock.view.MenuItem menuItem = menu.findItem(R.id.option_hero_import);
+		if (menuItem != null) {
+			ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+			if (networkInfo != null && networkInfo.isConnected()) {
+				menuItem.setEnabled(true);
+			} else {
+				menuItem.setEnabled(false);
+			}
+		}
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	/*

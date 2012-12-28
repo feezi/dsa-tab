@@ -1,40 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:unified="http://schemas.android.com/apk/res-auto">
 
-    <header android:fragment="com.dsatab.activity.DsaPreferenceActivityHC$PrefsRulesFragment"
-            android:icon="@drawable/ic_menu_dice"
-            
-            android:title="Regeln"
-            android:summary="Einstellungen die Regeln von DSA betreffend." />
-
-	<header android:fragment="com.dsatab.activity.DsaPreferenceActivityHC$PrefsDisplayFragment"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Darstellung"
-            android:summary="Einstellungen die Darstellung von DsaTab betreffend." />
-
-	<header android:fragment="com.dsatab.activity.DsaPreferenceActivityHC$PrefsSetupFragment"
-            android:icon="@drawable/ic_menu_settings"
-            android:title="Setup"
-            android:summary="Systemeinstellungen DsaTab betreffend." />
-
-	<header android:icon="@drawable/ic_menu_account_list"
-            android:title="Tabs anpassen"
-            android:summary="Anpassen welche Tabs beim aktuellen Helden angzeigt werden sollen.">
-        <intent android:targetPackage="com.dsatab"
-        	android:targetClass="com.dsatab.activity.TabEditActivity" />
-    </header>
+    <header
+    		unified:fragment="com.dsatab.activity.BasePreferenceActivity$PrefsRulesFragment"
+    		unified:icon="?attr/imgSettings"
+    		unified:title="Regeln"
+    		unified:summary="Einstellungen die Regeln von DSA betreffend."
+    		unified:preferenceRes="@xml/preferences_hc_rules" />
     
-	<header android:fragment="com.dsatab.activity.DsaPreferenceActivityHC$PrefsInfoFragment"
-            android:icon="@drawable/ic_menu_info_details"
-            android:title="Informationen"
-            android:summary="Alle möglichen Informationen rund um DsaTab." />                            
+	<header unified:fragment="com.dsatab.activity.BasePreferenceActivity$PrefsDisplayFragment"
+            unified:icon="?attr/imgView"
+            unified:title="Darstellung"
+            unified:summary="Einstellungen die Darstellung von DsaTab betreffend."
+            unified:preferenceRes="@xml/preferences_hc_display" />
+
+	<header unified:fragment="com.dsatab.activity.BasePreferenceActivity$PrefsSetupFragment"
+            unified:icon="?attr/imgSettings"
+            unified:title="Setup"
+            unified:summary="Systemeinstellungen DsaTab betreffend." 
+            unified:preferenceRes="@xml/preferences_hc_setup" />
+    
+	<header unified:fragment="com.dsatab.activity.BasePreferenceActivity$PrefsInfoFragment"
+            unified:icon="?attr/imgInfo"
+            unified:title="Informationen"
+            unified:summary="Alle möglichen Informationen rund um DsaTab."
+            unified:preferenceRes="@xml/preferences_hc_info" />                            
      
-    <header android:icon="@drawable/ic_menu_love"
-            android:title="Spenden"
-            android:summary="Bringt dich direkt zur Spendenseite.">
+    <header unified:icon="?attr/imgLove"
+            unified:title="Spenden"
+            unified:summary="Bringt dich direkt zur Spendenseite.">
         <intent android:action="android.intent.action.VIEW"
                 android:data="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=gandulf%2ek%40gmx%2enet&amp;lc=DE&amp;item_name=Gandulf&amp;item_number=DsaTab&amp;currency_code=EUR&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" />
     </header>
     
- 
 </preference-headers>

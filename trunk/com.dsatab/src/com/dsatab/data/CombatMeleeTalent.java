@@ -121,7 +121,7 @@ public class CombatMeleeTalent extends BaseCombatTalent {
 				if (Xml.KEY_ATTACKE.equals(item.getName()))
 					at.populateXml(item);
 				else if (Xml.KEY_PARADE.equals(item.getName()))
-					at.populateXml(item);
+					pa.populateXml(item);
 			}
 		} else {
 			super.populateXml(element);

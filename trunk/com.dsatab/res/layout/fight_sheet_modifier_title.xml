@@ -2,10 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingLeft="2.5dp"
-    android:paddingRight="2.5dp">
+    android:background="?attr/listItemBackground"
+    android:paddingRight="6dp"
+    android:paddingLeft="6dp">
 
     <TextView
         android:id="@+id/fight_modifiers_title"
@@ -18,9 +18,9 @@
 
     <ImageButton
         android:id="@+id/fight_modifiers_add"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/icon_button_size"
+        android:layout_height="@dimen/icon_button_size"
         android:layout_weight="0"        
-        android:src="@drawable/ic_action_add" />
+        android:src="?attr/imgModifierAdd" />
 
 </LinearLayout>

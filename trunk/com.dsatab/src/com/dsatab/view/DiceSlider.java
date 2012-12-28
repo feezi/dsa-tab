@@ -12,6 +12,7 @@ import kankan.wheel.widget.OnWheelClickedListener;
 import kankan.wheel.widget.WheelView;
 import kankan.wheel.widget.adapters.AbstractWheelTextAdapter;
 import kankan.wheel.widget.adapters.NumericWheelAdapter;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -45,7 +46,6 @@ import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.common.DsaMath;
-import com.dsatab.common.Util;
 import com.dsatab.data.Advantage;
 import com.dsatab.data.Art;
 import com.dsatab.data.Attribute;
@@ -62,6 +62,8 @@ import com.dsatab.data.SpecialFeature;
 import com.dsatab.data.Spell;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Hint;
+import com.dsatab.util.Util;
 import com.gandulf.guilib.view.WrappingSlidingDrawer;
 
 public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickListener, OnWheelChangedListener,
@@ -117,14 +119,17 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 	private int soundNeutral;
 	private int soundWin;
 	private int soundFail;
+	private Activity activity;
 
 	public DiceSlider(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
+		this.activity = (Activity) context;
 		init();
 	}
 
 	public DiceSlider(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		this.activity = (Activity) context;
 		init();
 	}
 
@@ -317,7 +322,8 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 	protected void onFinishInflate() {
 
-		BitmapDrawable tileMe = new BitmapDrawable(BitmapFactory.decodeResource(getResources(), R.drawable.bg_tab_dice));
+		BitmapDrawable tileMe = new BitmapDrawable(getResources(), BitmapFactory.decodeResource(getResources(),
+				R.drawable.bg_tab_dice));
 		tileMe.setTileModeX(Shader.TileMode.MIRROR);
 		tileMe.setTileModeY(Shader.TileMode.CLAMP);
 
@@ -522,6 +528,8 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 	public Double checkProbe(Hero hero, Probe probe) {
 		if (!isOpened())
 			animateOpen();
+
+		Hint.showRandomHint("DiceSlider", activity);
 
 		clearDice();
 

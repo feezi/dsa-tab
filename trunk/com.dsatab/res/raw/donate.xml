@@ -1,22 +1,17 @@
 <div>
-
-<h2>DsaTab is free - <span style="font-size:80%">as in free beer</span></h2>
-
-<p style="text-align:justify">Erstmal ein <strong>dickes Dankeschön</strong> an alle die DsaTab bereits erworben haben als es noch kostenpflichtig war. 
-Ohne euch hätte ich die Entwicklung nie soweit vorantreiben können.<br/> 
-Um mögliche Probleme bezüglich der "Das schwarze Auge"-Lizenzen zu vermeiden, steige ich jetzt auf eine kostenlose Varinate um. Was jedoch nicht heisst, dass ich eure Untertützung nicht weiterhin benötige.
-</p>
-<p style="text-align:justify">
-Von In-App Werbung halte ich persönlich nicht viel, da ich sowieso schon ein Platzproblem mit den kleinen Screens
-habe. Ich habe mich daher für das "Spenden-Geschäftsmodell" entschieden, was man unschwer an den nervigen Spenden-Popups erkennen wird. Falls jemand nichts spenden will, ist das natürlich auch in Ordnung. Bei den Einstellungen
-gibt es fast am Ende einen Punkt "Vollversion verwenden", aktiviert man diesen, verschwinden die Popups und man kann
-den gesamten Funktionsumfang der App nützen. <br/> 
-<strong>Alle die DsaTab noch gekauft haben, können diesen Punkt natürlich ohne Spende und schlechtes Gewissen aktivieren ;-)</strong>
-</p>
-
-<p style="text-align:justify">Hier der Link für all jene die die Entwicklung dieser App unterstützen wollen:
-<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=gandulf%2ek%40gmx%2enet&amp;lc=EN&amp;item_name=Gandulf&amp;item_number=DsaTab&amp;currency_code=EUR">
-<img src="file:///android_asset/btn_donate_LG.gif" alt="Donate" border="0"/>
-</a>
-</p>
+	<h2>DsaTab is free - <span style="font-size:80%">as in free beer</span></h2>
+		
+	<p>
+	Von In-App Werbung halte ich persönlich nicht viel, da ich sowieso schon ein Platzproblem mit den kleinen Screens
+	habe. Ich habe mich daher für das "Spenden-Geschäftsmodell" entschieden.
+	Falls jemand nichts spenden will, ist das natürlich auch in Ordnung. Ich bastle gerne am DsaTab rum und was man gerne macht, macht man auch umsonst.  		
+	</p>
+	
+	<p>Hier der Link für all jene die die Entwicklung dieser App unterstützen wollen:
+	<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=gandulf%2ek%40gmx%2enet&amp;lc=EN&amp;item_name=Gandulf&amp;item_number=DsaTab&amp;currency_code=EUR">
+	<img src="file:///android_asset/btn_donate_LG.gif" alt="Donate" border="0"/></a>
+	</p>
+	
+	<p>Ein <strong>dickes Dankeschön</strong> an alle die DsaTab bereits erworben haben als es noch kostenpflichtig war. 
+	Ohne euch hätte ich die Entwicklung nie soweit vorantreiben können.</p>
 </div>

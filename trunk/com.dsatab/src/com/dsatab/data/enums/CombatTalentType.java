@@ -45,7 +45,7 @@ public enum CombatTalentType {
 	}
 
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
 	public static CombatTalentType byName(String name) {
@@ -53,7 +53,6 @@ public enum CombatTalentType {
 			if (name.equals(t.getName())) {
 				return t;
 			}
-
 		}
 		return null;
 	}

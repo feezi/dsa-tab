@@ -31,10 +31,10 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.dsatab.R;
-import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.adapter.EventCatgoryAdapter;
 import com.dsatab.data.enums.EventCategory;
+import com.dsatab.util.Util;
 
 /**
  * @author Seraphim

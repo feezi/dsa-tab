@@ -20,7 +20,10 @@ import java.io.FileFilter;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
+import net.saik0.android.unifiedpreference.UnifiedPreferenceFragment;
+import net.saik0.android.unifiedpreference.UnifiedSherlockPreferenceActivity;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -41,6 +44,7 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images.Media;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -48,23 +52,23 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockPreferenceActivity;
+import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.DSATabApplication;
 import com.dsatab.DsaTabConfiguration;
 import com.dsatab.DsaTabConfiguration.ArmorType;
 import com.dsatab.DsaTabConfiguration.WoundType;
 import com.dsatab.R;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Hint;
+import com.dsatab.view.ChangeLogDialog;
 import com.dsatab.view.DirectoryChooserDialogHelper;
 import com.dsatab.view.DirectoryChooserDialogHelper.Result;
 import com.dsatab.view.PreferenceWithButton;
-import com.dsatab.view.TipOfTheDayDialog;
 import com.gandulf.guilib.download.AbstractDownloader;
 import com.gandulf.guilib.download.DownloaderWrapper;
 import com.gandulf.guilib.util.ResUtil;
-import com.gandulf.guilib.view.VersionInfoDialog;
 
-public abstract class BasePreferenceActivity extends SherlockPreferenceActivity implements
+public class BasePreferenceActivity extends UnifiedSherlockPreferenceActivity implements
 		OnSharedPreferenceChangeListener {
 
 	public static final String INTENT_PREF_SCREEN = "com.dsatab.prefScreen";
@@ -132,8 +136,6 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 	public static final String KEY_STYLE_BG_WOUNDS_PATH = "theme.wound.bg.path";
 	public static final String KEY_STYLE_BG_WOUNDS_DELETE = "theme.wound.bg.delete";
 
-	public static final String KEY_FULL_VERSION = "fullVersion";
-
 	public static final String KEY_EXCHANGE = "heldenAustauschScreen";
 
 	public static final String KEY_EXCHANGE_PROVIDER = "exchange_provider";
@@ -147,6 +149,7 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 	public static final String KEY_SCREEN_ORIENTATION = "screen_orientation";
 
 	public static final String KEY_TIP_TODAY = "tipToday";
+	public static final String KEY_TIP_TODAY_RESET = "tipTodayReset";
 
 	public static final String KEY_DSA_LICENSE = "dsa_license";
 
@@ -186,13 +189,9 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 	private boolean restartRequired = false;
 
 	public static void startPreferenceActivity(Activity context) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			context.startActivityForResult(new Intent(context, DsaPreferenceActivity.class),
-					MainActivity.ACTION_PREFERENCES);
-		} else {
-			context.startActivityForResult(new Intent(context, DsaPreferenceActivityHC.class),
-					MainActivity.ACTION_PREFERENCES);
-		}
+		context.startActivityForResult(new Intent(context, BasePreferenceActivity.class),
+				MainActivity.ACTION_PREFERENCES);
+
 	}
 
 	public static void initPreferences(final PreferenceManager mgr, final PreferenceScreen screen) {
@@ -267,9 +266,15 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 			}
 		}
 
-		SharedPreferences sharedPreferences = mgr.getSharedPreferences();
+		Preference fullscreenPref = mgr.findPreference(KEY_FULLSCREEN);
+		if (fullscreenPref != null && screen != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			screen.removePreference(fullscreenPref);
+		}
 
-		initPreferenceScreen(screen, sharedPreferences);
+		SharedPreferences sharedPreferences = mgr.getSharedPreferences();
+		if (screen != null) {
+			initPreferenceScreen(screen, sharedPreferences);
+		}
 
 	}
 
@@ -291,13 +296,99 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setTheme(DSATabApplication.getInstance().getCustomPreferencesTheme());
+
+		String action = getIntent().getAction();
+		if (action == null) {
+			setHeaderRes(com.dsatab.R.xml.preferences_headers);
+		}
 		super.onCreate(savedInstanceState);
+
+		if (action != null) {
+			String layout = getIntent().getStringExtra("layout");
+			if (layout.startsWith("@xml/"))
+				layout = layout.substring(5);
+			if (layout.startsWith("res/xml/"))
+				layout = layout.substring(8, layout.length() - 4);
+
+			int layoutId = getResources().getIdentifier(layout, "xml", getPackageName());
+			addPreferencesFromResource(layoutId);
+		}
+		getSupportActionBar().setDisplayShowHomeEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		SharedPreferences preferences = DSATabApplication.getPreferences();
 		preferences.registerOnSharedPreferenceChangeListener(this);
 
 		updateFullscreenStatus(getWindow(), preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
 
+		int screen = getIntent().getIntExtra(INTENT_PREF_SCREEN, SCREEN_HOME);
+
+		switch (screen) {
+		case SCREEN_HOME:
+			break;
+		case SCREEN_EXCHANGE:
+			switchToHeader("com.dsatab.activity.BasePreferenceActivity$PrefsSetupFragment", null);
+			break;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.saik0.android.unifiedpreference.UnifiedSherlockPreferenceActivity
+	 * #onPostCreate(android.os.Bundle)
+	 */
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+
+		if (isSinglePane()) {
+			initPreferences(getPreferenceManager(), getPreferenceScreen());
+			onBindPreferenceSummariesToValues();
+		}
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			setResult(RESULT_OK);
+			finish();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.activity.BasePreferenceActivity#onSharedPreferenceChanged(
+	 * android.content.SharedPreferences, java.lang.String)
+	 */
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		handlePreferenceChange(findPreference(key), sharedPreferences, key);
+
+		if (KEY_FULLSCREEN.equals(key)) {
+			updateFullscreenStatus(getWindow(), sharedPreferences.getBoolean(KEY_FULLSCREEN, true));
+		}
+
+		if (!restartRequired && Arrays.binarySearch(RESTART_KEYS, key) >= 0)
+			restartRequired = true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.preference.PreferenceActivity#onPreferenceTreeClick(android.
+	 * preference.PreferenceScreen, android.preference.Preference)
+	 */
+	@Override
+	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+		return handlePreferenceTreeClick(this, preferenceScreen, preference);
 	}
 
 	/*
@@ -376,7 +467,7 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 
 		Uri targetUri = Media.EXTERNAL_CONTENT_URI;
 		String folderPath = DSATabApplication.getDirectory(DSATabApplication.DIR_PORTRAITS).getAbsolutePath();
-		String folderBucketId = Integer.toString(folderPath.toLowerCase().hashCode());
+		String folderBucketId = Integer.toString(folderPath.toLowerCase(Locale.GERMAN).hashCode());
 
 		targetUri = targetUri.buildUpon().appendQueryParameter(MediaStore.Images.Media.BUCKET_ID, folderBucketId)
 				.build();
@@ -475,6 +566,16 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 			};
 			new DirectoryChooserDialogHelper(context, resultListener, DSATabApplication.getDsaTabHeroPath());
 			return true;
+		} else if (KEY_TIP_TODAY_RESET.equals(key)) {
+			Editor edit = preferences.edit();
+			for (String prefKey : preferences.getAll().keySet()) {
+				if (prefKey.startsWith(Hint.PREF_PREFIX_HINT_STORAGE)) {
+					edit.remove(prefKey);
+				}
+			}
+			edit.commit();
+			Toast.makeText(context, "Tips zurückgesetzt.", Toast.LENGTH_SHORT).show();
+			return true;
 		}
 
 		return false;
@@ -545,9 +646,10 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 			builder.setTitle(R.string.title_credits);
 			builder.setCancelable(true);
 			WebView webView = new WebView(context);
+			webView.getSettings().setDefaultTextEncodingName("utf-8");
 
 			String summary = ResUtil.loadResToString(R.raw.credits, context);
-			webView.loadData(summary, "text/html", "ISO-8859-1");
+			webView.loadDataWithBaseURL(null, summary, "text/html", "utf-8", null);
 			builder.setView(webView);
 			builder.setNeutralButton(R.string.label_ok, new DialogInterface.OnClickListener() {
 
@@ -559,18 +661,8 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 			builder.show();
 			return true;
 		} else if (KEY_INFOS.equals(preference.getKey())) {
-			VersionInfoDialog newsDialog = new VersionInfoDialog(context);
-			newsDialog.setDonateContentId(R.raw.donate);
-			newsDialog.setDonateVersion(DSATabApplication.getInstance().isLiteVersion());
-			newsDialog.setDonateUrl(DSATabApplication.PAYPAL_DONATION_URL);
-			newsDialog.setRawClass(R.raw.class);
-			newsDialog.setTitle(R.string.news_title);
-			newsDialog.setIcon(R.drawable.icon);
-			newsDialog.show(true);
-			return true;
-		} else if (KEY_TIP_TODAY.equals(preference.getKey())) {
-			TipOfTheDayDialog newsDialog = new TipOfTheDayDialog(context);
-			newsDialog.show();
+			ChangeLogDialog logDialog = new ChangeLogDialog(context);
+			logDialog.show(true);
 			return true;
 		} else if (KEY_DONATE.equals(preference.getKey())) {
 			Uri uriUrl = Uri.parse(DSATabApplication.PAYPAL_DONATION_URL);
@@ -582,9 +674,9 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 			builder.setTitle(R.string.title_credits);
 			builder.setCancelable(true);
 			WebView webView = new WebView(context);
-
+			webView.getSettings().setDefaultTextEncodingName("utf-8");
 			String summary = ResUtil.loadResToString(R.raw.ulisses_license, context);
-			webView.loadData(summary, "text/html", "ISO-8859-1");
+			webView.loadDataWithBaseURL(null, summary, "text/html", "utf-8", null);
 			builder.setView(webView);
 			builder.setNeutralButton(R.string.label_ok, new DialogInterface.OnClickListener() {
 
@@ -594,46 +686,258 @@ public abstract class BasePreferenceActivity extends SherlockPreferenceActivity 
 				}
 			});
 			builder.show();
+			return true;
 		} else if (KEY_STYLE_BG_PATH.equals(preference.getKey())) {
 			pickImage(context, ACTION_PICK_BG_PATH);
 			return true;
 		} else if (KEY_STYLE_BG_WOUNDS_PATH.equals(preference.getKey())) {
 			pickImage(context, ACTION_PICK_BG_WOUNDS_PATH);
 			return true;
-		} else if (KEY_STYLE_BG_WOUNDS_DELETE.equals(preference.getKey())) {
-			return handlePreferenceClick(context, KEY_STYLE_BG_WOUNDS_DELETE,
+		} else {
+			return handlePreferenceClick(context, preference.getKey(),
 					PreferenceManager.getDefaultSharedPreferences(context));
-		} else if (KEY_STYLE_BG_DELETE.equals(preference.getKey())) {
-			return handlePreferenceClick(context, KEY_STYLE_BG_DELETE,
-					PreferenceManager.getDefaultSharedPreferences(context));
-		} else if (KEY_MODIFY_TABS.equals(preference.getKey())) {
-			context.startActivity(new Intent(context, TabEditActivity.class));
-			return true;
-		} else if (KEY_SETUP_SDCARD_PATH.equals(preference.getKey())) {
-			handlePreferenceClick(context, preference.getKey(), PreferenceManager.getDefaultSharedPreferences(context));
-			return true;
-		} else if (KEY_SETUP_SDCARD_HERO_PATH.equals(preference.getKey())) {
-			handlePreferenceClick(context, preference.getKey(), PreferenceManager.getDefaultSharedPreferences(context));
-			return true;
 		}
-
-		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#
-	 * onSharedPreferenceChanged(android.content.SharedPreferences,
-	 * java.lang.String)
-	 */
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (KEY_FULLSCREEN.equals(key)) {
-			updateFullscreenStatus(getWindow(), sharedPreferences.getBoolean(KEY_FULLSCREEN, true));
+	public static abstract class BasePreferenceFragment extends UnifiedPreferenceFragment implements
+			OnSharedPreferenceChangeListener {
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.preference.PreferenceFragment#onStart()
+		 */
+		@Override
+		public void onStart() {
+			super.onStart();
+
+			// initPreferences(getPreferenceManager(), getPreferenceScreen());
 		}
 
-		if (!restartRequired && Arrays.binarySearch(RESTART_KEYS, key) >= 0)
-			restartRequired = true;
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * android.preference.PreferenceFragment#onCreate(android.os.Bundle)
+		 */
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+
+			initPreferences(getPreferenceManager(), getPreferenceScreen());
+			onBindPreferenceSummariesToValues();
+
+			SharedPreferences preferences = DSATabApplication.getPreferences();
+			preferences.registerOnSharedPreferenceChangeListener(this);
+
+		}
+
+		public abstract int getPreferenceResourceId();
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.preference.PreferenceFragment#onDestroy()
+		 */
+		@Override
+		public void onDestroy() {
+			super.onDestroy();
+			SharedPreferences preferences = DSATabApplication.getPreferences();
+			preferences.unregisterOnSharedPreferenceChangeListener(this);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * android.content.SharedPreferences.OnSharedPreferenceChangeListener
+		 * #onSharedPreferenceChanged(android.content.SharedPreferences,
+		 * java.lang.String)
+		 */
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+			handlePreferenceChange(findPreference(key), sharedPreferences, key);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * android.preference.PreferenceFragment#onPreferenceTreeClick(android
+		 * .preference.PreferenceScreen, android.preference.Preference)
+		 */
+		@Override
+		public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+			if (!TextUtils.isEmpty(preference.getFragment())) {
+				try {
+					BasePreferenceFragment fragment = (BasePreferenceFragment) Class.forName(preference.getFragment())
+							.newInstance();
+					Bundle args = new Bundle();
+					args.putInt(UnifiedPreferenceFragment.ARG_PREFERENCE_RES, fragment.getPreferenceResourceId());
+					fragment.setArguments(args);
+					((BasePreferenceActivity) getActivity()).startPreferenceFragment(fragment, true);
+					return true;
+				} catch (Exception e) {
+					Debug.error(e);
+				}
+				return false;
+			} else {
+				return handlePreferenceTreeClick(getActivity(), preferenceScreen, preference);
+			}
+		}
+	}
+
+	public static class PrefsSetupFragment extends BasePreferenceFragment {
+
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * com.dsatab.activity.BasePreferenceActivity.BasePreferenceFragment
+		 * #getPreferenceResourceId()
+		 */
+		@Override
+		public int getPreferenceResourceId() {
+			return R.xml.preferences_hc_setup;
+		}
+	}
+
+	public static class PrefsDisplayFragment extends BasePreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * com.dsatab.activity.BasePreferenceActivity.BasePreferenceFragment
+		 * #getPreferenceResourceId()
+		 */
+		@Override
+		public int getPreferenceResourceId() {
+			return R.xml.preferences_hc_display;
+		}
+	}
+
+	public static class PrefsDisplayHeaderFragment extends BasePreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * com.dsatab.activity.BasePreferenceActivity.BasePreferenceFragment
+		 * #getPreferenceResourceId()
+		 */
+		@Override
+		public int getPreferenceResourceId() {
+			return R.xml.preferences_hc_display_header;
+		}
+	}
+
+	public static class PrefsDisplayDiceSliderFragment extends BasePreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * com.dsatab.activity.BasePreferenceActivity.BasePreferenceFragment
+		 * #getPreferenceResourceId()
+		 */
+		@Override
+		public int getPreferenceResourceId() {
+			return R.xml.preferences_hc_display_diceslider;
+		}
+	}
+
+	public static class PrefsDownloadFragment extends BasePreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * com.dsatab.activity.BasePreferenceActivity.BasePreferenceFragment
+		 * #getPreferenceResourceId()
+		 */
+		@Override
+		public int getPreferenceResourceId() {
+			return R.xml.preferences_hc_setup_download;
+		}
+
+	}
+
+	public static class PrefsHouseRulesFragment extends BasePreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * com.dsatab.activity.BasePreferenceActivity.BasePreferenceFragment
+		 * #getPreferenceResourceId()
+		 */
+		@Override
+		public int getPreferenceResourceId() {
+			return R.xml.preferences_hc_rules_houserules;
+		}
+	}
+
+	public static class PrefsRulesFragment extends BasePreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * com.dsatab.activity.BasePreferenceActivity.BasePreferenceFragment
+		 * #getPreferenceResourceId()
+		 */
+		@Override
+		public int getPreferenceResourceId() {
+			return R.xml.preferences_hc_rules;
+		}
+	}
+
+	public static class PrefsInfoFragment extends BasePreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * com.dsatab.activity.BasePreferenceActivity.BasePreferenceFragment
+		 * #getPreferenceResourceId()
+		 */
+		@Override
+		public int getPreferenceResourceId() {
+			return R.xml.preferences_hc_info;
+		}
 	}
 }

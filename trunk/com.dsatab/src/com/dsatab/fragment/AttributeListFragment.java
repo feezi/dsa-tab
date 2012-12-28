@@ -101,10 +101,10 @@ public class AttributeListFragment extends BaseAttributesFragment implements Her
 			tfName.setOnClickListener(this);
 		}
 
-		fillAttributeLabel(tfLabelLE, AttributeType.Lebensenergie);
-		fillAttributeLabel(tfLabelAU, AttributeType.Ausdauer);
-		fillAttributeLabel(tfLabelKE, AttributeType.Karmaenergie);
-		fillAttributeLabel(tfLabelAE, AttributeType.Astralenergie);
+		fillAttributeLabel(tfLabelLE, AttributeType.Lebensenergie_Aktuell);
+		fillAttributeLabel(tfLabelAU, AttributeType.Ausdauer_Aktuell);
+		fillAttributeLabel(tfLabelKE, AttributeType.Karmaenergie_Aktuell);
+		fillAttributeLabel(tfLabelAE, AttributeType.Astralenergie_Aktuell);
 
 		updateView();
 
@@ -147,7 +147,7 @@ public class AttributeListFragment extends BaseAttributesFragment implements Her
 
 		visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_AE, true) ? View.VISIBLE : View.GONE;
 		if (visible == View.VISIBLE && getHero() != null
-				&& getHero().getAttributeValue(AttributeType.Astralenergie) != null) {
+				&& getHero().getAttributeValue(AttributeType.Astralenergie_Aktuell) != null) {
 			tfAE.setVisibility(visible);
 			tfLabelAE.setVisibility(visible);
 		} else {
@@ -157,7 +157,7 @@ public class AttributeListFragment extends BaseAttributesFragment implements Her
 
 		visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_KE, true) ? View.VISIBLE : View.GONE;
 		if (visible == View.VISIBLE && getHero() != null
-				&& getHero().getAttributeValue(AttributeType.Karmaenergie) != null) {
+				&& getHero().getAttributeValue(AttributeType.Karmaenergie_Aktuell) != null) {
 			tfKE.setVisibility(visible);
 			tfLabelKE.setVisibility(visible);
 		} else {
@@ -222,17 +222,17 @@ public class AttributeListFragment extends BaseAttributesFragment implements Her
 			case Charisma:
 				fillAttribute(attr, true);
 				break;
-			case Lebensenergie:
-				fillAttributeValue(tfLE, AttributeType.Lebensenergie, null, true, true);
+			case Lebensenergie_Aktuell:
+				fillAttributeValue(tfLE, AttributeType.Lebensenergie_Aktuell, null, true, true);
 				break;
-			case Ausdauer:
-				fillAttributeValue(tfAU, AttributeType.Ausdauer, null, true, true);
+			case Ausdauer_Aktuell:
+				fillAttributeValue(tfAU, AttributeType.Ausdauer_Aktuell, null, true, true);
 				break;
-			case Karmaenergie:
-				fillAttributeValue(tfKE, AttributeType.Karmaenergie, null, true, true);
+			case Karmaenergie_Aktuell:
+				fillAttributeValue(tfKE, AttributeType.Karmaenergie_Aktuell, null, true, true);
 				break;
-			case Astralenergie:
-				fillAttributeValue(tfAE, AttributeType.Astralenergie, null, true, true);
+			case Astralenergie_Aktuell:
+				fillAttributeValue(tfAE, AttributeType.Astralenergie_Aktuell, null, true, true);
 				break;
 			case Behinderung:
 				fillAttributeValue(tfBE, AttributeType.Behinderung, null, true, true);
@@ -332,33 +332,33 @@ public class AttributeListFragment extends BaseAttributesFragment implements Her
 		fillAttributeLabel(tfLabelKO, AttributeType.Konstitution);
 		fillAttributeLabel(tfLabelKK, AttributeType.Körperkraft);
 
-		fillAttributeValue(tfLE, AttributeType.Lebensenergie, null, true, true);
-		fillAttributeLabel(tfLabelLE, AttributeType.Lebensenergie);
+		fillAttributeValue(tfLE, AttributeType.Lebensenergie_Aktuell, null, true, true);
+		fillAttributeLabel(tfLabelLE, AttributeType.Lebensenergie_Aktuell);
 
-		fillAttributeValue(tfAU, AttributeType.Ausdauer, null, true, true);
-		fillAttributeLabel(tfLabelAU, AttributeType.Ausdauer);
+		fillAttributeValue(tfAU, AttributeType.Ausdauer_Aktuell, null, true, true);
+		fillAttributeLabel(tfLabelAU, AttributeType.Ausdauer_Aktuell);
 
 		fillAttributeValue(tfMR, AttributeType.Magieresistenz, null, true, true);
 		fillAttributeLabel(tfLabelMR, AttributeType.Magieresistenz);
 
 		final Hero hero = getHero();
 
-		if (hero.getAttributeValue(AttributeType.Karmaenergie) == null) {
+		if (hero.getAttributeValue(AttributeType.Karmaenergie_Aktuell) == null) {
 			tfKE.setVisibility(View.GONE);
 			tfLabelKE.setVisibility(View.GONE);
 		} else if (preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_KE, true)) {
-			fillAttributeValue(tfKE, AttributeType.Karmaenergie, null, true, true);
-			fillAttributeLabel(tfLabelKE, AttributeType.Karmaenergie);
+			fillAttributeValue(tfKE, AttributeType.Karmaenergie_Aktuell, null, true, true);
+			fillAttributeLabel(tfLabelKE, AttributeType.Karmaenergie_Aktuell);
 			tfKE.setVisibility(View.VISIBLE);
 			tfLabelKE.setVisibility(View.VISIBLE);
 		}
 
-		if (hero.getAttributeValue(AttributeType.Astralenergie) == null) {
+		if (hero.getAttributeValue(AttributeType.Astralenergie_Aktuell) == null) {
 			tfAE.setVisibility(View.GONE);
 			tfLabelAE.setVisibility(View.GONE);
 		} else if (preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_AE, true)) {
-			fillAttributeValue(tfAE, AttributeType.Astralenergie, null, true, true);
-			fillAttributeLabel(tfLabelAE, AttributeType.Astralenergie);
+			fillAttributeValue(tfAE, AttributeType.Astralenergie_Aktuell, null, true, true);
+			fillAttributeLabel(tfLabelAE, AttributeType.Astralenergie_Aktuell);
 			tfAE.setVisibility(View.VISIBLE);
 			tfLabelAE.setVisibility(View.VISIBLE);
 		}

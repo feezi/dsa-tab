@@ -18,9 +18,9 @@ import android.widget.TextView;
 import com.dsatab.R;
 import com.dsatab.activity.MainActivity;
 import com.dsatab.common.StyleableSpannableStringBuilder;
-import com.dsatab.common.Util;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.util.Util;
 
 public class EvadeChooserDialog extends AlertDialog implements android.view.View.OnClickListener,
 		DialogInterface.OnClickListener, OnItemClickListener {
@@ -132,7 +132,7 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 
 		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(R.layout.popup_evade,
 				null, false);
-		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		setView(popupcontent);
 
 		distanceSpinner = (Spinner) popupcontent.findViewById(R.id.evade_distance);

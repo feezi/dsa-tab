@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import org.jdom2.Document;
@@ -29,7 +30,6 @@ import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.DSATabApplication;
 import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.common.DsaTabRuntimeException;
-import com.dsatab.common.Util;
 import com.dsatab.data.Advantage;
 import com.dsatab.data.Art;
 import com.dsatab.data.ArtInfo;
@@ -73,6 +73,7 @@ import com.dsatab.data.items.UsageType;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.exception.InconsistentDataException;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Util;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.SelectArg;
@@ -337,6 +338,7 @@ public class XmlParser {
 					item.addSpecification(m);
 					miscspecDao.create(m);
 				}
+				itemDao.update(item);
 
 			}
 		} finally {
@@ -693,7 +695,7 @@ public class XmlParser {
 		w.setIni(Util.parseInteger(i.next()));
 		w.setBf(Util.parseInteger(i.next()));
 
-		String type = i.next().toLowerCase(); // typ
+		String type = i.next().toLowerCase(Locale.GERMAN); // typ
 
 		if (type.contains("p"))
 			w.setParadeWeapon(true);
@@ -872,7 +874,7 @@ public class XmlParser {
 				specialFeature.setComment(element.getAttributeValue(Xml.KEY_KOMMENTAR));
 
 				StringBuilder specialSB = new StringBuilder();
-				@SuppressWarnings("unchecked")
+
 				List<Element> kulturChildren = element.getChildren(Xml.KEY_KULTUR);
 				if (kulturChildren != null) {
 					for (Element child : kulturChildren) {
@@ -882,7 +884,6 @@ public class XmlParser {
 					}
 				}
 
-				@SuppressWarnings("unchecked")
 				List<Element> auswahlChildren = element.getChildren(Xml.KEY_AUSWAHL);
 				if (auswahlChildren != null) {
 					for (Element child : auswahlChildren) {
@@ -1002,7 +1003,6 @@ public class XmlParser {
 		}
 
 		if (ausbildungen != null) {
-			@SuppressWarnings("unchecked")
 			List<Element> ausbildungElements = ausbildungen.getChildren();
 
 			StringBuilder sb = new StringBuilder();
@@ -1031,38 +1031,41 @@ public class XmlParser {
 		for (Element attributeElement : domAttributes) {
 
 			Attribute attr = new Attribute(hero);
-
 			attr.setName(attributeElement.getAttributeValue(Xml.KEY_NAME));
 			attr.setType(AttributeType.valueOf(attributeElement.getAttributeValue(Xml.KEY_NAME)));
 			attr.setValue(Util.parseInteger(attributeElement.getAttributeValue(Xml.KEY_VALUE)));
 			attr.setMod(Util.parseInteger(attributeElement.getAttributeValue(Xml.KEY_MOD)));
-			if (attr.isDSATabValue() && !TextUtils.isEmpty(attributeElement.getAttributeValue(Xml.KEY_DSATAB_VALUE))) {
-				attr.setValue(Util.parseInteger(attributeElement.getAttributeValue(Xml.KEY_DSATAB_VALUE)));
-			}
-
 			hero.addAttribute(attr);
-
-			if (attr.getType() == AttributeType.Lebensenergie) {
-				Attribute attr2 = attr.clone();
-				attr2.setType(AttributeType.Lebensenergie_Total);
-				hero.addAttribute(attr2);
-			} else if (attr.getType() == AttributeType.Ausdauer) {
-				Attribute attr2 = attr.clone();
-				attr2.setType(AttributeType.Ausdauer_Total);
-				hero.addAttribute(attr2);
-			} else if (attr.getType() == AttributeType.Karmaenergie) {
-				Attribute attr2 = attr.clone();
-				attr2.setType(AttributeType.Karmaenergie_Total);
-				hero.addAttribute(attr2);
-			} else if (attr.getType() == AttributeType.Astralenergie) {
-				Attribute attr2 = attr.clone();
-				attr2.setType(AttributeType.Astralenergie_Total);
-				hero.addAttribute(attr2);
-			}
 		}
 
 		for (CustomAttribute attr : hero.getHeroConfiguration().getAttributes()) {
 			hero.addAttribute(attr);
+		}
+
+		if (!hero.hasAttribute(AttributeType.Lebensenergie_Aktuell)) {
+			CustomAttribute le = new CustomAttribute(hero, AttributeType.Lebensenergie_Aktuell);
+			le.setValue(hero.getAttributeValue(AttributeType.Lebensenergie));
+			le.setReferenceValue(le.getValue());
+			hero.addAttribute(le);
+		}
+		if (!hero.hasAttribute(AttributeType.Ausdauer_Aktuell)) {
+			CustomAttribute le = new CustomAttribute(hero, AttributeType.Ausdauer_Aktuell);
+			le.setValue(hero.getAttributeValue(AttributeType.Ausdauer));
+			le.setReferenceValue(le.getValue());
+			hero.addAttribute(le);
+		}
+
+		if (!hero.hasAttribute(AttributeType.Karmaenergie_Aktuell)) {
+			CustomAttribute le = new CustomAttribute(hero, AttributeType.Karmaenergie_Aktuell);
+			le.setValue(hero.getAttributeValue(AttributeType.Karmaenergie));
+			le.setReferenceValue(le.getValue());
+			hero.addAttribute(le);
+		}
+		if (!hero.hasAttribute(AttributeType.Astralenergie_Aktuell)) {
+			CustomAttribute le = new CustomAttribute(hero, AttributeType.Astralenergie_Aktuell);
+			le.setValue(hero.getAttributeValue(AttributeType.Astralenergie));
+			le.setReferenceValue(le.getValue());
+			hero.addAttribute(le);
 		}
 
 		if (!hero.hasAttribute(AttributeType.Behinderung)) {
@@ -1465,7 +1468,8 @@ public class XmlParser {
 								armor.setTotalBe(Util.parseFloat(be));
 							}
 							for (Position pos : Position.values()) {
-								String rs = DomUtil.getChildValue(ruestung, pos.name().toLowerCase(), Xml.KEY_VALUE);
+								String rs = DomUtil.getChildValue(ruestung, pos.name().toLowerCase(Locale.GERMAN),
+										Xml.KEY_VALUE);
 								if (rs != null) {
 									armor.setRs(pos, Util.parseInteger(rs));
 								}
@@ -1487,7 +1491,6 @@ public class XmlParser {
 					if (itemSpecification instanceof DistanceWeapon) {
 						DistanceWeapon distanceWeapon = (DistanceWeapon) itemSpecification;
 
-						@SuppressWarnings("unchecked")
 						List<Element> waffen = element.getChildren(Xml.KEY_FERNKAMPWAFFE);
 
 						Element child;
@@ -1526,7 +1529,7 @@ public class XmlParser {
 
 					if (itemSpecification instanceof Shield) {
 						Shield shield = (Shield) itemSpecification;
-						@SuppressWarnings("unchecked")
+
 						List<Element> waffen = element.getChildren(Xml.KEY_SCHILDWAFFE);
 
 						for (Element waffe : waffen) {
@@ -1549,7 +1552,7 @@ public class XmlParser {
 
 					if (itemSpecification instanceof Weapon) {
 						Weapon weapon = (Weapon) itemSpecification;
-						@SuppressWarnings("unchecked")
+
 						List<Element> waffen = element.getChildren(Xml.KEY_NAHKAMPWAFFE);
 
 						for (Element waffe : waffen) {
@@ -1659,33 +1662,22 @@ public class XmlParser {
 		for (int i = 0; i < talentList.size(); i++) {
 			Element element = (Element) talentList.get(i);
 
-			if (element.getAttribute(Xml.KEY_VALUE) == null)
-				continue;
-
 			talent = null;
 			String talentName = element.getAttributeValue(Xml.KEY_NAME);
-			Integer talentValue = Util.parseInteger(element.getAttributeValue(Xml.KEY_VALUE));
+			int talentValue = Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
 
 			TalentGroupType talentGroupType = null;
 			found = false;
 			for (TalentGroupType type : TalentGroupType.values()) {
 				if (type.contains(talentName)) {
 					talentGroupType = type;
+					found = true;
 
 					CombatTalentType combatType = CombatTalentType.byName(talentName);
-
 					if (combatType != null) {
-
 						// add Peitsche as CombatTalent although
 						// Heldensoftware doesn't treat is as one
 						if (Talent.PEITSCHE.equals(talentName)) {
-
-							if (talentValue == null) {
-								talentValue = 0;
-								BugSenseHandler.log(Debug.CATEGORY_DATA, new InconsistentDataException(
-										"PeitscheTalent has no value. xml=" + element.toString()));
-							}
-
 							CombatMeleeAttribute at = new CombatMeleeAttribute(hero);
 							at.setName(CombatMeleeAttribute.ATTACKE);
 							at.setValue(hero.getAttributeValue(AttributeType.at) + talentValue);
@@ -1697,7 +1689,7 @@ public class XmlParser {
 							Element combatElement;
 							for (Iterator<Element> iter = combatAttributesList.iterator(); iter.hasNext();) {
 								combatElement = iter.next();
-								String combatTalentName = element.getAttributeValue(Xml.KEY_NAME);
+								String combatTalentName = combatElement.getAttributeValue(Xml.KEY_NAME);
 
 								if (talentName.equals(combatTalentName)) {
 									List<Element> nodes = combatElement.getChildren();
@@ -1711,20 +1703,18 @@ public class XmlParser {
 											at.setValue(Util.parseInteger(item.getAttributeValue(Xml.KEY_VALUE)));
 										} else if (Xml.KEY_PARADE.equals(item.getName())) {
 											pa = new CombatMeleeAttribute(hero);
-											pa.setName(CombatMeleeAttribute.ATTACKE);
+											pa.setName(CombatMeleeAttribute.PARADE);
 											pa.setValue(Util.parseInteger(item.getAttributeValue(Xml.KEY_VALUE)));
 										}
 									}
 									talent = new CombatMeleeTalent(hero, at, pa);
-
+									Debug.warning("Adding CombatTalent:" + combatTalentName);
 									iter.remove();
 									break;
 								}
 							}
 						}
 					}
-					found = true;
-
 					break;
 				}
 			}
@@ -1749,7 +1739,7 @@ public class XmlParser {
 		for (Element combatElement : combatAttributesList) {
 
 			String talentName = combatElement.getAttributeValue(Xml.KEY_NAME);
-
+			Debug.warning("Adding missing CombatTalent:" + talentName);
 			//
 			List<Element> nodes = combatElement.getChildren();
 			CombatMeleeAttribute at = null, pa = null;
@@ -1761,7 +1751,7 @@ public class XmlParser {
 					at.setValue(Util.parseInteger(item.getAttributeValue(Xml.KEY_VALUE)));
 				} else if (Xml.KEY_PARADE.equals(item.getName())) {
 					pa = new CombatMeleeAttribute(hero);
-					pa.setName(CombatMeleeAttribute.ATTACKE);
+					pa.setName(CombatMeleeAttribute.PARADE);
 					pa.setValue(Util.parseInteger(item.getAttributeValue(Xml.KEY_VALUE)));
 				}
 			}

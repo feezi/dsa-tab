@@ -20,7 +20,6 @@ import android.widget.TextView;
 import com.dsatab.R;
 import com.dsatab.activity.MainActivity.EditListener;
 import com.dsatab.activity.MainActivity.ProbeListener;
-import com.dsatab.common.Util;
 import com.dsatab.data.CombatDistanceTalent;
 import com.dsatab.data.CombatMeleeTalent;
 import com.dsatab.data.Hero;
@@ -28,6 +27,7 @@ import com.dsatab.data.Talent;
 import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.TalentGroup;
 import com.dsatab.data.TalentGroup.TalentGroupType;
+import com.dsatab.util.Util;
 import com.dsatab.view.ListFilterSettings;
 
 public class ExpandableTalentAdapter extends BaseExpandableListAdapter {

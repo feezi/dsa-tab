@@ -21,10 +21,8 @@ import java.util.List;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LevelListDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -40,13 +38,13 @@ import com.dsatab.R;
 import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.activity.ItemChooserActivity;
 import com.dsatab.activity.MainActivity;
-import com.dsatab.common.Util;
 import com.dsatab.data.ArmorAttribute;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Value;
 import com.dsatab.data.WoundAttribute;
 import com.dsatab.data.items.EquippedItem;
+import com.dsatab.util.Util;
 import com.dsatab.view.BodyLayout;
 
 /**
@@ -81,15 +79,8 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
-
-		if (menu.findItem(R.id.option_fight_set) == null) {
-			com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_fight_set, Menu.NONE, "Set");
-			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-			item.setIcon(R.drawable.ic_menu_set);
-			if (item.getIcon() instanceof LevelListDrawable) {
-				((LevelListDrawable) item.getIcon()).setLevel(getHero().getActiveSet());
-			}
-		}
+		menu.removeItem(R.id.option_set);
+		inflater.inflate(R.menu.body_menu, menu);
 	}
 
 	/*
@@ -253,7 +244,7 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 			String filePath = preferences.getString(BasePreferenceActivity.KEY_STYLE_BG_WOUNDS_PATH, null);
 			bodyBackground.setImageDrawable(Drawable.createFromPath(filePath));
 		} else {
-			bodyBackground.setImageResource(R.drawable.character);
+			bodyBackground.setImageResource(Util.getThemeResourceId(getActivity(), R.attr.imgCharacter));
 		}
 	}
 

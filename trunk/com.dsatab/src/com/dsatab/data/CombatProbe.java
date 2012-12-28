@@ -5,15 +5,15 @@ import com.dsatab.data.items.EquippedItem;
 
 public class CombatProbe extends BaseProbe {
 
-	private EquippedItem equippedItem = null;
+	private EquippedItem equippedItem;
 
 	private CombatTalent combatTalent;
 
-	private Probe probe = null;
+	private Probe probe;
 
 	private boolean attack;
 
-	protected CombatTalentType type = null;
+	protected CombatTalentType type;
 
 	public CombatProbe(EquippedItem item, boolean attack) {
 		this.equippedItem = item;

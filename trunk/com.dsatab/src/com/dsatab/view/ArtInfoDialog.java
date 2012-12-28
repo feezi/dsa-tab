@@ -54,7 +54,7 @@ public class ArtInfoDialog extends AlertDialog implements DialogInterface.OnClic
 		setCanceledOnTouchOutside(true);
 
 		popupcontent = (View) LayoutInflater.from(getContext()).inflate(R.layout.popup_art_info, null, false);
-		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		setView(popupcontent);
 
 		setButton(AlertDialog.BUTTON_NEUTRAL, getContext().getString(R.string.label_ok), this);

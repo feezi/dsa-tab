@@ -29,7 +29,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -73,7 +72,7 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 
 			SparseBooleanArray checkedPositions = itemList.getCheckedItemPositions();
 			if (checkedPositions != null) {
-				for (int i = 0; i < checkedPositions.size(); i++) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
 						Item selectedItem = itemAdapter.getItem(checkedPositions.keyAt(i));
 						switch (item.getItemId()) {
@@ -85,6 +84,17 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 							selectItem(selectedItem);
 							mode.finish();
 							return true;
+						case R.id.option_equipped:
+							return false;
+						case R.id.option_equipped_set1:
+							getHero().addEquippedItem(getActivity(), selectedItem, null, null, 0, null);
+							break;
+						case R.id.option_equipped_set2:
+							getHero().addEquippedItem(getActivity(), selectedItem, null, null, 1, null);
+							break;
+						case R.id.option_equipped_set3:
+							getHero().addEquippedItem(getActivity(), selectedItem, null, null, 2, null);
+							break;
 						}
 
 					}
@@ -125,14 +135,17 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 			SparseBooleanArray checkedPositions = itemList.getCheckedItemPositions();
 			int selected = 0;
 			boolean hasImage = false;
+			boolean isEquippable = true;
 			boolean changed = false;
 			com.actionbarsherlock.view.MenuItem view = menu.findItem(R.id.option_view);
+			com.actionbarsherlock.view.MenuItem equipped = menu.findItem(R.id.option_equipped);
 			if (checkedPositions != null) {
-				for (int i = 0; i < checkedPositions.size(); i++) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
 						Item selectedItem = itemAdapter.getItem(checkedPositions.keyAt(i));
 						selected++;
 						hasImage |= selectedItem.hasImage();
+						isEquippable &= selectedItem.isEquipable();
 					}
 				}
 			}
@@ -147,6 +160,18 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 			} else {
 				if (view.isEnabled()) {
 					view.setEnabled(false);
+					changed = true;
+				}
+			}
+
+			if (isEquippable) {
+				if (!equipped.isEnabled()) {
+					equipped.setEnabled(true);
+					changed = true;
+				}
+			} else {
+				if (equipped.isEnabled()) {
+					equipped.setEnabled(false);
 					changed = true;
 				}
 			}
@@ -205,28 +230,7 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 					// the icon is already in the screen no need to add it
 					// again
 				} else {
-
-					hero.addItem(getBaseActivity(), item, null, -1, new Hero.ItemAddedCallback() {
-
-						@Override
-						public void onItemAdded(Item item) {
-							itemAdapter.add(item);
-							itemAdapter.notifyDataSetChanged();
-						}
-
-						/*
-						 * (non-Javadoc)
-						 * 
-						 * @see com.dsatab.data.Hero.ItemAddedCallback#
-						 * onEquippedItemAdded
-						 * (com.dsatab.data.items.EquippedItem)
-						 */
-						@Override
-						public void onEquippedItemAdded(EquippedItem item) {
-							itemAdapter.notifyDataSetChanged();
-						}
-					});
-
+					hero.addItem(getBaseActivity(), item, null, -1, null);
 				}
 			}
 		}
@@ -255,17 +259,8 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 	 */
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
-		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_item_add_list, Menu.NONE,
-				"Gegenstand hinzufügen");
-		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-		item.setIcon(R.drawable.ic_menu_add);
-
-		item = menu.add(Menu.NONE, R.id.option_item_filter, Menu.NONE, "Filtern");
-		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-		item.setIcon(R.drawable.ic_menu_filter);
-
 		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.item_list_menu, menu);
 	}
 
 	/*
@@ -294,8 +289,12 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 
 			builder.setMultiChoiceItems(categoryNames, categoriesSet, this);
 			builder.setTitle("Filtern");
-			builder.setIcon(R.drawable.ic_menu_filter);
-
+			builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			});
 			builder.show().setOnDismissListener(new DialogInterface.OnDismissListener() {
 
 				@Override
@@ -342,13 +341,9 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 	}
 
 	private void fillBodyItems(Hero hero) {
-
-		// has to be called to fill equippeditems of all items
-		getHero().getAllEquippedItems();
-
 		itemAdapter = new EquippedItemListAdapter(getActivity(), getHero(), getHero().getItems());
 		itemList.setAdapter(itemAdapter);
-
+		refreshEmptyView(itemAdapter);
 	}
 
 	private void selectItem(Item itemCard) {
@@ -362,7 +357,7 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CATEGORY, item.getCategory());
 			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CELL, itemCard.getItemInfo().getCellNumber());
 
-			startActivityForResult(intent, ACTION_SHOW_CARD);
+			getActivity().startActivityForResult(intent, ACTION_SHOW_CARD);
 		}
 	}
 
@@ -407,12 +402,8 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 
 					if (item != null) {
 						item = item.duplicate();
-						// we only add the item here we do not assign it to a
-						// set yet
 						getHero().addItem(item);
-						itemAdapter.add(item);
 					}
-
 					itemChooserDialog.dismiss();
 				}
 			});
@@ -434,7 +425,8 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 	 */
 	@Override
 	public void onItemAdded(Item item) {
-		itemAdapter.refilter();
+		itemAdapter.add(item);
+		refreshEmptyView(itemAdapter);
 	}
 
 	/*
@@ -459,7 +451,7 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 	@Override
 	public void onItemRemoved(Item item) {
 		itemAdapter.remove(item);
-		itemAdapter.refilter();
+		refreshEmptyView(itemAdapter);
 	}
 
 	/*

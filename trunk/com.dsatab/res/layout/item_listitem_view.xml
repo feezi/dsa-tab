@@ -3,16 +3,20 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingRight="2.5dp"
-    android:paddingLeft="2.5dp">
+    android:background="?attr/listItemBackground"
+    android:paddingRight="6dp"
+    android:paddingLeft="6dp">
 
     <ImageView
         android:id="@android:id/icon1"
+        style="?attr/iconImageViewStyle"
         android:layout_width="@dimen/icon_button_size"
         android:layout_height="@dimen/icon_button_size"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="4dip"
+        android:focusable="false"
+        android:clickable="false"
         android:scaleType="fitCenter"
         android:visibility="visible" />
 
@@ -57,11 +61,14 @@
     
     <ImageView
         android:id="@android:id/icon2"
+        style="?attr/iconImageViewStyle"
         android:layout_width="@dimen/icon_button_size"
         android:layout_height="@dimen/icon_button_size"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginLeft="4dip"
+        android:focusable="false"
+        android:clickable="false"
         android:scaleType="fitCenter"
         android:visibility="gone" />
 

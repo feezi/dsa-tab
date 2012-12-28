@@ -25,7 +25,7 @@ public class LeModificator extends AbstractModificator {
 	@Override
 	public String getModificatorName() {
 
-		float ratio = hero.getRatio(AttributeType.Lebensenergie);
+		float ratio = hero.getRatio(AttributeType.Lebensenergie_Aktuell);
 		if (ratio < LEVEL_3) {
 			return "Lebensenergie < 1/4";
 		} else if (ratio < LEVEL_2) {
@@ -62,7 +62,7 @@ public class LeModificator extends AbstractModificator {
 	@Override
 	public String getModificatorInfo() {
 		String info = null;
-		float ratio = hero.getRatio(AttributeType.Lebensenergie);
+		float ratio = hero.getRatio(AttributeType.Lebensenergie_Aktuell);
 		if (ratio < LEVEL_3) {
 			info = "Eigenschaften, Kampf -3; Talente,Zauber -9; GS -3";
 		} else if (ratio < LEVEL_2) {
@@ -78,7 +78,7 @@ public class LeModificator extends AbstractModificator {
 	public Modifier getModifier(Probe probe) {
 		if (isActive()) {
 			int modifier = 0;
-			float ratio = hero.getRatio(AttributeType.Lebensenergie);
+			float ratio = hero.getRatio(AttributeType.Lebensenergie_Aktuell);
 
 			if (probe instanceof Attribute) {
 				Attribute attribute = (Attribute) probe;
@@ -116,7 +116,7 @@ public class LeModificator extends AbstractModificator {
 	public Modifier getModifier(AttributeType type) {
 		if (isActive()) {
 			int modifier = 0;
-			float ratio = hero.getRatio(AttributeType.Lebensenergie);
+			float ratio = hero.getRatio(AttributeType.Lebensenergie_Aktuell);
 
 			if (ratio < LEVEL_3) {
 				if (AttributeType.isEigenschaft(type) || AttributeType.isFight(type)) {

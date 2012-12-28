@@ -91,13 +91,13 @@
     <string name="tip_1_title">Varianten auswählen</string>
     <string name="tip_2_title">Zusätzliche Probenzuschläge</string>
     <string name="tip_3_title">Zusätzliche Modifikatoren</string>
-    <string name="tip_4_title">Initiative verwalten</string>
-    <string name="tip_5_title">Themes</string>
     <string name="message_search_empty">Die Suche hat keine Treffer gefunden.</string>
     <string name="label_name">Name</string>
     <string name="label_social_state">Sozialstatus</string>
     <string name="label_note">Notiz</string>
-    <string name="message_maps_emoty">Keine Karten gefunden</string>
+    <string name="message_maps_empty">Keine Karten gefunden</string>
+    <string name="message_notes_empty">Keine Notizen gefunden</string>
+    <string name="message_item_list_empty">Keine Gegenstände gefunden.\n Klicke auf "Gegenstand hinzufügen" um dein Inventar zu füllen.</string>    
     <string name="message_map_loading">Karte wird geladen</string>
     <string name="label_total">Total</string>
     <string name="message_show_tip_of_the_day">Tip des Tages anzeigen</string>
@@ -113,7 +113,7 @@
     <string name="label_size">Größe</string>
     <string name="label_misc_modifications">Sonstige Modifikatoren</string>
 
-	<string name="pref_sdcardPath_description">Pfad auf der SD Karte zu den DsaTab Daten (Karten Material, ...)</string>
+	<string name="pref_sdcardPath_description">Pfad auf der SD Karte zu den DsaTab Daten (Karten Material, &#8230;)</string>
 	<string name="pref_sdcardPath_title">Internal Storage: Pfad zu DsaTab</string>
 	<string name="pref_sdcardHeroPath_description">Pfad auf der SD Karte zu den DsaTab Helden Dateien</string>
 	<string name="pref_sdcardHeroPath_title">Internal Storage: Pfad zu Helden Xml-Dateien</string>

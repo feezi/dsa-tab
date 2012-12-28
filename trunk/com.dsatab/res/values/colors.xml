@@ -1,29 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<color name="Disabled">#AAAAAAAA</color>
 
 	<color name="Darker">#AA000000</color>
 	<color name="Brighter">#66FFFFFF</color>
 	
 	<color name="RowEven">#11000000</color>
-	<color name="RowOdd">#11FFFFFF</color>	
-	
+	<color name="RowOdd">#11FFFFFF</color>
 	<color name="RowFavoriteEven">#22005500</color>
-	<color name="RowFavoriteOdd">#22AAFFAA</color>
-	
+	<color name="RowFavoriteOdd">#22AAFFAA</color>	
 	<color name="RowUnusedEven">#22550000</color>
 	<color name="RowUnusedOdd">#22FFAAAA</color>
 	
 	<color name="ValueRed">#FFCC0000</color>
 	<color name="ValueGreen">#FF669900</color>
-	<color name="ValueBlack">#FF000000</color>
-	<color name="ValueWhite">#FFFFFFFF</color>
-	<color name="ValueGray">#FF333333</color>	
 		
 	<color name="delete_color_filter">#88FF0000</color>
 	<color name="accept_color_filter">#3300FF00</color>
 	<color name="reject_color_filter">#33FF0000</color>
-	
 	
 	<!--  Actionbar colors -->
 	<color name="pressed_dsatablight">#CCcc0000</color>

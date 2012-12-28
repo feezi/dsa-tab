@@ -8,13 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.TwoLineListItem;
 
 import com.dsatab.R;
-import com.dsatab.common.Util;
 import com.dsatab.data.Event;
 import com.dsatab.data.enums.EventCategory;
 import com.dsatab.data.filter.EventListFilter;
+import com.dsatab.util.Util;
 
 public class EventAdapter extends OpenArrayAdapter<Event> {
 
@@ -54,8 +53,6 @@ public class EventAdapter extends OpenArrayAdapter<Event> {
 			view.setTag(holder);
 		}
 
-		TwoLineListItem editView = (TwoLineListItem) view;
-
 		Event e = getItem(position);
 
 		if (e.getCategory() != null) {
@@ -67,7 +64,7 @@ public class EventAdapter extends OpenArrayAdapter<Event> {
 			if (holder.icon2 != null) {
 				if (e.getAudioPath() != null) {
 					holder.icon2.setVisibility(View.VISIBLE);
-					holder.icon2.setImageResource(R.drawable.ic_action_volume_on);
+					holder.icon2.setImageResource(Util.getThemeResourceId(getContext(), R.attr.imgActionMicrophone));
 				} else {
 					holder.icon2.setVisibility(View.GONE);
 				}
@@ -83,7 +80,7 @@ public class EventAdapter extends OpenArrayAdapter<Event> {
 			holder.text2.setVisibility(View.GONE);
 		}
 
-		Util.applyRowStyle(editView, position);
+		Util.applyRowStyle(view, position);
 
 		return view;
 	}

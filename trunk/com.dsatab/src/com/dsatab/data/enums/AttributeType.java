@@ -1,11 +1,13 @@
 package com.dsatab.data.enums;
 
+import java.util.Locale;
+
 public enum AttributeType {
 
 	Mut("MU", false, true), Klugheit("KL", false, true), Intuition("IN", false, true), Charisma("CH", false, true), Fingerfertigkeit(
 			"FF", false, true), Gewandtheit("GE", true, true), Konstitution("KO", false, true), Körperkraft("KK",
-			false, true), Sozialstatus("SO"), Lebensenergie("LE"), Lebensenergie_Total("LE Total"), Ausdauer("AU"), Ausdauer_Total(
-			"AU Total"), Astralenergie("AE"), Astralenergie_Total("AE"), Karmaenergie("KE"), Karmaenergie_Total(
+			false, true), Sozialstatus("SO"), Lebensenergie_Aktuell("LE"), Lebensenergie("LE Total"), Ausdauer_Aktuell("AU"), Ausdauer(
+			"AU Total"), Astralenergie_Aktuell("AE"), Astralenergie("AE"), Karmaenergie_Aktuell("KE"), Karmaenergie(
 			"KE Total"), Magieresistenz("MR"), ini("INI", true, true), Initiative_Aktuell("INI", true, false), at("AT",
 			true, true, false), pa("PA", true, true, false), fk("FK", true, true, false), Behinderung("BE", false), Ausweichen(
 			"AW", true, true), Geschwindigkeit("GS", true, false, false), Entrueckung("ENT", false), Verzueckung("VZ",
@@ -82,7 +84,7 @@ public enum AttributeType {
 		if (code == null)
 			return null;
 
-		code = code.toUpperCase();
+		code = code.toUpperCase(Locale.US);
 
 		for (AttributeType attr : AttributeType.values()) {
 			if (attr.code != null && attr.code.equals(code)) {

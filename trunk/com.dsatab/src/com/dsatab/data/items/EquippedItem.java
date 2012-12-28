@@ -12,13 +12,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.widget.Toast;
 
-import com.dsatab.common.Util;
 import com.dsatab.data.CombatProbe;
 import com.dsatab.data.CombatTalent;
 import com.dsatab.data.Hero;
 import com.dsatab.data.ItemLocationInfo;
 import com.dsatab.data.XmlWriteable;
 import com.dsatab.data.enums.CombatTalentType;
+import com.dsatab.util.Util;
 import com.dsatab.xml.Xml;
 import com.gandulf.guilib.util.Debug;
 

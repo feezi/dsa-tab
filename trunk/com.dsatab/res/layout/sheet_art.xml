@@ -9,14 +9,12 @@
 
     <LinearLayout
         android:id="@+id/art_talents"
-        style="@style/BorderPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
     </LinearLayout>
 
-    <FrameLayout
-        style="@style/BorderPanel"
+    <FrameLayout        
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" >
 
@@ -32,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:drawablePadding="10dp"
-            android:drawableTop="@drawable/ic_menu_clear_playlist"
+            android:drawableTop="?attr/imgEmpty"
             android:gravity="center"
             android:text="@string/message_art_empty"
             android:visibility="gone" >

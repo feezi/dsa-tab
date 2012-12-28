@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.dsatab.view.CheckableTwoLineListItem xmlns:android="http://schemas.android.com/apk/res/android"
+<com.dsatab.view.CheckableRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingLeft="2.5dp"
-    android:paddingRight="2.5dp" >
+    android:background="?attr/listItemBackground"
+    android:paddingRight="6dp"
+    android:paddingLeft="6dp">
 
     <ImageView
         android:id="@android:id/icon1"
@@ -12,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="5dip"
+        android:layout_marginRight="8dip"
         android:visibility="visible" >
     </ImageView>
 
@@ -43,8 +44,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="5dip"
+        android:layout_marginLeft="8dip"
         android:visibility="gone" >
     </ImageView>
 
-</com.dsatab.view.CheckableTwoLineListItem>
+</com.dsatab.view.CheckableRelativeLayout>

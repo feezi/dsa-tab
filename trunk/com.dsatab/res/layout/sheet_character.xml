@@ -15,7 +15,6 @@
 
         <ImageView
             android:id="@+id/gen_portrait"
-            style="@style/BorderPanel"
             android:layout_width="@dimen/portrait_width_small"
             android:layout_height="@dimen/portrait_height_small"
             android:layout_alignBottom="@+id/gen_description"
@@ -23,12 +22,11 @@
             android:layout_marginRight="5dp"
             android:cropToPadding="true"
             android:scaleType="centerCrop"
-            android:src="@drawable/profile_blank" >
+            android:src="@drawable/profile_picture">
         </ImageView>
 
         <TableLayout
             android:id="@+id/gen_description"
-            style="@style/BorderPanel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -46,8 +44,6 @@
                 <TextView
                     android:id="@+id/gen_ausbildung"
                     style="@style/TextValue.Small.NoTouch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_gravity="left|center_vertical"
                     android:layout_span="4"
                     android:ellipsize="middle"
@@ -62,22 +58,18 @@
 
                 <TextView
                     style="@style/TextLabel.Mini"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="@string/label_titel" >
                 </TextView>
 
                 <TextView
                     android:id="@+id/gen_titel"
                     style="@style/TextValue.Small.NoTouch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:layout_span="3"
                     android:ellipsize="middle"
                     android:gravity="left"
                     android:lines="1"
-                    android:paddingLeft="5dip" >
+                    android:paddingLeft="4dip" >
                 </TextView>
             </TableRow>
 
@@ -88,22 +80,18 @@
 
                 <TextView
                     style="@style/TextLabel.Mini"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="@string/label_stand" >
                 </TextView>
 
                 <TextView
                     android:id="@+id/gen_stand"
                     style="@style/TextValue.Small.NoTouch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:layout_span="3"
                     android:ellipsize="middle"
                     android:gravity="left"
                     android:lines="1"
-                    android:paddingLeft="5dip" >
+                    android:paddingLeft="4dip" >
                 </TextView>
             </TableRow>
 
@@ -113,22 +101,18 @@
 
                 <TextView
                     style="@style/TextLabel.Mini"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="@string/label_rasse" >
                 </TextView>
 
                 <TextView
                     android:id="@+id/gen_rasse"
                     style="@style/TextValue.Small.NoTouch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:layout_span="3"
                     android:ellipsize="middle"
                     android:gravity="left"
                     android:lines="1"
-                    android:paddingLeft="5dip" >
+                    android:paddingLeft="4dip" >
                 </TextView>
             </TableRow>
 
@@ -139,22 +123,18 @@
 
                 <TextView
                     style="@style/TextLabel.Mini"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="@string/label_kultur" >
                 </TextView>
 
                 <TextView
                     android:id="@+id/gen_kultur"
                     style="@style/TextValue.Small.NoTouch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:layout_span="3"
                     android:ellipsize="middle"
                     android:gravity="left"
                     android:lines="1"
-                    android:paddingLeft="5dip" >
+                    android:paddingLeft="4dip" >
                 </TextView>
             </TableRow>
 
@@ -164,38 +144,30 @@
 
                 <TextView
                     style="@style/TextLabel.Mini"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="@string/label_gewicht" >
                 </TextView>
 
                 <TextView
                     android:id="@+id/gen_gewicht"
                     style="@style/TextValue.Small.NoTouch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:gravity="left"
                     android:lines="1"
-                    android:paddingLeft="5dip" >
+                    android:paddingLeft="4dip" >
                 </TextView>
 
                 <TextView
                     style="@style/TextLabel.Mini"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="@string/label_groesse" >
                 </TextView>
 
                 <TextView
                     android:id="@+id/gen_groesse"
                     style="@style/TextValue.Small.NoTouch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:gravity="left"
                     android:lines="1"
-                    android:paddingLeft="5dip" >
+                    android:paddingLeft="4dip" >
                 </TextView>
             </TableRow>
 
@@ -205,39 +177,31 @@
 
                 <TextView
                     style="@style/TextLabel.Mini"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="@string/label_haar_augen_farbe" >
                 </TextView>
 
                 <TextView
                     android:id="@+id/gen_haar_augen"
                     style="@style/TextValue.Small.NoTouch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:gravity="left"
                     android:lines="1"
-                    android:paddingLeft="5dip" >
+                    android:paddingLeft="4dip" >
                 </TextView>
 
                 <TextView
                     style="@style/TextLabel.Mini"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="@string/label_alter" >
                 </TextView>
 
                 <TextView
                     android:id="@+id/gen_alter"
                     style="@style/TextValue.Small.NoTouch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:ellipsize="middle"
                     android:gravity="left"
                     android:lines="1"
-                    android:paddingLeft="5dip" >
+                    android:paddingLeft="4dip" >
                 </TextView>
             </TableRow>
 
@@ -248,108 +212,91 @@
 
                 <TextView
                     style="@style/TextLabel.Mini"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="@string/label_aussehen" >
                 </TextView>
 
                 <TextView
                     android:id="@+id/gen_aussehen"
                     style="@style/TextValue.Small.NoTouch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:layout_span="3"
                     android:ellipsize="middle"
                     android:gravity="left"
                     android:lines="1"
-                    android:paddingLeft="5dip"
+                    android:paddingLeft="4dip"
                     android:text="" >
                 </TextView>
             </TableRow>
-            
+
             <TableRow
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" >
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
 
-                    <TextView
-                        style="@style/TextLabel.Mini"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"                        
-                        android:text="@string/label_st" >
-                    </TextView>
+                <TextView
+                    style="@style/TextLabel.Mini"
+                    android:text="@string/label_st" >
+                </TextView>
 
-                    <TextView
-                        android:id="@+id/attr_st"
-                        style="@style/TextValue.Small.NoTouch"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="left"                        
-                        android:ellipsize="none"
-                    	android:gravity="left"
-                    	android:lines="1"
-                    	android:paddingLeft="5dip" >
-                    </TextView>
-                    
+                <TextView
+                    android:id="@+id/attr_st"
+                    style="@style/TextValue.Small.NoTouch"
+                    android:layout_gravity="left"
+                    android:ellipsize="none"
+                    android:gravity="left"
+                    android:lines="1"
+                    android:paddingLeft="4dip" >
+                </TextView>
 
-                    <TextView
-                        android:id="@+id/attr_ws_label"
-                        style="@style/TextLabel.Mini"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"                        
-                        android:text="@string/label_ws">
-                    </TextView>
+                <TextView
+                    android:id="@+id/attr_ws_label"
+                    style="@style/TextLabel.Mini"
+                    android:text="@string/label_ws" >
+                </TextView>
 
-                    <TextView
-                        android:id="@+id/attr_ws"
-                        style="@style/TextValue.Small.NoTouch"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="left"
-                        android:ellipsize="none"
-                    	android:gravity="left"
-                    	android:lines="1"
-                    	android:paddingLeft="5dip">
-                    </TextView>
-                
-                </TableRow>
-                
+                <TextView
+                    android:id="@+id/attr_ws"
+                    style="@style/TextValue.Small.NoTouch"
+                    android:layout_gravity="left"
+                    android:ellipsize="none"
+                    android:gravity="left"
+                    android:lines="1"
+                    android:paddingLeft="4dip" >
+                </TextView>
+            </TableRow>
+
             <TableRow
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" >
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
 
-                    <TextView
-                        android:id="@+id/attr_gs_label"
-                        style="@style/TextLabel.Mini"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"                        
-                        android:text="@string/label_gs" >
-                    </TextView>
+                <TextView
+                    android:id="@+id/attr_gs_label"
+                    style="@style/TextLabel.Mini"
+                    android:text="@string/label_gs" >
+                </TextView>
 
-                    <TextView
-                        android:id="@+id/attr_gs"
-                        style="@style/TextValue.Small.NoTouch"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="left"
-	                    android:layout_span="3"
-	                    android:ellipsize="middle"
-	                    android:gravity="left"
-	                    android:lines="1"
-	                    android:paddingLeft="5dip" >
-                    </TextView>
-                </TableRow>
+                <TextView
+                    android:id="@+id/attr_gs"
+                    style="@style/TextValue.Small.NoTouch"
+                    android:layout_gravity="left"
+                    android:layout_span="3"
+                    android:ellipsize="middle"
+                    android:gravity="left"
+                    android:lines="1"
+                    android:paddingLeft="4dip" >
+                </TextView>
+            </TableRow>
         </TableLayout>
 
         <ImageButton
             android:id="@+id/details_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignBottom="@+id/gen_description"
+            android:layout_alignRight="@+id/gen_description"
+            android:layout_marginBottom="5dp"
             android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
             android:background="@null"
-            android:src="@drawable/expander_ic_maximized" />
+            android:src="?attr/imgExpanderClose" />
 
         <LinearLayout
             android:id="@+id/gen_attributes_layout"
@@ -362,7 +309,6 @@
 
             <TableLayout
                 android:id="@+id/gen_attributes"
-                style="@style/BorderPanel"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="6"
@@ -371,216 +317,170 @@
                 android:stretchColumns="0" >
 
                 <TableRow
-                    style="?attr/tableRowEvenStyle"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clipChildren="false"
-                    android:clipToPadding="false" >
+                    android:layout_height="wrap_content">
 
                     <TextView
                         android:id="@+id/attr_mu_label"
                         style="@style/TextLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
                         android:ellipsize="end"
                         android:gravity="center_vertical"
                         android:lines="1"
                         android:text="@string/label_mu" >
-
                     </TextView>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_mu"
                         style="@style/TextValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginRight="4dp" >
-
-                    </TextView>
+                    </Button>
                 </TableRow>
 
                 <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="?attr/tableRowOddStyle">
+                    android:layout_height="wrap_content" >
 
                     <TextView
                         android:id="@+id/attr_kl_label"
                         style="@style/TextLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
                         android:ellipsize="end"
-                        android:lines="1"
                         android:gravity="center_vertical"
+                        android:lines="1"
                         android:text="@string/label_kl" >
                     </TextView>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_kl"
                         style="@style/TextValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginRight="8dp" >
-
-                    </TextView>
+                    </Button>
                 </TableRow>
 
                 <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" 
-                    style="?attr/tableRowEvenStyle">
+                    android:layout_height="wrap_content" >
 
                     <TextView
                         android:id="@+id/attr_in_label"
                         style="@style/TextLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
                         android:ellipsize="end"
-                        android:lines="1"
                         android:gravity="center_vertical"
+                        android:lines="1"
                         android:text="@string/label_in" >
                     </TextView>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_in"
                         style="@style/TextValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:layout_gravity="center" >
-                    </TextView>
+                    </Button>
                 </TableRow>
 
                 <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" 
-                    style="?attr/tableRowOddStyle">
+                    android:layout_height="wrap_content" >
 
                     <TextView
                         android:id="@+id/attr_ch_label"
                         style="@style/TextLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
                         android:ellipsize="end"
-                        android:lines="1"
                         android:gravity="center_vertical"
+                        android:lines="1"
                         android:text="@string/label_ch" >
                     </TextView>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_ch"
                         style="@style/TextValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:layout_gravity="center" >
-                    </TextView>
+                    </Button>
                 </TableRow>
 
                 <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" 
-                    style="?attr/tableRowEvenStyle">
+                    android:layout_height="wrap_content" >
 
                     <TextView
                         android:id="@+id/attr_ff_label"
                         style="@style/TextLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
                         android:ellipsize="end"
-                        android:lines="1"
                         android:gravity="center_vertical"
+                        android:lines="1"
                         android:text="@string/label_ff" >
                     </TextView>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_ff"
                         style="@style/TextValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:layout_gravity="center" >
-                    </TextView>
+                    </Button>
                 </TableRow>
 
                 <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" 
-                    style="?attr/tableRowOddStyle">
+                    android:layout_height="wrap_content" >
 
                     <TextView
                         android:id="@+id/attr_ge_label"
                         style="@style/TextLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
                         android:ellipsize="end"
-                        android:lines="1"
                         android:gravity="center_vertical"
+                        android:lines="1"
                         android:text="@string/label_ge" >
                     </TextView>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_ge"
                         style="@style/TextValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:layout_gravity="center" >
-                    </TextView>
+                    </Button>
                 </TableRow>
 
                 <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" 
-                    style="?attr/tableRowEvenStyle">
+                    android:layout_height="wrap_content" >
 
                     <TextView
                         android:id="@+id/attr_ko_label"
                         style="@style/TextLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
                         android:ellipsize="end"
-                        android:lines="1"
                         android:gravity="center_vertical"
+                        android:lines="1"
                         android:text="@string/label_ko" >
                     </TextView>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_ko"
                         style="@style/TextValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:layout_gravity="center" >
-                    </TextView>
+                    </Button>
                 </TableRow>
 
                 <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="?attr/tableRowOddStyle">
+                    android:layout_height="wrap_content" >
 
                     <TextView
                         android:id="@+id/attr_kk_label"
                         style="@style/TextLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
                         android:ellipsize="end"
-                        android:lines="1"
                         android:gravity="center_vertical"
+                        android:lines="1"
                         android:text="@string/label_kk" >
                     </TextView>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_kk"
                         style="@style/TextValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:layout_gravity="center" >
-                    </TextView>
+                    </Button>
                 </TableRow>
             </TableLayout>
 
             <TableLayout
                 android:id="@+id/gen_attributes2"
-                style="@style/BorderPanel"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="4"
@@ -591,222 +491,168 @@
 
                 <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" 
-                    style="?attr/tableRowStyle">
+                    android:layout_height="wrap_content" >
 
                     <TextView
                         style="@style/TextLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
                         android:layout_gravity="center_vertical"
                         android:ellipsize="end"
                         android:gravity="center_vertical"
                         android:text="@string/label_le" >
                     </TextView>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_le"
-                        style="@style/TextValue.Left"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" >
-                    </TextView>
+                        style="@style/TextValue.Left" >
+                    </Button>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_total_le"
                         style="@style/TextValue.Right"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:layout_marginRight="4dp" >
-
-                    </TextView>
+                    </Button>
                 </TableRow>
 
                 <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" 
-                    style="?attr/tableRowStyle">
+                    android:layout_height="wrap_content" >
 
                     <TextView
                         style="@style/TextLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
                         android:layout_gravity="center_vertical"
                         android:ellipsize="end"
                         android:gravity="center_vertical"
                         android:text="@string/label_au" >
                     </TextView>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_au"
-                        style="@style/TextValue.Left"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" >
-                    </TextView>
+                        style="@style/TextValue.Left" >
+                    </Button>
 
-                    
-
-                    <TextView
+                    <Button
                         android:id="@+id/attr_total_au"
-                        style="@style/TextValue.Right"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" >
-                    </TextView>
+                        style="@style/TextValue.Right" >
+                    </Button>
                 </TableRow>
 
                 <TableRow
                     android:id="@+id/row_ae"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" 
-                    style="?attr/tableRowStyle">
+                    android:layout_height="wrap_content" >
 
                     <TextView
                         android:id="@+id/attr_ae_label"
                         style="@style/TextLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
                         android:layout_gravity="center_vertical"
                         android:ellipsize="end"
                         android:gravity="center_vertical"
                         android:text="@string/label_ae" >
                     </TextView>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_ae"
-                        style="@style/TextValue.Left"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" >
-                    </TextView>
+                        style="@style/TextValue.Left" >
+                    </Button>
 
-                    
-
-                    <TextView
+                    <Button
                         android:id="@+id/attr_total_ae"
-                        style="@style/TextValue.Right"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" >
-                    </TextView>
+                        style="@style/TextValue.Right" >
+                    </Button>
                 </TableRow>
 
                 <TableRow
                     android:id="@+id/row_ke"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" 
-                    style="?attr/tableRowStyle">
+                    android:layout_height="wrap_content" >
 
                     <TextView
                         android:id="@+id/attr_ke_label"
                         style="@style/TextLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
                         android:layout_gravity="center_vertical"
                         android:ellipsize="end"
                         android:gravity="center_vertical"
                         android:text="@string/label_ke" >
                     </TextView>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_ke"
-                        style="@style/TextValue.Left"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" >
-                    </TextView>
+                        style="@style/TextValue.Left" >
+                    </Button>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_total_ke"
-                        style="@style/TextValue.Right"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" >
-                    </TextView>
+                        style="@style/TextValue.Right" >
+                    </Button>
                 </TableRow>
 
                 <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" 
-                    style="?attr/tableRowStyle">
+                    android:layout_height="wrap_content" >
 
                     <TextView
                         android:id="@+id/attr_mr_label"
                         style="@style/TextLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
                         android:layout_gravity="center_vertical"
                         android:layout_span="2"
                         android:ellipsize="end"
                         android:gravity="center_vertical"
                         android:text="@string/label_mr" >
-
                     </TextView>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_mr"
-                        style="@style/TextValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" >
-                    </TextView>
+                        style="@style/TextValue" >
+                    </Button>
                 </TableRow>
 
                 <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" 
-                    style="?attr/tableRowStyle">
+                    android:layout_height="wrap_content" >
 
                     <TextView
                         android:id="@+id/attr_so_label"
                         style="@style/TextLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
                         android:layout_gravity="center_vertical"
                         android:layout_span="2"
                         android:ellipsize="end"
                         android:gravity="center_vertical"
                         android:text="@string/label_so" >
-
                     </TextView>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_so"
-                        style="@style/TextValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" >
-                    </TextView>
+                        style="@style/TextValue" >
+                    </Button>
                 </TableRow>
 
                 <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" 
-                    style="?attr/tableRowStyle">
+                    android:layout_height="wrap_content" >
 
                     <TextView
                         android:id="@+id/attr_abp_label"
                         style="@style/TextLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
                         android:layout_gravity="center_vertical"
                         android:ellipsize="end"
                         android:gravity="center_vertical"
                         android:text="@string/label_ap" >
-
                     </TextView>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_abp"
                         style="@style/TextValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:layout_span="2" >
-                    </TextView>
+                    </Button>
                 </TableRow>
-                
+
                 <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" 
-                    style="?attr/tableRowStyle">
+                    android:layout_height="wrap_content" >
 
                     <TextView
                         android:id="@+id/attr_be_label"
                         style="@style/TextLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
                         android:layout_gravity="center_vertical"
                         android:layout_span="2"
                         android:ellipsize="end"
@@ -814,12 +660,10 @@
                         android:text="@string/label_be" >
                     </TextView>
 
-                    <TextView
+                    <Button
                         android:id="@+id/attr_be"
-                        style="@style/TextValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" >
-                    </TextView>
+                        style="@style/TextValue" >
+                    </Button>
                 </TableRow>
             </TableLayout>
         </LinearLayout>
@@ -829,7 +673,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/gen_attributes_layout"
-            style="?attr/tableRowEvenStyle"
+            android:background="?attr/listItemBackground"
             android:paddingLeft="8dp"
             android:paddingRight="8dp" >
 
@@ -841,10 +685,11 @@
                 android:layout_gravity="center_vertical"
                 android:ellipsize="end"
                 android:gravity="center_vertical"
+                android:background="?attr/selectableBackground"                
                 android:text="@string/label_at" >
             </TextView>
 
-            <TextView
+            <Button
                 android:id="@+id/attr_at"
                 style="@style/TextValue"
                 android:layout_width="wrap_content"
@@ -854,8 +699,7 @@
                 android:ellipsize="none"
                 android:gravity="center"
                 android:singleLine="true" >
-
-            </TextView>
+            </Button>
 
             <TextView
                 android:id="@+id/attr_pa_label"
@@ -865,12 +709,12 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="4dp"
                 android:ellipsize="end"
+                android:background="?attr/selectableBackground"
                 android:gravity="center_vertical"
                 android:text="@string/label_pa" >
-
             </TextView>
 
-            <TextView
+            <Button
                 android:id="@+id/attr_pa"
                 style="@style/TextValue"
                 android:layout_width="wrap_content"
@@ -880,8 +724,7 @@
                 android:ellipsize="none"
                 android:gravity="center"
                 android:singleLine="true" >
-
-            </TextView>
+            </Button>
 
             <TextView
                 android:id="@+id/attr_fk_label"
@@ -891,12 +734,12 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="4dp"
                 android:ellipsize="end"
+                android:background="?attr/selectableBackground"
                 android:gravity="center_vertical"
                 android:text="@string/label_fk" >
-
             </TextView>
 
-            <TextView
+            <Button
                 android:id="@+id/attr_fk"
                 style="@style/TextValue"
                 android:layout_width="wrap_content"
@@ -906,8 +749,7 @@
                 android:ellipsize="none"
                 android:gravity="center"
                 android:singleLine="true" >
-
-            </TextView>
+            </Button>
 
             <TextView
                 android:id="@+id/attr_ini_label"
@@ -917,12 +759,12 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="4dp"
                 android:ellipsize="end"
+                android:background="?attr/selectableBackground"
                 android:gravity="center_vertical"
                 android:text="@string/label_ini" >
-
             </TextView>
 
-            <TextView
+            <Button
                 android:id="@+id/attr_ini"
                 style="@style/TextValue"
                 android:layout_width="wrap_content"
@@ -931,13 +773,14 @@
                 android:ellipsize="none"
                 android:gravity="center"
                 android:singleLine="true" >
-            </TextView>
+            </Button>
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_below="@+id/gen_attributes3" >
+            android:layout_below="@+id/gen_attributes3"
+            android:orientation="vertical" >
 
             <TextView
                 android:id="@+id/gen_specialfeatures_title"
@@ -955,7 +798,6 @@
                 android:ellipsize="none"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp" >
-
             </TextView>
 
             <TextView
@@ -991,10 +833,8 @@
                 android:ellipsize="none"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp" >
-
             </TextView>
         </LinearLayout>
-        
     </RelativeLayout>
 
 </ScrollView>

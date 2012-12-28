@@ -70,7 +70,7 @@ public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnCl
 		setCanceledOnTouchOutside(true);
 
 		popupcontent = (View) LayoutInflater.from(getContext()).inflate(R.layout.popup_spell_info, null, false);
-		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		setView(popupcontent);
 
 		setButton(AlertDialog.BUTTON_POSITIVE, getContext().getString(R.string.label_ok), this);

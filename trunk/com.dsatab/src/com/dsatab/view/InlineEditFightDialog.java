@@ -12,10 +12,10 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.common.Util;
 import com.dsatab.data.CombatMeleeAttribute;
 import com.dsatab.data.CombatMeleeTalent;
 import com.dsatab.data.Value;
+import com.dsatab.util.Util;
 
 public class InlineEditFightDialog extends AlertDialog implements DialogInterface.OnClickListener,
 		OnWheelChangedListener {

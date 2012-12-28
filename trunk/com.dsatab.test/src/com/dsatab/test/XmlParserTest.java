@@ -26,7 +26,6 @@ import org.jdom2.xpath.XPathFactory;
 
 import android.test.InstrumentationTestCase;
 
-import com.dsatab.common.Util;
 import com.dsatab.data.Advantage;
 import com.dsatab.data.Hero;
 import com.dsatab.data.SpecialFeature;
@@ -36,6 +35,7 @@ import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Hand;
 import com.dsatab.data.items.Weapon;
+import com.dsatab.util.Util;
 import com.dsatab.xml.XmlParser;
 
 /**
@@ -100,14 +100,14 @@ public class XmlParserTest extends InstrumentationTestCase {
 									+ "']/@mod", dom), (int) hero.getAttributeValue(type));
 		}
 
+		assertEquals(TEST_LP, (int) hero.getAttributeValue(AttributeType.Lebensenergie_Aktuell));
 		assertEquals(TEST_LP, (int) hero.getAttributeValue(AttributeType.Lebensenergie));
-		assertEquals(TEST_LP, (int) hero.getAttributeValue(AttributeType.Lebensenergie_Total));
+		assertEquals(TEST_AU, (int) hero.getAttributeValue(AttributeType.Ausdauer_Aktuell));
 		assertEquals(TEST_AU, (int) hero.getAttributeValue(AttributeType.Ausdauer));
-		assertEquals(TEST_AU, (int) hero.getAttributeValue(AttributeType.Ausdauer_Total));
+		assertNull(hero.getAttributeValue(AttributeType.Astralenergie_Aktuell));
 		assertNull(hero.getAttributeValue(AttributeType.Astralenergie));
-		assertNull(hero.getAttributeValue(AttributeType.Astralenergie_Total));
+		assertNull(hero.getAttributeValue(AttributeType.Karmaenergie_Aktuell));
 		assertNull(hero.getAttributeValue(AttributeType.Karmaenergie));
-		assertNull(hero.getAttributeValue(AttributeType.Karmaenergie_Total));
 
 		assertEquals(TEST_MR, (int) hero.getAttributeValue(AttributeType.Magieresistenz));
 

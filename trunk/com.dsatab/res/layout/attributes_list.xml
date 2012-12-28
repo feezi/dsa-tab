@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/attr_attributes"
+    android:id="@+id/inc_attributes"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@color/ValueBlack"
+    android:background="@android:color/black"
     android:orientation="vertical"
-    android:paddingBottom="5dp"
-    android:paddingLeft="5dp"
-    android:paddingRight="5dp"
-    android:paddingTop="2dp">
+    android:padding="4dp" >
 
 <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent">
 	<TextView android:text="Character Name" android:layout_height="wrap_content" android:id="@+id/attr_name" android:ellipsize="end" android:singleLine="true" android:layout_width="wrap_content" style="@style/TextValue.Small.NoTouch.Inverse" android:layout_marginRight="5dp" android:layout_weight="1" android:gravity="left|center_vertical"></TextView>

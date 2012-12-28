@@ -6,7 +6,7 @@ import java.util.List;
 
 import android.text.TextUtils;
 
-import com.dsatab.common.Util;
+import com.dsatab.util.Util;
 
 public class Advantage {
 

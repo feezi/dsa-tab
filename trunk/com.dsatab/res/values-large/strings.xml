@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="label_ini">Ini</string>
     <string name="label_fk">Fernkampf</string>
     <string name="label_pa">Parade</string>
@@ -15,5 +14,4 @@
     <string name="label_ae">Astralenergie</string>
     <string name="label_au">Ausdauer</string>
     <string name="label_le">Lebensenergie</string>
-    
 </resources>

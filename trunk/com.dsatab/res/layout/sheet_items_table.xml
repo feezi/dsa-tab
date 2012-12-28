@@ -25,36 +25,23 @@
         android:layout_width="wrap_content"
         android:layout_gravity="left|center_vertical"
         android:focusable="true" android:layout_height="56dp" android:background="@null" android:paddingTop="20dp" android:paddingBottom="20dp" android:paddingLeft="5dp" android:gravity="left|center_vertical" android:minWidth="50dp"/>
-        
-        
-        
+                     
         <com.dsatab.view.DeleteZone
         android:id="@+id/delete_zone"
         android:layout_width="56dip"
         android:layout_height="56dip"
         android:paddingTop="4dip"
         android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginRight="100dp"
         android:scaleType="centerInside"
         android:src="@drawable/delete_zone_selector"
         android:visibility="invisible"/>
+        
         <com.dsatab.view.PageButton
         android:id="@+id/next_screen"
         android:layout_width="wrap_content"
         android:layout_gravity="right|center_vertical"
         android:focusable="true" android:layout_height="56dp" android:background="@null" android:paddingBottom="20dp" android:paddingTop="20dp" android:paddingRight="5dp" android:gravity="right|center_vertical" android:minWidth="50dp"/>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:layout_gravity="center">
-            
-            <ImageButton android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:id="@+id/fight_set" android:src="@drawable/set" android:layout_gravity="center"/>
-        
-
-            
-        <Spinner android:layout_width="wrap_content" android:id="@+id/screen_set_button" android:layout_height="match_parent" android:layout_gravity="center"></Spinner>
-        
-            <ImageButton android:layout_height="@dimen/icon_button_size" android:layout_width="@dimen/icon_button_size" android:id="@+id/fight_inventory" android:src="@drawable/inventory" android:layout_gravity="center"/>
-        </LinearLayout>
         
     </FrameLayout>
 

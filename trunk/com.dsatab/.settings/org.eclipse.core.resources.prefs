@@ -1,5 +1,6 @@
-#Tue Oct 18 16:50:09 CEST 2011
 eclipse.preferences.version=1
-encoding//res/raw/credits.html=ISO-8859-1
-encoding//res/raw/ulisses_license.html=ISO-8859-1
+encoding//res/raw/credits.html=UTF-8
+encoding//res/raw/donate.xml=UTF-8
+encoding//res/raw/ulisses_license.html=UTF-8
+encoding//res/xml/changelog.xml=UTF-8
 encoding/<project>=UTF-8

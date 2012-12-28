@@ -3,13 +3,13 @@
     <group android:id="@+id/group_note_list" >
         <item
             android:id="@+id/option_edit"
-            android:icon="@drawable/ic_menu_edit"
-            android:showAsAction="withText|always"
+            android:icon="?attr/imgBarEdit"
+            android:showAsAction="withText|ifRoom"
             android:title="Bearbeiten"/>
         <item
             android:id="@+id/option_delete"
-            android:icon="@drawable/ic_menu_delete"
-            android:showAsAction="withText|always"
+            android:icon="?attr/imgBarDelete"
+            android:showAsAction="withText|ifRoom"
             android:title="Löschen"/>
     </group>
 

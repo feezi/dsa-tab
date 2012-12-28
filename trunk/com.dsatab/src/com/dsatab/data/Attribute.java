@@ -2,8 +2,8 @@ package com.dsatab.data;
 
 import org.jdom2.Element;
 
-import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.util.Util;
 import com.dsatab.xml.Xml;
 
 public class Attribute extends BaseProbe implements Value, XmlWriteable, Cloneable {
@@ -62,13 +62,13 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable, Cloneab
 			return "Fernkampf Basiswert";
 		case ini:
 			return "Initiative";
-		case Lebensenergie:
+		case Lebensenergie_Aktuell:
 			return "Lebensenergie aktuell";
-		case Ausdauer:
+		case Ausdauer_Aktuell:
 			return "Ausdauer aktuell";
-		case Astralenergie:
+		case Astralenergie_Aktuell:
 			return "Astralenergie aktuell";
-		case Karmaenergie:
+		case Karmaenergie_Aktuell:
 			return "Karmaenergie aktuell";
 		default:
 			return name;
@@ -87,11 +87,11 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable, Cloneab
 		if (value != null && mod != null) {
 
 			// value and mod of 0 means not able to use it
-			if ((type == AttributeType.Karmaenergie || type == AttributeType.Astralenergie
-					|| type == AttributeType.Karmaenergie_Total || type == AttributeType.Astralenergie_Total)
+			if ((type == AttributeType.Karmaenergie_Aktuell || type == AttributeType.Astralenergie_Aktuell
+					|| type == AttributeType.Karmaenergie || type == AttributeType.Astralenergie)
 					&& value == 0 && mod == 0) {
 
-				if ((type == AttributeType.Astralenergie || type == AttributeType.Astralenergie_Total)
+				if ((type == AttributeType.Astralenergie_Aktuell || type == AttributeType.Astralenergie)
 						&& hero.hasFeature(Advantage.MAGIEDILLETANT)) {
 					value = 0;
 				} else {
@@ -140,15 +140,11 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable, Cloneab
 	public void populateXml(Element element) {
 		if (element != null) {
 			if (getValue() != null) {
-				if (isDSATabValue()) {
-					element.setAttribute(Xml.KEY_DSATAB_VALUE, value.toString());
-				} else {
-					int modValue = value;
-					if (element.getAttribute(Xml.KEY_MOD) != null) {
-						modValue -= Integer.parseInt(element.getAttributeValue(Xml.KEY_MOD));
-					}
-					element.setAttribute(Xml.KEY_VALUE, Integer.toString(modValue - getBaseValue()));
+				int modValue = value;
+				if (element.getAttribute(Xml.KEY_MOD) != null) {
+					modValue -= Integer.parseInt(element.getAttributeValue(Xml.KEY_MOD));
 				}
+				element.setAttribute(Xml.KEY_VALUE, Integer.toString(modValue - getBaseValue()));
 			} else {
 				element.removeAttribute(Xml.KEY_VALUE);
 			}
@@ -160,12 +156,6 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable, Cloneab
 			this.value = value;
 			hero.fireValueChangedEvent(this);
 		}
-	}
-
-	public boolean isDSATabValue() {
-		return type == AttributeType.Lebensenergie || type == AttributeType.Karmaenergie
-				|| type == AttributeType.Astralenergie || type == AttributeType.Ausdauer
-				|| type == AttributeType.Ausweichen;
 	}
 
 	/**
@@ -211,13 +201,13 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable, Cloneab
 			if (hero != null) {
 
 				switch (type) {
+				case Lebensenergie_Aktuell:
 				case Lebensenergie:
-				case Lebensenergie_Total:
 					currentBaseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Konstitution) * 2 + hero
 							.getAttributeValue(AttributeType.Körperkraft)) / 2.0);
 					break;
+				case Astralenergie_Aktuell:
 				case Astralenergie:
-				case Astralenergie_Total:
 					if (hero.hasFeature(SpecialFeature.GEFAESS_DER_STERNE)) {
 						currentBaseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
 								+ hero.getAttributeValue(AttributeType.Intuition)
@@ -229,8 +219,8 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable, Cloneab
 								.getAttributeValue(AttributeType.Charisma)) / 2.0);
 					}
 					break;
+				case Ausdauer_Aktuell:
 				case Ausdauer:
-				case Ausdauer_Total:
 					currentBaseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
 							+ hero.getAttributeValue(AttributeType.Konstitution) + hero
 							.getAttributeValue(AttributeType.Gewandtheit)) / 2.0);
@@ -312,10 +302,10 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable, Cloneab
 			return (int) Math.round((mu + mu + in + ge) / 5.0);
 		}
 
-		case Ausdauer_Total:
-		case Karmaenergie_Total:
-		case Astralenergie_Total:
-		case Lebensenergie_Total:
+		case Ausdauer:
+		case Karmaenergie:
+		case Astralenergie:
+		case Lebensenergie:
 			return null;
 		case Behinderung:
 			return hero.getArmorBe();
@@ -326,7 +316,7 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable, Cloneab
 
 	public int getMinimum() {
 		switch (type) {
-		case Lebensenergie:
+		case Lebensenergie_Aktuell:
 			return -10;
 		default:
 			return 0;
@@ -337,17 +327,17 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable, Cloneab
 		int max = 0;
 
 		switch (type) {
-		case Lebensenergie:
-			max = hero.getAttributeValue(AttributeType.Lebensenergie_Total);
+		case Lebensenergie_Aktuell:
+			max = hero.getAttributeValue(AttributeType.Lebensenergie);
 			break;
-		case Astralenergie:
-			max = hero.getAttributeValue(AttributeType.Astralenergie_Total);
+		case Astralenergie_Aktuell:
+			max = hero.getAttributeValue(AttributeType.Astralenergie);
 			break;
-		case Ausdauer:
-			max = hero.getAttributeValue(AttributeType.Ausdauer_Total);
+		case Ausdauer_Aktuell:
+			max = hero.getAttributeValue(AttributeType.Ausdauer);
 			break;
-		case Karmaenergie:
-			max = hero.getAttributeValue(AttributeType.Karmaenergie_Total);
+		case Karmaenergie_Aktuell:
+			max = hero.getAttributeValue(AttributeType.Karmaenergie);
 			break;
 		case Behinderung:
 			max = 15;
@@ -363,10 +353,10 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable, Cloneab
 		case Sozialstatus:
 			max = 25;
 			break;
-		case Lebensenergie_Total:
-		case Astralenergie_Total:
-		case Ausdauer_Total:
-		case Karmaenergie_Total:
+		case Lebensenergie:
+		case Astralenergie:
+		case Ausdauer:
+		case Karmaenergie:
 			max = 200;
 			break;
 		default:

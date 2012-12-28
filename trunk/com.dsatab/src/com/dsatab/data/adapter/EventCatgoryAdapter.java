@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.dsatab.R;
 import com.dsatab.data.enums.EventCategory;
-import com.dsatab.data.adapter.SpinnerSimpleAdapter;
 
 public class EventCatgoryAdapter extends SpinnerSimpleAdapter<EventCategory> {
 

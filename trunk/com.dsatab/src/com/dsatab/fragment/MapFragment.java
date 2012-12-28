@@ -21,6 +21,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import org.osmdroid.DefaultResourceProxyImpl;
 import org.osmdroid.api.IGeoPoint;
@@ -29,21 +30,17 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 
+import uk.co.senab.photoview.PhotoViewAttacher;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
-import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.FloatMath;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -56,14 +53,13 @@ import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.BasePreferenceActivity;
-import com.dsatab.common.Util;
-import com.dsatab.common.WrapMotionEvent;
 import com.dsatab.data.Hero;
 import com.dsatab.map.MapTileProviderLocal;
+import com.dsatab.util.Util;
 import com.gandulf.guilib.download.AbstractDownloader;
 import com.gandulf.guilib.download.DownloaderWrapper;
 
-public class MapFragment extends BaseFragment implements OnTouchListener {
+public class MapFragment extends BaseFragment {
 
 	/**
 	 * 
@@ -87,19 +83,9 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 	private TextView progressText;
 
 	private ImageView imageMapView;
+	private PhotoViewAttacher mAttacher;
 
 	private MapView osmMapView;
-
-	private Matrix matrix = new Matrix();
-	private Matrix savedMatrix = new Matrix();
-
-	private TouchMode mode = TouchMode.None;
-
-	// Points for distance calc...
-	private PointF start = new PointF();
-	private PointF middle = new PointF();
-
-	private float oldDistance = 1f;
 
 	private String activeMap = null;
 
@@ -129,12 +115,8 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 	 */
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_map_choose, Menu.NONE,
-				"Karte auswählen");
-		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-		item.setIcon(R.drawable.ic_menu_mapmode);
-
 		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.map_menu, menu);
 	}
 
 	/*
@@ -220,7 +202,7 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 
-		imageMapView.setOnTouchListener(this);
+		// imageMapView.setOnTouchListener(this);
 
 		List<String> mapFiles = new ArrayList<String>();
 		List<String> mapNames = new ArrayList<String>();
@@ -236,7 +218,7 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 			@Override
 			public boolean accept(File dir, String filename) {
 
-				filename = filename.toLowerCase();
+				filename = filename.toLowerCase(Locale.GERMAN);
 
 				return filename.endsWith(".jpg") || filename.endsWith(".gif") || filename.endsWith(".png")
 						|| filename.endsWith(".jpeg") || filename.endsWith(".bmp");
@@ -315,6 +297,9 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 			this.mapNames = mapNames.toArray(new String[0]);
 
 		}
+
+		mAttacher = new PhotoViewAttacher(imageMapView);
+
 		super.onActivityCreated(savedInstanceState);
 	}
 
@@ -353,9 +338,16 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 
 		if (bitmap != null) {
 			this.bitmap = bitmap;
+
 			imageMapView.setImageDrawable(bitmap);
-			imageMapView.setImageMatrix(matrix);
-		} else {
+			// Attach a PhotoViewAttacher, which takes care of all of the
+			// zooming functionality.
+			mAttacher.update();
+
+			String coords = preferences.getString(PREF_KEY_LAST_MAP_COORDINATES, null);
+			if (coords != null) {
+				mAttacher.setSuppViewMatrix(Util.parseFloats(coords));
+			}
 
 		}
 
@@ -460,10 +452,7 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 	public void onPause() {
 
 		Editor edit = preferences.edit();
-
-		float[] values = new float[9];
-		matrix.getValues(values);
-		edit.putString(PREF_KEY_LAST_MAP_COORDINATES, Util.toString(values));
+		edit.putString(PREF_KEY_LAST_MAP_COORDINATES, Util.toString(mAttacher.getSuppViewMatrix()));
 		if (osmMapView != null) {
 			edit.putInt(PREF_KEY_OSM_ZOOM, osmMapView.getZoomLevel());
 			IGeoPoint center = osmMapView.getMapCenter();
@@ -502,11 +491,6 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 
 		if (!TextUtils.isEmpty(lastMap)) {
 
-			String coords = preferences.getString(PREF_KEY_LAST_MAP_COORDINATES, null);
-			if (coords != null) {
-				matrix.setValues(Util.parseFloats(coords));
-			}
-
 			if (getUserVisibleHint()) {
 				loadMap(lastMap);
 			}
@@ -529,9 +513,6 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 				edit.putString(PREF_KEY_LAST_MAP, mapFiles[which]);
 				edit.commit();
 
-				matrix = new Matrix();
-				matrix.setTranslate(1.0f, 1.0f);
-
 				loadMap(mapFiles[which]);
 
 				dialog.dismiss();
@@ -539,64 +520,6 @@ public class MapFragment extends BaseFragment implements OnTouchListener {
 		});
 
 		builder.show();
-	}
-
-	@Override
-	public boolean onTouch(View v, MotionEvent rawEvent) {
-		WrapMotionEvent event = WrapMotionEvent.wrap(rawEvent);
-
-		ImageView view = (ImageView) v;
-
-		// Handle touch events here...
-		switch (event.getAction() & MotionEvent.ACTION_MASK) {
-		case MotionEvent.ACTION_DOWN:
-			savedMatrix.set(matrix);
-			start.set(event.getX(), event.getY());
-			mode = TouchMode.Drag;
-			break;
-		case MotionEvent.ACTION_POINTER_DOWN:
-			oldDistance = spacing(event);
-
-			if (oldDistance > 10f) {
-				savedMatrix.set(matrix);
-				midPoint(middle, event);
-				mode = TouchMode.Zoom;
-			}
-			break;
-		case MotionEvent.ACTION_UP:
-		case MotionEvent.ACTION_POINTER_UP:
-			mode = TouchMode.None;
-			break;
-		case MotionEvent.ACTION_MOVE:
-			if (mode == TouchMode.Drag) {
-				matrix.set(savedMatrix);
-				matrix.postTranslate(event.getX() - start.x, event.getY() - start.y);
-			} else if (mode == TouchMode.Zoom) {
-				float newDist = spacing(event);
-				if (newDist > 10f) {
-					matrix.set(savedMatrix);
-					float scale = newDist / oldDistance;
-					matrix.postScale(scale, scale, middle.x, middle.y);
-				}
-			}
-			break;
-		}
-		view.setImageMatrix(matrix);
-		return true;
-	}
-
-	/** Determine the space between the first two fingers */
-	private float spacing(WrapMotionEvent event) {
-		float x = event.getX(0) - event.getX(1);
-		float y = event.getY(0) - event.getY(1);
-		return FloatMath.sqrt(x * x + y * y);
-	}
-
-	/** Calculate the mid point of the first two fingers */
-	private void midPoint(PointF point, WrapMotionEvent event) {
-		float x = event.getX(0) + event.getX(1);
-		float y = event.getY(0) + event.getY(1);
-		point.set(x / 2, y / 2);
 	}
 
 }

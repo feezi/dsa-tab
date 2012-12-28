@@ -51,7 +51,6 @@ import com.actionbarsherlock.view.MenuItem;
 import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.ItemLocationInfo;
 import com.dsatab.data.adapter.GalleryImageAdapter;
@@ -62,6 +61,7 @@ import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Util;
 import com.dsatab.view.CardView;
 import com.dsatab.view.ItemChooserDialog;
 import com.dsatab.view.ItemListItem;
@@ -546,14 +546,16 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_search, Menu.NONE,
 					"Gegenstand suchen");
 
-			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-			item.setIcon(R.drawable.ic_menu_search);
+			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
+					| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+			item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarSearch));
 
 			final AutoCompleteTextView searchView = new AutoCompleteTextView(getSherlockActivity()
 					.getSupportActionBar().getThemedContext());
 
-			searchView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_search, 0, 0, 0);
-			searchView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+			searchView.setCompoundDrawablesWithIntrinsicBounds(
+					Util.getThemeResourceId(getActivity(), R.attr.imgSearch), 0, 0, 0);
+			searchView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 
 			final int[] to = new int[] { android.R.id.text1 };
 			final String[] from = new String[] { "name" };
@@ -607,7 +609,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 				}
 			});
 			item.setActionView(searchView);
-			searchView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+			searchView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		}
 
 		if (categorySelectable) {
@@ -615,13 +617,13 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 			com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_item_filter, Menu.NONE,
 					"Filtern");
-			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-			item.setIcon(R.drawable.ic_menu_filter);
+			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+			item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarFilter));
 		}
 		// --
 
 		if (onItemChooserListener != null) {
-			Util.inflateAcceptAbortMenu(menu);
+			Util.inflateAcceptAbortMenu(getActivity(), menu);
 		}
 
 		super.onCreateOptionsMenu(menu, inflater);
@@ -709,8 +711,12 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 			builder.setMultiChoiceItems(categoryNames, categoriesSet, this);
 			builder.setTitle("Filtern");
-			builder.setIcon(R.drawable.ic_menu_filter);
-
+			builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			});
 			builder.show().setOnDismissListener(new DialogInterface.OnDismissListener() {
 
 				@Override

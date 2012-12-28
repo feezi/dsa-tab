@@ -18,7 +18,7 @@ package com.dsatab.data;
 
 import org.jdom2.Element;
 
-import com.dsatab.common.Util;
+import com.dsatab.util.Util;
 import com.dsatab.xml.Xml;
 
 /**

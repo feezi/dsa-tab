@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout android:layout_width="fill_parent"
 	android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
-	android:alwaysDrawnWithCache="false" android:padding="5dip"
+	android:alwaysDrawnWithCache="false" android:padding="4dip"
 	android:id="@+id/popup_edit_layout">
 
 
@@ -32,12 +32,12 @@
 		android:text="@string/label_misc_modifications" android:layout_alignParentLeft="true"></Button>
 	<TextView android:layout_height="wrap_content"
 		android:layout_width="wrap_content" android:id="@+id/archery_probe"
-		android:layout_marginRight="5dip" android:textSize="30dip"
+		android:layout_marginRight="8dip" android:textSize="30sp"
 		android:text="Erschwernis:" android:layout_below="@+id/archery_others" style="@style/TextLabel"></TextView>
 	<TextView android:layout_height="wrap_content"
 		android:layout_width="wrap_content" android:id="@+id/archery_probe_value"
 		android:layout_toRightOf="@+id/archery_probe" style="@style/TextValue.NoTouch"
-		android:textSize="30dip" android:text="+8" android:layout_below="@+id/archery_others"></TextView>
+		android:textSize="30sp" android:text="+8" android:layout_below="@+id/archery_others"></TextView>
 
 
 

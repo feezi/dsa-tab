@@ -30,11 +30,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.drawable.LevelListDrawable;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -57,7 +55,6 @@ import com.dsatab.activity.ItemChooserActivity;
 import com.dsatab.activity.MainActivity;
 import com.dsatab.activity.ModificatorEditActivity;
 import com.dsatab.common.StyleableSpannableStringBuilder;
-import com.dsatab.common.Util;
 import com.dsatab.data.Advantage;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.CombatTalent;
@@ -77,6 +74,7 @@ import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.AbstractModificator;
 import com.dsatab.data.modifier.Modificator;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Util;
 import com.dsatab.view.ArcheryChooserDialog;
 import com.dsatab.view.EquippedItemChooserDialog;
 import com.dsatab.view.EvadeChooserDialog;
@@ -109,7 +107,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 
 			SparseBooleanArray checkedPositions = fightList.getCheckedItemPositions();
 			if (checkedPositions != null) {
-				for (int i = 0; i < checkedPositions.size(); i++) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
 						Object obj = fightList.getItemAtPosition(checkedPositions.keyAt(i));
 
@@ -124,7 +122,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 								intent.putExtra(ModificatorEditActivity.INTENT_RULES, modificator.getRules());
 								intent.putExtra(ModificatorEditActivity.INTENT_COMMENT, modificator.getComment());
 								intent.putExtra(ModificatorEditActivity.INTENT_ACTIVE, modificator.isActive());
-								startActivityForResult(intent, MainActivity.ACTION_EDIT_MODIFICATOR);
+								getActivity().startActivityForResult(intent, MainActivity.ACTION_EDIT_MODIFICATOR);
 								mode.finish();
 								return true;
 							case R.id.option_delete:
@@ -151,7 +149,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 
 			SparseBooleanArray checkedPositions = fightList.getCheckedItemPositions();
 			if (checkedPositions != null) {
-				for (int i = 0; i < checkedPositions.size(); i++) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
 
 						Object obj = fightList.getItemAtPosition(checkedPositions.keyAt(i));
@@ -187,7 +185,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
 			SparseBooleanArray checkedPositions = fightList.getCheckedItemPositions();
 			if (checkedPositions != null) {
-				for (int i = 0; i < checkedPositions.size(); i++) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
 						Object obj = fightList.getItemAtPosition(checkedPositions.keyAt(i));
 
@@ -223,7 +221,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 
 			SparseBooleanArray checkedPositions = fightList.getCheckedItemPositions();
 			if (checkedPositions != null) {
-				for (int i = 0; i < checkedPositions.size(); i++) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
 						Object obj = fightList.getItemAtPosition(checkedPositions.keyAt(i));
 
@@ -422,7 +420,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
 			SparseBooleanArray checkedPositions = fightList.getCheckedItemPositions();
 			if (checkedPositions != null) {
-				for (int i = 0; i < checkedPositions.size(); i++) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
 						Object obj = fightList.getItemAtPosition(checkedPositions.keyAt(i));
 
@@ -497,7 +495,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 	private TargetListener targetListener;
 
 	private Button fightPickerButton;
-	private AttributeType fightPickerType = AttributeType.Lebensenergie;
+	private AttributeType fightPickerType = AttributeType.Lebensenergie_Aktuell;
 
 	private List<AttributeType> fightPickerTypes;
 
@@ -602,21 +600,9 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 	 */
 	@Override
 	public void onCreateOptionsMenu(Menu menu, com.actionbarsherlock.view.MenuInflater inflater) {
-		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_modifier_add, Menu.NONE,
-				"Modifikator hinzufügen");
-		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-		item.setIcon(R.drawable.ic_menu_add);
-
-		if (menu.findItem(R.id.option_fight_set) == null) {
-			item = menu.add(Menu.NONE, R.id.option_fight_set, Menu.NONE, "Set");
-			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-			item.setIcon(R.drawable.ic_menu_set);
-			if (item.getIcon() instanceof LevelListDrawable) {
-				((LevelListDrawable) item.getIcon()).setLevel(getHero().getActiveSet());
-			}
-		}
-
 		super.onCreateOptionsMenu(menu, inflater);
+		menu.removeItem(R.id.option_set);
+		inflater.inflate(R.menu.fight_menu, menu);
 	}
 
 	/*
@@ -630,7 +616,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
 
 		if (item.getItemId() == R.id.option_modifier_add) {
-			startActivityForResult(new Intent(getActivity(), ModificatorEditActivity.class),
+			getActivity().startActivityForResult(new Intent(getActivity(), ModificatorEditActivity.class),
 					MainActivity.ACTION_ADD_MODIFICATOR);
 			return true;
 		} else {
@@ -676,6 +662,8 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 
 			ImageButton iconLeft = (ImageButton) fightausweichen.findViewById(android.R.id.icon1);
 			iconLeft.setTag(ausweichen);
+
+			Util.applyRowStyle(fightausweichen, fightItemAdapter.getCount());
 		}
 
 	}
@@ -736,6 +724,10 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = configureContainerView(inflater.inflate(R.layout.sheet_fight, container, false));
 
+		fightList = (ListView) root.findViewById(R.id.fight_list);
+		fightPickerButton = (Button) root.findViewById(R.id.fight_btn_picker);
+		fightNumberPicker = (WheelView) root.findViewById(R.id.fight_picker);
+		fightLpLayout = (LinearLayout) root.findViewById(R.id.fight_le_layout);
 		return root;
 	}
 
@@ -746,13 +738,12 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		fightList = (ListView) getView().findViewById(R.id.fight_list);
+
 		fightList.setOnItemLongClickListener(this);
 		fightList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+		fightList.setOnItemClickListener(this);
 
 		targetListener = new TargetListener((MainActivity) getActivity());
-
-		fightList.setOnItemClickListener(this);
 
 		fightausweichen = getLayoutInflater(savedInstanceState).inflate(R.layout.item_listitem, null, false);
 		ImageButton iconLeft = (ImageButton) fightausweichen.findViewById(android.R.id.icon1);
@@ -774,11 +765,8 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 			}
 		});
 
-		fightPickerButton = (Button) findViewById(R.id.fight_btn_picker);
 		fightPickerButton.setOnClickListener(this);
 		fightPickerButton.setOnLongClickListener(this);
-
-		fightNumberPicker = (WheelView) findViewById(R.id.fight_picker);
 
 		fightNumberAdapter = new NumericWheelAdapter(getActivity());
 		fightNumberPicker.setViewAdapter(fightNumberAdapter);
@@ -793,16 +781,15 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 			}
 		});
 
-		fightLpLayout = (LinearLayout) findViewById(R.id.fight_le_layout);
 		fightLpLayout.setOnClickListener(getBaseActivity().getEditListener());
 
 		SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
 		try {
-			String typeString = pref.getString(KEY_PICKER_TYPE, AttributeType.Lebensenergie.name());
+			String typeString = pref.getString(KEY_PICKER_TYPE, AttributeType.Lebensenergie_Aktuell.name());
 			fightPickerType = AttributeType.valueOf(typeString);
 		} catch (Exception e) {
 			Debug.error(e);
-			fightPickerType = AttributeType.Lebensenergie;
+			fightPickerType = AttributeType.Lebensenergie_Aktuell;
 		}
 
 		super.onActivityCreated(savedInstanceState);
@@ -854,16 +841,16 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		fillFightItemDescriptions();
 
 		fightPickerTypes = new ArrayList<AttributeType>(6);
-		fightPickerTypes.add(AttributeType.Lebensenergie);
-		fightPickerTypes.add(AttributeType.Ausdauer);
+		fightPickerTypes.add(AttributeType.Lebensenergie_Aktuell);
+		fightPickerTypes.add(AttributeType.Ausdauer_Aktuell);
 
-		if (hero.getAttributeValue(AttributeType.Astralenergie) != null
-				&& hero.getAttributeValue(AttributeType.Astralenergie) >= 0) {
-			fightPickerTypes.add(AttributeType.Astralenergie);
+		if (hero.getAttributeValue(AttributeType.Astralenergie_Aktuell) != null
+				&& hero.getAttributeValue(AttributeType.Astralenergie_Aktuell) >= 0) {
+			fightPickerTypes.add(AttributeType.Astralenergie_Aktuell);
 		}
-		if (hero.getAttributeValue(AttributeType.Karmaenergie) != null
-				&& hero.getAttributeValue(AttributeType.Karmaenergie) >= 0) {
-			fightPickerTypes.add(AttributeType.Karmaenergie);
+		if (hero.getAttributeValue(AttributeType.Karmaenergie_Aktuell) != null
+				&& hero.getAttributeValue(AttributeType.Karmaenergie_Aktuell) >= 0) {
+			fightPickerTypes.add(AttributeType.Karmaenergie_Aktuell);
 			fightPickerTypes.add(AttributeType.Entrueckung);
 		}
 		if (getHero().hasFeature(Advantage.MONDSUECHTIG)) {
@@ -948,10 +935,10 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		float ratio;
 
 		switch (value.getType()) {
-		case Lebensenergie:
-		case Ausdauer:
-		case Karmaenergie:
-		case Astralenergie:
+		case Lebensenergie_Aktuell:
+		case Ausdauer_Aktuell:
+		case Karmaenergie_Aktuell:
+		case Astralenergie_Aktuell:
 			ratio = getHero().getRatio(value.getType());
 			break;
 		default:
@@ -962,7 +949,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		if (ratio < 0.5f)
 			fightNumberAdapter.setTextColor(getResources().getColor(R.color.ValueRed));
 		else if (ratio < 1.0f)
-			fightNumberAdapter.setTextColor(getResources().getColor(R.color.ValueBlack));
+			fightNumberAdapter.setTextColor(getResources().getColor(android.R.color.black));
 		else
 			fightNumberAdapter.setTextColor(getResources().getColor(R.color.ValueGreen));
 	}

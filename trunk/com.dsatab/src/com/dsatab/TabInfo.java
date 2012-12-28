@@ -49,6 +49,7 @@ public class TabInfo implements Parcelable, JSONable {
 	private static final String FIELD_PRIMARY_ACTIVITY_CLAZZ = "activityClazz1";
 	private static final String FIELD_SECONDARY_ACTIVITY_CLAZZ = "activityClazz2";
 	private static final String FIELD_DICE_SLIDER = "diceSlider";
+	private static final String FIELD_ATTRIBUTE_LIST = "attributeList";
 	private static final String FIELD_FILTER_SETTINGS = "filterSettings";
 
 	@SuppressWarnings("unchecked")
@@ -57,6 +58,7 @@ public class TabInfo implements Parcelable, JSONable {
 	private int tabResourceIndex;
 
 	private boolean diceSlider = true;
+	private boolean attributeList = true;
 	private boolean tabFlingEnabled = true;
 
 	private transient UUID id;
@@ -121,6 +123,7 @@ public class TabInfo implements Parcelable, JSONable {
 		this.id = UUID.randomUUID();
 		this.tabFlingEnabled = in.readInt() == 0 ? false : true;
 		this.filterSettings = (FilterSettings[]) in.readSerializable();
+		this.attributeList = in.readInt() == 0 ? false : true;
 	}
 
 	/**
@@ -177,7 +180,10 @@ public class TabInfo implements Parcelable, JSONable {
 		this.id = UUID.randomUUID();
 
 		if (in.has(FIELD_TAB_FLING_ENABLED))
-			tabFlingEnabled = in.getBoolean(FIELD_TAB_FLING_ENABLED);
+			tabFlingEnabled = in.optBoolean(FIELD_TAB_FLING_ENABLED, true);
+
+		if (in.has(FIELD_ATTRIBUTE_LIST))
+			attributeList = in.optBoolean(FIELD_ATTRIBUTE_LIST, true);
 
 		if (!in.isNull(FIELD_FILTER_SETTINGS)) {
 			JSONArray jsonArray = in.getJSONArray(FIELD_FILTER_SETTINGS);
@@ -257,6 +263,14 @@ public class TabInfo implements Parcelable, JSONable {
 
 	public void setDiceSlider(boolean diceSlider) {
 		this.diceSlider = diceSlider;
+	}
+
+	public boolean isAttributeList() {
+		return attributeList;
+	}
+
+	public void setAttributeList(boolean attributeList) {
+		this.attributeList = attributeList;
 	}
 
 	public int getContainerId() {
@@ -345,6 +359,7 @@ public class TabInfo implements Parcelable, JSONable {
 		dest.writeInt(diceSlider ? 1 : 0);
 		dest.writeInt(tabFlingEnabled ? 1 : 0);
 		dest.writeSerializable(filterSettings);
+		dest.writeInt(attributeList ? 1 : 0);
 	}
 
 	/**

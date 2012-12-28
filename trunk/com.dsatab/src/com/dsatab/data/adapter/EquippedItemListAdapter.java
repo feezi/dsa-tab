@@ -7,15 +7,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 
 import com.dsatab.R;
-import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.filter.ItemListFilter;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
+import com.dsatab.util.Util;
+import com.dsatab.view.CheckableImageButton;
 import com.dsatab.view.EquippedItemListItem;
 
 public class EquippedItemListAdapter extends OpenArrayAdapter<Item> implements OnClickListener {
@@ -73,14 +73,14 @@ public class EquippedItemListAdapter extends OpenArrayAdapter<Item> implements O
 		if (item.isEquipable()) {
 
 			for (int set = 0; set < Hero.MAXIMUM_SET_NUMBER; set++) {
-				ImageButton setButton = view.getSet(set);
-				setButton.setSelected(false);
+				CheckableImageButton setButton = view.getSet(set);
+				setButton.setChecked(false);
 				setButton.setOnClickListener(this);
 				setButton.setTag(item);
 
 				for (EquippedItem equippedItem : hero.getEquippedItems(set)) {
 					if (equippedItem.getItem().equals(item)) {
-						setButton.setSelected(true);
+						setButton.setChecked(true);
 						setButton.setTag(equippedItem);
 						break;
 					}

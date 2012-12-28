@@ -2,17 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.dsatab"
     android:installLocation="auto"
-    android:versionCode="52"
-    android:versionName="3.3.1" >
+    android:versionCode="55"
+    android:versionName="4.0.2 Holo">
 
     <uses-sdk
-        android:minSdkVersion="7"
+        android:minSdkVersion="8"
         android:targetSdkVersion="17" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />    
 
     <uses-feature
         android:name="android.hardware.microphone"
@@ -41,6 +42,7 @@
         android:icon="@drawable/icon"
         android:label="DsaTab"
         android:largeHeap="true"
+        android:allowBackup="true"
         android:theme="@style/DsaTabTheme.Dark" >
         <activity
             android:name="com.dsatab.activity.MainActivity"
@@ -53,11 +55,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.DsaPreferenceActivityHC"
-            android:label="Einstellungen" >
-        </activity>
-        <activity
-            android:name=".activity.DsaPreferenceActivity"
+            android:name=".activity.BasePreferenceActivity"
             android:label="Einstellungen" >
         </activity>
         <activity
@@ -103,7 +101,7 @@
         </activity>
 
         <receiver
-            android:name="com.gandulf.guilib.util.DownloadBroadcastReceiver"
+            android:name="com.gandulf.guilib.download.DownloadBroadcastReceiver"
             android:exported="false" >
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
@@ -111,13 +109,13 @@
         </receiver>
 
         <service
-            android:name="com.gandulf.guilib.util.UnzipIntentService"
+            android:name="com.gandulf.guilib.download.UnzipIntentService"
             android:exported="false" >
         </service>
-        <service
+        <!-- service
             android:name="com.dsatab.common.ExportHeroService"
             android:exported="false" >
-        </service>
+        </service-->
 
         <meta-data
             android:name="android.app.default_searchable"

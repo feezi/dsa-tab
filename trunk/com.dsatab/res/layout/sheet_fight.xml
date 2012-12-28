@@ -33,8 +33,7 @@
     </LinearLayout>
 
     <ListView
-        android:id="@+id/fight_list"
-        style="@style/BorderPanel"
+        android:id="@+id/fight_list"        
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
     </ListView>

@@ -45,27 +45,29 @@ import com.dsatab.HeroConfiguration;
 import com.dsatab.R;
 import com.dsatab.TabInfo;
 import com.dsatab.activity.menu.TabListener;
-import com.dsatab.common.Util;
 import com.dsatab.data.CombatMeleeTalent;
 import com.dsatab.data.Hero;
 import com.dsatab.data.HeroLoader;
 import com.dsatab.data.Probe;
 import com.dsatab.data.Value;
 import com.dsatab.data.adapter.TabPagerAdapter;
+import com.dsatab.data.enums.AttributeType;
 import com.dsatab.fragment.AttributeListFragment;
 import com.dsatab.fragment.BaseFragment;
 import com.dsatab.fragment.DualPaneFragment;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Util;
+import com.dsatab.view.ChangeLogDialog;
 import com.dsatab.view.DiceSlider;
 import com.dsatab.view.InlineEditDialog;
 import com.dsatab.view.InlineEditFightDialog;
 import com.dsatab.view.MyViewPager;
-import com.dsatab.view.TipOfTheDayDialog;
 import com.dsatab.view.listener.ShakeListener;
-import com.gandulf.guilib.view.VersionInfoDialog;
 
 public class MainActivity extends BaseFragmentActivity implements OnClickListener, OnPageChangeListener,
 		LoaderManager.LoaderCallbacks<Hero>, OnSharedPreferenceChangeListener {
+
+	public static boolean newsShown = false;
 
 	protected static final String INTENT_TAB_INFO = "tabInfo";
 
@@ -85,6 +87,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	// protected List<BaseFragment> fragments;
 
 	private DiceSlider diceSlider;
+	private View attributeList;
 
 	private ShakeListener mShaker;
 
@@ -110,6 +113,14 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 				value = (Value) v.getTag(R.id.TAG_KEY_VALUE);
 			} else if (v.getTag() instanceof Value) {
 				value = (Value) v.getTag();
+			} else if (v.getTag(R.id.TAG_KEY_VALUE) instanceof AttributeType) {
+				AttributeType type = (AttributeType) v.getTag(R.id.TAG_KEY_VALUE);
+				if (DSATabApplication.getInstance().getHero() != null)
+					value = DSATabApplication.getInstance().getHero().getAttribute(type);
+			} else if (v.getTag() instanceof AttributeType) {
+				AttributeType type = (AttributeType) v.getTag();
+				if (DSATabApplication.getInstance().getHero() != null)
+					value = DSATabApplication.getInstance().getHero().getAttribute(type);
 			}
 
 			if (value != null) {
@@ -124,6 +135,14 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 				value = (Value) v.getTag(R.id.TAG_KEY_VALUE);
 			} else if (v.getTag() instanceof Value) {
 				value = (Value) v.getTag();
+			} else if (v.getTag(R.id.TAG_KEY_VALUE) instanceof AttributeType) {
+				AttributeType type = (AttributeType) v.getTag(R.id.TAG_KEY_VALUE);
+				if (DSATabApplication.getInstance().getHero() != null)
+					value = DSATabApplication.getInstance().getHero().getAttribute(type);
+			} else if (v.getTag() instanceof AttributeType) {
+				AttributeType type = (AttributeType) v.getTag();
+				if (DSATabApplication.getInstance().getHero() != null)
+					value = DSATabApplication.getInstance().getHero().getAttribute(type);
 			}
 
 			if (value != null && mActivity.get() != null) {
@@ -155,6 +174,14 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 				probe = (Probe) v.getTag(R.id.TAG_KEY_PROBE);
 			} else if (v.getTag() instanceof Probe) {
 				probe = (Probe) v.getTag();
+			} else if (v.getTag(R.id.TAG_KEY_PROBE) instanceof AttributeType) {
+				AttributeType type = (AttributeType) v.getTag(R.id.TAG_KEY_PROBE);
+				if (DSATabApplication.getInstance().getHero() != null)
+					probe = DSATabApplication.getInstance().getHero().getAttribute(type);
+			} else if (v.getTag() instanceof AttributeType) {
+				AttributeType type = (AttributeType) v.getTag();
+				if (DSATabApplication.getInstance().getHero() != null)
+					probe = DSATabApplication.getInstance().getHero().getAttribute(type);
 			}
 
 			if (probe != null && mActivity.get() != null) {
@@ -170,6 +197,14 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 				probe = (Probe) v.getTag(R.id.TAG_KEY_PROBE);
 			} else if (v.getTag() instanceof Probe) {
 				probe = (Probe) v.getTag();
+			} else if (v.getTag(R.id.TAG_KEY_PROBE) instanceof AttributeType) {
+				AttributeType type = (AttributeType) v.getTag(R.id.TAG_KEY_PROBE);
+				if (DSATabApplication.getInstance().getHero() != null)
+					probe = DSATabApplication.getInstance().getHero().getAttribute(type);
+			} else if (v.getTag() instanceof AttributeType) {
+				AttributeType type = (AttributeType) v.getTag();
+				if (DSATabApplication.getInstance().getHero() != null)
+					probe = DSATabApplication.getInstance().getHero().getAttribute(type);
 			}
 
 			if (probe != null && mActivity.get() != null) {
@@ -284,6 +319,11 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		else
 			hideDiceSlider();
 
+		if (tabInfo.isAttributeList()) {
+			attributeList.setVisibility(View.VISIBLE);
+		} else {
+			attributeList.setVisibility(View.GONE);
+		}
 		// invalidateOptionsMenu();
 	}
 
@@ -419,7 +459,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 			} else {
 				unregisterShakeDice();
 			}
-
 		}
 
 		// notify other listeners (fragments, heroes)
@@ -428,7 +467,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 			if (fragment != null) {
 				((DualPaneFragment) fragment).onActivityResult(requestCode, resultCode, data);
 			}
-
 		}
 
 		super.onActivityResult(requestCode, resultCode, data);
@@ -469,22 +507,22 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		preferences = DSATabApplication.getPreferences();
 
 		String orientation = preferences.getString(BasePreferenceActivity.KEY_SCREEN_ORIENTATION,
-				DsaPreferenceActivity.DEFAULT_SCREEN_ORIENTATION);
+				BasePreferenceActivity.DEFAULT_SCREEN_ORIENTATION);
 
 		Configuration configuration = getResources().getConfiguration();
 
 		// Debug.verbose("onCreate Orientation =" + configuration.orientation);
-		if (DsaPreferenceActivity.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)
+		if (BasePreferenceActivity.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)
 				&& configuration.orientation != Configuration.ORIENTATION_LANDSCAPE) {
 			// Debug.verbose("Setting landscape");
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 			return;
-		} else if (DsaPreferenceActivity.SCREEN_ORIENTATION_PORTRAIT.equals(orientation)
+		} else if (BasePreferenceActivity.SCREEN_ORIENTATION_PORTRAIT.equals(orientation)
 				&& configuration.orientation != Configuration.ORIENTATION_PORTRAIT) {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			// Debug.verbose("Setting portrait");
 			return;
-		} else if (DsaPreferenceActivity.SCREEN_ORIENTATION_AUTO.equals(orientation)
+		} else if (BasePreferenceActivity.SCREEN_ORIENTATION_AUTO.equals(orientation)
 				&& getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_SENSOR
 				&& getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
 
@@ -496,7 +534,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		probeListener = new ProbeListener(this);
 		editListener = new EditListener(this);
 
-		if (preferences.getBoolean(DsaPreferenceActivity.KEY_PROBE_SHAKE_ROLL_DICE, false)) {
+		if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_SHAKE_ROLL_DICE, false)) {
 			registerShakeDice();
 		}
 
@@ -511,9 +549,9 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		diceSlider = (DiceSlider) findViewById(R.id.SlidingDrawer);
 		diceSlider.setSlideHandleButton(findViewById(R.id.slideHandleButton));
 
-		if (!showNewsInfoPopup()) {
-			showTipPopup();
-		}
+		attributeList = findViewById(R.id.inc_attributes);
+
+		showNewsInfoPopup();
 	}
 
 	/**
@@ -546,39 +584,14 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 	}
 
-	private boolean showNewsInfoPopup() {
+	private void showNewsInfoPopup() {
 
-		if (VersionInfoDialog.newsShown)
-			return false;
+		if (newsShown)
+			return;
 
-		VersionInfoDialog newsDialog = new VersionInfoDialog(this);
-		newsDialog.setDonateContentId(R.raw.donate);
-		newsDialog.setDonateVersion(DSATabApplication.getInstance().isLiteVersion());
-		newsDialog.setDonateUrl(DSATabApplication.PAYPAL_DONATION_URL);
-		newsDialog.setTitle(R.string.news_title);
-		newsDialog.setRawClass(R.raw.class);
-		newsDialog.setIcon(R.drawable.icon);
-
-		if (newsDialog.hasContent()) {
-			newsDialog.show();
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	private boolean showTipPopup() {
-
-		if (TipOfTheDayDialog.tipShown || !preferences.getBoolean(TipOfTheDayDialog.PREF_SHOW_TIPS, true))
-			return false;
-
-		TipOfTheDayDialog dialog = new TipOfTheDayDialog(this);
-		dialog.show();
-
-		TipOfTheDayDialog.tipShown = true;
-		return true;
-
+		ChangeLogDialog logDialog = new ChangeLogDialog(this);
+		logDialog.show();
+		newsShown = true;
 	}
 
 	private HeroConfiguration getHeroConfiguration() {
@@ -724,7 +737,8 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	protected void onHeroLoaded(Hero hero) {
 
 		if (hero == null) {
-			Toast.makeText(this, "Error: Trying to load empty hero. Please contact developer!", Toast.LENGTH_LONG);
+			Toast.makeText(this, "Error: Trying to load empty hero. Please contact developer!", Toast.LENGTH_LONG)
+					.show();
 			// tabBarHelper.setNavigationTabsEnabled(false);
 			return;
 		} else {
@@ -897,17 +911,17 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	 */
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		com.actionbarsherlock.view.MenuItem item = menu.findItem(R.id.option_fight_set);
+		com.actionbarsherlock.view.MenuItem item = menu.findItem(R.id.option_set);
 		if (item != null) {
 			switch (getHero().getActiveSet()) {
 			case 0:
-				item.setIcon(R.drawable.ic_menu_set_1);
+				item.setIcon(Util.getThemeResourceId(this, R.attr.imgBarSet1));
 				break;
 			case 1:
-				item.setIcon(R.drawable.ic_menu_set_2);
+				item.setIcon(Util.getThemeResourceId(this, R.attr.imgBarSet2));
 				break;
 			case 2:
-				item.setIcon(R.drawable.ic_menu_set_3);
+				item.setIcon(Util.getThemeResourceId(this, R.attr.imgBarSet3));
 				break;
 			}
 		}
@@ -924,7 +938,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		return super.onPrepareOptionsMenu(menu);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -938,7 +951,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		case R.id.option_settings:
 			BasePreferenceActivity.startPreferenceActivity(this);
 			return true;
-		case R.id.option_fight_set:
+		case R.id.option_set:
 			if (getHero() != null) {
 				getHero().setActiveSet(getHero().getNextActiveSet());
 			}

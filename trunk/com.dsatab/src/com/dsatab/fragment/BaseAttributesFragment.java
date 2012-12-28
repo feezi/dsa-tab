@@ -21,9 +21,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.common.Util;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.util.Util;
 
 /**
  * @author Ganymede
@@ -92,21 +92,18 @@ public abstract class BaseAttributesFragment extends BaseFragment {
 
 	}
 
-	protected void fillAttributeLabel(TextView tv, AttributeType type) {
+	protected void fillAttributeLabel(View tv, AttributeType type) {
 
 		if (!tv.isLongClickable()) {
-			if (type == AttributeType.Lebensenergie || type == AttributeType.Karmaenergie
-					|| type == AttributeType.Astralenergie || type == AttributeType.Ausdauer
-					|| type == AttributeType.Behinderung) {
+			if (type == AttributeType.Behinderung || type == AttributeType.Sozialstatus
+					|| type == AttributeType.Magieresistenz) {
 				tv.setOnClickListener(getBaseActivity().getEditListener());
 			} else if (type.probable()) {
 				tv.setOnClickListener(getBaseActivity().getProbeListener());
 			}
 			tv.setOnLongClickListener(getBaseActivity().getEditListener());
 		}
-		if (getHero() != null) {
-			tv.setTag(getHero().getAttribute(type));
-		}
+		tv.setTag(type);
 	}
 
 	protected void fillAttributeValue(TextView tv, Attribute attr) {
@@ -164,40 +161,30 @@ public abstract class BaseAttributesFragment extends BaseFragment {
 		switch (attr.getType()) {
 		case Mut:
 			fillAttributeValue(tfMU, AttributeType.Mut, null, true, inverseColors);
-			fillAttributeLabel(tfLabelMU, AttributeType.Mut);
 			break;
 		case Klugheit:
 			fillAttributeValue(tfKL, AttributeType.Klugheit, null, true, inverseColors);
-			fillAttributeLabel(tfLabelKL, AttributeType.Klugheit);
 			break;
 		case Intuition:
 			fillAttributeValue(tfIN, AttributeType.Intuition, null, true, inverseColors);
-			fillAttributeLabel(tfLabelIN, AttributeType.Intuition);
 			break;
 		case Charisma:
 			fillAttributeValue(tfCH, AttributeType.Charisma, null, true, inverseColors);
-			fillAttributeLabel(tfLabelCH, AttributeType.Charisma);
 			break;
 		case Fingerfertigkeit:
 			fillAttributeValue(tfFF, AttributeType.Fingerfertigkeit, null, true, inverseColors);
-			fillAttributeLabel(tfLabelFF, AttributeType.Fingerfertigkeit);
 			break;
 		case Gewandtheit:
 			fillAttributeValue(tfGE, AttributeType.Gewandtheit, null, false, inverseColors);
-			fillAttributeLabel(tfLabelGE, AttributeType.Gewandtheit);
 			break;
 		case Konstitution:
 			fillAttributeValue(tfKO, AttributeType.Konstitution, null, true, inverseColors);
-			fillAttributeLabel(tfLabelKO, AttributeType.Konstitution);
 			break;
 		case Körperkraft:
 			fillAttributeValue(tfKK, AttributeType.Körperkraft, null, true, inverseColors);
-			fillAttributeLabel(tfLabelKK, AttributeType.Körperkraft);
 			break;
 		case Geschwindigkeit:
 			fillAttributeValue(tfKK, AttributeType.Körperkraft, null, true, inverseColors);
-			fillAttributeLabel(tfLabelKK, AttributeType.Körperkraft);
-
 		default:
 			break;
 		}
