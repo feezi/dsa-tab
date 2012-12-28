@@ -21,7 +21,7 @@ import android.widget.Toast;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.MainActivity;
-import com.dsatab.common.Util;
+import com.dsatab.util.Util;
 
 public class PortraitChooserDialog extends AlertDialog implements AdapterView.OnItemClickListener {
 
@@ -73,7 +73,7 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 		setCanceledOnTouchOutside(true);
 
 		View popupcontent = LayoutInflater.from(getContext()).inflate(R.layout.popup_portrait_chooser, null, false);
-		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		setView(popupcontent);
 
 		final GridView list = (GridView) popupcontent.findViewById(R.id.popup_portrait_chooser_list);

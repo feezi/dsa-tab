@@ -15,13 +15,13 @@ import android.widget.TextView;
 
 import com.dsatab.R;
 import com.dsatab.activity.MainActivity;
-import com.dsatab.common.Util;
 import com.dsatab.data.CombatProbe;
 import com.dsatab.data.SpecialFeature;
 import com.dsatab.data.adapter.SpinnerSimpleAdapter;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
+import com.dsatab.util.Util;
 
 public class ArcheryChooserDialog extends AlertDialog implements android.view.View.OnClickListener,
 		DialogInterface.OnClickListener {
@@ -167,7 +167,7 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 
 		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(
 				R.layout.popup_archery, null, false);
-		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		setView(popupcontent);
 
 		distanceSpinner = (Spinner) popupcontent.findViewById(R.id.archery_distance);

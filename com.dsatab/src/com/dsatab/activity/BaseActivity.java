@@ -28,7 +28,7 @@ import android.view.WindowManager;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.dsatab.DSATabApplication;
-import com.dsatab.common.Util;
+import com.dsatab.util.Util;
 
 /**
  * @author Ganymede
@@ -57,7 +57,7 @@ public class BaseActivity extends SherlockActivity {
 			WindowManager wm = (WindowManager) DSATabApplication.getInstance().getSystemService(Context.WINDOW_SERVICE);
 			Display display = wm.getDefaultDisplay();
 			Bitmap bg = Util.decodeBitmap(new File(bgPath), Math.max(display.getWidth(), display.getHeight()));
-			BitmapDrawable drawable = new BitmapDrawable(bg);
+			BitmapDrawable drawable = new BitmapDrawable(DSATabApplication.getInstance().getResources(), bg);
 			getWindow().setBackgroundDrawable(drawable);
 		} else {
 			getWindow().setBackgroundDrawableResource(Util.getThemeResourceId(this, android.R.attr.windowBackground));
@@ -71,9 +71,7 @@ public class BaseActivity extends SherlockActivity {
 	 */
 	@Override
 	protected void onDestroy() {
-		// Debug.verbose("Unbinding drawbale to free memory");
-		Util.unbindDrawables(getWindow().getDecorView());
-
+		// Util.unbindDrawables(getWindow().getDecorView());
 		super.onDestroy();
 	}
 

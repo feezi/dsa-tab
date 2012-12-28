@@ -18,6 +18,7 @@ package com.dsatab.data.adapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import android.text.TextUtils;
 import android.widget.Filter;
@@ -60,7 +61,7 @@ public class OpenFilter<T> extends Filter {
 		}
 
 		if (!TextUtils.isEmpty(cons)) {
-			this.constraint = cons.toString().toLowerCase();
+			this.constraint = cons.toString().toLowerCase(Locale.GERMAN);
 		} else {
 			this.constraint = null;
 		}
@@ -99,7 +100,7 @@ public class OpenFilter<T> extends Filter {
 	public boolean filter(T m) {
 		boolean valid = true;
 
-		if (constraint != null && m.toString().toLowerCase().startsWith(constraint)) {
+		if (constraint != null && m.toString().toLowerCase(Locale.GERMAN).startsWith(constraint)) {
 			valid &= true;
 		}
 

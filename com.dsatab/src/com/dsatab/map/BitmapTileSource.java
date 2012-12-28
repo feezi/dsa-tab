@@ -27,6 +27,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.util.Debug;
 
 /**
@@ -80,7 +81,7 @@ public class BitmapTileSource extends BitmapTileSourceBase {
 			// a BitmapDrawable from it
 			final Bitmap bitmap = BitmapFactory.decodeStream(aFileInputStream);
 			if (bitmap != null) {
-				return new BitmapDrawable(bitmap);
+				return new BitmapDrawable(DSATabApplication.getInstance().getResources(), bitmap);
 			}
 
 		} catch (final OutOfMemoryError e) {
@@ -97,7 +98,7 @@ public class BitmapTileSource extends BitmapTileSourceBase {
 			// a BitmapDrawable from it
 			final Bitmap bitmap = BitmapFactory.decodeFile(aFilePath);
 			if (bitmap != null) {
-				return new BitmapDrawable(bitmap);
+				return new BitmapDrawable(DSATabApplication.getInstance().getResources(), bitmap);
 			} else {
 				// if we couldn't load it then it's invalid - delete it
 				Debug.error("Error loading bitmap " + aFilePath);

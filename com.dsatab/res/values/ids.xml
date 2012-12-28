@@ -1,39 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <item type="id" name="fragmentContainer0" />
-  <item type="id" name="fragmentContainer1" />
-  <item type="id" name="fragmentContainer2" />
-  <item type="id" name="fragmentContainer3" />
-  <item type="id" name="fragmentContainer4" />
-  <item type="id" name="fragmentContainer5" />
-  <item type="id" name="fragmentContainer6" />
-  <item type="id" name="fragmentContainer7" />
-  <item type="id" name="fragmentContainer8" />
-  <item type="id" name="fragmentContainer9" />
-  <item type="id" name="fragmentContainer10" />
-  <item type="id" name="fragmentContainer11" />
-  <item type="id" name="fragmentContainer12" />
-  <item type="id" name="fragmentContainer13" />
-  <item type="id" name="fragmentContainer14" />
-  <item type="id" name="fragmentContainer15" />
-  <item type="id" name="fragmentContainer16" />
-  <item type="id" name="fragmentContainer17" />
-  <item type="id" name="fragmentContainer18" />
-  <item type="id" name="fragmentContainer19" />
-  <item type="id" name="fragmentContainer20" />
-  
-  <item type="id" name="option_item_add_list" />
-  <item type="id" name="option_item_add_table" />
-  <item type="id" name="option_item_filter" />
-  
-  <item type="id" name="option_note_add" />
-  <item type="id" name="option_note_filter" />
-  <item type="id" name="option_note_record" />
-  
-  <item type="id" name="option_modifier_add" />
-  <item type="id" name="option_map_choose" />
-  
-  <item type="id" name="option_fight_set" />
   
   <item type="id" name="option_load_hero" />
   <item type="id" name="option_save_hero" />
@@ -56,8 +22,8 @@
   <item type="id" name="option_cancel" />  
   
   <item type="id" name="TAG_KEY_VALUE" />
-    <item type="id" name="TAG_KEY_PROBE" />
-    <item type="id" name="TAG_CARD_TYPE" />
-    <item type="id" name="TAG_CARD_POSITION" />
+  <item type="id" name="TAG_KEY_PROBE" />
+  <item type="id" name="TAG_CARD_TYPE" />
+  <item type="id" name="TAG_CARD_POSITION" />
   
 </resources>

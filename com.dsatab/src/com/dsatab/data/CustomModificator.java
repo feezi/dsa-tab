@@ -19,6 +19,7 @@ package com.dsatab.data;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.UUID;
@@ -30,13 +31,13 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.dsatab.DSATabApplication;
-import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.AbstractModificator;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Util;
 
 /**
  * @author Ganymede
@@ -64,7 +65,7 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 
 	static {
 		for (AttributeType type : AttributeType.values())
-			VALID_KEYS.add(type.code().toLowerCase());
+			VALID_KEYS.add(type.code().toLowerCase(Locale.GERMAN));
 
 		VALID_KEYS.add(KEY_ZAUBER);
 		VALID_KEYS.add(KEY_TALENTE);
@@ -163,7 +164,7 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 						if (index < 0)
 							index = token.lastIndexOf("-");
 
-						String key = token.substring(0, index).trim().toLowerCase();
+						String key = token.substring(0, index).trim().toLowerCase(Locale.GERMAN);
 						String value = token.substring(index);
 
 						// if (VALID_KEYS.contains(key)) {
@@ -200,7 +201,7 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 		if (key == null)
 			return null;
 
-		key = key.toLowerCase();
+		key = key.toLowerCase(Locale.GERMAN);
 
 		if (getModMap().containsKey(key))
 			return modMap.get(key);

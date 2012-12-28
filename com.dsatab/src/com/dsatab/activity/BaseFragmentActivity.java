@@ -18,52 +18,23 @@ package com.dsatab.activity;
 
 import java.io.File;
 
-import yuku.androidsdk.com.android.internal.view.menu.MenuBuilder;
-import yuku.iconcontextmenu.IconContextMenu;
-import yuku.iconcontextmenu.IconContextMenu.IconContextItemSelectedListener;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Display;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.WindowManager;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.dsatab.DSATabApplication;
-import com.dsatab.common.Util;
+import com.dsatab.util.Util;
 
 /**
  * @author Ganymede
  * 
  */
-public class BaseFragmentActivity extends SherlockFragmentActivity implements IconContextItemSelectedListener {
-
-	private OnLongClickListener contextMenuListener = new OnLongClickListener() {
-
-		@Override
-		public boolean onLongClick(View v) {
-			Menu menu = new MenuBuilder(BaseFragmentActivity.this);
-			Object info = onCreateIconContextMenu(menu, v, null);
-
-			if (menu != null && menu.hasVisibleItems()) {
-				IconContextMenu cm = new IconContextMenu(BaseFragmentActivity.this, menu);
-				cm.setInfo(info);
-				cm.setOnIconContextItemSelectedListener(BaseFragmentActivity.this);
-
-				onPrepareIconContextMenu(cm, v);
-				cm.show();
-				return true;
-			}
-
-			return false;
-		}
-	};
+public class BaseFragmentActivity extends SherlockFragmentActivity {
 
 	/*
 	 * (non-Javadoc)
@@ -99,7 +70,7 @@ public class BaseFragmentActivity extends SherlockFragmentActivity implements Ic
 			WindowManager wm = (WindowManager) DSATabApplication.getInstance().getSystemService(Context.WINDOW_SERVICE);
 			Display display = wm.getDefaultDisplay();
 			Bitmap bg = Util.decodeBitmap(new File(bgPath), Math.max(display.getWidth(), display.getHeight()));
-			BitmapDrawable drawable = new BitmapDrawable(bg);
+			BitmapDrawable drawable = new BitmapDrawable(DSATabApplication.getInstance().getResources(), bg);
 			getWindow().setBackgroundDrawable(drawable);
 		} else {
 			getWindow().setBackgroundDrawableResource(Util.getThemeResourceId(this, android.R.attr.windowBackground));
@@ -117,21 +88,4 @@ public class BaseFragmentActivity extends SherlockFragmentActivity implements Ic
 
 		getWindow().getDecorView().requestLayout();
 	}
-
-	public void onPrepareIconContextMenu(IconContextMenu cm, View v) {
-
-	}
-
-	public void registerForIconContextMenu(View v) {
-		v.setOnLongClickListener(contextMenuListener);
-	}
-
-	public Object onCreateIconContextMenu(Menu menu, View v, ContextMenuInfo menuInfo) {
-		return null;
-	}
-
-	public void onIconContextItemSelected(MenuItem item, Object info) {
-
-	}
-
 }

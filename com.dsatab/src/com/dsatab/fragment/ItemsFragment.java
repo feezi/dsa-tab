@@ -15,7 +15,6 @@
  */
 package com.dsatab.fragment;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
 import android.app.Activity;
@@ -23,7 +22,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.drawable.LevelListDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.HapticFeedbackConstants;
@@ -35,8 +33,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.GridView;
-import android.widget.ImageButton;
-import android.widget.Spinner;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -47,11 +43,11 @@ import com.dsatab.activity.ItemChooserActivity;
 import com.dsatab.data.Hero;
 import com.dsatab.data.ItemLocationInfo;
 import com.dsatab.data.adapter.GridItemAdapter;
-import com.dsatab.data.adapter.SpinnerSimpleAdapter;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Util;
 import com.dsatab.view.DeleteZone;
 import com.dsatab.view.GridCardView;
 import com.dsatab.view.ItemGridView;
@@ -77,15 +73,10 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	private ItemGridView mWorkspace;
 	private GridItemAdapter itemAdapter;
 
-	private Spinner mScreenBtn;
-	private SpinnerSimpleAdapter<String> mScreenAdapter;
-
 	PageButton mPreviousView, mNextView;
 	private int mCurrentScreen = -1;
 
 	private ItemCard selectedItem = null;
-
-	private ImageButton inventoryButton, setButton;
 
 	/*
 	 * (non-Javadoc)
@@ -96,24 +87,12 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	@Override
 	public void onHeroLoaded(Hero hero) {
 
-		mScreenBtn.setOnItemSelectedListener(null);
-		mScreenAdapter.setNotifyOnChange(false);
-		mScreenAdapter.clear();
-		for (int i = 1; i <= Hero.MAXIMUM_SET_NUMBER; i++) {
-			mScreenAdapter.add("Set " + i);
-		}
-		mScreenAdapter.add("Rucksack");
-
-		mScreenAdapter.setNotifyOnChange(true);
-		mScreenAdapter.notifyDataSetChanged();
-
 		itemAdapter = new GridItemAdapter(getActivity());
 		mWorkspace.setAdapter(itemAdapter);
 
 		SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
 		int screen = pref.getInt(PREF_KEY_LAST_OPEN_SCREEN, 0);
 		showScreen(screen);
-		mScreenBtn.setOnItemSelectedListener(this);
 	}
 
 	/*
@@ -264,13 +243,22 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	 */
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
-		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_item_add_table, Menu.NONE,
-				"Gegenstand hinzufügen");
-		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-		item.setIcon(R.drawable.ic_menu_add);
-
 		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.item_grid_menu, menu);
+		updateActionBarIcons(menu, mCurrentScreen);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.SherlockFragment#onPrepareOptionsMenu(com.
+	 * actionbarsherlock.view.Menu)
+	 */
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+
+		updateActionBarIcons(menu, mCurrentScreen);
 	}
 
 	/*
@@ -282,10 +270,28 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.option_item_add_table) {
+
+		switch (item.getItemId()) {
+		case R.id.option_item_add_table:
 			selectItem(null, null);
 			return true;
-		} else {
+		case R.id.option_itemgrid_set1:
+			showScreen(0);
+			getSherlockActivity().invalidateOptionsMenu();
+			return true;
+		case R.id.option_itemgrid_set2:
+			showScreen(1);
+			getSherlockActivity().invalidateOptionsMenu();
+			return true;
+		case R.id.option_itemgrid_set3:
+			showScreen(2);
+			getSherlockActivity().invalidateOptionsMenu();
+			return true;
+		case R.id.option_itemgrid_inventory:
+			showScreen(Hero.MAXIMUM_SET_NUMBER);
+			getSherlockActivity().invalidateOptionsMenu();
+			return true;
+		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
@@ -301,10 +307,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = configureContainerView(inflater.inflate(R.layout.sheet_items_table, container, false));
 
-		inventoryButton = (ImageButton) root.findViewById(R.id.fight_inventory);
-		setButton = (ImageButton) root.findViewById(R.id.fight_set);
-
-		mScreenBtn = (Spinner) root.findViewById(R.id.screen_set_button);
 		mWorkspace = (ItemGridView) root.findViewById(R.id.workspace);
 		mDragLayer = (DragLayer) root.findViewById(R.id.sheet_items);
 
@@ -318,12 +320,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-
-		inventoryButton.setOnClickListener(this);
-		setButton.setOnClickListener(this);
-		mScreenAdapter = new SpinnerSimpleAdapter<String>(getActivity(), new ArrayList<String>(10));
-		mScreenBtn.setAdapter(mScreenAdapter);
-
 		setupViews();
 
 		super.onActivityCreated(savedInstanceState);
@@ -454,8 +450,7 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 			GridCardView cardView = (GridCardView) view;
 
 			if (cardView.getItem() != null) {
-				ItemCard item = (ItemCard) view.getTag();
-				selectItem(item, cardView);
+				selectItem(cardView.getItem(), cardView);
 			} else {
 
 				// empty cell clicked add new item
@@ -496,18 +491,29 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	private void updateIndicators(int screen) {
 		mPreviousView.setLevel(screen);
 		mNextView.setLevel(Hero.MAXIMUM_SET_NUMBER - screen);
+	}
 
-		if (isSetIndex(screen)) {
-			LevelListDrawable drawable = (LevelListDrawable) setButton.getDrawable();
-			drawable.setLevel(screen);
-
-			inventoryButton.setSelected(false);
-			setButton.setSelected(true);
-
-		} else {
-			inventoryButton.setSelected(true);
-			setButton.setSelected(false);
+	private void updateActionBarIcons(Menu menu, int newScreen) {
+		MenuItem item = menu.findItem(R.id.option_itemgrid_set);
+		switch (newScreen) {
+		case 0:
+			item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarSet1));
+			item.setTitle("Set");
+			break;
+		case 1:
+			item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarSet2));
+			item.setTitle("Set");
+			break;
+		case 2:
+			item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarSet3));
+			item.setTitle("Set");
+			break;
+		case Hero.MAXIMUM_SET_NUMBER:
+			item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarSet3));
+			item.setTitle("Rucksack");
+			break;
 		}
+
 	}
 
 	/*
@@ -518,7 +524,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	 * int)
 	 */
 	public void onScreenChange(int oldScreen, int newScreen) {
-		updateSpinner(newScreen);
 		updateIndicators(newScreen);
 	}
 
@@ -529,7 +534,7 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	 * com.dsatab.view.drag.Workspace.OnScreenChangeListener#onScreenAdded(int)
 	 */
 	public void onScreenAdded(int newScreen) {
-		mScreenAdapter.add("Ausrüstung " + (newScreen + 1 - Hero.MAXIMUM_SET_NUMBER));
+		getSherlockActivity().invalidateOptionsMenu();
 		updateIndicators(mCurrentScreen);
 	}
 
@@ -548,11 +553,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 		edit.commit();
 	}
 
-	private void updateSpinner(int newScreen) {
-		if (mScreenBtn.getSelectedItemPosition() != newScreen)
-			mScreenBtn.setSelection(newScreen);
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -563,7 +563,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	@Override
 	public void onDragStart(DragSource<ItemCard> source, ItemCard info, int dragAction) {
 		mDragController.setScrollView(mDragLayer);
-		mScreenBtn.setVisibility(View.INVISIBLE);
 	}
 
 	/*
@@ -573,7 +572,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	 */
 	@Override
 	public void onDragEnd() {
-		mScreenBtn.setVisibility(View.VISIBLE);
 		mDragController.setScrollView(null);
 	}
 
@@ -710,7 +708,7 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CELL, cardView.getCellNumber());
 		}
 
-		startActivityForResult(intent, ACTION_CHOOSE_CARD);
+		getActivity().startActivityForResult(intent, ACTION_CHOOSE_CARD);
 	}
 
 	/*
@@ -754,19 +752,7 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 		case R.id.previous_screen:
 			showScreen(mCurrentScreen - 1);
 			return;
-		case R.id.fight_set:
-			if (isSetIndex(mCurrentScreen))
-				showScreen((mCurrentScreen + 1) % Hero.MAXIMUM_SET_NUMBER);
-			else {
-				LevelListDrawable drawable = (LevelListDrawable) setButton.getDrawable();
-				showScreen(drawable.getLevel());
-			}
-			return;
-		case R.id.fight_inventory:
-			showScreen(Hero.MAXIMUM_SET_NUMBER);
-			return;
 		}
-
 	}
 
 	public boolean onLongClick(View v) {

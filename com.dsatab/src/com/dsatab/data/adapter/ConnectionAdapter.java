@@ -6,13 +6,13 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TwoLineListItem;
+import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.common.Util;
 import com.dsatab.data.Connection;
 import com.dsatab.data.enums.EventCategory;
 import com.dsatab.data.filter.ConnectionListFilter;
+import com.dsatab.util.Util;
 
 public class ConnectionAdapter extends OpenArrayAdapter<Connection> {
 
@@ -33,28 +33,32 @@ public class ConnectionAdapter extends OpenArrayAdapter<Connection> {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		View view = null;
+
+		ViewHolder holder = null;
 		if (convertView == null) {
-			view = mInflater.inflate(R.layout.simple_list_item_2_icon, parent, false);
+			convertView = mInflater.inflate(R.layout.simple_list_item_2_icon, parent, false);
+
+			holder = new ViewHolder();
+			holder.text1 = (TextView) convertView.findViewById(android.R.id.text1);
+			holder.text2 = (TextView) convertView.findViewById(android.R.id.text2);
+			holder.icon = (ImageView) convertView.findViewById(android.R.id.icon1);
+
+			convertView.setTag(holder);
 		} else {
-			view = convertView;
+			holder = (ViewHolder) convertView.getTag();
 		}
 
-		if (view instanceof TwoLineListItem) {
-			TwoLineListItem editView = (TwoLineListItem) view;
-			Connection e = getItem(position);
+		Connection e = getItem(position);
 
-			ImageView icon = (ImageView) editView.findViewById(android.R.id.icon1);
-			if (icon != null) {
-				icon.setImageResource(e.getCategory().getDrawableId());
-			}
-			editView.getText1().setText(e.getName());
-			editView.getText2().setText(e.getDescription());
-
-			Util.applyRowStyle(editView, position);
+		if (holder.icon != null) {
+			holder.icon.setImageResource(e.getCategory().getDrawableId());
 		}
+		holder.text1.setText(e.getName());
+		holder.text2.setText(e.getDescription());
 
-		return view;
+		Util.applyRowStyle(convertView, position);
+
+		return convertView;
 	}
 
 	/*
@@ -68,6 +72,11 @@ public class ConnectionAdapter extends OpenArrayAdapter<Connection> {
 			filter = new ConnectionListFilter(this);
 
 		return filter;
+	}
+
+	static class ViewHolder {
+		TextView text1, text2;
+		ImageView icon;
 	}
 
 }

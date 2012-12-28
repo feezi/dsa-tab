@@ -1,14 +1,7 @@
 package com.dsatab.cloud;
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -28,44 +21,24 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.dsatab.common.HttpRequest;
+import com.gandulf.guilib.util.Debug;
+
 public class Helper {
 
 	static public String postrequest(String... strings) throws Exception {
-		Writer swriter = new StringWriter();
-		char[] buffer = new char[1024];
-		Reader reader = new BufferedReader(postrequeststream(strings));
-		int count;
-		while ((count = reader.read(buffer)) != -1) {
-			swriter.write(buffer, 0, count);
-		}
-		reader.close();
-		return swriter.toString();
-	}
-
-	static public InputStreamReader postrequeststream(String... strings) throws Exception {
-		String body = "";
+		StringBuilder body = new StringBuilder();
 		for (int i = 0; i < strings.length; i = i + 2) {
-			if (!body.isEmpty()) {
-				body += "&";
+			if (body.length() > 0) {
+				body.append("&");
 			}
-			body += URLEncoder.encode(strings[i], "UTF-8");
-			body += "=";
-			body += URLEncoder.encode(strings[i + 1], "UTF-8");
+			body.append(URLEncoder.encode(strings[i], "UTF-8"));
+			body.append("=");
+			body.append(URLEncoder.encode(strings[i + 1], "UTF-8"));
 		}
-		URL url = new URL("https://online.helden-software.de");
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setDoInput(true);
-		connection.setDoOutput(true);
-		connection.setUseCaches(false);
-		connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
-		connection.setRequestProperty("Content-Length", String.valueOf(body.length()));
-
-		OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-		writer.write(body);
-		writer.close();
-
-		return new InputStreamReader(connection.getInputStream(), "UTF-8");
+		HttpRequest httpRequest = new HttpRequest();
+		return httpRequest.sendPost("https://online.helden-software.de/index.php", body.toString(),
+				"application/x-www-form-urlencoded; charset=utf-8");
 	}
 
 	/**
@@ -92,7 +65,7 @@ public class Helper {
 			sc.init(null, trustAllCerts, new java.security.SecureRandom());
 			HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 		} catch (Exception e) {
-			//
+			Debug.error(e);
 		}
 
 	}

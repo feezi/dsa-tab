@@ -18,6 +18,7 @@ package com.dsatab.data.filter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import com.dsatab.data.Connection;
 import com.dsatab.data.adapter.OpenArrayAdapter;
@@ -71,7 +72,7 @@ public class ConnectionListFilter extends OpenFilter<Connection> {
 		}
 
 		if (constraint != null) {
-			valid &= m.getName().toLowerCase().startsWith(constraint);
+			valid &= m.getName().toLowerCase(Locale.GERMAN).startsWith(constraint);
 		}
 
 		return valid;

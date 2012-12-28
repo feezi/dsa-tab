@@ -15,7 +15,6 @@ import android.widget.RelativeLayout;
 import android.widget.ToggleButton;
 
 import com.dsatab.R;
-import com.dsatab.common.Util;
 import com.dsatab.data.ArmorAttribute;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.CombatDistanceTalent;
@@ -24,6 +23,7 @@ import com.dsatab.data.Hero.CombatStyle;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Util;
 
 public class InlineEditDialog extends AlertDialog implements DialogInterface.OnClickListener, OnCheckedChangeListener,
 		OnWheelClickedListener {

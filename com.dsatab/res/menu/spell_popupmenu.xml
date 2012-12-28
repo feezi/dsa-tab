@@ -1,33 +1,33 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <group android:id="@+id/group_spell">
 		<item android:id="@+id/option_edit_spell"
-	          android:icon="@drawable/ic_menu_edit"
-	          android:showAsAction="withText|always"
+	          android:icon="?attr/imgBarEdit"
+	          android:showAsAction="withText|ifRoom"
 	          android:title="Bearbeiten" />
 	
 		<item android:id="@+id/option_view_spell"
-	          android:icon="@drawable/ic_menu_view"
-	          android:showAsAction="withText|always"
+	          android:icon="?attr/imgBarView"
+	          android:showAsAction="withText|ifRoom"
 	          android:title="Details" />          	          
 		
 		<item android:id="@+id/option_mark"
-            android:icon="@drawable/ic_menu_star"            
-            android:showAsAction="withText|always"
+            android:icon="?attr/imgBarStar"            
+            android:showAsAction="withText|ifRoom"
             android:title="Markierungen">
 		 <menu>
         
 	        <item android:id="@+id/option_mark_favorite_spell"
-		          android:icon="@drawable/ic_menu_star"
+		          android:icon="?attr/imgBarStar"
 		          android:showAsAction="withText"
 		          android:title="Als Favorit markieren" />
 		    
 		    <item android:id="@+id/option_mark_unused_spell"
-		          android:icon="@drawable/ic_menu_stop"
+		          android:icon="?attr/imgBarStarEmpty"
 		          android:showAsAction="withText"
 		          android:title="Als ungenützt markieren" />
 		    
 		    <item android:id="@+id/option_unmark_spell"
-		          android:icon="@drawable/ic_menu_close_clear_cancel"
+		          android:icon="?attr/imgBarCancel"
 		          android:showAsAction="withText"
 		          android:title="Markierung aufheben" />
 	    	</menu>

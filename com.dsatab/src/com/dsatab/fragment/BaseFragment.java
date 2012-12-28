@@ -18,25 +18,21 @@ package com.dsatab.fragment;
 
 import java.util.List;
 
-import yuku.androidsdk.com.android.internal.view.menu.MenuBuilder;
-import yuku.iconcontextmenu.IconContextMenu;
-import yuku.iconcontextmenu.IconContextMenu.IconContextItemSelectedListener;
-import yuku.iconcontextmenu.IconContextMenu.IconContextMenuInfo;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.dsatab.DSATabApplication;
+import com.dsatab.R;
 import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.activity.MainActivity;
 import com.dsatab.data.Hero;
@@ -44,22 +40,49 @@ import com.dsatab.data.Value;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.modifier.Modificator;
+import com.dsatab.util.Hint;
+import com.dsatab.util.Util;
 import com.dsatab.view.FilterSettings;
 import com.dsatab.view.FilterSettings.FilterType;
+import com.dsatab.view.listener.FilterChangedListener;
 import com.dsatab.view.listener.HeroChangedListener;
 
 /**
  * @author Ganymede
  * 
  */
-public abstract class BaseFragment extends SherlockFragment implements HeroChangedListener,
-		IconContextItemSelectedListener, FilterChangedListener, OnSharedPreferenceChangeListener {
+public abstract class BaseFragment extends SherlockFragment implements HeroChangedListener, FilterChangedListener,
+		OnSharedPreferenceChangeListener {
 
 	private static final String FILTER_SETTINGS = "FILTER_SETTINGS";
 
 	protected SharedPreferences preferences;
 
 	protected FilterSettings filterSettings;
+
+	/**
+	 * 
+	 */
+	public BaseFragment() {
+
+	}
+
+	protected void customizeActionModeCloseButton() {
+		int buttonId = Resources.getSystem().getIdentifier("action_mode_close_button", "id", "android");
+		View v = getActivity().findViewById(buttonId);
+		if (v == null) {
+			buttonId = R.id.abs__action_mode_close_button;
+			v = getActivity().findViewById(buttonId);
+		}
+		if (v == null)
+			return;
+		LinearLayout ll = (LinearLayout) v;
+		if (ll.getChildCount() > 1 && ll.getChildAt(1) != null) {
+			TextView tv = (TextView) ll.getChildAt(1);
+			tv.setTextColor(getResources().getColor(android.R.color.white));
+			tv.setBackgroundResource(Util.getThemeResourceId(getActivity(), R.attr.actionBarItemBackground));
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -88,6 +111,20 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.Fragment#onResume()
+	 */
+	@Override
+	public void onResume() {
+		super.onResume();
+
+		if (getUserVisibleHint()) {
+			showRandomHint();
+		}
+	}
+
 	protected void onAttachListener(Hero hero) {
 		if (hero != null) {
 			hero.addHeroChangedListener(this);
@@ -98,6 +135,11 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 		if (hero != null) {
 			hero.removeHeroChangedListener(this);
 		}
+	}
+
+	protected boolean showRandomHint() {
+		return Hint.showRandomHint(getClass().getSimpleName(), getActivity());
+
 	}
 
 	/*
@@ -173,7 +215,7 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 		if (view.getLayoutParams() instanceof LinearLayout.LayoutParams) {
 			params = ((LinearLayout.LayoutParams) view.getLayoutParams());
 		} else {
-			params = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+			params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 			view.setLayoutParams(params);
 		}
 
@@ -204,7 +246,6 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.
-
 	}
 
 	/*
@@ -332,48 +373,6 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 	 */
 	@Override
 	public void onActiveSetChanged(int newSet, int oldSet) {
-
-	}
-
-	OnLongClickListener contextMenuListener = new OnLongClickListener() {
-
-		@Override
-		public boolean onLongClick(View v) {
-			Menu menu = new MenuBuilder(getActivity());
-
-			IconContextMenuInfo menuInfo = new IconContextMenuInfo();
-			Object info = onCreateIconContextMenu(menu, v, menuInfo);
-
-			if (menu != null && menu.hasVisibleItems()) {
-				IconContextMenu cm = new IconContextMenu(getActivity(), menu, menuInfo.getTitle());
-				cm.setInfo(info);
-				cm.setOnIconContextItemSelectedListener(BaseFragment.this);
-
-				onPrepareIconContextMenu(cm, v);
-				cm.show();
-				return true;
-			}
-
-			return false;
-		}
-	};
-
-	public void registerForIconContextMenu(View v) {
-		v.setOnLongClickListener(contextMenuListener);
-	}
-
-	public void unregisterForIconContextMenu(View v) {
-		v.setOnLongClickListener(null);
-	}
-
-	public Object onCreateIconContextMenu(Menu menu, View v, IconContextMenuInfo menuInfo) {
-		return null;
-	}
-
-	public void onPrepareIconContextMenu(IconContextMenu menu, View v) {
-	}
-
-	public void onIconContextItemSelected(MenuItem item, Object info) {
 
 	}
 

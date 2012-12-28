@@ -11,9 +11,9 @@ import android.text.TextUtils;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.common.DsaTabRuntimeException;
-import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Util;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.SelectArg;
 

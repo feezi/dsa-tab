@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_height="wrap_content"
-	android:layout_width="fill_parent" android:addStatesFromChildren="true" android:padding="5dip" android:id="@+id/popup_equipped_item_chooser_layout">
+    android:id="@+id/popup_equipped_item_chooser_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:addStatesFromChildren="true"
+    android:padding="4dip" >
 
+    <ListView
+        android:id="@+id/popup_equipped_item_list"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+    </ListView>
 
-	<ListView android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/popup_equipped_item_list">
-
-			</ListView>
 </RelativeLayout>

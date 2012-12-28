@@ -11,3 +11,11 @@ To deploy this app you need the following Libraries in your Eclipse workspace:
 - Drag Sort list
 	Can be downloaded from https://github.com/bauerca/drag-sort-listview
 	Create a library project named DragsortListView and add reference to dsatab
+
+- PhotoView
+	Can be downloaded from https://github.com/chrisbanes/PhotoView
+	Create a library project named PhotoView and add reference to dsatab
+
+- ShowcaseView
+	Can be downloaded from https://github.com/Espiandev/ShowcaseView
+	Create a library project named ShowcaseView and add reference to dsatab

@@ -19,8 +19,8 @@ package com.dsatab.data;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.util.Util;
 
 /**
  * @author Ganymede

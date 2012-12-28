@@ -4,10 +4,10 @@ import org.jdom2.Element;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.activity.BasePreferenceActivity;
-import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
+import com.dsatab.util.Util;
 import com.dsatab.xml.Xml;
 
 public class CombatDistanceTalent extends BaseCombatTalent implements Value {

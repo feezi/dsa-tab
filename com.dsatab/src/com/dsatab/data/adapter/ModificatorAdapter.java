@@ -40,13 +40,13 @@ public class ModificatorAdapter extends ArrayAdapter<Modificator> {
 		Modificator e = getItem(position);
 
 		// Set value for the first text field
-		if (view.getText1() != null) {
-			view.getText1().setText(e.getModificatorName());
+		if (view.text1 != null) {
+			view.text1.setText(e.getModificatorName());
 		}
 
 		// set value for the second text field
-		if (view.getText2() != null) {
-			view.getText2().setText(e.getModificatorInfo());
+		if (view.text2 != null) {
+			view.text2.setText(e.getModificatorInfo());
 		}
 
 		return view;

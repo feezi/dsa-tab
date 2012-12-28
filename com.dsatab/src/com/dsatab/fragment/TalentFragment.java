@@ -42,6 +42,7 @@ import com.dsatab.data.Value;
 import com.dsatab.data.adapter.ExpandableTalentAdapter;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.modifier.Modificator;
+import com.dsatab.util.Util;
 import com.dsatab.view.FilterSettings;
 import com.dsatab.view.FilterSettings.FilterType;
 import com.dsatab.view.ListFilterSettings;
@@ -67,28 +68,33 @@ public class TalentFragment extends BaseListFragment implements HeroChangedListe
 
 			SparseBooleanArray checkedPositions = talentList.getCheckedItemPositions();
 			if (checkedPositions != null) {
-				for (int i = 0; i < checkedPositions.size(); i++) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
-						Talent talent = (Talent) talentList.getItemAtPosition(checkedPositions.keyAt(i));
-						switch (item.getItemId()) {
-						case R.id.option_edit_talent:
-							MainActivity.showEditPopup(getActivity(), talent);
-							mode.finish();
-							return true;
-						case R.id.option_mark_favorite_talent:
-							talent.setFavorite(true);
-							notifyChanged = true;
-							break;
-						case R.id.option_mark_unused_talent:
-							talent.setUnused(true);
-							notifyChanged = true;
-							break;
-						case R.id.option_unmark_talent:
-							talent.setFavorite(false);
-							talent.setUnused(false);
-							notifyChanged = true;
-							break;
-						default:
+						Object obj = talentList.getItemAtPosition(checkedPositions.keyAt(i));
+						if (obj instanceof Talent) {
+							Talent talent = (Talent) obj;
+							switch (item.getItemId()) {
+							case R.id.option_edit_talent:
+								MainActivity.showEditPopup(getActivity(), talent);
+								mode.finish();
+								return true;
+							case R.id.option_mark_favorite_talent:
+								talent.setFavorite(true);
+								notifyChanged = true;
+								break;
+							case R.id.option_mark_unused_talent:
+								talent.setUnused(true);
+								notifyChanged = true;
+								break;
+							case R.id.option_unmark_talent:
+								talent.setFavorite(false);
+								talent.setUnused(false);
+								notifyChanged = true;
+								break;
+							default:
+								return false;
+							}
+						} else {
 							return false;
 						}
 					}
@@ -122,12 +128,12 @@ public class TalentFragment extends BaseListFragment implements HeroChangedListe
 			int selected = 0;
 			boolean metaTalent = false;
 			if (checkedPositions != null) {
-				for (int i = 0; i < checkedPositions.size(); i++) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
 						selected++;
 						if (!metaTalent) {
-							Talent talent = (Talent) talentList.getItemAtPosition(checkedPositions.keyAt(i));
-							if (talent instanceof MetaTalent) {
+							Object obj = talentList.getItemAtPosition(checkedPositions.keyAt(i));
+							if (obj instanceof MetaTalent) {
 								metaTalent = true;
 							}
 						}
@@ -182,7 +188,8 @@ public class TalentFragment extends BaseListFragment implements HeroChangedListe
 		talentList = (ExpandableListView) root.findViewById(R.id.talent_list);
 		talentList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 		talentList.setOnItemLongClickListener(this);
-
+		talentList.setGroupIndicator(getResources().getDrawable(
+				Util.getThemeResourceId(getActivity(), R.attr.imgExpander)));
 		talentList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 			@Override
 			public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {

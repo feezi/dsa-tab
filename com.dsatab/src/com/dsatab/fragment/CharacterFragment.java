@@ -21,7 +21,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import yuku.iconcontextmenu.IconContextMenu.IconContextMenuInfo;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
@@ -33,11 +32,9 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -46,9 +43,11 @@ import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.ActionMode;
+import com.actionbarsherlock.view.Menu;
 import com.dsatab.R;
 import com.dsatab.common.StyleableSpannableStringBuilder;
-import com.dsatab.common.Util;
 import com.dsatab.data.Advantage;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.Experience;
@@ -59,27 +58,90 @@ import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.modifier.Modificator;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Util;
 import com.dsatab.view.PortraitChooserDialog;
 import com.dsatab.view.PortraitViewDialog;
 
-public class CharacterFragment extends BaseAttributesFragment implements OnClickListener {
+public class CharacterFragment extends BaseAttributesFragment implements OnClickListener, OnLongClickListener {
 
 	private static final String PREF_SHOW_FEATURE_COMMENTS = "SHOW_COMMENTS";
 	private static final String PREF_SHOW_BASEINFO = "SHOW_BASEINFO";
 
 	private static final int ACTION_PHOTO = 1;
 	private static final int ACTION_GALERY = 2;
-	private static final int CONTEXTMENU_COMMENTS_TOGGLE = 14;
 
 	private TextView tfSpecialFeatures, tfSpecialFeaturesTitle, tfAdvantages, tfAdvantagesTitle, tfDisadvantages,
 			tfDisadvantgesTitle;
-	private TextView tfExperience, tfTotalLe, tfTotalAu, tfTotalAe, tfTotalKe, tfAT, tfPA, tfFK, tfINI, tfBE, tfST;
+	private TextView tfExperience, tfTotalLe, tfTotalAu, tfTotalAe, tfTotalKe, tfAT, tfPA, tfFK, tfINI, tfST;
+	private TextView tfLabelExperience, tfLabelAT, tfLabelPA, tfLabelFK, tfLabelINI;
 
 	private View charAttributesList;
-
 	private ImageButton detailsSwitch;
 
 	private ImageView portraitView;
+
+	protected ActionMode mMode;
+
+	protected ActionMode.Callback mCallback = new PortraitActionMode();
+
+	private final class PortraitActionMode implements ActionMode.Callback {
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, com.actionbarsherlock.view.MenuItem item) {
+
+			switch (item.getItemId()) {
+			case R.id.option_take_photo:
+				Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+				getActivity().startActivityForResult(camera, ACTION_PHOTO);
+				break;
+			case R.id.option_pick_image:
+				Intent photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
+				photoPickerIntent.setType("image/*");
+				getActivity().startActivityForResult(Intent.createChooser(photoPickerIntent, "Bild auswählen"),
+						ACTION_GALERY);
+				break;
+			case R.id.option_view_portrait:
+				showPortrait();
+				break;
+			case R.id.option_pick_avatar:
+				PortraitChooserDialog pdialog = new PortraitChooserDialog(getBaseActivity());
+				pdialog.show();
+				break;
+			}
+			mode.finish();
+			return true;
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			if (getHero() != null) {
+				mode.getMenuInflater().inflate(R.menu.portrait_popupmenu, menu);
+				mode.setTitle("Portrait");
+				if (getHero().getPortrait() == null) {
+					menu.findItem(R.id.option_view_portrait).setVisible(false);
+				}
+			}
+			return true;
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			mMode = null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * com.actionbarsherlock.view.ActionMode.Callback#onPrepareActionMode
+		 * (com.actionbarsherlock.view.ActionMode,
+		 * com.actionbarsherlock.view.Menu)
+		 */
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			return false;
+		}
+
+	}
 
 	/**
 	 * 
@@ -103,6 +165,7 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 
 		charAttributesList = root.findViewById(R.id.gen_attributes);
 		tfExperience = (TextView) root.findViewById(R.id.attr_abp);
+		tfLabelExperience = (TextView) root.findViewById(R.id.attr_abp_label);
 
 		tfTotalAe = (TextView) root.findViewById(R.id.attr_total_ae);
 		tfTotalKe = (TextView) root.findViewById(R.id.attr_total_ke);
@@ -113,9 +176,12 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		tfPA = (TextView) root.findViewById(R.id.attr_pa);
 		tfFK = (TextView) root.findViewById(R.id.attr_fk);
 		tfINI = (TextView) root.findViewById(R.id.attr_ini);
-
-		tfBE = (TextView) root.findViewById(R.id.attr_be);
 		tfST = (TextView) root.findViewById(R.id.attr_st);
+
+		tfLabelAT = (TextView) root.findViewById(R.id.attr_at_label);
+		tfLabelPA = (TextView) root.findViewById(R.id.attr_pa_label);
+		tfLabelFK = (TextView) root.findViewById(R.id.attr_fk_label);
+		tfLabelINI = (TextView) root.findViewById(R.id.attr_ini_label);
 
 		tfSpecialFeatures = (TextView) root.findViewById(R.id.gen_specialfeatures);
 		tfSpecialFeaturesTitle = (TextView) root.findViewById(R.id.gen_specialfeatures_title);
@@ -127,109 +193,39 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		tfDisadvantgesTitle = (TextView) root.findViewById(R.id.gen_disadvantages_title);
 
 		portraitView = (ImageView) root.findViewById(R.id.gen_portrait);
+
+		Util.applyRowStyle((TableLayout) root.findViewById(R.id.gen_attributes));
+
 		return root;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-
 		detailsSwitch.setOnClickListener(this);
 		tfExperience.setOnClickListener(getBaseActivity().getEditListener());
 		tfExperience.setOnLongClickListener(getBaseActivity().getEditListener());
 		findViewById(R.id.gen_description).setOnClickListener(this);
 
-		registerForIconContextMenu(portraitView);
+		tfSpecialFeatures.setOnClickListener(this);
+		tfSpecialFeaturesTitle.setOnClickListener(this);
+		tfAdvantages.setOnClickListener(this);
+		tfAdvantagesTitle.setOnClickListener(this);
+		tfDisadvantages.setOnClickListener(this);
+		tfDisadvantgesTitle.setOnClickListener(this);
+
+		portraitView.setOnLongClickListener(this);
+		portraitView.setOnClickListener(this);
+
+		fillAttributeLabel((View) tfLabelMR.getParent(), AttributeType.Magieresistenz);
+		fillAttributeLabel((View) tfLabelSO.getParent(), AttributeType.Sozialstatus);
+		fillAttributeLabel((View) tfLabelBE.getParent(), AttributeType.Behinderung);
+
+		fillAttributeLabel(tfLabelAT, AttributeType.at);
+		fillAttributeLabel(tfLabelPA, AttributeType.pa);
+		fillAttributeLabel(tfLabelFK, AttributeType.fk);
+		fillAttributeLabel(tfLabelINI, AttributeType.ini);
 
 		super.onActivityCreated(savedInstanceState);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.fragment.BaseFragment#onCreateIconContextMenu(android.view
-	 * .Menu, android.view.View, android.view.ContextMenu.ContextMenuInfo)
-	 */
-	@Override
-	public Object onCreateIconContextMenu(Menu menu, View v, IconContextMenuInfo menuInfo) {
-		switch (v.getId()) {
-		case R.id.gen_specialfeatures:
-
-			boolean showComments = preferences.getBoolean(PREF_SHOW_FEATURE_COMMENTS, true);
-			MenuItem item = null;
-			if (showComments) {
-				item = menu.add(0, CONTEXTMENU_COMMENTS_TOGGLE, 0, R.string.menu_hide_comments).setIcon(
-						R.drawable.ic_menu_view);
-			} else {
-				item = menu.add(0, CONTEXTMENU_COMMENTS_TOGGLE, 0, R.string.menu_show_comments).setIcon(
-						R.drawable.ic_menu_view);
-			}
-			item.setEnabled(getHero() != null);
-			break;
-
-		case R.id.gen_portrait:
-			if (getHero() != null) {
-				MenuInflater inflater = getActivity().getMenuInflater();
-				inflater.inflate(R.menu.portrait_popupmenu, menu);
-
-				if (getHero().getPortrait() == null) {
-					menu.findItem(R.id.option_view_portrait).setVisible(false);
-				}
-			}
-			break;
-		}
-
-		return super.onCreateIconContextMenu(menu, v, menuInfo);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.fragment.BaseFragment#onIconContextItemSelected(android.view
-	 * .MenuItem, java.lang.Object)
-	 */
-	@Override
-	public void onIconContextItemSelected(MenuItem item, Object info) {
-
-		switch (item.getItemId()) {
-		case CONTEXTMENU_COMMENTS_TOGGLE: {
-			boolean showComments = preferences.getBoolean(PREF_SHOW_FEATURE_COMMENTS, true);
-
-			showComments = !showComments;
-			Editor edit = preferences.edit();
-			edit.putBoolean(PREF_SHOW_FEATURE_COMMENTS, showComments);
-			edit.commit();
-
-			fillSpecialFeatures(getHero());
-			return;
-		}
-		case R.id.option_take_photo:
-			Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-			startActivityForResult(camera, ACTION_PHOTO);
-			break;
-		case R.id.option_pick_image:
-			Intent photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
-			photoPickerIntent.setType("image/*");
-			startActivityForResult(Intent.createChooser(photoPickerIntent, "Bild auswählen"), ACTION_GALERY);
-
-			break;
-		case R.id.option_view_portrait:
-			showPortrait();
-			break;
-		case R.id.option_pick_avatar:
-			PortraitChooserDialog pdialog = new PortraitChooserDialog(getBaseActivity());
-			pdialog.show();
-			break;
-		// case R.id.option_edit_value:
-		// int position = ((AdapterContextMenuInfo)
-		// item.getMenuInfo()).position;
-		// BaseCombatTalent talent = combatTalentAdapter.getItem(position);
-		// showEditPopup(talent);
-		// break;
-		}
-
-		super.onIconContextItemSelected(item, info);
 	}
 
 	/*
@@ -331,6 +327,28 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.view.View.OnLongClickListener#onLongClick(android.view.View)
+	 */
+	@Override
+	public boolean onLongClick(View v) {
+		switch (v.getId()) {
+		case R.id.gen_portrait:
+			if (getHero() == null)
+				return false;
+
+			if (mMode == null) {
+				mMode = ((SherlockFragmentActivity) getActivity()).startActionMode(mCallback);
+				customizeActionModeCloseButton();
+				mMode.invalidate();
+			}
+			return true;
+		}
+		return false;
+	}
+
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.gen_portrait:
@@ -339,19 +357,35 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 				return;
 
 			if (getHero().getPortrait() == null) {
-				v.showContextMenu();
+				onLongClick(v);
 			} else {
 				showPortrait();
 			}
 			break;
+		case R.id.gen_specialfeatures:
+		case R.id.gen_specialfeatures_title:
+		case R.id.gen_advantages:
+		case R.id.gen_advantages_title:
+		case R.id.gen_disadvantages:
+		case R.id.gen_disadvantages_title: {
+			boolean showComments = preferences.getBoolean(PREF_SHOW_FEATURE_COMMENTS, true);
 
+			showComments = !showComments;
+			Editor edit = preferences.edit();
+			edit.putBoolean(PREF_SHOW_FEATURE_COMMENTS, showComments);
+			edit.commit();
+
+			fillSpecialFeatures(getHero());
+			break;
+		}
 		case R.id.gen_description:
-		case R.id.details_switch:
+		case R.id.details_switch: {
 			Editor edit = preferences.edit();
 			edit.putBoolean(PREF_SHOW_BASEINFO, !preferences.getBoolean(PREF_SHOW_BASEINFO, true));
 			edit.commit();
 			updateBaseInfo(true);
 			break;
+		}
 		}
 
 	}
@@ -386,28 +420,28 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 			Attribute attr = (Attribute) value;
 
 			switch (attr.getType()) {
-			case Lebensenergie:
+			case Lebensenergie_Aktuell:
 				fillAttributeValue(tfLE, attr);
 				break;
-			case Lebensenergie_Total:
+			case Lebensenergie:
 				fillAttributeValue(tfTotalLe, attr);
 				break;
-			case Astralenergie:
+			case Astralenergie_Aktuell:
 				fillAttributeValue(tfAE, attr);
 				break;
-			case Astralenergie_Total:
+			case Astralenergie:
 				fillAttributeValue(tfTotalAe, attr);
 				break;
-			case Ausdauer:
+			case Ausdauer_Aktuell:
 				fillAttributeValue(tfAU, attr);
 				break;
-			case Ausdauer_Total:
+			case Ausdauer:
 				fillAttributeValue(tfTotalAu, attr);
 				break;
-			case Karmaenergie:
+			case Karmaenergie_Aktuell:
 				fillAttributeValue(tfKE, attr);
 				break;
-			case Karmaenergie_Total:
+			case Karmaenergie:
 				fillAttributeValue(tfTotalKe, attr);
 				break;
 			case Magieresistenz:
@@ -468,40 +502,32 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		Util.setText(tfExperience, hero.getExperience(), null);
 		tfExperience.setTag(hero.getExperience());
 
-		TextView tfExperienceLabel = (TextView) findViewById(R.id.attr_abp_label);
-		tfExperienceLabel.setTag(hero.getExperience());
-		tfExperienceLabel.setOnLongClickListener(getBaseActivity().getEditListener());
+		View xpRow = (View) tfLabelExperience.getParent();
+		xpRow.setTag(hero.getExperience());
+		xpRow.setOnLongClickListener(getBaseActivity().getEditListener());
+		xpRow.setOnClickListener(getBaseActivity().getEditListener());
 
-		fillAttributeValue(tfAE, AttributeType.Astralenergie);
-		fillAttributeValue(tfAU, AttributeType.Ausdauer);
-		fillAttributeValue(tfKE, AttributeType.Karmaenergie);
-		fillAttributeValue(tfLE, AttributeType.Lebensenergie);
+		fillAttributeValue(tfAE, AttributeType.Astralenergie_Aktuell);
+		fillAttributeValue(tfAU, AttributeType.Ausdauer_Aktuell);
+		fillAttributeValue(tfKE, AttributeType.Karmaenergie_Aktuell);
+		fillAttributeValue(tfLE, AttributeType.Lebensenergie_Aktuell);
 		fillAttributeValue(tfMR, AttributeType.Magieresistenz);
 		fillAttributeValue(tfSO, AttributeType.Sozialstatus);
 
-		fillAttributeLabel(tfLabelMR, AttributeType.Magieresistenz);
-		fillAttributeLabel(tfLabelSO, AttributeType.Sozialstatus);
+		fillAttributeValue(tfTotalLe, AttributeType.Lebensenergie);
+		fillAttributeValue(tfTotalAu, AttributeType.Ausdauer);
 
-		fillAttributeLabel((TextView) findViewById(R.id.attr_at_label), AttributeType.at);
-		fillAttributeLabel((TextView) findViewById(R.id.attr_pa_label), AttributeType.pa);
-		fillAttributeLabel((TextView) findViewById(R.id.attr_fk_label), AttributeType.fk);
-		fillAttributeLabel((TextView) findViewById(R.id.attr_ini_label), AttributeType.ini);
-		fillAttributeLabel((TextView) findViewById(R.id.attr_be_label), AttributeType.Behinderung);
-
-		fillAttributeValue(tfTotalLe, AttributeType.Lebensenergie_Total);
-		fillAttributeValue(tfTotalAu, AttributeType.Ausdauer_Total);
-
-		if (hero.getAttributeValue(AttributeType.Karmaenergie) == null) {
+		if (hero.getAttributeValue(AttributeType.Karmaenergie_Aktuell) == null) {
 			findViewById(R.id.row_ke).setVisibility(View.GONE);
 		} else {
-			fillAttributeValue(tfTotalKe, AttributeType.Karmaenergie_Total);
+			fillAttributeValue(tfTotalKe, AttributeType.Karmaenergie);
 			findViewById(R.id.row_ke).setVisibility(View.VISIBLE);
 		}
 
-		if (hero.getAttributeValue(AttributeType.Astralenergie) == null) {
+		if (hero.getAttributeValue(AttributeType.Astralenergie_Aktuell) == null) {
 			findViewById(R.id.row_ae).setVisibility(View.GONE);
 		} else {
-			fillAttributeValue(tfTotalAe, AttributeType.Astralenergie_Total);
+			fillAttributeValue(tfTotalAe, AttributeType.Astralenergie);
 			findViewById(R.id.row_ae).setVisibility(View.VISIBLE);
 		}
 
@@ -514,7 +540,6 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		//
 
 		fillSpecialFeatures(hero);
-		registerForIconContextMenu(tfSpecialFeatures);
 
 		// --
 		ImageView portrait = (ImageView) findViewById(R.id.gen_portrait);
@@ -545,7 +570,7 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		boolean showDetails = preferences.getBoolean(PREF_SHOW_BASEINFO, true);
 
 		if (showDetails) {
-			detailsSwitch.setImageResource(R.drawable.expander_ic_maximized);
+			detailsSwitch.setImageResource(Util.getThemeResourceId(getActivity(), R.attr.imgExpanderClose));
 			Animation slideup = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in);
 
 			if (TextUtils.isEmpty(baseInfo.getAussehen())) {
@@ -585,7 +610,7 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 			}
 
 		} else {
-			((ImageButton) findViewById(R.id.details_switch)).setImageResource(R.drawable.expander_ic_minimized);
+			detailsSwitch.setImageResource(Util.getThemeResourceId(getActivity(), R.attr.imgExpanderOpen));
 
 			findViewById(R.id.row_aussehen).setVisibility(View.GONE);
 			findViewById(R.id.row_kultur).setVisibility(View.GONE);
@@ -608,7 +633,7 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		if (drawable != null)
 			portraitView.setImageBitmap(drawable);
 		else
-			portraitView.setImageResource(R.drawable.profile_blank);
+			portraitView.setImageResource(R.drawable.profile_picture);
 	}
 
 	protected void fillAttributesList(View view) {
@@ -622,14 +647,14 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		fillAttributeValue(tfKO, AttributeType.Konstitution);
 		fillAttributeValue(tfKK, AttributeType.Körperkraft);
 
-		fillAttributeLabel(tfLabelMU, AttributeType.Mut);
-		fillAttributeLabel(tfLabelKL, AttributeType.Klugheit);
-		fillAttributeLabel(tfLabelIN, AttributeType.Intuition);
-		fillAttributeLabel(tfLabelCH, AttributeType.Charisma);
-		fillAttributeLabel(tfLabelFF, AttributeType.Fingerfertigkeit);
-		fillAttributeLabel(tfLabelGE, AttributeType.Gewandtheit);
-		fillAttributeLabel(tfLabelKO, AttributeType.Konstitution);
-		fillAttributeLabel(tfLabelKK, AttributeType.Körperkraft);
+		fillAttributeLabel((View) tfLabelMU.getParent(), AttributeType.Mut);
+		fillAttributeLabel((View) tfLabelKL.getParent(), AttributeType.Klugheit);
+		fillAttributeLabel((View) tfLabelIN.getParent(), AttributeType.Intuition);
+		fillAttributeLabel((View) tfLabelCH.getParent(), AttributeType.Charisma);
+		fillAttributeLabel((View) tfLabelFF.getParent(), AttributeType.Fingerfertigkeit);
+		fillAttributeLabel((View) tfLabelGE.getParent(), AttributeType.Gewandtheit);
+		fillAttributeLabel((View) tfLabelKO.getParent(), AttributeType.Konstitution);
+		fillAttributeLabel((View) tfLabelKK.getParent(), AttributeType.Körperkraft);
 	}
 
 	/**

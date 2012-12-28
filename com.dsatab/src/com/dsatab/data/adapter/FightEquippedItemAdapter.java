@@ -12,7 +12,6 @@ import android.widget.TextView;
 import com.dsatab.R;
 import com.dsatab.activity.MainActivity.ProbeListener;
 import com.dsatab.common.StyleableSpannableStringBuilder;
-import com.dsatab.common.Util;
 import com.dsatab.data.CombatProbe;
 import com.dsatab.data.Hero;
 import com.dsatab.data.enums.AttributeType;
@@ -26,6 +25,7 @@ import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.fragment.FightFragment.TargetListener;
+import com.dsatab.util.Util;
 import com.dsatab.view.FightFilterSettings;
 import com.dsatab.view.ItemListItem;
 
@@ -205,10 +205,12 @@ public class FightEquippedItemAdapter extends OpenArrayAdapter<EquippedItem> {
 				Util.appendValue(hero, title, probe, null, getFilter().getSettings().isIncludeModifiers());
 				holder.icon2.setTag(probe);
 				holder.icon2.setOnClickListener(probeListener);
+
+				holder.text3.setText(equippedItem.getTalent().getName());
 			} else {
 				holder.icon2.setEnabled(false);
 			}
-			holder.text3.setText(equippedItem.getTalent().getName());
+
 		} else if (itemSpecification instanceof Weapon) {
 			Weapon weapon = (Weapon) itemSpecification;
 
@@ -275,6 +277,8 @@ public class FightEquippedItemAdapter extends OpenArrayAdapter<EquippedItem> {
 		} else if (itemSpecification instanceof Armor) {
 			// Armor armor = (Armor) itemSpecification;
 			holder.icon2.setVisibility(View.GONE);
+			holder.icon1.setFocusable(false);
+			holder.icon1.setClickable(false);
 		}
 
 		if (hero.getHuntingWeapon() != null && hero.getHuntingWeapon().equals(equippedItem)) {
@@ -283,10 +287,10 @@ public class FightEquippedItemAdapter extends OpenArrayAdapter<EquippedItem> {
 
 		if (holder.icon_chain_top != null && holder.icon_chain_bottom != null) {
 			if (equippedItem.getSecondaryItem() != null) {
-				if (getItem(position - 1).equals(equippedItem.getSecondaryItem())) {
+				if (position > 0 && getItem(position - 1).equals(equippedItem.getSecondaryItem())) {
 					holder.icon_chain_bottom.setVisibility(View.VISIBLE);
 					holder.icon_chain_top.setVisibility(View.GONE);
-				} else if (getItem(position + 1).equals(equippedItem.getSecondaryItem())) {
+				} else if (position < getCount() && getItem(position + 1).equals(equippedItem.getSecondaryItem())) {
 					holder.icon_chain_top.setVisibility(View.VISIBLE);
 					holder.icon_chain_bottom.setVisibility(View.GONE);
 				}

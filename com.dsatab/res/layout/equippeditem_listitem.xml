@@ -3,11 +3,13 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingLeft="2.5dp"
-    android:paddingRight="2.5dp" >
+    android:background="?attr/listItemBackground"
+    android:paddingRight="6dp"
+    android:paddingLeft="6dp">
 
     <ImageView
         android:id="@android:id/icon1"
+        style="?attr/iconImageViewStyle"
         android:layout_width="@dimen/icon_button_size"
         android:layout_height="@dimen/icon_button_size"
         android:layout_alignParentLeft="true"
@@ -39,9 +41,9 @@
         android:layout_alignRight="@android:id/text1"
         android:layout_below="@android:id/text1"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textStyle="normal" />
+        android:textStyle="normal" />    
 
-    <ImageButton
+    <com.dsatab.view.CheckableImageButton
         android:id="@+id/set1"
         android:layout_width="@dimen/icon_button_size"
         android:layout_height="@dimen/icon_button_size"
@@ -49,10 +51,10 @@
         android:layout_toLeftOf="@+id/set2"
         android:clickable="false"
         android:focusable="false"
-        android:src="@drawable/set1"
+        android:src="?attr/imgSet1"
         android:visibility="visible" />
 
-    <ImageButton
+    <com.dsatab.view.CheckableImageButton
         android:id="@+id/set2"
         android:layout_width="@dimen/icon_button_size"
         android:layout_height="@dimen/icon_button_size"
@@ -60,10 +62,10 @@
         android:layout_toLeftOf="@+id/set3"
         android:clickable="false"
         android:focusable="false"
-        android:src="@drawable/set2"
+        android:src="?attr/imgSet2"
         android:visibility="visible" />
 
-    <ImageButton
+    <com.dsatab.view.CheckableImageButton
         android:id="@+id/set3"
         android:layout_width="@dimen/icon_button_size"
         android:layout_height="@dimen/icon_button_size"
@@ -71,7 +73,7 @@
         android:layout_marginLeft="1dip"
         android:clickable="false"
         android:focusable="false"
-        android:src="@drawable/set3"
+        android:src="?attr/imgSet3"
         android:visibility="visible" />
 
     <TextView

@@ -22,11 +22,11 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 
 import com.dsatab.R;
-import com.dsatab.common.Util;
 import com.dsatab.data.adapter.ItemCursorAdapter;
 import com.dsatab.data.adapter.SpinnerSimpleAdapter;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
+import com.dsatab.util.Util;
 import com.dsatab.xml.DataManager;
 
 public class ItemChooserDialog extends AlertDialog implements android.view.View.OnClickListener, OnItemSelectedListener {
@@ -152,7 +152,7 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 		RelativeLayout popupcontent = (RelativeLayout) LayoutInflater.from(getContext()).inflate(
 				R.layout.popup_item_chooser, null, false);
 
-		popupcontent.setLayoutParams(new LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
+		popupcontent.setLayoutParams(new LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
 				LinearLayout.LayoutParams.WRAP_CONTENT));
 
 		setView(popupcontent);

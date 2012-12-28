@@ -58,7 +58,7 @@ public class SpellFragment extends BaseListFragment implements OnItemClickListen
 
 			SparseBooleanArray checkedPositions = spellList.getCheckedItemPositions();
 			if (checkedPositions != null) {
-				for (int i = 0; i < checkedPositions.size(); i++) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
 						Spell spell = spellAdapter.getItem(checkedPositions.keyAt(i));
 
@@ -118,7 +118,7 @@ public class SpellFragment extends BaseListFragment implements OnItemClickListen
 			boolean marked = false;
 			SparseBooleanArray checkedPositions = spellList.getCheckedItemPositions();
 			if (checkedPositions != null) {
-				for (int i = 0; i < checkedPositions.size(); i++) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
 						selected++;
 

@@ -5,8 +5,8 @@ import android.text.TextUtils;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.common.StyleableSpannableStringBuilder;
-import com.dsatab.common.Util;
 import com.dsatab.data.Dice;
+import com.dsatab.util.Util;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 

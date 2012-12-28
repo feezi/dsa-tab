@@ -16,6 +16,8 @@
  */
 package com.dsatab.data.filter;
 
+import java.util.Locale;
+
 import com.dsatab.data.adapter.OpenArrayAdapter;
 import com.dsatab.data.adapter.OpenFilter;
 import com.dsatab.data.items.Armor;
@@ -58,7 +60,7 @@ public class EquippedItemListFilter extends OpenFilter<EquippedItem> {
 		}
 
 		if (constraint != null) {
-			valid &= m.getName().toLowerCase().startsWith(constraint);
+			valid &= m.getName().toLowerCase(Locale.GERMAN).startsWith(constraint);
 		}
 
 		return valid;

@@ -21,15 +21,6 @@
 	<item>portrait</item>
 	<item>landscape</item>
 </array>
-
-<array name="heldenAustauschProvider">
-	<item>Orkenspalter.de</item>
-	<item>Draschenfels.de</item>
-</array>
-<array name="heldenAustauschProviderValues">
-	<item>http://www.orkenspalter.de/helden/</item>
-	<item>http://helden.draschenfels.de/</item>
-</array>
 <array name="archerySize">
         <item>Winzig (Münze) +8</item>
         <item>Sehr Klein (Schlange,Rabe) +6</item>

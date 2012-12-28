@@ -1,28 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?> 
-<resources xmlns:android="http://schemas.android.com/apk/res/android"> 
-	<style name="BorderPanel">
-    	<!-- <item name="android:background">@drawable/border_patch</item>
-        <item name="android:paddingTop">5dp</item>
-        <item name="android:paddingLeft">5dp</item>
-        <item name="android:paddingRight">5dp</item>
-        <item name="android:paddingBottom">5dp</item>
-         -->
-    </style>
-    <style name="Widget.ImageButton" parent="@android:style/Widget.ImageButton">    	
-    	<item name="android:scaleType">fitCenter</item>    	        
+<resources 
+    	xmlns:android="http://schemas.android.com/apk/res/android"
+    	xmlns:custom="http://schemas.android.com/apk/res-auto">
+    
+    <style name="Widget.IconImageView">
+        <item name="android:scaleType">fitCenter</item>
         <item name="android:minWidth">@dimen/icon_button_size</item>
         <item name="android:minHeight">@dimen/icon_button_size</item>
-        <item name="android:padding">2dp</item>
-    </style>    
-    
-    <style name="Widget.ImageButton.Plain" parent="@Widget.ImageButton">
-    	<item name="android:background">@drawable/btn_plain</item>
-    	<item name="android:padding">5dp</item>    	
-    </style>
-        
-    <style name="Widget.Button.Plain" parent="@android:style/Widget.Button">
-    	<item name="android:background">@drawable/btn_plain</item>
-        <item name="android:textColor">#FFFFFF</item>
+    	<item name="android:background">@drawable/btn_plain_bg_normal</item>
+    	<item name="android:padding">5dp</item>
     </style>
     
     <style name="TextValue" parent="@android:style/Widget.TextView">
@@ -84,7 +70,7 @@
     	<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:ellipsize">end</item>
-        <item name="android:layout_margin">4dp</item>
+        <item name="android:padding">4dp</item>
     </style>
     
     <style name="TextLabel.Inverse">
@@ -98,7 +84,7 @@
     </style>
     <style name="TextLabel.Mini">
     	<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-    	<item name="android:textSize">9dp</item>
+    	<item name="android:textSize">9sp</item>
     	<item name="android:textAllCaps">true</item>        
     	<item name="android:gravity">right</item>
     </style>
@@ -131,24 +117,4 @@
         <item name="android:layout_weight">1</item>                
         <item name="android:scaleType">fitXY</item>        
     </style>
-    
-    <style name="Widget.ExpandableListView.Probe" parent="@android:style/Widget.ExpandableListView">
-        <item name="android:scrollbarStyle">insideOverlay</item>
-	    <item name="android:cacheColorHint">#00000000</item>
-	    <item name="android:dividerHeight">0dp</item>
-    </style>
-    
-    <style name="TableRow">
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:minHeight">?android:attr/listPreferredItemHeight</item>
-    </style>
-
-    <style name="TableRow.Even">
-        <item name="android:background">@color/RowEven</item>
-    </style>
-
-    <style name="TableRow.Odd">
-        <item name="android:background">@color/RowOdd</item>
-    </style>
-        
 </resources>

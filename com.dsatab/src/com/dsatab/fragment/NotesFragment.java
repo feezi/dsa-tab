@@ -33,7 +33,6 @@ import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -87,7 +86,7 @@ public class NotesFragment extends BaseListFragment implements OnItemClickListen
 
 			SparseBooleanArray checkedPositions = listView.getCheckedItemPositions();
 			if (checkedPositions != null) {
-				for (int i = 0; i < checkedPositions.size(); i++) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
 						Object obj = mergeAdapter.getItem(checkedPositions.keyAt(i));
 						if (obj instanceof Event) {
@@ -160,7 +159,7 @@ public class NotesFragment extends BaseListFragment implements OnItemClickListen
 			int selected = 0;
 			boolean allDeletable = true;
 			if (checkedPositions != null) {
-				for (int i = 0; i < checkedPositions.size(); i++) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
 						Object obj = mergeAdapter.getItem(checkedPositions.keyAt(i));
 						selected++;
@@ -204,21 +203,8 @@ public class NotesFragment extends BaseListFragment implements OnItemClickListen
 	 */
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
-		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_note_add, Menu.NONE,
-				"Notiz hinzufügen");
-		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-		item.setIcon(R.drawable.ic_menu_add);
-
-		item = menu.add(Menu.NONE, R.id.option_note_record, Menu.NONE, "Notiz aufnehmen");
-		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-		item.setIcon(R.drawable.ic_menu_mic);
-
-		item = menu.add(Menu.NONE, R.id.option_note_filter, Menu.NONE, "Filtern");
-		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-		item.setIcon(R.drawable.ic_menu_filter);
-
 		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.note_list_menu, menu);
 	}
 
 	/*
@@ -250,8 +236,12 @@ public class NotesFragment extends BaseListFragment implements OnItemClickListen
 
 			builder.setMultiChoiceItems(categoryNames, categoriesSet, this);
 			builder.setTitle("Filtern");
-			builder.setIcon(R.drawable.ic_menu_search);
-
+			builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			});
 			builder.show().setOnDismissListener(new DialogInterface.OnDismissListener() {
 
 				@Override
@@ -397,8 +387,6 @@ public class NotesFragment extends BaseListFragment implements OnItemClickListen
 			mediaRecorder.start(); // Recording is now started
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-			builder.setIcon(android.R.drawable.ic_btn_speak_now);
 			builder.setTitle(R.string.recording);
 			builder.setMessage(R.string.recording_message);
 

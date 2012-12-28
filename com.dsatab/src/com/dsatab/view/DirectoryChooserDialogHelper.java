@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -95,7 +96,7 @@ public class DirectoryChooserDialogHelper implements OnItemClickListener, OnClic
 
 		Collections.sort(m_entries, new Comparator<File>() {
 			public int compare(File f1, File f2) {
-				return f1.getName().toLowerCase().compareTo(f2.getName().toLowerCase());
+				return f1.getName().toLowerCase(Locale.GERMAN).compareTo(f2.getName().toLowerCase(Locale.GERMAN));
 			}
 		});
 

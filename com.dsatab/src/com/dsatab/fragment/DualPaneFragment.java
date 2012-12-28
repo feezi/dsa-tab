@@ -35,6 +35,7 @@ import com.dsatab.TabInfo;
 import com.dsatab.data.Hero;
 import com.dsatab.view.FilterSettings;
 import com.dsatab.view.FilterSettings.FilterType;
+import com.dsatab.view.listener.FilterChangedListener;
 import com.gandulf.guilib.util.Debug;
 
 /**
@@ -195,6 +196,7 @@ public class DualPaneFragment extends SherlockFragment implements FilterChangedL
 			}
 		}
 		transaction.commit();
+		setUserVisibleHint(getUserVisibleHint());
 	}
 
 	/*
@@ -205,6 +207,7 @@ public class DualPaneFragment extends SherlockFragment implements FilterChangedL
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		setUserVisibleHint(getUserVisibleHint());
 	}
 
 	public void setMenuVisibility(boolean value) {
@@ -221,8 +224,14 @@ public class DualPaneFragment extends SherlockFragment implements FilterChangedL
 		super.setUserVisibleHint(value);
 
 		for (Fragment left : fragments) {
-			if (left != null && left.isAdded())
-				left.setUserVisibleHint(value);
+			try {
+				if (left != null)
+					left.setUserVisibleHint(value);
+			} catch (NullPointerException e) {
+				// TODO find a better way to handle exception
+				// if we call this to soon on the fragent before its added a npe
+				// is thrown ignore this here.
+			}
 		}
 
 	}
@@ -235,6 +244,17 @@ public class DualPaneFragment extends SherlockFragment implements FilterChangedL
 		while (i >= fragments.size())
 			fragments.add(null);
 		fragments.set(i, f);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.Fragment#onResume()
+	 */
+	@Override
+	public void onResume() {
+		super.onResume();
+		setUserVisibleHint(getUserVisibleHint());
 	}
 
 	/*

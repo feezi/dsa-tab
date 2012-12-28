@@ -30,11 +30,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.common.Util;
 import com.dsatab.data.Art;
 import com.dsatab.data.Art.Flags;
 import com.dsatab.data.ArtInfo;
 import com.dsatab.data.filter.FilterableListFilter;
+import com.dsatab.util.Util;
 import com.dsatab.view.ListFilterSettings;
 
 /**

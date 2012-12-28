@@ -498,7 +498,7 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 	// results.count = list.size();
 	// }
 	// } else {
-	// String prefixString = prefix.toString().toLowerCase();
+	// String prefixString = prefix.toString().toLowerCase(Locale.GERMAN);
 	//
 	// final List<T> values = mOriginalValues;
 	// final int count = values.size();
@@ -507,7 +507,7 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 	//
 	// for (int i = 0; i < count; i++) {
 	// final T value = values.get(i);
-	// final String valueText = value.toString().toLowerCase();
+	// final String valueText = value.toString().toLowerCase(Locale.GERMAN);
 	//
 	// // First match against the whole, non-splitted value
 	// if (valueText.startsWith(prefixString)) {

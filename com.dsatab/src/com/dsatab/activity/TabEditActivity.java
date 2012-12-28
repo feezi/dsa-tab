@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -45,7 +46,6 @@ import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.TabInfo;
-import com.dsatab.common.Util;
 import com.dsatab.data.adapter.SpinnerSimpleAdapter;
 import com.dsatab.fragment.ArtFragment;
 import com.dsatab.fragment.BaseFragment;
@@ -60,6 +60,7 @@ import com.dsatab.fragment.NotesFragment;
 import com.dsatab.fragment.PurseFragment;
 import com.dsatab.fragment.SpellFragment;
 import com.dsatab.fragment.TalentFragment;
+import com.dsatab.util.Util;
 import com.dsatab.view.FightFilterSettings;
 import com.dsatab.view.ListFilterSettings;
 import com.mobeta.android.dslv.DragSortListView;
@@ -71,7 +72,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 
 	private Spinner spinner1, spinner2, iconSpinner;
 
-	private CheckBox diceslider;
+	private CheckBox diceslider, attribteList;
 
 	private LinearLayout addons[] = new LinearLayout[TabInfo.MAX_TABS_PER_PAGE];
 
@@ -94,7 +95,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		setTheme(DSATabApplication.getInstance().getCustomTheme());
 		applyPreferencesToTheme();
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.popup_edit_tab);
+		setContentView(R.layout.sheet_edit_tab);
 
 		if (DSATabApplication.getInstance().getHero() == null) {
 			Toast.makeText(this, "Tabs können erst editiert werden, wenn ein Held geladen wurde.", Toast.LENGTH_SHORT)
@@ -108,6 +109,9 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 
 		diceslider = (CheckBox) findViewById(R.id.popup_edit_diceslider);
 		diceslider.setOnCheckedChangeListener(this);
+
+		attribteList = (CheckBox) findViewById(R.id.popup_edit_attributelist);
+		attribteList.setOnCheckedChangeListener(this);
 
 		addons[0] = (LinearLayout) findViewById(R.id.popup_edit_primary_addon);
 		addons[1] = (LinearLayout) findViewById(R.id.popup_edit_secondary_addon);
@@ -180,7 +184,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 
 		item = menu.add(Menu.NONE, R.id.option_tab_delete, Menu.NONE, "Tab entfernen");
 		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-		item.setIcon(R.drawable.ic_menu_delete);
+		item.setIcon(Util.getThemeResourceId(this, R.attr.imgBarDelete));
 
 		item = menu.add(Menu.NONE, R.id.option_tab_reset, Menu.NONE, "Tabs zurücksetzen");
 		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
@@ -244,18 +248,25 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 			spinner2.setSelection(activityValues.indexOf(clazz2));
 
 			diceslider.setChecked(info.isDiceSlider());
+			attribteList.setChecked(info.isAttributeList());
 
 			iconSpinner.setSelection(info.getTabResourceIndex());
+
+			int pos = tabsAdapter.getPosition(info);
+			tabsList.setItemChecked(pos, true);
+			tabsList.smoothScrollToPosition(pos);
 		}
 
 		spinner1.setEnabled(info != null);
 		spinner2.setEnabled(info != null);
 		diceslider.setEnabled(info != null);
+		attribteList.setEnabled(info != null);
 		iconSpinner.setEnabled(info != null);
 
 		updateTabInfoSettings(info);
 
 		invalidateOptionsMenu();
+
 	}
 
 	protected void updateTabInfoSettings(TabInfo info) {
@@ -404,6 +415,9 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 			case R.id.popup_edit_diceslider:
 				currentInfo.setDiceSlider(isChecked);
 				break;
+			case R.id.popup_edit_attributelist:
+				currentInfo.setAttributeList(isChecked);
+				break;
 			case R.id.popup_edit_show_favorites:
 				listFilterSettings = (ListFilterSettings) buttonView.getTag();
 				listFilterSettings.setShowFavorite(isChecked);
@@ -496,7 +510,6 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		if (parent == tabsList) {
-			tabsList.setItemChecked(position, true);
 			TabInfo info = tabsAdapter.getItem(position);
 			selectTabInfo(info);
 		}
@@ -504,11 +517,8 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 
 	static class TabIconAdapter extends ArrayAdapter<Integer> {
 
-		private LayoutInflater inflater;
-
 		public TabIconAdapter(Context context, List<Integer> objects) {
 			super(context, 0, objects);
-			inflater = LayoutInflater.from(getContext());
 		}
 
 		/*
@@ -530,19 +540,17 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		 */
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-
-			LinearLayout view;
-			if (convertView instanceof LinearLayout) {
-				view = (LinearLayout) convertView;
+			ImageView view;
+			if (convertView instanceof ImageView) {
+				view = (ImageView) convertView;
 			} else {
-				view = (LinearLayout) inflater.inflate(R.layout.item_tab, parent, false);
+				view = new ImageView(getContext());
+				int tabSize = getContext().getResources().getDimensionPixelSize(R.dimen.icon_button_size);
+				view.setLayoutParams(new AbsListView.LayoutParams(tabSize, tabSize));
 			}
-
-			ImageView imageButton = (ImageView) view.findViewById(R.id.gen_tab);
-			imageButton.setFocusable(false);
-			imageButton.setClickable(false);
-			imageButton.setImageResource(getItem(position));
-
+			view.setFocusable(false);
+			view.setClickable(false);
+			view.setImageResource(getItem(position));
 			return view;
 		}
 

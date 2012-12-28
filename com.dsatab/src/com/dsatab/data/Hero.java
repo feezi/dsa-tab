@@ -26,7 +26,6 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.util.FloatMath;
 import android.view.Display;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -35,7 +34,6 @@ import com.dsatab.DSATabApplication;
 import com.dsatab.HeroConfiguration;
 import com.dsatab.R;
 import com.dsatab.activity.BasePreferenceActivity;
-import com.dsatab.common.Util;
 import com.dsatab.data.TalentGroup.MetaTalentType;
 import com.dsatab.data.TalentGroup.TalentGroupType;
 import com.dsatab.data.enums.AttributeType;
@@ -55,6 +53,7 @@ import com.dsatab.data.modifier.AuModificator;
 import com.dsatab.data.modifier.LeModificator;
 import com.dsatab.data.modifier.Modificator;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Util;
 import com.dsatab.view.listener.HeroChangedListener;
 
 public class Hero {
@@ -532,11 +531,15 @@ public class Hero {
 				if (attr != null)
 					attr.checkBaseValue();
 
+				attr = getAttribute(AttributeType.Astralenergie_Aktuell);
+				if (attr != null)
+					attr.checkBaseValue();
+
 				attr = getAttribute(AttributeType.Astralenergie);
 				if (attr != null)
 					attr.checkBaseValue();
 
-				attr = getAttribute(AttributeType.Astralenergie_Total);
+				attr = getAttribute(AttributeType.Ausdauer_Aktuell);
 				if (attr != null)
 					attr.checkBaseValue();
 
@@ -544,7 +547,7 @@ public class Hero {
 				if (attr != null)
 					attr.checkBaseValue();
 
-				attr = getAttribute(AttributeType.Ausdauer_Total);
+				attr = getAttribute(AttributeType.Lebensenergie_Aktuell);
 				if (attr != null)
 					attr.checkBaseValue();
 
@@ -552,19 +555,15 @@ public class Hero {
 				if (attr != null)
 					attr.checkBaseValue();
 
-				attr = getAttribute(AttributeType.Lebensenergie_Total);
-				if (attr != null)
-					attr.checkBaseValue();
-
 				break;
-			case Ausdauer:
+			case Ausdauer_Aktuell:
 				postAuRatioCheck();
 				break;
-			case Lebensenergie:
+			case Lebensenergie_Aktuell:
 				postLeRatioCheck();
 				break;
-			case Lebensenergie_Total:
-				attr = getAttribute(AttributeType.Lebensenergie);
+			case Lebensenergie:
+				attr = getAttribute(AttributeType.Lebensenergie_Aktuell);
 				if (attr != null) {
 					attr.setReferenceValue(value.getValue());
 					attr.checkValue();
@@ -572,8 +571,8 @@ public class Hero {
 
 				}
 				break;
-			case Ausdauer_Total:
-				attr = getAttribute(AttributeType.Ausdauer);
+			case Ausdauer:
+				attr = getAttribute(AttributeType.Ausdauer_Aktuell);
 				if (attr != null) {
 					attr.setReferenceValue(value.getValue());
 					attr.checkValue();
@@ -581,16 +580,16 @@ public class Hero {
 				}
 
 				break;
-			case Astralenergie_Total:
-				attr = getAttribute(AttributeType.Astralenergie);
+			case Astralenergie:
+				attr = getAttribute(AttributeType.Astralenergie_Aktuell);
 				if (attr != null) {
 					attr.setReferenceValue(value.getValue());
 					attr.checkValue();
 					fireValueChangedEvent(attr);
 				}
 				break;
-			case Karmaenergie_Total:
-				attr = getAttribute(AttributeType.Karmaenergie);
+			case Karmaenergie:
+				attr = getAttribute(AttributeType.Karmaenergie_Aktuell);
 				if (attr != null) {
 					attr.setReferenceValue(value.getValue());
 					attr.checkValue();
@@ -795,7 +794,7 @@ public class Hero {
 							}
 						});
 
-				builder.show().setCanceledOnTouchOutside(true);
+				builder.show().setCanceledOnTouchOutside(false);
 				return;
 			} else if (item.getSpecifications().size() == 1) {
 				itemSpecification = item.getSpecifications().get(0);
@@ -848,13 +847,14 @@ public class Hero {
 
 		addItem(item);
 
-		if (callback != null) {
-			if (item.isEquipable() && set >= 0) {
-				addEquippedItem(context, item, itemSpecification, newTalent, set, callback);
-			} else {
+		if (item.isEquipable() && set >= 0) {
+			addEquippedItem(context, item, itemSpecification, newTalent, set, callback);
+		} else {
+			if (callback != null) {
 				callback.onItemAdded(item);
 			}
 		}
+
 	}
 
 	/**
@@ -903,7 +903,7 @@ public class Hero {
 							}
 						});
 
-				builder.show().setCanceledOnTouchOutside(true);
+				builder.show().setCanceledOnTouchOutside(false);
 				return;
 			} else if (item.getSpecifications().size() == 1) {
 				itemSpecification = item.getSpecifications().get(0);
@@ -1097,7 +1097,7 @@ public class Hero {
 	protected void postLeRatioCheck() {
 
 		if (DSATabApplication.getPreferences().getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_LE_MODIFIER, true)) {
-			float newLeRatioCheck = getRatio(AttributeType.Lebensenergie);
+			float newLeRatioCheck = getRatio(AttributeType.Lebensenergie_Aktuell);
 
 			int newLeRatioLevel = 0;
 
@@ -1139,7 +1139,7 @@ public class Hero {
 	protected void postAuRatioCheck() {
 		if (DSATabApplication.getPreferences().getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_AU_MODIFIER, true)) {
 
-			double newAuRatioCheck = getRatio(AttributeType.Ausdauer);
+			double newAuRatioCheck = getRatio(AttributeType.Ausdauer_Aktuell);
 
 			int newAuRatioLevel = 0;
 			if (newAuRatioCheck < AuModificator.LEVEL_2)
@@ -1168,7 +1168,7 @@ public class Hero {
 	 * @return
 	 */
 	public float getRatio(AttributeType type) {
-		Attribute le = getAttribute(AttributeType.Lebensenergie);
+		Attribute le = getAttribute(AttributeType.Lebensenergie_Aktuell);
 		if (le != null) {
 			Integer value = le.getValue();
 			Integer ref = le.getReferenceValue();
@@ -1876,7 +1876,7 @@ public class Hero {
 		int wsBase = 0;
 		int wsMod = 0;
 		if (preferences.getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_EASIER_WOUNDS, false)) {
-			wsBase = (int) FloatMath.ceil(getAttributeValue(AttributeType.Konstitution) / 3.0f);
+			wsBase = (int) Math.ceil(getAttributeValue(AttributeType.Konstitution) / 3.0f);
 			wsMod = 0;
 
 			if (hasFeature(SpecialFeature.EISERN))
@@ -1889,7 +1889,7 @@ public class Hero {
 			ws[2] = getAttributeValue(AttributeType.Konstitution) + wsMod;
 
 		} else {
-			wsBase = (int) FloatMath.ceil(getAttributeValue(AttributeType.Konstitution) / 2.0f);
+			wsBase = (int) Math.ceil(getAttributeValue(AttributeType.Konstitution) / 2.0f);
 			wsMod = 0;
 
 			if (hasFeature(SpecialFeature.EISERN))
@@ -1954,7 +1954,7 @@ public class Hero {
 					}
 				}
 
-				totalRs = (float) FloatMath.ceil(totalRs / 20);
+				totalRs = (float) Math.ceil(totalRs / 20);
 				be += (totalRs - stars);
 				break;
 
@@ -1984,7 +1984,7 @@ public class Hero {
 
 			}
 			}
-			beCache = Math.max(0, (int) FloatMath.ceil(be));
+			beCache = Math.max(0, (int) Math.ceil(be));
 		}
 		return beCache;
 
@@ -2027,7 +2027,7 @@ public class Hero {
 
 			break;
 		}
-		return (int) FloatMath.ceil(totalRs);
+		return (int) Math.ceil(totalRs);
 	}
 
 	public List<EquippedItem> getArmor(Position pos) {
@@ -2162,7 +2162,7 @@ public class Hero {
 					at.setValue(getAttributeValue(AttributeType.at));
 
 					CombatMeleeAttribute pa = new CombatMeleeAttribute(this);
-					pa.setName(CombatMeleeAttribute.ATTACKE);
+					pa.setName(CombatMeleeAttribute.PARADE);
 					pa.setValue(getAttributeValue(AttributeType.pa));
 
 					talent = new CombatMeleeTalent(this, at, pa);
@@ -2245,10 +2245,10 @@ public class Hero {
 		if (modificators == null) {
 			modificators = new LinkedList<Modificator>();
 
-			if (getRatio(AttributeType.Lebensenergie) < LeModificator.LEVEL_1)
+			if (getRatio(AttributeType.Lebensenergie_Aktuell) < LeModificator.LEVEL_1)
 				modificators.add(leModificator);
 
-			if (getRatio(AttributeType.Ausdauer) < AuModificator.LEVEL_1)
+			if (getRatio(AttributeType.Ausdauer_Aktuell) < AuModificator.LEVEL_1)
 				modificators.add(auModificator);
 
 			for (WoundAttribute attr : getWounds().values()) {

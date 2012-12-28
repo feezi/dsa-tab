@@ -18,6 +18,7 @@ package com.dsatab.data.filter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import com.dsatab.data.Event;
 import com.dsatab.data.adapter.OpenArrayAdapter;
@@ -71,7 +72,7 @@ public class EventListFilter extends OpenFilter<Event> {
 		}
 
 		if (constraint != null) {
-			valid &= m.getComment().toLowerCase().startsWith(constraint);
+			valid &= m.getComment().toLowerCase(Locale.GERMAN).startsWith(constraint);
 		}
 
 		return valid;

@@ -2,14 +2,14 @@
 <com.dsatab.view.ItemListItem xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="bottom"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingLeft="2.5dp"
-    android:paddingRight="2.5dp" >
+    android:background="?attr/listItemBackground"
+    android:paddingRight="6dp"
+    android:paddingLeft="6dp">
 
     <ImageView
         android:id="@+id/icon_chain_top"
-        android:src="@drawable/chain_top"
+        android:src="?attr/imgChainTop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -18,7 +18,7 @@
         android:visibility="gone" />
     <ImageView
         android:id="@+id/icon_chain_bottom"
-        android:src="@drawable/chain_bottom"
+        android:src="?attr/imgChainBottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"        
         android:layout_alignParentRight="true"

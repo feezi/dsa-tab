@@ -24,21 +24,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.common.Util;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemSpecification;
+import com.dsatab.util.Util;
 
 /**
  * @author Seraphim
  * 
  */
-public class EquippedItemListItem extends CheckableTwoLineListItem {
+public class EquippedItemListItem extends CheckableRelativeLayout {
 
 	private int textColor = 0;
 
 	private ImageView icon1;
-	private ImageButton set1, set2, set3;
+	private CheckableImageButton set1, set2, set3;
 	private TextView text1, text2;
 	private TextView countOverlay;
 
@@ -88,13 +88,13 @@ public class EquippedItemListItem extends CheckableTwoLineListItem {
 	protected void onFinishInflate() {
 		super.onFinishInflate();
 
-		text1 = getText1();
-		text2 = getText2();
+		text1 = (TextView) findViewById(android.R.id.text1);
+		text2 = (TextView) findViewById(android.R.id.text2);
 		icon1 = (ImageView) findViewById(android.R.id.icon1);
 
-		set1 = (ImageButton) findViewById(R.id.set1);
-		set2 = (ImageButton) findViewById(R.id.set2);
-		set3 = (ImageButton) findViewById(R.id.set3);
+		set1 = (CheckableImageButton) findViewById(R.id.set1);
+		set2 = (CheckableImageButton) findViewById(R.id.set2);
+		set3 = (CheckableImageButton) findViewById(R.id.set3);
 
 		countOverlay = (TextView) findViewById(R.id.icon_1_overlay);
 
@@ -129,7 +129,7 @@ public class EquippedItemListItem extends CheckableTwoLineListItem {
 		return icon1;
 	}
 
-	public ImageButton getSet(int set) {
+	public CheckableImageButton getSet(int set) {
 		switch (set) {
 		case 0:
 			return set1;

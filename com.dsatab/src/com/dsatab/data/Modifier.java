@@ -2,7 +2,7 @@ package com.dsatab.data;
 
 import java.util.Collection;
 
-import com.dsatab.common.Util;
+import com.dsatab.util.Util;
 
 public class Modifier {
 	private int modifier;

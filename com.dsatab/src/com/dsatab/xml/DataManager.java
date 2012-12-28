@@ -32,10 +32,10 @@ import android.text.TextUtils;
 
 import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.DSATabApplication;
-import com.dsatab.common.Util;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Util;
 import com.j256.ormlite.android.AndroidCompiledStatement;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.PreparedQuery;

@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.dsatab.R;
+import com.dsatab.util.Util;
 import com.dsatab.view.ItemListItem;
 import com.dsatab.xml.DataManager;
 
@@ -40,6 +41,8 @@ public class ItemCursorAdapter extends SimpleCursorAdapter {
 			Cursor item = (Cursor) getItem(position);
 			view.setItem(DataManager.getItemByCursor(item));
 		}
+
+		Util.applyRowStyle(view, position);
 		return view;
 	}
 

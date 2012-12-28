@@ -12,16 +12,16 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.TwoLineListItem;
 
 import com.dsatab.R;
 import com.dsatab.activity.MainActivity;
 import com.dsatab.activity.ModificatorEditActivity;
-import com.dsatab.common.Util;
 import com.dsatab.data.CustomModificator;
 import com.dsatab.data.modifier.AbstractModificator;
 import com.dsatab.data.modifier.Modificator;
+import com.dsatab.util.Util;
 
 public class FightModificatorAdapter extends OpenArrayAdapter<Modificator> implements OnClickListener {
 
@@ -126,25 +126,19 @@ public class FightModificatorAdapter extends OpenArrayAdapter<Modificator> imple
 			titleLayout.setTag(HEADER_TAG);
 			return titleLayout;
 		} else {
-
 			ViewHolder holder;
-
-			TwoLineListItem itemLayout;
-
-			if (!(convertView instanceof TwoLineListItem)) {
+			if (!(convertView instanceof RelativeLayout)) {
 				// We need the layoutinflater to pick up the view from xml
 				// Pick up the TwoLineListItem defined in the xml file
-				itemLayout = (TwoLineListItem) inflater.inflate(R.layout.fight_sheet_modifier, parent, false);
+				convertView = inflater.inflate(R.layout.fight_sheet_modifier, parent, false);
 
 				holder = new ViewHolder();
-				holder.text1 = (TextView) itemLayout.findViewById(android.R.id.text1);
-				holder.text2 = (TextView) itemLayout.findViewById(android.R.id.text2);
-				holder.icon1 = (ImageView) itemLayout.findViewById(android.R.id.icon1);
-				holder.active = (CheckBox) itemLayout.findViewById(R.id.active);
-
-				itemLayout.setTag(holder);
+				holder.text1 = (TextView) convertView.findViewById(android.R.id.text1);
+				holder.text2 = (TextView) convertView.findViewById(android.R.id.text2);
+				holder.icon1 = (ImageView) convertView.findViewById(android.R.id.icon1);
+				holder.active = (CheckBox) convertView.findViewById(R.id.active);
+				convertView.setTag(holder);
 			} else {
-				itemLayout = (TwoLineListItem) convertView;
 				holder = (ViewHolder) convertView.getTag();
 			}
 
@@ -175,9 +169,9 @@ public class FightModificatorAdapter extends OpenArrayAdapter<Modificator> imple
 				holder.text2.setText(null);
 			}
 
-			Util.applyRowStyle(itemLayout, position);
+			Util.applyRowStyle(convertView, position);
 
-			return itemLayout;
+			return convertView;
 		}
 	}
 

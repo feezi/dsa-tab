@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -35,9 +36,9 @@ import android.widget.Toast;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.common.Util;
 import com.dsatab.data.Hero;
 import com.dsatab.data.adapter.FileAdapter;
+import com.dsatab.util.Util;
 
 public class DocumentsFragment extends BaseFragment implements OnItemClickListener {
 
@@ -127,7 +128,7 @@ public class DocumentsFragment extends BaseFragment implements OnItemClickListen
 			Uri path = Uri.fromFile(file);
 			Intent intent = new Intent(Intent.ACTION_VIEW);
 
-			if (file.getName().toLowerCase().endsWith(".pdf"))
+			if (file.getName().toLowerCase(Locale.GERMAN).endsWith(".pdf"))
 				intent.setDataAndType(path, "application/pdf");
 			else {
 				intent.setData(path);

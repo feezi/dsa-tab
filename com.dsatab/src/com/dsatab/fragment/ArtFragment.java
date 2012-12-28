@@ -33,12 +33,12 @@ import android.widget.TextView;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.dsatab.R;
-import com.dsatab.common.Util;
 import com.dsatab.data.Art;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Talent;
 import com.dsatab.data.Value;
 import com.dsatab.data.adapter.ArtAdapter;
+import com.dsatab.util.Util;
 import com.dsatab.view.ArtInfoDialog;
 import com.dsatab.view.FilterSettings;
 import com.dsatab.view.FilterSettings.FilterType;
@@ -67,7 +67,7 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 
 			SparseBooleanArray checkedPositions = artList.getCheckedItemPositions();
 			if (checkedPositions != null) {
-				for (int i = 0; i < checkedPositions.size(); i++) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
 						Art art = artAdapter.getItem(checkedPositions.keyAt(i));
 
@@ -132,7 +132,7 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 			boolean marked = false;
 			SparseBooleanArray checkedPositions = artList.getCheckedItemPositions();
 			if (checkedPositions != null) {
-				for (int i = 0; i < checkedPositions.size(); i++) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
 						selected++;
 						Art art = artAdapter.getItem(checkedPositions.keyAt(i));
@@ -308,7 +308,6 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 			Util.setVisibility(text5, false, text1);
 			talentView.setTag(talent);
 			talentView.setOnClickListener(getBaseActivity().getProbeListener());
-			registerForIconContextMenu(talentView);
 
 			Util.applyRowStyle(talent, talentView, count);
 

@@ -16,14 +16,15 @@
  */
 package com.dsatab.data;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.text.TextUtils;
 
-import com.dsatab.common.Util;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Util;
 
 /**
  * @author Ganymede
@@ -122,7 +123,7 @@ public class ProbeInfo implements Cloneable {
 		if (beModifier == null) {
 			beFlag = BE_FLAG_NONE;
 		} else {
-			beModifier = beModifier.toUpperCase();
+			beModifier = beModifier.toUpperCase(Locale.GERMAN);
 			if ("BE".equalsIgnoreCase(beModifier)) {
 				beFlag = BE_FLAG_ADDITION;
 			} else if (beModifier.startsWith("BE-")) {

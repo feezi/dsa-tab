@@ -16,6 +16,8 @@
  */
 package com.dsatab.data.filter;
 
+import java.util.Locale;
+
 import com.dsatab.data.Markable;
 import com.dsatab.data.adapter.OpenArrayAdapter;
 import com.dsatab.data.adapter.OpenFilter;
@@ -55,7 +57,7 @@ public class FilterableListFilter<T extends Markable> extends OpenFilter<T> {
 		}
 
 		if (constraint != null) {
-			valid &= m.getName().toLowerCase().startsWith(constraint);
+			valid &= m.getName().toLowerCase(Locale.GERMAN).startsWith(constraint);
 		}
 
 		return valid;

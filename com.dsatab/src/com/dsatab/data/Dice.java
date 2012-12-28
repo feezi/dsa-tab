@@ -21,8 +21,8 @@ import java.util.regex.Pattern;
 
 import android.text.TextUtils;
 
-import com.dsatab.common.Util;
 import com.dsatab.util.Debug;
+import com.dsatab.util.Util;
 
 /**
  * @author Ganymede
