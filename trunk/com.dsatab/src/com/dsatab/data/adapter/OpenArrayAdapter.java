@@ -206,7 +206,7 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 
 				// add object to current filtered objects too if it passes the
 				// filter
-				if (getFilter().filter(object))
+				if (mOriginalValues != mObjects && getFilter().filter(object))
 					mObjects.add(object);
 
 				if (mNotifyOnChange)
@@ -236,7 +236,7 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 				// add object to current filtered objects too if it passes the
 				// filter, index has to be ignored since it's different,
 				// TODO find better solution for filter
-				if (getFilter().filter(object))
+				if (mOriginalValues != mObjects && getFilter().filter(object))
 					mObjects.add(object);
 
 				if (mNotifyOnChange)

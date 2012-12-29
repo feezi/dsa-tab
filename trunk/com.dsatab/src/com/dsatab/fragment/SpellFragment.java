@@ -90,6 +90,7 @@ public class SpellFragment extends BaseListFragment implements OnItemClickListen
 					}
 				}
 				if (notifyChanged) {
+					spellAdapter.refilter();
 					spellAdapter.notifyDataSetChanged();
 				}
 			}
@@ -281,7 +282,6 @@ public class SpellFragment extends BaseListFragment implements OnItemClickListen
 	}
 
 	private void loadHeroSpells(Hero hero2) {
-
 		spellAdapter = new SpellAdapter(getBaseActivity(), getHero(), getHero().getSpells().values(),
 				getFilterSettings());
 

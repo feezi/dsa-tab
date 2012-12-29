@@ -422,10 +422,10 @@ public class Hero {
 
 			String bk = bhKampf.getName();
 
-			if (bhKampf.getSet() == activeSet && bk.equals(PREFIX_BK + item1.getNameId() + item2.getNameId()))
+			if (bhKampf.getSet() == set && bk.equals(PREFIX_BK + item1.getNameId() + item2.getNameId()))
 				return true;
 
-			if (bhKampf.getSet() == activeSet && bk.equals(PREFIX_BK + item2.getNameId() + item1.getNameId()))
+			if (bhKampf.getSet() == set && bk.equals(PREFIX_BK + item2.getNameId() + item1.getNameId()))
 				return true;
 		}
 		return false;
@@ -433,11 +433,16 @@ public class Hero {
 
 	public void addBeidhaendigerKampf(EquippedItem item1, EquippedItem item2) {
 
-		if (hasBeidhaendigerKampf(activeSet, item1, item2))
+		if (item1.getSet() != item2.getSet()) {
+			throw new IllegalArgumentException("BeidhändigerKampf: Sets of item1 and item2 are not the same:"
+					+ item1.toString() + item1.getSet() + " " + item2.toString() + item2.getSet());
+		}
+
+		if (hasBeidhaendigerKampf(item1.getSet(), item1, item2))
 			return;
 
 		BeidhaendigerKampf bhKampf = new BeidhaendigerKampf(item1, item2);
-		bhKampf.setSet(activeSet);
+		bhKampf.setSet(item1.getSet());
 
 		if (item1.getNameId() < item2.getNameId())
 			bhKampf.setName(PREFIX_BK + item1.getNameId() + item2.getNameId());

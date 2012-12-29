@@ -524,14 +524,16 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		fillAttributeValue(tfTotalLe, AttributeType.Lebensenergie);
 		fillAttributeValue(tfTotalAu, AttributeType.Ausdauer);
 
-		if (hero.getAttributeValue(AttributeType.Karmaenergie_Aktuell) == null) {
+		if (hero.getAttributeValue(AttributeType.Karmaenergie_Aktuell) == null
+				|| hero.getAttributeValue(AttributeType.Karmaenergie_Aktuell) == 0) {
 			findViewById(R.id.row_ke).setVisibility(View.GONE);
 		} else {
 			fillAttributeValue(tfTotalKe, AttributeType.Karmaenergie);
 			findViewById(R.id.row_ke).setVisibility(View.VISIBLE);
 		}
 
-		if (hero.getAttributeValue(AttributeType.Astralenergie_Aktuell) == null) {
+		if (hero.getAttributeValue(AttributeType.Astralenergie_Aktuell) == null
+				|| hero.getAttributeValue(AttributeType.Astralenergie_Aktuell) == 0) {
 			findViewById(R.id.row_ae).setVisibility(View.GONE);
 		} else {
 			fillAttributeValue(tfTotalAe, AttributeType.Astralenergie);

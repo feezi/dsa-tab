@@ -22,6 +22,12 @@
         <attr name="imgLove" format="reference"/>
         <attr name="imgBarLove" format="reference"/>
         
+        <attr name="imgFile" format="reference"/>
+        <attr name="imgBarFile" format="reference"/>
+        
+        <attr name="imgUp" format="reference"/>
+        <attr name="imgBarUp" format="reference"/>
+        
         <attr name="imgSettings" format="reference"/>
         <attr name="imgBarSettings" format="reference"/>
         

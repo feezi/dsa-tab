@@ -37,6 +37,7 @@ public class EquippedItemListFilter extends OpenFilter<EquippedItem> {
 	 */
 	public EquippedItemListFilter(OpenArrayAdapter<EquippedItem> list) {
 		super(list);
+		settings = new FightFilterSettings();
 	}
 
 	public FightFilterSettings getSettings() {

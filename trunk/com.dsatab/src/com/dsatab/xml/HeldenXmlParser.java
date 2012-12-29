@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
-import java.util.StringTokenizer;
 import java.util.UUID;
 
 import org.jdom2.Document;
@@ -52,6 +51,8 @@ import com.dsatab.data.ChangeEvent;
 import com.dsatab.data.CombatDistanceTalent;
 import com.dsatab.data.CombatMeleeAttribute;
 import com.dsatab.data.CombatMeleeTalent;
+import com.dsatab.data.CombatParadeWeaponTalent;
+import com.dsatab.data.CombatShieldTalent;
 import com.dsatab.data.Connection;
 import com.dsatab.data.CustomAttribute;
 import com.dsatab.data.Event;
@@ -566,7 +567,7 @@ public class HeldenXmlParser {
 				}
 				sb.append("\n");
 			}
-			event.setComment(sb.toString().trim());
+			event.setComment(sb.toString());
 			hero.getHeroConfiguration().addEvent(event);
 		}
 
@@ -1183,14 +1184,30 @@ public class HeldenXmlParser {
 		else
 			element.removeAttribute(Xml.KEY_VALUE);
 
-		element.setAttribute(Xml.KEY_ANMERKUNGEN, spell.getComments());
-		element.setAttribute(Xml.KEY_VARIANTE, spell.getVariant());
+		if (spell.getComments() != null)
+			element.setAttribute(Xml.KEY_ANMERKUNGEN, spell.getComments());
+		else
+			element.setAttribute(Xml.KEY_ANMERKUNGEN, "");
+
+		if (spell.getVariant() != null)
+			element.setAttribute(Xml.KEY_VARIANTE, spell.getVariant());
+		else
+			element.setAttribute(Xml.KEY_VARIANTE, "");
 	}
 
 	private static void writeTalent(Talent talent, Element element) {
 		writeMarkable(talent, element);
 
-		if (talent.getValue() != null)
+		if (talent instanceof CombatDistanceTalent) {
+			CombatDistanceTalent distanceTalent = (CombatDistanceTalent) talent;
+
+			if (distanceTalent.getValue() != null) {
+				element.setAttribute(Xml.KEY_VALUE,
+						Integer.toString(distanceTalent.getValue() - distanceTalent.getBaseValue()));
+			} else {
+				element.removeAttribute(Xml.KEY_VALUE);
+			}
+		} else if (talent.getValue() != null)
 			element.setAttribute(Xml.KEY_VALUE, Integer.toString(talent.getValue()));
 		else
 			element.removeAttribute(Xml.KEY_VALUE);
@@ -1268,9 +1285,9 @@ public class HeldenXmlParser {
 
 		List<Element> talentList = DomUtil.getChildrenByTagName(heldElement, Xml.KEY_TALENTLISTE, Xml.KEY_TALENT);
 
-		for (Element talent : talentList) {
-			writeTalent(hero.getTalent(talent.getAttributeValue(Xml.KEY_NAME)), talent);
-			Debug.verbose("Xml popuplate talent " + talent);
+		for (Element talentElement : talentList) {
+			writeTalent(hero.getTalent(talentElement.getAttributeValue(Xml.KEY_NAME)), talentElement);
+			Debug.verbose("Xml popuplate talent " + talentElement);
 		}
 
 		List<Element> combatAttributesList = DomUtil.getChildrenByTagName(heldElement, Xml.KEY_KAMPF,
@@ -1504,14 +1521,13 @@ public class HeldenXmlParser {
 
 	private static void writeEvent(Event event, Element element) {
 		if (event.getCategory() == EventCategory.Heldensoftware && Xml.KEY_NOTIZ.equals(element.getName())) {
-			StringTokenizer st = new StringTokenizer(event.getComment(), "\n");
+			String[] events = event.getComment().split("\\r?\\n");
 
-			int tokens = st.countTokens();
-			for (int i = 0; i < tokens; i++) {
-				element.setAttribute(Xml.KEY_NOTIZ_PREFIX + i, st.nextToken());
+			for (int i = 0; i < events.length; i++) {
+				element.setAttribute(Xml.KEY_NOTIZ_PREFIX + i, events[i]);
 			}
 			// fill up empty values if necessary
-			for (int i = tokens; i <= 11; i++) {
+			for (int i = events.length; i <= 11; i++) {
 				element.setAttribute(Xml.KEY_NOTIZ_PREFIX + i, "");
 			}
 		}
@@ -1527,11 +1543,12 @@ public class HeldenXmlParser {
 
 		Item item = equippedItem.getItem();
 		if (item != null) {
-			if (item.hasSpecification(Weapon.class) || item.hasSpecification(DistanceWeapon.class)) {
+			ItemSpecification itemSpecification = equippedItem.getItemSpecification();
+			if (itemSpecification instanceof Weapon || itemSpecification instanceof DistanceWeapon) {
 				element.setAttribute(WAFFENNAME, item.getName());
-			} else if (item.hasSpecification(Shield.class)) {
+			} else if (itemSpecification instanceof Shield) {
 				element.setAttribute(SCHILDNAME, item.getName());
-			} else if (item.hasSpecification(Armor.class)) {
+			} else if (itemSpecification instanceof Armor) {
 				element.setAttribute(RUESTUNGSNAME, item.getName());
 			}
 		}
@@ -1570,7 +1587,12 @@ public class HeldenXmlParser {
 		}
 
 		if (equippedItem.getTalent() != null)
-			element.setAttribute(Xml.KEY_TALENT, equippedItem.getTalent().getName());
+			if (equippedItem.getTalent() instanceof CombatShieldTalent
+					|| equippedItem.getTalent() instanceof CombatParadeWeaponTalent) {
+				element.removeAttribute(Xml.KEY_TALENT);
+			} else {
+				element.setAttribute(Xml.KEY_TALENT, equippedItem.getTalent().getName());
+			}
 		else
 			element.removeAttribute(Xml.KEY_TALENT);
 
@@ -1579,13 +1601,18 @@ public class HeldenXmlParser {
 		else
 			element.removeAttribute(Xml.KEY_VERWENDUNGSART);
 
-		if (equippedItem.getItemSpecificationLabel() != null)
+		if (TextUtils.isEmpty(equippedItem.getItemSpecificationLabel())) {
+			if (equippedItem.getItemSpecification() instanceof Weapon)
+				element.setAttribute(Xml.KEY_BEZEICHNER, "");
+			else
+				element.removeAttribute(Xml.KEY_BEZEICHNER);
+		} else {
 			element.setAttribute(Xml.KEY_BEZEICHNER, equippedItem.getItemSpecificationLabel());
-		else
-			element.setAttribute(Xml.KEY_BEZEICHNER, "");
+		}
 
-		if (equippedItem.getSchildIndex() != null)
+		if (equippedItem.getSchildIndex() != null) {
 			element.setAttribute(Xml.KEY_SCHILD, Util.toString(equippedItem.getSchildIndex()));
+		}
 
 	}
 
@@ -1625,8 +1652,17 @@ public class HeldenXmlParser {
 	 * @param element
 	 */
 	private static void writeItemInfo(ItemLocationInfo itemInfo, Element element) {
-		element.setAttribute(Xml.KEY_SCREEN, Util.toString(itemInfo.getScreen()));
-		element.setAttribute(Xml.KEY_CELL_NUMBER, Util.toString(itemInfo.getCellNumber()));
+		if (itemInfo.getScreen() < Hero.MAXIMUM_SET_NUMBER) {
+			element.setAttribute(Xml.KEY_SCREEN, Util.toString(itemInfo.getScreen()));
+		} else {
+			element.removeAttribute(Xml.KEY_SCREEN);
+		}
+
+		if (itemInfo.getCellNumber() >= 0) {
+			element.setAttribute(Xml.KEY_CELL_NUMBER, Util.toString(itemInfo.getCellNumber()));
+		} else {
+			element.removeAttribute(Xml.KEY_CELL_NUMBER);
+		}
 	}
 
 	/**

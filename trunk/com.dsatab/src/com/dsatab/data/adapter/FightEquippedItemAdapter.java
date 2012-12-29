@@ -1,5 +1,7 @@
 package com.dsatab.data.adapter;
 
+import java.util.List;
+
 import android.content.Context;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -44,14 +46,13 @@ public class FightEquippedItemAdapter extends OpenArrayAdapter<EquippedItem> {
 
 	private static final int ITEM_TYPE_EDIT = 1;
 
-	public FightEquippedItemAdapter(Context context, Hero hero, FightFilterSettings settings) {
-		super(context, 0);
+	public FightEquippedItemAdapter(Context context, Hero hero, List<EquippedItem> items, FightFilterSettings settings) {
+		super(context, 0, Util.sort(items));
 		this.hero = hero;
 		inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-		getFilter().setSettings(settings.clone());
 		if (!getFilter().getSettings().isAllVisible())
-			filter(getFilter().getSettings());
+			filter(settings);
 	}
 
 	public void filter(FightFilterSettings settings) {

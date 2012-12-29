@@ -21,6 +21,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.dsatab.R;
+import com.dsatab.util.Util;
 
 /*
  * Copyright (C) 2011-2012 George Yunaev
@@ -64,15 +65,18 @@ public class DirectoryChooserDialogHelper implements OnItemClickListener, OnClic
 			if (m_entries.get(position).equals(m_currentDir)) {
 				textview.setText(m_entries.get(position).getPath());
 				textview.setCompoundDrawablesWithIntrinsicBounds(
-						m_context.getResources().getDrawable(R.drawable.ic_action_file), null, null, null);
+						m_context.getResources().getDrawable(Util.getThemeResourceId(getContext(), R.attr.imgFile)),
+						null, null, null);
 			} else if (m_entries.get(position).equals(m_currentDir.getParentFile())) {
 				textview.setText("..");
 				textview.setCompoundDrawablesWithIntrinsicBounds(
-						m_context.getResources().getDrawable(R.drawable.ic_action_up), null, null, null);
+						m_context.getResources().getDrawable(Util.getThemeResourceId(getContext(), R.attr.imgUp)),
+						null, null, null);
 			} else {
 				textview.setText(m_entries.get(position).getName());
 				textview.setCompoundDrawablesWithIntrinsicBounds(
-						m_context.getResources().getDrawable(R.drawable.ic_action_file), null, null, null);
+						m_context.getResources().getDrawable(Util.getThemeResourceId(getContext(), R.attr.imgFile)),
+						null, null, null);
 			}
 
 			return textview;

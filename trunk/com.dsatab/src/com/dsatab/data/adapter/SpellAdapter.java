@@ -64,12 +64,11 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 	public SpellAdapter(Context context, Hero hero, Collection<Spell> spells, ListFilterSettings settings) {
 		super(context, 0, 0, spells);
 
+		sort(Spell.NAME_COMPARATOR);
+
 		this.hero = hero;
 
 		this.filterSettings = new ListFilterSettings();
-		this.filterSettings.set(settings);
-		if (!filterSettings.isAllVisible())
-			filter(filterSettings);
 
 		indicatorStar = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_star);
 		indicatorStarGray = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_star_gray);
@@ -78,6 +77,8 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 
 		inflater = LayoutInflater.from(getContext());
 
+		if (!settings.isAllVisible())
+			filter(settings);
 	}
 
 	public void filter(ListFilterSettings settings) {
