@@ -14,35 +14,29 @@
  *  You should have received a copy of the GNU General Public License
  *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.dsatab.data;
+package com.dsatab.cloud;
 
+import com.dsatab.common.DsaTabException;
 
 /**
  * @author Ganymede
  * 
  */
-public abstract class MarkableElement extends BaseProbe implements Markable {
+public class AuthorizationException extends DsaTabException {
 
-	private boolean unused, favorite;
+	private static final long serialVersionUID = 6125176899299182097L;
 
-	public boolean isUnused() {
-		return unused;
+	private String token;
+
+	/**
+	 * 
+	 */
+	public AuthorizationException(String token) {
+		this.token = token;
 	}
 
-	public boolean isFavorite() {
-		return favorite;
-	}
-
-	public void setFavorite(boolean value) {
-		this.favorite = value;
-		if (favorite)
-			this.unused = false;
-	}
-
-	public void setUnused(boolean value) {
-		this.unused = value;
-		if (unused)
-			this.favorite = false;
+	public String getToken() {
+		return token;
 	}
 
 }

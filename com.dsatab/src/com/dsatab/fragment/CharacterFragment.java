@@ -42,6 +42,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.ActionMode;
@@ -245,29 +246,35 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 
 				Cursor cursor = getActivity().getContentResolver().query(selectedImage, filePathColumn, null, null,
 						null);
-				cursor.moveToFirst();
+				if (cursor != null) {
+					cursor.moveToFirst();
 
-				int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-				String filePath = cursor.getString(columnIndex);
-				cursor.close();
-				File file = new File(filePath);
-				if (file.exists()) {
-					Bitmap yourSelectedImage = Util.decodeBitmap(new File(filePath), 300);
+					int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+					String filePath = cursor.getString(columnIndex);
+					cursor.close();
+					File file = new File(filePath);
+					if (file.exists()) {
+						Bitmap yourSelectedImage = Util.decodeBitmap(new File(filePath), 300);
 
-					File outputfile = saveBitmap(yourSelectedImage);
-					if (outputfile != null) {
-						// set uri for currently selected player
-						getHero().setPortraitUri(outputfile.toURI());
+						File outputfile = saveBitmap(yourSelectedImage);
+						if (outputfile != null) {
+							// set uri for currently selected player
+							getHero().setPortraitUri(outputfile.toURI());
 
-						updatePortrait(getHero());
+							updatePortrait(getHero());
+						}
 					}
+				} else {
+					Toast.makeText(getActivity(),
+							"Konnte Bild nicht öffnen. Verwende die Standard Gallerie um eine bild auszuwählen.",
+							Toast.LENGTH_LONG).show();
 				}
 			}
 
 			break;
 		case ACTION_PHOTO:
 
-			if (resultCode == Activity.RESULT_OK) {
+			if (resultCode == Activity.RESULT_OK && getHero() != null) {
 
 				// Retrieve image taking in camera activity
 				Bundle b = data.getExtras();

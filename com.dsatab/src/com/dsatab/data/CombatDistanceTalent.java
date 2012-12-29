@@ -1,14 +1,10 @@
 package com.dsatab.data;
 
-import org.jdom2.Element;
-
 import com.dsatab.DSATabApplication;
 import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
-import com.dsatab.util.Util;
-import com.dsatab.xml.Xml;
 
 public class CombatDistanceTalent extends BaseCombatTalent implements Value {
 
@@ -112,22 +108,6 @@ public class CombatDistanceTalent extends BaseCombatTalent implements Value {
 		} else {
 			return Position.official[w20];
 		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.Talent#populateXml(org.jdom2.Element)
-	 */
-	@Override
-	public void populateXml(Element element) {
-		super.populateXml(element);
-
-		if (value != null)
-			element.setAttribute(Xml.KEY_VALUE, Util.toString(value));
-		else
-			element.removeAttribute(Xml.KEY_VALUE);
-
 	}
 
 	@Override

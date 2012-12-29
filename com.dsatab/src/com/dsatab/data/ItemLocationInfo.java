@@ -17,12 +17,7 @@ package com.dsatab.data;
 
 import java.io.Serializable;
 
-import org.jdom2.Element;
-
-import com.dsatab.util.Util;
-import com.dsatab.xml.Xml;
-
-public class ItemLocationInfo implements Serializable, Cloneable, XmlWriteable {
+public class ItemLocationInfo implements Serializable, Cloneable {
 
 	private static final long serialVersionUID = -7504593992133518605L;
 
@@ -94,17 +89,6 @@ public class ItemLocationInfo implements Serializable, Cloneable, XmlWriteable {
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
-	 */
-	@Override
-	public void populateXml(Element element) {
-		element.setAttribute(Xml.KEY_SCREEN, Util.toString(screen));
-		element.setAttribute(Xml.KEY_CELL_NUMBER, Util.toString(cellNumber));
 	}
 
 }

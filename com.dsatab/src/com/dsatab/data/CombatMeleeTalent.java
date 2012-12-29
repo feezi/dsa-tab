@@ -1,14 +1,9 @@
 package com.dsatab.data;
 
-import java.util.List;
-
-import org.jdom2.Element;
-
 import com.dsatab.DSATabApplication;
 import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
-import com.dsatab.xml.Xml;
 import com.gandulf.guilib.util.Debug;
 
 public class CombatMeleeTalent extends BaseCombatTalent {
@@ -106,25 +101,4 @@ public class CombatMeleeTalent extends BaseCombatTalent {
 		return getName();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.Talent#populateXml(org.jdom2.Element)
-	 */
-	@Override
-	public void populateXml(Element element) {
-		if (Xml.KEY_KAMPFWERTE.equals(element.getName())) {
-			List<Element> nodes = element.getChildren();
-
-			for (Element node : nodes) {
-				Element item = (Element) node;
-				if (Xml.KEY_ATTACKE.equals(item.getName()))
-					at.populateXml(item);
-				else if (Xml.KEY_PARADE.equals(item.getName()))
-					pa.populateXml(item);
-			}
-		} else {
-			super.populateXml(element);
-		}
-	}
 }

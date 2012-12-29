@@ -349,7 +349,13 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	public void onLoadFinished(Loader<Hero> loader, Hero hero) {
 		// Swap the new cursor in. (The framework will take care of closing the
 		// old cursor once we return.)
+		if (loader instanceof HeroLoader) {
+			HeroLoader heroLoader = (HeroLoader) loader;
 
+			if (heroLoader.getException() != null) {
+				Toast.makeText(this, heroLoader.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+			}
+		}
 		DSATabApplication.getInstance().hero = hero;
 
 		if (hero != null) {
@@ -375,70 +381,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-		// int icon = data.getIntExtra(TabEditActivity.INTENT_ICON, 0);
-		// Class<? extends BaseFragment> class1 = (Class<? extends
-		// BaseFragment>) data
-		// .getSerializableExtra(TabEditActivity.INTENT_PRIMARY_CLASS);
-		// Class<? extends BaseFragment> class2 = (Class<? extends
-		// BaseFragment>) data
-		// .getSerializableExtra(TabEditActivity.INTENT_SECONDARY_CLASS);
-		//
-		// int tabIndex = data.getIntExtra(TabEditActivity.INTENT_TAB_INDEX,
-		// -1);
-		//
-		// Debug.verbose("Edit tab with index " + tabIndex);
-		//
-		// if (tabIndex >= 0 && tabIndex <
-		// getHeroConfiguration().getTabs().size()) {
-		// TabInfo info = getHeroConfiguration().getTabs().get(tabIndex);
-		//
-		// ImageButton selectedTab = (ImageButton)
-		// tabLayout.findViewWithTag(info);
-		// info.setTabResourceId(icon);
-		// info.setPrimaryActivityClazz(class1);
-		// info.setSecondaryActivityClazz(class2);
-		// info.setDiceSlider(data.getBooleanExtra(TabEditActivity.INTENT_DICE_SLIDER,
-		// true));
-		//
-		// selectedTab.setImageResource(icon);
-		//
-		// // update view if current tab was changed
-		// if (info == tabInfo) {
-		// showTab(tabInfo);
-		// }
-		// selectedTab = null;
-		//
-		// viewPagerAdapter.notifyDataSetChanged();
-		// }
-		//
-		// } else if (requestCode == ACTION_ADD_TAB && resultCode == RESULT_OK)
-		// {
-		//
-		// int icon = data.getIntExtra(TabEditActivity.INTENT_ICON, 0);
-		// Class<? extends BaseFragment> class1 = (Class<? extends
-		// BaseFragment>) data
-		// .getSerializableExtra(TabEditActivity.INTENT_PRIMARY_CLASS);
-		// Class<? extends BaseFragment> class2 = (Class<? extends
-		// BaseFragment>) data
-		// .getSerializableExtra(TabEditActivity.INTENT_SECONDARY_CLASS);
-		// int index = data.getIntExtra(TabEditActivity.INTENT_TAB_INDEX, -1);
-		//
-		// TabInfo newInfo = new TabInfo(class1, class2, icon);
-		// newInfo.setDiceSlider(data.getBooleanExtra(TabEditActivity.INTENT_DICE_SLIDER,
-		// true));
-		// LayoutInflater inflater = LayoutInflater.from(this);
-		// View tab = createTab(inflater, newInfo);
-		// tab.setEnabled(true);
-		// if (index >= 0) {
-		// tabLayout.addView(tab, index);
-		// getHeroConfiguration().getTabs().add(index, newInfo);
-		// } else {
-		// tabLayout.addView(tab);
-		// getHeroConfiguration().getTabs().add(newInfo);
-		// }
-		// viewPagerAdapter.notifyDataSetChanged();
-
-		// } else
 		if (requestCode == ACTION_CHOOSE_HERO) {
 
 			if (resultCode == RESULT_OK) {
@@ -511,26 +453,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 
 		Configuration configuration = getResources().getConfiguration();
 
-		// Debug.verbose("onCreate Orientation =" + configuration.orientation);
-		if (BasePreferenceActivity.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)
-				&& configuration.orientation != Configuration.ORIENTATION_LANDSCAPE) {
-			// Debug.verbose("Setting landscape");
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-			return;
-		} else if (BasePreferenceActivity.SCREEN_ORIENTATION_PORTRAIT.equals(orientation)
-				&& configuration.orientation != Configuration.ORIENTATION_PORTRAIT) {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-			// Debug.verbose("Setting portrait");
-			return;
-		} else if (BasePreferenceActivity.SCREEN_ORIENTATION_AUTO.equals(orientation)
-				&& getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_SENSOR
-				&& getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
-
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-			// Debug.verbose("Setting sensor");
-			return;
-		}
-
 		probeListener = new ProbeListener(this);
 		editListener = new EditListener(this);
 
@@ -550,6 +472,25 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		diceSlider.setSlideHandleButton(findViewById(R.id.slideHandleButton));
 
 		attributeList = findViewById(R.id.inc_attributes);
+
+		// Debug.verbose("onCreate Orientation =" + configuration.orientation);
+		if (BasePreferenceActivity.SCREEN_ORIENTATION_LANDSCAPE.equals(orientation)
+				&& configuration.orientation != Configuration.ORIENTATION_LANDSCAPE) {
+			// Debug.verbose("Setting landscape");
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+			return;
+		} else if (BasePreferenceActivity.SCREEN_ORIENTATION_PORTRAIT.equals(orientation)
+				&& configuration.orientation != Configuration.ORIENTATION_PORTRAIT) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			// Debug.verbose("Setting portrait");
+			return;
+		} else if (BasePreferenceActivity.SCREEN_ORIENTATION_AUTO.equals(orientation)
+				&& getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_SENSOR
+				&& getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+			// Debug.verbose("Setting sensor");
+			return;
+		}
 
 		showNewsInfoPopup();
 	}

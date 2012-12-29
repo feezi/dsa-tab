@@ -8,22 +8,18 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import org.jdom2.Element;
-
 import android.text.TextUtils;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.data.ItemLocationInfo;
-import com.dsatab.data.XmlWriteable;
 import com.dsatab.util.Debug;
-import com.dsatab.xml.Xml;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "item")
-public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard, XmlWriteable {
+public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard {
 
 	private static final long serialVersionUID = 7011220901677479470L;
 
@@ -379,22 +375,6 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		item.miscSpecsHelper = null;
 
 		return item;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
-	 */
-	@Override
-	public void populateXml(Element element) {
-
-		element.setAttribute(Xml.KEY_NAME, getName());
-		element.setAttribute(Xml.KEY_ANZAHL, Integer.toString(count));
-		element.setAttribute(Xml.KEY_SLOT, slot);
-
-		if (itemInfo != null)
-			itemInfo.populateXml(element);
 	}
 
 }

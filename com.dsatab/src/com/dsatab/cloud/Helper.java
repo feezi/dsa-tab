@@ -26,19 +26,30 @@ import com.gandulf.guilib.util.Debug;
 
 public class Helper {
 
-	static public String postrequest(String... strings) throws Exception {
+	static public String postRequest(String token, String... strings) throws Exception {
 		StringBuilder body = new StringBuilder();
+		body.append("token=");
+		body.append(URLEncoder.encode(token, "UTF-8"));
+
 		for (int i = 0; i < strings.length; i = i + 2) {
-			if (body.length() > 0) {
-				body.append("&");
-			}
+			body.append("&");
 			body.append(URLEncoder.encode(strings[i], "UTF-8"));
 			body.append("=");
 			body.append(URLEncoder.encode(strings[i + 1], "UTF-8"));
 		}
 		HttpRequest httpRequest = new HttpRequest();
-		return httpRequest.sendPost("https://online.helden-software.de/index.php", body.toString(),
+		String result = httpRequest.sendPost("https://online.helden-software.de/index.php", body.toString(),
 				"application/x-www-form-urlencoded; charset=utf-8");
+
+		httpRequest.close();
+
+		if (result == null) {
+			throw new IOException("Konnte keine Verbindung zum Austausch Server herstellen.");
+		} else if (result.contains("Anmeldung fehlgeschlagen")) {
+			throw new AuthorizationException(token);
+		}
+
+		return result;
 	}
 
 	/**

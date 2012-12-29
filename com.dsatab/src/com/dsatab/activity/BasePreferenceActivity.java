@@ -71,10 +71,11 @@ import com.gandulf.guilib.util.ResUtil;
 public class BasePreferenceActivity extends UnifiedSherlockPreferenceActivity implements
 		OnSharedPreferenceChangeListener {
 
-	public static final String INTENT_PREF_SCREEN = "com.dsatab.prefScreen";
-
-	public static final int SCREEN_HOME = 0;
-	public static final int SCREEN_EXCHANGE = 1;
+	/**
+	 * 
+	 */
+	public static final String INTENT_DATA_LAYOUT = "layout";
+	public static final String INTENT_DATA_FRAGMENT = "fragment";
 
 	public static final String KEY_PROBE_PROBABILITY = "probeProbability";
 
@@ -164,8 +165,6 @@ public class BasePreferenceActivity extends UnifiedSherlockPreferenceActivity im
 	public static final String KEY_HEADER_WS = "header_ws";
 
 	public static final String KEY_MODIFY_TABS = "modifyTabs";
-
-	public static final String DEFAULT_EXCHANGE_PROVIDER = "http://helden.draschenfels.de/";
 
 	public static final String SCREEN_ORIENTATION_AUTO = "auto";
 	public static final String SCREEN_ORIENTATION_LANDSCAPE = "landscape";
@@ -293,26 +292,59 @@ public class BasePreferenceActivity extends UnifiedSherlockPreferenceActivity im
 		}
 	}
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		setTheme(DSATabApplication.getInstance().getCustomPreferencesTheme());
-
+	protected void legacyPreOnCreate(Bundle savedInstanceState) {
 		String action = getIntent().getAction();
 		if (action == null) {
 			setHeaderRes(com.dsatab.R.xml.preferences_headers);
 		}
+	}
+
+	protected void preOnCreate(Bundle savedInstanceState) {
+		setHeaderRes(com.dsatab.R.xml.preferences_headers);
+	}
+
+	protected void legacyPostOnCreate(Bundle savedInstanceState) {
+		String action = getIntent().getAction();
+		if (action != null) {
+			int layoutId = getIntent().getIntExtra(INTENT_DATA_LAYOUT, 0);
+			if (layoutId == 0) {
+				String layout = getIntent().getStringExtra(INTENT_DATA_LAYOUT);
+				if (layout.startsWith("@xml/"))
+					layout = layout.substring(5);
+				if (layout.startsWith("res/xml/"))
+					layout = layout.substring(8, layout.length() - 4);
+
+				layoutId = getResources().getIdentifier(layout, "xml", getPackageName());
+			}
+
+			if (layoutId != 0) {
+				addPreferencesFromResource(layoutId);
+			} else {
+				throw new IllegalArgumentException("Unable to find layout with name/id:"
+						+ getIntent().getStringExtra(INTENT_DATA_LAYOUT));
+			}
+		}
+	}
+
+	protected void postOnCreate(Bundle savedInstanceState) {
+		String action = getIntent().getAction();
+		if (action != null) {
+			String fragment = getIntent().getStringExtra(INTENT_DATA_FRAGMENT);
+			switchToHeader(fragment, null);
+		}
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		setTheme(DSATabApplication.getInstance().getCustomPreferencesTheme());
+
+		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB)
+			legacyPreOnCreate(savedInstanceState);
+		else
+			preOnCreate(savedInstanceState);
+
 		super.onCreate(savedInstanceState);
 
-		if (action != null) {
-			String layout = getIntent().getStringExtra("layout");
-			if (layout.startsWith("@xml/"))
-				layout = layout.substring(5);
-			if (layout.startsWith("res/xml/"))
-				layout = layout.substring(8, layout.length() - 4);
-
-			int layoutId = getResources().getIdentifier(layout, "xml", getPackageName());
-			addPreferencesFromResource(layoutId);
-		}
 		getSupportActionBar().setDisplayShowHomeEnabled(true);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -321,15 +353,10 @@ public class BasePreferenceActivity extends UnifiedSherlockPreferenceActivity im
 
 		updateFullscreenStatus(getWindow(), preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
 
-		int screen = getIntent().getIntExtra(INTENT_PREF_SCREEN, SCREEN_HOME);
-
-		switch (screen) {
-		case SCREEN_HOME:
-			break;
-		case SCREEN_EXCHANGE:
-			switchToHeader("com.dsatab.activity.BasePreferenceActivity$PrefsSetupFragment", null);
-			break;
-		}
+		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB)
+			legacyPostOnCreate(savedInstanceState);
+		else
+			postOnCreate(savedInstanceState);
 	}
 
 	/*
@@ -702,6 +729,18 @@ public class BasePreferenceActivity extends UnifiedSherlockPreferenceActivity im
 	public static abstract class BasePreferenceFragment extends UnifiedPreferenceFragment implements
 			OnSharedPreferenceChangeListener {
 
+		/**
+		 * 
+		 */
+		public BasePreferenceFragment() {
+			// always make sure the res arg is set
+			if (getArguments() == null) {
+				Bundle bundle = new Bundle();
+				bundle.putInt(ARG_PREFERENCE_RES, getPreferenceResourceId());
+				setArguments(bundle);
+			}
+		}
+
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -792,6 +831,7 @@ public class BasePreferenceActivity extends UnifiedSherlockPreferenceActivity im
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
+
 		}
 
 		/*

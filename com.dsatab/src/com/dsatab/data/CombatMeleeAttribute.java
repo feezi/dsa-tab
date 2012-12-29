@@ -1,11 +1,8 @@
 package com.dsatab.data;
 
-import org.jdom2.Element;
-
 import com.dsatab.data.enums.AttributeType;
-import com.dsatab.xml.Xml;
 
-public class CombatMeleeAttribute extends BaseProbe implements Value, XmlWriteable {
+public class CombatMeleeAttribute extends BaseProbe implements Value {
 
 	public static final String PARADE = "Parade";
 
@@ -92,6 +89,10 @@ public class CombatMeleeAttribute extends BaseProbe implements Value, XmlWriteab
 		return referenceValue;
 	}
 
+	public boolean hasValue() {
+		return value != null;
+	}
+
 	public Integer getValue() {
 		if (value != null)
 			return value;
@@ -117,20 +118,6 @@ public class CombatMeleeAttribute extends BaseProbe implements Value, XmlWriteab
 
 	public CombatMeleeTalent getTalent() {
 		return talent;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
-	 */
-	@Override
-	public void populateXml(Element element) {
-		if (value != null) {
-			element.setAttribute(Xml.KEY_VALUE, value.toString());
-		} else {
-			element.removeAttribute(Xml.KEY_VALUE);
-		}
 	}
 
 	/*

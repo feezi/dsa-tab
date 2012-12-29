@@ -28,10 +28,10 @@ import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.cloud.HeroExchange.OnHeroExchangeListener;
-import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.data.HeroFileInfo;
 import com.dsatab.util.Debug;
 
@@ -108,12 +108,7 @@ public class ImportHeroesTaskNew extends AsyncTask<String, String, Integer> impl
 			publishProgress("Verbinde mit Server...");
 
 			// HeldenListe anfordern
-			String stringHeldenliste = Helper.postrequest("action", "listhelden", "token", token);
-
-			if (stringHeldenliste == null) {
-				caughtException = new IOException("Konnte keine Verbindung zum Austausch Server herstellen.");
-				return HeroExchange.RESULT_ERROR;
-			}
+			String stringHeldenliste = Helper.postRequest(token, "action", "listhelden");
 
 			d = Helper.string2Doc(stringHeldenliste);
 
@@ -173,8 +168,18 @@ public class ImportHeroesTaskNew extends AsyncTask<String, String, Integer> impl
 					.show();
 			break;
 		case HeroExchange.RESULT_ERROR:
-			Toast.makeText(context, R.string.download_error, Toast.LENGTH_SHORT).show();
-			throw new DsaTabRuntimeException("Could not import heroes", caughtException);
+			if (caughtException instanceof AuthorizationException) {
+				Toast.makeText(
+						context,
+						"Token ungültig. Überprüfe ob das Token mit dem in der Helden-Software erstelltem Zugangstoken übereinstimmt.",
+						Toast.LENGTH_SHORT).show();
+			} else if (caughtException instanceof IOException) {
+				Toast.makeText(context, "Konnte keine Verbindung zum Austausch Server herstellen.", Toast.LENGTH_SHORT)
+						.show();
+			} else {
+				Toast.makeText(context, R.string.download_error, Toast.LENGTH_SHORT).show();
+				BugSenseHandler.sendException(caughtException);
+			}
 		}
 
 	}

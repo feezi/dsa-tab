@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.jdom2.Element;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,19 +14,11 @@ import com.dsatab.data.CombatProbe;
 import com.dsatab.data.CombatTalent;
 import com.dsatab.data.Hero;
 import com.dsatab.data.ItemLocationInfo;
-import com.dsatab.data.XmlWriteable;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.util.Util;
-import com.dsatab.xml.Xml;
 import com.gandulf.guilib.util.Debug;
 
-public class EquippedItem implements ItemCard, XmlWriteable {
-
-	public static final String RUESTUNGSNAME = "ruestungsname";
-
-	public static final String SCHILDNAME = "schildname";
-
-	public static final String WAFFENNAME = "waffenname";
+public class EquippedItem implements ItemCard {
 
 	public static final String NAME_PREFIX_RUESTUNG = "ruestung";
 
@@ -487,78 +477,6 @@ public class EquippedItem implements ItemCard, XmlWriteable {
 
 	public void setSlot(String slot) {
 		this.slot = slot;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
-	 */
-	@Override
-	public void populateXml(Element element) {
-		if (hand != null)
-			element.setAttribute(Xml.KEY_HAND, hand.name());
-
-		if (item != null) {
-			if (item.hasSpecification(Weapon.class) || item.hasSpecification(DistanceWeapon.class)) {
-				element.setAttribute(WAFFENNAME, item.getName());
-			} else if (item.hasSpecification(Shield.class)) {
-				element.setAttribute(SCHILDNAME, item.getName());
-			} else if (item.hasSpecification(Armor.class)) {
-				element.setAttribute(RUESTUNGSNAME, item.getName());
-			}
-		}
-
-		element.setAttribute(Xml.KEY_SET, Util.toString(set));
-		if (slot != null) {
-			element.setAttribute(Xml.KEY_SLOT, slot);
-		}
-
-		if (name == null) {
-			if (element.getAttribute(Xml.KEY_NAME) == null) {
-				String namePrefix = null;
-
-				if (item.hasSpecification(Weapon.class)) {
-					namePrefix = NAME_PREFIX_NK;
-				}
-				if (item.hasSpecification(DistanceWeapon.class)) {
-					namePrefix = NAME_PREFIX_FK;
-				}
-				if (item.hasSpecification(Shield.class)) {
-					namePrefix = NAME_PREFIX_SCHILD;
-				}
-				if (item.hasSpecification(Armor.class)) {
-					namePrefix = NAME_PREFIX_RUESTUNG;
-				}
-
-				// find first free slot
-				int i = 1;
-				while (hero.getEquippedItem(namePrefix + i) != null) {
-					i++;
-				}
-				element.setAttribute(Xml.KEY_NAME, namePrefix + i);
-			}
-		} else {
-			element.setAttribute(Xml.KEY_NAME, name);
-		}
-
-		if (talent != null)
-			element.setAttribute(Xml.KEY_TALENT, talent.getName());
-		else
-			element.removeAttribute(Xml.KEY_TALENT);
-
-		if (usageType != null)
-			element.setAttribute(Xml.KEY_VERWENDUNGSART, usageType.name());
-		else
-			element.removeAttribute(Xml.KEY_VERWENDUNGSART);
-
-		if (itemSpecificationLabel != null)
-			element.setAttribute(Xml.KEY_BEZEICHNER, itemSpecificationLabel);
-		else
-			element.setAttribute(Xml.KEY_BEZEICHNER, "");
-
-		if (schildIndex != null)
-			element.setAttribute(Xml.KEY_SCHILD, Util.toString(schildIndex));
 	}
 
 	/*

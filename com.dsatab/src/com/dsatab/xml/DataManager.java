@@ -1,17 +1,18 @@
-/*
- * Copyright (C) 2010 Gandulf Kohlweiss
- * 
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation;
- * either version 3 of the License, or (at your option) any later version.
+/**
+ *  This file is part of DsaTab.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
+ *  DsaTab is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
  *
- * You should have received a copy of the GNU General Public License along with this program;
- * if not, see <http://www.gnu.org/licenses/>.
- * 
+ *  DsaTab is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.dsatab.xml;
 
@@ -32,6 +33,8 @@ import android.text.TextUtils;
 
 import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.DSATabApplication;
+import com.dsatab.data.ArtInfo;
+import com.dsatab.data.SpellInfo;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.util.Debug;
@@ -40,17 +43,27 @@ import com.j256.ormlite.android.AndroidCompiledStatement;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.stmt.StatementBuilder.StatementType;
 import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.support.DatabaseConnection;
 
 /**
- * @author Seraphim
+ * @author Gandulf
  * 
  */
 public class DataManager {
 
 	private static LruCache<String, Bitmap> mMemoryCache;
+
+	private static SelectArg artNameArg, artGradeArg;
+	private static PreparedQuery<ArtInfo> artNameQuery, artNameGradeQuery;
+
+	private static SelectArg spellNameArg;
+	private static PreparedQuery<SpellInfo> spellNameQuery;
+
+	private static SelectArg itemNameArg;
+	private static PreparedQuery<Item> itemNameQuery;
 
 	public static void init(Context context) {
 
@@ -69,6 +82,60 @@ public class DataManager {
 				return bitmap.getRowBytes() * bitmap.getHeight();
 			}
 		};
+
+	}
+
+	private static void initArtQueries() {
+		try {
+			if (artNameArg == null || artNameQuery == null) {
+				artNameArg = new SelectArg();
+				artNameQuery = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class)
+						.queryBuilder().where().eq("name", artNameArg).prepare();
+			}
+
+			if (artGradeArg == null || artNameArg == null || artNameQuery == null) {
+				artGradeArg = new SelectArg();
+
+				artNameGradeQuery = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class)
+						.queryBuilder().where().eq("name", artNameArg).and().eq("grade", artGradeArg).prepare();
+			}
+		} catch (SQLException e) {
+			Debug.error(e);
+			BugSenseHandler.sendException(e);
+		}
+
+	}
+
+	private static void initSpellQueries() {
+		if (spellNameArg != null && spellNameQuery != null)
+			return;
+
+		try {
+			spellNameArg = new SelectArg();
+
+			spellNameQuery = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(SpellInfo.class)
+					.queryBuilder().where().eq("name", spellNameArg).prepare();
+
+		} catch (SQLException e) {
+			Debug.error(e);
+			BugSenseHandler.sendException(e);
+		}
+
+	}
+
+	private static void initItemQueries() {
+		if (itemNameArg != null && itemNameQuery != null)
+			return;
+
+		try {
+			itemNameArg = new SelectArg();
+
+			itemNameQuery = DSATabApplication.getInstance().getDBHelper().getItemDao().queryBuilder().where()
+					.eq("name", itemNameArg).prepare();
+		} catch (SQLException e) {
+			Debug.error(e);
+			BugSenseHandler.sendException(e);
+		}
 
 	}
 
@@ -122,7 +189,7 @@ public class DataManager {
 			return cursor;
 		} catch (SQLException e) {
 			Debug.error(e);
-			BugSenseHandler.log(Debug.CATEGORY_DATABASE, e);
+			BugSenseHandler.sendExceptionMessage(Debug.CATEGORY_DATABASE, "DataManager.getItemsCursor", e);
 		}
 
 		return null;
@@ -181,17 +248,42 @@ public class DataManager {
 		return item;
 	}
 
-	public static Item getItemByName(String name) {
-		try {
-			RuntimeExceptionDao<Item, UUID> itemDao = DSATabApplication.getInstance().getDBHelper().getItemDao();
-			PreparedQuery<Item> query = itemDao.queryBuilder().where().eq("name", name).prepare();
+	public static SpellInfo getSpellByName(String name) {
+		initSpellQueries();
+		spellNameArg.setValue(name);
+		return DSATabApplication.getInstance().getDBHelper().getRuntimeDao(SpellInfo.class)
+				.queryForFirst(spellNameQuery);
+	}
 
-			return itemDao.queryForFirst(query);
+	public static ArtInfo getArtByName(String name) {
+		initArtQueries();
+		artNameArg.setValue(name);
+		return DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class).queryForFirst(artNameQuery);
+	}
 
-		} catch (SQLException e) {
-			Debug.error(e);
+	public static ArtInfo getArtByNameAndGrady(String name, String grade) {
+		initArtQueries();
+		artGradeArg.setValue(grade);
+		artNameArg.setValue(name);
+
+		ArtInfo info = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class)
+				.queryForFirst(artNameGradeQuery);
+
+		// if we find no art with grade, try without
+		if (info == null) {
+			info = getArtByName(name);
+			if (info != null)
+				Debug.warning("Art with grade could not be found using the one without grade: " + name);
 		}
-		return null;
+
+		return info;
+	}
+
+	public static Item getItemByName(String name) {
+		initItemQueries();
+
+		itemNameArg.setValue(name);
+		return DSATabApplication.getInstance().getDBHelper().getItemDao().queryForFirst(itemNameQuery);
 	}
 
 }

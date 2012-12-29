@@ -30,6 +30,7 @@ import android.view.Display;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.DSATabApplication;
 import com.dsatab.HeroConfiguration;
 import com.dsatab.R;
@@ -52,6 +53,7 @@ import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.AuModificator;
 import com.dsatab.data.modifier.LeModificator;
 import com.dsatab.data.modifier.Modificator;
+import com.dsatab.exception.InconsistentDataException;
 import com.dsatab.util.Debug;
 import com.dsatab.util.Util;
 import com.dsatab.view.listener.HeroChangedListener;
@@ -639,35 +641,30 @@ public class Hero {
 	}
 
 	void fireItemAddedEvent(Item item) {
-		Debug.trace("ON Item added " + item);
 		for (HeroChangedListener l : listener) {
 			l.onItemAdded(item);
 		}
 	}
 
 	void fireItemRemovedEvent(Item item) {
-		Debug.trace("ON Item removed " + item);
 		for (HeroChangedListener l : listener) {
 			l.onItemRemoved(item);
 		}
 	}
 
 	void fireItemEquippedEvent(EquippedItem item) {
-		Debug.trace("ON Item equipped " + item);
 		for (HeroChangedListener l : listener) {
 			l.onItemEquipped(item);
 		}
 	}
 
 	public void fireItemChangedEvent(EquippedItem item) {
-		Debug.trace("ON Item changed " + item);
 		for (HeroChangedListener l : listener) {
 			l.onItemChanged(item);
 		}
 	}
 
 	public void fireItemChangedEvent(Item item) {
-		Debug.trace("ON Item changed " + item);
 		for (HeroChangedListener l : listener) {
 			l.onItemChanged(item);
 		}
@@ -681,7 +678,6 @@ public class Hero {
 	}
 
 	void fireItemUnequippedEvent(EquippedItem item) {
-		Debug.trace("ON Item unequipped " + item);
 		for (HeroChangedListener l : listener) {
 			l.onItemUnequipped(item);
 		}
@@ -988,9 +984,6 @@ public class Hero {
 	}
 
 	public void addAttribute(Attribute attr) {
-
-		Debug.verbose("Adding attribute " + attr.getName());
-
 		this.attributes.put(attr.getType(), attr);
 		if (attr instanceof CustomAttribute) {
 			getHeroConfiguration().addAttribute((CustomAttribute) attr);
@@ -2363,7 +2356,12 @@ public class Hero {
 	 * @param huntingWeapon
 	 */
 	public void addHuntingWeapon(HuntingWeapon huntingWeapon) {
-		huntingWeapons[huntingWeapon.getSet()] = huntingWeapon;
+		if (huntingWeapon != null && huntingWeapon.getSet() != null) {
+			huntingWeapons[huntingWeapon.getSet()] = huntingWeapon;
+		} else {
+			BugSenseHandler.sendException(new InconsistentDataException(
+					"Setting hunting weapon with set null not possible: " + huntingWeapon));
+		}
 	}
 
 	/**
