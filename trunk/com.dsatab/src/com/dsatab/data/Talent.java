@@ -3,10 +3,7 @@ package com.dsatab.data;
 import java.util.Comparator;
 import java.util.EnumSet;
 
-import org.jdom2.Element;
-
 import com.dsatab.data.enums.AttributeType;
-import com.dsatab.xml.Xml;
 
 public class Talent extends MarkableElement implements Value {
 
@@ -172,22 +169,6 @@ public class Talent extends MarkableElement implements Value {
 	@Override
 	public String toString() {
 		return getName();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.XmlWriteable#populateXml()
-	 */
-	@Override
-	public void populateXml(Element element) {
-		super.populateXml(element);
-
-		if (value != null)
-			element.setAttribute(Xml.KEY_VALUE, Integer.toString(value));
-		else
-			element.removeAttribute(Xml.KEY_VALUE);
-
 	}
 
 }

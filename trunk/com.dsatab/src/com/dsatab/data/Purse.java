@@ -4,14 +4,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import org.jdom2.Element;
-
-import com.dsatab.xml.DomUtil;
-import com.dsatab.xml.Xml;
-
-public class Purse implements XmlWriteable {
+public class Purse {
 
 	public enum Currency {
 		AlAnfa("Al'Anfa", PurseUnit.Doublone, PurseUnit.Oreal, PurseUnit.KleinerOreal, PurseUnit.Dirham), Vallusa(
@@ -115,51 +109,16 @@ public class Purse implements XmlWriteable {
 		coins.put(w, value);
 	}
 
+	public Map<PurseUnit, Integer> getCoins() {
+		return coins;
+	}
+
 	public int getCoins(PurseUnit w) {
 		Integer m = coins.get(w);
 		if (m != null)
 			return m;
 		else
 			return 0;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
-	 */
-	@Override
-	public void populateXml(Element element) {
-		if (activeCurrency != null)
-			element.setAttribute(Xml.KEY_ACTIVE, activeCurrency.name());
-		else
-			element.removeAttribute(Xml.KEY_ACTIVE);
-
-		for (Entry<Purse.PurseUnit, Integer> entry : coins.entrySet()) {
-			boolean found = false;
-			for (Element p : DomUtil.getChildrenByTagName(element, Xml.KEY_MUENZE)) {
-				if (entry.getKey().xmlName().equals(p.getAttributeValue(Xml.KEY_NAME))) {
-					if (entry.getValue() != null)
-						p.setAttribute(Xml.KEY_ANZAHL, entry.getValue().toString());
-					else
-						p.setAttribute(Xml.KEY_ANZAHL, "0");
-
-					found = true;
-					break;
-				}
-			}
-			if (found == false) {
-				Element m = new Element(Xml.KEY_MUENZE);
-				m.setAttribute(Xml.KEY_WAEHRUNG, entry.getKey().currency().xmlName());
-				m.setAttribute(Xml.KEY_NAME, entry.getKey().xmlName());
-				if (entry.getValue() != null)
-					m.setAttribute(Xml.KEY_ANZAHL, entry.getValue().toString());
-				else
-					m.setAttribute(Xml.KEY_ANZAHL, "0");
-
-				element.addContent(m);
-			}
-		}
 	}
 
 }

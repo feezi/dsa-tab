@@ -18,6 +18,7 @@ package com.dsatab.data;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import android.content.Context;
@@ -25,11 +26,11 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.support.v4.content.AsyncTaskLoader;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.DSATabApplication;
 import com.dsatab.activity.MainActivity;
-import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.util.Debug;
-import com.dsatab.xml.XmlParser;
+import com.dsatab.xml.HeldenXmlParser;
 
 /**
  * @author Ganymede
@@ -40,6 +41,8 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 	private Hero hero;
 
 	private String path;
+
+	private Exception exception;
 
 	public HeroLoader(Context context, String heroPath) {
 		super(context);
@@ -79,6 +82,7 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 	 */
 	@Override
 	public Hero loadInBackground() {
+		exception = null;
 
 		// Debug.verbose("Getting hero from " + path);
 		if (path == null) {
@@ -93,14 +97,11 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 			File file = new File(path);
 			if (!file.exists()) {
 				Debug.error("Error: Hero file not found at " + file.getAbsolutePath());
-				Editor editor = preferences.edit();
-				editor.remove(MainActivity.PREF_LAST_HERO);
-				editor.commit();
-				return null;
+				throw new FileNotFoundException(file.getAbsolutePath());
 			}
 
 			fis = new FileInputStream(file);
-			hero = XmlParser.readHero(path, fis);
+			hero = HeldenXmlParser.readHero(path, fis);
 			if (hero != null) {
 				// Debug.verbose("Hero successfully parsed");
 
@@ -121,7 +122,9 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 			Editor editor = preferences.edit();
 			editor.remove(MainActivity.PREF_LAST_HERO);
 			editor.commit();
-			throw new DsaTabRuntimeException(e);
+			exception = e;
+			BugSenseHandler.sendException(e);
+			return null;
 		} finally {
 			if (fis != null) {
 				try {
@@ -132,6 +135,10 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 			}
 
 		}
+	}
+
+	public Exception getException() {
+		return exception;
 	}
 
 }

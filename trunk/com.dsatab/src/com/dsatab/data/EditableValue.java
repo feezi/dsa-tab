@@ -16,16 +16,12 @@
  */
 package com.dsatab.data;
 
-import org.jdom2.Element;
-
-import com.dsatab.util.Util;
-import com.dsatab.xml.Xml;
 
 /**
  * 
  * 
  */
-public class EditableValue implements Value, XmlWriteable {
+public class EditableValue implements Value {
 
 	private String name;
 
@@ -34,22 +30,12 @@ public class EditableValue implements Value, XmlWriteable {
 	private Integer minimum, maximum, value;
 
 	public EditableValue(Hero hero, String name) {
-		this(hero, name, null);
-	}
-
-	/**
-	 * 
-	 */
-	public EditableValue(Hero hero, String name, Element element) {
 		this.hero = hero;
 
 		this.name = name;
 
 		this.minimum = 0;
 		this.maximum = Integer.MAX_VALUE;
-		if (element != null) {
-			this.value = Util.parseInteger(element.getAttributeValue(Xml.KEY_VALUE));
-		}
 	}
 
 	/*
@@ -151,19 +137,6 @@ public class EditableValue implements Value, XmlWriteable {
 	@Override
 	public Integer getReferenceValue() {
 		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
-	 */
-	@Override
-	public void populateXml(Element element) {
-		if (value != null) {
-			element.setAttribute(Xml.KEY_VALUE, Util.toString(value));
-		} else
-			element.removeAttribute(Xml.KEY_VALUE);
 	}
 
 }

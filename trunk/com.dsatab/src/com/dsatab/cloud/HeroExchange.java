@@ -25,7 +25,9 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.dsatab.DSATabApplication;
+import com.dsatab.R;
 import com.dsatab.activity.BasePreferenceActivity;
+import com.dsatab.activity.BasePreferenceActivity.PrefsSetupFragment;
 import com.dsatab.data.HeroFileInfo;
 import com.dsatab.util.Debug;
 
@@ -69,13 +71,18 @@ public class HeroExchange {
 	private boolean isConfigured() {
 		final SharedPreferences preferences = DSATabApplication.getPreferences();
 
-		String user = preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME, "");
-		String password = preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME, "");
-		String provider = preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME, "");
+		// String user =
+		// preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME,
+		// "");
+		// String password =
+		// preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME,
+		// "");
+		// String provider =
+		// preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_USERNAME,
+		// "");
 		String token = preferences.getString(BasePreferenceActivity.KEY_EXCHANGE_TOKEN, "");
 
-		return !TextUtils.isEmpty(token)
-				|| (!TextUtils.isEmpty(user) && !TextUtils.isEmpty(password) && !TextUtils.isEmpty(provider));
+		return !TextUtils.isEmpty(token);
 	}
 
 	public void syncHeroes() {
@@ -250,8 +257,9 @@ public class HeroExchange {
 					Toast.LENGTH_LONG).show();
 
 			Intent intent = new Intent(context, BasePreferenceActivity.class);
-			intent.putExtra(BasePreferenceActivity.INTENT_PREF_SCREEN, BasePreferenceActivity.SCREEN_EXCHANGE);
-
+			intent.setAction(Intent.ACTION_VIEW);
+			intent.putExtra(BasePreferenceActivity.INTENT_DATA_LAYOUT, R.xml.preferences_hc_setup);
+			intent.putExtra(BasePreferenceActivity.INTENT_DATA_FRAGMENT, PrefsSetupFragment.class.getName());
 			context.startActivity(intent);
 			return false;
 		} else

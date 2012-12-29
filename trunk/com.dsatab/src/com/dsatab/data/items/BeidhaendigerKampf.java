@@ -16,18 +16,11 @@
  */
 package com.dsatab.data.items;
 
-import org.jdom2.Element;
-
-import com.dsatab.data.Hero;
-import com.dsatab.data.XmlWriteable;
-import com.dsatab.util.Util;
-import com.dsatab.xml.Xml;
-
 /**
  * @author Ganymede
  * 
  */
-public class BeidhaendigerKampf implements XmlWriteable {
+public class BeidhaendigerKampf {
 
 	private EquippedItem item1;
 	private EquippedItem item2;
@@ -61,20 +54,12 @@ public class BeidhaendigerKampf implements XmlWriteable {
 		this.set = set;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
-	 */
-	@Override
-	public void populateXml(Element element) {
-
-		element.setAttribute(Xml.KEY_SET, Util.toString(item1.getSet()));
-
-		if (item1.getNameId() < item2.getNameId())
-			element.setAttribute(Xml.KEY_NAME, Hero.PREFIX_BK + item1.getNameId() + item2.getNameId());
-		else
-			element.setAttribute(Xml.KEY_NAME, Hero.PREFIX_BK + item2.getNameId() + item1.getNameId());
-
+	public EquippedItem getItem1() {
+		return item1;
 	}
+
+	public EquippedItem getItem2() {
+		return item2;
+	}
+
 }

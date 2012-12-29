@@ -179,7 +179,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		try {
 			allItems = DSATabApplication.getInstance().getDBHelper().getDao(Item.class).queryBuilder().prepare();
 		} catch (SQLException e) {
-			BugSenseHandler.log(Debug.CATEGORY_DATABASE, e);
+			BugSenseHandler.sendExceptionMessage(Debug.CATEGORY_DATABASE, "ItemChooserFragment prepare ItemDAO", e);
 		}
 
 		categoriesSelected = new HashSet<ItemType>();

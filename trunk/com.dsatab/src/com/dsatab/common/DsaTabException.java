@@ -14,14 +14,33 @@
  *  You should have received a copy of the GNU General Public License
  *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.dsatab.data;
-
-import org.jdom2.Element;
+package com.dsatab.common;
 
 /**
  * @author Ganymede
  * 
  */
-public interface XmlWriteable {
-	public void populateXml(Element element);
+public class DsaTabException extends Exception {
+
+	private static final long serialVersionUID = -510090776420094384L;
+
+	public DsaTabException() {
+		super();
+
+	}
+
+	public DsaTabException(String detailMessage, Throwable throwable) {
+		super(detailMessage, throwable);
+
+	}
+
+	public DsaTabException(String detailMessage) {
+		super(detailMessage);
+
+	}
+
+	public DsaTabException(Throwable throwable) {
+		super(throwable);
+	}
+
 }

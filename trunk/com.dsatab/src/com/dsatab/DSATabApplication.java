@@ -38,7 +38,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -55,7 +54,7 @@ import com.dsatab.util.Debug;
 import com.dsatab.util.Util;
 import com.dsatab.xml.DataManager;
 import com.dsatab.xml.Xml;
-import com.dsatab.xml.XmlParser;
+import com.dsatab.xml.HeldenXmlParser;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 
 public class DSATabApplication extends Application implements OnSharedPreferenceChangeListener {
@@ -130,13 +129,6 @@ public class DSATabApplication extends Application implements OnSharedPreference
 	public static File getDirectory(String name) {
 		File dirFile = new File(getBaseDirectory(), name);
 		return dirFile;
-	}
-
-	private void disableConnectionReuseIfNecessary() {
-		// HTTP connection reuse which was buggy pre-froyo
-		if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.FROYO) {
-			System.setProperty("http.keepAlive", "false");
-		}
 	}
 
 	/*
@@ -342,7 +334,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 
 		AnalyticsManager.setEnabled(stats);
 		if (stats) {
-			BugSenseHandler.setup(this, BUGSENSE_API_KEY);
+			BugSenseHandler.initAndStartSession(this, BUGSENSE_API_KEY);
 		}
 
 		Debug.verbose("AnalytisManager enabled = " + AnalyticsManager.isEnabled());
@@ -356,8 +348,6 @@ public class DSATabApplication extends Application implements OnSharedPreference
 		TileSourceFactory.getTileSources().clear();
 		final ITileSource tileSource = new BitmapTileSource(TILESOURCE_AVENTURIEN, null, 2, 5, 256, ".jpg");
 		TileSourceFactory.addTileSource(tileSource);
-
-		disableConnectionReuseIfNecessary();
 
 		File token = new File(getBaseDirectory(), "token.txt");
 		if (token.exists()) {
@@ -505,14 +495,14 @@ public class DSATabApplication extends Application implements OnSharedPreference
 			}
 
 			FileInputStream fis = new FileInputStream(destFile);
-			Document dom = XmlParser.readDocument(fis);
+			Document dom = HeldenXmlParser.readDocument(fis);
 			fis.close();
 
 			Element heroElement = (Element) dom.getRootElement().getChild(Xml.KEY_HELD);
-			XmlParser.onPreHeroSaved(hero, heroElement);
+			HeldenXmlParser.onPreHeroSaved(hero, heroElement);
 
 			out = new FileOutputStream(destFile);
-			XmlParser.writeHero(hero, dom, out);
+			HeldenXmlParser.writeHero(hero, dom, out);
 			hero.onPostHeroSaved();
 
 			saveHeroConfiguration();

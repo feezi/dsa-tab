@@ -67,7 +67,10 @@ public class HttpRequest {
 	public void abort() {
 		try {
 			if (httpClient != null) {
-				httpPost.abort();
+				if (httpPost != null)
+					httpPost.abort();
+				if (httpGet != null)
+					httpGet.abort();
 			}
 		} catch (Exception e) {
 			Debug.error(e);
@@ -177,5 +180,15 @@ public class HttpRequest {
 		} // end try-catch
 
 		return in;
+	}
+
+	/**
+	 * 
+	 */
+	public void close() {
+		abort();
+		if (httpClient != null) {
+			httpClient.close();
+		}
 	}
 }

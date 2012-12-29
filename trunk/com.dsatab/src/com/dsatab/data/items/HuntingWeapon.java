@@ -16,18 +16,12 @@
  */
 package com.dsatab.data.items;
 
-import org.jdom2.Element;
-
-import com.dsatab.data.Hero;
-import com.dsatab.data.XmlWriteable;
-import com.dsatab.util.Util;
-import com.dsatab.xml.Xml;
 
 /**
  * @author Ganymede
  * 
  */
-public class HuntingWeapon implements XmlWriteable {
+public class HuntingWeapon {
 
 	private Integer number;
 	private Integer set;
@@ -55,20 +49,4 @@ public class HuntingWeapon implements XmlWriteable {
 		this.set = set;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
-	 */
-	@Override
-	public void populateXml(Element element) {
-		if (number != null)
-			element.setAttribute(Xml.KEY_NUMMER, Util.toString(number));
-
-		element.setAttribute(Xml.KEY_NAME, Hero.JAGTWAFFE);
-
-		if (set != null)
-			element.setAttribute(Xml.KEY_SET, Util.toString(set));
-
-	}
 }

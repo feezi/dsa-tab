@@ -18,16 +18,11 @@ package com.dsatab.data;
 
 import java.util.Date;
 
-import org.jdom2.Element;
-
-import com.dsatab.util.Util;
-import com.dsatab.xml.Xml;
-
 /**
  * @author Ganymede
  * 
  */
-public class ChangeEvent implements XmlWriteable {
+public class ChangeEvent {
 
 	// <ereignis Abenteuerpunkte="-4" Alt="1" Info="Gegenseitiges Lehren"
 	// Neu="2" obj="Wettervorhersage" text="Talent steigern"
@@ -42,17 +37,6 @@ public class ChangeEvent implements XmlWriteable {
 	 */
 	public ChangeEvent() {
 
-	}
-
-	public ChangeEvent(Element element) {
-		time = new Date(Util.parseLong(element.getAttributeValue(Xml.KEY_TIME)));
-		xps = Util.parseInteger(element.getAttributeValue(Xml.KEY_ABENTEUERPUNKTE_UPPER));
-		oldValue = Util.parseInteger(element.getAttributeValue(Xml.KEY_ALT));
-		newValue = Util.parseInteger(element.getAttributeValue(Xml.KEY_NEU));
-		info = element.getAttributeValue(Xml.KEY_INFO);
-		object = element.getAttributeValue(Xml.KEY_OBJ);
-		version = element.getAttributeValue(Xml.KEY_VERSION);
-		text = element.getAttributeValue(Xml.KEY_TEXT);
 	}
 
 	public Integer getExperiencePoints() {
@@ -117,23 +101,6 @@ public class ChangeEvent implements XmlWriteable {
 
 	public void setObject(String object) {
 		this.object = object;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
-	 */
-	@Override
-	public void populateXml(Element element) {
-		element.setAttribute(Xml.KEY_TIME, Util.toString(time.getTime()));
-		element.setAttribute(Xml.KEY_ABENTEUERPUNKTE_UPPER, Util.toString(xps));
-		element.setAttribute(Xml.KEY_ALT, Util.toString(oldValue));
-		element.setAttribute(Xml.KEY_NEU, Util.toString(newValue));
-		element.setAttribute(Xml.KEY_INFO, info);
-		element.setAttribute(Xml.KEY_OBJ, object);
-		element.setAttribute(Xml.KEY_VERSION, version);
-		element.setAttribute(Xml.KEY_TEXT, text);
 	}
 
 }

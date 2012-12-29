@@ -36,7 +36,7 @@ import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Hand;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.util.Util;
-import com.dsatab.xml.XmlParser;
+import com.dsatab.xml.HeldenXmlParser;
 
 /**
  * @author Ganymede
@@ -80,11 +80,11 @@ public class XmlParserTest extends InstrumentationTestCase {
 		// in = Global.gContext.openFileInput("testxml.xml");
 		InputStream in = getInstrumentation().getContext().getAssets().open("minarax_menschenfreund.xml");
 
-		Document dom = XmlParser.readDocument(in);
+		Document dom = HeldenXmlParser.readDocument(in);
 		in.close();
 
 		in = getInstrumentation().getContext().getAssets().open("minarax_menschenfreund.xml");
-		Hero hero = XmlParser.readHero("minarax_menschenfreund.xml", in);
+		Hero hero = HeldenXmlParser.readHero("minarax_menschenfreund.xml", in);
 		in.close();
 
 		assertNotNull(hero);

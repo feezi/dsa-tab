@@ -1,12 +1,9 @@
 package com.dsatab.data;
 
-import org.jdom2.Element;
-
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.util.Util;
-import com.dsatab.xml.Xml;
 
-public class Attribute extends BaseProbe implements Value, XmlWriteable, Cloneable {
+public class Attribute extends BaseProbe implements Value, Cloneable {
 
 	/**
 	 * 
@@ -135,20 +132,6 @@ public class Attribute extends BaseProbe implements Value, XmlWriteable, Cloneab
 
 	public void setMod(Integer mod) {
 		this.mod = mod;
-	}
-
-	public void populateXml(Element element) {
-		if (element != null) {
-			if (getValue() != null) {
-				int modValue = value;
-				if (element.getAttribute(Xml.KEY_MOD) != null) {
-					modValue -= Integer.parseInt(element.getAttributeValue(Xml.KEY_MOD));
-				}
-				element.setAttribute(Xml.KEY_VALUE, Integer.toString(modValue - getBaseValue()));
-			} else {
-				element.removeAttribute(Xml.KEY_VALUE);
-			}
-		}
 	}
 
 	public void setValue(Integer value) {

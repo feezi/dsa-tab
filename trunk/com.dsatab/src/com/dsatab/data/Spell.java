@@ -1,19 +1,13 @@
 package com.dsatab.data;
 
-import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.EnumSet;
 
-import org.jdom2.Element;
-
 import android.text.TextUtils;
 
-import com.dsatab.DSATabApplication;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.util.Debug;
-import com.dsatab.xml.Xml;
-import com.j256.ormlite.stmt.PreparedQuery;
-import com.j256.ormlite.stmt.SelectArg;
+import com.dsatab.xml.DataManager;
 
 public class Spell extends MarkableElement implements Value {
 
@@ -29,9 +23,6 @@ public class Spell extends MarkableElement implements Value {
 		}
 
 	};
-
-	private static SelectArg nameArg;
-	private static PreparedQuery<SpellInfo> nameQuery;
 
 	private Hero hero;
 	private String name;
@@ -49,27 +40,9 @@ public class Spell extends MarkableElement implements Value {
 
 	private EnumSet<Flags> flags = EnumSet.noneOf(Flags.class);
 
-	private static void initQueries() {
-		if (nameArg != null)
-			return;
-
-		try {
-			nameArg = new SelectArg();
-
-			nameQuery = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(SpellInfo.class).queryBuilder()
-					.where().eq("name", nameArg).prepare();
-
-		} catch (SQLException e) {
-			Debug.error(e);
-		}
-
-	}
-
 	public Spell(Hero hero) {
 		super();
 		this.hero = hero;
-
-		initQueries();
 	}
 
 	public String getName() {
@@ -79,16 +52,10 @@ public class Spell extends MarkableElement implements Value {
 	public void setName(String name) {
 		this.name = name;
 
-		Debug.warning("Searching for spell info :" + name);
-		nameArg.setValue(name);
-		this.info = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(SpellInfo.class)
-				.queryForFirst(nameQuery);
-
+		this.info = DataManager.getSpellByName(name);
 		if (info == null) {
-			Debug.warning("No  spell info found for " + name);
-		}
+			Debug.warning("No spell info found for " + name);
 
-		if (info == null) {
 			info = new SpellInfo();
 			info.setName(name);
 		}
@@ -192,25 +159,6 @@ public class Spell extends MarkableElement implements Value {
 
 	public void setVariant(String s) {
 		this.variant = s;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.XmlWriteable#populateXml()
-	 */
-	@Override
-	public void populateXml(Element element) {
-		super.populateXml(element);
-
-		if (value != null)
-			element.setAttribute(Xml.KEY_VALUE, Integer.toString(value));
-		else
-			element.removeAttribute(Xml.KEY_VALUE);
-
-		element.setAttribute(Xml.KEY_ANMERKUNGEN, comments);
-		element.setAttribute(Xml.KEY_VARIANTE, variant);
-
 	}
 
 }

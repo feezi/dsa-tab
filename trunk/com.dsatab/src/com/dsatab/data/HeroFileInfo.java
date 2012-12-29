@@ -27,7 +27,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import com.dsatab.util.Debug;
 import com.dsatab.xml.Xml;
-import com.dsatab.xml.XmlParser;
+import com.dsatab.xml.HeldenXmlParser;
 
 /**
  * 
@@ -56,7 +56,7 @@ public class HeroFileInfo {
 			XmlPullParser xpp = factory.newPullParser();
 
 			fis = new FileInputStream(file);
-			xpp.setInput(fis, XmlParser.ENCODING);
+			xpp.setInput(fis, HeldenXmlParser.ENCODING);
 
 			int eventType = xpp.getEventType();
 			while (eventType != XmlPullParser.END_DOCUMENT) {

@@ -1,16 +1,13 @@
 package com.dsatab.data;
 
 import java.util.Comparator;
-import java.util.StringTokenizer;
 
-import org.jdom2.Element;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.dsatab.data.enums.EventCategory;
-import com.dsatab.xml.Xml;
 
-public class Event implements JSONable, XmlWriteable {
+public class Event implements JSONable {
 
 	public static final Comparator<Event> COMPARATOR = new Comparator<Event>() {
 		@Override
@@ -64,10 +61,6 @@ public class Event implements JSONable, XmlWriteable {
 		else
 			this.category = EventCategory.Misc;
 
-	}
-
-	public Event(Element element) {
-		this.category = EventCategory.Misc;
 	}
 
 	public void setComment(String message) {
@@ -132,29 +125,6 @@ public class Event implements JSONable, XmlWriteable {
 		out.put(FIELD_TIME, time);
 
 		return out;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.XmlWriteable#populateXml(org.jdom2.Element)
-	 */
-	@Override
-	public void populateXml(Element element) {
-
-		if (Xml.KEY_NOTIZ.equals(element.getName())) {
-			StringTokenizer st = new StringTokenizer(comment, "\n");
-
-			int tokens = st.countTokens();
-			for (int i = 0; i < tokens; i++) {
-				element.setAttribute(Xml.KEY_NOTIZ_PREFIX + i, st.nextToken());
-			}
-			// fill up empty values if necessary
-			for (int i = tokens; i <= 11; i++) {
-				element.setAttribute(Xml.KEY_NOTIZ_PREFIX + i, "");
-			}
-		}
-
 	}
 
 }

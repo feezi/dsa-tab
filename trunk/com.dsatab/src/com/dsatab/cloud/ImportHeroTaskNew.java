@@ -28,10 +28,10 @@ import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.cloud.HeroExchange.OnHeroExchangeListener;
-import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.data.HeroFileInfo;
 import com.dsatab.util.Debug;
 
@@ -106,16 +106,12 @@ public class ImportHeroTaskNew extends AsyncTask<String, String, Integer> implem
 		Helper.disableSSLCheck(); // nur für die Testphase, bis ein gültiges
 									// Zertifikate vorhanden ist
 
+		BufferedWriter bufferedOutputStream = null;
 		try {
 			publishProgress("Verbinde mit Server...");
 
-			String stringheld = Helper.postrequest("action", "returnheld", "format", "heldenxml", "heldenid",
-					heroInfo.getId(), "token", token);
-
-			if (stringheld == null) {
-				caughtException = new IOException("Konnte keine Verbindung zum Austausch Server herstellen.");
-				return HeroExchange.RESULT_ERROR;
-			}
+			String stringheld = Helper.postRequest(token, "action", "returnheld", "format", "heldenxml", "heldenid",
+					heroInfo.getId());
 
 			if (heroInfo.getFile() == null) {
 				heroFile = new File(baseDir, heroInfo.getId() + ".xml");
@@ -124,26 +120,23 @@ public class ImportHeroTaskNew extends AsyncTask<String, String, Integer> implem
 			}
 
 			// Create a file output stream
-			BufferedWriter bufferedOutputStream = null;
-			try {
-				bufferedOutputStream = new BufferedWriter(new FileWriter(heroFile.getAbsolutePath()));
-				bufferedOutputStream.write(stringheld);
+			bufferedOutputStream = new BufferedWriter(new FileWriter(heroFile.getAbsolutePath()));
+			bufferedOutputStream.write(stringheld);
 
-				// Flush and close the buffers
-				bufferedOutputStream.flush();
-			} catch (Exception e) {
-				Debug.error(e);
-				caughtException = e;
-				return HeroExchange.RESULT_ERROR;
-			} finally {
-				if (bufferedOutputStream != null)
-					bufferedOutputStream.close();
-			}
+			// Flush and close the buffers
+			bufferedOutputStream.flush();
 
 		} catch (Exception e) {
 			Debug.error(e);
 			caughtException = e;
 			return HeroExchange.RESULT_ERROR;
+		} finally {
+			if (bufferedOutputStream != null) {
+				try {
+					bufferedOutputStream.close();
+				} catch (IOException e) {
+				}
+			}
 		}
 
 		if (isCancelled() || cancel)
@@ -191,8 +184,18 @@ public class ImportHeroTaskNew extends AsyncTask<String, String, Integer> implem
 					.show();
 			break;
 		case HeroExchange.RESULT_ERROR:
-			Toast.makeText(context, R.string.download_error, Toast.LENGTH_SHORT).show();
-			throw new DsaTabRuntimeException("Could not import hero from " + heroFile, caughtException);
+			if (caughtException instanceof AuthorizationException) {
+				Toast.makeText(
+						context,
+						"Token ungültig. Überprüfe ob das Token mit dem in der Helden-Software erstelltem Zugangstoken übereinstimmt.",
+						Toast.LENGTH_SHORT).show();
+			} else if (caughtException instanceof IOException) {
+				Toast.makeText(context, "Konnte keine Verbindung zum Austausch Server herstellen.", Toast.LENGTH_SHORT)
+						.show();
+			} else {
+				Toast.makeText(context, R.string.download_error, Toast.LENGTH_SHORT).show();
+				BugSenseHandler.sendException(caughtException);
+			}
 		}
 
 	}
