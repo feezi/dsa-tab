@@ -26,6 +26,11 @@ public class Advantage {
 	public static final String GUTES_GEDAECHTNIS = "Gutes Gedächtnis";
 	public static final String EITELKEIT = "Eitelkeit";
 
+	public static final String VOLLZAUBERER = "Vollzauberer";
+	public static final String UNBEWUSSTER_VIERTELZAUBERER = "Unbewusster Viertelzauberer";
+	public static final String VIERTELZAUBERER = "Viertelzauberer";
+	public static final String HALBZAUBERER = "Halbzauberer";
+
 	public static final String MEISTERHANDWERK = "Meisterhandwerk";
 
 	private static final String[] VORTEILE = { "Amtsadel", "Adlige Abstammung", "Adliges Erbe", "Affinität zu ",
@@ -38,7 +43,7 @@ public class Advantage {
 			"Ererbte Knochenkeule", "Feenfreund", FESTE_MATRIX, "Früher Vertrauter", "Flink", "Gebildet",
 			"Gefahreninstinkt", "Geräuschhexerei", "Geweiht [Angrosch]", "Geweiht [Gravesh]",
 			"Geweiht [nicht-alveranische Gottheit]", "Geweiht [H'Ranga]", "Geweiht [zwölfgöttliche Kirche]", "Glück",
-			"Glück im Spiel", "Gutaussehend", "Guter Ruf", GUTES_GEDAECHTNIS, "Halbzauberer", "Herausragende Balance",
+			"Glück im Spiel", "Gutaussehend", "Guter Ruf", GUTES_GEDAECHTNIS, HALBZAUBERER, "Herausragende Balance",
 			"Herausragende Eigenschaft", "Herausragender Sechster Sinn", "Herausragender Sinn",
 			"Herausragendes Aussehen", "Hitzeresistenz", "Hohe Lebenskraft", "Hohe Magieresistenz",
 			"Immunität gegen Gift", "Immunität gegen Krankheiten", "Innerer Kompass", "Kälteresistenz", "Kampfrausch",
@@ -48,9 +53,9 @@ public class Advantage {
 			"Resistenz gegen Krankheiten", "Richtungssinn", "Schlangenmensch", "Schnelle Heilung", "Schutzgeist",
 			"Schwer zu verzaubern", "Soziale Anpassungsfähigkeit", "Sprachgefühl", "Tierfreund", "Tierempathie (alle)",
 			"Tierempathie (speziell)", "Titularadel", "Übernatürliche Begabung", "Unbeschwertes Zaubern",
-			"Verbindungen", "Verhüllte Aura", "Veteran", "Viertelzauberer", "Unbewusster Viertelzauberer",
-			"Vollzauberer", "Vom Schicksal begünstigt", "Wesen der Nacht", "Wolfskind", "Wohlklang", "Zäher Hund",
-			"Zauberhaar", "Zeitgefühl", "Zusätzliche Gliedmaßen", "Zweistimmiger Gesang", "Zwergennase" };
+			"Verbindungen", "Verhüllte Aura", "Veteran", VIERTELZAUBERER, UNBEWUSSTER_VIERTELZAUBERER, VOLLZAUBERER,
+			"Vom Schicksal begünstigt", "Wesen der Nacht", "Wolfskind", "Wohlklang", "Zäher Hund", "Zauberhaar",
+			"Zeitgefühl", "Zusätzliche Gliedmaßen", "Zweistimmiger Gesang", "Zwergennase" };
 
 	public static final String[] NACHTEILE = { "Aberglaube", "Agrimothwahn", "Albino", "Angst vor Insekten",
 			"Angst vor Menschenmassen", "Angst vor Spinnen", "Angst vor Reptilien", "Angst vor Pelztieren",

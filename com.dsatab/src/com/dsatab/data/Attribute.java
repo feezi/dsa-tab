@@ -82,21 +82,8 @@ public class Attribute extends BaseProbe implements Value, Cloneable {
 			return;
 
 		if (value != null && mod != null) {
-
 			// value and mod of 0 means not able to use it
-			if ((type == AttributeType.Karmaenergie_Aktuell || type == AttributeType.Astralenergie_Aktuell
-					|| type == AttributeType.Karmaenergie || type == AttributeType.Astralenergie)
-					&& value == 0 && mod == 0) {
-
-				if ((type == AttributeType.Astralenergie_Aktuell || type == AttributeType.Astralenergie)
-						&& hero.hasFeature(Advantage.MAGIEDILLETANT)) {
-					value = 0;
-				} else {
-					value = null;
-				}
-			} else {
-				value += mod;
-			}
+			value += mod;
 		}
 
 		if (value != null)
@@ -196,7 +183,9 @@ public class Attribute extends BaseProbe implements Value, Cloneable {
 								+ hero.getAttributeValue(AttributeType.Intuition)
 								+ hero.getAttributeValue(AttributeType.Charisma) + hero
 								.getAttributeValue(AttributeType.Charisma)) / 2.0);
-					} else {
+					} else if (hero.hasFeature(Advantage.VOLLZAUBERER) || hero.hasFeature(Advantage.HALBZAUBERER)
+							|| hero.hasFeature(Advantage.VIERTELZAUBERER)
+							|| hero.hasFeature(Advantage.UNBEWUSSTER_VIERTELZAUBERER)) {
 						currentBaseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
 								+ hero.getAttributeValue(AttributeType.Intuition) + hero
 								.getAttributeValue(AttributeType.Charisma)) / 2.0);
@@ -212,20 +201,6 @@ public class Attribute extends BaseProbe implements Value, Cloneable {
 					currentBaseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
 							+ hero.getAttributeValue(AttributeType.Klugheit) + hero
 							.getAttributeValue(AttributeType.Konstitution)) / 5.0);
-
-					// int mrmod = 0;
-					// if (hero.getAttribute(AttributeType.Astralenergie) !=
-					// null) {
-					// Element e =
-					// hero.getAttribute(AttributeType.Astralenergie).element;
-					// if
-					// (!TextUtils.isEmpty(e.getAttributeValue(Xml.KEY_MRMOD)))
-					// {
-					// mrmod =
-					// Util.parseInt(e.getAttributeValue(Xml.KEY_MRMOD));
-					// }
-					// currentBaseValue += mrmod;
-					// }
 					break;
 				case Ausweichen:
 					currentBaseValue = (int) hero.getAttributeValue(AttributeType.pa);

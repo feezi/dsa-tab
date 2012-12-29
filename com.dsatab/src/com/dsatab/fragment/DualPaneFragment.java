@@ -265,9 +265,9 @@ public class DualPaneFragment extends SherlockFragment implements FilterChangedL
 	 */
 	@Override
 	public void onFilterChanged(FilterType type, FilterSettings settings) {
-		for (Fragment left : fragments) {
-			if (left instanceof BaseFragment) {
-				((BaseFragment) left).onFilterChanged(type, settings);
+		for (Fragment fragment : fragments) {
+			if (fragment instanceof BaseFragment) {
+				((BaseFragment) fragment).onFilterChanged(type, settings);
 			}
 		}
 	}

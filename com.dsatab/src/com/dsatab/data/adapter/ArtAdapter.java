@@ -55,13 +55,15 @@ public class ArtAdapter extends OpenArrayAdapter<Art> {
 	public ArtAdapter(Context context, Collection<Art> liturgies, ListFilterSettings settings) {
 		super(context, 0, 0, liturgies);
 
+		sort(Art.NAME_COMPARATOR);
+
 		this.filterSettings = new ListFilterSettings();
-		this.filterSettings.set(settings);
-		if (!filterSettings.isAllVisible())
-			filter(filterSettings);
 
 		inflater = LayoutInflater.from(getContext());
 		indicatorStarGray = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_star_gray);
+
+		if (!settings.isAllVisible())
+			filter(settings);
 	}
 
 	public void filter(ListFilterSettings settings) {

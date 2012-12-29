@@ -854,7 +854,7 @@ public class Util {
 		}
 	}
 
-	public static void sort(List<EquippedItem> equippedItems) {
+	public static List<EquippedItem> sort(List<EquippedItem> equippedItems) {
 
 		Collections.sort(equippedItems, new EquippedItemComparator());
 
@@ -875,6 +875,8 @@ public class Util {
 				}
 			}
 		}
+
+		return equippedItems;
 	}
 
 	public static void sortItems(List<Item> items) {

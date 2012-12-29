@@ -512,9 +512,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-		if (requestCode == MainActivity.ACTION_PREFERENCES) {
-			fillFightItemDescriptions();
-		} else if (requestCode == MainActivity.ACTION_ADD_MODIFICATOR) {
+		if (requestCode == MainActivity.ACTION_ADD_MODIFICATOR) {
 
 			if (resultCode == Activity.RESULT_OK) {
 
@@ -820,7 +818,8 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 	@Override
 	public void onHeroLoaded(Hero hero) {
 
-		fightItemAdapter = new FightEquippedItemAdapter(getActivity(), getHero(), getFilterSettings());
+		fightItemAdapter = new FightEquippedItemAdapter(getActivity(), getHero(), getHero().getEquippedItems(),
+				getFilterSettings());
 		fightItemAdapter.setProbeListener(getBaseActivity().getProbeListener());
 		fightItemAdapter.setTargetListener(targetListener);
 
@@ -834,11 +833,9 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		fightMergeAdapter.addAdapter(evadeAdapter);
 		fightMergeAdapter.setActive(evadeAdapter, getFilterSettings().isShowEvade());
 
-		fightModificatorAdapter = new FightModificatorAdapter(getActivity());
+		fightModificatorAdapter = new FightModificatorAdapter(getActivity(), hero.getModificators());
 		fightMergeAdapter.addAdapter(fightModificatorAdapter);
 		fightMergeAdapter.setActive(fightModificatorAdapter, getFilterSettings().isShowModifier());
-
-		fillFightItemDescriptions();
 
 		fightPickerTypes = new ArrayList<AttributeType>(6);
 		fightPickerTypes.add(AttributeType.Lebensenergie_Aktuell);
@@ -868,13 +865,6 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		updateNumberPicker(attr);
 
 		updateAusweichen();
-
-		fightModificatorAdapter.setNotifyOnChange(false);
-		fightModificatorAdapter.clear();
-		for (Modificator mod : hero.getModificators()) {
-			fightModificatorAdapter.add(mod);
-		}
-		fightModificatorAdapter.notifyDataSetChanged();
 
 		fightList.setAdapter(fightMergeAdapter);
 	}

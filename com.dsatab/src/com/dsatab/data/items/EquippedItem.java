@@ -420,7 +420,7 @@ public class EquippedItem implements ItemCard {
 	}
 
 	public CombatTalent getTalent() {
-		return getTalent(null);
+		return getTalent(itemSpecification);
 	}
 
 	protected CombatTalent getTalent(ItemSpecification itemSpecification) {

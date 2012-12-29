@@ -21,6 +21,12 @@
         <item name="imgExpanderOpen">@drawable/expander_open_holo_dark</item>
         <item name="imgExpanderClose">@drawable/expander_close_holo_dark</item>
         
+        <item name="imgFile">@drawable/ic_action_file_dark</item>
+        <item name="imgBarFile">@drawable/ic_action_file_dark</item>
+        
+        <item name="imgUp">@drawable/ic_action_up_dark</item>
+        <item name="imgBarUp">@drawable/ic_action_up_dark</item>        
+        
         <item name="imgLove">@drawable/ic_action_love_dark</item>
         <item name="imgBarLove">@drawable/ic_action_love_dark</item>
         

@@ -4,13 +4,11 @@
   <item type="id" name="option_load_hero" />
   <item type="id" name="option_save_hero" />
   <item type="id" name="option_export_hero" />
-  <item type="id" name="option_filter" />
-  <item type="id" name="option_edit_tabs" />
+  <item type="id" name="option_filter" />  
   <item type="id" name="option_settings" />
   
   <item type="id" name="option_search" />
-  
-  <item type="id" name="option_load_subtype" />
+    
   <item type="id" name="option_hero_import" />
   
   <item type="id" name="option_tabs" />

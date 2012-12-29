@@ -1,4 +1,7 @@
 <changelog>    
+<release version="4.0.3" versioncode="56">	
+	<fix>Major and minor bugfixes for the 4.0 release</fix>	
+</release>
 <release version="4.0.1" versioncode="54">
 	<note>Für 4.0 hab ich die News vergessen, also gibt es sie hier gesammelt mit den ersten Bugfixes.</note>
 	<change>Holo Design update</change>

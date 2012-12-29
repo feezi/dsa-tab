@@ -97,6 +97,7 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 
 				}
 				if (notifyChanged) {
+					artAdapter.refilter();
 					artAdapter.notifyDataSetChanged();
 				}
 			}
@@ -353,9 +354,9 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 	@Override
 	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 		if (mMode == null) {
-			Art spell = artAdapter.getItem(position);
-			if (spell != null) {
-				getBaseActivity().checkProbe(spell);
+			Art art = artAdapter.getItem(position);
+			if (art != null) {
+				getBaseActivity().checkProbe(art);
 			}
 			artList.setItemChecked(position, false);
 		} else {
