@@ -2,16 +2,16 @@
 
 = Talente =
   * Flash - Talentspezialisierung
-  * House - Meisterhandwerk
   * Star  - Talentschub
-  
+  * House - Meisterhandwerk
+
   * StarGray - Begabung
 
 = Zauber =
   * Flash - Zauberspezialisierung
   * Star - Übernatürliche Begabung
-  * House - Hauszauber
 
+  * HouseGray - Hauszauber
   * StarGray - Begabung
 
 = Künste =
