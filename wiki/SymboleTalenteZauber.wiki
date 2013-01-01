@@ -1,0 +1,19 @@
+#Erklärung der Symbole für Talente / Zauber
+
+= Talente =
+  * Flash - Talentspezialisierung
+  * House - Meisterhandwerk
+  * Star  - Talentschub
+  
+  * StarGray - Begabung
+
+= Zauber =
+  * Flash - Zauberspezialisierung
+  * Star - Übernatürliche Begabung
+  * House - Hauszauber
+
+  * StarGray - Begabung
+
+= Künste =
+
+  * StarGray - Begabung
