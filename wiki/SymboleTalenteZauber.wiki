@@ -1,5 +1,8 @@
 #Erklärung der Symbole für Talente / Zauber
 
+Goldene Symbole haben Auswirkungen auf Probenwürfe
+Silberne (gray) haben auswirkung auf die Steigerung, etc...
+
 = Talente =
   * Flash - Talentspezialisierung
   * Star  - Talentschub
