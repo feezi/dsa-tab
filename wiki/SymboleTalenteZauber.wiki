@@ -1,4 +1,4 @@
-#Erklärung der Symbole für Talente / Zauber
+#summary Erklärung der Symbole für Talente / Zauber
 
 Goldene Symbole haben Auswirkungen auf Probenwürfe <br>
 Silberne (gray) haben auswirkung auf die Steigerung, etc...
