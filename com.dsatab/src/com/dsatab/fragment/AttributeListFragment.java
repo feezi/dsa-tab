@@ -343,7 +343,8 @@ public class AttributeListFragment extends BaseAttributesFragment implements Her
 
 		final Hero hero = getHero();
 
-		if (hero.getAttributeValue(AttributeType.Karmaenergie_Aktuell) == null) {
+		if (hero.getAttributeValue(AttributeType.Karmaenergie) == null
+				|| hero.getAttributeValue(AttributeType.Karmaenergie) == 0) {
 			tfKE.setVisibility(View.GONE);
 			tfLabelKE.setVisibility(View.GONE);
 		} else if (preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_KE, true)) {
@@ -353,7 +354,8 @@ public class AttributeListFragment extends BaseAttributesFragment implements Her
 			tfLabelKE.setVisibility(View.VISIBLE);
 		}
 
-		if (hero.getAttributeValue(AttributeType.Astralenergie_Aktuell) == null) {
+		if (hero.getAttributeValue(AttributeType.Astralenergie) == null
+				|| hero.getAttributeValue(AttributeType.Astralenergie) == 0) {
 			tfAE.setVisibility(View.GONE);
 			tfLabelAE.setVisibility(View.GONE);
 		} else if (preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_AE, true)) {

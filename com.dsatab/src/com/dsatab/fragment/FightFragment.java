@@ -22,7 +22,6 @@ import java.util.UUID;
 
 import kankan.wheel.widget.OnWheelChangedListener;
 import kankan.wheel.widget.WheelView;
-import kankan.wheel.widget.adapters.NumericWheelAdapter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -63,6 +62,7 @@ import com.dsatab.data.Hero;
 import com.dsatab.data.Value;
 import com.dsatab.data.adapter.FightEquippedItemAdapter;
 import com.dsatab.data.adapter.FightModificatorAdapter;
+import com.dsatab.data.adapter.ValueWheelAdapter;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.items.DistanceWeapon;
@@ -88,7 +88,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 	private static final String KEY_PICKER_TYPE = "pickerType";
 
 	private WheelView fightNumberPicker;
-	private NumericWheelAdapter fightNumberAdapter;
+	private ValueWheelAdapter fightNumberAdapter;
 	private LinearLayout fightLpLayout;
 
 	private View fightausweichen;
@@ -766,16 +766,16 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		fightPickerButton.setOnClickListener(this);
 		fightPickerButton.setOnLongClickListener(this);
 
-		fightNumberAdapter = new NumericWheelAdapter(getActivity());
+		fightNumberAdapter = new ValueWheelAdapter(getActivity());
 		fightNumberPicker.setViewAdapter(fightNumberAdapter);
 
 		fightNumberPicker.setOrientation(WheelView.HORIZONTAL);
 		fightNumberPicker.setOnWheelChangedListeners(new OnWheelChangedListener() {
 
 			@Override
-			public void onWheelChanged(WheelView wheel, int oldValue, int newValue) {
+			public void onWheelChanged(WheelView wheel, int oldIndex, int newIndex) {
 				Attribute attr = getHero().getAttribute(fightPickerType);
-				attr.setValue(fightNumberAdapter.getItem(newValue));
+				attr.setValue(fightNumberAdapter.getItem(newIndex));
 			}
 		});
 
@@ -784,13 +784,36 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
 		try {
 			String typeString = pref.getString(KEY_PICKER_TYPE, AttributeType.Lebensenergie_Aktuell.name());
-			fightPickerType = AttributeType.valueOf(typeString);
+			setFightPickerType(AttributeType.valueOf(typeString));
 		} catch (Exception e) {
 			Debug.error(e);
-			fightPickerType = AttributeType.Lebensenergie_Aktuell;
+			setFightPickerType(AttributeType.Lebensenergie_Aktuell);
 		}
 
 		super.onActivityCreated(savedInstanceState);
+	}
+
+	protected AttributeType getFightPickerTotalType() {
+		switch (fightPickerType) {
+		case Lebensenergie_Aktuell:
+			return AttributeType.Lebensenergie;
+		case Ausdauer_Aktuell:
+			return AttributeType.Ausdauer;
+		case Astralenergie_Aktuell:
+			return AttributeType.Astralenergie;
+		case Karmaenergie_Aktuell:
+			return AttributeType.Karmaenergie;
+		default:
+			return null;
+		}
+	}
+
+	protected AttributeType getFightPickerType() {
+		return fightPickerType;
+	}
+
+	protected void setFightPickerType(AttributeType fightPickerType) {
+		this.fightPickerType = fightPickerType;
 	}
 
 	/*
@@ -841,12 +864,12 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		fightPickerTypes.add(AttributeType.Lebensenergie_Aktuell);
 		fightPickerTypes.add(AttributeType.Ausdauer_Aktuell);
 
-		if (hero.getAttributeValue(AttributeType.Astralenergie_Aktuell) != null
-				&& hero.getAttributeValue(AttributeType.Astralenergie_Aktuell) >= 0) {
+		if (hero.getAttributeValue(AttributeType.Astralenergie) != null
+				&& hero.getAttributeValue(AttributeType.Astralenergie) > 0) {
 			fightPickerTypes.add(AttributeType.Astralenergie_Aktuell);
 		}
-		if (hero.getAttributeValue(AttributeType.Karmaenergie_Aktuell) != null
-				&& hero.getAttributeValue(AttributeType.Karmaenergie_Aktuell) >= 0) {
+		if (hero.getAttributeValue(AttributeType.Karmaenergie) != null
+				&& hero.getAttributeValue(AttributeType.Karmaenergie) > 0) {
 			fightPickerTypes.add(AttributeType.Karmaenergie_Aktuell);
 			fightPickerTypes.add(AttributeType.Entrueckung);
 		}
@@ -878,6 +901,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		fightModificatorAdapter.add(value);
 		fightItemAdapter.notifyDataSetChanged();
 		updateAusweichen();
+		updateNumberPicker();
 	}
 
 	/*
@@ -895,6 +919,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		fightModificatorAdapter.remove(value);
 		fightItemAdapter.notifyDataSetChanged();
 		updateAusweichen();
+		updateNumberPicker();
 	}
 
 	@Override
@@ -902,6 +927,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		fightModificatorAdapter.notifyDataSetChanged();
 		fightItemAdapter.notifyDataSetChanged();
 		updateAusweichen();
+		updateNumberPicker();
 	}
 
 	@Override
@@ -911,37 +937,22 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		updateAusweichen();
 	}
 
-	private void updateNumberPicker(Attribute value) {
+	private void updateNumberPicker() {
+		if (fightPickerType != null) {
+			Attribute attr = getHero().getAttribute(fightPickerType);
+			updateNumberPicker(attr);
+		}
+	}
 
+	private void updateNumberPicker(Attribute value) {
 		fightNumberPicker.setTag(value);
-		fightNumberAdapter.setRange(value.getMinimum(), value.getMaximum());
+		fightNumberAdapter.setAttribute(value);
 		if (value.getValue() != null) {
 			fightNumberPicker.setCurrentItem(fightNumberAdapter.getPosition(value.getValue()));
 		} else {
 			fightNumberPicker.setCurrentItem(0);
 		}
 		fightPickerButton.setText(value.getType().code());
-
-		float ratio;
-
-		switch (value.getType()) {
-		case Lebensenergie_Aktuell:
-		case Ausdauer_Aktuell:
-		case Karmaenergie_Aktuell:
-		case Astralenergie_Aktuell:
-			ratio = getHero().getRatio(value.getType());
-			break;
-		default:
-			ratio = 1.0f;
-			break;
-		}
-
-		if (ratio < 0.5f)
-			fightNumberAdapter.setTextColor(getResources().getColor(R.color.ValueRed));
-		else if (ratio < 1.0f)
-			fightNumberAdapter.setTextColor(getResources().getColor(android.R.color.black));
-		else
-			fightNumberAdapter.setTextColor(getResources().getColor(R.color.ValueGreen));
 	}
 
 	public void onValueChanged(Value value) {
@@ -954,6 +965,8 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 
 			if (attr.getType() == fightPickerType) {
 				updateNumberPicker(attr);
+			} else if (attr.getType() == getFightPickerTotalType()) {
+				updateNumberPicker();
 			}
 
 			switch (attr.getType()) {

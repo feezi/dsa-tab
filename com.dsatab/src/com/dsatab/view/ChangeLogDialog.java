@@ -11,7 +11,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
@@ -20,6 +19,7 @@ import android.util.Log;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.gandulf.guilib.util.ResUtil;
 
@@ -54,17 +54,6 @@ public class ChangeLogDialog {
 	public ChangeLogDialog(Activity context) {
 		fActivity = context;
 		lastSeenVersion = getSeenVersion();
-	}
-
-	// Get the current app version
-	private String GetAppVersion() {
-		try {
-			PackageInfo _info = fActivity.getPackageManager().getPackageInfo(fActivity.getPackageName(), 0);
-			return _info.versionName;
-		} catch (NameNotFoundException e) {
-			e.printStackTrace();
-			return "";
-		}
 	}
 
 	// Parse a the release tag and return html code
@@ -159,7 +148,7 @@ public class ChangeLogDialog {
 
 		// Get dialog title
 		String _Title = _Resource.getString(R.string.app_name);
-		_Title = _Title + " v" + GetAppVersion();
+		_Title = _Title + " " + DSATabApplication.getInstance().getPackageVersionName();
 
 		// Create html change log
 		String _HTML = GetHTMLChangelog(R.xml.changelog, _Resource);
@@ -179,7 +168,7 @@ public class ChangeLogDialog {
 			return;
 		} else {
 			// setting new lastseen version
-			setSeenVersion(getPackageVersion());
+			setSeenVersion(DSATabApplication.getInstance().getPackageVersion());
 		}
 
 		// Create webview and load html
@@ -206,17 +195,6 @@ public class ChangeLogDialog {
 		Editor editor = preferences.edit();
 		editor.putInt(KEY_NEWS_VERSION, version);
 		editor.commit();
-	}
-
-	public int getPackageVersion() {
-		int version = -1;
-		try {
-			PackageInfo manager = fActivity.getPackageManager().getPackageInfo(fActivity.getPackageName(), 0);
-			version = manager.versionCode;
-		} catch (NameNotFoundException e) {
-			// Handle exception
-		}
-		return version;
 	}
 
 }

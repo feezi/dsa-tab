@@ -52,7 +52,7 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 
 	private Hero hero;
 
-	private Bitmap indicatorStar, indicatorStarGray, indicatorHouse, indicatorFlash;
+	private Bitmap indicatorStar, indicatorStarGray, indicatorHouse, indicatorHouseGray, indicatorFlash;
 
 	private LayoutInflater inflater;
 
@@ -73,6 +73,7 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 		indicatorStar = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_star);
 		indicatorStarGray = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_star_gray);
 		indicatorHouse = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_house);
+		indicatorHouseGray = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_house_gray);
 		indicatorFlash = BitmapFactory.decodeResource(context.getResources(), R.drawable.indicator_flash);
 
 		inflater = LayoutInflater.from(getContext());
@@ -168,7 +169,7 @@ public class SpellAdapter extends OpenArrayAdapter<Spell> {
 				holder.indicator.setImageBitmap(indicatorStar);
 			} else if (spell.hasFlag(Flags.Hauszauber)) {
 				holder.indicator.setVisibility(View.VISIBLE);
-				holder.indicator.setImageBitmap(indicatorHouse);
+				holder.indicator.setImageBitmap(indicatorHouseGray);
 			} else if (spell.hasFlag(Flags.Begabung)) {
 				holder.indicator.setVisibility(View.VISIBLE);
 				holder.indicator.setImageBitmap(indicatorStarGray);

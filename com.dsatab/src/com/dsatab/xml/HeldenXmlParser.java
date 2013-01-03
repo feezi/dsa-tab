@@ -1128,21 +1128,28 @@ public class HeldenXmlParser {
 		output.output(dom, out);
 	}
 
-	private static void writeAttribute(Attribute attr, Element element) {
+	private static void writeAttribute(Hero hero, Attribute attr, Element element) {
 		if (element != null) {
 			if (attr.getValue() != null) {
-				int modValue = attr.getValue();
-				if (element.getAttribute(Xml.KEY_MOD) != null) {
-					modValue -= Integer.parseInt(element.getAttributeValue(Xml.KEY_MOD));
+				Integer newValue = attr.getValue();
+				if (attr.getMod() != null) {
+					newValue -= attr.getMod();
 				}
-				element.setAttribute(Xml.KEY_VALUE, Integer.toString(modValue - attr.getBaseValue()));
+				newValue -= attr.getBaseValue();
+				Integer oldValue = Util.parseInteger(element.getAttributeValue(Xml.KEY_VALUE));
+				if (!Util.equalsOrNull(newValue, oldValue)) {
+					ChangeEvent changeEvent = new ChangeEvent(newValue, oldValue, attr.getType().name(),
+							"Eigenschaft geändert");
+					hero.addChangeEvent(changeEvent);
+					element.setAttribute(Xml.KEY_VALUE, Integer.toString(newValue));
+				}
 			} else {
 				element.removeAttribute(Xml.KEY_VALUE);
 			}
 		}
 	}
 
-	private static void writeCombatTalent(BaseCombatTalent talent, Element element) {
+	private static void writeCombatTalent(Hero hero, BaseCombatTalent talent, Element element) {
 
 		if (talent instanceof CombatMeleeTalent) {
 			CombatMeleeTalent meleeTalent = (CombatMeleeTalent) talent;
@@ -1152,15 +1159,15 @@ public class HeldenXmlParser {
 				for (Element node : nodes) {
 					Element item = (Element) node;
 					if (Xml.KEY_ATTACKE.equals(item.getName()))
-						writeCombatMeleeAttribute(meleeTalent.getAttack(), item);
+						writeCombatMeleeAttribute(hero, meleeTalent.getAttack(), item);
 					else if (Xml.KEY_PARADE.equals(item.getName()))
-						writeCombatMeleeAttribute(meleeTalent.getDefense(), item);
+						writeCombatMeleeAttribute(hero, meleeTalent.getDefense(), item);
 				}
 			} else {
-				writeTalent(talent, element);
+				writeTalent(hero, talent, element);
 			}
 		} else {
-			writeTalent(talent, element);
+			writeTalent(hero, talent, element);
 		}
 	}
 
@@ -1168,49 +1175,67 @@ public class HeldenXmlParser {
 	 * @param attr
 	 * @param item
 	 */
-	private static void writeCombatMeleeAttribute(CombatMeleeAttribute attr, Element element) {
+	private static void writeCombatMeleeAttribute(Hero hero, CombatMeleeAttribute attr, Element element) {
 		if (attr.hasValue()) {
-			element.setAttribute(Xml.KEY_VALUE, attr.getValue().toString());
+			Integer newValue = attr.getValue();
+			Integer oldValue = Util.parseInteger(element.getAttributeValue(Xml.KEY_VALUE));
+			if (!Util.equalsOrNull(newValue, oldValue)) {
+				ChangeEvent changeEvent = new ChangeEvent(newValue, oldValue, attr.getName(), "Kampfwerte geändert");
+				hero.addChangeEvent(changeEvent);
+				element.setAttribute(Xml.KEY_VALUE, newValue.toString());
+			}
 		} else {
 			element.removeAttribute(Xml.KEY_VALUE);
 		}
 	}
 
-	private static void writeSpell(Spell spell, Element element) {
+	private static void writeSpell(Hero hero, Spell spell, Element element) {
 		writeMarkable(spell, element);
 
-		if (spell.getValue() != null)
-			element.setAttribute(Xml.KEY_VALUE, Integer.toString(spell.getValue()));
-		else
+		if (spell.getValue() != null) {
+			Integer newValue = spell.getValue();
+			Integer oldValue = Util.parseInteger(element.getAttributeValue(Xml.KEY_VALUE));
+			if (!Util.equalsOrNull(newValue, oldValue)) {
+				ChangeEvent changeEvent = new ChangeEvent(newValue, oldValue, spell.getName(), "Zauber geändert");
+				hero.addChangeEvent(changeEvent);
+				element.setAttribute(Xml.KEY_VALUE, Integer.toString(spell.getValue()));
+			}
+		} else {
 			element.removeAttribute(Xml.KEY_VALUE);
+		}
 
-		if (spell.getComments() != null)
-			element.setAttribute(Xml.KEY_ANMERKUNGEN, spell.getComments());
-		else
-			element.setAttribute(Xml.KEY_ANMERKUNGEN, "");
-
-		if (spell.getVariant() != null)
-			element.setAttribute(Xml.KEY_VARIANTE, spell.getVariant());
-		else
-			element.setAttribute(Xml.KEY_VARIANTE, "");
+		element.setAttribute(Xml.KEY_ANMERKUNGEN, Xml.toString(spell.getComments()));
+		element.setAttribute(Xml.KEY_VARIANTE, Xml.toString(spell.getVariant()));
 	}
 
-	private static void writeTalent(Talent talent, Element element) {
+	private static void writeTalent(Hero hero, Talent talent, Element element) {
 		writeMarkable(talent, element);
 
 		if (talent instanceof CombatDistanceTalent) {
 			CombatDistanceTalent distanceTalent = (CombatDistanceTalent) talent;
 
 			if (distanceTalent.getValue() != null) {
-				element.setAttribute(Xml.KEY_VALUE,
-						Integer.toString(distanceTalent.getValue() - distanceTalent.getBaseValue()));
+				Integer newValue = distanceTalent.getValue() - distanceTalent.getBaseValue();
+				Integer oldValue = Util.parseInteger(element.getAttributeValue(Xml.KEY_VALUE));
+				if (!Util.equalsOrNull(newValue, oldValue)) {
+					ChangeEvent changeEvent = new ChangeEvent(newValue, oldValue, talent.getName(), "Talent geändert");
+					hero.addChangeEvent(changeEvent);
+					element.setAttribute(Xml.KEY_VALUE, Integer.toString(newValue));
+				}
 			} else {
 				element.removeAttribute(Xml.KEY_VALUE);
 			}
-		} else if (talent.getValue() != null)
-			element.setAttribute(Xml.KEY_VALUE, Integer.toString(talent.getValue()));
-		else
+		} else if (talent.getValue() != null) {
+			Integer newValue = talent.getValue();
+			Integer oldValue = Util.parseInteger(element.getAttributeValue(Xml.KEY_VALUE));
+			if (!Util.equalsOrNull(newValue, oldValue)) {
+				ChangeEvent changeEvent = new ChangeEvent(newValue, oldValue, talent.getName(), "Talent geändert");
+				hero.addChangeEvent(changeEvent);
+				element.setAttribute(Xml.KEY_VALUE, Integer.toString(newValue));
+			}
+		} else {
 			element.removeAttribute(Xml.KEY_VALUE);
+		}
 	}
 
 	private static void writePurse(Purse purse, Element element) {
@@ -1278,7 +1303,7 @@ public class HeldenXmlParser {
 		List<Element> domAttributes = DomUtil.getChildrenByTagName(heldElement, Xml.KEY_EIGENSCHAFTEN,
 				Xml.KEY_EIGENSCHAFT);
 		for (Element attribute : domAttributes) {
-			writeAttribute(hero.getAttribute(AttributeType.valueOf(attribute.getAttributeValue(Xml.KEY_NAME))),
+			writeAttribute(hero, hero.getAttribute(AttributeType.valueOf(attribute.getAttributeValue(Xml.KEY_NAME))),
 					attribute);
 			Debug.verbose("Xml popuplate attr " + attribute);
 		}
@@ -1286,7 +1311,7 @@ public class HeldenXmlParser {
 		List<Element> talentList = DomUtil.getChildrenByTagName(heldElement, Xml.KEY_TALENTLISTE, Xml.KEY_TALENT);
 
 		for (Element talentElement : talentList) {
-			writeTalent(hero.getTalent(talentElement.getAttributeValue(Xml.KEY_NAME)), talentElement);
+			writeTalent(hero, hero.getTalent(talentElement.getAttributeValue(Xml.KEY_NAME)), talentElement);
 			Debug.verbose("Xml popuplate talent " + talentElement);
 		}
 
@@ -1294,14 +1319,14 @@ public class HeldenXmlParser {
 				Xml.KEY_KAMPFWERTE);
 
 		for (Element combatTalent : combatAttributesList) {
-			writeCombatTalent(hero.getCombatTalent(combatTalent.getAttributeValue(Xml.KEY_NAME)), combatTalent);
+			writeCombatTalent(hero, hero.getCombatTalent(combatTalent.getAttributeValue(Xml.KEY_NAME)), combatTalent);
 			Debug.verbose("Xml popuplate combattalent " + combatTalent);
 		}
 
 		List<Element> spellList = DomUtil.getChildrenByTagName(heldElement, Xml.KEY_ZAUBERLISTE, Xml.KEY_ZAUBER);
 
 		for (Element spell : spellList) {
-			writeSpell(hero.getSpell(spell.getAttributeValue(Xml.KEY_NAME)), spell);
+			writeSpell(hero, hero.getSpell(spell.getAttributeValue(Xml.KEY_NAME)), spell);
 			Debug.verbose("Xml popuplate spell " + spell);
 		}
 
@@ -1497,7 +1522,6 @@ public class HeldenXmlParser {
 		}
 
 		// events
-
 		for (ChangeEvent changeEvent : hero.getChangeEvents()) {
 			Element element = new Element(Xml.KEY_EREIGNIS);
 			writeChangeEvent(changeEvent, element);
@@ -1670,14 +1694,18 @@ public class HeldenXmlParser {
 	 * @param element
 	 */
 	private static void writeChangeEvent(ChangeEvent changeEvent, Element element) {
-		element.setAttribute(Xml.KEY_TIME, Util.toString(changeEvent.getTime().getTime()));
-		element.setAttribute(Xml.KEY_ABENTEUERPUNKTE_UPPER, Util.toString(changeEvent.getExperiencePoints()));
-		element.setAttribute(Xml.KEY_ALT, Util.toString(changeEvent.getOldValue()));
-		element.setAttribute(Xml.KEY_NEU, Util.toString(changeEvent.getNewValue()));
-		element.setAttribute(Xml.KEY_INFO, changeEvent.getInfo());
-		element.setAttribute(Xml.KEY_OBJ, changeEvent.getObject());
-		element.setAttribute(Xml.KEY_VERSION, changeEvent.getVersion());
-		element.setAttribute(Xml.KEY_TEXT, changeEvent.getText());
+		element.setAttribute(Xml.KEY_TIME, Xml.toString(changeEvent.getTime().getTime()));
+		element.setAttribute(Xml.KEY_ABENTEUERPUNKTE_UPPER, Xml.toString(changeEvent.getExperiencePoints()));
+		element.setAttribute(Xml.KEY_ALT, Xml.toString(changeEvent.getOldValue()));
+		element.setAttribute(Xml.KEY_NEU, Xml.toString(changeEvent.getNewValue()));
+		if (!TextUtils.isEmpty(changeEvent.getInfo())) {
+			element.setAttribute(Xml.KEY_INFO, Xml.toString(changeEvent.getInfo()));
+		} else {
+			element.removeAttribute(Xml.KEY_INFO);
+		}
+		element.setAttribute(Xml.KEY_OBJ, Xml.toString(changeEvent.getObject()));
+		element.setAttribute(Xml.KEY_VERSION, Xml.toString(changeEvent.getVersion()));
+		element.setAttribute(Xml.KEY_TEXT, Xml.toString(changeEvent.getText()));
 
 	}
 

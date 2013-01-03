@@ -41,6 +41,30 @@ public class LeModificator extends AbstractModificator {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.dsatab.data.modifier.Modificator#affects(com.dsatab.data.Probe)
+	 */
+	@Override
+	public boolean affects(Probe probe) {
+		if (probe instanceof Attribute) {
+			Attribute attribute = (Attribute) probe;
+			if (AttributeType.isEigenschaft(attribute.getType()) || AttributeType.isFight(attribute.getType())) {
+				return true;
+			} else {
+				return false;
+			}
+		} else if (probe instanceof Talent || probe instanceof Spell) {
+			return true;
+		} else if (probe instanceof CombatProbe || probe instanceof CombatShieldTalent
+				|| probe instanceof CombatDistanceTalent || probe instanceof CombatMeleeAttribute) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.dsatab.data.modifier.AbstractModificator#isActive()
 	 */
 	@Override

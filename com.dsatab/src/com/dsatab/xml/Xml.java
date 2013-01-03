@@ -19,7 +19,7 @@ package com.dsatab.xml;
  * @author Seraphim
  * 
  */
-public interface Xml {
+public abstract class Xml {
 	public static final String KEY_VALUE = "value";
 	public static final String KEY_NAME = "name";
 	public static final String KEY_MOD = "mod";
@@ -165,4 +165,27 @@ public interface Xml {
 	public static final String KEY_ALT = "Alt";
 	public static final String KEY_NEU = "Neu";
 	public static final String KEY_INFO = "Info";
+
+	public static String toString(String s) {
+		if (s == null)
+			return "";
+		else
+			return s;
+	}
+
+	public static String toString(Integer value) {
+		if (value != null)
+			return Integer.toString(value);
+		else
+			return "";
+
+	}
+
+	public static String toString(Long value) {
+		if (value != null)
+			return Long.toString(value);
+		else
+			return "";
+
+	}
 }

@@ -97,14 +97,6 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sheet_edit_tab);
 
-		if (DSATabApplication.getInstance().getHero() == null) {
-			Toast.makeText(this, "Tabs können erst editiert werden, wenn ein Held geladen wurde.", Toast.LENGTH_SHORT)
-					.show();
-			setResult(RESULT_CANCELED);
-			finish();
-			return;
-		}
-
 		List<Integer> avatars = DSATabApplication.getInstance().getConfiguration().getTabIcons();
 
 		diceslider = (CheckBox) findViewById(R.id.popup_edit_diceslider);
@@ -173,6 +165,14 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		actionBar.setCustomView(customActionBarView);
 
 		setResult(RESULT_OK);
+
+		if (DSATabApplication.getInstance().getHero() == null) {
+			Toast.makeText(this, "Tabs können erst editiert werden, wenn ein Held geladen wurde.", Toast.LENGTH_SHORT)
+					.show();
+			setResult(RESULT_CANCELED);
+			finish();
+			return;
+		}
 	}
 
 	@Override

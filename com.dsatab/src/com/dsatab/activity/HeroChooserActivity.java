@@ -20,29 +20,32 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.cloud.HeroExchange;
@@ -55,13 +58,10 @@ import com.dsatab.util.Util;
  * 
  * 
  */
-public class HeroChooserActivity extends BaseActivity implements AdapterView.OnItemClickListener {
+public class HeroChooserActivity extends BaseActivity implements AdapterView.OnItemClickListener,
+		OnItemLongClickListener {
 
 	public static final String INTENT_NAME_HERO_PATH = "heroPath";
-
-	private static final int CONTEXTMENU_DELETEITEM = 1;
-	private static final int CONTEXTMENU_DOWNLOADITEM = 2;
-	private static final int CONTEXTMENU_UPLOADITEM = 3;
 
 	private static final String DUMMY_FILE = "Dummy.xml";
 	private static final String DUMMY_NAME = "Dummy";
@@ -69,6 +69,115 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 	private GridView list;
 	private HeroAdapter adapter;
 	private boolean dummy;
+
+	private ActionMode mMode;
+
+	private ActionMode.Callback mCallback;
+
+	private final class HeroesActionMode implements ActionMode.Callback {
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, com.actionbarsherlock.view.MenuItem item) {
+			boolean notifyChanged = false;
+
+			SparseBooleanArray checkedPositions = list.getCheckedItemPositions();
+			if (checkedPositions != null) {
+				adapter.setNotifyOnChange(false);
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
+					if (checkedPositions.valueAt(i)) {
+						final HeroFileInfo heroInfo = adapter.getItem(checkedPositions.keyAt(i));
+
+						switch (item.getItemId()) {
+						case R.id.option_delete:
+							Debug.verbose("Deleting " + heroInfo.getName());
+							heroInfo.getFile().delete();
+							adapter.remove(heroInfo);
+							notifyChanged = true;
+							break;
+						case R.id.option_download:
+							if (heroInfo.isOnline()) {
+								HeroExchange exchange = new HeroExchange(HeroChooserActivity.this);
+								exchange.setOnHeroExchangeListener(new OnHeroExchangeListener() {
+									@Override
+									public void onHeroLoaded(String path) {
+										Toast.makeText(HeroChooserActivity.this,
+												heroInfo.getName() + " wurde erfolgreich heruntergeladen",
+												Toast.LENGTH_SHORT).show();
+									}
+
+									@Override
+									public void onHeroInfoLoaded(HeroFileInfo info) {
+									}
+								});
+								exchange.importHero(heroInfo);
+							}
+							break;
+						case R.id.option_upload:
+							HeroExchange exchange2 = new HeroExchange(HeroChooserActivity.this);
+							exchange2.exportHero(heroInfo.getFile());
+							break;
+						}
+					}
+
+				}
+				adapter.setNotifyOnChange(true);
+				if (notifyChanged) {
+					adapter.notifyDataSetChanged();
+				}
+			}
+			mode.finish();
+			return true;
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			mode.getMenuInflater().inflate(R.menu.herochooser_menu, menu);
+			mode.setTitle("Helden");
+			return true;
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			mMode = null;
+			list.clearChoices();
+			adapter.notifyDataSetChanged();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * com.actionbarsherlock.view.ActionMode.Callback#onPrepareActionMode
+		 * (com.actionbarsherlock.view.ActionMode,
+		 * com.actionbarsherlock.view.Menu)
+		 */
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			int selected = 0;
+			boolean online = false;
+			SparseBooleanArray checkedPositions = list.getCheckedItemPositions();
+			if (checkedPositions != null) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
+					if (checkedPositions.valueAt(i)) {
+						selected++;
+						HeroFileInfo heroInfo = adapter.getItem(checkedPositions.keyAt(i));
+						online |= heroInfo.isOnline();
+					}
+				}
+			}
+
+			mode.setSubtitle(selected + " ausgewählt");
+
+			boolean changed = false;
+
+			MenuItem download = menu.findItem(R.id.option_download);
+			if (download != null && online != download.isEnabled()) {
+				download.setEnabled(online);
+				changed = true;
+			}
+
+			return changed;
+		}
+	}
 
 	/**
 	 * 
@@ -89,6 +198,8 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sheet_hero_chooser);
 
+		mCallback = new HeroesActionMode();
+
 		getSupportActionBar().setDisplayShowHomeEnabled(true);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -102,7 +213,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 			InputStream fis = null;
 			try {
 
-				fos = new FileOutputStream(DSATabApplication.getDsaTabPath() + DUMMY_FILE);
+				fos = new FileOutputStream(DSATabApplication.getDsaTabHeroPath() + DUMMY_FILE);
 				fis = new BufferedInputStream(getAssets().open(DUMMY_FILE));
 				byte[] buffer = new byte[8 * 1024];
 				int length;
@@ -139,10 +250,11 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 			heroes = DSATabApplication.getInstance().getHeroes();
 
 		list = (GridView) findViewById(R.id.popup_hero_chooser_list);
+		list.setChoiceMode(GridView.CHOICE_MODE_MULTIPLE);
 		adapter = new HeroAdapter(this, R.layout.hero_chooser_item, heroes);
 		list.setAdapter(adapter);
-		registerForContextMenu(list);
 		list.setOnItemClickListener(this);
+		list.setOnItemLongClickListener(this);
 
 		updateViews();
 
@@ -170,35 +282,11 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 				list.setVisibility(View.INVISIBLE);
 
 			empty.setVisibility(View.VISIBLE);
-			empty.setText(Util.getText(R.string.message_heroes_empty, DSATabApplication.getRelativeDsaTabPath()));
+			empty.setText(Util.getText(R.string.message_heroes_empty, DSATabApplication.getDsaTabHeroPath()));
 		} else {
-
 			list.setVisibility(View.VISIBLE);
 			empty.setVisibility(View.GONE);
 		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onCreateContextMenu(android.view.ContextMenu,
-	 * android.view.View, android.view.ContextMenu.ContextMenuInfo)
-	 */
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		if (v.getId() == R.id.popup_hero_chooser_list) {
-
-			AdapterContextMenuInfo adapterContextMenuInfo = (AdapterContextMenuInfo) menuInfo;
-			HeroFileInfo heroFilenfo = adapter.getItem(adapterContextMenuInfo.position);
-
-			if (heroFilenfo.isOnline()) {
-				menu.add(0, CONTEXTMENU_DOWNLOADITEM, 0, getString(R.string.menu_download_item));
-			}
-			// hero export disabled for now!
-			menu.add(0, CONTEXTMENU_UPLOADITEM, 0, getString(R.string.menu_upload_item)).setEnabled(false);
-			menu.add(0, CONTEXTMENU_DELETEITEM, 0, getString(R.string.menu_delete_item));
-		}
-		super.onCreateContextMenu(menu, v, menuInfo);
 	}
 
 	/*
@@ -298,54 +386,6 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 		return super.onOptionsItemSelected(item);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onContextItemSelected(android.view.MenuItem)
-	 */
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		if (item.getItemId() == CONTEXTMENU_DELETEITEM) {
-			AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-			HeroFileInfo heroInfo = (HeroFileInfo) list.getItemAtPosition(menuInfo.position);
-
-			Debug.verbose("Deleting " + heroInfo.getName());
-			heroInfo.getFile().delete();
-
-			adapter.remove(heroInfo);
-			adapter.notifyDataSetChanged();
-
-			return true;
-		} else if (item.getItemId() == CONTEXTMENU_DOWNLOADITEM) {
-			AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-			final HeroFileInfo heroInfo = (HeroFileInfo) list.getItemAtPosition(menuInfo.position);
-
-			HeroExchange exchange = new HeroExchange(this);
-			exchange.setOnHeroExchangeListener(new OnHeroExchangeListener() {
-				@Override
-				public void onHeroLoaded(String path) {
-					Toast.makeText(HeroChooserActivity.this, heroInfo.getName() + " wurde erfolgreich heruntergeladen",
-							Toast.LENGTH_SHORT).show();
-				}
-
-				@Override
-				public void onHeroInfoLoaded(HeroFileInfo info) {
-				}
-			});
-
-			exchange.importHero(heroInfo);
-
-		} else if (item.getItemId() == CONTEXTMENU_UPLOADITEM) {
-			AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-			final HeroFileInfo heroInfo = (HeroFileInfo) list.getItemAtPosition(menuInfo.position);
-
-			HeroExchange exchange = new HeroExchange(this);
-			exchange.exportHero(heroInfo.getFile());
-			return true;
-		}
-		return super.onContextItemSelected(item);
-	}
-
 	static class HeroAdapter extends ArrayAdapter<HeroFileInfo> {
 
 		LayoutInflater layoutInflater;
@@ -409,30 +449,99 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		HeroFileInfo hero = (HeroFileInfo) parent.getItemAtPosition(position);
-
-		if (hero.getFile() != null) {
-			Intent intent = new Intent();
-			intent.putExtra(INTENT_NAME_HERO_PATH, hero.getFile().toString());
-			setResult(RESULT_OK, intent);
-			finish();
+		if (mMode != null) {
+			SparseBooleanArray checked = ((GridView) parent).getCheckedItemPositions();
+			boolean hasCheckedElement = false;
+			for (int i = 0; i < checked.size() && !hasCheckedElement; i++) {
+				hasCheckedElement = checked.valueAt(i);
+			}
+			if (hasCheckedElement) {
+				mMode.invalidate();
+			} else {
+				mMode.finish();
+			}
 		} else {
-			HeroExchange exchange = new HeroExchange(this);
-			exchange.setOnHeroExchangeListener(new OnHeroExchangeListener() {
-				@Override
-				public void onHeroLoaded(String path) {
-					Intent intent = new Intent();
-					intent.putExtra(INTENT_NAME_HERO_PATH, path);
-					setResult(RESULT_OK, intent);
-					finish();
-				}
+			list.setItemChecked(position, false);
 
-				@Override
-				public void onHeroInfoLoaded(HeroFileInfo info) {
-				}
-			});
+			HeroFileInfo hero = (HeroFileInfo) parent.getItemAtPosition(position);
 
-			exchange.importHero(hero);
+			if (hero.getFile() != null) {
+				Intent intent = new Intent();
+				intent.putExtra(INTENT_NAME_HERO_PATH, hero.getFile().toString());
+				setResult(RESULT_OK, intent);
+				finish();
+			} else {
+				HeroExchange exchange = new HeroExchange(this);
+				exchange.setOnHeroExchangeListener(new OnHeroExchangeListener() {
+					@Override
+					public void onHeroLoaded(String path) {
+						Intent intent = new Intent();
+						intent.putExtra(INTENT_NAME_HERO_PATH, path);
+						setResult(RESULT_OK, intent);
+						finish();
+					}
+
+					@Override
+					public void onHeroInfoLoaded(HeroFileInfo info) {
+					}
+				});
+
+				exchange.importHero(hero);
+			}
+		}
+	}
+
+	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		if (mCallback == null) {
+			throw new IllegalArgumentException("ListView with Contextual Action Bar needs mCallback to be defined!");
+		}
+		((GridView) parent).setItemChecked(position, !((GridView) parent).isItemChecked(position));
+
+		List<Object> checkedObjects = new ArrayList<Object>();
+
+		SparseBooleanArray checked = ((GridView) parent).getCheckedItemPositions();
+		boolean hasCheckedElement = false;
+		if (checked != null) {
+			for (int i = 0; i < checked.size() && !hasCheckedElement; i++) {
+				hasCheckedElement = checked.valueAt(i);
+				checkedObjects.add(parent.getItemAtPosition(checked.keyAt(i)));
+			}
+		}
+
+		if (hasCheckedElement) {
+			if (mMode == null) {
+				if (mCallback != null) {
+					mMode = startActionMode(mCallback);
+					customizeActionModeCloseButton();
+					mMode.invalidate();
+				} else {
+					return false;
+				}
+			} else {
+				mMode.invalidate();
+			}
+		} else {
+			if (mMode != null) {
+				mMode.finish();
+			}
+		}
+		return true;
+	}
+
+	protected void customizeActionModeCloseButton() {
+		int buttonId = Resources.getSystem().getIdentifier("action_mode_close_button", "id", "android");
+		View v = findViewById(buttonId);
+		if (v == null) {
+			buttonId = R.id.abs__action_mode_close_button;
+			v = findViewById(buttonId);
+		}
+		if (v == null)
+			return;
+		LinearLayout ll = (LinearLayout) v;
+		if (ll.getChildCount() > 1 && ll.getChildAt(1) != null) {
+			TextView tv = (TextView) ll.getChildAt(1);
+			tv.setTextColor(getResources().getColor(android.R.color.white));
+			tv.setBackgroundResource(Util.getThemeResourceId(this, R.attr.actionBarItemBackground));
 		}
 	}
 

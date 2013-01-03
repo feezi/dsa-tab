@@ -18,6 +18,8 @@ package com.dsatab.data;
 
 import java.util.Date;
 
+import com.dsatab.DSATabApplication;
+
 /**
  * @author Ganymede
  * 
@@ -32,11 +34,20 @@ public class ChangeEvent {
 	private Integer xps, oldValue, newValue;
 	private String info, object, version, text;
 
+	public ChangeEvent(Integer newValue, Integer oldValue, String obj, String text) {
+		this();
+		this.oldValue = oldValue;
+		this.newValue = newValue;
+		this.object = obj;
+		this.text = text;
+	}
+
 	/**
 	 * 
 	 */
 	public ChangeEvent() {
-
+		setTime(new Date());
+		setVersion("DsaTab " + DSATabApplication.getInstance().getPackageVersionName());
 	}
 
 	public Integer getExperiencePoints() {

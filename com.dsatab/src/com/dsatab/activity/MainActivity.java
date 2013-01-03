@@ -875,6 +875,10 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		if (item != null) {
 			item.setEnabled(getHero() != null);
 		}
+		item = menu.findItem(R.id.option_tabs);
+		if (item != null) {
+			item.setEnabled(getHero() != null);
+		}
 
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -887,7 +891,9 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 			showHeroChooser();
 			return true;
 		case R.id.option_save_hero:
-			DSATabApplication.getInstance().saveHero();
+			if (getHero() != null) {
+				DSATabApplication.getInstance().saveHero();
+			}
 			return true;
 		case R.id.option_settings:
 			BasePreferenceActivity.startPreferenceActivity(this);
@@ -898,7 +904,9 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 			}
 			return true;
 		case R.id.option_tabs:
-			startActivity(new Intent(this, TabEditActivity.class));
+			if (getHero() != null) {
+				startActivity(new Intent(this, TabEditActivity.class));
+			}
 			return true;
 		}
 
@@ -969,7 +977,7 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 		}
 
 		if (BasePreferenceActivity.KEY_FULLSCREEN.equals(key)) {
-			updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
+			updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, false));
 		}
 
 		if (BasePreferenceActivity.KEY_MODIFY_TABS.equals(key)) {

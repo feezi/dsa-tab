@@ -49,6 +49,29 @@ public class WoundAttribute extends AbstractModificator implements JSONable {
 		return "Wunde " + getName() + " x" + getValue();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.modifier.Modificator#affects(com.dsatab.data.Probe)
+	 */
+	@Override
+	public boolean affects(Probe probe) {
+		if (probe instanceof Attribute) {
+			Attribute attribute = (Attribute) probe;
+			if (attribute.getType() == AttributeType.ini || attribute.getType() == AttributeType.Initiative_Aktuell
+					|| AttributeType.isFight(attribute.getType()) || AttributeType.isEigenschaft(attribute.getType())) {
+				return true;
+			} else {
+				return false;
+			}
+		} else if (probe instanceof CombatProbe || probe instanceof CombatShieldTalent
+				|| probe instanceof CombatDistanceTalent || probe instanceof CombatMeleeAttribute) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	@Override
 	public String getModificatorInfo() {
 		String info = null;

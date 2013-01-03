@@ -197,16 +197,99 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 		return modMap;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.modifier.Modificator#affects(com.dsatab.data.Probe)
+	 */
+	@Override
+	public boolean affects(Probe probe) {
+		boolean result = false;
+		if (probe instanceof Attribute) {
+			Attribute attribute = (Attribute) probe;
+			AttributeType type = attribute.getType();
+
+			if (type == AttributeType.Lebensenergie) {
+				type = AttributeType.Lebensenergie_Aktuell;
+			} else if (type == AttributeType.Astralenergie) {
+				type = AttributeType.Astralenergie_Aktuell;
+			} else if (type == AttributeType.Karmaenergie) {
+				type = AttributeType.Karmaenergie_Aktuell;
+			} else if (type == AttributeType.Ausdauer) {
+				type = AttributeType.Ausdauer_Aktuell;
+			} else if (type == AttributeType.Lebensenergie_Aktuell || type == AttributeType.Astralenergie_Aktuell
+					|| type == AttributeType.Karmaenergie_Aktuell || type == AttributeType.Ausdauer_Aktuell) {
+				type = null;
+			}
+			if (type != null) {
+				result = containsModifier(type.code());
+
+				if (!result && AttributeType.isEigenschaft(type)) {
+					result = containsModifier(KEY_EIGENSCHAFTEN);
+				}
+			}
+
+			// combatDistancetalent has to come before talent since its a
+			// talent too, but needs special handling
+		} else if (probe instanceof CombatDistanceTalent) {
+			result = containsModifier(probe.getName());
+			if (!result)
+				result = containsModifier(KEY_AT);
+		} else if (probe instanceof Spell) {
+			result = containsModifier(probe.getName());
+			if (!result)
+				result = containsModifier(KEY_ZAUBER);
+		} else if (probe instanceof Art) {
+			result = containsModifier(probe.getName());
+			if (!result)
+				result = containsModifier(KEY_LITURGIEN);
+		} else if (probe instanceof CombatShieldTalent) {
+			result = containsModifier(probe.getName());
+			if (!result)
+				result = containsModifier(KEY_PA);
+		} else if (probe instanceof CombatMeleeAttribute) {
+			result = containsModifier(probe.getName());
+			if (!result) {
+				CombatMeleeAttribute meleeAttribute = (CombatMeleeAttribute) probe;
+				if (meleeAttribute.isAttack())
+					result = containsModifier(KEY_AT);
+				else
+					result = containsModifier(KEY_PA);
+			}
+		} else if (probe instanceof CombatProbe) {
+			result = containsModifier(probe.getName());
+			if (!result) {
+				CombatProbe combatProbe = (CombatProbe) probe;
+
+				if (combatProbe.isAttack())
+					result = containsModifier(KEY_AT);
+				else
+					result = containsModifier(KEY_PA);
+			}
+		} else if (probe instanceof Talent) {
+			result = containsModifier(probe.getName());
+			if (!result)
+				result = containsModifier(KEY_TALENTE);
+		}
+
+		return result;
+	}
+
+	private boolean containsModifier(String key) {
+		if (key == null)
+			return false;
+
+		key = key.toLowerCase(Locale.GERMAN);
+
+		return getModMap().containsKey(key);
+	}
+
 	private Integer getModifier(String key) {
 		if (key == null)
 			return null;
 
 		key = key.toLowerCase(Locale.GERMAN);
-
-		if (getModMap().containsKey(key))
-			return modMap.get(key);
-		else
-			return null;
+		return getModMap().get(key);
 	}
 
 	public Modifier getModifier(EquippedItem item) {
@@ -325,6 +408,21 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 			Integer modifier = getModifier(type.code());
 			if (modifier == null && AttributeType.isEigenschaft(type)) {
 				modifier = getModifier(KEY_EIGENSCHAFTEN);
+			}
+
+			if (modifier == null && type == AttributeType.Lebensenergie) {
+				modifier = getModifier(AttributeType.Lebensenergie_Aktuell.code());
+			} else if (modifier == null && type == AttributeType.Astralenergie) {
+				modifier = getModifier(AttributeType.Astralenergie_Aktuell.code());
+			} else if (modifier == null && type == AttributeType.Karmaenergie) {
+				modifier = getModifier(AttributeType.Karmaenergie_Aktuell.code());
+			} else if (modifier == null && type == AttributeType.Ausdauer) {
+				modifier = getModifier(AttributeType.Ausdauer_Aktuell.code());
+			}
+
+			if (type == AttributeType.Lebensenergie_Aktuell || type == AttributeType.Astralenergie_Aktuell
+					|| type == AttributeType.Karmaenergie_Aktuell || type == AttributeType.Ausdauer_Aktuell) {
+				modifier = null;
 			}
 
 			if (modifier != null) {

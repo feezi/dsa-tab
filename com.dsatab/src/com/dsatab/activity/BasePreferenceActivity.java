@@ -265,11 +265,6 @@ public class BasePreferenceActivity extends UnifiedSherlockPreferenceActivity im
 			}
 		}
 
-		Preference fullscreenPref = mgr.findPreference(KEY_FULLSCREEN);
-		if (fullscreenPref != null && screen != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			screen.removePreference(fullscreenPref);
-		}
-
 		SharedPreferences sharedPreferences = mgr.getSharedPreferences();
 		if (screen != null) {
 			initPreferenceScreen(screen, sharedPreferences);
@@ -338,7 +333,7 @@ public class BasePreferenceActivity extends UnifiedSherlockPreferenceActivity im
 	protected void onCreate(Bundle savedInstanceState) {
 		setTheme(DSATabApplication.getInstance().getCustomPreferencesTheme());
 
-		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB)
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
 			legacyPreOnCreate(savedInstanceState);
 		else
 			preOnCreate(savedInstanceState);
@@ -353,7 +348,7 @@ public class BasePreferenceActivity extends UnifiedSherlockPreferenceActivity im
 
 		updateFullscreenStatus(getWindow(), preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
 
-		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB)
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
 			legacyPostOnCreate(savedInstanceState);
 		else
 			postOnCreate(savedInstanceState);
@@ -622,11 +617,13 @@ public class BasePreferenceActivity extends UnifiedSherlockPreferenceActivity im
 						.contains(KEY_STYLE_BG_WOUNDS_PATH) ? View.VISIBLE : View.GONE);
 			} else if (KEY_SETUP_SDCARD_PATH.equals(key)) {
 				preference.setSummary(DSATabApplication.getInstance().getString(R.string.pref_sdcardPath_description)
-						+ ": " + DSATabApplication.getRelativeDsaTabPath());
+						+ ": " + sharedPreferences.getString(KEY_SETUP_SDCARD_PATH, DSATabApplication.getDsaTabPath()));
 			} else if (KEY_SETUP_SDCARD_HERO_PATH.equals(key)) {
-				preference.setSummary(DSATabApplication.getInstance().getString(
-						R.string.pref_sdcardHeroPath_description)
-						+ ": " + DSATabApplication.getRelativeDsaTabHeroPath());
+				preference
+						.setSummary(DSATabApplication.getInstance().getString(R.string.pref_sdcardHeroPath_description)
+								+ ": "
+								+ sharedPreferences.getString(KEY_SETUP_SDCARD_HERO_PATH,
+										DSATabApplication.getDsaTabHeroPath()));
 			}
 		}
 	}

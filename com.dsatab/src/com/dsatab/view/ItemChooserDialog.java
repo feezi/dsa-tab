@@ -84,7 +84,9 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 	}
 
 	public void filter(Collection<ItemType> type, String category, String constraint) {
-		itemAdapter.changeCursor(DataManager.getItemsCursor(constraint, type, category));
+		if (itemAdapter != null) {
+			itemAdapter.changeCursor(DataManager.getItemsCursor(constraint, type, category));
+		}
 	}
 
 	public void show(Collection<ItemType> types) {
