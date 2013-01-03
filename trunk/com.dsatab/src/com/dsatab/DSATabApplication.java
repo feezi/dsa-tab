@@ -37,6 +37,8 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Typeface;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -53,8 +55,8 @@ import com.dsatab.map.BitmapTileSource;
 import com.dsatab.util.Debug;
 import com.dsatab.util.Util;
 import com.dsatab.xml.DataManager;
-import com.dsatab.xml.Xml;
 import com.dsatab.xml.HeldenXmlParser;
+import com.dsatab.xml.Xml;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 
 public class DSATabApplication extends Application implements OnSharedPreferenceChangeListener {
@@ -122,7 +124,7 @@ public class DSATabApplication extends Application implements OnSharedPreference
 
 	protected static File getBaseDirectory() {
 		if (baseDir == null)
-			baseDir = new File(Environment.getExternalStorageDirectory(), getRelativeDsaTabPath());
+			baseDir = new File(getDsaTabPath());
 		return baseDir;
 	}
 
@@ -151,11 +153,6 @@ public class DSATabApplication extends Application implements OnSharedPreference
 
 	}
 
-	public static String getRelativeDsaTabPath() {
-		String path = getDsaTabPath().substring(SD_CARD_PATH_PREFIX.length());
-		return path;
-	}
-
 	public static String getDsaTabPath() {
 		if (basePath == null) {
 			basePath = getPreferences().getString(BasePreferenceActivity.KEY_SETUP_SDCARD_PATH, DEFAULT_SD_CARD);
@@ -163,20 +160,12 @@ public class DSATabApplication extends Application implements OnSharedPreference
 			if (!basePath.endsWith("/"))
 				basePath += "/";
 
-			if (!basePath.startsWith(SD_CARD_PATH_PREFIX)) {
-				if (basePath.startsWith("/"))
-					basePath = SD_CARD_PATH_PREFIX + basePath.substring(1);
-				else
-					basePath = SD_CARD_PATH_PREFIX + basePath;
-			}
+			if (!basePath.startsWith("/"))
+				basePath = SD_CARD_PATH_PREFIX + basePath;
+
 		}
 
 		return basePath;
-	}
-
-	public static String getRelativeDsaTabHeroPath() {
-		String path = getDsaTabHeroPath().substring(SD_CARD_PATH_PREFIX.length());
-		return path;
 	}
 
 	public static String getDsaTabHeroPath() {
@@ -186,12 +175,9 @@ public class DSATabApplication extends Application implements OnSharedPreference
 			if (!heroPath.endsWith("/"))
 				heroPath += "/";
 
-			if (!heroPath.startsWith(SD_CARD_PATH_PREFIX)) {
-				if (heroPath.startsWith("/"))
-					heroPath = SD_CARD_PATH_PREFIX + heroPath.substring(1);
-				else
-					heroPath = SD_CARD_PATH_PREFIX + heroPath;
-			}
+			if (!heroPath.startsWith("/"))
+				heroPath = SD_CARD_PATH_PREFIX + heroPath;
+
 		}
 
 		return heroPath;
@@ -526,6 +512,28 @@ public class DSATabApplication extends Application implements OnSharedPreference
 			databaseHelper = OpenHelperManager.getHelper(getApplicationContext(), DatabaseHelper.class);
 		}
 		return databaseHelper;
+	}
+
+	public int getPackageVersion() {
+		int version = -1;
+		try {
+			PackageInfo manager = getPackageManager().getPackageInfo(getPackageName(), 0);
+			version = manager.versionCode;
+		} catch (NameNotFoundException e) {
+			// Handle exception
+		}
+		return version;
+	}
+
+	public String getPackageVersionName() {
+		String version = null;
+		try {
+			PackageInfo manager = getPackageManager().getPackageInfo(getPackageName(), 0);
+			version = manager.versionName;
+		} catch (NameNotFoundException e) {
+			// Handle exception
+		}
+		return version;
 	}
 
 }

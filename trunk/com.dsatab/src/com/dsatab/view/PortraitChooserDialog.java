@@ -39,6 +39,10 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 		return main;
 	}
 
+	public boolean isEmpty() {
+		return (portraitPaths == null || portraitPaths.isEmpty());
+	}
+
 	private void init() {
 		setTitle("Wähle ein Portrait...");
 
@@ -58,15 +62,12 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 		}
 
 		if (portraitPaths == null || portraitPaths.isEmpty()) {
-
-			String path = portraitDir.getAbsolutePath().replace(DSATabApplication.SD_CARD_PATH_PREFIX, "");
-
+			String path = portraitDir.getAbsolutePath();
 			Toast.makeText(
 					getContext(),
 					"Keine Portraits gefunden. Kopiere deine eigenen auf deine SD-Karte unter \"" + path
 							+ "\" oder lade die Standardportraits in den Einstellungen herunter.", Toast.LENGTH_LONG)
 					.show();
-			dismiss();
 			return;
 		}
 

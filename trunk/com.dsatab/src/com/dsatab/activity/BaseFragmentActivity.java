@@ -46,7 +46,7 @@ public class BaseFragmentActivity extends SherlockFragmentActivity {
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 		SharedPreferences preferences = DSATabApplication.getPreferences();
-		updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
+		updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, false));
 	}
 
 	/*
@@ -85,7 +85,6 @@ public class BaseFragmentActivity extends SherlockFragmentActivity {
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}
-
 		getWindow().getDecorView().requestLayout();
 	}
 }

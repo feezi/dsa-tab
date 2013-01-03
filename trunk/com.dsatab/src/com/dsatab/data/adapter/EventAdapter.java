@@ -72,11 +72,11 @@ public class EventAdapter extends OpenArrayAdapter<Event> {
 		}
 
 		if (e.getCategory().hasName() && !TextUtils.isEmpty(e.getName())) {
-			holder.text1.setText(e.getName());
-			holder.text2.setText(e.getComment());
+			holder.text1.setText(e.getName().trim());
+			holder.text2.setText(e.getComment().trim());
 			holder.text2.setVisibility(View.VISIBLE);
 		} else {
-			holder.text1.setText(e.getComment());
+			holder.text1.setText(e.getComment().trim());
 			holder.text2.setVisibility(View.GONE);
 		}
 

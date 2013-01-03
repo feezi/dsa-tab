@@ -277,8 +277,6 @@ public class MapFragment extends BaseFragment {
 
 		if (mapFiles.isEmpty()) {
 			String path = mapDir.getAbsolutePath();
-			path = path.replace(DSATabApplication.SD_CARD_PATH_PREFIX, "");
-
 			empty.setVisibility(View.VISIBLE);
 			imageMapView.setVisibility(View.GONE);
 			if (osmMapView != null)

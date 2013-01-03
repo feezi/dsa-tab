@@ -571,35 +571,26 @@ public class Hero {
 				break;
 			case Lebensenergie:
 				attr = getAttribute(AttributeType.Lebensenergie_Aktuell);
-				if (attr != null) {
-					attr.setReferenceValue(value.getValue());
-					attr.checkValue();
+				if (attr != null && attr.checkValue(attr.getMaximum())) {
 					postLeRatioCheck();
-
 				}
 				break;
 			case Ausdauer:
 				attr = getAttribute(AttributeType.Ausdauer_Aktuell);
-				if (attr != null) {
-					attr.setReferenceValue(value.getValue());
-					attr.checkValue();
+				if (attr != null && attr.checkValue(attr.getMaximum())) {
 					postAuRatioCheck();
 				}
 
 				break;
 			case Astralenergie:
 				attr = getAttribute(AttributeType.Astralenergie_Aktuell);
-				if (attr != null) {
-					attr.setReferenceValue(value.getValue());
-					attr.checkValue();
+				if (attr != null && attr.checkValue(attr.getMaximum())) {
 					fireValueChangedEvent(attr);
 				}
 				break;
 			case Karmaenergie:
 				attr = getAttribute(AttributeType.Karmaenergie_Aktuell);
-				if (attr != null) {
-					attr.setReferenceValue(value.getValue());
-					attr.checkValue();
+				if (attr != null && attr.checkValue(attr.getMaximum())) {
 					fireValueChangedEvent(attr);
 				}
 				break;
@@ -620,6 +611,15 @@ public class Hero {
 		clearModifiersCache();
 		for (HeroChangedListener l : listener) {
 			l.onModifierChanged(modifier);
+		}
+
+		Attribute le = getAttribute(AttributeType.Lebensenergie);
+		if (modifier.affects(le)) {
+			fireValueChangedEvent(le);
+		}
+		Attribute au = getAttribute(AttributeType.Ausdauer);
+		if (modifier.affects(au)) {
+			fireValueChangedEvent(au);
 		}
 	}
 
@@ -696,6 +696,15 @@ public class Hero {
 		for (HeroChangedListener l : listener) {
 			l.onModifierAdded(modifier);
 		}
+
+		Attribute le = getAttribute(AttributeType.Lebensenergie);
+		if (modifier.affects(le)) {
+			fireValueChangedEvent(le);
+		}
+		Attribute au = getAttribute(AttributeType.Ausdauer);
+		if (modifier.affects(au)) {
+			fireValueChangedEvent(au);
+		}
 	}
 
 	/**
@@ -714,6 +723,15 @@ public class Hero {
 
 			for (HeroChangedListener l : listener) {
 				l.onModifierRemoved(modifier);
+			}
+
+			Attribute le = getAttribute(AttributeType.Lebensenergie);
+			if (modifier.affects(le)) {
+				fireValueChangedEvent(le);
+			}
+			Attribute au = getAttribute(AttributeType.Ausdauer);
+			if (modifier.affects(au)) {
+				fireValueChangedEvent(au);
 			}
 		}
 	}
@@ -1166,19 +1184,12 @@ public class Hero {
 	 * @return
 	 */
 	public float getRatio(AttributeType type) {
-		Attribute le = getAttribute(AttributeType.Lebensenergie_Aktuell);
-		if (le != null) {
-			Integer value = le.getValue();
-			Integer ref = le.getReferenceValue();
-			if (value != null && ref != null && ref != 0) {
-				return ((float) value) / ref;
-			} else {
-				return 1.0f;
-			}
+		Attribute attr = getAttribute(type);
+		if (attr != null) {
+			return attr.getRatio();
 		} else {
 			return 1.0f;
 		}
-
 	}
 
 	public int getModifier(Probe probe) {

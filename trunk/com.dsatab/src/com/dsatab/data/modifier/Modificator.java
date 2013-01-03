@@ -14,4 +14,6 @@ public interface Modificator {
 
 	public String getModificatorInfo();
 
+	public boolean affects(Probe probe);
+
 }

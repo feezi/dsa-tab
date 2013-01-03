@@ -444,9 +444,13 @@ public class EquippedItem implements ItemCard {
 					DistanceWeapon weapon = (DistanceWeapon) itemSpecification;
 					setTalent(hero.getCombatTalent(weapon.getCombatTalentType().getName()));
 				} else if (itemSpecification instanceof Shield) {
+
 					Shield shield = (Shield) itemSpecification;
-					if (shield.isShield()) {
+
+					if (shield.isShield() && getUsageType() == UsageType.Schild) {
 						setTalent(hero.getCombatShieldTalent());
+					} else if (shield.isParadeWeapon() && getUsageType() == UsageType.Paradewaffe) {
+						setTalent(hero.getCombatParadeWeaponTalent(this));
 					} else {
 						// paradeweapon
 						for (CombatTalentType type : shield.getCombatTalentTypes()) {

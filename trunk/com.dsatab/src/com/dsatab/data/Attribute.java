@@ -2,6 +2,7 @@ package com.dsatab.data;
 
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.util.Util;
+import com.gandulf.guilib.util.MathUtil;
 
 public class Attribute extends BaseProbe implements Value, Cloneable {
 
@@ -31,6 +32,10 @@ public class Attribute extends BaseProbe implements Value, Cloneable {
 
 	public AttributeType getType() {
 		return type;
+	}
+
+	public float getRatio() {
+		return MathUtil.getRatio(getValue(), getReferenceValue());
 	}
 
 	public void setType(AttributeType type) {
@@ -147,8 +152,13 @@ public class Attribute extends BaseProbe implements Value, Cloneable {
 		}
 	}
 
-	public boolean checkValue() {
+	public boolean checkValue(Integer newRefValue) {
 		boolean changed = false;
+
+		if (!Util.equalsOrNull(getReferenceValue(), newRefValue)) {
+			setReferenceValue(newRefValue);
+			changed = true;
+		}
 		Integer value = getValue();
 		if (value != null) {
 			int max = getMaximum();
@@ -286,16 +296,16 @@ public class Attribute extends BaseProbe implements Value, Cloneable {
 
 		switch (type) {
 		case Lebensenergie_Aktuell:
-			max = hero.getAttributeValue(AttributeType.Lebensenergie);
+			max = hero.getModifiedValue(AttributeType.Lebensenergie, false, false);
 			break;
 		case Astralenergie_Aktuell:
-			max = hero.getAttributeValue(AttributeType.Astralenergie);
+			max = hero.getModifiedValue(AttributeType.Astralenergie, false, false);
 			break;
 		case Ausdauer_Aktuell:
-			max = hero.getAttributeValue(AttributeType.Ausdauer);
+			max = hero.getModifiedValue(AttributeType.Ausdauer, false, false);
 			break;
 		case Karmaenergie_Aktuell:
-			max = hero.getAttributeValue(AttributeType.Karmaenergie);
+			max = hero.getModifiedValue(AttributeType.Karmaenergie, false, false);
 			break;
 		case Behinderung:
 			max = 15;

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
+import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.data.Spell;
 import com.dsatab.data.SpellInfo;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
@@ -39,14 +41,32 @@ public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnCl
 	public void setSpell(Spell spell) {
 		this.spell = spell;
 		if (spell != null) {
-			String title = spell.getName();
+			StyleableSpannableStringBuilder sb = new StyleableSpannableStringBuilder();
+
+			StringBuilder addons = new StringBuilder();
 			if (!TextUtils.isEmpty(spell.getZauberSpezialisierung())) {
-				title += " (" + spell.getZauberSpezialisierung() + ")";
+				addons.append(", " + spell.getZauberSpezialisierung());
 			}
+			if (spell.hasFlag(Spell.Flags.Hauszauber)) {
+				addons.append(", Hauszauber");
+			}
+			if (spell.hasFlag(Spell.Flags.ÜbernatürlicheBegabung)) {
+				addons.append(", Übernat. Begabung");
+			}
+			if (spell.hasFlag(Spell.Flags.Begabung)) {
+				addons.append(", Begabung");
+			}
+			sb.append(spell.getName());
 
 			SpellInfo info = spell.getInfo();
+			if (addons.length() > 0) {
+				addons.delete(0, 2);
+				addons.append(")");
+				addons.insert(0, " (");
+				sb.appendWithStyle(new RelativeSizeSpan(0.5f), addons);
+			}
 
-			setTitle(title);
+			setTitle(sb);
 
 			if (info != null) {
 				set(R.id.popup_spell_castduration, info.getCastDurationDetailed());

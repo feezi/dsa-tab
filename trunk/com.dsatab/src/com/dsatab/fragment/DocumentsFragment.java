@@ -84,8 +84,6 @@ public class DocumentsFragment extends BaseFragment implements OnItemClickListen
 
 		if (documents.isEmpty()) {
 			String path = pdfsDir.getAbsolutePath();
-			path = path.replace(DSATabApplication.SD_CARD_PATH_PREFIX, "");
-
 			empty.setVisibility(View.VISIBLE);
 			listView.setVisibility(View.GONE);
 			empty.setText(Util.getText(R.string.message_documents_empty, path));

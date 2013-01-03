@@ -3,6 +3,7 @@ package com.dsatab.view;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -10,6 +11,7 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.dsatab.R;
+import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.data.Art;
 import com.dsatab.data.ArtInfo;
 
@@ -33,7 +35,14 @@ public class ArtInfoDialog extends AlertDialog implements DialogInterface.OnClic
 
 		ArtInfo info = art.getInfo();
 
-		setTitle(art.getFullName());
+		StyleableSpannableStringBuilder sb = new StyleableSpannableStringBuilder();
+
+		sb.append(art.getFullName());
+		if (art.hasFlag(Art.Flags.Begabung)) {
+			sb.appendWithStyle(new RelativeSizeSpan(0.5f), " (Begabung)");
+		}
+		setTitle(sb);
+
 		set(R.id.popup_liturgie_type, art.getType().getName());
 		set(R.id.popup_liturgie_costs, art.getCosts());
 		set(R.id.popup_liturgie_effect, art.getEffect());

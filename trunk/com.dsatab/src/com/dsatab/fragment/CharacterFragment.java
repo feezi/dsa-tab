@@ -105,7 +105,9 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 				break;
 			case R.id.option_pick_avatar:
 				PortraitChooserDialog pdialog = new PortraitChooserDialog(getBaseActivity());
-				pdialog.show();
+				if (!pdialog.isEmpty()) {
+					pdialog.show();
+				}
 				break;
 			}
 			mode.finish();
@@ -117,6 +119,7 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 			if (getHero() != null) {
 				mode.getMenuInflater().inflate(R.menu.portrait_popupmenu, menu);
 				mode.setTitle("Portrait");
+				mode.setSubtitle(null);
 				if (getHero().getPortrait() == null) {
 					menu.findItem(R.id.option_view_portrait).setVisible(false);
 				}
@@ -524,16 +527,16 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		fillAttributeValue(tfTotalLe, AttributeType.Lebensenergie);
 		fillAttributeValue(tfTotalAu, AttributeType.Ausdauer);
 
-		if (hero.getAttributeValue(AttributeType.Karmaenergie_Aktuell) == null
-				|| hero.getAttributeValue(AttributeType.Karmaenergie_Aktuell) == 0) {
+		if (hero.getAttributeValue(AttributeType.Karmaenergie) == null
+				|| hero.getAttributeValue(AttributeType.Karmaenergie) == 0) {
 			findViewById(R.id.row_ke).setVisibility(View.GONE);
 		} else {
 			fillAttributeValue(tfTotalKe, AttributeType.Karmaenergie);
 			findViewById(R.id.row_ke).setVisibility(View.VISIBLE);
 		}
 
-		if (hero.getAttributeValue(AttributeType.Astralenergie_Aktuell) == null
-				|| hero.getAttributeValue(AttributeType.Astralenergie_Aktuell) == 0) {
+		if (hero.getAttributeValue(AttributeType.Astralenergie) == null
+				|| hero.getAttributeValue(AttributeType.Astralenergie) == 0) {
 			findViewById(R.id.row_ae).setVisibility(View.GONE);
 		} else {
 			fillAttributeValue(tfTotalAe, AttributeType.Astralenergie);

@@ -15,4 +15,5 @@ public interface Value {
 	public int getMaximum();
 
 	public Integer getReferenceValue();
+
 }

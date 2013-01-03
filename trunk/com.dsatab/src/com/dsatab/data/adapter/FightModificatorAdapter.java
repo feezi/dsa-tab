@@ -37,6 +37,7 @@ public class FightModificatorAdapter extends OpenArrayAdapter<Modificator> imple
 	public FightModificatorAdapter(Activity context, List<Modificator> objects) {
 		super(context, 0, objects);
 		this.activity = context;
+
 		init();
 	}
 
@@ -60,7 +61,8 @@ public class FightModificatorAdapter extends OpenArrayAdapter<Modificator> imple
 	 * 
 	 */
 	private void init() {
-		add(null);
+		// add empty iem for header
+		insert(null, 0);
 		inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
