@@ -38,12 +38,6 @@ public class HeroExchange {
 	public static final int RESULT_CANCELED = 3;
 	public static final int RESULT_EMPTY = 4;
 
-	public static final String PREF_LAST_HERO_KEY = "LAST_HERO_KEY";
-	public static final String PREF_LAST_HERO_OWNER = "LAST_HERO_OWNER";
-
-	public static final String DEFAULT_USERNAME = "gastlogin";
-	public static final String DEFAULT_PASSWORD = "gastlogin";
-
 	private Context context;
 
 	// private Dialog importDialog;
@@ -236,13 +230,6 @@ public class HeroExchange {
 	//
 	// }
 	// }
-
-	public void close() {
-		// if (importDialog != null && importDialog.isShowing())
-		// importDialog.cancel();
-		//
-		// importDialog = null;
-	}
 
 	// private void downloadHero(Context context, String inPath, String id) {
 	// ImportHeroTask importFileTask = new ImportHeroTask(context, id);

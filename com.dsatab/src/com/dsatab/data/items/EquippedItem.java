@@ -52,11 +52,14 @@ public class EquippedItem implements ItemCard {
 	private CombatProbe at, pa;
 
 	private Hand hand;
+
 	private int set;
 
 	private String slot, name, talentName, itemSpecificationLabel;
 
 	private Integer schildIndex;
+
+	private boolean beidhändigerKampf;
 
 	public EquippedItem(Hero hero) {
 		this.id = UUID.randomUUID();
@@ -398,6 +401,11 @@ public class EquippedItem implements ItemCard {
 	}
 
 	public void setSecondaryItem(EquippedItem secondaryEquippedItem) {
+		if (secondaryEquippedItem == null) {
+			this.setBeidhändigerKampf(false);
+		} else if (this.secondaryEquippedItem != null) {
+			this.secondaryEquippedItem.setBeidhändigerKampf(false);
+		}
 
 		this.secondaryEquippedItem = secondaryEquippedItem;
 
@@ -481,6 +489,17 @@ public class EquippedItem implements ItemCard {
 
 	public void setSlot(String slot) {
 		this.slot = slot;
+	}
+
+	public boolean isBeidhändigerKampf() {
+		return beidhändigerKampf;
+	}
+
+	public void setBeidhändigerKampf(boolean beidhändigerKampf) {
+		this.beidhändigerKampf = beidhändigerKampf;
+
+		hero.clearModifiersCache(getCombatProbeAttacke());
+		hero.clearModifiersCache(getCombatProbeDefense());
 	}
 
 	/*

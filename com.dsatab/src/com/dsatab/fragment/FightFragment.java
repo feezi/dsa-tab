@@ -24,7 +24,6 @@ import kankan.wheel.widget.OnWheelChangedListener;
 import kankan.wheel.widget.WheelView;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -238,63 +237,21 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 								intent.putExtra(ItemChooserFragment.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
 								startActivity(intent);
 
-							} else if (item.getItemId() == R.id.option_assign_primary) {
-
-								final EquippedItem equippedShield = equippedItem;
-
-								EquippedItemChooserDialog dialog = new EquippedItemChooserDialog(getActivity());
-								dialog.setEquippedItems(getHero().getEquippedItems(Weapon.class));
-								dialog.show();
-								dialog.setOnDismissListener(new Dialog.OnDismissListener() {
-
-									@Override
-									public void onDismiss(DialogInterface dialog) {
-										EquippedItemChooserDialog equippedDialog = (EquippedItemChooserDialog) dialog;
-
-										if (equippedDialog.getSelectedItem() != null) {
-											EquippedItem equippedWeapon = equippedDialog.getSelectedItem();
-
-											// remove 2way relation if old
-											// secondary item existed
-											if (equippedWeapon.getSecondaryItem() != null
-													&& equippedWeapon.getSecondaryItem().getSecondaryItem() != null) {
-												Debug.verbose("Removing old weapon sec item "
-														+ equippedWeapon.getSecondaryItem());
-												equippedWeapon.getSecondaryItem().setSecondaryItem(null);
-											}
-											if (equippedShield.getSecondaryItem() != null
-													&& equippedShield.getSecondaryItem().getSecondaryItem() != null) {
-												Debug.verbose("Removing old shield sec item "
-														+ equippedWeapon.getSecondaryItem());
-												equippedShield.getSecondaryItem().setSecondaryItem(null);
-											}
-
-											equippedShield.setSecondaryItem(equippedWeapon);
-											equippedWeapon.setSecondaryItem(equippedShield);
-
-											fillFightItemDescriptions();
-										}
-									}
-								});
-
 							} else if (item.getItemId() == R.id.option_assign_secondary) {
 
 								final EquippedItem equippedPrimaryWeapon = equippedItem;
 
-								EquippedItemChooserDialog dialog = new EquippedItemChooserDialog(getActivity());
-								dialog.setEquippedItems(getHero().getEquippedItems(Weapon.class, Shield.class));
-
+								final EquippedItemChooserDialog bkDialog = new EquippedItemChooserDialog(getActivity());
+								bkDialog.setEquippedItems(getHero().getEquippedItems(Weapon.class, Shield.class));
+								bkDialog.setSelectedItem(equippedItem.getSecondaryItem());
 								// do not select item itself
-								dialog.getEquippedItems().remove(equippedPrimaryWeapon);
-								dialog.setOnDismissListener(new Dialog.OnDismissListener() {
+								bkDialog.getEquippedItems().remove(equippedPrimaryWeapon);
+								bkDialog.setOnAcceptListener(new EquippedItemChooserDialog.OnAcceptListener() {
 
 									@Override
-									public void onDismiss(DialogInterface dialog) {
-										EquippedItemChooserDialog equippedDialog = (EquippedItemChooserDialog) dialog;
-
-										if (equippedDialog.getSelectedItem() != null) {
-
-											EquippedItem equippedSecondaryWeapon = equippedDialog.getSelectedItem();
+									public void onAccept(EquippedItem item, boolean bhKampf) {
+										if (item != null) {
+											EquippedItem equippedSecondaryWeapon = item;
 
 											equippedPrimaryWeapon.setHand(Hand.rechts);
 											equippedSecondaryWeapon.setHand(Hand.links);
@@ -317,12 +274,16 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 											equippedPrimaryWeapon.setSecondaryItem(equippedSecondaryWeapon);
 											equippedSecondaryWeapon.setSecondaryItem(equippedPrimaryWeapon);
 
+											equippedPrimaryWeapon.setBeidhändigerKampf(bhKampf);
+											equippedSecondaryWeapon.setBeidhändigerKampf(bhKampf);
+
 											fillFightItemDescriptions();
 										}
+
 									}
 								});
 
-								dialog.show();
+								bkDialog.show();
 
 							} else if (item.getItemId() == R.id.option_unassign) {
 
@@ -429,10 +390,8 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 
 							menu.findItem(R.id.option_view).setVisible(equippedItem.getItem().hasImage());
 
-							menu.findItem(R.id.option_assign_primary).setVisible(
-									equippedItem.getItem().hasSpecification(Shield.class));
-
 							menu.findItem(R.id.option_assign_secondary).setVisible(false);
+
 							if (equippedItem.getItem().hasSpecification(Weapon.class)) {
 								Weapon weapon = (Weapon) equippedItem.getItem().getSpecification(Weapon.class);
 								if (!weapon.isTwoHanded()) {

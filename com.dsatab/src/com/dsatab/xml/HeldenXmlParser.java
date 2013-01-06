@@ -75,7 +75,6 @@ import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.EventCategory;
 import com.dsatab.data.enums.Position;
 import com.dsatab.data.items.Armor;
-import com.dsatab.data.items.BeidhaendigerKampf;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Hand;
@@ -1372,14 +1371,15 @@ public class HeldenXmlParser {
 
 		List<Element> equippedElements = DomUtil.getChildrenByTagName(equippmentNode, Xml.KEY_HELDENAUSRUESTUNG);
 
-		List<EquippedItem> allEuippedItems = new ArrayList<EquippedItem>(hero.getAllEquippedItems());
-		List<Element> beidhaendigerKampElements = new ArrayList<Element>();
+		List<EquippedItem> allEquippedItems = new ArrayList<EquippedItem>(hero.getAllEquippedItems());
 		List<Element> huntingWeaponElements = new ArrayList<Element>();
 
 		for (Iterator<Element> iter = equippedElements.iterator(); iter.hasNext();) {
 			Element itemElement = iter.next();
+
+			// remove all old once and add the new
 			if (itemElement.getAttributeValue(Xml.KEY_NAME).startsWith(Hero.PREFIX_BK)) {
-				beidhaendigerKampElements.add(itemElement);
+				equippmentNode.removeContent(itemElement);
 				continue;
 			}
 
@@ -1391,7 +1391,7 @@ public class HeldenXmlParser {
 			EquippedItem equippedItem = hero.getEquippedItem(Util.parseInt(itemElement.getAttributeValue(Xml.KEY_SET)),
 					itemElement.getAttributeValue(Xml.KEY_NAME));
 			if (equippedItem != null) {
-				allEuippedItems.remove(equippedItem);
+				allEquippedItems.remove(equippedItem);
 				writeEquippedItem(hero, equippedItem, itemElement);
 				Debug.verbose("Xml popuplate equippeditem " + itemElement);
 			} else {
@@ -1400,7 +1400,7 @@ public class HeldenXmlParser {
 			}
 		}
 
-		for (EquippedItem newItem : allEuippedItems) {
+		for (EquippedItem newItem : allEquippedItems) {
 			Element element = new Element(Xml.KEY_HELDENAUSRUESTUNG);
 			writeEquippedItem(hero, newItem, element);
 
@@ -1409,28 +1409,18 @@ public class HeldenXmlParser {
 		}
 
 		// -- beidhändigerkampf
-		List<BeidhaendigerKampf> allBhKamps = new ArrayList<BeidhaendigerKampf>(hero.getBeidhaendigerKampfs());
-		for (Element bhElement : beidhaendigerKampElements) {
-			boolean found = false;
+		for (EquippedItem equippedItem1 : hero.getAllEquippedItems()) {
+			if (equippedItem1.isBeidhändigerKampf() && equippedItem1.getSecondaryItem() != null) {
 
-			for (BeidhaendigerKampf bhKamp : hero.getBeidhaendigerKampfs()) {
-				if (bhElement.getAttributeValue(Xml.KEY_NAME).equals(bhKamp.getName())) {
-					allBhKamps.remove(bhKamp);
-					writeBeidhändigerKampf(bhKamp, bhElement);
-					found = true;
-					break;
+				EquippedItem equippedItem2 = equippedItem1.getSecondaryItem();
+
+				if (equippedItem2 != null && equippedItem2.isBeidhändigerKampf()
+						&& equippedItem1.getNameId() < equippedItem2.getNameId()) {
+					Element bk = new Element(Xml.KEY_HELDENAUSRUESTUNG);
+					writeBeidhändigerKampf(equippedItem1, equippedItem2, bk);
+					equippmentNode.addContent(bk);
 				}
 			}
-
-			if (!found) {
-				equippmentNode.removeContent(bhElement);
-			}
-		}
-
-		for (BeidhaendigerKampf bhKampf : allBhKamps) {
-			Element bk = new Element(Xml.KEY_HELDENAUSRUESTUNG);
-			writeBeidhändigerKampf(bhKampf, bk);
-			equippmentNode.addContent(bk);
 		}
 
 		// hunting weapon
@@ -1644,15 +1634,13 @@ public class HeldenXmlParser {
 	 * @param bhKampf
 	 * @param bk
 	 */
-	private static void writeBeidhändigerKampf(BeidhaendigerKampf bhKampf, Element element) {
-		element.setAttribute(Xml.KEY_SET, Util.toString(bhKampf.getSet()));
+	private static void writeBeidhändigerKampf(EquippedItem item1, EquippedItem item2, Element element) {
+		element.setAttribute(Xml.KEY_SET, Util.toString(item1.getSet()));
 
-		if (bhKampf.getItem1().getNameId() < bhKampf.getItem2().getNameId())
-			element.setAttribute(Xml.KEY_NAME, Hero.PREFIX_BK + bhKampf.getItem1().getNameId()
-					+ bhKampf.getItem2().getNameId());
+		if (item1.getNameId() < item2.getNameId())
+			element.setAttribute(Xml.KEY_NAME, Hero.PREFIX_BK + item1.getNameId() + item2.getNameId());
 		else
-			element.setAttribute(Xml.KEY_NAME, Hero.PREFIX_BK + bhKampf.getItem2().getNameId()
-					+ bhKampf.getItem1().getNameId());
+			element.setAttribute(Xml.KEY_NAME, Hero.PREFIX_BK + item2.getNameId() + item1.getNameId());
 
 	}
 

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,7 +40,6 @@ import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
 import com.dsatab.data.items.Armor;
-import com.dsatab.data.items.BeidhaendigerKampf;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Hand;
@@ -104,8 +102,6 @@ public class Hero {
 	private List<Connection> connections = null;
 
 	private HuntingWeapon[] huntingWeapons;
-
-	private List<BeidhaendigerKampf> beidhaendigerKampf = new LinkedList<BeidhaendigerKampf>();
 
 	private List<Modificator> modificators = null;
 
@@ -416,21 +412,6 @@ public class Hero {
 		return equippedItems[selectedSet];
 	}
 
-	public boolean hasBeidhaendigerKampf(int set, EquippedItem item1, EquippedItem item2) {
-
-		for (BeidhaendigerKampf bhKampf : beidhaendigerKampf) {
-
-			String bk = bhKampf.getName();
-
-			if (bhKampf.getSet() == set && bk.equals(PREFIX_BK + item1.getNameId() + item2.getNameId()))
-				return true;
-
-			if (bhKampf.getSet() == set && bk.equals(PREFIX_BK + item2.getNameId() + item1.getNameId()))
-				return true;
-		}
-		return false;
-	}
-
 	public void addBeidhaendigerKampf(EquippedItem item1, EquippedItem item2) {
 
 		if (item1.getSet() != item2.getSet()) {
@@ -438,35 +419,8 @@ public class Hero {
 					+ item1.toString() + item1.getSet() + " " + item2.toString() + item2.getSet());
 		}
 
-		if (hasBeidhaendigerKampf(item1.getSet(), item1, item2))
-			return;
-
-		BeidhaendigerKampf bhKampf = new BeidhaendigerKampf(item1, item2);
-		bhKampf.setSet(item1.getSet());
-
-		if (item1.getNameId() < item2.getNameId())
-			bhKampf.setName(PREFIX_BK + item1.getNameId() + item2.getNameId());
-		else
-			bhKampf.setName(PREFIX_BK + item2.getNameId() + item1.getNameId());
-
-		beidhaendigerKampf.add(bhKampf);
-	}
-
-	public void removeBeidhaendigerKampf(int set, EquippedItem item1, EquippedItem item2) {
-
-		for (BeidhaendigerKampf bhKampf : beidhaendigerKampf) {
-
-			String bk = bhKampf.getName();
-
-			if (bhKampf.getSet() == set
-					&& (bk.equals(PREFIX_BK + item1.getNameId() + item2.getNameId()) || bk.equals(PREFIX_BK
-							+ item2.getNameId() + item1.getNameId()))) {
-
-				beidhaendigerKampf.remove(bhKampf);
-			}
-
-		}
-
+		item1.setBeidhändigerKampf(true);
+		item2.setBeidhändigerKampf(true);
 	}
 
 	public String getKey() {
@@ -714,6 +668,10 @@ public class Hero {
 		for (ModifierCache cache : modifiersCache.values()) {
 			cache.clear();
 		}
+	}
+
+	public void clearModifiersCache(Probe probe) {
+		modifiersCache.remove(probe);
 	}
 
 	void fireModifierRemovedEvent(Modificator modifier) {
@@ -1371,7 +1329,6 @@ public class Hero {
 			case Wache:
 
 				// TODO add erschöpfung
-
 				if (hasFeature(SpecialFeature.AUFMERKSAMKEIT)) {
 					if (outValue != null)
 						outValue[0] += 1;
@@ -1592,6 +1549,7 @@ public class Hero {
 						}
 
 					}
+
 				} else if (equippedItem.getItemSpecification() instanceof Shield) {
 					Shield shield = (Shield) equippedItem.getItemSpecification();
 
@@ -1609,43 +1567,79 @@ public class Hero {
 									R.string.modifier_schildmodifikator_pa)));
 
 						// paradevalue is increased by 1 if weaponparade is
-						// above
-						// 15
-						if (shield.isShield()) {
-							EquippedItem equippedWeapon = equippedItem.getSecondaryItem();
+						// above 15
+						if (equippedItem.getUsageType() != null) {
+							switch (equippedItem.getUsageType()) {
+							case Schild: {
+								EquippedItem equippedPrimaryWeapon = equippedItem.getSecondaryItem();
 
-							if (equippedWeapon != null) {
-								int defenseValue = 0;
-								if (equippedWeapon.getTalent().getDefense() != null) {
-									defenseValue = equippedWeapon.getTalent().getDefense().getProbeValue(0);
+								if (equippedPrimaryWeapon != null) {
+									int defenseValue = 0;
+									if (equippedPrimaryWeapon.getTalent().getDefense() != null) {
+										defenseValue = equippedPrimaryWeapon.getTalent().getDefense().getProbeValue(0);
+									}
+
+									if (defenseValue >= 21) {
+										if (outValue != null)
+											outValue[0] += 3;
+										if (outModifiers != null)
+											outModifiers
+													.add(new Modifier(3, DSATabApplication.getInstance().getString(
+															R.string.modifier_shield_hauptwaffe_paradewert,
+															defenseValue, "+3")));
+									} else if (defenseValue >= 18) {
+										if (outValue != null)
+											outValue[0] += 2;
+										if (outModifiers != null)
+											outModifiers
+													.add(new Modifier(2, DSATabApplication.getInstance().getString(
+															R.string.modifier_shield_hauptwaffe_paradewert,
+															defenseValue, "+2")));
+									} else if (defenseValue >= 15) {
+										if (outValue != null)
+											outValue[0] += 1;
+										if (outModifiers != null)
+											outModifiers
+													.add(new Modifier(1, DSATabApplication.getInstance().getString(
+															R.string.modifier_shield_hauptwaffe_paradewert,
+															defenseValue, "+1")));
+									}
+								}
+								break;
+							}
+							case Paradewaffe:
+								boolean primaryWeapon = false;
+								if (equippedItem.getItem() != null && equippedItem.getSecondaryItem() != null) {
+									EquippedItem equippedPrimaryWeapon = equippedItem.getSecondaryItem();
+									if (equippedPrimaryWeapon.getTalent() instanceof CombatMeleeTalent
+											&& equippedPrimaryWeapon.getTalent().getDefense() != null) {
+										primaryWeapon = true;
+									}
 								}
 
-								if (defenseValue >= 21) {
-									if (outValue != null)
-										outValue[0] += 3;
-									if (outModifiers != null)
-										outModifiers.add(new Modifier(3, DSATabApplication.getInstance().getString(
-												R.string.modifier_shield_hauptwaffe_paradewert, defenseValue, "+3")));
-								} else if (defenseValue >= 18) {
+								if (primaryWeapon && hasFeature(SpecialFeature.PARIERWAFFEN_2)) {
 									if (outValue != null)
 										outValue[0] += 2;
 									if (outModifiers != null)
-										outModifiers.add(new Modifier(2, DSATabApplication.getInstance().getString(
-												R.string.modifier_shield_hauptwaffe_paradewert, defenseValue, "+2")));
-								} else if (defenseValue >= 15) {
+										outModifiers.add(new Modifier(2, "Parierwaffen II"));
+								} else if (primaryWeapon && hasFeature(SpecialFeature.PARIERWAFFEN_1)) {
+									if (outValue != null)
+										outValue[0] += -1;
+									if (outModifiers != null)
+										outModifiers.add(new Modifier(-1, "Parierwaffen I"));
+								} else if (hasFeature(SpecialFeature.LINKHAND)) {
 									if (outValue != null)
 										outValue[0] += 1;
 									if (outModifiers != null)
-										outModifiers.add(new Modifier(1, DSATabApplication.getInstance().getString(
-												R.string.modifier_shield_hauptwaffe_paradewert, defenseValue, "+1")));
+										outModifiers.add(new Modifier(1, "Linkhand"));
 								}
+
+								break;
 							}
 						}
 					}
 				} else if (equippedItem.getItemSpecification() instanceof DistanceWeapon) {
 					Item item = equippedItem.getItem();
-					// DistanceWeapon distanceWeapon = (DistanceWeapon)
-					// equippedItem.getItemSpecification();
 
 					BaseCombatTalent talent = (BaseCombatTalent) equippedItem.getTalent();
 					if (talent != null && talent.getTalentSpezialisierung() != null
@@ -1696,13 +1690,41 @@ public class Hero {
 	 * @param equippedItem
 	 */
 	private void addModForBeidhändigerKampf(List<Modifier> outModifiers, Integer[] outValue, EquippedItem equippedItem) {
+
+		EquippedItem equippedSecondaryWeapon = equippedItem.getSecondaryItem();
+		if (equippedItem.isBeidhändigerKampf() && equippedSecondaryWeapon != null
+				&& equippedSecondaryWeapon.getItemSpecification() instanceof Weapon
+				&& equippedItem.getItemSpecification() instanceof Weapon) {
+			Item secondItem = equippedSecondaryWeapon.getItem();
+			Item primaryItem = equippedItem.getItem();
+			// WdS 72, beim beidhändigen kampf mit gleichen waffen 0/0, beim
+			// kampf mit waffen des selben talent -1/-1, beim kampf mit
+			// unterschiedlichen talenten -2/-2
+
+			if (secondItem.getName().equals(primaryItem.getName())) {
+				// 0/0 no modifier
+			} else if (equippedItem.getTalent().equals(equippedSecondaryWeapon.getTalent())) {
+				if (outValue != null)
+					outValue[0] += -1;
+				if (outModifiers != null) {
+					outModifiers
+							.add(new Modifier(-1, "Beidhändigerkampf - gleiches Talent",
+									"Beim Beidhändigenkampf mit 2 Waffen des selben Talentes bekommt man einen Abzug von -1/-1."));
+				}
+			} else {
+				if (outValue != null)
+					outValue[0] += -2;
+				if (outModifiers != null) {
+					outModifiers
+							.add(new Modifier(-2, "Beidhändigerkampf - unterschiedliches Talent",
+									"Beim Beidhändigenkampf mit 2 Waffen unterschiedlichen Talentes bekommt man einen Abzug von -2/-2."));
+				}
+			}
+
+		}
+
 		// check for beidhändiger kampf
 		if (equippedItem.getHand() == Hand.links) {
-			// EquippedItem equippedSecondaryWeapon =
-			// equippedItem.getSecondaryItem();
-			// if (equippedSecondaryWeapon != null &&
-			// equippedSecondaryWeapon.getItem().hasSpecification(Weapon.class))
-			// {
 			int m = 0;
 			if (!hasFeature(Advantage.BEIDHAENDIG)) {
 				m = -9;
@@ -1721,7 +1743,6 @@ public class Hero {
 						.add(new Modifier(m, "Beidhändigerkampf Links",
 								"Beim Beidhändigenkampf bekommt man je nach Sonderfertigkeiten bei Aktionen mit der linken Hand Abzüge."));
 			}
-			// }
 		}
 	}
 
@@ -1940,12 +1961,12 @@ public class Hero {
 
 				int stars = 0;
 				float totalRs = 0;
-
+				float itemRs = 0;
 				for (EquippedItem equippedItem : getEquippedItems()) {
 
 					if (equippedItem.getItemSpecification() instanceof Armor) {
+						itemRs = 0;
 						Armor armor = (Armor) equippedItem.getItemSpecification();
-						stars += armor.getStars();
 
 						if (rs1Armor != null && rs1Armor.equals(equippedItem.getItem().getName())) {
 							be -= 1.0;
@@ -1958,8 +1979,13 @@ public class Hero {
 							if (armor.isZonenHalfBe())
 								armorRs = armorRs / 2.0f;
 
-							totalRs += (armorRs * Position.ARMOR_POSITIONS_MULTIPLIER[i]);
+							itemRs += (armorRs * Position.ARMOR_POSITIONS_MULTIPLIER[i]);
 						}
+
+						if (itemRs >= 20) {
+							stars += armor.getStars();
+						}
+						totalRs += itemRs;
 					}
 				}
 
@@ -2378,13 +2404,6 @@ public class Hero {
 			BugSenseHandler.sendException(new InconsistentDataException(
 					"Setting hunting weapon with set null not possible: " + huntingWeapon));
 		}
-	}
-
-	/**
-	 * @return
-	 */
-	public Collection<? extends BeidhaendigerKampf> getBeidhaendigerKampfs() {
-		return beidhaendigerKampf;
 	}
 
 	/**
