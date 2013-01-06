@@ -252,8 +252,8 @@ public class FightEquippedItemAdapter extends OpenArrayAdapter<EquippedItem> {
 					sb.append(weapon.getName());
 					sb.append("/");
 				}
-				if (!TextUtils.isEmpty(equippedItem.getItemSpecificationLabel())) {
-					sb.append(equippedItem.getItemSpecificationLabel());
+				if (!TextUtils.isEmpty(equippedItem.getItemSpecification().getSpecificationLabel())) {
+					sb.append(equippedItem.getItemSpecification().getSpecificationLabel());
 					sb.append("/");
 				}
 				sb.append(talentName);

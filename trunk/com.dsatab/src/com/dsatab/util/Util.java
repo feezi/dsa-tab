@@ -44,6 +44,7 @@ import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.data.Attribute;
+import com.dsatab.data.CombatTalent;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Markable;
 import com.dsatab.data.Probe;
@@ -881,6 +882,27 @@ public class Util {
 
 	public static void sortItems(List<Item> items) {
 		Collections.sort(items, new ItemComparator());
+	}
+
+	public static CombatTalent getBest(List<CombatTalent> combatTalents) {
+		CombatTalent result = null;
+		int bestWeight = 0;
+		int weight;
+		for (CombatTalent combatTalent : combatTalents) {
+			weight = 0;
+			if (combatTalent.getAttack() != null && combatTalent.getAttack().getValue() != null)
+				weight += combatTalent.getAttack().getValue();
+			if (combatTalent.getDefense() != null && combatTalent.getDefense().getValue() != null)
+				weight += combatTalent.getDefense().getValue();
+
+			if (result == null || weight > bestWeight) {
+				bestWeight = weight;
+				result = combatTalent;
+			}
+		}
+
+		return result;
+
 	}
 
 	/**

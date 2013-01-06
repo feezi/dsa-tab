@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import com.dsatab.R;
 import com.dsatab.data.adapter.EquippedItemAdapter;
 import com.dsatab.data.items.EquippedItem;
+import com.dsatab.data.items.Weapon;
 
 public class EquippedItemChooserDialog extends AlertDialog implements AdapterView.OnItemClickListener,
 		DialogInterface.OnClickListener {
@@ -58,6 +59,7 @@ public class EquippedItemChooserDialog extends AlertDialog implements AdapterVie
 		if (selectedItem != null) {
 			itemList.setItemChecked(itemAdapter.getPosition(selectedItem), true);
 		}
+		refreshBeidhändigerKampf();
 	}
 
 	public List<EquippedItem> getEquippedItems() {
@@ -120,7 +122,7 @@ public class EquippedItemChooserDialog extends AlertDialog implements AdapterVie
 		switch (which) {
 		case BUTTON_POSITIVE:
 			if (onAcceptListener != null) {
-				onAcceptListener.onAccept(selectedItem, bhKampf.isChecked());
+				onAcceptListener.onAccept(selectedItem, bhKampf.isChecked() && bhKampf.isEnabled());
 			}
 			EquippedItemChooserDialog.this.dismiss();
 			break;
@@ -135,7 +137,14 @@ public class EquippedItemChooserDialog extends AlertDialog implements AdapterVie
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		selectedItem = itemAdapter.getItem(position);
+		refreshBeidhändigerKampf();
+	}
 
+	/**
+	 * 
+	 */
+	private void refreshBeidhändigerKampf() {
+		bhKampf.setEnabled((selectedItem == null || selectedItem.getItemSpecification() instanceof Weapon));
 	}
 
 }

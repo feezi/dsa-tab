@@ -1,16 +1,15 @@
 package com.dsatab.data.items;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.widget.Toast;
 
+import com.dsatab.data.CombatDistanceTalent;
+import com.dsatab.data.CombatMeleeTalent;
 import com.dsatab.data.CombatProbe;
+import com.dsatab.data.CombatShieldTalent;
 import com.dsatab.data.CombatTalent;
 import com.dsatab.data.Hero;
 import com.dsatab.data.ItemLocationInfo;
@@ -55,22 +54,19 @@ public class EquippedItem implements ItemCard {
 
 	private int set;
 
-	private String slot, name, talentName, itemSpecificationLabel;
+	private String slot, name;
 
 	private Integer schildIndex;
 
 	private boolean beidhändigerKampf;
 
-	public EquippedItem(Hero hero) {
+	public EquippedItem(Hero hero, CombatTalent talent, Item item, ItemSpecification itemSpecification) {
 		this.id = UUID.randomUUID();
 		this.hero = hero;
 		this.itemInfo = new ItemLocationInfo();
-	}
-
-	public EquippedItem(Hero hero, CombatTalent talent, Item item) {
-		this(hero);
+		this.item = item;
 		setTalent(talent);
-		setItem(item);
+		setItemSpecification(itemSpecification);
 	}
 
 	public Integer getSchildIndex() {
@@ -91,157 +87,144 @@ public class EquippedItem implements ItemCard {
 		return pa;
 	}
 
-	public String getItemSpecificationLabel() {
-		return itemSpecificationLabel;
-	}
-
-	public void setItemSpecificationLabel(String specLabel) {
-		this.itemSpecificationLabel = specLabel;
-	}
-
 	public ItemSpecification getItemSpecification() {
-		if (itemSpecification == null) {
+		return itemSpecification;
+	}
 
-			// no choice take to only one present
-			if (item.getSpecifications().size() == 1) {
-				itemSpecification = item.getSpecifications().get(0);
+	protected void refreshTalent(Context context) {
+		if (itemSpecification instanceof Weapon) {
+			Weapon weapon = (Weapon) itemSpecification;
+			// if the current talent does not fit search for a new one
+			if (!(talent instanceof CombatMeleeTalent)
+					|| !weapon.getCombatTalentTypes().contains(getTalent().getCombatTalentType())) {
+				CombatTalent combatTalent = Util.getBest(hero.getAvailableCombatTalents(weapon));
+				if (combatTalent == null) {
+					if (context != null) {
+						Toast.makeText(context, "Es wurde kein verwendbares Talent gefunden.", Toast.LENGTH_LONG)
+								.show();
+					} else {
+						Debug.warning("Es wurde kein verwendbares Talent gefunden: " + toString());
+					}
+					return;
+				} else {
+					setTalent(combatTalent);
+				}
+			}
+		} else if (itemSpecification instanceof Shield) {
+			Shield shield = (Shield) itemSpecification;
+			if (talent instanceof CombatShieldTalent) {
+				CombatShieldTalent combatShieldTalent = (CombatShieldTalent) talent;
+				if (getUsageType() != combatShieldTalent.getUsageType()) {
+					setTalent(hero.getCombatShieldTalent(getUsageType(), getSet(), getName()));
+				}
 			} else {
-				String specLabel = getItemSpecificationLabel();
-				// search for a spec with this name
-				if (specLabel != null) {
-					for (ItemSpecification itemSpec : item.getSpecifications()) {
-						if (specLabel.equals(itemSpec.getSpecificationLabel())) {
-							itemSpecification = itemSpec;
-							break;
-						}
+				setTalent(hero.getCombatShieldTalent(getUsageType(), getSet(), getName()));
+			}
+		} else if (itemSpecification instanceof DistanceWeapon) {
+			DistanceWeapon distanceweapon = (DistanceWeapon) itemSpecification;
+			if (!(talent instanceof CombatDistanceTalent)
+					|| distanceweapon.getCombatTalentType() != getTalent().getCombatTalentType()) {
+				CombatTalent talent = hero.getCombatTalent(distanceweapon.getCombatTalentType().name());
+				setTalent(talent);
+			}
+		}
+	}
+
+	public static CombatTalent getCombatTalent(Hero hero, UsageType usageType, int set, String name,
+			ItemSpecification itemSpecification) {
+		CombatTalent talent = null;
+
+		// search for the default talents of the items
+		if (itemSpecification instanceof Weapon) {
+			Weapon weapon = (Weapon) itemSpecification;
+			talent = Util.getBest(hero.getAvailableCombatTalents(weapon));
+		} else if (itemSpecification instanceof DistanceWeapon) {
+			DistanceWeapon weapon = (DistanceWeapon) itemSpecification;
+			talent = hero.getCombatTalent(weapon.getCombatTalentType().getName());
+		} else if (itemSpecification instanceof Shield) {
+			Shield shield = (Shield) itemSpecification;
+			talent = hero.getCombatShieldTalent(usageType, set, name);
+		}
+		return talent;
+	}
+
+	public static ItemSpecification getItemSpecification(Hero hero, String equippedName, Item item,
+			UsageType usageType, String bezeichner) {
+		ItemSpecification itemSpecification = null;
+
+		if (item.getSpecifications().size() == 1) {
+			itemSpecification = item.getSpecifications().get(0);
+		} else {
+			// search for a spec with this name
+			if (bezeichner != null) {
+				for (ItemSpecification itemSpec : item.getSpecifications()) {
+					if (bezeichner.equals(itemSpec.getSpecificationLabel())) {
+						itemSpecification = itemSpec;
+						break;
 					}
 				}
 			}
+		}
 
-			// find a version that fits the talent or at least the type of
-			// equipped item matches the type of weapon (nk = weapon, fk =
-			// Distance, shield = Shield, ...)
-			if (itemSpecification == null) {
+		// find a version that fits the talent or at least the type of
+		// equipped item matches the type of weapon (nk = weapon, fk =
+		// Distance, shield = Shield, ...)
+		if (itemSpecification == null) {
+			outer: {
 				for (ItemSpecification specification : item.getSpecifications()) {
-					if (isCloseCombatWeapon() && specification instanceof Weapon) {
-						if (getTalent(specification) != null) {
-							Weapon weapon = (Weapon) specification;
-							if (weapon.getCombatTalentTypes().contains(getTalent().getCombatTalentType())) {
+					if (equippedName.startsWith(NAME_PREFIX_NK) && specification instanceof Weapon) {
+						Weapon weapon = (Weapon) specification;
+						for (CombatTalentType type : weapon.getCombatTalentTypes()) {
+							if (hero.getCombatTalent(type.name()) != null) {
 								itemSpecification = specification;
-								break;
+								break outer;
 							}
 						}
-					} else if (isShieldWeapon() && specification instanceof Shield) {
+					} else if (equippedName.startsWith(NAME_PREFIX_SCHILD) && specification instanceof Shield) {
 						Shield shield = (Shield) specification;
-						if (shield.isParadeWeapon() && getUsageType() == UsageType.Paradewaffe) {
+						if (shield.isParadeWeapon() && usageType == UsageType.Paradewaffe) {
 							itemSpecification = specification;
 							break;
-						} else if (shield.isShield() && getUsageType() == UsageType.Schild) {
+						} else if (shield.isShield() && usageType == UsageType.Schild) {
 							itemSpecification = specification;
 							break;
 						}
-					} else if (isDistanceWeapon() && specification instanceof DistanceWeapon) {
+					} else if (equippedName.startsWith(NAME_PREFIX_FK) && specification instanceof DistanceWeapon) {
 						itemSpecification = specification;
 						break;
 					}
 				}
 			}
+		}
 
-			// still nothing found, just take the first one without a specLabel
-			if (itemSpecification == null && !item.getSpecifications().isEmpty()) {
-				for (ItemSpecification itemSpec : item.getSpecifications()) {
-					if (itemSpec.getSpecificationLabel() == null) {
-						Debug.verbose("Could not find a specific itemspecificaton for " + toString() + " using "
-								+ itemSpec.toString());
-						itemSpecification = itemSpec;
-						break;
-					}
-				}
-				// if there is not itemspec without a specLabel take the first
-				// one atall
-				if (itemSpecification == null) {
-					itemSpecification = item.getSpecifications().get(0);
+		// still nothing found, just take the first one without a specLabel
+		if (itemSpecification == null && !item.getSpecifications().isEmpty()) {
+			for (ItemSpecification itemSpec : item.getSpecifications()) {
+				if (itemSpec.getSpecificationLabel() == null) {
+					Debug.verbose("Could not find a specific itemspecificaton for " + item.toString() + " using "
+							+ itemSpec.toString());
+					itemSpecification = itemSpec;
+					break;
 				}
 			}
-
+			// if there is not itemspec without a specLabel take the first
+			// one atall
+			if (itemSpecification == null) {
+				itemSpecification = item.getSpecifications().get(0);
+			}
 		}
-		return itemSpecification;
 
+		return itemSpecification;
+	}
+
+	public void setItemSpecification(ItemSpecification itemSpecification) {
+		setItemSpecification(null, itemSpecification);
 	}
 
 	public void setItemSpecification(Context context, ItemSpecification itemSpecification) {
 		this.itemSpecification = itemSpecification;
-		if (itemSpecification != null)
-			setItemSpecificationLabel(itemSpecification.getSpecificationLabel());
-		else {
-			setItemSpecificationLabel(null);
-		}
-
-		if (itemSpecification instanceof Weapon) {
-			Weapon weapon = (Weapon) itemSpecification;
-			if (getTalent() != null && weapon.getCombatTalentTypes().contains(getTalent().getCombatTalentType())) {
-				// talentOk
-			} else {
-
-				final List<CombatTalent> combatTalents = hero.getAvailableCombatTalents(weapon);
-				if (combatTalents.size() == 1) {
-					setTalent(combatTalents.get(0));
-				} else if (combatTalents.isEmpty()) {
-					Toast.makeText(context, "Es wurde kein verwendbares Talent gefunden.", Toast.LENGTH_LONG).show();
-					return;
-				} else {
-					List<String> talentNames = new ArrayList<String>(combatTalents.size());
-					for (CombatTalent combatTalent : combatTalents) {
-						talentNames.add(combatTalent.getName());
-					}
-					AlertDialog.Builder builder = new AlertDialog.Builder(context);
-					builder.setTitle("Wähle ein Talent...");
-					builder.setItems(talentNames.toArray(new String[0]), new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							setTalent(combatTalents.get(which));
-							hero.fireItemChangedEvent(EquippedItem.this);
-						}
-					});
-					builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-
-						@Override
-						public void onCancel(DialogInterface dialog) {
-							hero.fireItemChangedEvent(EquippedItem.this);
-						}
-					});
-					builder.show().setCanceledOnTouchOutside(true);
-					return;
-				}
-			}
-		} else if (itemSpecification instanceof DistanceWeapon) {
-			DistanceWeapon distanceweapon = (DistanceWeapon) itemSpecification;
-			if (getTalent() != null && distanceweapon.getCombatTalentType() == getTalent().getCombatTalentType()) {
-				// talentOk
-			} else {
-				CombatTalent talent = hero.getCombatTalent(distanceweapon.getCombatTalentType().name());
-				setTalent(talent);
-			}
-		} else if (itemSpecification instanceof Shield) {
-			Shield shield = (Shield) itemSpecification;
-
-			if (getUsageType() == null) {
-				if (shield.isShield()) {
-					setUsageType(UsageType.Schild);
-				} else if (shield.isParadeWeapon()) {
-					setUsageType(UsageType.Paradewaffe);
-				}
-			}
-
-			if (shield.isShield() && getUsageType() == UsageType.Schild)
-				setTalent(hero.getCombatShieldTalent());
-			else if (shield.isParadeWeapon() && getUsageType() == UsageType.Paradewaffe)
-				setTalent(hero.getCombatParadeWeaponTalent(this));
-
-		}
-
-		hero.fireItemChangedEvent(EquippedItem.this);
+		refreshTalent(context);
+		hero.fireItemChangedEvent(this);
 	}
 
 	public ItemLocationInfo getItemInfo() {
@@ -249,6 +232,14 @@ public class EquippedItem implements ItemCard {
 	}
 
 	public UsageType getUsageType() {
+		if (usageType == null && itemSpecification instanceof Shield) {
+			Shield shield = (Shield) itemSpecification;
+			if (shield.isShield()) {
+				usageType = UsageType.Schild;
+			} else if (shield.isParadeWeapon()) {
+				usageType = UsageType.Paradewaffe;
+			}
+		}
 		return usageType;
 	}
 
@@ -292,10 +283,6 @@ public class EquippedItem implements ItemCard {
 		if (number != null) {
 			nameId = Util.parseInteger(number);
 		}
-	}
-
-	public void setTalentName(String talentName) {
-		this.talentName = talentName;
 	}
 
 	public void setSchildIndex(Integer schildIndex) {
@@ -364,38 +351,6 @@ public class EquippedItem implements ItemCard {
 		return item;
 	}
 
-	public void setItem(Item item) {
-		this.item = item;
-
-		if (talent == null && talentName == null && name != null) {
-			if (isDistanceWeapon()) {
-				DistanceWeapon distanceWeapon = item.getSpecification(DistanceWeapon.class);
-				if (distanceWeapon != null) {
-					setTalent(hero.getCombatTalent(distanceWeapon.getCombatTalentType().getName()));
-				}
-			}
-
-			if (isShieldWeapon()) {
-				Shield shield = item.getSpecification(Shield.class);
-				if (shield != null) {
-
-					if (getUsageType() == null) {
-						if (shield.isShield()) {
-							setUsageType(UsageType.Schild);
-						} else if (shield.isParadeWeapon()) {
-							setUsageType(UsageType.Paradewaffe);
-						}
-					}
-
-					if (shield.isShield() && getUsageType() == UsageType.Schild)
-						setTalent(hero.getCombatShieldTalent());
-					else if (shield.isParadeWeapon() && getUsageType() == UsageType.Paradewaffe)
-						setTalent(hero.getCombatParadeWeaponTalent(this));
-				}
-			}
-		}
-	}
-
 	public EquippedItem getSecondaryItem() {
 		return secondaryEquippedItem;
 	}
@@ -416,61 +371,11 @@ public class EquippedItem implements ItemCard {
 				String name = secondaryEquippedItem.getName();
 				int mySchildIndex = Util.parseInteger(name.substring(NAME_PREFIX_SCHILD.length()));
 				schildIndex = mySchildIndex;
-			} else if (secondaryEquippedItem.getItemSpecification() instanceof Weapon) {
-				getHero().addBeidhaendigerKampf(this, secondaryEquippedItem);
 			}
 		}
-
-	}
-
-	private String getTalentName() {
-		return talentName;
 	}
 
 	public CombatTalent getTalent() {
-		return getTalent(itemSpecification);
-	}
-
-	protected CombatTalent getTalent(ItemSpecification itemSpecification) {
-		if (talent == null) {
-			if (getTalentName() != null) {
-				setTalent(hero.getCombatTalent(getTalentName()));
-			} else {
-				if (itemSpecification == null) {
-					itemSpecification = getItemSpecification();
-				}
-				// search for the default talents of the items
-				if (itemSpecification instanceof Weapon) {
-					Weapon weapon = (Weapon) itemSpecification;
-					for (CombatTalentType type : weapon.getCombatTalentTypes()) {
-						setTalent(hero.getCombatTalent(type.getName()));
-						if (talent != null) {
-							break;
-						}
-					}
-				} else if (itemSpecification instanceof DistanceWeapon) {
-					DistanceWeapon weapon = (DistanceWeapon) itemSpecification;
-					setTalent(hero.getCombatTalent(weapon.getCombatTalentType().getName()));
-				} else if (itemSpecification instanceof Shield) {
-
-					Shield shield = (Shield) itemSpecification;
-
-					if (shield.isShield() && getUsageType() == UsageType.Schild) {
-						setTalent(hero.getCombatShieldTalent());
-					} else if (shield.isParadeWeapon() && getUsageType() == UsageType.Paradewaffe) {
-						setTalent(hero.getCombatParadeWeaponTalent(this));
-					} else {
-						// paradeweapon
-						for (CombatTalentType type : shield.getCombatTalentTypes()) {
-							setTalent(hero.getCombatTalent(type.getName()));
-							if (talent != null) {
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
 		return talent;
 	}
 

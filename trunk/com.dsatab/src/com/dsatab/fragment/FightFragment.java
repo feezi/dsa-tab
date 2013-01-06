@@ -228,16 +228,16 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 
 							final EquippedItem equippedItem = (EquippedItem) obj;
 
-							if (item.getItemId() == R.id.option_view) {
-
+							switch (item.getItemId()) {
+							case R.id.option_view:
 								Intent intent = new Intent(getActivity(), ItemChooserActivity.class);
 								intent.setAction(Intent.ACTION_VIEW);
 								intent.putExtra(ItemChooserFragment.INTENT_EXTRA_EQUIPPED_ITEM_ID, equippedItem.getId());
 								intent.putExtra(ItemChooserFragment.INTENT_EXTRA_SEARCHABLE, false);
 								intent.putExtra(ItemChooserFragment.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
 								startActivity(intent);
-
-							} else if (item.getItemId() == R.id.option_assign_secondary) {
+								break;
+							case R.id.option_assign_secondary: {
 
 								final EquippedItem equippedPrimaryWeapon = equippedItem;
 
@@ -284,8 +284,9 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 								});
 
 								bkDialog.show();
-
-							} else if (item.getItemId() == R.id.option_unassign) {
+								break;
+							}
+							case R.id.option_unassign: {
 
 								final EquippedItem equippedPrimaryWeapon = equippedItem;
 								EquippedItem equippedSecondaryWeapon = equippedPrimaryWeapon.getSecondaryItem();
@@ -294,13 +295,11 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 								equippedSecondaryWeapon.setSecondaryItem(null);
 
 								fillFightItemDescriptions();
-
-							} else if (item.getItemId() == R.id.option_select_version) {
-
+								break;
+							}
+							case R.id.option_select_version: {
 								AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
 								List<String> specInfo = equippedItem.getItem().getSpecificationNames();
-
 								builder.setItems(specInfo.toArray(new String[0]),
 										new DialogInterface.OnClickListener() {
 											@Override
@@ -313,7 +312,9 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 
 								builder.setTitle("Wähle eine Variante...");
 								builder.show();
-							} else if (item.getItemId() == R.id.option_select_talent) {
+								break;
+							}
+							case R.id.option_select_talent: {
 
 								final List<String> specInfo = new ArrayList<String>();
 								if (equippedItem.getItemSpecification() instanceof Weapon) {
@@ -346,15 +347,20 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 									builder.setTitle("Wähle ein Talent...");
 									builder.show();
 								}
-							} else if (item.getItemId() == R.id.option_assign_hunting) {
+								break;
+							}
+							case R.id.option_assign_hunting: {
 								getHero().setHuntingWeapon(equippedItem);
 								notifyChanged = true;
-							} else if (item.getItemId() == R.id.option_delete) {
+								break;
+							}
+							case R.id.option_delete: {
 								getHero().removeEquippedItem(equippedItem);
+								break;
+							}
 							}
 						}
 					}
-
 				}
 				if (notifyChanged) {
 					fightItemAdapter.notifyDataSetChanged();
