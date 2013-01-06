@@ -234,7 +234,7 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 		} else if (probe instanceof CombatDistanceTalent) {
 			result = containsModifier(probe.getName());
 			if (!result)
-				result = containsModifier(KEY_AT);
+				result = containsModifier(KEY_FK);
 		} else if (probe instanceof Spell) {
 			result = containsModifier(probe.getName());
 			if (!result)
@@ -260,8 +260,9 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 			result = containsModifier(probe.getName());
 			if (!result) {
 				CombatProbe combatProbe = (CombatProbe) probe;
-
-				if (combatProbe.isAttack())
+				if (combatProbe.getCombatTalent() instanceof CombatDistanceTalent)
+					result = containsModifier(KEY_FK);
+				else if (combatProbe.isAttack())
 					result = containsModifier(KEY_AT);
 				else
 					result = containsModifier(KEY_PA);
@@ -345,7 +346,7 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 			} else if (probe instanceof CombatDistanceTalent) {
 				modifier = getModifier(probe.getName());
 				if (modifier == null)
-					modifier = getModifier(KEY_AT);
+					modifier = getModifier(KEY_FK);
 			} else if (probe instanceof Spell) {
 				modifier = getModifier(probe.getName());
 				if (modifier == null)
@@ -372,7 +373,9 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 				if (modifier == null) {
 					CombatProbe combatProbe = (CombatProbe) probe;
 
-					if (combatProbe.isAttack())
+					if (combatProbe.getCombatTalent() instanceof CombatDistanceTalent) {
+						modifier = getModifier(KEY_FK);
+					} else if (combatProbe.isAttack())
 						modifier = getModifier(KEY_AT);
 					else
 						modifier = getModifier(KEY_PA);

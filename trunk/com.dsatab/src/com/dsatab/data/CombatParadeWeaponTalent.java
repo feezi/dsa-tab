@@ -15,18 +15,8 @@ public class CombatParadeWeaponTalent extends CombatShieldTalent {
 		super(hero);
 
 		this.type = CombatTalentType.Dolche;
-
-		int value = -6;
-		if (hero.hasFeature(SpecialFeature.LINKHAND))
-			value += 1;
-		if (hero.hasFeature(SpecialFeature.PARIERWAFFEN_1))
-			value += 2;
-		if (hero.hasFeature(SpecialFeature.PARIERWAFFEN_2))
-			value += 2;
-
-		this.value = value;
 		this.paradeItem = paradeItem;
-
+		this.value = 0;
 		probeInfo.applyBePattern(type.getBe());
 	}
 
@@ -40,15 +30,25 @@ public class CombatParadeWeaponTalent extends CombatShieldTalent {
 
 		if (hero != null) {
 			// der basiswert eine paradewaffe ist der paradewert der geführten
-			// hauptwaffe (-6) + evtl. linkhand parierwaffen
-			if (paradeItem != null && paradeItem.getSecondaryItem() != null) {
+			// hauptwaffe -/+ evtl. parierwaffen WdS 75
+			if (paradeItem != null
+					&& paradeItem.getSecondaryItem() != null
+					&& (hero.hasFeature(SpecialFeature.PARIERWAFFEN_1) || hero
+							.hasFeature(SpecialFeature.PARIERWAFFEN_2))) {
 				EquippedItem equippedWeapon = paradeItem.getSecondaryItem();
 				// check wether mainweapon has a defense value
+				// TODO modifiers on main weapon should be considered here
+				// too!!!
 				if (equippedWeapon.getTalent() instanceof CombatMeleeTalent
-						&& equippedWeapon.getTalent().getDefense() != null)
+						&& equippedWeapon.getTalent().getDefense() != null) {
 					baseValue = equippedWeapon.getTalent().getDefense().getValue();
-				else
+
+					int weaponPaMod = hero.getModifier(new CombatProbe(equippedWeapon, false));
+					baseValue += weaponPaMod;
+
+				} else {
 					baseValue = hero.getAttributeValue(AttributeType.pa);
+				}
 			} else {
 				baseValue = hero.getAttributeValue(AttributeType.pa);
 			}

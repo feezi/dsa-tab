@@ -67,7 +67,12 @@ public class Armor extends ItemSpecification {
 	}
 
 	public boolean isZonenHalfBe() {
-		return zonenHalfBe;
+		if (CATEGORY_HELM.equalsIgnoreCase(item.getCategory()) || CATEGORY_ARME.equalsIgnoreCase(item.getCategory())
+				|| CATEGORY_BEINE.equalsIgnoreCase(item.getCategory())) {
+			return zonenHalfBe || stars > 0;
+		} else {
+			return zonenHalfBe;
+		}
 	}
 
 	public void setZonenHalfBe(boolean zonenHalfBe) {
@@ -118,7 +123,14 @@ public class Armor extends ItemSpecification {
 	}
 
 	public int getStars() {
-		return stars;
+		// http://www.wiki-aventurica.de/wiki/Schwerter_%26_Helden/Offizielle_Errata
+		// - MBK 68, RS/BE bei der Experten-Trefferzonen-Regel
+		if (CATEGORY_HELM.equalsIgnoreCase(item.getCategory()) || CATEGORY_ARME.equalsIgnoreCase(item.getCategory())
+				|| CATEGORY_BEINE.equalsIgnoreCase(item.getCategory())) {
+			return 0;
+		} else {
+			return stars;
+		}
 	}
 
 	public void setStars(int stars) {

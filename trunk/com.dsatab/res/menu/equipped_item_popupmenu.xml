@@ -5,11 +5,6 @@
           android:showAsAction="withText|ifRoom"
           android:title="Details" />
     
-    <item android:id="@+id/option_assign_primary"
-          android:icon="?attr/imgBarSplit"
-          android:showAsAction="withText|ifRoom"
-          android:title="@string/menu_assign_main_weapon" />
-    
     <item android:id="@+id/option_assign_secondary"
           android:icon="?attr/imgBarSplit"
           android:showAsAction="withText|ifRoom"

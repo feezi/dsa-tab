@@ -158,6 +158,9 @@ W;Großer Sklaventod;;Zweihandschwerter und -säbel           ;2W+4;13/2;0/-2;-2
 W;Richtschwert;;Zweihandschwerter und -säbel                ;3W+4;13/2;-2/-4;-3;5;N;z;Zweihandschwerter;
 W;Zweihänder;zweihaender00.jpg;Zweihandschwerter und -säbel          ;2W+4;12/3;0/-1;-1;2;NS;z;Zweihandschwerter;
 
+W;Buckler (Vollmetall);;Parierwaffe                               ;1W+1;11/4;-2/0;-1;-2;H;;Raufen;
+W;Buckler;;Parierwaffe                               			  ;1W;11/4;-2/-1;-1;0;H;;Raufen;
+
 D;Bauchspanner-Armbrust;;Schusswaffen									;2W+4;(15/30/70/120/200);(+4/+2/0/-1/-2);Armbrust;
 D;Gandrasch-Armbrust, doppelt;;Schusswaffen								;2W+8;(10/25/50/100/150);(+2/+1/0/0/0);Armbrust;
 D;Gandrasch-Armbrust, einfach;;Schusswaffen								;2W+2;(5/15/25/40/60);(+1/0/0/0/0);Armbrust;

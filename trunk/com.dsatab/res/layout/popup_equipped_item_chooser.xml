@@ -9,7 +9,18 @@
     <ListView
         android:id="@+id/popup_equipped_item_list"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/popup_equipped_item_bk" >
+
     </ListView>
+
+    <CheckBox
+        android:id="@+id/popup_equipped_item_bk"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:text="Beidhändiger Kampf" />
 
 </RelativeLayout>

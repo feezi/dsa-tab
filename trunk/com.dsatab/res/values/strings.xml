@@ -40,8 +40,7 @@
     <string name="label_donate">Spenden</string>
     <string name="label_no_thanks">Nein danke</string>
     <string name="hero_loaded">%s geladen</string>
-    <string name="hero_saved">%s gespeichert</string>
-    <string name="menu_assign_main_weapon">Hauptwaffe zuweisen</string>
+    <string name="hero_saved">%s gespeichert</string>    
     <string name="menu_assign_secondary_weapon">Zweitwaffe zuweisen</string>
     <string name="offensive">Offensiver Kampfstil</string>
     <string name="defensive">Defensiver Kampfstil</string>

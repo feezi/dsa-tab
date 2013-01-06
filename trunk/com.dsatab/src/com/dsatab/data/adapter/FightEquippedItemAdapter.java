@@ -262,6 +262,10 @@ public class FightEquippedItemAdapter extends OpenArrayAdapter<EquippedItem> {
 					sb.append(" (Links)");
 				}
 
+				if (equippedItem.isBeidhändigerKampf()) {
+					sb.append(" - BK");
+				}
+
 				holder.text3.setText(sb);
 
 				Util.appendValue(hero, title, at, pa, getFilter().getSettings().isIncludeModifiers());
