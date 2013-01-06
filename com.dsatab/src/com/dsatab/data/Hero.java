@@ -47,6 +47,7 @@ import com.dsatab.data.items.HuntingWeapon;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.Shield;
+import com.dsatab.data.items.UsageType;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.AuModificator;
 import com.dsatab.data.modifier.LeModificator;
@@ -92,8 +93,6 @@ public class Hero {
 	private Map<String, Art> artsByName;
 	private List<Talent> artTalents;
 	private List<Item> items;
-
-	private CombatShieldTalent shieldTalent;
 
 	private Map<Position, ArmorAttribute>[] armorAttributes;
 	private Map<Position, WoundAttribute> wounds;
@@ -860,40 +859,33 @@ public class Hero {
 			addItem(item);
 		}
 
-		EquippedItem equippedItem = new EquippedItem(this, talent, item);
-		equippedItem.setSet(set);
-		if (itemSpecification != null)
-			equippedItem.setItemSpecification(context, itemSpecification);
-		else {
+		if (itemSpecification == null && item.getSpecifications().size() == 1) {
+			itemSpecification = item.getSpecifications().get(0);
+		}
 
-			if (item.getSpecifications().size() > 1) {
+		EquippedItem equippedItem = null;
+		if (itemSpecification != null) {
+			equippedItem = new EquippedItem(this, talent, item, itemSpecification);
+			equippedItem.setSet(set);
+			equippedItem = addEquippedItem(context, equippedItem, set);
 
-				AlertDialog.Builder builder = new AlertDialog.Builder(context);
-				builder.setTitle("Wähle ein Variante...");
-				builder.setItems(item.getSpecificationNames().toArray(new String[0]),
-						new DialogInterface.OnClickListener() {
-
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								addEquippedItem(context, item, item.getSpecifications().get(which), talent, set,
-										callback);
-							}
-						});
-
-				builder.show().setCanceledOnTouchOutside(false);
-				return;
-			} else if (item.getSpecifications().size() == 1) {
-				itemSpecification = item.getSpecifications().get(0);
+			if (callback != null) {
+				callback.onEquippedItemAdded(equippedItem);
 			}
+		} else {
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			builder.setTitle("Wähle ein Variante...");
+			builder.setItems(item.getSpecificationNames().toArray(new String[0]),
+					new DialogInterface.OnClickListener() {
 
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							addEquippedItem(context, item, item.getSpecifications().get(which), talent, set, callback);
+						}
+					});
+
+			builder.show().setCanceledOnTouchOutside(false);
 		}
-
-		equippedItem = addEquippedItem(context, equippedItem, set);
-
-		if (callback != null) {
-			callback.onEquippedItemAdded(equippedItem);
-		}
-
 	}
 
 	/**
@@ -905,19 +897,18 @@ public class Hero {
 		equippedItem.getItemInfo().setScreen(set);
 
 		if (equippedItem.getName() == null) {
-			Item item = equippedItem.getItem();
 			String namePrefix = null;
 
-			if (item.hasSpecification(Weapon.class)) {
+			if (equippedItem.getItemSpecification() instanceof Weapon) {
 				namePrefix = EquippedItem.NAME_PREFIX_NK;
 			}
-			if (item.hasSpecification(DistanceWeapon.class)) {
+			if (equippedItem.getItemSpecification() instanceof DistanceWeapon) {
 				namePrefix = EquippedItem.NAME_PREFIX_FK;
 			}
-			if (item.hasSpecification(Shield.class)) {
+			if (equippedItem.getItemSpecification() instanceof Shield) {
 				namePrefix = EquippedItem.NAME_PREFIX_SCHILD;
 			}
-			if (item.hasSpecification(Armor.class)) {
+			if (equippedItem.getItemSpecification() instanceof Armor) {
 				namePrefix = EquippedItem.NAME_PREFIX_RUESTUNG;
 			}
 
@@ -931,7 +922,7 @@ public class Hero {
 
 		getEquippedItems(set).add(equippedItem);
 
-		if (equippedItem.getItem().hasSpecification(Armor.class)) {
+		if (equippedItem.getItemSpecification() instanceof Armor) {
 			recalcArmorAttributes(set);
 			if (set == activeSet) {
 				resetBe();
@@ -2129,15 +2120,8 @@ public class Hero {
 		getHeroConfiguration().setCombatStyle(style);
 	}
 
-	public CombatShieldTalent getCombatShieldTalent() {
-		if (shieldTalent == null) {
-			shieldTalent = new CombatShieldTalent(this);
-		}
-		return shieldTalent;
-	}
-
-	public CombatShieldTalent getCombatParadeWeaponTalent(EquippedItem paradeItem) {
-		return new CombatParadeWeaponTalent(this, paradeItem);
+	public CombatShieldTalent getCombatShieldTalent(UsageType usageType, int set, String name) {
+		return new CombatShieldTalent(this, usageType, set, name);
 	}
 
 	public Art getArt(String name) {

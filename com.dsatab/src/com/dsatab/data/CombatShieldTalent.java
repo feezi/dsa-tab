@@ -5,14 +5,29 @@ import com.dsatab.activity.BasePreferenceActivity;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
+import com.dsatab.data.items.EquippedItem;
+import com.dsatab.data.items.UsageType;
 
 public class CombatShieldTalent extends BaseCombatTalent {
 
 	protected CombatTalentType type;
 
-	public CombatShieldTalent(Hero hero) {
+	protected UsageType usageType;
+
+	private int set;
+
+	private String equippedName;
+
+	public CombatShieldTalent(Hero hero, UsageType usageType, int set, String equippedName) {
 		super(hero);
-		this.type = CombatTalentType.Raufen;
+		this.usageType = usageType;
+		this.set = set;
+		this.equippedName = equippedName;
+
+		if (UsageType.Paradewaffe == usageType)
+			this.type = CombatTalentType.Dolche;
+		else
+			this.type = CombatTalentType.Raufen;
 
 		int value = 0;
 
@@ -26,12 +41,19 @@ public class CombatShieldTalent extends BaseCombatTalent {
 			value += 2;
 
 		this.probeInfo.applyBePattern(type.getBe());
-
 		this.value = value;
 	}
 
 	public String getName() {
-		return "Schildparade";
+		switch (usageType) {
+		case Schild:
+			return "Schildparade";
+		case Paradewaffe:
+			return "Parierwaffenparade";
+		default:
+			return "CombatShieldTalent with no UsageType";
+		}
+
 	}
 
 	public Probe getAttack() {
@@ -69,7 +91,41 @@ public class CombatShieldTalent extends BaseCombatTalent {
 	}
 
 	protected int getBaseValue() {
-		return hero.getAttributeValue(AttributeType.pa);
+		int baseValue = 0;
+
+		if (UsageType.Paradewaffe == usageType) {
+			if (hero != null) {
+				// der basiswert eine paradewaffe ist der paradewert der
+				// geführten
+				// hauptwaffe -/+ evtl. parierwaffen WdS 75
+				EquippedItem paradeItem = hero.getEquippedItem(set, equippedName);
+				if (paradeItem != null
+						&& paradeItem.getSecondaryItem() != null
+						&& (hero.hasFeature(SpecialFeature.PARIERWAFFEN_1) || hero
+								.hasFeature(SpecialFeature.PARIERWAFFEN_2))) {
+					EquippedItem equippedWeapon = paradeItem.getSecondaryItem();
+					// check wether mainweapon has a defense value
+					// TODO modifiers on main weapon should be considered here
+					// too!!!
+					if (equippedWeapon.getTalent() instanceof CombatMeleeTalent
+							&& equippedWeapon.getTalent().getDefense() != null) {
+						baseValue = equippedWeapon.getTalent().getDefense().getValue();
+
+						int weaponPaMod = hero.getModifier(new CombatProbe(equippedWeapon, false));
+						baseValue += weaponPaMod;
+
+					} else {
+						baseValue = hero.getAttributeValue(AttributeType.pa);
+					}
+				} else {
+					baseValue = hero.getAttributeValue(AttributeType.pa);
+				}
+			}
+		} else {
+			baseValue = hero.getAttributeValue(AttributeType.pa);
+		}
+
+		return baseValue;
 	}
 
 	public Position getPosition(int w20) {
@@ -85,4 +141,9 @@ public class CombatShieldTalent extends BaseCombatTalent {
 	public String toString() {
 		return getName();
 	}
+
+	public UsageType getUsageType() {
+		return usageType;
+	}
+
 }

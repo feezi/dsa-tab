@@ -51,8 +51,8 @@ import com.dsatab.data.ChangeEvent;
 import com.dsatab.data.CombatDistanceTalent;
 import com.dsatab.data.CombatMeleeAttribute;
 import com.dsatab.data.CombatMeleeTalent;
-import com.dsatab.data.CombatParadeWeaponTalent;
 import com.dsatab.data.CombatShieldTalent;
+import com.dsatab.data.CombatTalent;
 import com.dsatab.data.Connection;
 import com.dsatab.data.CustomAttribute;
 import com.dsatab.data.Event;
@@ -651,7 +651,26 @@ public class HeldenXmlParser {
 							"Unable to find an item with the name '" + itemName + "' in slot '" + itemSlot + "'."));
 				}
 
-				EquippedItem equippedItem = new EquippedItem(hero);
+				UsageType usageType = null;
+				String name = element.getAttributeValue(Xml.KEY_NAME);
+				int set = Util.parseInt(element.getAttributeValue(Xml.KEY_SET), 0);
+
+				if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_VERWENDUNGSART))) {
+					usageType = UsageType.valueOf(element.getAttributeValue(Xml.KEY_VERWENDUNGSART));
+				}
+				String bezeichner = element.getAttributeValue(Xml.KEY_BEZEICHNER);
+
+				ItemSpecification itemSpecification = EquippedItem.getItemSpecification(hero, name, item, usageType,
+						bezeichner);
+
+				CombatTalent combatTalent = null;
+				if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_TALENT))) {
+					combatTalent = hero.getCombatTalent(element.getAttributeValue(Xml.KEY_TALENT));
+				} else {
+					combatTalent = EquippedItem.getCombatTalent(hero, usageType, set, name, itemSpecification);
+				}
+
+				EquippedItem equippedItem = new EquippedItem(hero, combatTalent, item, itemSpecification);
 
 				if (element.getAttribute(Xml.KEY_CELL_NUMBER) != null)
 					equippedItem.getItemInfo().setCellNumber(
@@ -664,29 +683,17 @@ public class HeldenXmlParser {
 					equippedItem.getItemInfo().setScreen(screen);
 				}
 
-				if (element.getAttribute(Xml.KEY_HAND) != null) {
+				if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_HAND))) {
 					equippedItem.setHand(Hand.valueOf(element.getAttributeValue(Xml.KEY_HAND)));
 				}
 
-				equippedItem.setSet(Util.parseInt(element.getAttributeValue(Xml.KEY_SET), 0));
-
+				equippedItem.setSet(set);
 				equippedItem.setSlot(itemSlot);
 				equippedItem.setName(element.getAttributeValue(Xml.KEY_NAME));
-				equippedItem.setTalentName(element.getAttributeValue(Xml.KEY_TALENT));
-
-				equippedItem.setItem(item);
-
-				if (element.getAttribute(Xml.KEY_VERWENDUNGSART) != null)
-					equippedItem.setUsageType(UsageType.valueOf(element.getAttributeValue(Xml.KEY_VERWENDUNGSART)));
-
+				equippedItem.setItemSpecification(itemSpecification);
 				equippedItem.setSchildIndex(Util.parseInteger(element.getAttributeValue(Xml.KEY_SCHILD)));
 
-				String value = element.getAttributeValue(Xml.KEY_BEZEICHNER);
-				if (TextUtils.isEmpty(value))
-					equippedItem.setItemSpecificationLabel(null);
-				else
-					equippedItem.setItemSpecificationLabel(value);
-
+				equippedItem.setUsageType(usageType);
 				// fix wrong screen iteminfo
 				if (equippedItem.getItemInfo().getScreen() == ItemLocationInfo.INVALID_POSITION) {
 					equippedItem.getItemInfo().setScreen(equippedItem.getSet());
@@ -1379,7 +1386,7 @@ public class HeldenXmlParser {
 
 			// remove all old once and add the new
 			if (itemElement.getAttributeValue(Xml.KEY_NAME).startsWith(Hero.PREFIX_BK)) {
-				equippmentNode.removeContent(itemElement);
+				iter.remove();
 				continue;
 			}
 
@@ -1560,10 +1567,16 @@ public class HeldenXmlParser {
 			ItemSpecification itemSpecification = equippedItem.getItemSpecification();
 			if (itemSpecification instanceof Weapon || itemSpecification instanceof DistanceWeapon) {
 				element.setAttribute(WAFFENNAME, item.getName());
+				element.removeAttribute(SCHILDNAME);
+				element.removeAttribute(RUESTUNGSNAME);
 			} else if (itemSpecification instanceof Shield) {
 				element.setAttribute(SCHILDNAME, item.getName());
+				element.removeAttribute(WAFFENNAME);
+				element.removeAttribute(RUESTUNGSNAME);
 			} else if (itemSpecification instanceof Armor) {
 				element.setAttribute(RUESTUNGSNAME, item.getName());
+				element.removeAttribute(SCHILDNAME);
+				element.removeAttribute(WAFFENNAME);
 			}
 		}
 
@@ -1601,8 +1614,7 @@ public class HeldenXmlParser {
 		}
 
 		if (equippedItem.getTalent() != null)
-			if (equippedItem.getTalent() instanceof CombatShieldTalent
-					|| equippedItem.getTalent() instanceof CombatParadeWeaponTalent) {
+			if (equippedItem.getTalent() instanceof CombatShieldTalent) {
 				element.removeAttribute(Xml.KEY_TALENT);
 			} else {
 				element.setAttribute(Xml.KEY_TALENT, equippedItem.getTalent().getName());
@@ -1615,13 +1627,13 @@ public class HeldenXmlParser {
 		else
 			element.removeAttribute(Xml.KEY_VERWENDUNGSART);
 
-		if (TextUtils.isEmpty(equippedItem.getItemSpecificationLabel())) {
+		if (TextUtils.isEmpty(equippedItem.getItemSpecification().getSpecificationLabel())) {
 			if (equippedItem.getItemSpecification() instanceof Weapon)
 				element.setAttribute(Xml.KEY_BEZEICHNER, "");
 			else
 				element.removeAttribute(Xml.KEY_BEZEICHNER);
 		} else {
-			element.setAttribute(Xml.KEY_BEZEICHNER, equippedItem.getItemSpecificationLabel());
+			element.setAttribute(Xml.KEY_BEZEICHNER, equippedItem.getItemSpecification().getSpecificationLabel());
 		}
 
 		if (equippedItem.getSchildIndex() != null) {
