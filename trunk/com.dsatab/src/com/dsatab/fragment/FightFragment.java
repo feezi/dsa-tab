@@ -16,6 +16,7 @@
  */
 package com.dsatab.fragment;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -98,6 +99,8 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 	private FightModificatorAdapter fightModificatorAdapter;
 	private SackOfViewsAdapter evadeAdapter;
 	private MergeAdapter fightMergeAdapter;
+
+	private EvadeChooserDialog ausweichenModificationDialog;
 
 	private final class ModifierActionMode implements ActionMode.Callback {
 		@Override
@@ -436,23 +439,26 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 	}
 
 	public static class TargetListener implements View.OnClickListener {
-		private MainActivity activity;
+
+		private WeakReference<MainActivity> mActivity;
 
 		/**
 		 * 
 		 */
 		public TargetListener(MainActivity activity) {
-			this.activity = activity;
+			this.mActivity = new WeakReference<MainActivity>(activity);
 		}
 
 		public void onClick(View v) {
 			if (v.getTag() instanceof EquippedItem) {
-
 				EquippedItem item = (EquippedItem) v.getTag();
-				ArcheryChooserDialog targetChooserDialog = new ArcheryChooserDialog(activity);
-				targetChooserDialog.setWeapon(item);
-				targetChooserDialog.show();
 
+				MainActivity mainActivity = mActivity.get();
+				if (mainActivity != null) {
+					ArcheryChooserDialog targetChooserDialog = new ArcheryChooserDialog(mainActivity);
+					targetChooserDialog.setWeapon(item);
+					targetChooserDialog.show();
+				}
 			}
 		}
 	}
@@ -723,7 +729,9 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 
 			@Override
 			public void onClick(View v) {
-				EvadeChooserDialog ausweichenModificationDialog = new EvadeChooserDialog(getBaseActivity());
+				if (ausweichenModificationDialog == null) {
+					ausweichenModificationDialog = new EvadeChooserDialog(getBaseActivity());
+				}
 				ausweichenModificationDialog.show();
 			}
 		});
@@ -805,6 +813,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 	 */
 	@Override
 	public void onHeroLoaded(Hero hero) {
+		ausweichenModificationDialog = null;
 
 		fightItemAdapter = new FightEquippedItemAdapter(getActivity(), getHero(), getHero().getEquippedItems(),
 				getFilterSettings());

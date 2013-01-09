@@ -2,12 +2,15 @@ package com.dsatab.view;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
-import android.widget.Button;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
@@ -24,7 +27,7 @@ import com.dsatab.data.items.Item;
 import com.dsatab.util.Util;
 
 public class ArcheryChooserDialog extends AlertDialog implements android.view.View.OnClickListener,
-		DialogInterface.OnClickListener {
+		OnItemClickListener, DialogInterface.OnClickListener {
 
 	private int[] distanceProbe;
 	private int[] sizeProbe;
@@ -38,15 +41,11 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 
 	private TextView text1, text2, probeValue;
 
-	private Button btnOthers;
+	private ListView othersList;
 
 	private ImageButton iconLeft, iconRight;
 
-	private AlertDialog othersDialog = null;
-
-	private int erschwernis = 0;
-
-	private int otherErschwernis = 0;
+	private int erschwernis;
 
 	private MainActivity main;
 
@@ -54,10 +53,6 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 		super(context);
 		this.main = context;
 		init();
-	}
-
-	protected MainActivity getMain() {
-		return main;
 	}
 
 	public EquippedItem getWeapon() {
@@ -97,7 +92,7 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 
 	private void accept() {
 		CombatProbe combatProbe = equippedItem.getCombatProbeAttacke();
-		combatProbe.getProbeInfo().setErschwernis(erschwernis + otherErschwernis);
+		combatProbe.getProbeInfo().setErschwernis(erschwernis);
 
 		dismiss();
 		main.checkProbe(combatProbe);
@@ -106,15 +101,20 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 	public void onClick(View v) {
 		if (v == iconLeft) {
 			accept();
-		} else if (v == btnOthers) {
-			if (othersDialog == null)
-				initOthersDialog();
-			othersDialog.show();
 		}
 	}
 
 	private void updateProbeValue() {
 		erschwernis = 0;
+
+		SparseBooleanArray checkedPositions = othersList.getCheckedItemPositions();
+		if (checkedPositions != null) {
+			for (int i = checkedPositions.size() - 1; i >= 0; i--) {
+				if (checkedPositions.valueAt(i)) {
+					erschwernis += modificationValues[checkedPositions.keyAt(i)];
+				}
+			}
+		}
 
 		if (distanceSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION)
 			erschwernis += distanceProbe[distanceSpinner.getSelectedItemPosition()];
@@ -122,8 +122,7 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 		if (sizeSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION)
 			erschwernis += sizeProbe[sizeSpinner.getSelectedItemPosition()];
 
-		probeValue.setText(Util.toProbe(erschwernis)
-				+ (otherErschwernis != 0 ? " " + Util.toProbe(otherErschwernis) : ""));
+		probeValue.setText(getContext().getString(R.string.message_modifikator, Util.toProbe(erschwernis)));
 	}
 
 	@Override
@@ -199,7 +198,7 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 
 		});
 
-		probeValue = (TextView) popupcontent.findViewById(R.id.archery_probe_value);
+		probeValue = (TextView) popupcontent.findViewById(R.id.archery_probe);
 
 		text1 = (TextView) popupcontent.findViewById(android.R.id.text1);
 		text2 = (TextView) popupcontent.findViewById(android.R.id.text2);
@@ -211,54 +210,36 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 		iconRight = (ImageButton) popupcontent.findViewById(android.R.id.icon2);
 		iconRight.setVisibility(View.GONE);
 
-		btnOthers = (Button) popupcontent.findViewById(R.id.archery_others);
-		btnOthers.setOnClickListener(this);
+		String[] modificationStrings = getContext().getResources().getStringArray(R.array.archeryModificationStrings);
+		if (main.getHero().hasFeature(SpecialFeature.MEISTERSCHUETZE)) {
+			modificationStrings[SCHNELLSCHUSS_INDEX] = "Schnellschuß +0";
+			modificationValues[SCHNELLSCHUSS_INDEX] = 0;
+
+		} else if (main.getHero().hasFeature(SpecialFeature.SCHARFSCHUETZE)) {
+			modificationStrings[SCHNELLSCHUSS_INDEX] = "Schnellschuß +1";
+			modificationValues[SCHNELLSCHUSS_INDEX] = 1;
+		}
+
+		othersList = (ListView) popupcontent.findViewById(R.id.archery_others);
+		othersList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+		othersList.setAdapter(new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_multiple_choice,
+				modificationStrings));
+		othersList.setOnItemClickListener(this);
 
 		setButton(BUTTON_POSITIVE, "Angreifen", this);
 		setButton(BUTTON_NEGATIVE, getContext().getString(R.string.label_cancel), this);
 	}
 
-	private void initOthersDialog() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-		builder.setTitle(R.string.modifikatoren);
-		builder.setPositiveButton(R.string.label_ok, new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				updateProbeValue();
-			}
-		});
-		builder.setNegativeButton(R.string.label_cancel, new OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-				otherErschwernis = 0;
-				updateProbeValue();
-			}
-		});
-
-		String[] modificationStrings = getContext().getResources().getStringArray(R.array.archeryModificationStrings);
-		if (getMain().getHero().hasFeature(SpecialFeature.MEISTERSCHUETZE)) {
-			modificationStrings[SCHNELLSCHUSS_INDEX] = "Schnellschuß +0";
-			modificationValues[SCHNELLSCHUSS_INDEX] = 0;
-
-		} else if (getMain().getHero().hasFeature(SpecialFeature.SCHARFSCHUETZE)) {
-			modificationStrings[SCHNELLSCHUSS_INDEX] = "Schnellschuß +1";
-			modificationValues[SCHNELLSCHUSS_INDEX] = 1;
-		}
-
-		builder.setMultiChoiceItems(modificationStrings, null, new DialogInterface.OnMultiChoiceClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-				if (isChecked)
-					otherErschwernis += modificationValues[which];
-				else {
-					otherErschwernis -= modificationValues[which];
-				}
-			}
-		});
-		othersDialog = builder.create();
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget
+	 * .AdapterView, android.view.View, int, long)
+	 */
+	@Override
+	public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
+		updateProbeValue();
 	}
+
 }

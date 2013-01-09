@@ -57,7 +57,6 @@
         android:layout_toRightOf="@+id/evade_enemy_text"
         android:entries="@array/evadeEnemy"
         tools:listitem="@android:layout/simple_spinner_item" >
-
     </Spinner>
 
     <ListView
@@ -68,7 +67,6 @@
         android:layout_below="@+id/evade_enemy_text"
         android:entries="@array/evadeModificationStrings"
         tools:listitem="@android:layout/simple_list_item_checked" >
-
     </ListView>
 
 </RelativeLayout>
