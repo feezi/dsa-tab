@@ -6,9 +6,6 @@ import com.gandulf.guilib.util.MathUtil;
 
 public class Attribute extends BaseProbe implements Value, Cloneable {
 
-	/**
-	 * 
-	 */
 	private static final String CONSTANT_BE = "BE";
 
 	protected AttributeType type;
@@ -64,14 +61,14 @@ public class Attribute extends BaseProbe implements Value, Cloneable {
 			return "Fernkampf Basiswert";
 		case ini:
 			return "Initiative";
-		case Lebensenergie_Aktuell:
-			return "Lebensenergie aktuell";
-		case Ausdauer_Aktuell:
-			return "Ausdauer aktuell";
-		case Astralenergie_Aktuell:
-			return "Astralenergie aktuell";
-		case Karmaenergie_Aktuell:
-			return "Karmaenergie aktuell";
+		case Lebensenergie:
+			return "Lebensenergie Total";
+		case Ausdauer:
+			return "Ausdauer Total";
+		case Astralenergie:
+			return "Astralenergie Total";
+		case Karmaenergie:
+			return "Karmaenergie Total";
 		default:
 			return name;
 		}
@@ -86,16 +83,15 @@ public class Attribute extends BaseProbe implements Value, Cloneable {
 		if (lazyInit)
 			return;
 
-		if (value != null && mod != null) {
-			// value and mod of 0 means not able to use it
-			value += mod;
-		}
+		if (value != null) {
+			if (mod != null)
+				value += mod;
 
-		if (value != null)
 			value += getBaseValue();
-		if (getReferenceValue() == null)
-			setReferenceValue(value);
 
+			if (getReferenceValue() == null)
+				setReferenceValue(value);
+		}
 		lazyInit = true;
 	}
 

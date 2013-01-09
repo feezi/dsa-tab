@@ -26,6 +26,7 @@ import android.graphics.Path;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.Checkable;
 import android.widget.ImageView;
 
 import com.dsatab.DSATabApplication;
@@ -36,10 +37,12 @@ import com.dsatab.xml.DataManager;
 /**
  * 
  */
-public class CardView extends ImageView {
+public class CardView extends ImageView implements Checkable {
 
 	private static final int HQ_IMAGE_SIZE = 300;
 	private static final int LQ_IMAGE_SIZE = 120;
+
+	private static final int[] CHECKED_STATE_SET = { android.R.attr.state_checked };
 
 	private ItemCard item;
 
@@ -54,6 +57,8 @@ public class CardView extends ImageView {
 	private boolean highQuality = false;
 
 	private static int TEXT_PADDING = 20;
+
+	boolean mChecked = false;
 
 	/**
 	 * @param context
@@ -98,6 +103,34 @@ public class CardView extends ImageView {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
+	}
+
+	@Override
+	public boolean isChecked() {
+		return mChecked;
+	}
+
+	@Override
+	public void setChecked(boolean checked) {
+		if (mChecked != checked) {
+			mChecked = checked;
+			refreshDrawableState();
+		}
+	}
+
+	@Override
+	public void toggle() {
+		mChecked = !mChecked;
+		refreshDrawableState();
+	}
+
+	@Override
+	public int[] onCreateDrawableState(int extraSpace) {
+		final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
+		if (isChecked()) {
+			mergeDrawableStates(drawableState, CHECKED_STATE_SET);
+		}
+		return drawableState;
 	}
 
 	public ItemCard getItem() {

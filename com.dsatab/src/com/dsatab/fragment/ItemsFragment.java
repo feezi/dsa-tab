@@ -18,26 +18,23 @@ package com.dsatab.fragment;
 import java.util.UUID;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.GridView;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.dsatab.DSATabApplication;
+import com.animoto.android.views.DraggableGridView;
+import com.animoto.android.views.OnRearrangeListener;
 import com.dsatab.R;
 import com.dsatab.activity.ItemChooserActivity;
 import com.dsatab.data.Hero;
@@ -48,32 +45,22 @@ import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
 import com.dsatab.util.Debug;
 import com.dsatab.util.Util;
-import com.dsatab.view.DeleteZone;
-import com.dsatab.view.GridCardView;
-import com.dsatab.view.ItemGridView;
+import com.dsatab.view.CardView;
 import com.dsatab.view.PageButton;
 import com.dsatab.xml.DataManager;
-import com.gandulf.guilib.drag.DragController;
-import com.gandulf.guilib.drag.DragLayer;
-import com.gandulf.guilib.drag.DragScroller;
-import com.gandulf.guilib.drag.DragSource;
 
-public class ItemsFragment extends BaseFragment implements View.OnLongClickListener, View.OnClickListener,
-		DragController.DragListener<ItemCard>, OnItemSelectedListener, DragScroller, OnItemClickListener,
-		OnItemLongClickListener {
+public class ItemsFragment extends BaseFragment implements View.OnClickListener, OnItemSelectedListener,
+		OnItemClickListener {
 
 	private static final int ACTION_CHOOSE_CARD = 2;
 
 	private static final String PREF_KEY_LAST_OPEN_SCREEN = "_lastopenscreen";
 
-	private DragController<ItemCard> mDragController;
+	private DraggableGridView mWorkspace;
 
-	private DragLayer mDragLayer;
-
-	private ItemGridView mWorkspace;
 	private GridItemAdapter itemAdapter;
 
-	PageButton mPreviousView, mNextView;
+	private PageButton mPreviousView, mNextView;
 	private int mCurrentScreen = -1;
 
 	private ItemCard selectedItem = null;
@@ -88,7 +75,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	public void onHeroLoaded(Hero hero) {
 
 		itemAdapter = new GridItemAdapter(getActivity());
-		mWorkspace.setAdapter(itemAdapter);
 
 		SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
 		int screen = pref.getInt(PREF_KEY_LAST_OPEN_SCREEN, 0);
@@ -141,70 +127,28 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 						// the icon is already in the screen no need to add it
 						// again
 					} else {
-						// we have to set it before adding otherwise it will not
-						// be set on fireItemAdded call
+						int cell = cellNumber;
+						if (selectedItem != null) {
+							cell = itemAdapter.getPosition(selectedItem);
+
+							if (selectedItem instanceof EquippedItem)
+								getHero().removeEquippedItem((EquippedItem) selectedItem);
+							else
+								getHero().removeItem(selectedItem.getItem());
+						}
+
+						item.getItemInfo().setCellNumber(cell);
 						item.getItemInfo().setScreen(mCurrentScreen);
 
-						hero.addItem(getBaseActivity(), item, null, getActiveSet(), new Hero.ItemAddedCallback() {
-
-							@Override
-							public void onItemAdded(Item item) {
-								int cell = cellNumber;
-								if (selectedItem != null) {
-									cell = itemAdapter.getPosition(selectedItem);
-
-									if (selectedItem instanceof EquippedItem)
-										getHero().removeEquippedItem((EquippedItem) selectedItem);
-									else
-										getHero().removeItem(selectedItem.getItem());
-
-								}
-
-								item.getItemInfo().setCellNumber(cell);
-								item.getItemInfo().setScreen(mCurrentScreen);
-
-								GridCardView cardView = (GridCardView) mWorkspace.getChildAt(cell);
-								if (cardView != null) {
-									cardView.setItem(item);
-								}
-
-								itemAdapter.sort(ItemCard.CELL_NUMBER_COMPARATOR);
-
-							}
-
-							/*
-							 * (non-Javadoc)
-							 * 
-							 * @see com.dsatab.data.Hero.ItemAddedCallback#
-							 * onEquippedItemAdded
-							 * (com.dsatab.data.items.EquippedItem)
-							 */
-							@Override
-							public void onEquippedItemAdded(EquippedItem item) {
-								int cell = cellNumber;
-								if (selectedItem != null) {
-									cell = itemAdapter.getPosition(selectedItem);
-
-									if (selectedItem instanceof EquippedItem)
-										getHero().removeEquippedItem((EquippedItem) selectedItem);
-									else
-										getHero().removeItem(selectedItem.getItem());
-
-								}
-
-								item.getItemInfo().setCellNumber(cell);
-								item.getItemInfo().setScreen(mCurrentScreen);
-
-								GridCardView cardView = (GridCardView) mWorkspace.getChildAt(cell);
-								if (cardView != null) {
-									cardView.setItem(item);
-								}
-
-								itemAdapter.sort(ItemCard.CELL_NUMBER_COMPARATOR);
-
-							}
-						});
-
+						CardView cardView = (CardView) mWorkspace.getChildAt(cell);
+						if (cardView != null) {
+							cardView.setItem(item);
+						}
+						if (isSetIndex(mCurrentScreen)) {
+							hero.addEquippedItem(getBaseActivity(), item, null, null, getActiveSet());
+						} else {
+							hero.addItem(item);
+						}
 					}
 				}
 			}
@@ -257,7 +201,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
-
 		updateActionBarIcons(menu, mCurrentScreen);
 	}
 
@@ -273,7 +216,7 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 
 		switch (item.getItemId()) {
 		case R.id.option_item_add_table:
-			selectItem(null, null);
+			selectItem(null);
 			return true;
 		case R.id.option_itemgrid_set1:
 			showScreen(0);
@@ -307,8 +250,7 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = configureContainerView(inflater.inflate(R.layout.sheet_items_table, container, false));
 
-		mWorkspace = (ItemGridView) root.findViewById(R.id.workspace);
-		mDragLayer = (DragLayer) root.findViewById(R.id.sheet_items);
+		mWorkspace = (DraggableGridView) root.findViewById(R.id.workspace);
 
 		return root;
 	}
@@ -320,26 +262,8 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		setupViews();
-
-		super.onActivityCreated(savedInstanceState);
-	}
-
-	/**
-	 * Finds all the views we need and configure them properly.
-	 */
-	private void setupViews() {
-
 		// 192*288
 		// 120*180
-
-		mDragController = new DragController<ItemCard>(getActivity());
-
-		mDragLayer.setDragController(mDragController);
-		mWorkspace.setHapticFeedbackEnabled(false);
-
-		DeleteZone mDeleteZone = (DeleteZone) findViewById(R.id.delete_zone);
-		mDeleteZone.setOrientation(DeleteZone.ORIENTATION_HORIZONTAL);
 
 		mPreviousView = (PageButton) findViewById(R.id.previous_screen);
 		mNextView = (PageButton) findViewById(R.id.next_screen);
@@ -352,89 +276,22 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 		mNextView.setHapticFeedbackEnabled(false);
 		mNextView.setOnClickListener(this);
 
-		mWorkspace.setOnItemLongClickListener(this);
 		mWorkspace.setOnItemClickListener(this);
-		// mWorkspace.setDragController(mDragController);
-		// mWorkspace.setOnScreenChangeListener(this);
+		mWorkspace.setOnRearrangeListener(new OnRearrangeListener() {
+			public void onRearrange(int oldIndex, int newIndex) {
 
-		mDragLayer.setDragController(mDragController);
-		mDragLayer.setGridView(mWorkspace);
-		mDragLayer.setDeleteZone(mDeleteZone);
+				Debug.verbose("Moving from " + oldIndex + " to " + newIndex);
 
-		mDeleteZone.setDragController(mDragController);
+				ItemCard oldItemCard = itemAdapter.getItem(oldIndex);
+				ItemCard newItemCard = itemAdapter.getItem(newIndex);
+				int oldItemIndex = oldItemCard.getItemInfo().getCellNumber();
 
-		mDragController.setDragScoller(this);
-		mDragController.addDragListener(mDragLayer);
-		mDragController.addDragListener(mDeleteZone);
-		mDragController.addDragListener(this);
-		mDragController.setMoveTarget(mWorkspace);
-
-	}
-
-	public static boolean handleDrop(Context context, ItemCard dragInfo, GridCardView source, GridCardView target,
-			GridView mGrid, final int mCellNumber) {
-
-		final Hero hero = DSATabApplication.getInstance().getHero();
-		final Integer mCurrentScreen = (Integer) mGrid.getTag();
-		final int oldScreen = dragInfo.getItemInfo().getScreen();
-
-		// Debug.verbose("onDragDrop " + oldScreen + " to " + mCurrentScreen +
-		// " to index " + mCellNumber);
-
-		if (dragInfo instanceof EquippedItem) {
-			EquippedItem equippedItem = (EquippedItem) dragInfo;
-
-			// Debug.verbose("Moving equippeditem from set " + oldScreen +
-			// " to " + mCurrentScreen);
-
-			if (oldScreen == mCurrentScreen) {
-				equippedItem.getItemInfo().setCellNumber(mCellNumber);
-				hero.fireItemChangedEvent(equippedItem);
+				oldItemCard.getItemInfo().setCellNumber(newItemCard.getItemInfo().getCellNumber());
+				newItemCard.getItemInfo().setCellNumber(oldItemIndex);
 			}
-			// drag from set to set
-			else if (ItemsFragment.isSetIndex(oldScreen) && ItemsFragment.isSetIndex(mCurrentScreen)) {
+		});
 
-				hero.removeEquippedItem(equippedItem);
-
-				equippedItem.getItemInfo().setCellNumber(mCellNumber);
-				equippedItem.getItemInfo().setScreen(mCurrentScreen);
-
-				hero.addEquippedItem(context, equippedItem, mCurrentScreen);
-			}
-			// drag from set to inventory
-			else if (ItemsFragment.isSetIndex(oldScreen) && !ItemsFragment.isSetIndex(mCurrentScreen)) {
-				hero.removeEquippedItem(equippedItem);
-			} else {
-				Debug.error("Should never happen oldscreen=" + oldScreen + " newscreen=" + mCurrentScreen);
-			}
-
-		} else if (dragInfo instanceof Item) {
-			Item item = (Item) dragInfo;
-			if (oldScreen == mCurrentScreen) {
-				item.getItemInfo().setCellNumber(mCellNumber);
-				hero.fireItemChangedEvent(item);
-			}
-			// drag a item from inventory to set (equip it)
-			else if (!ItemsFragment.isSetIndex(oldScreen) && ItemsFragment.isSetIndex(mCurrentScreen)) {
-				// Debug.verbose("Equipping  item on set " + mCurrentScreen);
-				hero.addEquippedItem(context, item, null, null, mCurrentScreen, new Hero.ItemAddedCallback() {
-
-					@Override
-					public void onItemAdded(Item item) {
-					}
-
-					@Override
-					public void onEquippedItemAdded(EquippedItem item) {
-						// equippedItem.getItemInfo().setCellX(x);
-						item.getItemInfo().setCellNumber(mCellNumber);
-						hero.fireItemChangedEvent(item);
-					}
-				});
-
-			}
-		}
-
-		return true;
+		super.onActivityCreated(savedInstanceState);
 	}
 
 	/*
@@ -446,45 +303,11 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	 */
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		if (view instanceof GridCardView) {
-			GridCardView cardView = (GridCardView) view;
-
+		if (view instanceof CardView) {
+			CardView cardView = (CardView) view;
 			if (cardView.getItem() != null) {
-				selectItem(cardView.getItem(), cardView);
-			} else {
-
-				// empty cell clicked add new item
-				mWorkspace.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
-						HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
-				selectItem(null, cardView);
-
+				selectItem(cardView.getItem());
 			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.widget.AdapterView.OnItemLongClickListener#onItemLongClick(android
-	 * .widget.AdapterView, android.view.View, int, long)
-	 */
-	@Override
-	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-		if (view instanceof GridCardView) {
-			GridCardView cardView = (GridCardView) view;
-
-			ItemCard card = (ItemCard) cardView.getItem();
-			if (card != null) {
-				// We are starting a drag. Let the DragController handle it.
-				mDragController.startDrag(view, cardView, card, DragController.DRAG_ACTION_MOVE);
-				return true;
-			} else {
-				return false;
-			}
-
-		} else {
-			return false;
 		}
 	}
 
@@ -553,28 +376,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 		edit.commit();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.view.drag.DragController.DragListener#onDragStart(com.dsatab
-	 * .view.drag.DragSource, com.dsatab.data.items.Item, int)
-	 */
-	@Override
-	public void onDragStart(DragSource<ItemCard> source, ItemCard info, int dragAction) {
-		mDragController.setScrollView(mDragLayer);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.view.drag.DragController.DragListener#onDragEnd()
-	 */
-	@Override
-	public void onDragEnd() {
-		mDragController.setScrollView(null);
-	}
-
 	private void fillBodyItems(Hero hero) {
 
 		// mWorkspace.clear();
@@ -615,9 +416,7 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 
 				}
 			} else {
-
 				for (Item item : hero.getItems()) {
-
 					itemAdapter.add(item);
 					// if (item.getItemInfo().getScreen() !=
 					// ItemLocationInfo.INVALID_POSITION
@@ -651,26 +450,12 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 			itemAdapter.notifyDataSetChanged();
 		}
 
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.gandulf.guilib.drag.DragScroller#scrollLeft()
-	 */
-	@Override
-	public void scrollLeft() {
-		showScreen(mCurrentScreen - 1);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.gandulf.guilib.drag.DragScroller#scrollRight()
-	 */
-	@Override
-	public void scrollRight() {
-		showScreen(mCurrentScreen + 1);
+		mWorkspace.removeAllViews();
+		for (int i = 0; i < itemAdapter.getCount(); i++) {
+			View view = itemAdapter.getView(i, null, mWorkspace);
+			view.setDuplicateParentStateEnabled(false);
+			mWorkspace.addView(view);
+		}
 	}
 
 	private void showScreen(int screen) {
@@ -686,7 +471,7 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 		}
 	}
 
-	private void selectItem(ItemCard itemCard, GridCardView cardView) {
+	private void selectItem(ItemCard itemCard) {
 		if (itemCard != null)
 			selectedItem = itemCard;
 		else
@@ -695,17 +480,12 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 		Intent intent = new Intent(getActivity(), ItemChooserActivity.class);
 
 		if (selectedItem != null) {
-
 			Item item = selectedItem.getItem();
 			intent.setAction(Intent.ACTION_PICK);
 			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_ID, item.getId());
 			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_NAME, item.getName());
 			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CATEGORY, item.getCategory());
 			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CELL, itemCard.getItemInfo().getCellNumber());
-		}
-
-		if (cardView != null) {
-			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CELL, cardView.getCellNumber());
 		}
 
 		getActivity().startActivityForResult(intent, ACTION_CHOOSE_CARD);
@@ -755,27 +535,6 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 		}
 	}
 
-	public boolean onLongClick(View v) {
-
-		if (v instanceof GridCardView) {
-			GridCardView cardView = (GridCardView) v;
-
-			if (cardView.getItem() == null) {
-				mWorkspace.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
-						HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
-				selectItem(null, cardView);
-				return true;
-			} else {
-				// User long pressed on an item
-				mWorkspace.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
-						HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
-
-				// mWorkspace.startDrag(cardView);
-			}
-		}
-		return true;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -792,6 +551,7 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 				return;
 
 			itemAdapter.add(item);
+			itemAdapter.sort(ItemCard.CELL_NUMBER_COMPARATOR);
 		}
 	}
 
@@ -848,6 +608,7 @@ public class ItemsFragment extends BaseFragment implements View.OnLongClickListe
 	public void onItemEquipped(EquippedItem item) {
 		if (item.getItemInfo().getScreen() == mCurrentScreen) {
 			itemAdapter.add(item);
+			itemAdapter.sort(ItemCard.CELL_NUMBER_COMPARATOR);
 		}
 	}
 

@@ -110,13 +110,13 @@ public class EquippedItemListAdapter extends OpenArrayAdapter<Item> implements O
 			Item item = (Item) v.getTag();
 			switch (v.getId()) {
 			case R.id.set1:
-				hero.addEquippedItem(getContext(), item, null, null, 0, null);
+				hero.addEquippedItem(getContext(), item, null, null, 0);
 				break;
 			case R.id.set2:
-				hero.addEquippedItem(getContext(), item, null, null, 1, null);
+				hero.addEquippedItem(getContext(), item, null, null, 1);
 				break;
 			case R.id.set3:
-				hero.addEquippedItem(getContext(), item, null, null, 2, null);
+				hero.addEquippedItem(getContext(), item, null, null, 2);
 				break;
 			}
 		} else if (v.getTag() instanceof EquippedItem) {

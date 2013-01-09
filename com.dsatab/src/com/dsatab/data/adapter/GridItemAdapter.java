@@ -16,20 +16,18 @@
 package com.dsatab.data.adapter;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.GridView;
 
 import com.dsatab.R;
 import com.dsatab.data.filter.ItemCardListFilter;
 import com.dsatab.data.items.ItemCard;
 import com.dsatab.data.items.ItemType;
-import com.dsatab.view.GridCardView;
+import com.dsatab.view.CardView;
 
 public class GridItemAdapter extends OpenArrayAdapter<ItemCard> {
 
@@ -95,9 +93,7 @@ public class GridItemAdapter extends OpenArrayAdapter<ItemCard> {
 		ItemCard card;
 		for (int i = 0; i < count; i++) {
 			card = mObjects.get(i);
-			card.getItemInfo().setCellNumber((i * 2) + 1);
-			// Debug.verbose(card.getItem().getName() + " " +
-			// card.getItemInfo().getCellNumber());
+			card.getItemInfo().setCellNumber(i);
 		}
 	}
 
@@ -131,7 +127,6 @@ public class GridItemAdapter extends OpenArrayAdapter<ItemCard> {
 	 */
 	@Override
 	public void notifyDataSetChanged() {
-		Collections.sort(mObjects, ItemCard.CELL_NUMBER_COMPARATOR);
 		super.notifyDataSetChanged();
 	}
 
@@ -144,24 +139,22 @@ public class GridItemAdapter extends OpenArrayAdapter<ItemCard> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
-		GridCardView cardView;
+		CardView cardView;
 		ItemCard item = getItem(position);
 
-		if (convertView instanceof GridCardView) {
-			cardView = (GridCardView) convertView;
+		if (convertView instanceof CardView) {
+			cardView = (CardView) convertView;
 		} else {
-			cardView = new GridCardView(getContext());
+			cardView = new CardView(getContext());
+			if (cardView.getBackground() != null)
+				cardView.getBackground().mutate();
 			// cardView.setLayoutParams(new GridView.LayoutParams(width,
 			// height));
 			cardView.setLayoutParams(new AbsListView.LayoutParams(width, height));
 			cardView.setMinimumWidth(width);
 			cardView.setMinimumHeight(height);
 		}
-
 		cardView.setItem(item);
-		cardView.setGrid((GridView) parent);
-		cardView.setCellNumber(item.getItemInfo().getCellNumber());
-
 		return cardView;
 	}
 

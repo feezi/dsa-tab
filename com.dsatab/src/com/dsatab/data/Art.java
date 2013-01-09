@@ -7,6 +7,7 @@ import java.util.EnumSet;
 import android.text.TextUtils;
 
 import com.dsatab.common.DsaTabRuntimeException;
+import com.dsatab.data.enums.ArtType;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.util.Debug;
 import com.dsatab.util.Util;

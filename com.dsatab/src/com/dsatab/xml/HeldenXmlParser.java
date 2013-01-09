@@ -44,7 +44,6 @@ import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.data.Advantage;
 import com.dsatab.data.Art;
-import com.dsatab.data.ArtType;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.BaseCombatTalent;
 import com.dsatab.data.ChangeEvent;
@@ -69,11 +68,12 @@ import com.dsatab.data.SpellInfo;
 import com.dsatab.data.Talent;
 import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.TalentGroup;
-import com.dsatab.data.TalentGroup.TalentGroupType;
+import com.dsatab.data.enums.ArtType;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.EventCategory;
 import com.dsatab.data.enums.Position;
+import com.dsatab.data.enums.TalentGroupType;
 import com.dsatab.data.items.Armor;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
@@ -733,14 +733,15 @@ public class HeldenXmlParser {
 					if (item2 != null && item1 != null) {
 						item1.setSecondaryItem(item2);
 						item2.setSecondaryItem(item1);
-						hero.addBeidhaendigerKampf(item1, item2);
+
+						item1.setBeidhändigerKampf(true);
+						item2.setBeidhändigerKampf(true);
 					} else {
 						Debug.warning("Incorrect BeidhaendigerKampf setting " + bk);
 						heroElement.removeContent(element);
 						iter.remove();
 					}
 				}
-
 			}
 
 			for (EquippedItem equippedItem : secondaryItems) {

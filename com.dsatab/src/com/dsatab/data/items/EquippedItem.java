@@ -290,19 +290,19 @@ public class EquippedItem implements ItemCard {
 	}
 
 	public boolean isShieldWeapon() {
-		return name.startsWith(NAME_PREFIX_SCHILD);
+		return getItemSpecification() instanceof Shield;
 	}
 
 	public boolean isCloseCombatWeapon() {
-		return name.startsWith(NAME_PREFIX_NK);
+		return getItemSpecification() instanceof Weapon;
 	}
 
 	public boolean isDistanceWeapon() {
-		return name.startsWith(NAME_PREFIX_FK);
+		return getItemSpecification() instanceof DistanceWeapon;
 	}
 
 	public boolean isArmor() {
-		return name.startsWith(NAME_PREFIX_RUESTUNG);
+		return getItemSpecification() instanceof Armor;
 	}
 
 	public Hero getHero() {

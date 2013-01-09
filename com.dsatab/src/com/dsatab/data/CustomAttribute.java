@@ -79,6 +79,19 @@ public class CustomAttribute extends Attribute implements JSONable {
 	}
 
 	public String getName() {
+		if (type != null) {
+			switch (type) {
+			case Lebensenergie_Aktuell:
+				return "Lebensenergie";
+			case Ausdauer_Aktuell:
+				return "Ausdauer";
+			case Astralenergie_Aktuell:
+				return "Astralenergie";
+			case Karmaenergie_Aktuell:
+				return "Karmaenergie";
+			}
+		}
+
 		return name;
 	}
 
@@ -118,12 +131,10 @@ public class CustomAttribute extends Attribute implements JSONable {
 		Integer value = null;
 
 		switch (type) {
-
 		case Behinderung:
 			value = hero.getArmorBe();
 			break;
 		case Ausweichen:
-
 			value = 0;
 			if (hero.hasFeature(SpecialFeature.AUSWEICHEN_1))
 				value += 3;
@@ -131,7 +142,6 @@ public class CustomAttribute extends Attribute implements JSONable {
 				value += 3;
 			if (hero.hasFeature(SpecialFeature.AUSWEICHEN_3))
 				value += 3;
-
 			if (hero.hasFeature(SpecialFeature.ZWERGENWUCHS))
 				value += 1;
 

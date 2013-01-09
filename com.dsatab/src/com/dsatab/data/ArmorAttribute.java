@@ -24,9 +24,7 @@ import com.dsatab.data.enums.Position;
 public class ArmorAttribute implements Value, JSONable {
 
 	private static final String FIELD_POSITION = "position";
-
 	private static final String FIELD_VALUE = "value";
-
 	private static final String FIELD_MANUAL = "manual";
 
 	private Hero hero;
@@ -136,7 +134,7 @@ public class ArmorAttribute implements Value, JSONable {
 	}
 
 	public int getMaximum() {
-		return 15;
+		return 20;
 	}
 
 	/**

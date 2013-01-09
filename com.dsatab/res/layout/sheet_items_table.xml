@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.gandulf.guilib.drag.DragLayer
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"    
     android:id="@+id/sheet_items"
     android:layout_width="match_parent" android:layout_weight="1"
     android:layout_margin="@dimen/page_margin"
     android:layout_height="fill_parent">    
 
-    <com.dsatab.view.ItemGridView android:id="@+id/workspace"
-    android:layout_width="match_parent" 
+    <com.animoto.android.views.DraggableGridView android:id="@+id/workspace" android:layout_width="match_parent" 
     android:layout_height="match_parent"
     android:verticalSpacing="@dimen/workspace_cell_padding"
     android:horizontalSpacing="@dimen/workspace_cell_padding"
     android:layout_marginBottom="@dimen/icon_button_size"
-	android:numColumns="auto_fit" android:stretchMode="spacingWidthUniform" android:columnWidth="@dimen/workspace_cell_width"/>
-    
-    
+	android:numColumns="auto_fit" android:stretchMode="spacingWidthUniform" android:columnWidth="@dimen/workspace_cell_width">
+	</com.animoto.android.views.DraggableGridView>
     
     <FrameLayout
         android:layout_width="match_parent"
@@ -25,17 +23,6 @@
         android:layout_width="wrap_content"
         android:layout_gravity="left|center_vertical"
         android:focusable="true" android:layout_height="56dp" android:background="@null" android:paddingTop="20dp" android:paddingBottom="20dp" android:paddingLeft="5dp" android:gravity="left|center_vertical" android:minWidth="50dp"/>
-                     
-        <com.dsatab.view.DeleteZone
-        android:id="@+id/delete_zone"
-        android:layout_width="56dip"
-        android:layout_height="56dip"
-        android:paddingTop="4dip"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginRight="100dp"
-        android:scaleType="centerInside"
-        android:src="@drawable/delete_zone_selector"
-        android:visibility="invisible"/>
         
         <com.dsatab.view.PageButton
         android:id="@+id/next_screen"
@@ -45,4 +32,4 @@
         
     </FrameLayout>
 
-</com.gandulf.guilib.drag.DragLayer>
+</FrameLayout>

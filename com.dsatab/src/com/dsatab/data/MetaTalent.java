@@ -20,7 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.dsatab.common.DsaMath;
-import com.dsatab.data.TalentGroup.MetaTalentType;
+import com.dsatab.data.enums.MetaTalentType;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.util.Debug;
 
@@ -31,9 +31,7 @@ import com.dsatab.util.Debug;
 public class MetaTalent extends Talent implements JSONable {
 
 	private static final String FIELD_META_TYPE = "metaType";
-
 	private static final String FIELD_FAVORITE = "favorite";
-
 	private static final String FIELD_UNUSED = "unused";
 
 	private MetaTalentType metaType;
