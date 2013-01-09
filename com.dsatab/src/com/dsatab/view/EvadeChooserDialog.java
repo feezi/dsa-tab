@@ -2,13 +2,13 @@ package com.dsatab.view;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.CheckedTextView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -33,11 +33,7 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 
 	private TextView text1, text2;
 
-	private int erschwernis = 0;
-
-	private int otherErschwernis = 0;
-
-	private boolean doubleDK = false;
+	private int erschwernis;
 
 	private ListView othersList;
 
@@ -47,10 +43,6 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 		super(context);
 		this.main = context;
 		init();
-	}
-
-	protected MainActivity getMain() {
-		return main;
 	}
 
 	/*
@@ -75,7 +67,7 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 
 	protected void accept() {
 		Attribute ausweichen = main.getHero().getAttribute(AttributeType.Ausweichen);
-		ausweichen.getProbeInfo().setErschwernis(erschwernis + otherErschwernis);
+		ausweichen.getProbeInfo().setErschwernis(erschwernis);
 
 		main.getHero().fireValueChangedEvent(ausweichen);
 		dismiss();
@@ -94,6 +86,20 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 	private void updateProbeValue() {
 		erschwernis = 0;
 
+		boolean doubleDK = false;
+		SparseBooleanArray checkedPositions = othersList.getCheckedItemPositions();
+		if (checkedPositions != null) {
+			for (int i = checkedPositions.size() - 1; i >= 0; i--) {
+				if (checkedPositions.valueAt(i)) {
+					if (checkedPositions.keyAt(i) == 0) {
+						doubleDK = true;
+					} else {
+						erschwernis += modificationValues[checkedPositions.keyAt(i)];
+					}
+				}
+			}
+		}
+
 		if (distanceSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION) {
 			erschwernis += distanceValues[distanceSpinner.getSelectedItemPosition()];
 			if (doubleDK) {
@@ -103,8 +109,7 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 		if (enemySpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION)
 			erschwernis += enemyValues[enemySpinner.getSelectedItemPosition()];
 
-		text2.setText("Modifikator " + Util.toProbe(erschwernis)
-				+ (otherErschwernis != 0 ? " " + Util.toProbe(otherErschwernis) : ""));
+		text2.setText(getContext().getString(R.string.message_modifikator, Util.toProbe(erschwernis)));
 	}
 
 	@Override
@@ -200,19 +205,6 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 	 */
 	@Override
 	public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
-		CheckedTextView checkedText = (CheckedTextView) view;
-		// the state seems to geet updated after this call, so invert it to get
-		// the correct value here
-		boolean checked = !checkedText.isChecked();
-		if (position == 0) {
-			doubleDK = checked;
-		} else {
-			if (checked)
-				otherErschwernis += modificationValues[position];
-			else {
-				otherErschwernis -= modificationValues[position];
-			}
-		}
 		updateProbeValue();
 	}
 }

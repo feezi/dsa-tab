@@ -723,7 +723,6 @@ public class MainActivity extends BaseFragmentActivity implements OnClickListene
 			}
 		}
 		return false;
-
 	}
 
 	private void unregisterShakeDice() {

@@ -111,6 +111,7 @@
     <string name="label_enemy">Gegner</string>
     <string name="label_size">Größe</string>
     <string name="label_misc_modifications">Sonstige Modifikatoren</string>
+	<string name="message_modifikator">Erschwernis: %1$s</string>
 
 	<string name="pref_sdcardPath_description">Pfad auf der SD Karte zu den DsaTab Daten (Karten Material, &#8230;)</string>
 	<string name="pref_sdcardPath_title">Internal Storage: Pfad zu DsaTab</string>
