@@ -1,21 +1,22 @@
 package com.dsatab.data;
 
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.dsatab.data.Talent.Flags;
+import com.dsatab.data.enums.MetaTalentType;
+import com.dsatab.data.enums.TalentGroupType;
 
 public class TalentGroup {
 
-	public static String[] NAHKAMPF_TALENTS = { Talent.DOLCHE, "Hiebwaffen", "Raufen", "Ringen", "Säbel", "Anderthalbhänder",
-			"Fechtwaffen", "Infanteriewaffen", "Kettenstäbe", "Kettenwaffen", "Lanzenreiten", Talent.PEITSCHE,
-			"Schwerter", "Speere", "Stäbe", "Zweihandflegel", "Zweihandhiebwaffen", "Zweihandschwerter/-säbel",
-			"Bastardstäbe" };
+	public static String[] NAHKAMPF_TALENTS = { Talent.DOLCHE, "Hiebwaffen", "Raufen", "Ringen", "Säbel",
+			"Anderthalbhänder", "Fechtwaffen", "Infanteriewaffen", "Kettenstäbe", "Kettenwaffen", "Lanzenreiten",
+			Talent.PEITSCHE, "Schwerter", "Speere", "Stäbe", "Zweihandflegel", "Zweihandhiebwaffen",
+			"Zweihandschwerter/-säbel", "Bastardstäbe" };
 
-	public static String[] FERNKAMPF_TALENTS = { "Wurfmesser", Talent.ARMBRUST, "Blasrohr", "Bogen", "Diskus", "Schleuder",
-			"Wurfbeile", "Wurfspeere", "Belagerungswaffen" };
+	public static String[] FERNKAMPF_TALENTS = { "Wurfmesser", Talent.ARMBRUST, "Blasrohr", "Bogen", "Diskus",
+			"Schleuder", "Wurfbeile", "Wurfspeere", "Belagerungswaffen" };
 
 	public static String[] KÖRPER_TALENTS = { "Athletik", "Klettern", "Körperbeherrschung", "Schleichen", "Schwimmen",
 			Talent.SELBSTBEHERRSCHUNG, Talent.SICH_VERSTECKEN, "Singen", Talent.SINNENSCHÄRFE, "Tanzen", "Zechen",
@@ -53,50 +54,6 @@ public class TalentGroup {
 	public static String[] META_TALENTS = { MetaTalentType.PirschAnsitzJagd.getName(),
 			MetaTalentType.NahrungSammeln.getName(), MetaTalentType.Kräutersuchen.getName(),
 			MetaTalentType.Wache.getName() };
-
-	public enum TalentGroupType {
-		Nahkampf(NAHKAMPF_TALENTS), Fernkampf(FERNKAMPF_TALENTS), Körperlich(KÖRPER_TALENTS), Gesellschaft(
-				GESELLSCHAFT_TALENTS), Natur(NATUR_TALENTS), Wissen(WISSEN_TALENTS), Handwerk(HANDWERK_TALENTS), Sprachen(
-				SPACHEN_TALENTS), Gaben(GABEN_TALENTS), Meta(META_TALENTS);
-
-		private String[] talents;
-
-		private TalentGroupType(String[] talents) {
-			Arrays.sort(talents);
-			this.talents = talents;
-		}
-
-		public boolean contains(String talentName) {
-
-			if (this == TalentGroupType.Sprachen || this == TalentGroupType.Gaben) {
-				for (String s : talents) {
-					if (talentName.startsWith(s))
-						return true;
-				}
-				return false;
-			} else {
-				return Arrays.binarySearch(talents, talentName) >= 0;
-			}
-		}
-	}
-
-	public enum MetaTalentType {
-		PirschAnsitzJagd("Pirsch- und Ansitzjagd"), NahrungSammeln("Nahrung sammeln"), Kräutersuchen("Kräutersuche"), Wache(
-				"Wache halten");
-
-		/**
-		 * 
-		 */
-		private MetaTalentType(String name) {
-			this.name = name;
-		}
-
-		private String name;
-
-		public String getName() {
-			return name;
-		}
-	}
 
 	private List<Talent> talents = new LinkedList<Talent>();
 

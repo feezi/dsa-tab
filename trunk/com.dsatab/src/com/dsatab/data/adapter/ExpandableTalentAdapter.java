@@ -26,7 +26,7 @@ import com.dsatab.data.Hero;
 import com.dsatab.data.Talent;
 import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.TalentGroup;
-import com.dsatab.data.TalentGroup.TalentGroupType;
+import com.dsatab.data.enums.TalentGroupType;
 import com.dsatab.util.Util;
 import com.dsatab.view.ListFilterSettings;
 
@@ -59,7 +59,7 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 		groups = new ArrayList<TalentGroupType>(Arrays.asList(TalentGroupType.values()));
 		groups.retainAll(hero.getTalentGroups().keySet());
 
-		groupsMap = new HashMap<TalentGroup.TalentGroupType, List<Talent>>();
+		groupsMap = new HashMap<TalentGroupType, List<Talent>>();
 
 		inflater = LayoutInflater.from(context);
 

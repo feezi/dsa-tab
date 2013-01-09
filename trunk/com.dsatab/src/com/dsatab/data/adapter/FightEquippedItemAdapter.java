@@ -25,6 +25,7 @@ import com.dsatab.data.items.Hand;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.Shield;
+import com.dsatab.data.items.UsageType;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.fragment.FightFragment.TargetListener;
 import com.dsatab.util.Util;
@@ -197,7 +198,11 @@ public class FightEquippedItemAdapter extends OpenArrayAdapter<EquippedItem> {
 			holder.text2.setText(distanceWeapon.getInfo(hero.getModifierTP(equippedItem)));
 		} else if (itemSpecification instanceof Shield) {
 			holder.icon1.setVisibility(View.INVISIBLE);
-			holder.icon2.setImageResource(item.getResourceId());
+			if (equippedItem.getUsageType() == UsageType.Paradewaffe)
+				holder.icon2.setImageResource(item.getResourceId());
+			else
+				holder.icon2.setImageResource(R.drawable.icon_shield);
+
 			holder.icon2.setVisibility(View.VISIBLE);
 
 			if (equippedItem.getTalent() != null) {

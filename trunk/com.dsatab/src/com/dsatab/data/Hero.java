@@ -19,26 +19,23 @@ import java.util.UUID;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.view.Display;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.DSATabApplication;
 import com.dsatab.HeroConfiguration;
 import com.dsatab.R;
 import com.dsatab.activity.BasePreferenceActivity;
-import com.dsatab.data.TalentGroup.MetaTalentType;
-import com.dsatab.data.TalentGroup.TalentGroupType;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.CombatTalentType;
+import com.dsatab.data.enums.MetaTalentType;
 import com.dsatab.data.enums.Position;
+import com.dsatab.data.enums.TalentGroupType;
 import com.dsatab.data.items.Armor;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
@@ -58,12 +55,6 @@ import com.dsatab.util.Util;
 import com.dsatab.view.listener.HeroChangedListener;
 
 public class Hero {
-
-	public interface ItemAddedCallback {
-		public void onItemAdded(Item item);
-
-		public void onEquippedItemAdded(EquippedItem item);
-	}
 
 	public static final String JAGTWAFFE = "jagtwaffe";
 	public static final String PREFIX_NKWAFFE = "nkwaffe";
@@ -163,7 +154,6 @@ public class Hero {
 		freeExperience.setMaximum(100000);
 
 		this.attributes = new HashMap<AttributeType, Attribute>(AttributeType.values().length);
-
 		this.talentGroups = new HashMap<TalentGroupType, TalentGroup>();
 		this.talentByName = new HashMap<String, Talent>();
 		this.spellsByName = new HashMap<String, Spell>();
@@ -409,17 +399,6 @@ public class Hero {
 
 	public List<EquippedItem> getEquippedItems(int selectedSet) {
 		return equippedItems[selectedSet];
-	}
-
-	public void addBeidhaendigerKampf(EquippedItem item1, EquippedItem item2) {
-
-		if (item1.getSet() != item2.getSet()) {
-			throw new IllegalArgumentException("BeidhändigerKampf: Sets of item1 and item2 are not the same:"
-					+ item1.toString() + item1.getSet() + " " + item2.toString() + item2.getSet());
-		}
-
-		item1.setBeidhändigerKampf(true);
-		item2.setBeidhändigerKampf(true);
 	}
 
 	public String getKey() {
@@ -740,99 +719,6 @@ public class Hero {
 
 	}
 
-	public void addItem(Context context, Item item, CombatTalent talent) {
-		addItem(context, item, null, talent, getActiveSet(), null);
-	}
-
-	public void addItem(Context context, Item item, CombatTalent talent, ItemAddedCallback callback) {
-		addItem(context, item, null, talent, getActiveSet(), callback);
-	}
-
-	public void addItem(Context context, Item item, CombatTalent talent, int set, ItemAddedCallback callback) {
-		addItem(context, item, null, talent, set, callback);
-	}
-
-	public void addItem(final Context context, final Item item, ItemSpecification itemSpecification,
-			final CombatTalent currentTalent, final int set, final ItemAddedCallback callback) {
-
-		if (itemSpecification == null) {
-			if (item.getSpecifications().size() > 1) {
-
-				AlertDialog.Builder builder = new AlertDialog.Builder(context);
-				builder.setTitle("Wähle ein Variante...");
-				builder.setItems(item.getSpecificationNames().toArray(new String[0]),
-						new DialogInterface.OnClickListener() {
-
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								addItem(context, item, item.getSpecifications().get(which), currentTalent, set,
-										callback);
-							}
-						});
-
-				builder.show().setCanceledOnTouchOutside(false);
-				return;
-			} else if (item.getSpecifications().size() == 1) {
-				itemSpecification = item.getSpecifications().get(0);
-			}
-		}
-
-		CombatTalent newTalent = currentTalent;
-		if (currentTalent == null) {
-
-			if (itemSpecification instanceof Weapon) {
-				Weapon weapon = (Weapon) itemSpecification;
-
-				final List<CombatTalent> combatTalents = getAvailableCombatTalents(weapon);
-
-				if (combatTalents.size() == 1) {
-					newTalent = combatTalents.get(0);
-				} else if (combatTalents.isEmpty()) {
-					Toast.makeText(context, "Es wurde kein verwendbares Talent gefunden.", Toast.LENGTH_LONG).show();
-					return;
-				} else {
-					List<String> talentNames = new ArrayList<String>(combatTalents.size());
-					for (CombatTalent combatTalent : combatTalents) {
-						talentNames.add(combatTalent.getName());
-					}
-
-					final ItemSpecification itemSpec = itemSpecification;
-					AlertDialog.Builder builder = new AlertDialog.Builder(context);
-					builder.setTitle("Wähle ein Talent...");
-					builder.setItems(talentNames.toArray(new String[0]), new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							addItem(context, item, itemSpec, combatTalents.get(which), set, callback);
-						}
-					});
-
-					builder.show().setCanceledOnTouchOutside(true);
-					return;
-				}
-			} else if (itemSpecification instanceof DistanceWeapon) {
-				DistanceWeapon weapon = (DistanceWeapon) itemSpecification;
-				if (weapon.getCombatTalentType() != null) {
-					newTalent = getCombatTalent(weapon.getCombatTalentType().getName());
-					if (newTalent == null) {
-						Toast.makeText(context, "Kein verwendbares Talent gefunden", Toast.LENGTH_LONG).show();
-						return;
-					}
-				}
-			}
-		}
-
-		addItem(item);
-
-		if (item.isEquipable() && set >= 0) {
-			addEquippedItem(context, item, itemSpecification, newTalent, set, callback);
-		} else {
-			if (callback != null) {
-				callback.onItemAdded(item);
-			}
-		}
-
-	}
-
 	/**
 	 * @param item
 	 * @return <code>true</code> if item has been added successfully, otherwise
@@ -851,15 +737,12 @@ public class Hero {
 	}
 
 	public void addEquippedItem(final Context context, final Item item, ItemSpecification itemSpecification,
-			final CombatTalent talent, final int set, final ItemAddedCallback callback) {
+			final CombatTalent talent, final int set) {
 
 		// if hero does not have item yet, add it first.
-		Item heroItem = getItem(item.getId());
-		if (heroItem == null) {
-			addItem(item);
-		}
+		addItem(item);
 
-		if (itemSpecification == null && item.getSpecifications().size() == 1) {
+		if (itemSpecification == null && item.getSpecifications().size() > 0) {
 			itemSpecification = item.getSpecifications().get(0);
 		}
 
@@ -867,70 +750,41 @@ public class Hero {
 		if (itemSpecification != null) {
 			equippedItem = new EquippedItem(this, talent, item, itemSpecification);
 			equippedItem.setSet(set);
-			equippedItem = addEquippedItem(context, equippedItem, set);
+			equippedItem.getItemInfo().setScreen(set);
 
-			if (callback != null) {
-				callback.onEquippedItemAdded(equippedItem);
+			if (equippedItem.getName() == null) {
+				String namePrefix = null;
+
+				if (equippedItem.getItemSpecification() instanceof Weapon) {
+					namePrefix = EquippedItem.NAME_PREFIX_NK;
+				}
+				if (equippedItem.getItemSpecification() instanceof DistanceWeapon) {
+					namePrefix = EquippedItem.NAME_PREFIX_FK;
+				}
+				if (equippedItem.getItemSpecification() instanceof Shield) {
+					namePrefix = EquippedItem.NAME_PREFIX_SCHILD;
+				}
+				if (equippedItem.getItemSpecification() instanceof Armor) {
+					namePrefix = EquippedItem.NAME_PREFIX_RUESTUNG;
+				}
+
+				// find first free slot
+				int i = 1;
+				while (getEquippedItem(set, namePrefix + i) != null) {
+					i++;
+				}
+				equippedItem.setName(namePrefix + i);
 			}
-		} else {
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-			builder.setTitle("Wähle ein Variante...");
-			builder.setItems(item.getSpecificationNames().toArray(new String[0]),
-					new DialogInterface.OnClickListener() {
+			addEquippedItem(equippedItem);
 
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							addEquippedItem(context, item, item.getSpecifications().get(which), talent, set, callback);
-						}
-					});
-
-			builder.show().setCanceledOnTouchOutside(false);
-		}
-	}
-
-	/**
-	 * @param context
-	 * @param equippedItem
-	 */
-	public EquippedItem addEquippedItem(Context context, EquippedItem equippedItem, int set) {
-		equippedItem.setSet(set);
-		equippedItem.getItemInfo().setScreen(set);
-
-		if (equippedItem.getName() == null) {
-			String namePrefix = null;
-
-			if (equippedItem.getItemSpecification() instanceof Weapon) {
-				namePrefix = EquippedItem.NAME_PREFIX_NK;
-			}
-			if (equippedItem.getItemSpecification() instanceof DistanceWeapon) {
-				namePrefix = EquippedItem.NAME_PREFIX_FK;
-			}
-			if (equippedItem.getItemSpecification() instanceof Shield) {
-				namePrefix = EquippedItem.NAME_PREFIX_SCHILD;
-			}
 			if (equippedItem.getItemSpecification() instanceof Armor) {
-				namePrefix = EquippedItem.NAME_PREFIX_RUESTUNG;
+				recalcArmorAttributes(set);
+				if (set == activeSet) {
+					resetBe();
+				}
 			}
-
-			// find first free slot
-			int i = 1;
-			while (getEquippedItem(set, namePrefix + i) != null) {
-				i++;
-			}
-			equippedItem.setName(namePrefix + i);
+			fireItemEquippedEvent(equippedItem);
 		}
-
-		getEquippedItems(set).add(equippedItem);
-
-		if (equippedItem.getItemSpecification() instanceof Armor) {
-			recalcArmorAttributes(set);
-			if (set == activeSet) {
-				resetBe();
-			}
-		}
-		fireItemEquippedEvent(equippedItem);
-
-		return equippedItem;
 	}
 
 	public String getPath() {
@@ -1562,6 +1416,31 @@ public class Hero {
 						if (equippedItem.getUsageType() != null) {
 							switch (equippedItem.getUsageType()) {
 							case Schild: {
+
+								if (hasFeature(SpecialFeature.LINKHAND)) {
+									if (outValue != null)
+										outValue[0] += 1;
+									if (outModifiers != null)
+										outModifiers.add(new Modifier(1, "Linkhand"));
+								}
+								if (hasFeature(SpecialFeature.SCHILDKAMPF_1)) {
+									if (outValue != null)
+										outValue[0] += 2;
+									if (outModifiers != null)
+										outModifiers.add(new Modifier(2, "Schildkampf I"));
+								}
+								if (hasFeature(SpecialFeature.SCHILDKAMPF_2)) {
+									if (outValue != null)
+										outValue[0] += 2;
+									if (outModifiers != null)
+										outModifiers.add(new Modifier(2, "Schildkampf II"));
+								}
+								if (hasFeature(SpecialFeature.SCHILDKAMPF_3)) {
+									if (outValue != null)
+										outValue[0] += 2;
+									if (outModifiers != null)
+										outModifiers.add(new Modifier(2, "Schildkampf III"));
+								}
 								EquippedItem equippedPrimaryWeapon = equippedItem.getSecondaryItem();
 
 								if (equippedPrimaryWeapon != null) {
@@ -1699,7 +1578,7 @@ public class Hero {
 					outValue[0] += -1;
 				if (outModifiers != null) {
 					outModifiers
-							.add(new Modifier(-1, "Beidhändigerkampf - gleiches Talent",
+							.add(new Modifier(-1, "BK - gleiches Talent",
 									"Beim Beidhändigenkampf mit 2 Waffen des selben Talentes bekommt man einen Abzug von -1/-1."));
 				}
 			} else {
@@ -1707,7 +1586,7 @@ public class Hero {
 					outValue[0] += -2;
 				if (outModifiers != null) {
 					outModifiers
-							.add(new Modifier(-2, "Beidhändigerkampf - unterschiedliches Talent",
+							.add(new Modifier(-2, "BK - unterschiedliches Talent",
 									"Beim Beidhändigenkampf mit 2 Waffen unterschiedlichen Talentes bekommt man einen Abzug von -2/-2."));
 				}
 			}
@@ -1730,11 +1609,11 @@ public class Hero {
 			if (outValue != null)
 				outValue[0] += m;
 			if (outModifiers != null) {
-				outModifiers
-						.add(new Modifier(m, "Beidhändigerkampf Links",
-								"Beim Beidhändigenkampf bekommt man je nach Sonderfertigkeiten bei Aktionen mit der linken Hand Abzüge."));
+				outModifiers.add(new Modifier(m, "Falsche Hand ",
+						"Beim Kampf bekommt man je nach Sonderfertigkeiten bei Aktionen mit der linken Hand Abzüge."));
 			}
 		}
+
 	}
 
 	public Integer getModifiedValue(AttributeType type, boolean includeBe, boolean includeLeAu) {

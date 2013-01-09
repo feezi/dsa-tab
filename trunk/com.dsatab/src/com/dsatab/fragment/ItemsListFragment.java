@@ -87,13 +87,13 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 						case R.id.option_equipped:
 							return false;
 						case R.id.option_equipped_set1:
-							getHero().addEquippedItem(getActivity(), selectedItem, null, null, 0, null);
+							getHero().addEquippedItem(getActivity(), selectedItem, null, null, 0);
 							break;
 						case R.id.option_equipped_set2:
-							getHero().addEquippedItem(getActivity(), selectedItem, null, null, 1, null);
+							getHero().addEquippedItem(getActivity(), selectedItem, null, null, 1);
 							break;
 						case R.id.option_equipped_set3:
-							getHero().addEquippedItem(getActivity(), selectedItem, null, null, 2, null);
+							getHero().addEquippedItem(getActivity(), selectedItem, null, null, 2);
 							break;
 						}
 
@@ -225,12 +225,11 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 			}
 
 			if (item != null) {
-
 				if (selectedItem != null && selectedItem.getItem().equals(item.getName())) {
 					// the icon is already in the screen no need to add it
 					// again
 				} else {
-					hero.addItem(getBaseActivity(), item, null, -1, null);
+					hero.addItem(item);
 				}
 			}
 		}

@@ -14,10 +14,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.dsatab.data;
+package com.dsatab.data.enums;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import com.dsatab.data.Art;
+import com.dsatab.data.Talent;
 
 /**
  * @author Ganymede

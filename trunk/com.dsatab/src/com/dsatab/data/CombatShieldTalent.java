@@ -29,19 +29,8 @@ public class CombatShieldTalent extends BaseCombatTalent {
 		else
 			this.type = CombatTalentType.Raufen;
 
-		int value = 0;
-
-		if (hero.hasFeature(SpecialFeature.LINKHAND))
-			value += 1;
-		if (hero.hasFeature(SpecialFeature.SCHILDKAMPF_1))
-			value += 2;
-		if (hero.hasFeature(SpecialFeature.SCHILDKAMPF_2))
-			value += 2;
-		if (hero.hasFeature(SpecialFeature.SCHILDKAMPF_3))
-			value += 2;
-
 		this.probeInfo.applyBePattern(type.getBe());
-		this.value = value;
+		this.value = 0;
 	}
 
 	public String getName() {

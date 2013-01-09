@@ -62,9 +62,6 @@ import com.dsatab.data.items.Weapon;
 
 public class Util {
 
-	/**
-	 * 
-	 */
 	private static final String DRAWABLE = "drawable";
 
 	private static final String PLUS = "+";
