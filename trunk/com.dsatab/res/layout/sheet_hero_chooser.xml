@@ -16,7 +16,7 @@
         style="?android:attr/listSeparatorTextViewStyle">
     </TextView>
     
-    <GridView
+    <com.rokoder.android.lib.support.v4.widget.GridViewCompat
         android:id="@+id/popup_hero_chooser_list"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -24,8 +24,7 @@
         android:columnWidth="@dimen/portrait_width_small"
         android:gravity="center"
         android:numColumns="auto_fit"
-        android:stretchMode="columnWidth" >
-    </GridView>
+        android:stretchMode="columnWidth" />
 
     <TextView
         android:id="@+id/popup_hero_empty"

@@ -66,22 +66,19 @@
             android:name="com.dsatab.activity.NotesEditActivity"
             android:label="Notiz bearbeiten"
             android:logo="@android:drawable/ic_menu_edit"
-            android:theme="@style/Theme.Dialog.Dark"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified" >
+            android:theme="@style/Theme.Dialog.Dark">
         </activity>
         <activity
             android:name=".activity.TabEditActivity"
             android:label="Tab bearbeiten"
             android:logo="@android:drawable/ic_menu_edit"
-            android:theme="@style/Theme.Dialog.Dark"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified" >
+            android:theme="@style/Theme.Dialog.Dark">
         </activity>
         <activity
             android:name=".activity.ModificatorEditActivity"
             android:label="Modifikator bearbeiten"
             android:logo="@android:drawable/ic_menu_edit"
-            android:theme="@style/Theme.Dialog.Dark"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified" >
+            android:theme="@style/Theme.Dialog.Dark">
         </activity>
         <activity
             android:name="com.dsatab.activity.HeroChooserActivity"
