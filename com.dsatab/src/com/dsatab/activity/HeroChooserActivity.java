@@ -53,6 +53,7 @@ import com.dsatab.cloud.HeroExchange.OnHeroExchangeListener;
 import com.dsatab.data.HeroFileInfo;
 import com.dsatab.util.Debug;
 import com.dsatab.util.Util;
+import com.rokoder.android.lib.support.v4.widget.GridViewCompat;
 
 /**
  * 
@@ -66,7 +67,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 	private static final String DUMMY_FILE = "Dummy.xml";
 	private static final String DUMMY_NAME = "Dummy";
 
-	private GridView list;
+	private GridViewCompat list;
 	private HeroAdapter adapter;
 	private boolean dummy;
 
@@ -79,7 +80,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 		public boolean onActionItemClicked(ActionMode mode, com.actionbarsherlock.view.MenuItem item) {
 			boolean notifyChanged = false;
 
-			SparseBooleanArray checkedPositions = list.getCheckedItemPositions();
+			SparseBooleanArray checkedPositions = list.getCheckedItemPositionsC();
 			if (checkedPositions != null) {
 				adapter.setNotifyOnChange(false);
 				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
@@ -138,7 +139,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 		@Override
 		public void onDestroyActionMode(ActionMode mode) {
 			mMode = null;
-			list.clearChoices();
+			list.clearChoicesC();
 			adapter.notifyDataSetChanged();
 		}
 
@@ -154,7 +155,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
 			int selected = 0;
 			boolean online = false;
-			SparseBooleanArray checkedPositions = list.getCheckedItemPositions();
+			SparseBooleanArray checkedPositions = list.getCheckedItemPositionsC();
 			if (checkedPositions != null) {
 				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
@@ -249,8 +250,8 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 		if (heroes == null)
 			heroes = DSATabApplication.getInstance().getHeroes();
 
-		list = (GridView) findViewById(R.id.popup_hero_chooser_list);
-		list.setChoiceMode(GridView.CHOICE_MODE_MULTIPLE);
+		list = (GridViewCompat) findViewById(R.id.popup_hero_chooser_list);
+		list.setChoiceModeC(GridView.CHOICE_MODE_MULTIPLE);
 		adapter = new HeroAdapter(this, R.layout.hero_chooser_item, heroes);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
@@ -450,7 +451,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		if (mMode != null) {
-			SparseBooleanArray checked = ((GridView) parent).getCheckedItemPositions();
+			SparseBooleanArray checked = list.getCheckedItemPositionsC();
 			boolean hasCheckedElement = false;
 			for (int i = 0; i < checked.size() && !hasCheckedElement; i++) {
 				hasCheckedElement = checked.valueAt(i);
@@ -461,9 +462,9 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 				mMode.finish();
 			}
 		} else {
-			list.setItemChecked(position, false);
+			list.setItemCheckedC(position, false);
 
-			HeroFileInfo hero = (HeroFileInfo) parent.getItemAtPosition(position);
+			HeroFileInfo hero = (HeroFileInfo) list.getItemAtPosition(position);
 
 			if (hero.getFile() != null) {
 				Intent intent = new Intent();
@@ -495,16 +496,18 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 		if (mCallback == null) {
 			throw new IllegalArgumentException("ListView with Contextual Action Bar needs mCallback to be defined!");
 		}
-		((GridView) parent).setItemChecked(position, !((GridView) parent).isItemChecked(position));
+		GridViewCompat gridView = (GridViewCompat) parent;
+
+		gridView.setItemCheckedC(position, !gridView.isItemCheckedC(position));
 
 		List<Object> checkedObjects = new ArrayList<Object>();
 
-		SparseBooleanArray checked = ((GridView) parent).getCheckedItemPositions();
+		SparseBooleanArray checked = gridView.getCheckedItemPositionsC();
 		boolean hasCheckedElement = false;
 		if (checked != null) {
 			for (int i = 0; i < checked.size() && !hasCheckedElement; i++) {
 				hasCheckedElement = checked.valueAt(i);
-				checkedObjects.add(parent.getItemAtPosition(checked.keyAt(i)));
+				checkedObjects.add(gridView.getItemAtPosition(checked.keyAt(i)));
 			}
 		}
 
