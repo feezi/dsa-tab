@@ -17,6 +17,7 @@
 package com.dsatab.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -30,12 +31,13 @@ import org.json.JSONObject;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.AbstractModificator;
+import com.dsatab.data.modifier.RulesModificator.ModificatorType;
 import com.dsatab.util.Debug;
 import com.dsatab.util.Util;
 
@@ -188,7 +190,7 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 					}
 				}
 				if (errors.length() > 0) {
-					Toast.makeText(DSATabApplication.getInstance().getApplicationContext(),
+					Toast.makeText(DsaTabApplication.getInstance().getApplicationContext(),
 							"Folgende Regeln konnten nicht verarbeitet werden: " + errors, Toast.LENGTH_LONG).show();
 				}
 			}
@@ -200,38 +202,63 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.dsatab.data.modifier.Modificator#fulfills()
+	 */
+	@Override
+	public boolean fulfills() {
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.modifier.Modificator#affects(com.dsatab.data.enums.
+	 * AttributeType)
+	 */
+	@Override
+	public boolean affects(AttributeType type) {
+		boolean result = false;
+		if (type == AttributeType.Lebensenergie) {
+			type = AttributeType.Lebensenergie_Aktuell;
+		} else if (type == AttributeType.Astralenergie) {
+			type = AttributeType.Astralenergie_Aktuell;
+		} else if (type == AttributeType.Karmaenergie) {
+			type = AttributeType.Karmaenergie_Aktuell;
+		} else if (type == AttributeType.Ausdauer) {
+			type = AttributeType.Ausdauer_Aktuell;
+		} else if (type == AttributeType.Lebensenergie_Aktuell || type == AttributeType.Astralenergie_Aktuell
+				|| type == AttributeType.Karmaenergie_Aktuell || type == AttributeType.Ausdauer_Aktuell) {
+			type = null;
+		}
+		if (type != null) {
+			result = containsModifier(type.code());
+
+			if (!result && AttributeType.isEigenschaft(type)) {
+				result = containsModifier(KEY_EIGENSCHAFTEN);
+			}
+		}
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.modifier.Modificator#getAffectedModifierTypes()
+	 */
+	@Override
+	public List<ModificatorType> getAffectedModifierTypes() {
+		return Arrays.asList(ModificatorType.ALL);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.dsatab.data.modifier.Modificator#affects(com.dsatab.data.Probe)
 	 */
 	@Override
-	public boolean affects(Probe probe) {
+	public boolean affect(Probe probe) {
 		boolean result = false;
-		if (probe instanceof Attribute) {
-			Attribute attribute = (Attribute) probe;
-			AttributeType type = attribute.getType();
-
-			if (type == AttributeType.Lebensenergie) {
-				type = AttributeType.Lebensenergie_Aktuell;
-			} else if (type == AttributeType.Astralenergie) {
-				type = AttributeType.Astralenergie_Aktuell;
-			} else if (type == AttributeType.Karmaenergie) {
-				type = AttributeType.Karmaenergie_Aktuell;
-			} else if (type == AttributeType.Ausdauer) {
-				type = AttributeType.Ausdauer_Aktuell;
-			} else if (type == AttributeType.Lebensenergie_Aktuell || type == AttributeType.Astralenergie_Aktuell
-					|| type == AttributeType.Karmaenergie_Aktuell || type == AttributeType.Ausdauer_Aktuell) {
-				type = null;
-			}
-			if (type != null) {
-				result = containsModifier(type.code());
-
-				if (!result && AttributeType.isEigenschaft(type)) {
-					result = containsModifier(KEY_EIGENSCHAFTEN);
-				}
-			}
-
-			// combatDistancetalent has to come before talent since its a
-			// talent too, but needs special handling
-		} else if (probe instanceof CombatDistanceTalent) {
+		if (probe instanceof CombatDistanceTalent) {
 			result = containsModifier(probe.getName());
 			if (!result)
 				result = containsModifier(KEY_FK);
@@ -293,36 +320,26 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 		return getModMap().get(key);
 	}
 
-	public Modifier getModifier(EquippedItem item) {
-
+	public int getModifierValue(EquippedItem item) {
 		if (isActive()) {
 			Integer modifier = getModifier(item.getItem().getName() + POSTFIX_TP);
 
 			if (modifier == null && item.getTalent() != null)
-				modifier = getModifier(item.getTalent().getCombatTalentType().getName() + POSTFIX_TP);
+				modifier = getModifier(item.getTalent().getType().xmlName() + POSTFIX_TP);
 
 			if (item.getItemSpecification() instanceof Weapon) {
-				// Weapon weapon = (Weapon) item.getItemSpecification();
-
 				if (modifier == null)
 					modifier = getModifier(KEY_AT + POSTFIX_TP);
 			} else if (item.getItemSpecification() instanceof DistanceWeapon) {
-				// DistanceWeapon weapon = (DistanceWeapon)
-				// item.getItemSpecification();
-
 				if (modifier == null)
 					modifier = getModifier(KEY_FK + POSTFIX_TP);
 			}
 
 			if (modifier != null) {
-				this.modifier.setModifier(modifier);
-				this.modifier.setTitle(getModificatorName());
-				this.modifier.setDescription(getRules());
-				return this.modifier;
+				return modifier;
 			}
 		}
-
-		return null;
+		return 0;
 
 	}
 
@@ -334,13 +351,13 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 	 * .Probe)
 	 */
 	@Override
-	public Modifier getModifier(Probe probe) {
+	public int getModifierValue(Probe probe) {
 		if (isActive()) {
 
 			Integer modifier = null;
 			if (probe instanceof Attribute) {
 				Attribute attribute = (Attribute) probe;
-				return getModifier(attribute.getType());
+				return getModifierValue(attribute.getType());
 				// combatDistancetalent has to come before talent since its a
 				// talent too, but needs special handling
 			} else if (probe instanceof CombatDistanceTalent) {
@@ -387,13 +404,10 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 			}
 
 			if (modifier != null) {
-				this.modifier.setModifier(modifier);
-				this.modifier.setTitle(getModificatorName());
-				this.modifier.setDescription(getRules());
-				return this.modifier;
+				return modifier;
 			}
 		}
-		return null;
+		return 0;
 
 	}
 
@@ -405,7 +419,7 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 	 * .enums.AttributeType)
 	 */
 	@Override
-	public Modifier getModifier(AttributeType type) {
+	public int getModifierValue(AttributeType type) {
 		if (isActive()) {
 
 			Integer modifier = getModifier(type.code());
@@ -429,13 +443,10 @@ public class CustomModificator extends AbstractModificator implements JSONable {
 			}
 
 			if (modifier != null) {
-				this.modifier.setModifier(modifier);
-				this.modifier.setTitle(getModificatorName());
-				this.modifier.setDescription(getRules());
-				return this.modifier;
+				return modifier;
 			}
 		}
-		return null;
+		return 0;
 	}
 
 	/**

@@ -22,7 +22,7 @@ import android.support.v4.app.FragmentTransaction;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
-import com.dsatab.activity.MainActivity;
+import com.dsatab.activity.DsaTabActivity;
 
 /**
  * @author Ganymede
@@ -30,7 +30,7 @@ import com.dsatab.activity.MainActivity;
  */
 public class TabListener implements ActionBar.TabListener {
 
-	private final WeakReference<MainActivity> mActivityRef;
+	private final WeakReference<DsaTabActivity> mActivityRef;
 
 	private final int tabIndex;
 
@@ -42,8 +42,8 @@ public class TabListener implements ActionBar.TabListener {
 	 * @param tabIndex
 	 *            The index of the tab to show
 	 */
-	public TabListener(MainActivity activity, int tabIndex) {
-		this.mActivityRef = new WeakReference<MainActivity>(activity);
+	public TabListener(DsaTabActivity activity, int tabIndex) {
+		this.mActivityRef = new WeakReference<DsaTabActivity>(activity);
 		this.tabIndex = tabIndex;
 	}
 
@@ -56,7 +56,7 @@ public class TabListener implements ActionBar.TabListener {
 	 */
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
-		MainActivity mainActivity = mActivityRef.get();
+		DsaTabActivity mainActivity = mActivityRef.get();
 		if (mainActivity != null) {
 			mainActivity.showTab(tabIndex);
 		}

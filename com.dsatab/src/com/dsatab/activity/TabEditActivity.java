@@ -21,12 +21,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -35,6 +37,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -43,7 +46,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.dsatab.TabInfo;
 import com.dsatab.data.adapter.SpinnerSimpleAdapter;
@@ -63,14 +66,16 @@ import com.dsatab.fragment.TalentFragment;
 import com.dsatab.util.Util;
 import com.dsatab.view.FightFilterSettings;
 import com.dsatab.view.ListFilterSettings;
+import com.dsatab.view.PortraitChooserDialog;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
 import com.mobeta.android.dslv.DragSortListView.RemoveListener;
 
 public class TabEditActivity extends BaseFragmentActivity implements OnItemClickListener, OnItemSelectedListener,
-		DropListener, RemoveListener, OnCheckedChangeListener {
+		DropListener, RemoveListener, OnCheckedChangeListener, OnClickListener {
 
-	private Spinner spinner1, spinner2, iconSpinner;
+	private Spinner spinner1, spinner2;
+	private ImageView iconView;
 
 	private CheckBox diceslider, attribteList;
 
@@ -84,20 +89,16 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	private DragSortListView tabsList;
 	private TabsAdapter tabsAdapter;
 
-	private TabIconAdapter iconAdapter;
-
 	private List<TabInfo> tabs;
 
 	/** Called when the activity is first created. */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		setTheme(DSATabApplication.getInstance().getCustomTheme());
+		setTheme(DsaTabApplication.getInstance().getCustomTheme());
 		applyPreferencesToTheme();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sheet_edit_tab);
-
-		List<Integer> avatars = DSATabApplication.getInstance().getConfiguration().getTabIcons();
 
 		diceslider = (CheckBox) findViewById(R.id.popup_edit_diceslider);
 		diceslider.setOnCheckedChangeListener(this);
@@ -117,7 +118,12 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		tabsList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		// tabsList.setItemHeightExpanded(tabsList.getItemHeightNormal() * 2);
 
-		tabs = new ArrayList<TabInfo>(DSATabApplication.getInstance().getHero().getHeroConfiguration().getTabs());
+		if (DsaTabApplication.getInstance().getHero() != null
+				&& DsaTabApplication.getInstance().getHero().getHeroConfiguration() != null) {
+			tabs = new ArrayList<TabInfo>(DsaTabApplication.getInstance().getHero().getHeroConfiguration().getTabs());
+		} else {
+			tabs = new ArrayList<TabInfo>();
+		}
 
 		tabsAdapter = new TabsAdapter(this, tabs);
 		tabsList.setAdapter(tabsAdapter);
@@ -139,10 +145,8 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		spinner2.setAdapter(adapter);
 		spinner2.setOnItemSelectedListener(this);
 
-		iconSpinner = (Spinner) findViewById(R.id.popup_edit_icon);
-		iconAdapter = new TabIconAdapter(this, avatars);
-		iconSpinner.setAdapter(iconAdapter);
-		iconSpinner.setOnItemSelectedListener(this);
+		iconView = (ImageView) findViewById(R.id.popup_edit_icon);
+		iconView.setOnClickListener(this);
 
 		selectTabInfo(null);
 
@@ -166,7 +170,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 
 		setResult(RESULT_OK);
 
-		if (DSATabApplication.getInstance().getHero() == null) {
+		if (DsaTabApplication.getInstance().getHero() == null) {
 			Toast.makeText(this, "Tabs können erst editiert werden, wenn ein Held geladen wurde.", Toast.LENGTH_SHORT)
 					.show();
 			setResult(RESULT_CANCELED);
@@ -216,6 +220,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		switch (item.getItemId()) {
 		case R.id.option_tab_add:
 			TabInfo info = new TabInfo();
+			info.setIconUri(Util.getUriForResourceId(R.drawable.icon_fist));
 			tabs.add(info);
 			tabsAdapter.notifyDataSetChanged();
 			selectTabInfo(info);
@@ -226,7 +231,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 			tabsAdapter.notifyDataSetChanged();
 			break;
 		case R.id.option_tab_reset:
-			tabs = DSATabApplication.getInstance().getHero().getHeroConfiguration().getDefaultTabs();
+			tabs = DsaTabApplication.getInstance().getHero().getHeroConfiguration().getDefaultTabs();
 			tabsAdapter = new TabsAdapter(this, tabs);
 			tabsList.setAdapter(tabsAdapter);
 			selectTabInfo(null);
@@ -250,7 +255,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 			diceslider.setChecked(info.isDiceSlider());
 			attribteList.setChecked(info.isAttributeList());
 
-			iconSpinner.setSelection(info.getTabResourceIndex());
+			iconView.setImageURI(info.getIconUri());
 
 			int pos = tabsAdapter.getPosition(info);
 			tabsList.setItemChecked(pos, true);
@@ -261,11 +266,37 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		spinner2.setEnabled(info != null);
 		diceslider.setEnabled(info != null);
 		attribteList.setEnabled(info != null);
-		iconSpinner.setEnabled(info != null);
+		iconView.setEnabled(info != null);
 
 		updateTabInfoSettings(info);
 
 		invalidateOptionsMenu();
+
+	}
+
+	private void pickIcon() {
+		final PortraitChooserDialog pdialog = new PortraitChooserDialog(this);
+
+		List<Integer> itemIcons = DsaTabApplication.getInstance().getConfiguration().getTabIcons();
+
+		List<Uri> portraitPaths = new ArrayList<Uri>(itemIcons.size());
+		for (Integer resId : itemIcons) {
+			portraitPaths.add(Util.getUriForResourceId(resId));
+		}
+
+		pdialog.setImages(portraitPaths);
+		pdialog.setScaleType(ScaleType.FIT_CENTER);
+		pdialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+
+			@Override
+			public void onDismiss(DialogInterface dialog) {
+				if (pdialog.getImageUri() != null) {
+					currentInfo.setIconUri(pdialog.getImageUri());
+					iconView.setImageURI(pdialog.getImageUri());
+				}
+			}
+		});
+		pdialog.show();
 
 	}
 
@@ -389,10 +420,10 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	public void finish() {
 
 		Util.hideKeyboard(tabsList);
-		DSATabApplication.getInstance().getHero().getHeroConfiguration().setTabs(tabs);
+		DsaTabApplication.getInstance().getHero().getHeroConfiguration().setTabs(tabs);
 
-		Editor edit = DSATabApplication.getPreferences().edit();
-		edit.putString(BasePreferenceActivity.KEY_MODIFY_TABS, "" + System.currentTimeMillis());
+		Editor edit = DsaTabApplication.getPreferences().edit();
+		edit.putString(DsaTabPreferenceActivity.KEY_MODIFY_TABS, "" + System.currentTimeMillis());
 		edit.commit();
 
 		super.finish();
@@ -472,8 +503,6 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 				Class<? extends BaseFragment> clazz2 = activityValues.get(spinner2.getSelectedItemPosition());
 				currentInfo.setActivityClazz(1, clazz2);
 				updateTabInfoSettings(currentInfo);
-			} else if (adapter == iconSpinner) {
-				currentInfo.setTabResourceIndex(position);
 			}
 		}
 	}
@@ -494,10 +523,23 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 			} else if (adapter == spinner2) {
 				currentInfo.setActivityClazz(1, null);
 				updateTabInfoSettings(currentInfo);
-			} else if (adapter == iconSpinner) {
-				// currentInfo.setTabResourceIndex(0);
 			}
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.view.View.OnClickListener#onClick(android.view.View)
+	 */
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.popup_edit_icon:
+			pickIcon();
+			break;
+		}
+
 	}
 
 	/*
@@ -513,47 +555,6 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 			TabInfo info = tabsAdapter.getItem(position);
 			selectTabInfo(info);
 		}
-	}
-
-	static class TabIconAdapter extends ArrayAdapter<Integer> {
-
-		public TabIconAdapter(Context context, List<Integer> objects) {
-			super(context, 0, objects);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.widget.ArrayAdapter#getDropDownView(int,
-		 * android.view.View, android.view.ViewGroup)
-		 */
-		@Override
-		public View getDropDownView(int position, View convertView, ViewGroup parent) {
-			return getView(position, convertView, parent);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.widget.ArrayAdapter#getView(int, android.view.View,
-		 * android.view.ViewGroup)
-		 */
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			ImageView view;
-			if (convertView instanceof ImageView) {
-				view = (ImageView) convertView;
-			} else {
-				view = new ImageView(getContext());
-				int tabSize = getContext().getResources().getDimensionPixelSize(R.dimen.icon_button_size);
-				view.setLayoutParams(new AbsListView.LayoutParams(tabSize, tabSize));
-			}
-			view.setFocusable(false);
-			view.setClickable(false);
-			view.setImageResource(getItem(position));
-			return view;
-		}
-
 	}
 
 	static class TabsAdapter extends ArrayAdapter<TabInfo> {
@@ -588,7 +589,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 
 			imageButton.setFocusable(false);
 			imageButton.setClickable(false);
-			imageButton.setImageResource(info.getTabResourceId());
+			imageButton.setImageURI(info.getIconUri());
 
 			Util.applyRowStyle(view, position);
 

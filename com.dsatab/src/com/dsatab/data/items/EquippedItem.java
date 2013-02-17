@@ -1,9 +1,9 @@
 package com.dsatab.data.items;
 
-import java.io.File;
 import java.util.UUID;
 
 import android.content.Context;
+import android.net.Uri;
 import android.widget.Toast;
 
 import com.dsatab.data.CombatDistanceTalent;
@@ -13,7 +13,7 @@ import com.dsatab.data.CombatShieldTalent;
 import com.dsatab.data.CombatTalent;
 import com.dsatab.data.Hero;
 import com.dsatab.data.ItemLocationInfo;
-import com.dsatab.data.enums.CombatTalentType;
+import com.dsatab.data.enums.TalentType;
 import com.dsatab.util.Util;
 import com.gandulf.guilib.util.Debug;
 
@@ -95,8 +95,7 @@ public class EquippedItem implements ItemCard {
 		if (itemSpecification instanceof Weapon) {
 			Weapon weapon = (Weapon) itemSpecification;
 			// if the current talent does not fit search for a new one
-			if (!(talent instanceof CombatMeleeTalent)
-					|| !weapon.getCombatTalentTypes().contains(getTalent().getCombatTalentType())) {
+			if (!(talent instanceof CombatMeleeTalent) || !weapon.getTalentTypes().contains(getTalent().getType())) {
 				CombatTalent combatTalent = Util.getBest(hero.getAvailableCombatTalents(weapon));
 				if (combatTalent == null) {
 					if (context != null) {
@@ -115,16 +114,15 @@ public class EquippedItem implements ItemCard {
 			if (talent instanceof CombatShieldTalent) {
 				CombatShieldTalent combatShieldTalent = (CombatShieldTalent) talent;
 				if (getUsageType() != combatShieldTalent.getUsageType()) {
-					setTalent(hero.getCombatShieldTalent(getUsageType(), getSet(), getName()));
+					setTalent(new CombatShieldTalent(hero, getUsageType(), getSet(), getName()));
 				}
 			} else {
-				setTalent(hero.getCombatShieldTalent(getUsageType(), getSet(), getName()));
+				setTalent(new CombatShieldTalent(hero, getUsageType(), getSet(), getName()));
 			}
 		} else if (itemSpecification instanceof DistanceWeapon) {
 			DistanceWeapon distanceweapon = (DistanceWeapon) itemSpecification;
-			if (!(talent instanceof CombatDistanceTalent)
-					|| distanceweapon.getCombatTalentType() != getTalent().getCombatTalentType()) {
-				CombatTalent talent = hero.getCombatTalent(distanceweapon.getCombatTalentType().name());
+			if (!(talent instanceof CombatDistanceTalent) || distanceweapon.getTalentType() != getTalent().getType()) {
+				CombatTalent talent = hero.getCombatTalent(distanceweapon.getTalentType());
 				setTalent(talent);
 			}
 		}
@@ -140,10 +138,10 @@ public class EquippedItem implements ItemCard {
 			talent = Util.getBest(hero.getAvailableCombatTalents(weapon));
 		} else if (itemSpecification instanceof DistanceWeapon) {
 			DistanceWeapon weapon = (DistanceWeapon) itemSpecification;
-			talent = hero.getCombatTalent(weapon.getCombatTalentType().getName());
+			talent = hero.getCombatTalent(weapon.getTalentType());
 		} else if (itemSpecification instanceof Shield) {
 			Shield shield = (Shield) itemSpecification;
-			talent = hero.getCombatShieldTalent(usageType, set, name);
+			talent = new CombatShieldTalent(hero, usageType, set, name);
 		}
 		return talent;
 	}
@@ -174,8 +172,8 @@ public class EquippedItem implements ItemCard {
 				for (ItemSpecification specification : item.getSpecifications()) {
 					if (equippedName.startsWith(NAME_PREFIX_NK) && specification instanceof Weapon) {
 						Weapon weapon = (Weapon) specification;
-						for (CombatTalentType type : weapon.getCombatTalentTypes()) {
-							if (hero.getCombatTalent(type.name()) != null) {
+						for (TalentType type : weapon.getTalentTypes()) {
+							if (hero.getCombatTalent(type) != null) {
 								itemSpecification = specification;
 								break outer;
 							}
@@ -265,6 +263,9 @@ public class EquippedItem implements ItemCard {
 
 	public void setSet(int set) {
 		this.set = set;
+		if (itemInfo != null) {
+			itemInfo.setScreen(set);
+		}
 	}
 
 	public void setName(String name) {
@@ -323,14 +324,9 @@ public class EquippedItem implements ItemCard {
 		return getItem().getTitle();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.items.ItemCard#getFile()
-	 */
 	@Override
-	public File getFile() {
-		return getItem().getFile();
+	public Uri getImageUri() {
+		return getItem().getImageUri();
 	}
 
 	/*
@@ -368,9 +364,7 @@ public class EquippedItem implements ItemCard {
 			if (secondaryEquippedItem == null) {
 				schildIndex = 0;
 			} else if (secondaryEquippedItem.getItemSpecification() instanceof Shield) {
-				String name = secondaryEquippedItem.getName();
-				int mySchildIndex = Util.parseInteger(name.substring(NAME_PREFIX_SCHILD.length()));
-				schildIndex = mySchildIndex;
+				schildIndex = secondaryEquippedItem.getNameId();
 			}
 		}
 	}

@@ -16,22 +16,16 @@
  */
 package com.dsatab.test;
 
-import java.io.InputStream;
-
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.filter.Filters;
 import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
 
-import android.test.InstrumentationTestCase;
-
-import com.dsatab.data.Advantage;
 import com.dsatab.data.Hero;
-import com.dsatab.data.SpecialFeature;
-import com.dsatab.data.Talent;
 import com.dsatab.data.enums.AttributeType;
-import com.dsatab.data.enums.CombatTalentType;
+import com.dsatab.data.enums.FeatureType;
+import com.dsatab.data.enums.TalentType;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Hand;
 import com.dsatab.data.items.Weapon;
@@ -84,7 +78,7 @@ public class XmlParserTest extends InstrumentationTestCase {
 		in.close();
 
 		in = getInstrumentation().getContext().getAssets().open("minarax_menschenfreund.xml");
-		Hero hero = HeldenXmlParser.readHero("minarax_menschenfreund.xml", in);
+		Hero hero = HeldenXmlParser.readHero(getInstrumentation().getContext(), "minarax_menschenfreund.xml", in);
 		in.close();
 
 		assertNotNull(hero);
@@ -135,44 +129,42 @@ public class XmlParserTest extends InstrumentationTestCase {
 
 		assertEquals(TEST_GS, (int) hero.getModifiedValue(AttributeType.Geschwindigkeit, true, true));
 
-		assertTrue(hero.hasFeature(SpecialFeature.DÄMMERNGSSICHT));
-		assertTrue(hero.hasFeature(Advantage.GUTES_GEDAECHTNIS));
-		assertTrue(hero.hasFeature(SpecialFeature.ZWERGENWUCHS));
+		assertTrue(hero.hasFeature(FeatureType.Dämmerungssicht));
+		assertTrue(hero.hasFeature(FeatureType.GutesGedächtnis));
+		assertTrue(hero.hasFeature(FeatureType.Zwergenwuchs));
 
-		assertTrue(hero.hasFeature(Advantage.EITELKEIT));
-		assertEquals(7, (int) hero.getDisadvantage(Advantage.EITELKEIT).getValue());
+		assertTrue(hero.hasFeature(FeatureType.Eitelkeit));
+		assertEquals(7, (int) hero.getFeature(FeatureType.Eitelkeit).getValue());
 
-		assertTrue(hero.hasFeature(SpecialFeature.RUESTUNGSGEWOEHNUNG_1));
-		assertEquals("Fünflagenharnisch", hero.getSpecialFeature(SpecialFeature.RUESTUNGSGEWOEHNUNG_1).getParameter1());
+		assertTrue(hero.hasFeature(FeatureType.RüstungsgewöhnungI));
+		assertEquals("Fünflagenharnisch", hero.getFeature(FeatureType.RüstungsgewöhnungI).getValueAsString());
 
-		assertTrue(hero.hasFeature(SpecialFeature.KULTURKUNDE));
+		assertTrue(hero.hasFeature(FeatureType.Kulturkunde));
 
 		assertEquals(TEST_AW, (int) hero.getModifiedValue(AttributeType.Ausweichen, true, true));
 
-		assertEquals(21, (int) hero.getCombatTalent(Talent.ARMBRUST).getValue());
+		assertEquals(21, (int) hero.getCombatTalent(TalentType.Armbrust).getValue());
 
 		assertEquals(attrIntegerValue("/helden/held/talentliste/talent[@name='Dolche']/@value", dom), hero
-				.getCombatTalent(Talent.DOLCHE).getValue());
+				.getCombatTalent(TalentType.Dolche).getValue());
 
 		assertEquals(attrIntegerValue("/helden/held/talentliste/talent[@name='Akrobatik']/@value", dom), hero
-				.getTalent(Talent.AKROBATIK).getValue());
+				.getTalent(TalentType.Akrobatik).getValue());
 
 		assertEquals(attrIntegerValue("/helden/held/kampf/kampfwerte[@name='Dolche']/attacke/@value", dom), hero
-				.getCombatTalent(Talent.DOLCHE).getAttack().getValue());
+				.getCombatTalent(TalentType.Dolche).getAttack().getValue());
 		assertEquals(attrIntegerValue("/helden/held/kampf/kampfwerte[@name='Dolche']/parade/@value", dom), hero
-				.getCombatTalent(Talent.DOLCHE).getDefense().getValue());
+				.getCombatTalent(TalentType.Dolche).getDefense().getValue());
 
 		EquippedItem langSchwert = hero.getEquippedItem("nkwaffe1");
 		assertEquals(11,
 				langSchwert.getCombatProbeAttacke().getValue() + hero.getModifier(langSchwert.getCombatProbeAttacke()));
 		assertEquals(16,
 				langSchwert.getCombatProbeDefense().getValue() + hero.getModifier(langSchwert.getCombatProbeDefense()));
-		assertEquals(CombatTalentType.Schwerter, langSchwert.getCombatProbeAttacke().getCombatTalent()
-				.getCombatTalentType());
-		assertEquals(CombatTalentType.Schwerter, langSchwert.getCombatProbeDefense().getCombatTalent()
-				.getCombatTalentType());
+		assertEquals(TalentType.Schwerter, langSchwert.getCombatProbeAttacke().getCombatTalent().getType());
+		assertEquals(TalentType.Schwerter, langSchwert.getCombatProbeDefense().getCombatTalent().getType());
 		assertTrue(langSchwert.getItemSpecification() instanceof Weapon);
-		assertEquals(hero.getCombatTalent(CombatTalentType.Schwerter.name()), langSchwert.getTalent());
+		assertEquals(hero.getCombatTalent(TalentType.Schwerter), langSchwert.getTalent());
 		assertEquals(Hand.rechts, langSchwert.getHand());
 
 		EquippedItem drachenzahn = hero.getEquippedItem("nkwaffe2");
@@ -180,12 +172,10 @@ public class XmlParserTest extends InstrumentationTestCase {
 				drachenzahn.getCombatProbeAttacke().getValue() + hero.getModifier(drachenzahn.getCombatProbeAttacke()));
 		assertEquals(-1,
 				drachenzahn.getCombatProbeDefense().getValue() + hero.getModifier(drachenzahn.getCombatProbeDefense()));
-		assertEquals(CombatTalentType.Dolche, drachenzahn.getCombatProbeAttacke().getCombatTalent()
-				.getCombatTalentType());
-		assertEquals(CombatTalentType.Dolche, drachenzahn.getCombatProbeDefense().getCombatTalent()
-				.getCombatTalentType());
+		assertEquals(TalentType.Dolche, drachenzahn.getCombatProbeAttacke().getCombatTalent().getType());
+		assertEquals(TalentType.Dolche, drachenzahn.getCombatProbeDefense().getCombatTalent().getType());
 		assertTrue(drachenzahn.getItemSpecification() instanceof Weapon);
-		assertEquals(hero.getCombatTalent(CombatTalentType.Dolche.name()), drachenzahn.getTalent());
+		assertEquals(hero.getCombatTalent(TalentType.Dolche), drachenzahn.getTalent());
 		assertEquals(Hand.links, drachenzahn.getHand());
 
 	}

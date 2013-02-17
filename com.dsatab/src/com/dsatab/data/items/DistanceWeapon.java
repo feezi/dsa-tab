@@ -2,12 +2,12 @@ package com.dsatab.data.items;
 
 import android.text.TextUtils;
 
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.data.Dice;
-import com.dsatab.data.enums.CombatTalentType;
-import com.dsatab.db.CombatTalentTypeWrapper;
+import com.dsatab.data.enums.TalentType;
+import com.dsatab.db.TalentTypeWrapper;
 import com.dsatab.util.Util;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -27,7 +27,7 @@ public class DistanceWeapon extends ItemSpecification {
 	@DatabaseField
 	private String tpDistances;
 	@DatabaseField(foreign = true)
-	private CombatTalentTypeWrapper combatTalentTypeWrapper;
+	private TalentTypeWrapper combatTalentTypeWrapper;
 
 	// cache for split tpDistances string
 	private String tpDistance[];
@@ -147,16 +147,16 @@ public class DistanceWeapon extends ItemSpecification {
 		initTpDistances();
 	}
 
-	public CombatTalentType getCombatTalentType() {
+	public TalentType getTalentType() {
 		if (combatTalentTypeWrapper != null)
 			return combatTalentTypeWrapper.get();
 		else
 			return null;
 	}
 
-	public void setCombatTalentType(CombatTalentType combatTalentType) {
+	public void setTalentType(TalentType combatTalentType) {
 		if (combatTalentType != null)
-			this.combatTalentTypeWrapper = new CombatTalentTypeWrapper(combatTalentType);
+			this.combatTalentTypeWrapper = new TalentTypeWrapper(combatTalentType);
 		else
 			this.combatTalentTypeWrapper = null;
 	}
@@ -185,19 +185,19 @@ public class DistanceWeapon extends ItemSpecification {
 
 				dice.constant += modifier;
 				if (modifier > 0) {
-					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen),
+					info.appendColor(DsaTabApplication.getInstance().getResources().getColor(R.color.ValueGreen),
 							dice.toString());
 				} else {
-					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed),
+					info.appendColor(DsaTabApplication.getInstance().getResources().getColor(R.color.ValueRed),
 							dice.toString());
 				}
 			} else {
 				info.append(tp);
 				if (modifier > 0) {
-					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen),
+					info.appendColor(DsaTabApplication.getInstance().getResources().getColor(R.color.ValueGreen),
 							Util.toProbe(modifier));
 				} else {
-					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed),
+					info.appendColor(DsaTabApplication.getInstance().getResources().getColor(R.color.ValueRed),
 							Util.toProbe(modifier));
 				}
 			}
@@ -214,7 +214,7 @@ public class DistanceWeapon extends ItemSpecification {
 	}
 
 	public int getResourceId() {
-		switch (getCombatTalentType()) {
+		switch (getTalentType()) {
 		case Wurfmesser:
 			return R.drawable.icon_wurfdolch;
 		case Armbrust:

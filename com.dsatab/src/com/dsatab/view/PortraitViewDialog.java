@@ -1,6 +1,7 @@
 package com.dsatab.view;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
@@ -9,24 +10,16 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.dsatab.R;
-import com.dsatab.activity.MainActivity;
 
 public class PortraitViewDialog extends AlertDialog implements DialogInterface.OnClickListener {
 
-	private MainActivity main;
-
-	public PortraitViewDialog(MainActivity context) {
+	public PortraitViewDialog(Context context, String title, Bitmap portrait) {
 		super(context);
-		this.main = context;
-		init();
+		init(title, portrait);
 	}
 
-	protected MainActivity getMain() {
-		return main;
-	}
-
-	private void init() {
-		setTitle(main.getHero().getName());
+	private void init(String title, Bitmap portrait) {
+		setTitle(title);
 
 		setCanceledOnTouchOutside(true);
 
@@ -36,9 +29,8 @@ public class PortraitViewDialog extends AlertDialog implements DialogInterface.O
 		setView(popupcontent);
 
 		final ImageView image = (ImageView) popupcontent.findViewById(R.id.portrait_view);
-		Bitmap drawable = main.getHero().getPortrait();
-		if (drawable != null)
-			image.setImageBitmap(drawable);
+		if (portrait != null)
+			image.setImageBitmap(portrait);
 		else
 			image.setImageResource(R.drawable.profile_picture);
 

@@ -14,7 +14,7 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.data.Spell;
@@ -139,7 +139,7 @@ public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnCl
 					spell.setComments(getValue(R.id.popup_spell_comment_edit));
 					spell.setVariant(getValue(R.id.popup_spell_variant_edit));
 
-					RuntimeExceptionDao<SpellInfo, Long> dao = DSATabApplication.getInstance().getDBHelper()
+					RuntimeExceptionDao<SpellInfo, Long> dao = DsaTabApplication.getInstance().getDBHelper()
 							.getRuntimeExceptionDao(SpellInfo.class);
 					dao.createOrUpdate(info);
 

@@ -9,7 +9,7 @@
             android:title="Hausregeln verwenden" >
             <intent                
             	android:targetPackage="com.dsatab"
-            	android:targetClass="com.dsatab.activity.BasePreferenceActivity"
+            	android:targetClass="com.dsatab.activity.DsaTabPreferenceActivity"
             	android:action="VIEW">
             	<extra android:name="layout" android:value="@xml/preferences_hc_rules_houserules" />
             </intent>

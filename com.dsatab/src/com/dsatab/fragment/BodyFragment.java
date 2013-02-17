@@ -33,25 +33,28 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.BasePreferenceActivity;
+import com.dsatab.activity.DsaTabActivity;
+import com.dsatab.activity.DsaTabPreferenceActivity;
 import com.dsatab.activity.ItemChooserActivity;
-import com.dsatab.activity.MainActivity;
 import com.dsatab.data.ArmorAttribute;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Value;
 import com.dsatab.data.WoundAttribute;
 import com.dsatab.data.items.EquippedItem;
+import com.dsatab.data.items.Item;
+import com.dsatab.data.items.ItemContainer;
 import com.dsatab.util.Util;
 import com.dsatab.view.BodyLayout;
+import com.dsatab.view.listener.HeroInventoryChangedListener;
 
 /**
  * @author Ganymede
  * 
  */
-public class BodyFragment extends BaseFragment implements OnClickListener {
+public class BodyFragment extends BaseFragment implements OnClickListener, HeroInventoryChangedListener {
 
 	private BodyLayout bodyLayout;
 
@@ -131,7 +134,7 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		super.onSharedPreferenceChanged(sharedPreferences, key);
 
-		if (BasePreferenceActivity.KEY_STYLE_BG_WOUNDS_PATH.equals(key)) {
+		if (DsaTabPreferenceActivity.KEY_STYLE_BG_WOUNDS_PATH.equals(key)) {
 			updateBackground();
 		}
 	}
@@ -214,7 +217,7 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 	 */
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == MainActivity.ACTION_PREFERENCES) {
+		if (requestCode == DsaTabActivity.ACTION_PREFERENCES) {
 			updateView();
 		}
 		super.onActivityResult(requestCode, resultCode, data);
@@ -227,7 +230,6 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 	 */
 	@Override
 	public void onActiveSetChanged(int newSet, int oldSet) {
-		super.onActiveSetChanged(newSet, oldSet);
 		updateView();
 		bodyLayout.setArmorAttributes(getHero().getArmorAttributes());
 		getActivity().supportInvalidateOptionsMenu();
@@ -239,9 +241,9 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 	}
 
 	private void updateBackground() {
-		SharedPreferences preferences = DSATabApplication.getPreferences();
-		if (preferences.contains(BasePreferenceActivity.KEY_STYLE_BG_WOUNDS_PATH)) {
-			String filePath = preferences.getString(BasePreferenceActivity.KEY_STYLE_BG_WOUNDS_PATH, null);
+		SharedPreferences preferences = DsaTabApplication.getPreferences();
+		if (preferences.contains(DsaTabPreferenceActivity.KEY_STYLE_BG_WOUNDS_PATH)) {
+			String filePath = preferences.getString(DsaTabPreferenceActivity.KEY_STYLE_BG_WOUNDS_PATH, null);
 			bodyBackground.setImageDrawable(Drawable.createFromPath(filePath));
 		} else {
 			bodyBackground.setImageResource(Util.getThemeResourceId(getActivity(), R.attr.imgCharacter));
@@ -300,6 +302,93 @@ public class BodyFragment extends BaseFragment implements OnClickListener {
 		if (item.isArmor()) {
 			totalRs.setText(Util.toString(getHero().getArmorRs()));
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemAdded(com
+	 * .dsatab.data.items.Item)
+	 */
+	@Override
+	public void onItemAdded(Item item) {
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemRemoved(com
+	 * .dsatab.data.items.Item)
+	 */
+	@Override
+	public void onItemRemoved(Item item) {
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemChanged(com
+	 * .dsatab.data.items.Item)
+	 */
+	@Override
+	public void onItemChanged(Item item) {
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemChanged(com
+	 * .dsatab.data.items.EquippedItem)
+	 */
+	@Override
+	public void onItemChanged(EquippedItem item) {
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemContainerAdded
+	 * (com.dsatab.data.items.ItemContainer)
+	 */
+	@Override
+	public void onItemContainerAdded(ItemContainer itemContainer) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemContainerRemoved
+	 * (com.dsatab.data.items.ItemContainer)
+	 */
+	@Override
+	public void onItemContainerRemoved(ItemContainer itemContainer) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemContainerChanged
+	 * (com.dsatab.data.items.ItemContainer)
+	 */
+	@Override
+	public void onItemContainerChanged(ItemContainer itemContainer) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

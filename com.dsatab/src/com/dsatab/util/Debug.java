@@ -17,7 +17,7 @@ package com.dsatab.util;
 
 import android.util.Log;
 
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 
 /**
  * Functions and helpers to aid debugging. DebugMode can be toggled .
@@ -28,7 +28,7 @@ public class Debug {
 
 	public static final String CATEGORY_DATABASE = "database";
 
-	private static String tag = DSATabApplication.TAG;
+	private static String tag = DsaTabApplication.TAG;
 
 	private static boolean TRACE = true;
 

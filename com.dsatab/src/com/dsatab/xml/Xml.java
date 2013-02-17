@@ -15,6 +15,8 @@
  */
 package com.dsatab.xml;
 
+import org.jdom2.Element;
+
 /**
  * @author Seraphim
  * 
@@ -140,7 +142,6 @@ public abstract class Xml {
 
 	public static final String KEY_DAUER = "dauer";
 	public static final String KEY_WIRKUNG = "wirkung";
-	public static final String TAB_CONFIG = "tabConfig";
 	public static final String KEY_AUSWAHL = "auswahl";
 	public static final String KEY_NUMMER = "nummer";
 
@@ -160,6 +161,7 @@ public abstract class Xml {
 	public static final String KEY_MRMOD = "mrmod";
 	public static final String KEY_GESBE = "gesbe";
 	public static final String KEY_ENTFERNUNG = "entfernung";
+	public static final String KEY_PREIS = "preis";
 
 	public static final String KEY_ID = "id";
 	public static final String KEY_ALT = "Alt";
@@ -178,7 +180,13 @@ public abstract class Xml {
 			return Integer.toString(value);
 		else
 			return "";
+	}
 
+	public static String toString(Float value) {
+		if (value != null)
+			return Float.toString(value);
+		else
+			return "";
 	}
 
 	public static String toString(Long value) {
@@ -187,5 +195,14 @@ public abstract class Xml {
 		else
 			return "";
 
+	}
+
+	public static Element getOrCreateElement(Element parent, String name) {
+		Element elem = parent.getChild(name);
+		if (elem == null) {
+			elem = new Element(name);
+			parent.addContent(elem);
+		}
+		return elem;
 	}
 }

@@ -31,14 +31,12 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.BasePreferenceActivity;
-import com.dsatab.activity.MainActivity;
+import com.dsatab.activity.DsaTabActivity;
+import com.dsatab.activity.DsaTabPreferenceActivity;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Value;
-import com.dsatab.data.items.EquippedItem;
-import com.dsatab.data.items.Item;
 import com.dsatab.data.modifier.Modificator;
 import com.dsatab.util.Hint;
 import com.dsatab.util.Util;
@@ -46,6 +44,7 @@ import com.dsatab.view.FilterSettings;
 import com.dsatab.view.FilterSettings.FilterType;
 import com.dsatab.view.listener.FilterChangedListener;
 import com.dsatab.view.listener.HeroChangedListener;
+import com.dsatab.view.listener.HeroInventoryChangedListener;
 
 /**
  * @author Ganymede
@@ -127,13 +126,24 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 
 	protected void onAttachListener(Hero hero) {
 		if (hero != null) {
-			hero.addHeroChangedListener(this);
+
+			if (this instanceof HeroChangedListener) {
+				hero.addHeroChangedListener((HeroChangedListener) this);
+			}
+			if (this instanceof HeroInventoryChangedListener) {
+				hero.addHeroInventoryChangedListener((HeroInventoryChangedListener) this);
+			}
 		}
 	}
 
 	protected void onDetachListener(Hero hero) {
 		if (hero != null) {
-			hero.removeHeroChangedListener(this);
+			if (this instanceof HeroChangedListener) {
+				hero.removeHeroChangedListener((HeroChangedListener) this);
+			}
+			if (this instanceof HeroInventoryChangedListener) {
+				hero.addHeroInventoryChangedListener((HeroInventoryChangedListener) this);
+			}
 		}
 	}
 
@@ -269,11 +279,11 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		preferences = DSATabApplication.getPreferences();
+		preferences = DsaTabApplication.getPreferences();
 	}
 
 	public Hero getHero() {
-		return DSATabApplication.getInstance().getHero();
+		return DsaTabApplication.getInstance().getHero();
 	}
 
 	public final void loadHero(Hero hero) {
@@ -287,15 +297,18 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 
 	public abstract void onHeroLoaded(Hero hero);
 
-	protected MainActivity getBaseActivity() {
-		if (getActivity() instanceof MainActivity)
-			return (MainActivity) getActivity();
+	protected DsaTabActivity getBaseActivity() {
+		if (getActivity() instanceof DsaTabActivity)
+			return (DsaTabActivity) getActivity();
 		else
 			return null;
 	}
 
 	protected View findViewById(int id) {
-		return getView().findViewById(id);
+		if (getView() != null)
+			return getView().findViewById(id);
+		else
+			return null;
 	}
 
 	@Override
@@ -328,54 +341,6 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 
 	}
 
-	@Override
-	public void onItemAdded(Item item) {
-
-	}
-
-	@Override
-	public void onItemRemoved(Item item) {
-
-	}
-
-	@Override
-	public void onItemChanged(EquippedItem item) {
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.view.listener.HeroChangedListener#onItemChanged(com.dsatab
-	 * .data.items.Item)
-	 */
-	@Override
-	public void onItemChanged(Item item) {
-
-	}
-
-	@Override
-	public void onItemEquipped(EquippedItem item) {
-
-	}
-
-	@Override
-	public void onItemUnequipped(EquippedItem item) {
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.view.listener.HeroChangedListener#onActiveSetChanged(int,
-	 * int)
-	 */
-	@Override
-	public void onActiveSetChanged(int newSet, int oldSet) {
-
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -385,7 +350,7 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (BasePreferenceActivity.KEY_MODIFY_TABS.equals(key)) {
+		if (DsaTabPreferenceActivity.KEY_MODIFY_TABS.equals(key)) {
 			onFilterChanged(null, getFilterSettings());
 		}
 	}

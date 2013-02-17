@@ -17,20 +17,40 @@
 package com.dsatab.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
 import com.actionbarsherlock.view.MenuItem;
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
+import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
+import com.dsatab.data.items.ItemCard;
 import com.dsatab.fragment.ItemChooserFragment;
 import com.dsatab.fragment.ItemChooserFragment.OnItemChooserListener;
+import com.dsatab.fragment.ItemEditFragment;
 import com.dsatab.util.Debug;
 
 public class ItemChooserActivity extends BaseFragmentActivity implements OnItemChooserListener {
 
 	private ItemChooserFragment fragment;
+
+	public static void start(Context context, ItemCard itemCard) {
+		if (itemCard != null) {
+			Intent intent = new Intent(context, ItemChooserActivity.class);
+			intent.setAction(Intent.ACTION_VIEW);
+			if (itemCard instanceof EquippedItem) {
+				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_EQUIPPED_ITEM_ID, ((EquippedItem) itemCard).getId());
+				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_SEARCHABLE, false);
+				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
+			} else {
+				Item item = itemCard.getItem();
+				intent.putExtra(ItemEditFragment.INTENT_EXTRA_ITEM_ID, item.getId());
+			}
+			context.startActivity(intent);
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -39,7 +59,7 @@ public class ItemChooserActivity extends BaseFragmentActivity implements OnItemC
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setTheme(DSATabApplication.getInstance().getCustomTheme());
+		setTheme(DsaTabApplication.getInstance().getCustomTheme());
 		applyPreferencesToTheme();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_item_chooser);

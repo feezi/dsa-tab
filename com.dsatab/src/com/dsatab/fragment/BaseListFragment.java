@@ -21,15 +21,17 @@ import java.util.List;
 
 import android.util.SparseBooleanArray;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ListView;
+import android.widget.ExpandableListAdapter;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.ActionMode.Callback;
+import com.rokoder.android.lib.support.v4.widget.GridViewCompat;
 
 /**
  * @author Ganymede
@@ -51,7 +53,18 @@ public abstract class BaseListFragment extends BaseFragment implements OnItemLon
 	@Override
 	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 		if (mMode != null) {
-			SparseBooleanArray checked = ((ListView) parent).getCheckedItemPositions();
+
+			GridViewCompat gridViewCompat = null;
+			if (parent instanceof GridViewCompat) {
+				gridViewCompat = (GridViewCompat) parent;
+			}
+
+			SparseBooleanArray checked;
+			if (gridViewCompat != null)
+				checked = gridViewCompat.getCheckedItemPositionsC();
+			else
+				checked = ((AbsListView) parent).getCheckedItemPositions();
+
 			boolean hasCheckedElement = false;
 			for (int i = 0; i < checked.size() && !hasCheckedElement; i++) {
 				hasCheckedElement = checked.valueAt(i);
@@ -77,11 +90,25 @@ public abstract class BaseListFragment extends BaseFragment implements OnItemLon
 		if (mCallback == null) {
 			throw new IllegalArgumentException("ListView with Contextual Action Bar needs mCallback to be defined!");
 		}
-		((ListView) parent).setItemChecked(position, !((ListView) parent).isItemChecked(position));
+
+		GridViewCompat gridViewCompat = null;
+		if (parent instanceof GridViewCompat) {
+			gridViewCompat = (GridViewCompat) parent;
+		}
+
+		if (gridViewCompat != null)
+			gridViewCompat.setItemCheckedC(position, !gridViewCompat.isItemCheckedC(position));
+		else
+			((AbsListView) parent).setItemChecked(position, !((AbsListView) parent).isItemChecked(position));
 
 		List<Object> checkedObjects = new ArrayList<Object>();
 
-		SparseBooleanArray checked = ((ListView) parent).getCheckedItemPositions();
+		SparseBooleanArray checked;
+		if (gridViewCompat != null)
+			checked = gridViewCompat.getCheckedItemPositionsC();
+		else
+			checked = ((AbsListView) parent).getCheckedItemPositions();
+
 		boolean hasCheckedElement = false;
 		if (checked != null) {
 			for (int i = 0; i < checked.size() && !hasCheckedElement; i++) {
@@ -116,12 +143,28 @@ public abstract class BaseListFragment extends BaseFragment implements OnItemLon
 	}
 
 	protected void refreshEmptyView(Adapter adapter) {
-		if (adapter.isEmpty()) {
-			findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
-			findViewById(android.R.id.list).setVisibility(View.GONE);
-		} else {
-			findViewById(android.R.id.empty).setVisibility(View.GONE);
-			findViewById(android.R.id.list).setVisibility(View.VISIBLE);
+		if (findViewById(android.R.id.empty) != null) {
+			if (adapter.isEmpty()) {
+				findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
+				findViewById(android.R.id.list).setVisibility(View.GONE);
+			} else {
+				findViewById(android.R.id.empty).setVisibility(View.GONE);
+				findViewById(android.R.id.list).setVisibility(View.VISIBLE);
+			}
+		}
+	}
+
+	protected void refreshEmptyView(ExpandableListAdapter adapter) {
+		if (findViewById(android.R.id.empty) != null) {
+			if (adapter.isEmpty()) {
+
+				findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
+				findViewById(android.R.id.list).setVisibility(View.GONE);
+
+			} else {
+				findViewById(android.R.id.empty).setVisibility(View.GONE);
+				findViewById(android.R.id.list).setVisibility(View.VISIBLE);
+			}
 		}
 	}
 }

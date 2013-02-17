@@ -16,8 +16,9 @@
  */
 package com.dsatab.data.items;
 
-import java.io.File;
 import java.util.Comparator;
+
+import android.net.Uri;
 
 import com.dsatab.data.ItemLocationInfo;
 
@@ -39,7 +40,7 @@ public interface ItemCard {
 
 	public ItemLocationInfo getItemInfo();
 
-	public File getFile();
+	public Uri getImageUri();
 
 	public boolean hasImage();
 

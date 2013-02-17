@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:dslv="http://schemas.android.com/apk/res/com.dsatab"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -9,15 +9,15 @@
             android:layout_width="120dp"
             android:layout_height="match_parent"
             android:layout_margin="4dp"
-            dslv:collapsed_height="1dp"
-            dslv:drag_scroll_start="0.33"
-            dslv:max_drag_scroll_speed="0.3"
-            dslv:remove_mode="flingLeft"
-            dslv:drag_start_mode="onDown"
-            dslv:drag_handle_id="@+id/drag" 
-            dslv:drag_enabled="true"
-            dslv:float_alpha="0.5" 
-            dslv:float_background_color="@android:color/transparent"/>
+            app:collapsed_height="1dp"
+            app:drag_scroll_start="0.33"
+            app:max_drag_scroll_speed="0.3"
+            app:remove_mode="flingLeft"
+            app:drag_start_mode="onDown"
+            app:drag_handle_id="@+id/drag" 
+            app:drag_enabled="true"
+            app:float_alpha="0.5" 
+            app:float_background_color="@android:color/transparent"/>
 
         <ScrollView android:fillViewport="true" android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -89,10 +89,12 @@
 	                android:gravity="left|center_vertical"
 	                android:text="Icon" />
 	
-	            <Spinner
+	            <ImageView
 	                android:id="@+id/popup_edit_icon"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content" />
+	                style="?attr/android:spinnerStyle"
+	                android:layout_width="@dimen/icon_button_size"
+	                android:layout_height="@dimen/icon_button_size"
+	                android:scaleType="fitCenter" />
 
             </LinearLayout>
             

@@ -17,17 +17,24 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
 import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +47,7 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.data.Attribute;
@@ -50,7 +57,7 @@ import com.dsatab.data.Markable;
 import com.dsatab.data.Probe;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
-import com.dsatab.data.enums.CombatTalentType;
+import com.dsatab.data.enums.TalentType;
 import com.dsatab.data.items.Armor;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
@@ -77,9 +84,34 @@ public class Util {
 	}
 
 	public static int getDrawableByName(String name) {
-		return DSATabApplication.getInstance().getResources()
-				.getIdentifier(name, DRAWABLE, DSATabApplication.getInstance().getPackageName());
+		return DsaTabApplication.getInstance().getResources()
+				.getIdentifier(name, DRAWABLE, DsaTabApplication.getInstance().getPackageName());
 
+	}
+
+	public static Drawable getDrawableByUri(Uri mUri) {
+		Drawable d = null;
+		if (mUri != null) {
+			String scheme = mUri.getScheme();
+
+			if (ContentResolver.SCHEME_ANDROID_RESOURCE.equals(scheme) || ContentResolver.SCHEME_CONTENT.equals(scheme)
+					|| ContentResolver.SCHEME_FILE.equals(scheme)) {
+				try {
+					d = Drawable.createFromStream(
+							DsaTabApplication.getInstance().getContentResolver().openInputStream(mUri), null);
+				} catch (Exception e) {
+					Log.w("Util", "Unable to open content: " + mUri, e);
+				}
+			} else {
+				d = Drawable.createFromPath(mUri.toString());
+			}
+
+			if (d == null) {
+				System.out.println("resolveUri failed on bad uri: " + mUri);
+			}
+		}
+
+		return d;
 	}
 
 	public static class FileNameComparator implements Comparator<File> {
@@ -95,10 +127,13 @@ public class Util {
 	};
 
 	public static void hideKeyboard(View view) {
-		InputMethodManager imm = (InputMethodManager) DSATabApplication.getInstance().getSystemService(
+		if (view == null)
+			return;
+		InputMethodManager imm = (InputMethodManager) DsaTabApplication.getInstance().getSystemService(
 				Context.INPUT_METHOD_SERVICE);
-
-		imm.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0);
+		if (imm != null) {
+			imm.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0);
+		}
 	}
 
 	private static final String PLAIN_ASCII = "AaEeIiOoUu" // grave
@@ -139,7 +174,7 @@ public class Util {
 
 	public static Spanned getText(int resourceId, java.lang.Object... formatArgs) {
 		return Html.fromHtml(String.format(
-				Html.toHtml(new SpannedString(DSATabApplication.getInstance().getText(resourceId))), formatArgs));
+				Html.toHtml(new SpannedString(DsaTabApplication.getInstance().getText(resourceId))), formatArgs));
 	}
 
 	public static Bitmap decodeBitmap(final File f, final int suggestedSize) {
@@ -163,7 +198,7 @@ public class Util {
 			// Decode image size
 			BitmapFactory.Options o;
 			try {
-				is = DSATabApplication.getInstance().getBaseContext().getContentResolver().openInputStream(uri);
+				is = DsaTabApplication.getInstance().getBaseContext().getContentResolver().openInputStream(uri);
 				bis = new BufferedInputStream(is);
 
 				o = new BitmapFactory.Options();
@@ -198,7 +233,7 @@ public class Util {
 			o2.inTempStorage = new byte[32 * 1024];
 
 			try {
-				is = DSATabApplication.getInstance().getBaseContext().getContentResolver().openInputStream(uri);
+				is = DsaTabApplication.getInstance().getBaseContext().getContentResolver().openInputStream(uri);
 				bis = new BufferedInputStream(is);
 				b = BitmapFactory.decodeStream(bis, null, o2);
 			} finally {
@@ -220,7 +255,7 @@ public class Util {
 	public static String checkFileWriteAccess(File file) {
 		String error = null;
 
-		String MEDIA_MOUNTED = " Der häufigste Grund hierfür ist, dass die SD-Karte gerade vom PC verwendet wird. Trenne am besten das Kabel zwischen Smartphone und PC und versuche es erneut. ";
+		String MEDIA_MOUNTED = " Der häufigste Grund hierfür ist, dass die SD-Karte gerade vom PC verwendet wird. Trenne am besten das Kabel zwischen Smartphone und PC und versuche es erneut.";
 
 		String state = Environment.getExternalStorageState();
 		if (Environment.MEDIA_BAD_REMOVAL.equals(state)) {
@@ -240,7 +275,7 @@ public class Util {
 			error = "SD-Karte ist vorhanden, aber leer oder mit einem nicht unterstützten Dateisystem formatiert.";
 		} else if (Environment.MEDIA_REMOVED.equals(state)) {
 			// Memory Card is not present
-			error = "Keine SD-Karte vrohanden.";
+			error = "Keine SD-Karte vorhanden.";
 		} else if (Environment.MEDIA_SHARED.equals(state)) {
 			// Memory Card is present but shared via USB mass storage
 			error = "SD-Karte ist vorhanden, wird aber derzeit über den USB Massespeicher geteilt." + MEDIA_MOUNTED;
@@ -249,7 +284,7 @@ public class Util {
 			error = "SD-Karte ist vorhanden, kann aber nicht gemounted werden." + MEDIA_MOUNTED;
 		} else if (Environment.MEDIA_UNMOUNTED.equals(state)) {
 			// Memory Card is present but not mounted
-			error = "SD-Karte ist vorhadnen, derzeit aber nicht gemounted.";
+			error = "SD-Karte ist vorhanden, derzeit aber nicht gemounted.";
 		}
 
 		if (error == null) {
@@ -514,10 +549,10 @@ public class Util {
 	public static void setTextColor(TextView tf, Value value, int modifier, boolean inverse) {
 		if (value.getValue() != null) {
 			if (modifier < 0 || (value.getReferenceValue() != null && value.getValue() < value.getReferenceValue()))
-				tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed));
+				tf.setTextColor(DsaTabApplication.getInstance().getResources().getColor(R.color.ValueRed));
 			else if (modifier > 0
 					|| (value.getReferenceValue() != null && value.getValue() > value.getReferenceValue()))
-				tf.setTextColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen));
+				tf.setTextColor(DsaTabApplication.getInstance().getResources().getColor(R.color.ValueGreen));
 			else {
 				if (inverse)
 					tf.setTextColor(tf.getContext().getResources().getColor(android.R.color.primary_text_dark));
@@ -526,7 +561,7 @@ public class Util {
 			}
 		} else {
 			if (inverse)
-				tf.setTextColor(DSATabApplication.getInstance().getResources()
+				tf.setTextColor(DsaTabApplication.getInstance().getResources()
 						.getColor(android.R.color.primary_text_dark));
 			else
 				tf.setTextColor(getThemeColors(tf.getContext(), android.R.attr.textColorPrimary));
@@ -535,7 +570,7 @@ public class Util {
 
 	public static int getThemeColors(Context context, int attr) {
 		if (getThemeResourceId(context, attr) != 0)
-			return DSATabApplication.getInstance().getResources().getColor(getThemeResourceId(context, attr));
+			return DsaTabApplication.getInstance().getResources().getColor(getThemeResourceId(context, attr));
 		else
 			return 0;
 	}
@@ -553,7 +588,7 @@ public class Util {
 
 		if (modifier == 0) {
 			if (inverse) {
-				tf.setTextColor(DSATabApplication.getInstance().getResources()
+				tf.setTextColor(DsaTabApplication.getInstance().getResources()
 						.getColor(android.R.color.primary_text_dark));
 			} else {
 				tf.setTextColor(getThemeColors(tf.getContext(), android.R.attr.textColorPrimary));
@@ -609,11 +644,11 @@ public class Util {
 
 			int color;
 			if (modifier < 0)
-				color = DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed);
+				color = DsaTabApplication.getInstance().getResources().getColor(R.color.ValueRed);
 			else if (modifier > 0)
-				color = DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen);
+				color = DsaTabApplication.getInstance().getResources().getColor(R.color.ValueGreen);
 			else {
-				color = getThemeColors(DSATabApplication.getInstance(), android.R.attr.textColorPrimary);
+				color = getThemeColors(DsaTabApplication.getInstance(), android.R.attr.textColorPrimary);
 
 			}
 			title.append(" (");
@@ -644,9 +679,9 @@ public class Util {
 				modifier = hero.getModifier(probe1);
 
 				if (modifier < 0)
-					color = DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed);
+					color = DsaTabApplication.getInstance().getResources().getColor(R.color.ValueRed);
 				else if (modifier > 0)
-					color = DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen);
+					color = DsaTabApplication.getInstance().getResources().getColor(R.color.ValueGreen);
 			}
 			if (color != Color.TRANSPARENT)
 				title.appendColor(color, Util.toString(value1 + modifier));
@@ -665,9 +700,9 @@ public class Util {
 				modifier = hero.getModifier(probe2);
 
 				if (modifier < 0)
-					color = DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed);
+					color = DsaTabApplication.getInstance().getResources().getColor(R.color.ValueRed);
 				else if (modifier > 0)
-					color = DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen);
+					color = DsaTabApplication.getInstance().getResources().getColor(R.color.ValueGreen);
 			}
 
 			if (color != Color.TRANSPARENT)
@@ -811,15 +846,15 @@ public class Util {
 		@Override
 		public int compare(Item object1, Item object2) {
 
-			CombatTalentType type1 = null, type2 = null;
+			TalentType type1 = null, type2 = null;
 			String atype1 = null, atype2 = null;
 
 			for (ItemSpecification itemSpecification : object1.getSpecifications()) {
 				if (itemSpecification instanceof Weapon) {
-					type1 = ((Weapon) itemSpecification).getCombatTalentType();
+					type1 = ((Weapon) itemSpecification).getTalentType();
 					break;
 				} else if (itemSpecification instanceof DistanceWeapon) {
-					type1 = ((DistanceWeapon) itemSpecification).getCombatTalentType();
+					type1 = ((DistanceWeapon) itemSpecification).getTalentType();
 					break;
 				} else if (itemSpecification instanceof Armor) {
 					atype1 = object1.getCategory();
@@ -829,10 +864,10 @@ public class Util {
 
 			for (ItemSpecification itemSpecification : object2.getSpecifications()) {
 				if (itemSpecification instanceof Weapon) {
-					type2 = ((Weapon) itemSpecification).getCombatTalentType();
+					type2 = ((Weapon) itemSpecification).getTalentType();
 					break;
 				} else if (itemSpecification instanceof DistanceWeapon) {
-					type2 = ((DistanceWeapon) itemSpecification).getCombatTalentType();
+					type2 = ((DistanceWeapon) itemSpecification).getTalentType();
 					break;
 				} else if (itemSpecification instanceof Armor) {
 					atype2 = object1.getCategory();
@@ -932,6 +967,16 @@ public class Util {
 			return value;
 	}
 
+	public static Uri getUriForResourceId(int resId) {
+		if (resId > 0) {
+			Resources resources = DsaTabApplication.getInstance().getResources();
+			return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + resources.getResourcePackageName(resId)
+					+ '/' + resources.getResourceTypeName(resId) + '/' + resources.getResourceEntryName(resId));
+		} else {
+			return null;
+		}
+	}
+
 	public static void inflateAcceptAbortMenu(Context context, Menu menu) {
 
 		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_accept, Menu.NONE,
@@ -971,4 +1016,38 @@ public class Util {
 		return in;
 	}
 
+	public static Bitmap retrieveBitmap(Context context, Intent data, int maxSize) {
+
+		String filePath = retrieveBitmapPath(context, data);
+
+		if (filePath != null) {
+			File file = new File(filePath);
+			if (file.exists()) {
+				Bitmap yourSelectedImage = Util.decodeBitmap(file, maxSize);
+				return yourSelectedImage;
+			}
+		}
+
+		return null;
+	}
+
+	public static Uri retrieveBitmapUri(Context context, Intent data) {
+		return data.getData();
+	}
+
+	public static String retrieveBitmapPath(Context context, Intent data) {
+		Uri selectedImage = data.getData();
+		String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+		Cursor cursor = context.getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+
+		if (cursor != null) {
+			cursor.moveToFirst();
+			int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+			String filePath = cursor.getString(columnIndex);
+			cursor.close();
+			return filePath;
+		}
+		return null;
+	}
 }

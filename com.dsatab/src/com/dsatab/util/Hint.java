@@ -31,9 +31,9 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.XmlResourceParser;
 
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.BasePreferenceActivity;
+import com.dsatab.activity.DsaTabPreferenceActivity;
 import com.espian.showcaseview.ShowcaseView;
 
 /**
@@ -52,7 +52,7 @@ public class Hint {
 
 	public static boolean showRandomHint(String fragmentName, Activity activity) {
 
-		if (DSATabApplication.getPreferences().getBoolean(BasePreferenceActivity.KEY_TIP_TODAY, true)) {
+		if (DsaTabApplication.getPreferences().getBoolean(DsaTabPreferenceActivity.KEY_TIP_TODAY, true)) {
 			Hint hint = getRandomHint(fragmentName);
 			if (hint != null)
 				return hint.show(activity);
@@ -67,7 +67,7 @@ public class Hint {
 			loadHints();
 
 		if (hints.containsKey(fragmentName)) {
-			SharedPreferences pref = DSATabApplication.getPreferences();
+			SharedPreferences pref = DsaTabApplication.getPreferences();
 			List<Hint> hintList = new ArrayList<Hint>(hints.get(fragmentName));
 
 			while (!hintList.isEmpty()) {
@@ -84,7 +84,7 @@ public class Hint {
 
 	protected static void loadHints() {
 		hints = new HashMap<String, List<Hint>>();
-		XmlResourceParser xpp = DSATabApplication.getInstance().getResources().getXml(R.xml.showcase_hints);
+		XmlResourceParser xpp = DsaTabApplication.getInstance().getResources().getXml(R.xml.showcase_hints);
 		try {
 			xpp.next();
 			int eventType = xpp.getEventType();
@@ -130,11 +130,11 @@ public class Hint {
 	 */
 	public boolean show(Activity activity) {
 		int viewIdInt = activity.getResources().getIdentifier(this.viewId, "id",
-				DSATabApplication.getInstance().getPackageName());
+				DsaTabApplication.getInstance().getPackageName());
 		if (viewIdInt != 0) {
 			ShowcaseView.insertShowcaseView(viewIdInt, activity, title, description, null);
 
-			Editor edit = DSATabApplication.getPreferences().edit();
+			Editor edit = DsaTabApplication.getPreferences().edit();
 			edit.putBoolean(Hint.PREF_PREFIX_HINT_STORAGE + id, true);
 			edit.commit();
 			return true;

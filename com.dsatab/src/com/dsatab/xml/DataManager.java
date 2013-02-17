@@ -18,9 +18,13 @@ package com.dsatab.xml;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import android.app.ActivityManager;
@@ -32,7 +36,7 @@ import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 
 import com.bugsense.trace.BugSenseHandler;
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.data.ArtInfo;
 import com.dsatab.data.SpellInfo;
 import com.dsatab.data.items.Item;
@@ -40,6 +44,7 @@ import com.dsatab.data.items.ItemType;
 import com.dsatab.util.Debug;
 import com.dsatab.util.Util;
 import com.j256.ormlite.android.AndroidCompiledStatement;
+import com.j256.ormlite.dao.GenericRawResults;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -89,14 +94,14 @@ public class DataManager {
 		try {
 			if (artNameArg == null || artNameQuery == null) {
 				artNameArg = new SelectArg();
-				artNameQuery = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class)
+				artNameQuery = DsaTabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class)
 						.queryBuilder().where().eq("name", artNameArg).prepare();
 			}
 
 			if (artGradeArg == null || artNameArg == null || artNameQuery == null) {
 				artGradeArg = new SelectArg();
 
-				artNameGradeQuery = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class)
+				artNameGradeQuery = DsaTabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class)
 						.queryBuilder().where().eq("name", artNameArg).and().eq("grade", artGradeArg).prepare();
 			}
 		} catch (SQLException e) {
@@ -113,7 +118,7 @@ public class DataManager {
 		try {
 			spellNameArg = new SelectArg();
 
-			spellNameQuery = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(SpellInfo.class)
+			spellNameQuery = DsaTabApplication.getInstance().getDBHelper().getRuntimeDao(SpellInfo.class)
 					.queryBuilder().where().eq("name", spellNameArg).prepare();
 
 		} catch (SQLException e) {
@@ -130,7 +135,7 @@ public class DataManager {
 		try {
 			itemNameArg = new SelectArg();
 
-			itemNameQuery = DSATabApplication.getInstance().getDBHelper().getItemDao().queryBuilder().where()
+			itemNameQuery = DsaTabApplication.getInstance().getDBHelper().getItemDao().queryBuilder().where()
 					.eq("name", itemNameArg).prepare();
 		} catch (SQLException e) {
 			Debug.error(e);
@@ -149,11 +154,56 @@ public class DataManager {
 		return mMemoryCache.get(key);
 	}
 
+	public static List<String> getItemTypes() {
+		RuntimeExceptionDao<Item, UUID> itemDao = DsaTabApplication.getInstance().getDBHelper().getItemDao();
+		GenericRawResults<String[]> results = itemDao.queryRaw("select distinct(itemTypes) from Item;");
+		Iterator<String[]> rowIter = results.iterator();
+
+		Set<String> itemTypes = new HashSet<String>();
+
+		while (rowIter.hasNext()) {
+			String[] row = rowIter.next();
+			String types = row[0];
+			if (!TextUtils.isEmpty(types)) {
+				for (String type : types.split(Item.ITEM_TYPES_SEP)) {
+					if (!TextUtils.isEmpty(type))
+						itemTypes.add(type);
+				}
+			}
+		}
+
+		List<String> result = new ArrayList<String>(itemTypes);
+		Collections.sort(result);
+		return result;
+
+	}
+
+	public static List<String> getItemCategories() {
+		RuntimeExceptionDao<Item, UUID> itemDao = DsaTabApplication.getInstance().getDBHelper().getItemDao();
+		GenericRawResults<String[]> results = itemDao.queryRaw("select distinct(category) from Item;");
+		Iterator<String[]> rowIter = results.iterator();
+
+		Set<String> itemTypes = new HashSet<String>();
+
+		while (rowIter.hasNext()) {
+			String[] row = rowIter.next();
+			String cat = row[0];
+			if (!TextUtils.isEmpty(cat)) {
+				itemTypes.add(cat);
+			}
+		}
+
+		List<String> result = new ArrayList<String>(itemTypes);
+		Collections.sort(result);
+		return result;
+
+	}
+
 	public static Cursor getItemsCursor(CharSequence nameConstraint, Collection<ItemType> itemTypes, String itemCategory) {
 
 		try {
 
-			RuntimeExceptionDao<Item, UUID> itemDao = DSATabApplication.getInstance().getDBHelper().getItemDao();
+			RuntimeExceptionDao<Item, UUID> itemDao = DsaTabApplication.getInstance().getDBHelper().getItemDao();
 
 			PreparedQuery<Item> query = null;
 
@@ -199,7 +249,7 @@ public class DataManager {
 	public static Cursor getCursor(PreparedQuery<?> query) {
 		Cursor cursor = null;
 		try {
-			DatabaseConnection databaseConnection = DSATabApplication.getInstance().getDBHelper().getConnectionSource()
+			DatabaseConnection databaseConnection = DsaTabApplication.getInstance().getDBHelper().getConnectionSource()
 					.getReadOnlyConnection();
 
 			AndroidCompiledStatement compiledStatement = (AndroidCompiledStatement) query.compile(databaseConnection,
@@ -213,7 +263,7 @@ public class DataManager {
 	}
 
 	public static List<Item> getItems() {
-		RuntimeExceptionDao<Item, UUID> itemDao = DSATabApplication.getInstance().getDBHelper().getItemDao();
+		RuntimeExceptionDao<Item, UUID> itemDao = DsaTabApplication.getInstance().getDBHelper().getItemDao();
 		List<Item> items = itemDao.queryForAll();
 		Collections.sort((List<Item>) items, Item.NAME_COMPARATOR);
 
@@ -243,7 +293,7 @@ public class DataManager {
 	}
 
 	public static Item getItemById(UUID itemId) {
-		RuntimeExceptionDao<Item, UUID> itemDao = DSATabApplication.getInstance().getDBHelper().getItemDao();
+		RuntimeExceptionDao<Item, UUID> itemDao = DsaTabApplication.getInstance().getDBHelper().getItemDao();
 		Item item = itemDao.queryForId(itemId);
 		return item;
 	}
@@ -251,14 +301,14 @@ public class DataManager {
 	public static SpellInfo getSpellByName(String name) {
 		initSpellQueries();
 		spellNameArg.setValue(name);
-		return DSATabApplication.getInstance().getDBHelper().getRuntimeDao(SpellInfo.class)
+		return DsaTabApplication.getInstance().getDBHelper().getRuntimeDao(SpellInfo.class)
 				.queryForFirst(spellNameQuery);
 	}
 
 	public static ArtInfo getArtByName(String name) {
 		initArtQueries();
 		artNameArg.setValue(name);
-		return DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class).queryForFirst(artNameQuery);
+		return DsaTabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class).queryForFirst(artNameQuery);
 	}
 
 	public static ArtInfo getArtByNameAndGrady(String name, String grade) {
@@ -266,7 +316,7 @@ public class DataManager {
 		artGradeArg.setValue(grade);
 		artNameArg.setValue(name);
 
-		ArtInfo info = DSATabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class)
+		ArtInfo info = DsaTabApplication.getInstance().getDBHelper().getRuntimeDao(ArtInfo.class)
 				.queryForFirst(artNameGradeQuery);
 
 		// if we find no art with grade, try without
@@ -283,7 +333,7 @@ public class DataManager {
 		initItemQueries();
 
 		itemNameArg.setValue(name);
-		return DSATabApplication.getInstance().getDBHelper().getItemDao().queryForFirst(itemNameQuery);
+		return DsaTabApplication.getInstance().getDBHelper().getItemDao().queryForFirst(itemNameQuery);
 	}
 
 }

@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <plurals name="items">
+        <item quantity="one">Gegenstand</item>
+        <item quantity="other">Gegenstände</item>
+    </plurals>
+    <string name="label_capacity">%1$s von %2$s kg</string>
+    
     <string name="path_items">http://dsa-tab.googlecode.com/files/dsatab-items3.zip</string>
     <string name="app_name">DsaTab</string>
     <string name="label_haar_augen_farbe">Haar,Augen</string>

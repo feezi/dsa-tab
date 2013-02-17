@@ -28,7 +28,7 @@ import android.widget.ListView;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.dsatab.R;
-import com.dsatab.activity.MainActivity;
+import com.dsatab.activity.DsaTabActivity;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Spell;
 import com.dsatab.data.Value;
@@ -64,7 +64,7 @@ public class SpellFragment extends BaseListFragment implements OnItemClickListen
 
 						switch (item.getItemId()) {
 						case R.id.option_edit_spell:
-							MainActivity.showEditPopup(getActivity(), spell);
+							DsaTabActivity.showEditPopup(getActivity(), spell);
 							mode.finish();
 							return true;
 						case R.id.option_view_spell:
@@ -91,7 +91,6 @@ public class SpellFragment extends BaseListFragment implements OnItemClickListen
 				}
 				if (notifyChanged) {
 					spellAdapter.refilter();
-					spellAdapter.notifyDataSetChanged();
 				}
 			}
 

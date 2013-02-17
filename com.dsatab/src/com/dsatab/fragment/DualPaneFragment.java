@@ -24,6 +24,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -71,7 +72,7 @@ public class DualPaneFragment extends SherlockFragment implements FilterChangedL
 		} catch (IllegalAccessException e) {
 			Debug.error(e);
 		}
-
+		setRetainInstance(true);
 		setHasOptionsMenu(true);
 	}
 
@@ -185,17 +186,29 @@ public class DualPaneFragment extends SherlockFragment implements FilterChangedL
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+		FragmentManager fragmentManager = getChildFragmentManager();
+		FragmentTransaction transaction = null;
 
 		for (int i = 0; i < TabInfo.MAX_TABS_PER_PAGE; i++) {
-			if (fragments.get(i) != null) {
-				transaction.replace(panes[i].getId(), fragments.get(i));
+			Fragment oldFragment = fragmentManager.findFragmentById(panes[i].getId());
+			Fragment newFragment = fragments.get(i);
+
+			if (newFragment != null) {
+				if (newFragment != oldFragment) {
+
+					if (transaction == null)
+						transaction = getChildFragmentManager().beginTransaction();
+
+					transaction.replace(panes[i].getId(), newFragment);
+				}
 				panes[i].setVisibility(View.VISIBLE);
 			} else {
 				panes[i].setVisibility(View.GONE);
 			}
 		}
-		transaction.commit();
+		if (transaction != null) {
+			transaction.commit();
+		}
 		setUserVisibleHint(getUserVisibleHint());
 	}
 

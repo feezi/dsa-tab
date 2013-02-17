@@ -16,6 +16,7 @@
  */
 package com.dsatab.fragment;
 
+import java.util.Collections;
 import java.util.List;
 
 import android.os.Bundle;
@@ -36,8 +37,11 @@ import com.dsatab.R;
 import com.dsatab.data.Art;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Talent;
+import com.dsatab.data.TalentGroup;
 import com.dsatab.data.Value;
 import com.dsatab.data.adapter.ArtAdapter;
+import com.dsatab.data.enums.TalentGroupType;
+import com.dsatab.data.enums.TalentType;
 import com.dsatab.util.Util;
 import com.dsatab.view.ArtInfoDialog;
 import com.dsatab.view.FilterSettings;
@@ -98,7 +102,6 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 				}
 				if (notifyChanged) {
 					artAdapter.refilter();
-					artAdapter.notifyDataSetChanged();
 				}
 			}
 			mode.finish();
@@ -264,7 +267,13 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 	 */
 	private void fillLiturgieKenntnis(Hero hero) {
 
-		List<Talent> talents = hero.getArtTalents();
+		List<Talent> talents;
+		TalentGroup gabenGroup = hero.getTalentGroup(TalentGroupType.Gaben);
+		if (gabenGroup != null) {
+			talents = gabenGroup.getTalents();
+		} else {
+			talents = Collections.emptyList();
+		}
 
 		// remove talentViews that are no longer needed
 
@@ -272,7 +281,10 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 
 		int count = 0;
 		for (Talent talent : talents) {
-			if (getFilterSettings() != null && getFilterSettings().isVisible(talent))
+			if (talent.getType() == TalentType.Gefahreninstinkt)
+				continue;
+
+			if (getFilterSettings() != null && !getFilterSettings().isVisible(talent))
 				continue;
 
 			View talentView = talentsView.getChildAt(count);
@@ -335,7 +347,6 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 
 		if (value instanceof Art) {
 			artAdapter.refilter();
-			artAdapter.notifyDataSetChanged();
 		}
 
 		if (value instanceof Talent) {

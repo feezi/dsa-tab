@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.dsatab.data.Art;
-import com.dsatab.data.Talent;
 
 /**
  * @author Ganymede
@@ -28,20 +27,19 @@ import com.dsatab.data.Talent;
  */
 public enum ArtType {
 
-	Liturige(Art.LITURGIE_PREFIX, Talent.LITURGIE_KENNTNIS_PREFIX), Ritual(Art.RITUAL_PREFIX,
-			Talent.RITUAL_KENNTNIS_PREFIX), RitualSeher(Art.RITUAL_SEHER_PREFIX, Talent.RITUAL_KENNTNIS_PREFIX), Stabzauber(
-			Art.STABZAUBER_PREFIX, Talent.RITUAL_KENNTNIS_GILDENMAGIE), Schalenzauber(Art.SCHALENZAUBER_PREFIX,
-			Talent.RITUAL_KENNTNIS_ALCHEMIST), SchlangenringZauber(Art.SCHLANGENRING_ZAUBER_PEFIX,
-			Talent.RITUAL_KENNTNIS_GEODE), Schuppenbeutel(Art.SCHUPPENBEUTEL_PREFIX,
-			Talent.RITUAL_KENNTNIS_KRISTALLOMANTIE), Trommelzauber(Art.TROMMELZAUBER_PREFIX,
-			Talent.RITUAL_KENNTNIS_DERWISCH), Runen(Art.RUNEN_PREFIX), Kugelzauber(Art.KUGELZAUBER_PREFIX), KristallomantischesRitual(
-			Art.KRISTALLOMANTISCHES_RITUAL_PREFIX, Talent.RITUAL_KENNTNIS_KRISTALLOMANTIE), Hexenfluch(
-			Art.HEXENFLUCH_PREFIX, Talent.RITUAL_KENNTNIS_HEXE), GabeDesOdun(Art.GABE_DES_ODUN_PREFIX,
-			Talent.RITUAL_KENNTNIS_DURRO_DUN), DruidischesHerrschaftsritual(Art.DRUIDISCHES_HERRSCHAFTSRITUAL_PREFIX,
-			Talent.RITUAL_KENNTNIS_DRUIDE), DruidischesDolchritual(Art.DRUIDISCHES_DOLCHRITUAL_PREFIX,
-			Talent.RITUAL_KENNTNIS_DRUIDE), Zaubertanz(Art.ZAUBERTANZ_PREFIX,
-			Talent.RITUAL_KENNTNIS_ZAUBERTAENZER_PREFIX), Zauberzeichen(Art.ZAUBERZEICHEN_PREFIX), ZibiljaRitual(
-			Art.ZIBILJA_RITUAL_PREFIX, Talent.RITUAL_KENNTNIS_ZIBILJA);
+	Liturige(Art.LITURGIE_PREFIX, TalentType.Liturgiekenntnis), Ritual(Art.RITUAL_PREFIX, TalentType.Ritualkenntnis), RitualSeher(
+			Art.RITUAL_SEHER_PREFIX, TalentType.Ritualkenntnis), Stabzauber(Art.STABZAUBER_PREFIX,
+			TalentType.RitualkenntnisGildenmagie), Schalenzauber(Art.SCHALENZAUBER_PREFIX,
+			TalentType.RitualkenntnisAlchimist), SchlangenringZauber(Art.SCHLANGENRING_ZAUBER_PEFIX,
+			TalentType.RitualkenntnisGeode), Schuppenbeutel(Art.SCHUPPENBEUTEL_PREFIX,
+			TalentType.RitualkenntnisKristallomantie), Trommelzauber(Art.TROMMELZAUBER_PREFIX,
+			TalentType.RitualkenntnisDerwisch), Runen(Art.RUNEN_PREFIX), Kugelzauber(Art.KUGELZAUBER_PREFIX), KristallomantischesRitual(
+			Art.KRISTALLOMANTISCHES_RITUAL_PREFIX, TalentType.RitualkenntnisKristallomantie), Hexenfluch(
+			Art.HEXENFLUCH_PREFIX, TalentType.RitualkenntnisHexe), GabeDesOdun(Art.GABE_DES_ODUN_PREFIX,
+			TalentType.RitualkenntnisDurroDun), DruidischesHerrschaftsritual(Art.DRUIDISCHES_HERRSCHAFTSRITUAL_PREFIX,
+			TalentType.RitualkenntnisDruide), DruidischesDolchritual(Art.DRUIDISCHES_DOLCHRITUAL_PREFIX,
+			TalentType.RitualkenntnisDruide), Zaubertanz(Art.ZAUBERTANZ_PREFIX, TalentType.RitualkenntnisZaubertänzer), Zauberzeichen(
+			Art.ZAUBERZEICHEN_PREFIX), ZibiljaRitual(Art.ZIBILJA_RITUAL_PREFIX, TalentType.RitualkenntnisZibilja);
 
 	public static final Map<String, ArtType> artMappings = new HashMap<String, ArtType>();
 	static {
@@ -53,24 +51,24 @@ public enum ArtType {
 
 	private String prefix;
 
-	private String talentName;
+	private TalentType talentType;
 
 	private ArtType(String prefix) {
 		this.prefix = prefix;
-		this.talentName = null;
+		this.talentType = null;
 	}
 
-	private ArtType(String prefix, String talentName) {
+	private ArtType(String prefix, TalentType talentType) {
 		this.prefix = prefix;
-		this.talentName = talentName;
+		this.talentType = talentType;
 	}
 
 	public String prefix() {
 		return prefix;
 	}
 
-	public String talentName() {
-		return talentName;
+	public TalentType talentType() {
+		return talentType;
 	}
 
 	public String getName() {

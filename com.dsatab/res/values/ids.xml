@@ -16,6 +16,9 @@
   <item type="id" name="option_tab_add" />
   <item type="id" name="option_tab_delete" />
   
+  
+  <item type="id" name="option_items" />
+  
   <item type="id" name="option_accept" />
   <item type="id" name="option_cancel" />  
   

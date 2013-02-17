@@ -27,8 +27,8 @@ import android.content.SharedPreferences.Editor;
 import android.support.v4.content.AsyncTaskLoader;
 
 import com.bugsense.trace.BugSenseHandler;
-import com.dsatab.DSATabApplication;
-import com.dsatab.activity.MainActivity;
+import com.dsatab.DsaTabApplication;
+import com.dsatab.activity.DsaTabActivity;
 import com.dsatab.util.Debug;
 import com.dsatab.xml.HeldenXmlParser;
 
@@ -91,7 +91,7 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 		}
 
 		FileInputStream fis = null;
-		SharedPreferences preferences = DSATabApplication.getPreferences();
+		SharedPreferences preferences = DsaTabApplication.getPreferences();
 
 		try {
 			File file = new File(path);
@@ -101,12 +101,12 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 			}
 
 			fis = new FileInputStream(file);
-			hero = HeldenXmlParser.readHero(path, fis);
+			hero = HeldenXmlParser.readHero(getContext(), path, fis);
 			if (hero != null) {
 				// Debug.verbose("Hero successfully parsed");
 
 				Editor editor = preferences.edit();
-				editor.putString(MainActivity.PREF_LAST_HERO, hero.getPath());
+				editor.putString(DsaTabActivity.PREF_LAST_HERO, hero.getPath());
 				editor.commit();
 				// Debug.verbose("Stored path of current hero in prefs:" +
 				// hero.getPath());
@@ -120,9 +120,10 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 		} catch (Exception e) {
 			// clear last hero since loading resulted in an error
 			Editor editor = preferences.edit();
-			editor.remove(MainActivity.PREF_LAST_HERO);
+			editor.remove(DsaTabActivity.PREF_LAST_HERO);
 			editor.commit();
 			exception = e;
+			Debug.error(e);
 			BugSenseHandler.sendException(e);
 			return null;
 		} finally {

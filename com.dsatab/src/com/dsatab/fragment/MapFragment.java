@@ -50,9 +50,9 @@ import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.BasePreferenceActivity;
+import com.dsatab.activity.DsaTabPreferenceActivity;
 import com.dsatab.data.Hero;
 import com.dsatab.map.MapTileProviderLocal;
 import com.dsatab.util.Util;
@@ -157,8 +157,8 @@ public class MapFragment extends BaseFragment {
 
 	private void initOSMMapView() {
 		if (osmMapView == null) {
-			File osmMapDir = DSATabApplication.getDirectory(DSATabApplication.DIR_OSM_MAPS);
-			ITileSource tileSource = TileSourceFactory.getTileSource(DSATabApplication.TILESOURCE_AVENTURIEN);
+			File osmMapDir = DsaTabApplication.getDirectory(DsaTabApplication.DIR_OSM_MAPS);
+			ITileSource tileSource = TileSourceFactory.getTileSource(DsaTabApplication.TILESOURCE_AVENTURIEN);
 			MapTileProviderLocal tileProvider = new MapTileProviderLocal(osmMapDir.getAbsolutePath(), getActivity(),
 					tileSource);
 			osmMapView = new MapView(getActivity(), 256, new DefaultResourceProxyImpl(getActivity()), tileProvider);
@@ -207,8 +207,8 @@ public class MapFragment extends BaseFragment {
 		List<String> mapFiles = new ArrayList<String>();
 		List<String> mapNames = new ArrayList<String>();
 
-		File mapDir = DSATabApplication.getDirectory(DSATabApplication.DIR_MAPS);
-		File osmMapDir = DSATabApplication.getDirectory(DSATabApplication.DIR_OSM_MAPS);
+		File mapDir = DsaTabApplication.getDirectory(DsaTabApplication.DIR_MAPS);
+		File osmMapDir = DsaTabApplication.getDirectory(DsaTabApplication.DIR_OSM_MAPS);
 
 		if (!mapDir.exists())
 			mapDir.mkdirs();
@@ -251,8 +251,8 @@ public class MapFragment extends BaseFragment {
 						dialog.dismiss();
 
 						AbstractDownloader downloader = DownloaderWrapper.getInstance(
-								DSATabApplication.getDsaTabPath(), getActivity());
-						downloader.addPath(BasePreferenceActivity.PATH_OSM_MAP_PACK);
+								DsaTabApplication.getDsaTabPath(), getActivity());
+						downloader.addPath(DsaTabPreferenceActivity.PATH_OSM_MAP_PACK);
 						downloader.downloadZip();
 					}
 				});
@@ -364,7 +364,7 @@ public class MapFragment extends BaseFragment {
 		}
 
 		protected Bitmap doInBackground(String... urls) {
-			File file = new File(DSATabApplication.getDirectory(DSATabApplication.DIR_MAPS), urls[0]);
+			File file = new File(DsaTabApplication.getDirectory(DsaTabApplication.DIR_MAPS), urls[0]);
 			publishProgress(file.getName());
 			return Util.decodeBitmap(file, 1000);
 		}

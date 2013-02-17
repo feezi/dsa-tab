@@ -1,13 +1,13 @@
 package com.dsatab.data;
 
-import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
+import com.dsatab.data.enums.TalentType;
 
 public interface CombatTalent {
 
 	String getName();
 
-	CombatTalentType getCombatTalentType();
+	TalentType getType();
 
 	Probe getAttack();
 

@@ -22,17 +22,17 @@ import java.util.Map;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.view.ViewGroup;
 
-import com.dsatab.HeroConfiguration;
+import com.dsatab.data.HeroConfiguration;
 import com.dsatab.fragment.DualPaneFragment;
 
 /**
  * @author Ganymede
  * 
  */
-public class TabPagerAdapter extends FragmentStatePagerAdapter {
+public class TabPagerAdapter extends FragmentPagerAdapter {
 
 	private HeroConfiguration configuration;
 
@@ -53,8 +53,11 @@ public class TabPagerAdapter extends FragmentStatePagerAdapter {
 	 */
 	@Override
 	public Fragment getItem(int pos) {
-		DualPaneFragment f = new DualPaneFragment(configuration.getTab(pos));
-		mPageReferenceMap.put(pos, f);
+		DualPaneFragment f = mPageReferenceMap.get(pos);
+		if (f == null) {
+			f = new DualPaneFragment(configuration.getTab(pos));
+			mPageReferenceMap.put(pos, f);
+		}
 		return f;
 	}
 
@@ -72,7 +75,6 @@ public class TabPagerAdapter extends FragmentStatePagerAdapter {
 	@Override
 	public void destroyItem(ViewGroup container, int position, Object object) {
 		super.destroyItem(container, position, object);
-		mPageReferenceMap.remove(position);
 	}
 
 	/*

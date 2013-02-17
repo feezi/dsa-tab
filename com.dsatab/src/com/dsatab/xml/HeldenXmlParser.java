@@ -36,13 +36,13 @@ import org.jdom2.output.XMLOutputter;
 import org.json.JSONException;
 import org.xml.sax.InputSource;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
 
 import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.common.DsaTabRuntimeException;
-import com.dsatab.data.Advantage;
 import com.dsatab.data.Art;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.BaseCombatTalent;
@@ -55,6 +55,7 @@ import com.dsatab.data.CombatTalent;
 import com.dsatab.data.Connection;
 import com.dsatab.data.CustomAttribute;
 import com.dsatab.data.Event;
+import com.dsatab.data.Feature;
 import com.dsatab.data.Hero;
 import com.dsatab.data.HeroBaseInfo;
 import com.dsatab.data.ItemLocationInfo;
@@ -62,7 +63,6 @@ import com.dsatab.data.Markable;
 import com.dsatab.data.Purse;
 import com.dsatab.data.Purse.Currency;
 import com.dsatab.data.Purse.PurseUnit;
-import com.dsatab.data.SpecialFeature;
 import com.dsatab.data.Spell;
 import com.dsatab.data.SpellInfo;
 import com.dsatab.data.Talent;
@@ -70,16 +70,18 @@ import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.TalentGroup;
 import com.dsatab.data.enums.ArtType;
 import com.dsatab.data.enums.AttributeType;
-import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.EventCategory;
+import com.dsatab.data.enums.FeatureType;
 import com.dsatab.data.enums.Position;
 import com.dsatab.data.enums.TalentGroupType;
+import com.dsatab.data.enums.TalentType;
 import com.dsatab.data.items.Armor;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Hand;
 import com.dsatab.data.items.HuntingWeapon;
 import com.dsatab.data.items.Item;
+import com.dsatab.data.items.ItemContainer;
 import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.data.items.MiscSpecification;
@@ -123,7 +125,8 @@ public class HeldenXmlParser {
 		return dom;
 	}
 
-	public static Hero readHero(String path, InputStream in) throws JDOMException, IOException, JSONException {
+	public static Hero readHero(Context context, String path, InputStream in) throws JDOMException, IOException,
+			JSONException {
 
 		Hero hero = null;
 
@@ -136,9 +139,6 @@ public class HeldenXmlParser {
 					+ "> element with in root node");
 		}
 		hero = new Hero(path);
-
-		String tabConfig = heroElement.getAttributeValue(Xml.TAB_CONFIG);
-		hero.loadHeroConfiguration(tabConfig);
 
 		hero.setName(heroElement.getAttributeValue(Xml.KEY_NAME));
 		hero.setKey(heroElement.getAttributeValue(Xml.KEY_KEY));
@@ -168,7 +168,7 @@ public class HeldenXmlParser {
 		fillPurse(hero, heroElement);
 		fillEvents(hero, heroElement);
 		fillConnections(hero, heroElement);
-		hero.onPostHeroLoaded();
+		hero.onPostHeroLoaded(context);
 		return hero;
 	}
 
@@ -182,53 +182,52 @@ public class HeldenXmlParser {
 		List<Element> sfs = DomUtil.getChildrenByTagName(heldElement, Xml.KEY_VORTEILE, Xml.KEY_VORTEIL);
 
 		for (Element element : sfs) {
-			Advantage adv = new Advantage();
-
-			adv.setName(element.getAttributeValue(Xml.KEY_NAME));
+			FeatureType featureType = FeatureType.byXmlName(element.getAttributeValue(Xml.KEY_NAME));
+			Feature adv = new Feature(featureType);
 			String value = element.getAttributeValue(Xml.KEY_VALUE);
 			if (!TextUtils.isEmpty(value)) {
 				adv.addValue(value);
 			}
 			adv.setComment(element.getAttributeValue(Xml.KEY_COMMENT));
 
-			if (adv.getName().equals(Advantage.BEGABUNG_FUER_TALENT)) {
+			if (adv.getType() == FeatureType.BegabungFürTalent) {
 				Talent talent = hero.getTalent(adv.getValueAsString());
 				if (talent != null) {
 					talent.addFlag(Flags.Begabung);
 				}
-			} else if (adv.getName().equals(Advantage.TALENTSCHUB)) {
+			} else if (adv.getType() == FeatureType.Talentschub) {
 				Talent talent = hero.getTalent(adv.getValueAsString());
 				if (talent != null) {
 					talent.addFlag(Flags.Talentschub);
 				}
-			} else if (adv.getName().equals(Advantage.MEISTERHANDWERK)) {
+			} else if (adv.getType() == FeatureType.Meisterhandwerk) {
 				Talent talent = hero.getTalent(adv.getValueAsString());
 				if (talent != null) {
 					talent.addFlag(Flags.Meisterhandwerk);
 				}
-			} else if (adv.getName().equals(Advantage.BEGABUNG_FUER_TALENTGRUPPE)) {
+			} else if (adv.getType() == FeatureType.BegabungFürTalentgruppe) {
 				try {
 					TalentGroupType groupType = TalentGroupType.valueOf(adv.getValueAsString());
-					TalentGroup talentGroup = hero.getTalentGroups().get(groupType);
+					TalentGroup talentGroup = hero.getTalentGroup(groupType);
 					if (talentGroup != null) {
 						talentGroup.addFlag(Flags.Begabung);
 					}
 				} catch (Exception e) {
 					Debug.warning("Begabung für [Talentgruppe], unknown talentgroup:" + adv.getValueAsString());
 				}
-			} else if (adv.getName().equals(Advantage.BEGABUNG_FUER_ZAUBER)) {
+			} else if (adv.getType() == FeatureType.BegabungFürZauber) {
 				Spell spell = hero.getSpells().get(adv.getValueAsString());
 				if (spell != null) {
 					spell.addFlag(com.dsatab.data.Spell.Flags.Begabung);
 				}
 
-			} else if (adv.getName().equals(Advantage.BEGABUNG_FUER_RITUAL)) {
+			} else if (adv.getType() == FeatureType.BegabungFürRitual) {
 				Art art = hero.getArt(adv.getValueAsString());
 				if (art != null) {
 					art.addFlag(com.dsatab.data.Art.Flags.Begabung);
 				}
 
-			} else if (adv.getName().equals(Advantage.UEBERNATUERLICHE_BEGABUNG)) {
+			} else if (adv.getType() == FeatureType.ÜbernatürlicheBegabung) {
 				Spell spell = hero.getSpell(adv.getValueAsString());
 				if (spell != null) {
 					spell.addFlag(com.dsatab.data.Spell.Flags.ÜbernatürlicheBegabung);
@@ -236,7 +235,7 @@ public class HeldenXmlParser {
 				}
 			}
 
-			hero.addAdvantage(adv);
+			hero.addFeature(adv);
 		}
 	}
 
@@ -256,78 +255,69 @@ public class HeldenXmlParser {
 			String name = element.getAttributeValue(Xml.KEY_NAME).trim();
 			ArtType type = ArtType.getTypeOfArt(name);
 			if (type == null) {
-				SpecialFeature specialFeature = new SpecialFeature();
-
-				specialFeature.setName(element.getAttributeValue(Xml.KEY_NAME));
+				FeatureType featureType = FeatureType.byXmlName(element.getAttributeValue(Xml.KEY_NAME));
+				Feature specialFeature = new Feature(featureType);
 				specialFeature.setComment(element.getAttributeValue(Xml.KEY_KOMMENTAR));
-
-				StringBuilder specialSB = new StringBuilder();
 
 				List<Element> kulturChildren = element.getChildren(Xml.KEY_KULTUR);
 				if (kulturChildren != null) {
 					for (Element child : kulturChildren) {
-						if (specialSB.length() == 0)
-							specialSB.append(", ");
-						specialSB.append(child.getAttributeValue(Xml.KEY_NAME));
+						specialFeature.addValue(child.getAttributeValue(Xml.KEY_NAME));
 					}
 				}
 
 				List<Element> auswahlChildren = element.getChildren(Xml.KEY_AUSWAHL);
 				if (auswahlChildren != null) {
 					for (Element child : auswahlChildren) {
-						if (specialSB.length() == 0)
-							specialSB.append(", ");
-						specialSB.append(child.getAttributeValue(Xml.KEY_NAME));
+						specialFeature.addValue(child.getAttributeValue(Xml.KEY_NAME));
 					}
 				}
-				specialFeature.setAdditionalInfo(specialSB.toString());
 
 				Element child = element.getChild(Xml.KEY_GEGENSTAND);
 				if (child != null) {
-					specialFeature.setParameter1(child.getAttributeValue(Xml.KEY_NAME));
+					specialFeature.addValue(child.getAttributeValue(Xml.KEY_NAME));
 				}
-
-				if (specialFeature.getName().startsWith(SpecialFeature.TALENTSPEZIALISIERUNG_PREFIX)) {
-					child = element.getChild(Xml.KEY_TALENT);
-					if (child != null) {
-						specialFeature.setParameter1(child.getAttributeValue(Xml.KEY_NAME));
-					}
-					child = element.getChild(Xml.KEY_SPEZIALISIERUNG);
-					if (child != null) {
-						specialFeature.setParameter2(child.getAttributeValue(Xml.KEY_NAME));
-					}
-				} else if (specialFeature.getName().startsWith(SpecialFeature.ZAUBERSPEZIALISIERUNG_PREFIX)) {
-					child = element.getChild(Xml.KEY_ZAUBER);
-					if (child != null) {
-						specialFeature.setParameter1(child.getAttributeValue(Xml.KEY_NAME));
-					}
-					child = element.getChild(Xml.KEY_SPEZIALISIERUNG);
-					if (child != null) {
-						specialFeature.setParameter2(child.getAttributeValue(Xml.KEY_NAME));
-					}
-				}
+				String spezialisierungsName = null;
+				String spezialisierungsParam = null;
 				boolean add = true;
 
-				if (specialFeature.getName().startsWith(SpecialFeature.TALENTSPEZIALISIERUNG_PREFIX)) {
-					Talent talent = hero.getTalent(specialFeature.getParameter1());
+				if (specialFeature.getType() == FeatureType.Talentspezialisierung) {
+					child = element.getChild(Xml.KEY_TALENT);
+					if (child != null) {
+						spezialisierungsName = child.getAttributeValue(Xml.KEY_NAME);
+					}
+					child = element.getChild(Xml.KEY_SPEZIALISIERUNG);
+					if (child != null) {
+						spezialisierungsParam = child.getAttributeValue(Xml.KEY_NAME);
+					}
+					Talent talent = hero.getTalent(spezialisierungsName);
 					if (talent != null) {
-						talent.setTalentSpezialisierung(specialFeature.getParameter2());
+						talent.setTalentSpezialisierung(spezialisierungsParam);
 						add = false;
 					}
-				} else if (specialFeature.getName().startsWith(SpecialFeature.ZAUBERSPEZIALISIERUNG_PREFIX)) {
-					Spell spell = hero.getSpell(specialFeature.getParameter1());
+				} else if (specialFeature.getType() == FeatureType.Zauberspezialisierung) {
+					child = element.getChild(Xml.KEY_ZAUBER);
+					if (child != null) {
+						spezialisierungsName = child.getAttributeValue(Xml.KEY_NAME);
+					}
+					child = element.getChild(Xml.KEY_SPEZIALISIERUNG);
+					if (child != null) {
+						spezialisierungsParam = child.getAttributeValue(Xml.KEY_NAME);
+					}
+
+					Spell spell = hero.getSpell(spezialisierungsName);
 					if (spell != null) {
-						spell.setZauberSpezialisierung(specialFeature.getParameter2());
+						spell.setZauberSpezialisierung(spezialisierungsParam);
 						add = false;
 					}
-				} else if (specialFeature.getName().startsWith(Talent.RITUAL_KENNTNIS_PREFIX)) {
-					// skipp specialfeature ritualkenntnis since it's listed as
+				} else if (specialFeature.getType() == FeatureType.Ritualspezialisierung) {
+					// skip specialfeature ritualkenntnis since it's listed as
 					// talent anyway.
 					add = false;
 				}
 
 				if (add) {
-					hero.addSpecialFeature(specialFeature);
+					hero.addFeature(specialFeature);
 				}
 			} else {
 				Art art = new Art(hero);
@@ -606,158 +596,127 @@ public class HeldenXmlParser {
 
 	protected static void fillEquippedItems(Hero hero, Element heroElement) {
 
-		Element equippmentNode = getEquippmentElement(heroElement);
+		List<Element> equippedElements = DomUtil.getChildrenByTagName(getEquippmentElement(heroElement),
+				Xml.KEY_HELDENAUSRUESTUNG);
 
-		for (int selectedSet = 0; selectedSet < Hero.MAXIMUM_SET_NUMBER; selectedSet++) {
+		List<Element> beidhaendigerKampfElements = new ArrayList<Element>();
+		List<EquippedItem> secondaryItems = new ArrayList<EquippedItem>();
 
-			List<Element> equippedElements = DomUtil.getChildrenByTagName(equippmentNode, Xml.KEY_HELDENAUSRUESTUNG);
+		for (int i = 0; i < equippedElements.size(); i++) {
+			Element element = (Element) equippedElements.get(i);
 
-			List<Element> beidhaendigerKampfElements = new ArrayList<Element>();
-
-			List<EquippedItem> secondaryItems = new ArrayList<EquippedItem>();
-
-			for (int i = 0; i < equippedElements.size(); i++) {
-				Element element = (Element) equippedElements.get(i);
-
-				if (element.getAttribute(Xml.KEY_SET) != null) {
-					if (Util.parseInt(element.getAttributeValue(Xml.KEY_SET)) != selectedSet)
-						continue;
-				}
-
-				if (element.getAttributeValue(Xml.KEY_NAME).equals(Hero.JAGTWAFFE)) {
-					HuntingWeapon huntingWeapon = new HuntingWeapon();
-					huntingWeapon.setNumber(Util.parseInteger(element.getAttributeValue(Xml.KEY_NUMMER)));
-					huntingWeapon.setSet(Util.parseInteger(element.getAttributeValue(Xml.KEY_SET)));
+			String name = element.getAttributeValue(Xml.KEY_NAME);
+			if (name.equals(Hero.JAGTWAFFE)) {
+				int number = Util.parseInt(element.getAttributeValue(Xml.KEY_NUMMER), -1);
+				int set = Util.parseInt(element.getAttributeValue(Xml.KEY_SET), -1);
+				if (set >= 0 && number >= 0) {
+					HuntingWeapon huntingWeapon = new HuntingWeapon(set, number);
 					hero.addHuntingWeapon(huntingWeapon);
-					continue;
 				}
-
-				if (element.getAttributeValue(Xml.KEY_NAME).startsWith(Hero.PREFIX_BK)) {
-					beidhaendigerKampfElements.add(element);
-					continue;
-				}
-
-				String itemName = element.getAttributeValue(WAFFENNAME);
-				String itemSlot = element.getAttributeValue(Xml.KEY_SLOT);
-				if (itemName == null)
-					itemName = element.getAttributeValue(SCHILDNAME);
-				if (itemName == null)
-					itemName = element.getAttributeValue(RUESTUNGSNAME);
-
-				Item item = hero.getItem(itemName, itemSlot);
-
-				if (item == null) {
-					BugSenseHandler.sendExceptionMessage(Debug.CATEGORY_DATA, itemName, new InconsistentDataException(
-							"Unable to find an item with the name '" + itemName + "' in slot '" + itemSlot + "'."));
-				}
-
-				UsageType usageType = null;
-				String name = element.getAttributeValue(Xml.KEY_NAME);
-				int set = Util.parseInt(element.getAttributeValue(Xml.KEY_SET), 0);
-
-				if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_VERWENDUNGSART))) {
-					usageType = UsageType.valueOf(element.getAttributeValue(Xml.KEY_VERWENDUNGSART));
-				}
-				String bezeichner = element.getAttributeValue(Xml.KEY_BEZEICHNER);
-
-				ItemSpecification itemSpecification = EquippedItem.getItemSpecification(hero, name, item, usageType,
-						bezeichner);
-
-				CombatTalent combatTalent = null;
-				if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_TALENT))) {
-					combatTalent = hero.getCombatTalent(element.getAttributeValue(Xml.KEY_TALENT));
-				} else {
-					combatTalent = EquippedItem.getCombatTalent(hero, usageType, set, name, itemSpecification);
-				}
-
-				EquippedItem equippedItem = new EquippedItem(hero, combatTalent, item, itemSpecification);
-
-				if (element.getAttribute(Xml.KEY_CELL_NUMBER) != null)
-					equippedItem.getItemInfo().setCellNumber(
-							Util.parseInteger(element.getAttributeValue(Xml.KEY_CELL_NUMBER)));
-				if (element.getAttribute(Xml.KEY_SCREEN) != null) {
-					// there is only one inventory screen left...
-					int screen = Util.parseInteger(element.getAttributeValue(Xml.KEY_SCREEN));
-					if (screen > Hero.MAXIMUM_SET_NUMBER)
-						screen = Hero.MAXIMUM_SET_NUMBER;
-					equippedItem.getItemInfo().setScreen(screen);
-				}
-
-				if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_HAND))) {
-					equippedItem.setHand(Hand.valueOf(element.getAttributeValue(Xml.KEY_HAND)));
-				}
-
-				equippedItem.setSet(set);
-				equippedItem.setSlot(itemSlot);
-				equippedItem.setName(element.getAttributeValue(Xml.KEY_NAME));
-				equippedItem.setItemSpecification(itemSpecification);
-				equippedItem.setSchildIndex(Util.parseInteger(element.getAttributeValue(Xml.KEY_SCHILD)));
-
-				equippedItem.setUsageType(usageType);
-				// fix wrong screen iteminfo
-				if (equippedItem.getItemInfo().getScreen() == ItemLocationInfo.INVALID_POSITION) {
-					equippedItem.getItemInfo().setScreen(equippedItem.getSet());
-				}
-
-				if (element.getAttributeValue(Xml.KEY_SCHILD) != null) {
-					if (Util.parseInt(element.getAttributeValue(Xml.KEY_SCHILD)) > 0) {
-						secondaryItems.add(equippedItem);
-					}
-				}
-
-				if (equippedItem.getItem() != null) {
-					hero.addEquippedItem(equippedItem);
-				} else {
-					Debug.warning("Skipped EquippedItem because Item was not found: " + itemName);
-				}
+				continue;
 			}
 
-			// handle bk elements
-			for (Iterator<Element> iter = beidhaendigerKampfElements.iterator(); iter.hasNext();) {
-
-				Element element = iter.next();
-
-				if (element.getAttribute(Xml.KEY_SET) != null) {
-					if (Util.parseInt(element.getAttributeValue(Xml.KEY_SET)) != selectedSet)
-						continue;
-				}
-
-				if (element.getAttributeValue(Xml.KEY_NAME).startsWith(Hero.PREFIX_BK)) {
-					String bk = element.getAttributeValue(Xml.KEY_NAME);
-					int bk1 = Util.parseInt(bk.substring(2, 3));
-					int bk2 = Util.parseInt(bk.substring(3, 4));
-
-					EquippedItem item1 = hero.getEquippedItem(selectedSet, Hero.PREFIX_NKWAFFE + bk1);
-					EquippedItem item2 = hero.getEquippedItem(selectedSet, Hero.PREFIX_NKWAFFE + bk2);
-
-					if (item2 != null && item1 != null) {
-						item1.setSecondaryItem(item2);
-						item2.setSecondaryItem(item1);
-
-						item1.setBeidhändigerKampf(true);
-						item2.setBeidhändigerKampf(true);
-					} else {
-						Debug.warning("Incorrect BeidhaendigerKampf setting " + bk);
-						heroElement.removeContent(element);
-						iter.remove();
-					}
-				}
+			if (name.startsWith(Hero.PREFIX_BK)) {
+				beidhaendigerKampfElements.add(element);
+				continue;
 			}
 
-			for (EquippedItem equippedItem : secondaryItems) {
-				if (equippedItem.getSchildIndex() != null) {
-					if (equippedItem.getSchildIndex() > 0) {
-						EquippedItem secondaryEquippedItem = hero.getEquippedItem(EquippedItem.NAME_PREFIX_SCHILD
-								+ equippedItem.getSchildIndex());
-						if (secondaryEquippedItem != null) {
-							equippedItem.setSecondaryItem(secondaryEquippedItem);
-							secondaryEquippedItem.setSecondaryItem(equippedItem);
-						}
-					}
-				}
+			String itemName = element.getAttributeValue(WAFFENNAME);
+			String itemSlot = element.getAttributeValue(Xml.KEY_SLOT);
+			if (itemName == null)
+				itemName = element.getAttributeValue(SCHILDNAME);
+			if (itemName == null)
+				itemName = element.getAttributeValue(RUESTUNGSNAME);
+
+			Item item = hero.getItem(itemName, itemSlot);
+
+			if (item == null) {
+				BugSenseHandler.sendExceptionMessage(Debug.CATEGORY_DATA, itemName, new InconsistentDataException(
+						"Unable to find an item with the name '" + itemName + "' in slot '" + itemSlot + "'."));
+				continue;
 			}
 
+			UsageType usageType = null;
+			int set = Util.parseInt(element.getAttributeValue(Xml.KEY_SET), 0);
+
+			if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_VERWENDUNGSART))) {
+				usageType = UsageType.valueOf(element.getAttributeValue(Xml.KEY_VERWENDUNGSART));
+			}
+			String bezeichner = element.getAttributeValue(Xml.KEY_BEZEICHNER);
+
+			ItemSpecification itemSpecification = EquippedItem.getItemSpecification(hero, name, item, usageType,
+					bezeichner);
+
+			CombatTalent combatTalent = null;
+			if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_TALENT))) {
+				combatTalent = hero.getCombatTalent(element.getAttributeValue(Xml.KEY_TALENT));
+			} else {
+				combatTalent = EquippedItem.getCombatTalent(hero, usageType, set, name, itemSpecification);
+			}
+
+			EquippedItem equippedItem = new EquippedItem(hero, combatTalent, item, itemSpecification);
+			equippedItem.getItemInfo().setCellNumber(Util.parseInt(element.getAttributeValue(Xml.KEY_CELL_NUMBER)));
+
+			if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_HAND))) {
+				equippedItem.setHand(Hand.valueOf(element.getAttributeValue(Xml.KEY_HAND)));
+			}
+
+			equippedItem.setSet(set);
+			equippedItem.setSlot(itemSlot);
+			equippedItem.setName(element.getAttributeValue(Xml.KEY_NAME));
+			equippedItem.setItemSpecification(itemSpecification);
+			equippedItem.setSchildIndex(Util.parseInteger(element.getAttributeValue(Xml.KEY_SCHILD)));
+			equippedItem.setUsageType(usageType);
+
+			if (Util.parseInt(element.getAttributeValue(Xml.KEY_SCHILD)) > 0) {
+				secondaryItems.add(equippedItem);
+			}
+
+			hero.addEquippedItem(equippedItem);
 		}
+
+		// handle bk elements
+		for (Iterator<Element> iter = beidhaendigerKampfElements.iterator(); iter.hasNext();) {
+
+			Element element = iter.next();
+
+			if (element.getAttributeValue(Xml.KEY_NAME).startsWith(Hero.PREFIX_BK)) {
+
+				Integer set = Util.parseInteger(element.getAttributeValue(Xml.KEY_SET));
+				String bk = element.getAttributeValue(Xml.KEY_NAME);
+				int bk1 = Util.parseInt(bk.substring(2, 3));
+				int bk2 = Util.parseInt(bk.substring(3, 4));
+
+				EquippedItem item1 = hero.getEquippedItem(set, Hero.PREFIX_NKWAFFE + bk1);
+				EquippedItem item2 = hero.getEquippedItem(set, Hero.PREFIX_NKWAFFE + bk2);
+
+				if (item2 != null && item1 != null) {
+					item1.setSecondaryItem(item2);
+					item2.setSecondaryItem(item1);
+
+					item1.setBeidhändigerKampf(true);
+					item2.setBeidhändigerKampf(true);
+				} else {
+					Debug.warning("Incorrect BeidhaendigerKampf setting " + bk);
+					heroElement.removeContent(element);
+					iter.remove();
+				}
+			}
+		}
+
+		for (EquippedItem equippedItem : secondaryItems) {
+			if (equippedItem.getSchildIndex() != null) {
+				if (equippedItem.getSchildIndex() > 0) {
+					EquippedItem secondaryEquippedItem = hero.getEquippedItem(EquippedItem.NAME_PREFIX_SCHILD
+							+ equippedItem.getSchildIndex());
+					if (secondaryEquippedItem != null) {
+						equippedItem.setSecondaryItem(secondaryEquippedItem);
+						secondaryEquippedItem.setSecondaryItem(equippedItem);
+					}
+				}
+			}
+		}
+
 	}
 
 	private static void fillItems(Hero hero, Element heroElement) {
@@ -787,9 +746,7 @@ public class HeldenXmlParser {
 					item.getItemInfo().setCellNumber(Util.parseInteger(element.getAttributeValue(Xml.KEY_CELL_NUMBER)));
 				if (element.getAttribute(Xml.KEY_SCREEN) != null) {
 					// there is only one inventory screen left...
-					int screen = Util.parseInteger(element.getAttributeValue(Xml.KEY_SCREEN));
-					if (screen > Hero.MAXIMUM_SET_NUMBER)
-						screen = Hero.MAXIMUM_SET_NUMBER;
+					int screen = Util.parseInt(element.getAttributeValue(Xml.KEY_SCREEN));
 					item.getItemInfo().setScreen(screen);
 				}
 
@@ -803,12 +760,6 @@ public class HeldenXmlParser {
 
 				item.setCount(Util.parseInt(element.getAttributeValue(Xml.KEY_ANZAHL), 1));
 				item.setSlot(element.getAttributeValue(Xml.KEY_SLOT));
-
-				// fix invalid screen positions (items are always on the
-				// last page if nothing else is defined
-				if (item.getItemInfo().getScreen() == ItemLocationInfo.INVALID_POSITION) {
-					item.getItemInfo().setScreen(Hero.MAXIMUM_SET_NUMBER);
-				}
 
 				for (ItemSpecification itemSpecification : item.getSpecifications()) {
 					if (itemSpecification instanceof Armor) {
@@ -1027,27 +978,27 @@ public class HeldenXmlParser {
 			Element element = (Element) talentList.get(i);
 
 			talent = null;
-			String talentName = element.getAttributeValue(Xml.KEY_NAME);
+			TalentType talentType = TalentType.byXmlName(element.getAttributeValue(Xml.KEY_NAME));
 			int talentValue = Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
 
 			TalentGroupType talentGroupType = null;
 			found = false;
 			for (TalentGroupType type : TalentGroupType.values()) {
-				if (type.contains(talentName)) {
+				if (type.contains(talentType)) {
 					talentGroupType = type;
 					found = true;
 
-					CombatTalentType combatType = CombatTalentType.byName(talentName);
-					if (combatType != null) {
+					// combattalenttypes have to be handled special!!!
+					if (type == TalentGroupType.Nahkampf || type == TalentGroupType.Fernkampf) {
 						// add Peitsche as CombatTalent although
 						// Heldensoftware doesn't treat is as one
-						if (Talent.PEITSCHE.equals(talentName)) {
+						if (TalentType.Peitsche == talentType) {
 							CombatMeleeAttribute at = new CombatMeleeAttribute(hero);
 							at.setName(CombatMeleeAttribute.ATTACKE);
 							at.setValue(hero.getAttributeValue(AttributeType.at) + talentValue);
 
 							talent = new CombatMeleeTalent(hero, at, null);
-						} else if (combatType.isFk()) {
+						} else if (talentType.isFk()) {
 							talent = new CombatDistanceTalent(hero);
 						} else {
 							Element combatElement;
@@ -1055,7 +1006,7 @@ public class HeldenXmlParser {
 								combatElement = iter.next();
 								String combatTalentName = combatElement.getAttributeValue(Xml.KEY_NAME);
 
-								if (talentName.equals(combatTalentName)) {
+								if (talentType.xmlName().equals(combatTalentName)) {
 									List<Element> nodes = combatElement.getChildren();
 
 									CombatMeleeAttribute at = null, pa = null;
@@ -1082,7 +1033,7 @@ public class HeldenXmlParser {
 				}
 			}
 			if (!found) {
-				Debug.warning("No Talentgroup found for:" + talentName);
+				Debug.warning("No Talentgroup found for:" + talentType);
 			}
 
 			if (talent == null) {
@@ -1092,7 +1043,7 @@ public class HeldenXmlParser {
 			talent.setFavorite(Boolean.parseBoolean(element.getAttributeValue(Xml.KEY_FAVORITE)));
 			talent.setProbePattern(element.getAttributeValue(Xml.KEY_PROBE));
 			talent.setProbeBe(element.getAttributeValue(Xml.KEY_BE));
-			talent.setName(talentName);
+			talent.setType(talentType);
 			talent.setValue(talentValue);
 
 			hero.addTalent(talentGroupType, talent);
@@ -1120,16 +1071,13 @@ public class HeldenXmlParser {
 			}
 
 			CombatMeleeTalent combatTalent = new CombatMeleeTalent(hero, at, pa);
-			combatTalent.setName(talentName);
+			combatTalent.setType(TalentType.byXmlName(talentName));
 
 			hero.addTalent(null, combatTalent);
 		}
 	}
 
 	public static void writeHero(Hero hero, Document dom, OutputStream out) throws IOException {
-		if (hero == null)
-			return;
-
 		// Create an output formatter, and have it write the doc.
 		XMLOutputter output = new XMLOutputter();
 		output.output(dom, out);
@@ -1436,14 +1384,19 @@ public class HeldenXmlParser {
 			boolean found = false;
 			for (Iterator<Element> iter = huntingWeaponElements.iterator(); iter.hasNext();) {
 				Element element = iter.next();
-
-				if (Util.parseInt(element.getAttributeValue(Xml.KEY_SET), -1) == i) {
+				int elementSet = Util.parseInt(element.getAttributeValue(Xml.KEY_SET), -1);
+				if (elementSet == i) {
 					found = true;
 					if (hero.getHuntingWeapons(i) != null)
 						writeHuntingWeapon(hero.getHuntingWeapons(i), element);
 					else
 						iter.remove();
 					break;
+				}
+				// there was a bug that added hunting weapons without sets
+				// remove them from dom again!
+				if (elementSet == -1) {
+					iter.remove();
 				}
 			}
 
@@ -1460,19 +1413,22 @@ public class HeldenXmlParser {
 		List<Element> itemsElements = DomUtil.getChildrenByTagName(heldElement, Xml.KEY_GEGENSTAENDE,
 				Xml.KEY_GEGENSTAND);
 
-		List<Item> allItems = new ArrayList<Item>(hero.getItems());
+		List<Item> allItems = new ArrayList<Item>();
+		for (ItemContainer itemContainer : hero.getItemContainers()) {
+			allItems.addAll(itemContainer.getItems());
+		}
 
 		for (Iterator<Element> iter = itemsElements.iterator(); iter.hasNext();) {
-			Element itemelement = iter.next();
-			Item item = hero.getItem(itemelement.getAttributeValue(Xml.KEY_NAME),
-					itemelement.getAttributeValue(Xml.KEY_SLOT));
+			Element itemElement = iter.next();
+			Item item = hero.getItem(itemElement.getAttributeValue(Xml.KEY_NAME),
+					itemElement.getAttributeValue(Xml.KEY_SLOT));
 
 			if (item != null) {
 				allItems.remove(item);
-				writeItem(item, itemelement);
-				Debug.verbose("Xml popuplate item " + itemelement);
+				writeItem(item, itemElement);
+				Debug.verbose("Xml popuplate item " + itemElement);
 			} else {
-				Debug.verbose("Xml popuplate NO ITEM found remove it " + itemelement);
+				Debug.verbose("Xml popuplate NO ITEM found remove it " + itemElement);
 				iter.remove();
 			}
 
@@ -1480,7 +1436,6 @@ public class HeldenXmlParser {
 
 		for (Item newItem : allItems) {
 			Element element = new Element(Xml.KEY_GEGENSTAND);
-
 			writeItem(newItem, element);
 			itemsNode.addContent(element);
 		}
@@ -1666,6 +1621,19 @@ public class HeldenXmlParser {
 		element.setAttribute(Xml.KEY_ANZAHL, Integer.toString(item.getCount()));
 		element.setAttribute(Xml.KEY_SLOT, item.getSlot());
 
+		if (!item.getTitle().equals(item.getName())) {
+			Element modallgemein = Xml.getOrCreateElement(element, Xml.KEY_MOD_ALLGEMEIN);
+
+			Element name = Xml.getOrCreateElement(modallgemein, Xml.KEY_NAME);
+			name.setAttribute(Xml.KEY_VALUE, item.getTitle());
+
+			Element price = Xml.getOrCreateElement(modallgemein, Xml.KEY_PREIS);
+			price.setAttribute(Xml.KEY_VALUE, Xml.toString(item.getPrice()));
+
+			Element weight = Xml.getOrCreateElement(modallgemein, Xml.KEY_GEWICHT);
+			weight.setAttribute(Xml.KEY_VALUE, Xml.toString(item.getWeight()));
+
+		}
 		if (item.getItemInfo() != null) {
 			writeItemInfo(item.getItemInfo(), element);
 		}
@@ -1677,7 +1645,7 @@ public class HeldenXmlParser {
 	 * @param element
 	 */
 	private static void writeItemInfo(ItemLocationInfo itemInfo, Element element) {
-		if (itemInfo.getScreen() < Hero.MAXIMUM_SET_NUMBER) {
+		if (itemInfo.getScreen() != Hero.FIRST_INVENTORY_SCREEN) {
 			element.setAttribute(Xml.KEY_SCREEN, Util.toString(itemInfo.getScreen()));
 		} else {
 			element.removeAttribute(Xml.KEY_SCREEN);
@@ -1725,13 +1693,8 @@ public class HeldenXmlParser {
 	 * @param element
 	 */
 	private static void writeHuntingWeapon(HuntingWeapon huntingWeapon, Element element) {
-		if (huntingWeapon.getNumber() != null)
-			element.setAttribute(Xml.KEY_NUMMER, Util.toString(huntingWeapon.getNumber()));
-
+		element.setAttribute(Xml.KEY_SET, Xml.toString(huntingWeapon.getSet()));
+		element.setAttribute(Xml.KEY_NUMMER, Xml.toString(huntingWeapon.getNumber()));
 		element.setAttribute(Xml.KEY_NAME, Hero.JAGTWAFFE);
-
-		if (huntingWeapon.getSet() != null)
-			element.setAttribute(Xml.KEY_SET, Util.toString(huntingWeapon.getSet()));
-
 	}
 }

@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import android.app.Activity;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -29,6 +28,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.dsatab.R;
 import com.dsatab.data.Hero;
@@ -51,6 +51,7 @@ public class NotesEditFragment extends BaseFragment implements OnItemSelectedLis
 
 	private EventCatgoryAdapter categoryAdapter;
 
+	private TextView categoryLabel, commentLabel, nameLabel, sozialStatusLabel;
 	private EditText editComment;
 	private EditText editName;
 	private EditText editSozialStatus;
@@ -61,15 +62,6 @@ public class NotesEditFragment extends BaseFragment implements OnItemSelectedLis
 
 	private String audioPath;
 
-	private OnNotesEditListener onNotesEditListener;
-
-	public interface OnNotesEditListener {
-
-		public void onNoteSaved(Bundle data);
-
-		public void onNoteCanceled();
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -79,32 +71,7 @@ public class NotesEditFragment extends BaseFragment implements OnItemSelectedLis
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return configureContainerView(inflater.inflate(R.layout.sheet_notes_edit, container, false));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.Fragment#onAttach(android.app.Activity)
-	 */
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (activity instanceof OnNotesEditListener) {
-			onNotesEditListener = (OnNotesEditListener) activity;
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.Fragment#onDetach()
-	 */
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		onNotesEditListener = null;
+		return configureContainerView(inflater.inflate(R.layout.sheet_edit_notes, container, false));
 	}
 
 	/*
@@ -121,7 +88,13 @@ public class NotesEditFragment extends BaseFragment implements OnItemSelectedLis
 		editName = (EditText) findViewById(R.id.popup_notes_edit_name);
 		editSozialStatus = (EditText) findViewById(R.id.popup_notes_edit_so);
 
+		commentLabel = (TextView) findViewById(R.id.popup_notes_edit_text_label);
+		nameLabel = (TextView) findViewById(R.id.popup_notes_edit_name_label);
+		sozialStatusLabel = (TextView) findViewById(R.id.popup_notes_edit_so_label);
+
 		categorySpn = (Spinner) findViewById(R.id.popup_notes_spn_category);
+
+		categoryLabel = (TextView) findViewById(R.id.popup_notes_spn_category_label);
 
 		List<EventCategory> categories = new ArrayList<EventCategory>(Arrays.asList(EventCategory.values()));
 		categories.remove(EventCategory.Heldensoftware);
@@ -141,10 +114,12 @@ public class NotesEditFragment extends BaseFragment implements OnItemSelectedLis
 			String sozial = extra.getString(INTENT_NAME_EVENT_SOZIALSTATUS);
 
 			audioPath = extra.getString(INTENT_NAME_AUDIO_PATH);
-			if (category == EventCategory.Heldensoftware)
+			if (category == EventCategory.Heldensoftware) {
 				categorySpn.setVisibility(View.GONE);
-			else
+				categoryLabel.setVisibility(View.GONE);
+			} else {
 				categorySpn.setSelection(categoryAdapter.getPosition(category));
+			}
 
 			editComment.setText(event);
 			editName.setText(name);
@@ -159,15 +134,21 @@ public class NotesEditFragment extends BaseFragment implements OnItemSelectedLis
 	private void updateView() {
 		if (category != null) {
 
-			if (category == EventCategory.Bekanntschaft)
+			if (category == EventCategory.Bekanntschaft) {
 				editSozialStatus.setVisibility(View.VISIBLE);
-			else
+				sozialStatusLabel.setVisibility(View.VISIBLE);
+			} else {
 				editSozialStatus.setVisibility(View.GONE);
+				sozialStatusLabel.setVisibility(View.GONE);
+			}
 
-			if (category.hasName())
+			if (category.hasName()) {
 				editName.setVisibility(View.VISIBLE);
-			else
+				nameLabel.setVisibility(View.VISIBLE);
+			} else {
 				editName.setVisibility(View.GONE);
+				nameLabel.setVisibility(View.GONE);
+			}
 		}
 
 	}
@@ -215,8 +196,7 @@ public class NotesEditFragment extends BaseFragment implements OnItemSelectedLis
 	 * 
 	 */
 	public void cancel() {
-		if (onNotesEditListener != null)
-			onNotesEditListener.onNoteCanceled();
+
 	}
 
 	/**
@@ -231,9 +211,6 @@ public class NotesEditFragment extends BaseFragment implements OnItemSelectedLis
 		data.putString(INTENT_NAME_EVENT_SOZIALSTATUS, editSozialStatus.getText().toString());
 		data.putSerializable(INTENT_NAME_EVENT_CATEGORY, category);
 		data.putString(INTENT_NAME_AUDIO_PATH, audioPath);
-		if (onNotesEditListener != null) {
-			onNotesEditListener.onNoteSaved(data);
-		}
 		Util.hideKeyboard(editText);
 
 		return data;

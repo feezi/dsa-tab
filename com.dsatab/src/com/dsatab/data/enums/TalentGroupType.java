@@ -30,23 +30,14 @@ public enum TalentGroupType {
 			TalentGroup.NATUR_TALENTS), Wissen(TalentGroup.WISSEN_TALENTS), Handwerk(TalentGroup.HANDWERK_TALENTS), Sprachen(
 			TalentGroup.SPACHEN_TALENTS), Gaben(TalentGroup.GABEN_TALENTS), Meta(TalentGroup.META_TALENTS);
 
-	private String[] talents;
+	private TalentType[] talents;
 
-	private TalentGroupType(String[] talents) {
+	private TalentGroupType(TalentType[] talents) {
 		Arrays.sort(talents);
 		this.talents = talents;
 	}
 
-	public boolean contains(String talentName) {
-
-		if (this == TalentGroupType.Sprachen || this == TalentGroupType.Gaben) {
-			for (String s : talents) {
-				if (talentName.startsWith(s))
-					return true;
-			}
-			return false;
-		} else {
-			return Arrays.binarySearch(talents, talentName) >= 0;
-		}
+	public boolean contains(TalentType talentName) {
+		return Arrays.binarySearch(talents, talentName) >= 0;
 	}
 }

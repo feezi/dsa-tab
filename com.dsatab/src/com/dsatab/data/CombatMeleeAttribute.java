@@ -1,6 +1,7 @@
 package com.dsatab.data;
 
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.data.modifier.RulesModificator.ModificatorType;
 
 public class CombatMeleeAttribute extends BaseProbe implements Value {
 
@@ -32,9 +33,19 @@ public class CombatMeleeAttribute extends BaseProbe implements Value {
 
 	public void setCombatMeleeTalent(CombatMeleeTalent talent) {
 		this.talent = talent;
-		if (talent.getCombatTalentType() != null) {
-			probeInfo.applyBePattern(talent.getCombatTalentType().getBe());
+		if (talent.getType() != null) {
+			probeInfo.applyBePattern(talent.getType().getBe());
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.Probe#getModificatorType()
+	 */
+	@Override
+	public ModificatorType getModificatorType() {
+		return ModificatorType.CombatTalent;
 	}
 
 	public int getMinimum() {

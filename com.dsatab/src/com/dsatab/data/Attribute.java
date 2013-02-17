@@ -1,6 +1,8 @@
 package com.dsatab.data;
 
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.data.enums.FeatureType;
+import com.dsatab.data.modifier.RulesModificator.ModificatorType;
 import com.dsatab.util.Util;
 import com.gandulf.guilib.util.MathUtil;
 
@@ -29,6 +31,16 @@ public class Attribute extends BaseProbe implements Value, Cloneable {
 
 	public AttributeType getType() {
 		return type;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.Probe#getModificatorType()
+	 */
+	@Override
+	public ModificatorType getModificatorType() {
+		return ModificatorType.Attribute;
 	}
 
 	public float getRatio() {
@@ -184,14 +196,14 @@ public class Attribute extends BaseProbe implements Value, Cloneable {
 					break;
 				case Astralenergie_Aktuell:
 				case Astralenergie:
-					if (hero.hasFeature(SpecialFeature.GEFAESS_DER_STERNE)) {
+					if (hero.hasFeature(FeatureType.GefäßDerSterne)) {
 						currentBaseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
 								+ hero.getAttributeValue(AttributeType.Intuition)
 								+ hero.getAttributeValue(AttributeType.Charisma) + hero
 								.getAttributeValue(AttributeType.Charisma)) / 2.0);
-					} else if (hero.hasFeature(Advantage.VOLLZAUBERER) || hero.hasFeature(Advantage.HALBZAUBERER)
-							|| hero.hasFeature(Advantage.VIERTELZAUBERER)
-							|| hero.hasFeature(Advantage.UNBEWUSSTER_VIERTELZAUBERER)) {
+					} else if (hero.hasFeature(FeatureType.Vollzauberer) || hero.hasFeature(FeatureType.Halbzauberer)
+							|| hero.hasFeature(FeatureType.Viertelzauberer)
+							|| hero.hasFeature(FeatureType.UnbewussterViertelzauberer)) {
 						currentBaseValue = (int) Math.round((hero.getAttributeValue(AttributeType.Mut)
 								+ hero.getAttributeValue(AttributeType.Intuition) + hero
 								.getAttributeValue(AttributeType.Charisma)) / 2.0);

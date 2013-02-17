@@ -18,7 +18,7 @@ package com.dsatab.data;
 
 import java.util.Date;
 
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 
 /**
  * @author Ganymede
@@ -47,7 +47,7 @@ public class ChangeEvent {
 	 */
 	public ChangeEvent() {
 		setTime(new Date());
-		setVersion("DsaTab " + DSATabApplication.getInstance().getPackageVersionName());
+		setVersion("DsaTab " + DsaTabApplication.getInstance().getPackageVersionName());
 	}
 
 	public Integer getExperiencePoints() {

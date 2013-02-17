@@ -18,6 +18,7 @@ package com.dsatab.fragment;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,11 +51,10 @@ import com.actionbarsherlock.view.Menu;
 import com.commonsware.cwac.merge.MergeAdapter;
 import com.commonsware.cwac.sacklist.SackOfViewsAdapter;
 import com.dsatab.R;
-import com.dsatab.activity.ItemChooserActivity;
-import com.dsatab.activity.MainActivity;
+import com.dsatab.activity.DsaTabActivity;
+import com.dsatab.activity.ItemEditActivity;
 import com.dsatab.activity.ModificatorEditActivity;
 import com.dsatab.common.StyleableSpannableStringBuilder;
-import com.dsatab.data.Advantage;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.CombatTalent;
 import com.dsatab.data.CustomModificator;
@@ -64,11 +64,13 @@ import com.dsatab.data.adapter.FightEquippedItemAdapter;
 import com.dsatab.data.adapter.FightModificatorAdapter;
 import com.dsatab.data.adapter.ValueWheelAdapter;
 import com.dsatab.data.enums.AttributeType;
-import com.dsatab.data.enums.CombatTalentType;
+import com.dsatab.data.enums.FeatureType;
+import com.dsatab.data.enums.TalentType;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Hand;
 import com.dsatab.data.items.Item;
+import com.dsatab.data.items.ItemContainer;
 import com.dsatab.data.items.Shield;
 import com.dsatab.data.items.Weapon;
 import com.dsatab.data.modifier.AbstractModificator;
@@ -81,9 +83,12 @@ import com.dsatab.view.EvadeChooserDialog;
 import com.dsatab.view.FightFilterSettings;
 import com.dsatab.view.FilterSettings;
 import com.dsatab.view.FilterSettings.FilterType;
+import com.dsatab.view.ItemListItem;
+import com.dsatab.view.listener.HeroInventoryChangedListener;
+import com.dsatab.xml.DataManager;
 
 public class FightFragment extends BaseListFragment implements OnLongClickListener, OnClickListener,
-		OnItemClickListener {
+		OnItemClickListener, HeroInventoryChangedListener {
 
 	private static final String KEY_PICKER_TYPE = "pickerType";
 
@@ -91,7 +96,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 	private ValueWheelAdapter fightNumberAdapter;
 	private LinearLayout fightLpLayout;
 
-	private View fightausweichen;
+	private ItemListItem fightausweichen;
 
 	private ListView fightList;
 
@@ -124,7 +129,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 								intent.putExtra(ModificatorEditActivity.INTENT_RULES, modificator.getRules());
 								intent.putExtra(ModificatorEditActivity.INTENT_COMMENT, modificator.getComment());
 								intent.putExtra(ModificatorEditActivity.INTENT_ACTIVE, modificator.isActive());
-								getActivity().startActivityForResult(intent, MainActivity.ACTION_EDIT_MODIFICATOR);
+								getActivity().startActivityForResult(intent, DsaTabActivity.ACTION_EDIT_MODIFICATOR);
 								mode.finish();
 								return true;
 							case R.id.option_delete:
@@ -232,20 +237,26 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 							final EquippedItem equippedItem = (EquippedItem) obj;
 
 							switch (item.getItemId()) {
+							case R.id.option_edit:
+								ItemEditActivity.edit(getActivity(), equippedItem);
+								break;
 							case R.id.option_view:
-								Intent intent = new Intent(getActivity(), ItemChooserActivity.class);
-								intent.setAction(Intent.ACTION_VIEW);
-								intent.putExtra(ItemChooserFragment.INTENT_EXTRA_EQUIPPED_ITEM_ID, equippedItem.getId());
-								intent.putExtra(ItemChooserFragment.INTENT_EXTRA_SEARCHABLE, false);
-								intent.putExtra(ItemChooserFragment.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
-								startActivity(intent);
+								ItemEditActivity.view(getActivity(), equippedItem);
 								break;
 							case R.id.option_assign_secondary: {
-
 								final EquippedItem equippedPrimaryWeapon = equippedItem;
-
 								final EquippedItemChooserDialog bkDialog = new EquippedItemChooserDialog(getActivity());
+
 								bkDialog.setEquippedItems(getHero().getEquippedItems(Weapon.class, Shield.class));
+								for (Iterator<EquippedItem> iter = bkDialog.getEquippedItems().iterator(); iter
+										.hasNext();) {
+									EquippedItem eq = iter.next();
+									if (eq.getItemSpecification() instanceof Weapon) {
+										Weapon weapon = (Weapon) eq.getItemSpecification();
+										if (weapon.isTwoHanded())
+											iter.remove();
+									}
+								}
 								bkDialog.setSelectedItem(equippedItem.getSecondaryItem());
 								// do not select item itself
 								bkDialog.getEquippedItems().remove(equippedPrimaryWeapon);
@@ -293,9 +304,10 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 
 								final EquippedItem equippedPrimaryWeapon = equippedItem;
 								EquippedItem equippedSecondaryWeapon = equippedPrimaryWeapon.getSecondaryItem();
-
 								equippedPrimaryWeapon.setSecondaryItem(null);
-								equippedSecondaryWeapon.setSecondaryItem(null);
+								if (equippedSecondaryWeapon != null) {
+									equippedSecondaryWeapon.setSecondaryItem(null);
+								}
 
 								fillFightItemDescriptions();
 								break;
@@ -319,26 +331,29 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 							}
 							case R.id.option_select_talent: {
 
-								final List<String> specInfo = new ArrayList<String>();
+								final List<TalentType> specInfo = new ArrayList<TalentType>();
+								final List<String> specName = new ArrayList<String>();
 								if (equippedItem.getItemSpecification() instanceof Weapon) {
 									Weapon weapon = (Weapon) equippedItem.getItemSpecification();
-									for (CombatTalentType type : weapon.getCombatTalentTypes()) {
-										specInfo.add(type.getName());
+									for (TalentType type : weapon.getTalentTypes()) {
+										specInfo.add(type);
+										specName.add(type.xmlName());
 									}
 								} else if (equippedItem.getItemSpecification() instanceof Shield) {
 									Shield shield = (Shield) equippedItem.getItemSpecification();
-									for (CombatTalentType type : shield.getCombatTalentTypes()) {
-										specInfo.add(type.getName());
+									for (TalentType type : shield.getTalentTypes()) {
+										specInfo.add(type);
+										specName.add(type.xmlName());
 									}
 								}
 								if (!specInfo.isEmpty()) {
 									AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-									builder.setItems(specInfo.toArray(new String[0]),
+									builder.setItems(specName.toArray(new String[0]),
 											new DialogInterface.OnClickListener() {
 												@Override
 												public void onClick(DialogInterface dialog, int which) {
-													String talentName = specInfo.get(which);
-													CombatTalent talent = getHero().getCombatTalent(talentName);
+													TalentType talentType = specInfo.get(which);
+													CombatTalent talent = getHero().getCombatTalent(talentType);
 													if (talent != null) {
 														equippedItem.setTalent(talent);
 														getHero().fireItemChangedEvent(equippedItem);
@@ -389,50 +404,62 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		@Override
 		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
 			SparseBooleanArray checkedPositions = fightList.getCheckedItemPositions();
+			int selected = 0;
 			if (checkedPositions != null) {
 				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
+						selected++;
 						Object obj = fightList.getItemAtPosition(checkedPositions.keyAt(i));
 
 						if (obj instanceof EquippedItem) {
 							EquippedItem equippedItem = (EquippedItem) obj;
 
-							menu.findItem(R.id.option_view).setVisible(equippedItem.getItem().hasImage());
-
 							menu.findItem(R.id.option_assign_secondary).setVisible(false);
-
-							if (equippedItem.getItem().hasSpecification(Weapon.class)) {
-								Weapon weapon = (Weapon) equippedItem.getItem().getSpecification(Weapon.class);
+							if (equippedItem.getItemSpecification() instanceof Weapon) {
+								Weapon weapon = (Weapon) equippedItem.getItemSpecification();
 								if (!weapon.isTwoHanded()) {
 									menu.findItem(R.id.option_assign_secondary).setVisible(true);
+									if (selected == 1) {
+										List<EquippedItem> items = getHero().getEquippedItems(Weapon.class,
+												Shield.class);
+										items.remove(equippedItem);
+										menu.findItem(R.id.option_assign_secondary).setEnabled(!items.isEmpty());
+									}
 								}
 							}
 
 							menu.findItem(R.id.option_assign_hunting).setVisible(
-									equippedItem.getItem().hasSpecification(DistanceWeapon.class));
+									equippedItem.getItemSpecification() instanceof DistanceWeapon);
 
 							menu.findItem(R.id.option_unassign).setVisible(equippedItem.getSecondaryItem() != null);
+
 							menu.findItem(R.id.option_select_version).setVisible(
 									equippedItem.getItem().getSpecifications().size() > 1);
 
 							boolean hasMultipleTalentTypes = false;
 							if (equippedItem.getItemSpecification() instanceof Weapon) {
 								Weapon weapon = (Weapon) equippedItem.getItemSpecification();
-								if (weapon.getCombatTalentTypes().size() > 1) {
+								if (weapon.getTalentTypes().size() > 1) {
 									hasMultipleTalentTypes = true;
 								}
 							} else if (equippedItem.getItemSpecification() instanceof Shield) {
 								Shield shield = (Shield) equippedItem.getItemSpecification();
-								if (shield.getCombatTalentTypes().size() > 1) {
+								if (shield.getTalentTypes().size() > 1) {
 									hasMultipleTalentTypes = true;
 								}
 							}
 							menu.findItem(R.id.option_select_talent).setVisible(hasMultipleTalentTypes);
-
 						}
 					}
 				}
 			}
+
+			menu.findItem(R.id.option_view).setEnabled(selected == 1);
+			if (menu.findItem(R.id.option_assign_secondary).isEnabled())
+				menu.findItem(R.id.option_assign_secondary).setEnabled(selected == 1);
+			menu.findItem(R.id.option_assign_hunting).setEnabled(selected == 1);
+			menu.findItem(R.id.option_select_version).setEnabled(selected == 1);
+			menu.findItem(R.id.option_select_talent).setEnabled(selected == 1);
 
 			return true;
 		}
@@ -440,20 +467,20 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 
 	public static class TargetListener implements View.OnClickListener {
 
-		private WeakReference<MainActivity> mActivity;
+		private WeakReference<DsaTabActivity> mActivity;
 
 		/**
 		 * 
 		 */
-		public TargetListener(MainActivity activity) {
-			this.mActivity = new WeakReference<MainActivity>(activity);
+		public TargetListener(DsaTabActivity activity) {
+			this.mActivity = new WeakReference<DsaTabActivity>(activity);
 		}
 
 		public void onClick(View v) {
 			if (v.getTag() instanceof EquippedItem) {
 				EquippedItem item = (EquippedItem) v.getTag();
 
-				MainActivity mainActivity = mActivity.get();
+				DsaTabActivity mainActivity = mActivity.get();
 				if (mainActivity != null) {
 					ArcheryChooserDialog targetChooserDialog = new ArcheryChooserDialog(mainActivity);
 					targetChooserDialog.setWeapon(item);
@@ -483,7 +510,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-		if (requestCode == MainActivity.ACTION_ADD_MODIFICATOR) {
+		if (requestCode == DsaTabActivity.ACTION_ADD_MODIFICATOR) {
 
 			if (resultCode == Activity.RESULT_OK) {
 
@@ -496,12 +523,12 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 				getHero().addModificator(modificator);
 
 			}
-		} else if (requestCode == MainActivity.ACTION_EDIT_MODIFICATOR) {
+		} else if (requestCode == DsaTabActivity.ACTION_EDIT_MODIFICATOR) {
 			if (resultCode == Activity.RESULT_OK) {
 
 				UUID id = (UUID) data.getSerializableExtra(ModificatorEditActivity.INTENT_ID);
 
-				for (Modificator modificator : getHero().getModificators()) {
+				for (Modificator modificator : getHero().getUserModificators()) {
 					if (modificator instanceof CustomModificator) {
 						CustomModificator customModificator = (CustomModificator) modificator;
 						if (customModificator.getId().equals(id)) {
@@ -586,7 +613,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 
 		if (item.getItemId() == R.id.option_modifier_add) {
 			getActivity().startActivityForResult(new Intent(getActivity(), ModificatorEditActivity.class),
-					MainActivity.ACTION_ADD_MODIFICATOR);
+					DsaTabActivity.ACTION_ADD_MODIFICATOR);
 			return true;
 		} else {
 			return super.onOptionsItemSelected(item);
@@ -712,9 +739,11 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		fightList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 		fightList.setOnItemClickListener(this);
 
-		targetListener = new TargetListener((MainActivity) getActivity());
+		targetListener = new TargetListener((DsaTabActivity) getActivity());
 
-		fightausweichen = getLayoutInflater(savedInstanceState).inflate(R.layout.item_listitem, null, false);
+		fightausweichen = (ItemListItem) getLayoutInflater(savedInstanceState).inflate(R.layout.item_listitem, null,
+				false);
+
 		ImageButton iconLeft = (ImageButton) fightausweichen.findViewById(android.R.id.icon1);
 		iconLeft.setOnClickListener(getBaseActivity().getProbeListener());
 		iconLeft.setOnLongClickListener(getBaseActivity().getEditListener());
@@ -726,7 +755,6 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		iconRight.setVisibility(View.VISIBLE);
 		iconRight.setFocusable(true);
 		iconRight.setOnClickListener(new View.OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				if (ausweichenModificationDialog == null) {
@@ -819,7 +847,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 				getFilterSettings());
 		fightItemAdapter.setProbeListener(getBaseActivity().getProbeListener());
 		fightItemAdapter.setTargetListener(targetListener);
-
+		addWaffenloseTalente();
 		fightMergeAdapter = new MergeAdapter();
 		fightMergeAdapter.addAdapter(fightItemAdapter);
 
@@ -830,7 +858,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		fightMergeAdapter.addAdapter(evadeAdapter);
 		fightMergeAdapter.setActive(evadeAdapter, getFilterSettings().isShowEvade());
 
-		fightModificatorAdapter = new FightModificatorAdapter(getActivity(), hero.getModificators());
+		fightModificatorAdapter = new FightModificatorAdapter(getActivity(), hero.getUserModificators());
 		fightMergeAdapter.addAdapter(fightModificatorAdapter);
 		fightMergeAdapter.setActive(fightModificatorAdapter, getFilterSettings().isShowModifier());
 
@@ -847,7 +875,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 			fightPickerTypes.add(AttributeType.Karmaenergie_Aktuell);
 			fightPickerTypes.add(AttributeType.Entrueckung);
 		}
-		if (getHero().hasFeature(Advantage.MONDSUECHTIG)) {
+		if (getHero().hasFeature(FeatureType.Mondsüchtig)) {
 			fightPickerTypes.add(AttributeType.Verzueckung);
 		}
 
@@ -971,7 +999,32 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		for (EquippedItem equippedItem : items) {
 			fightItemAdapter.add(equippedItem);
 		}
+
+		addWaffenloseTalente();
+
 		fightItemAdapter.notifyDataSetChanged();
+	}
+
+	private void addWaffenloseTalente() {
+		Item raufen = DataManager.getItemByName(TalentType.Raufen.xmlName());
+		Weapon raufenSpec = (Weapon) raufen.getSpecifications().get(0);
+		EquippedItem raufenEquipped = new EquippedItem(getHero(),
+				getHero().getCombatTalent(raufenSpec.getTalentType()), raufen, raufenSpec);
+		fightItemAdapter.add(raufenEquipped);
+
+		Item ringen = DataManager.getItemByName(TalentType.Ringen.xmlName());
+		Weapon ringenSpec = (Weapon) ringen.getSpecifications().get(0);
+		EquippedItem ringenEquipped = new EquippedItem(getHero(),
+				getHero().getCombatTalent(ringenSpec.getTalentType()), ringen, ringenSpec);
+		fightItemAdapter.add(ringenEquipped);
+
+		if (getHero().hasFeature(FeatureType.WaffenloserKampfstilHruruzat)) {
+			Item hruruzat = DataManager.getItemByName("Hruruzat");
+			Weapon hruruzatSpec = (Weapon) ringen.getSpecifications().get(0);
+			EquippedItem hruruzatEquipped = new EquippedItem(getHero(), getHero().getCombatTalent(
+					ringenSpec.getTalentType()), hruruzat, hruruzatSpec);
+			fightItemAdapter.add(hruruzatEquipped);
+		}
 	}
 
 	/*
@@ -1006,7 +1059,6 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 	 */
 	@Override
 	public void onActiveSetChanged(int newSet, int oldSet) {
-		super.onActiveSetChanged(newSet, oldSet);
 		fillFightItemDescriptions();
 		getActivity().supportInvalidateOptionsMenu();
 	}
@@ -1074,6 +1126,58 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		if (item.getSet() == getHero().getActiveSet()) {
 			fightItemAdapter.remove(item);
 		}
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemChanged(com
+	 * .dsatab.data.items.Item)
+	 */
+	@Override
+	public void onItemChanged(Item item) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemContainerAdded
+	 * (com.dsatab.data.items.ItemContainer)
+	 */
+	@Override
+	public void onItemContainerAdded(ItemContainer itemContainer) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemContainerRemoved
+	 * (com.dsatab.data.items.ItemContainer)
+	 */
+	@Override
+	public void onItemContainerRemoved(ItemContainer itemContainer) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemContainerChanged
+	 * (com.dsatab.data.items.ItemContainer)
+	 */
+	@Override
+	public void onItemContainerChanged(ItemContainer itemContainer) {
+		// TODO Auto-generated method stub
 
 	}
 

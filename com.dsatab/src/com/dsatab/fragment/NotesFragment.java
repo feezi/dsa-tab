@@ -44,7 +44,7 @@ import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.commonsware.cwac.merge.MergeAdapter;
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.NotesEditActivity;
 import com.dsatab.data.Connection;
@@ -277,9 +277,7 @@ public class NotesFragment extends BaseListFragment implements OnItemClickListen
 	public void onActivityCreated(Bundle savedInstanceState) {
 		getActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-		recordingsDir = DSATabApplication.getDirectory(DSATabApplication.DIR_RECORDINGS);
-		if (!recordingsDir.exists())
-			recordingsDir.mkdirs();
+		recordingsDir = DsaTabApplication.getDirectory(DsaTabApplication.DIR_RECORDINGS);
 
 		listView = (ListView) findViewById(android.R.id.list);
 		listView.setOnItemLongClickListener(this);
@@ -517,14 +515,12 @@ public class NotesFragment extends BaseListFragment implements OnItemClickListen
 
 				connectionsAdapter.sort(Connection.NAME_COMPARATOR);
 				connectionsAdapter.refilter();
-				connectionsAdapter.notifyDataSetChanged();
 
 			} else {
 				if (selectedObject instanceof Connection) {
 					getHero().removeConnection((Connection) selectedObject);
 					connectionsAdapter.remove((Connection) selectedObject);
 					selectedObject = null;
-					connectionsAdapter.notifyDataSetChanged();
 				}
 
 				if (selectedObject instanceof Event) {
@@ -545,7 +541,6 @@ public class NotesFragment extends BaseListFragment implements OnItemClickListen
 
 				notesListAdapter.sort(Event.COMPARATOR);
 				notesListAdapter.refilter();
-				notesListAdapter.notifyDataSetChanged();
 			}
 
 		}

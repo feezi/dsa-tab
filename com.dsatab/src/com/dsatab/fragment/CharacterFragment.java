@@ -19,12 +19,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -47,14 +48,14 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.dsatab.common.StyleableSpannableStringBuilder;
-import com.dsatab.data.Advantage;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.Experience;
+import com.dsatab.data.Feature;
 import com.dsatab.data.Hero;
 import com.dsatab.data.HeroBaseInfo;
-import com.dsatab.data.SpecialFeature;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.modifier.Modificator;
@@ -88,27 +89,25 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 	private final class PortraitActionMode implements ActionMode.Callback {
 		@Override
 		public boolean onActionItemClicked(ActionMode mode, com.actionbarsherlock.view.MenuItem item) {
-
-			switch (item.getItemId()) {
-			case R.id.option_take_photo:
-				Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-				getActivity().startActivityForResult(camera, ACTION_PHOTO);
-				break;
-			case R.id.option_pick_image:
-				Intent photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
-				photoPickerIntent.setType("image/*");
-				getActivity().startActivityForResult(Intent.createChooser(photoPickerIntent, "Bild auswählen"),
-						ACTION_GALERY);
-				break;
-			case R.id.option_view_portrait:
-				showPortrait();
-				break;
-			case R.id.option_pick_avatar:
-				PortraitChooserDialog pdialog = new PortraitChooserDialog(getBaseActivity());
-				if (!pdialog.isEmpty()) {
-					pdialog.show();
+			if (getBaseActivity() != null) {
+				switch (item.getItemId()) {
+				case R.id.option_take_photo:
+					Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+					getActivity().startActivityForResult(camera, ACTION_PHOTO);
+					break;
+				case R.id.option_pick_image:
+					Intent photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
+					photoPickerIntent.setType("image/*");
+					getActivity().startActivityForResult(Intent.createChooser(photoPickerIntent, "Bild auswählen"),
+							ACTION_GALERY);
+					break;
+				case R.id.option_view_portrait:
+					showPortrait();
+					break;
+				case R.id.option_pick_avatar:
+					pickPortrait();
+					break;
 				}
-				break;
 			}
 			mode.finish();
 			return true;
@@ -203,6 +202,44 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		return root;
 	}
 
+	private void pickPortrait() {
+		final PortraitChooserDialog pdialog = new PortraitChooserDialog(getBaseActivity());
+
+		File portraitDir = DsaTabApplication.getDirectory(DsaTabApplication.DIR_PORTRAITS);
+		File[] files = portraitDir.listFiles();
+		List<Uri> portraitPaths = null;
+		if (files != null) {
+			portraitPaths = new ArrayList<Uri>(files.length);
+
+			for (File file : files) {
+				if (file.isFile()) {
+					portraitPaths.add(Uri.fromFile(file));
+				}
+			}
+		}
+
+		if (portraitPaths == null || portraitPaths.isEmpty()) {
+			String path = portraitDir.getAbsolutePath();
+			Toast.makeText(
+					getBaseActivity(),
+					"Keine Portraits gefunden. Kopiere deine eigenen auf deine SD-Karte unter \"" + path
+							+ "\" oder lade die Standardportraits in den Einstellungen herunter.", Toast.LENGTH_LONG)
+					.show();
+		} else {
+			pdialog.setImages(portraitPaths);
+			pdialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+
+				@Override
+				public void onDismiss(DialogInterface dialog) {
+					if (pdialog.getImageUri() != null) {
+						getHero().setPortraitUri(pdialog.getImageUri());
+					}
+				}
+			});
+			pdialog.show();
+		}
+	}
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		detailsSwitch.setOnClickListener(this);
@@ -244,28 +281,15 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		switch (requestCode) {
 		case ACTION_GALERY:
 			if (resultCode == Activity.RESULT_OK && getHero() != null) {
-				Uri selectedImage = data.getData();
-				String[] filePathColumn = { MediaStore.Images.Media.DATA };
 
-				Cursor cursor = getActivity().getContentResolver().query(selectedImage, filePathColumn, null, null,
-						null);
-				if (cursor != null) {
-					cursor.moveToFirst();
+				Bitmap bitmap = Util.retrieveBitmap(getActivity(), data, 300);
 
-					int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-					String filePath = cursor.getString(columnIndex);
-					cursor.close();
-					File file = new File(filePath);
-					if (file.exists()) {
-						Bitmap yourSelectedImage = Util.decodeBitmap(new File(filePath), 300);
-
-						File outputfile = saveBitmap(yourSelectedImage);
-						if (outputfile != null) {
-							// set uri for currently selected player
-							getHero().setPortraitUri(outputfile.toURI());
-
-							updatePortrait(getHero());
-						}
+				if (bitmap != null) {
+					File outputfile = saveBitmap(bitmap);
+					if (outputfile != null) {
+						// set uri for currently selected player
+						getHero().setPortraitUri(outputfile.toURI());
+						updatePortrait(getHero());
 					}
 				} else {
 					Toast.makeText(getActivity(),
@@ -304,11 +328,11 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		try {
 
 			String photoName = "photo" + Util.convertNonAscii(getHero().getName());
-			fOut = getActivity().openFileOutput(photoName, Activity.MODE_PRIVATE);
+			fOut = DsaTabApplication.getInstance().openFileOutput(photoName, Activity.MODE_PRIVATE);
 			pic.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
 			fOut.flush();
 
-			File outputfile = getActivity().getFileStreamPath(photoName);
+			File outputfile = DsaTabApplication.getInstance().getFileStreamPath(photoName);
 			return outputfile;
 		} catch (FileNotFoundException e) {
 			Debug.error(e);
@@ -329,11 +353,10 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		Bitmap portrait = getHero().getPortrait();
 
 		if (portrait != null) {
-			PortraitViewDialog viewDialog = new PortraitViewDialog(getBaseActivity());
+			PortraitViewDialog viewDialog = new PortraitViewDialog(getActivity(), getHero().getName(), portrait);
 			viewDialog.show();
 		} else {
-			PortraitChooserDialog pdialog = new PortraitChooserDialog(getBaseActivity());
-			pdialog.show();
+			pickPortrait();
 		}
 	}
 
@@ -649,7 +672,12 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 	}
 
 	protected void fillAttributesList(View view) {
+		if (getView() == null)
+			return;
 
+		if (tfMR == null || tfLabelMU == null) {
+			findViews(getView());
+		}
 		fillAttributeValue(tfMU, AttributeType.Mut);
 		fillAttributeValue(tfKL, AttributeType.Klugheit);
 		fillAttributeValue(tfIN, AttributeType.Intuition);
@@ -680,7 +708,7 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 
 		if (!hero.getSpecialFeatures().isEmpty()) {
 			boolean first = true;
-			for (SpecialFeature feature : hero.getSpecialFeatures().values()) {
+			for (Feature feature : hero.getSpecialFeatures().values()) {
 
 				if (!first) {
 					stringBuilder.append(", ");
@@ -706,7 +734,7 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		if (!hero.getAdvantages().isEmpty()) {
 			stringBuilder.clear();
 			boolean first = true;
-			for (Advantage advantage : hero.getAdvantages().values()) {
+			for (Feature advantage : hero.getAdvantages().values()) {
 
 				if (!first) {
 					stringBuilder.append(", ");
@@ -732,7 +760,7 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		if (!hero.getDisadvantages().isEmpty()) {
 			stringBuilder.clear();
 			boolean first = true;
-			for (Advantage disadvantage : hero.getDisadvantages().values()) {
+			for (Feature disadvantage : hero.getDisadvantages().values()) {
 
 				if (!first) {
 					stringBuilder.append(", ");

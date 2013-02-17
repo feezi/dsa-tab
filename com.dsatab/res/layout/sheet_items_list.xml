@@ -17,10 +17,9 @@
         android:text="@string/message_item_list_empty"
         android:visibility="gone">
     </TextView>	
-    <ListView
+    <ExpandableListView
         android:id="@android:id/list"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-    </ListView>
+        android:layout_height="fill_parent"/>
 
 </FrameLayout>

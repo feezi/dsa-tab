@@ -9,6 +9,8 @@ import android.text.TextUtils;
 import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.data.enums.ArtType;
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.data.enums.TalentType;
+import com.dsatab.data.modifier.RulesModificator.ModificatorType;
 import com.dsatab.util.Debug;
 import com.dsatab.util.Util;
 import com.dsatab.xml.DataManager;
@@ -72,6 +74,16 @@ public class Art extends MarkableElement implements Value {
 		this.hero = hero;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.Probe#getModificatorType()
+	 */
+	@Override
+	public ModificatorType getModificatorType() {
+		return ModificatorType.Art;
+	}
+
 	public static String normalizeName(String name) {
 		String grade;
 
@@ -105,11 +117,11 @@ public class Art extends MarkableElement implements Value {
 
 		switch (type) {
 		case Ritual:
-			kenntnis = hero.getTalent(Talent.GEISTER_ANRUFEN);
+			kenntnis = hero.getTalent(TalentType.GeisterRufen);
 			break;
 		default:
-			if (type.talentName() != null)
-				kenntnis = hero.getArtTalent(type.talentName());
+			if (type.talentType() != null)
+				kenntnis = hero.getTalent(type.talentType());
 			break;
 		}
 

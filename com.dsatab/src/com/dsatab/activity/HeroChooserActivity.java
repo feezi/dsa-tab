@@ -46,7 +46,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.dsatab.cloud.HeroExchange;
 import com.dsatab.cloud.HeroExchange.OnHeroExchangeListener;
@@ -69,7 +69,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 
 	private GridViewCompat list;
 	private HeroAdapter adapter;
-	private boolean dummy;
+	private boolean dummy, writable = true;;
 
 	private ActionMode mMode;
 
@@ -194,7 +194,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setTheme(DSATabApplication.getInstance().getCustomTheme());
+		setTheme(DsaTabApplication.getInstance().getCustomTheme());
 		applyPreferencesToTheme();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sheet_hero_chooser);
@@ -206,15 +206,22 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 
 		List<HeroFileInfo> heroes = null;
 
+		String error = Util.checkFileWriteAccess(DsaTabApplication.getDsaTabHeroDirectory());
+		if (error != null) {
+			Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+			writable = false;
+		} else {
+			writable = true;
+		}
+
 		// create test hero if no heroes avialable
-		if (!DSATabApplication.getInstance().hasHeroes()) {
+		if (writable && !DsaTabApplication.getInstance().hasHeroes()) {
 			dummy = true;
 
 			FileOutputStream fos = null;
 			InputStream fis = null;
 			try {
-
-				fos = new FileOutputStream(DSATabApplication.getDsaTabHeroPath() + DUMMY_FILE);
+				fos = new FileOutputStream(DsaTabApplication.getDsaTabHeroPath() + DUMMY_FILE);
 				fis = new BufferedInputStream(getAssets().open(DUMMY_FILE));
 				byte[] buffer = new byte[8 * 1024];
 				int length;
@@ -222,7 +229,6 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 				while ((length = fis.read(buffer)) >= 0) {
 					fos.write(buffer, 0, length);
 				}
-
 			} catch (FileNotFoundException e) {
 				Debug.error(e);
 			} catch (IOException e) {
@@ -240,15 +246,14 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 			}
 
 		} else {
-
-			heroes = DSATabApplication.getInstance().getHeroes();
+			heroes = DsaTabApplication.getInstance().getHeroes();
 
 			if (heroes.size() == 1 && heroes.get(0).getName().equals(DUMMY_NAME))
 				dummy = true;
 		}
 
 		if (heroes == null)
-			heroes = DSATabApplication.getInstance().getHeroes();
+			heroes = DsaTabApplication.getInstance().getHeroes();
 
 		list = (GridViewCompat) findViewById(R.id.popup_hero_chooser_list);
 		list.setChoiceModeC(GridView.CHOICE_MODE_MULTIPLE);
@@ -275,7 +280,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 	private void updateViews() {
 		TextView empty = (TextView) findViewById(R.id.popup_hero_empty);
 
-		if (!DSATabApplication.getInstance().hasHeroes() || dummy) {
+		if (!DsaTabApplication.getInstance().hasHeroes() || dummy) {
 
 			if (dummy)
 				list.setVisibility(View.VISIBLE);
@@ -283,7 +288,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 				list.setVisibility(View.INVISIBLE);
 
 			empty.setVisibility(View.VISIBLE);
-			empty.setText(Util.getText(R.string.message_heroes_empty, DSATabApplication.getDsaTabHeroPath()));
+			empty.setText(Util.getText(R.string.message_heroes_empty, DsaTabApplication.getDsaTabHeroPath()));
 		} else {
 			list.setVisibility(View.VISIBLE);
 			empty.setVisibility(View.GONE);
@@ -302,9 +307,13 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 		com.actionbarsherlock.view.MenuItem menuItem = menu.findItem(R.id.option_hero_import);
 		if (menuItem != null) {
 			ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-			NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-			if (networkInfo != null && networkInfo.isConnected()) {
-				menuItem.setEnabled(true);
+			if (connMgr != null) {
+				NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+				if (networkInfo != null && networkInfo.isConnected()) {
+					menuItem.setEnabled(true);
+				} else {
+					menuItem.setEnabled(false);
+				}
 			} else {
 				menuItem.setEnabled(false);
 			}
@@ -377,7 +386,7 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 			exchange.syncHeroes();
 			return true;
 		case R.id.option_settings:
-			BasePreferenceActivity.startPreferenceActivity(this);
+			DsaTabPreferenceActivity.startPreferenceActivity(this);
 			return true;
 		case android.R.id.home:
 			setResult(RESULT_CANCELED);
@@ -438,13 +447,13 @@ public class HeroChooserActivity extends BaseActivity implements AdapterView.OnI
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-		if (requestCode == MainActivity.ACTION_PREFERENCES) {
-			adapter = new HeroAdapter(this, R.layout.hero_chooser_item, DSATabApplication.getInstance().getHeroes());
+		if (requestCode == DsaTabActivity.ACTION_PREFERENCES) {
+			adapter = new HeroAdapter(this, R.layout.hero_chooser_item, DsaTabApplication.getInstance().getHeroes());
 			list.setAdapter(adapter);
 
 			updateViews();
 
-			updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, true));
+			updateFullscreenStatus(preferences.getBoolean(DsaTabPreferenceActivity.KEY_FULLSCREEN, true));
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
