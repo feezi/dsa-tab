@@ -26,7 +26,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 
 public class ModificatorEditActivity extends BaseFragmentActivity {
@@ -44,10 +44,10 @@ public class ModificatorEditActivity extends BaseFragmentActivity {
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		setTheme(DSATabApplication.getInstance().getCustomTheme());
+		setTheme(DsaTabApplication.getInstance().getCustomTheme());
 		applyPreferencesToTheme();
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.popup_edit_modificator);
+		setContentView(R.layout.sheet_edit_modificator);
 
 		cbActive = (CheckBox) findViewById(R.id.popup_edit_active);
 		etName = (EditText) findViewById(R.id.popup_edit_name);

@@ -21,6 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -30,6 +31,7 @@ import com.dsatab.fragment.BaseFragment;
 import com.dsatab.fragment.BaseListFragment;
 import com.dsatab.fragment.FightFragment;
 import com.dsatab.fragment.MapFragment;
+import com.dsatab.util.Util;
 import com.dsatab.view.FightFilterSettings;
 import com.dsatab.view.FilterSettings;
 import com.dsatab.view.ListFilterSettings;
@@ -44,6 +46,7 @@ public class TabInfo implements Parcelable, JSONable {
 
 	private static final String FIELD_ACTIVITY_CLAZZ = "activityClazz";
 	private static final String FIELD_TAB_RESOURCE_INDEX = "tabResourceId";
+	private static final String FIELD_TAB_ICON_URI = "iconUri";
 	private static final String FIELD_TAB_FLING_ENABLED = "tabFlingenabled";
 	private static final String FIELD_PRIMARY_ACTIVITY_CLAZZ = "activityClazz1";
 	private static final String FIELD_SECONDARY_ACTIVITY_CLAZZ = "activityClazz2";
@@ -54,28 +57,27 @@ public class TabInfo implements Parcelable, JSONable {
 	@SuppressWarnings("unchecked")
 	private Class<? extends BaseFragment>[] activityClazz = new Class[MAX_TABS_PER_PAGE];
 
-	private int tabResourceIndex;
-
 	private boolean diceSlider = true;
 	private boolean attributeList = true;
 	private boolean tabFlingEnabled = true;
 
 	private transient UUID id;
 	private transient int containerId;
+	private Uri iconUri;
 
 	private FilterSettings[] filterSettings = new FilterSettings[MAX_TABS_PER_PAGE];
 
 	private static final int indexToResourceId(int index) {
-		if (index < 0 || index >= DSATabApplication.getInstance().getConfiguration().getTabIcons().size())
+		if (index < 0 || index >= DsaTabApplication.getInstance().getConfiguration().getTabIcons().size())
 			index = 0;
 
-		return DSATabApplication.getInstance().getConfiguration().getTabIcons().get(index);
+		return DsaTabApplication.getInstance().getConfiguration().getTabIcons().get(index);
 	}
 
 	private static final int resourceIdToIndex(int id) {
-		int index = DSATabApplication.getInstance().getConfiguration().getTabIcons().indexOf(id);
+		int index = DsaTabApplication.getInstance().getConfiguration().getTabIcons().indexOf(id);
 
-		if (index < 0 || index >= DSATabApplication.getInstance().getConfiguration().getTabIcons().size())
+		if (index < 0 || index >= DsaTabApplication.getInstance().getConfiguration().getTabIcons().size())
 			return 0;
 		else
 			return index;
@@ -87,7 +89,7 @@ public class TabInfo implements Parcelable, JSONable {
 		this.activityClazz[0] = activityClazz1;
 		this.activityClazz[1] = activityClazz2;
 
-		this.tabResourceIndex = resourceIdToIndex(tabResourceId);
+		this.iconUri = Util.getUriForResourceId(tabResourceId);
 		this.diceSlider = diceSlider;
 		this.id = UUID.randomUUID();
 
@@ -117,7 +119,10 @@ public class TabInfo implements Parcelable, JSONable {
 	 */
 	public TabInfo(Parcel in) {
 		this.activityClazz = (Class<? extends BaseFragment>[]) in.readSerializable();
-		this.tabResourceIndex = in.readInt();
+		String uriString = in.readString();
+		if (uriString != null) {
+			this.iconUri = Uri.parse(uriString);
+		}
 		this.diceSlider = in.readInt() == 0 ? false : true;
 		this.id = UUID.randomUUID();
 		this.tabFlingEnabled = in.readInt() == 0 ? false : true;
@@ -133,7 +138,16 @@ public class TabInfo implements Parcelable, JSONable {
 	 */
 	@SuppressWarnings("unchecked")
 	public TabInfo(JSONObject in) throws JSONException, ClassNotFoundException {
-		tabResourceIndex = in.getInt(FIELD_TAB_RESOURCE_INDEX);
+		// backwardcompat for resourceindex
+		if (in.has(FIELD_TAB_RESOURCE_INDEX)) {
+			int tabResourceIndex = in.getInt(FIELD_TAB_RESOURCE_INDEX);
+			int resourceId = indexToResourceId(tabResourceIndex);
+			iconUri = Util.getUriForResourceId(resourceId);
+		}
+		if (in.has(FIELD_TAB_ICON_URI)) {
+			iconUri = Uri.parse(in.getString(FIELD_TAB_ICON_URI));
+		}
+
 		if (in.has(FIELD_DICE_SLIDER))
 			diceSlider = in.getBoolean(FIELD_DICE_SLIDER);
 
@@ -240,20 +254,12 @@ public class TabInfo implements Parcelable, JSONable {
 		this.tabFlingEnabled = tabFlingEnabled;
 	}
 
-	public int getTabResourceId() {
-		return indexToResourceId(tabResourceIndex);
+	public Uri getIconUri() {
+		return iconUri;
 	}
 
-	public void setTabResourceId(int tabResourceId) {
-		this.tabResourceIndex = resourceIdToIndex(tabResourceId);
-	}
-
-	public int getTabResourceIndex() {
-		return tabResourceIndex;
-	}
-
-	public void setTabResourceIndex(int tabResourceIndex) {
-		this.tabResourceIndex = tabResourceIndex;
+	public void setIconUri(Uri uri) {
+		this.iconUri = uri;
 	}
 
 	public boolean isDiceSlider() {
@@ -354,7 +360,10 @@ public class TabInfo implements Parcelable, JSONable {
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeSerializable(activityClazz);
-		dest.writeInt(tabResourceIndex);
+		if (iconUri != null)
+			dest.writeString(iconUri.toString());
+		else
+			dest.writeString(null);
 		dest.writeInt(diceSlider ? 1 : 0);
 		dest.writeInt(tabFlingEnabled ? 1 : 0);
 		dest.writeSerializable(filterSettings);
@@ -379,8 +388,10 @@ public class TabInfo implements Parcelable, JSONable {
 			}
 			out.put(FIELD_ACTIVITY_CLAZZ, jsonArray);
 		}
+		if (iconUri != null) {
+			out.put(FIELD_TAB_ICON_URI, iconUri.toString());
+		}
 
-		out.put(FIELD_TAB_RESOURCE_INDEX, tabResourceIndex);
 		out.put(FIELD_DICE_SLIDER, diceSlider);
 		out.put(FIELD_TAB_FLING_ENABLED, tabFlingEnabled);
 		if (filterSettings != null) {

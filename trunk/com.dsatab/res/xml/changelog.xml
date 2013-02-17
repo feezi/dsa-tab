@@ -1,11 +1,19 @@
 <changelog>    
+<release version="4.0.6" versioncode="59">	
+	<change>Dynamische Regeln/Modifikatoren via xml</change>
+	<fix>Jagdwaffen wurden nicht gespeichert</fix>
+	<fix>Weitere Bugfixes</fix>    
+</release>
+<release version="4.0.5" versioncode="58">	
+	<fix>Weitere Bugfixes</fix>    
+</release>
 <release version="4.0.4" versioncode="57">	
 	<fix>Beidhändigerkampf kann nun beim zuweisen einer Waffe ausgewählt werden.</fix>
 	<fix>Die Behinderung von Rüstungsteilen und Helmen mit Sternchen wird nun richtig berechnet</fix>
     <fix>Paradewaffenhandling verbessert.</fix>
 </release>
 <release version="4.0.3" versioncode="56">	
-	<fix>Major und minor bugfixes für das 4.0 release</fix>	
+	<fix>Bugfixes für das 4.0.x Release</fix>	
 </release>
 <release version="4.0.1" versioncode="54">
 	<note>Für 4.0 hab ich die News vergessen, also gibt es sie hier gesammelt mit den ersten Bugfixes.</note>
@@ -37,17 +45,11 @@
 
 
 <release version="3.0-beta" versioncode="47">
-
-
-
 <change>Tab-Navigation wurde in die ActionBar von Android 3.0 integriert</change>
 <change>Klingentänzer wird beim Wurf der Initiative berücksichtigt</change>
 <change>Modifikatoren können nun auch die Trefferpunkte anpassen z.B.: AT TP+2, Dolche TP+1, Langschwert TP+2</change>
 <change>Meisterhandwerk und Übernatürliche Begabung wird als Stern in der Talent-/Zauberliste angezeigt</change>
 <change>Man kann nun bei Wunden zwischen dem System mit und ohne Trefferzonen unterscheiden. Ohne Treffersystem wird für jede Wunde AT,PA,FK,GE,INI -2; GS -1 verwendet, egal wo man sie eintragt.</change>
-
-
-
 
 <fix>Download Code wurde überarbeitet. Hoffenltich gibt es jetzt weniger Abbrüche beim Herunterladen von zusätzlichem Inhalt.</fix>
 <fix>Helden Import/Export verursachte unter Android &lt;3.0 einen Absturz, falls bei der Datenverbindung ein Problem auftrat.</fix>

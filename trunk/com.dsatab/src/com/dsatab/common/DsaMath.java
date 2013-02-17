@@ -2,8 +2,8 @@ package com.dsatab.common;
 
 import android.content.SharedPreferences;
 
-import com.dsatab.DSATabApplication;
-import com.dsatab.activity.BasePreferenceActivity;
+import com.dsatab.DsaTabApplication;
+import com.dsatab.activity.DsaTabPreferenceActivity;
 
 public class DsaMath {
 
@@ -43,9 +43,9 @@ public class DsaMath {
 
 	public static double testEigen(int e1, int taw) {
 		double result;
-		SharedPreferences preferences = DSATabApplication.getPreferences();
+		SharedPreferences preferences = DsaTabApplication.getPreferences();
 
-		if (preferences.getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_2_OF_3_DICE, false) == false) {
+		if (preferences.getBoolean(DsaTabPreferenceActivity.KEY_HOUSE_RULES_2_OF_3_DICE, false) == false) {
 			result = Math.min(1.0, (e1 + taw) / 20.0);
 		} else {
 

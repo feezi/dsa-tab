@@ -20,32 +20,28 @@ import java.util.List;
 
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.BasePreferenceActivity;
+import com.dsatab.activity.DsaTabPreferenceActivity;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Value;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.modifier.Modificator;
-import com.dsatab.view.PortraitChooserDialog;
-import com.dsatab.view.PortraitViewDialog;
 import com.dsatab.view.listener.HeroChangedListener;
 
 /**
  * @author Ganymede
  * 
  */
-public class AttributeListFragment extends BaseAttributesFragment implements HeroChangedListener, OnClickListener {
+public class AttributeListFragment extends BaseAttributesFragment implements HeroChangedListener {
 
 	public static final String TAG = "attributeListFragment";
 
@@ -98,7 +94,6 @@ public class AttributeListFragment extends BaseAttributesFragment implements Her
 		if (tfName != null) {
 			Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/harrington.ttf");
 			tfName.setTypeface(tf);
-			tfName.setOnClickListener(this);
 		}
 
 		fillAttributeLabel(tfLabelLE, AttributeType.Lebensenergie_Aktuell);
@@ -111,41 +106,24 @@ public class AttributeListFragment extends BaseAttributesFragment implements Her
 		super.onActivityCreated(savedInstanceState);
 	}
 
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.attr_name:
-
-			if (getHero() == null)
-				return;
-
-			if (getHero().getPortrait() == null) {
-				v.showContextMenu();
-			} else {
-				showPortrait();
-			}
-			break;
-		}
-
-	}
-
 	private void updateView() {
-		SharedPreferences preferences = DSATabApplication.getPreferences();
+		SharedPreferences preferences = DsaTabApplication.getPreferences();
 
-		if (preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_NAME, true)) {
+		if (preferences.getBoolean(DsaTabPreferenceActivity.KEY_HEADER_NAME, true)) {
 			tfName.setVisibility(View.VISIBLE);
 		} else {
 			tfName.setVisibility(View.GONE);
 		}
 
-		int visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_LE, true) ? View.VISIBLE : View.GONE;
+		int visible = preferences.getBoolean(DsaTabPreferenceActivity.KEY_HEADER_LE, true) ? View.VISIBLE : View.GONE;
 		tfLE.setVisibility(visible);
 		tfLabelLE.setVisibility(visible);
 
-		visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_AU, true) ? View.VISIBLE : View.GONE;
+		visible = preferences.getBoolean(DsaTabPreferenceActivity.KEY_HEADER_AU, true) ? View.VISIBLE : View.GONE;
 		tfAU.setVisibility(visible);
 		tfLabelAU.setVisibility(visible);
 
-		visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_AE, true) ? View.VISIBLE : View.GONE;
+		visible = preferences.getBoolean(DsaTabPreferenceActivity.KEY_HEADER_AE, true) ? View.VISIBLE : View.GONE;
 		if (visible == View.VISIBLE && getHero() != null
 				&& getHero().getAttributeValue(AttributeType.Astralenergie_Aktuell) != null) {
 			tfAE.setVisibility(visible);
@@ -155,7 +133,7 @@ public class AttributeListFragment extends BaseAttributesFragment implements Her
 			tfLabelAE.setVisibility(View.GONE);
 		}
 
-		visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_KE, true) ? View.VISIBLE : View.GONE;
+		visible = preferences.getBoolean(DsaTabPreferenceActivity.KEY_HEADER_KE, true) ? View.VISIBLE : View.GONE;
 		if (visible == View.VISIBLE && getHero() != null
 				&& getHero().getAttributeValue(AttributeType.Karmaenergie_Aktuell) != null) {
 			tfKE.setVisibility(visible);
@@ -165,33 +143,21 @@ public class AttributeListFragment extends BaseAttributesFragment implements Her
 			tfLabelKE.setVisibility(View.GONE);
 		}
 
-		visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_BE, true) ? View.VISIBLE : View.GONE;
+		visible = preferences.getBoolean(DsaTabPreferenceActivity.KEY_HEADER_BE, true) ? View.VISIBLE : View.GONE;
 		tfBE.setVisibility(visible);
 		tfLabelBE.setVisibility(visible);
 
-		visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_MR, true) ? View.VISIBLE : View.GONE;
+		visible = preferences.getBoolean(DsaTabPreferenceActivity.KEY_HEADER_MR, true) ? View.VISIBLE : View.GONE;
 		tfMR.setVisibility(visible);
 		tfLabelMR.setVisibility(visible);
 
-		visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_GS, true) ? View.VISIBLE : View.GONE;
+		visible = preferences.getBoolean(DsaTabPreferenceActivity.KEY_HEADER_GS, true) ? View.VISIBLE : View.GONE;
 		tfGS.setVisibility(visible);
 		tfLabelGS.setVisibility(visible);
 
-		visible = preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_WS, true) ? View.VISIBLE : View.GONE;
+		visible = preferences.getBoolean(DsaTabPreferenceActivity.KEY_HEADER_WS, true) ? View.VISIBLE : View.GONE;
 		tfWS.setVisibility(visible);
 		tfLabelWS.setVisibility(visible);
-	}
-
-	private void showPortrait() {
-		Bitmap portrait = getHero().getPortrait();
-
-		if (portrait != null) {
-			PortraitViewDialog viewDialog = new PortraitViewDialog(getBaseActivity());
-			viewDialog.show();
-		} else {
-			PortraitChooserDialog pdialog = new PortraitChooserDialog(getBaseActivity());
-			pdialog.show();
-		}
 	}
 
 	/*
@@ -347,7 +313,7 @@ public class AttributeListFragment extends BaseAttributesFragment implements Her
 				|| hero.getAttributeValue(AttributeType.Karmaenergie) == 0) {
 			tfKE.setVisibility(View.GONE);
 			tfLabelKE.setVisibility(View.GONE);
-		} else if (preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_KE, true)) {
+		} else if (preferences.getBoolean(DsaTabPreferenceActivity.KEY_HEADER_KE, true)) {
 			fillAttributeValue(tfKE, AttributeType.Karmaenergie_Aktuell, null, true, true);
 			fillAttributeLabel(tfLabelKE, AttributeType.Karmaenergie_Aktuell);
 			tfKE.setVisibility(View.VISIBLE);
@@ -358,7 +324,7 @@ public class AttributeListFragment extends BaseAttributesFragment implements Her
 				|| hero.getAttributeValue(AttributeType.Astralenergie) == 0) {
 			tfAE.setVisibility(View.GONE);
 			tfLabelAE.setVisibility(View.GONE);
-		} else if (preferences.getBoolean(BasePreferenceActivity.KEY_HEADER_AE, true)) {
+		} else if (preferences.getBoolean(DsaTabPreferenceActivity.KEY_HEADER_AE, true)) {
 			fillAttributeValue(tfAE, AttributeType.Astralenergie_Aktuell, null, true, true);
 			fillAttributeLabel(tfLabelAE, AttributeType.Astralenergie_Aktuell);
 			tfAE.setVisibility(View.VISIBLE);

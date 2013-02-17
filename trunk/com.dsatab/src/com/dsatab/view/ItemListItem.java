@@ -115,10 +115,10 @@ public class ItemListItem extends CheckableRelativeLayout {
 	public void setItem(Item e, ItemSpecification spec) {
 		if (icon1 != null) {
 			icon1.setVisibility(View.VISIBLE);
-			if (spec != null)
-				icon1.setImageResource(spec.getResourceId());
+			if (e.getIconUri() != null)
+				icon1.setImageURI(e.getIconUri());
 			else
-				icon1.setImageResource(e.getResourceId());
+				icon1.setImageResource(spec.getResourceId());
 		}
 		// Set value for the first text field
 		if (text1 != null) {

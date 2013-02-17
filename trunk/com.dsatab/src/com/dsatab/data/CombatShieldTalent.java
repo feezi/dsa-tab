@@ -1,16 +1,15 @@
 package com.dsatab.data;
 
-import com.dsatab.DSATabApplication;
-import com.dsatab.activity.BasePreferenceActivity;
+import com.dsatab.DsaTabApplication;
+import com.dsatab.activity.DsaTabPreferenceActivity;
 import com.dsatab.data.enums.AttributeType;
-import com.dsatab.data.enums.CombatTalentType;
+import com.dsatab.data.enums.FeatureType;
 import com.dsatab.data.enums.Position;
+import com.dsatab.data.enums.TalentType;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.UsageType;
 
 public class CombatShieldTalent extends BaseCombatTalent {
-
-	protected CombatTalentType type;
 
 	protected UsageType usageType;
 
@@ -25,11 +24,10 @@ public class CombatShieldTalent extends BaseCombatTalent {
 		this.equippedName = equippedName;
 
 		if (UsageType.Paradewaffe == usageType)
-			this.type = CombatTalentType.Dolche;
+			setType(TalentType.Dolche);
 		else
-			this.type = CombatTalentType.Raufen;
+			setType(TalentType.Raufen);
 
-		this.probeInfo.applyBePattern(type.getBe());
 		this.value = 0;
 	}
 
@@ -53,7 +51,7 @@ public class CombatShieldTalent extends BaseCombatTalent {
 		return this;
 	}
 
-	public CombatTalentType getCombatTalentType() {
+	public TalentType getTalentType() {
 		return type;
 	}
 
@@ -88,10 +86,8 @@ public class CombatShieldTalent extends BaseCombatTalent {
 				// geführten
 				// hauptwaffe -/+ evtl. parierwaffen WdS 75
 				EquippedItem paradeItem = hero.getEquippedItem(set, equippedName);
-				if (paradeItem != null
-						&& paradeItem.getSecondaryItem() != null
-						&& (hero.hasFeature(SpecialFeature.PARIERWAFFEN_1) || hero
-								.hasFeature(SpecialFeature.PARIERWAFFEN_2))) {
+				if (paradeItem != null && paradeItem.getSecondaryItem() != null
+						&& (hero.hasFeature(FeatureType.ParierwaffenI) || hero.hasFeature(FeatureType.ParierwaffenII))) {
 					EquippedItem equippedWeapon = paradeItem.getSecondaryItem();
 					// check wether mainweapon has a defense value
 					// TODO modifiers on main weapon should be considered here
@@ -118,7 +114,7 @@ public class CombatShieldTalent extends BaseCombatTalent {
 	}
 
 	public Position getPosition(int w20) {
-		if (DSATabApplication.getPreferences().getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_MORE_TARGET_ZONES,
+		if (DsaTabApplication.getPreferences().getBoolean(DsaTabPreferenceActivity.KEY_HOUSE_RULES_MORE_TARGET_ZONES,
 				false)) {
 			return Position.box_rauf_hruru[w20];
 		} else {

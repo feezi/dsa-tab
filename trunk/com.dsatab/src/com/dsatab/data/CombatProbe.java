@@ -1,7 +1,13 @@
 package com.dsatab.data;
 
-import com.dsatab.data.enums.CombatTalentType;
+import com.dsatab.data.enums.TalentType;
+import com.dsatab.data.items.Armor;
+import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
+import com.dsatab.data.items.ItemSpecification;
+import com.dsatab.data.items.Shield;
+import com.dsatab.data.items.Weapon;
+import com.dsatab.data.modifier.RulesModificator.ModificatorType;
 
 public class CombatProbe extends BaseProbe {
 
@@ -13,7 +19,7 @@ public class CombatProbe extends BaseProbe {
 
 	private boolean attack;
 
-	protected CombatTalentType type;
+	protected TalentType type;
 
 	public CombatProbe(EquippedItem item, boolean attack) {
 		this.equippedItem = item;
@@ -39,7 +45,7 @@ public class CombatProbe extends BaseProbe {
 
 		if (combatTalent instanceof CombatShieldTalent && equippedItem.getSecondaryItem() != null) {
 			// shields and paradeweapons use the BE from their main weapon
-			type = equippedItem.getSecondaryItem().getTalent().getCombatTalentType();
+			type = equippedItem.getSecondaryItem().getTalent().getType();
 
 			if (type != null) {
 				probeInfo.applyBePattern(type.getBe());
@@ -90,6 +96,26 @@ public class CombatProbe extends BaseProbe {
 
 	public CombatTalent getCombatTalent() {
 		return combatTalent;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.Probe#getModificatorType()
+	 */
+	@Override
+	public ModificatorType getModificatorType() {
+		ItemSpecification specification = equippedItem.getItemSpecification();
+		if (specification instanceof Weapon)
+			return ModificatorType.Weapon;
+		else if (specification instanceof DistanceWeapon)
+			return ModificatorType.DistanceWeapon;
+		else if (specification instanceof Shield)
+			return ModificatorType.Shield;
+		if (specification instanceof Armor)
+			return ModificatorType.Armor;
+		else
+			return null;
 	}
 
 	public boolean isAttack() {

@@ -42,11 +42,10 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.BasePreferenceActivity;
+import com.dsatab.activity.DsaTabPreferenceActivity;
 import com.dsatab.common.DsaMath;
-import com.dsatab.data.Advantage;
 import com.dsatab.data.Art;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.CombatDistanceTalent;
@@ -58,9 +57,9 @@ import com.dsatab.data.Hero;
 import com.dsatab.data.Modifier;
 import com.dsatab.data.Probe;
 import com.dsatab.data.Probe.ProbeType;
-import com.dsatab.data.SpecialFeature;
 import com.dsatab.data.Spell;
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.data.enums.FeatureType;
 import com.dsatab.util.Debug;
 import com.dsatab.util.Hint;
 import com.dsatab.util.Util;
@@ -184,7 +183,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 		effectFormat.setMaximumFractionDigits(1);
 		if (!isInEditMode()) {
-			preferences = DSATabApplication.getPreferences();
+			preferences = DsaTabApplication.getPreferences();
 
 			sounds = new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
 			soundNeutral = sounds.load(getContext(), R.raw.dice, 1);
@@ -247,7 +246,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 				@Override
 				public void onDismiss(DialogInterface dialog) {
-					if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_AUTO_ROLL_DICE, true)) {
+					if (preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_AUTO_ROLL_DICE, true)) {
 						checkProbe(probeData, getManualModifier());
 					}
 					modifierWheel = null;
@@ -276,7 +275,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 				TextView text1 = (TextView) listItem.findViewById(R.id.popup_probelist_item_text1);
 				text1.setText(mod.getTitle());
 				if (inverse) {
-					text1.setTextColor(DSATabApplication.getInstance().getResources()
+					text1.setTextColor(DsaTabApplication.getInstance().getResources()
 							.getColor(android.R.color.primary_text_dark));
 				}
 
@@ -383,7 +382,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 	}
 
 	private boolean isModifiersPopup() {
-		return !preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_SHOW_MODIFIKATORS, false);
+		return !preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_SHOW_MODIFIKATORS, false);
 	}
 
 	/*
@@ -415,7 +414,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 			getManualModifier().setModifier(-erschwernis);
 
 			updateProgressView(probeData, getManualModifier());
-			if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_AUTO_ROLL_DICE, true)) {
+			if (preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_AUTO_ROLL_DICE, true)) {
 				checkProbe(probeData, getManualModifier());
 			}
 
@@ -446,8 +445,8 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		if (info.failureTwenty == null)
 			info.failureTwenty = false;
 
-		if (info.sound && preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_SOUND_ROLL_DICE, true)
-				&& !preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_SOUND_RESULT_DICE, true)) {
+		if (info.sound && preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_SOUND_ROLL_DICE, true)
+				&& !preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_SOUND_RESULT_DICE, true)) {
 			sounds.play(soundNeutral, 1.0f, 1.0f, 0, 0, 1.0f);
 		}
 
@@ -482,14 +481,14 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 				}
 				tfDiceTalent.setTextColor(getResources().getColor(R.color.ValueRed));
 
-				if (info.sound && preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_SOUND_ROLL_DICE, true)
-						&& preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_SOUND_RESULT_DICE, true))
+				if (info.sound && preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_SOUND_ROLL_DICE, true)
+						&& preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_SOUND_RESULT_DICE, true))
 					sounds.play(soundFail, 1.0f, 1.0f, 0, 0, 1.0f);
 			} else { // geschafft
 
 				if (info.successOne && effect >= 0) {
 					tfDiceTalent.setText(info.probe.getName() + " glücklich gemeistert!");
-					tfEffectValue.setTextColor(DSATabApplication.getInstance().getResources()
+					tfEffectValue.setTextColor(DsaTabApplication.getInstance().getResources()
 							.getColor(R.color.ValueGreen));
 					tfDiceTalent.setTextColor(getResources().getColor(R.color.ValueGreen));
 					linDiceResult.setBackgroundResource(R.drawable.probe_green_highlight);
@@ -501,8 +500,8 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 					linDiceResult.setBackgroundResource(0);
 				}
 
-				if (info.sound && preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_SOUND_ROLL_DICE, true)
-						&& preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_SOUND_RESULT_DICE, true))
+				if (info.sound && preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_SOUND_ROLL_DICE, true)
+						&& preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_SOUND_RESULT_DICE, true))
 					sounds.play(soundWin, 1.0f, 1.0f, 0, 0, 1.0f);
 
 			}
@@ -569,7 +568,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 			if (findViewById(R.id.popup_probe_layout) != null)
 				fillModifierList((LinearLayout) findViewById(R.id.popup_probe_layout), true);
 		}
-		if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_AUTO_ROLL_DICE, true)) {
+		if (preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_AUTO_ROLL_DICE, true)) {
 			executeButton.setVisibility(View.GONE);
 			updateView(probeData);
 			updateProgressView(probeData);
@@ -614,13 +613,13 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		}
 		taw += modifiersSum;
 
-		if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_PROBABILITY, false)) {
+		if (preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_PROBABILITY, false)) {
 			Double probability = null;
 
 			// House rule preferences
 			ProbeType probeType = probe.getProbeType();
 			if (probeType == ProbeType.TwoOfThree
-					&& preferences.getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_2_OF_3_DICE, false) == false) {
+					&& preferences.getBoolean(DsaTabPreferenceActivity.KEY_HOUSE_RULES_2_OF_3_DICE, false) == false) {
 				probeType = ProbeType.One;
 			}
 
@@ -649,7 +648,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 				break;
 			}
 
-			tfEffectValue.setTextColor(DSATabApplication.getInstance().getResources()
+			tfEffectValue.setTextColor(DsaTabApplication.getInstance().getResources()
 					.getColor(android.R.color.secondary_text_dark));
 
 			if (probability != null) {
@@ -676,7 +675,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		// --
 		tblDiceProbe.setVisibility(View.VISIBLE);
 		tfDiceTalent.setText(probe.getName());
-		tfDiceTalent.setTextColor(DSATabApplication.getInstance().getResources()
+		tfDiceTalent.setTextColor(DsaTabApplication.getInstance().getResources()
 				.getColor(android.R.color.primary_text_dark));
 
 		if (probe.getProbeBonus() != null) {
@@ -765,7 +764,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 				double effect;
 
-				if (info.hero.hasFeature(SpecialFeature.KLINGENTAENZER)) {
+				if (info.hero.hasFeature(FeatureType.Klingentänzer)) {
 					if (info.dice[1] == null)
 						info.dice[1] = rollDice6();
 
@@ -806,17 +805,17 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 			// House rule preferences
 			ProbeType probeType = probe.getProbeType();
 			if (probeType == ProbeType.TwoOfThree
-					&& preferences.getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_2_OF_3_DICE, false) == false) {
+					&& preferences.getBoolean(DsaTabPreferenceActivity.KEY_HOUSE_RULES_2_OF_3_DICE, false) == false) {
 				probeType = ProbeType.One;
 			}
 
 			int PATZER_THRESHOLD = 20;
 			if ((probe instanceof Spell || probe instanceof Art)) {
-				if (info.hero.hasFeature(Advantage.WILDE_MAGIE)) {
+				if (info.hero.hasFeature(FeatureType.WildeMagie)) {
 					PATZER_THRESHOLD = 19;
 				}
 			} else {
-				if (info.hero.hasFeature(Advantage.TOLLPATSCH)) {
+				if (info.hero.hasFeature(FeatureType.Tollpatsch)) {
 					PATZER_THRESHOLD = 19;
 				}
 			}
@@ -846,7 +845,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 					// Wege des Helden 251: Patzer bei Zaubern nur wenn der
 					// dritte Würfel auch 18,19,20 ist.
-					if (probe instanceof Spell && info.hero.hasFeature(Advantage.FESTE_MATRIX)) {
+					if (probe instanceof Spell && info.hero.hasFeature(FeatureType.FesteMatrix)) {
 						for (int i = 0; i < 3; i++) {
 							// sobald einer der Würfel unter 18 ist, kann es
 							// kein Patzer gewesen sein
@@ -965,7 +964,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 		int dice = rnd.nextInt(20) + 1;
 
-		if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_ANIM_ROLL_DICE, true)) {
+		if (preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_ANIM_ROLL_DICE, true)) {
 
 			if (dice20Count == 1 && (!shakeDice20.hasStarted() || shakeDice20.hasEnded())) {
 				shakeDice20.reset();
@@ -991,7 +990,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 		int dice = rnd.nextInt(6) + 1;
 
-		if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_ANIM_ROLL_DICE, true)) {
+		if (preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_ANIM_ROLL_DICE, true)) {
 			if (dice6Count == 1 && (!shakeDice6.hasStarted() || shakeDice6.hasEnded())) {
 				shakeDice6.reset();
 				tfDice6.startAnimation(shakeDice6);
@@ -1029,7 +1028,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		res.setGravity(Gravity.CENTER);
 		res.setPadding(padding, 0, padding, 0);
 		linDiceResult.addView(res, width, width);
-		if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_ANIM_ROLL_DICE, true)) {
+		if (preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_ANIM_ROLL_DICE, true)) {
 			res.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.flip_in));
 		}
 
@@ -1049,7 +1048,7 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		res.setImageResource(Util.getDrawableByName("w6_" + value));
 		res.setPadding(padding, 0, padding, 0);
 		linDiceResult.addView(res, width, width);
-		if (preferences.getBoolean(BasePreferenceActivity.KEY_PROBE_ANIM_ROLL_DICE, true)) {
+		if (preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_ANIM_ROLL_DICE, true)) {
 			res.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.flip_in));
 		}
 

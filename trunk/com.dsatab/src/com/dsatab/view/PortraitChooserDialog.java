@@ -1,7 +1,5 @@
 package com.dsatab.view;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import android.app.AlertDialog;
@@ -16,60 +14,31 @@ import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.Toast;
 
-import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.MainActivity;
 import com.dsatab.util.Util;
 
 public class PortraitChooserDialog extends AlertDialog implements AdapterView.OnItemClickListener {
 
-	private MainActivity main;
+	private GridView list;
+	private PortraitAdapter adapter;
 
-	private List<Uri> portraitPaths;
+	private ScaleType scaleType = ScaleType.CENTER_CROP;
 
-	public PortraitChooserDialog(MainActivity context) {
+	private Uri imageUri;
+
+	public PortraitChooserDialog(Context context) {
 		super(context);
-		this.main = context;
 		init();
 	}
 
-	protected MainActivity getMain() {
-		return main;
-	}
-
-	public boolean isEmpty() {
-		return (portraitPaths == null || portraitPaths.isEmpty());
+	public void setImages(List<Uri> imageUris) {
+		adapter.clear();
+		adapter.addAll(imageUris);
 	}
 
 	private void init() {
 		setTitle("Wähle ein Portrait...");
-
-		File portraitDir = DSATabApplication.getDirectory(DSATabApplication.DIR_PORTRAITS);
-		if (!portraitDir.exists())
-			portraitDir.mkdirs();
-
-		File[] files = portraitDir.listFiles();
-		if (files != null) {
-			portraitPaths = new ArrayList<Uri>(files.length);
-
-			for (File file : files) {
-				if (file.isFile()) {
-					portraitPaths.add(Uri.fromFile(file));
-				}
-			}
-		}
-
-		if (portraitPaths == null || portraitPaths.isEmpty()) {
-			String path = portraitDir.getAbsolutePath();
-			Toast.makeText(
-					getContext(),
-					"Keine Portraits gefunden. Kopiere deine eigenen auf deine SD-Karte unter \"" + path
-							+ "\" oder lade die Standardportraits in den Einstellungen herunter.", Toast.LENGTH_LONG)
-					.show();
-			return;
-		}
 
 		setCanceledOnTouchOutside(true);
 
@@ -77,18 +46,34 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 		popupcontent.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		setView(popupcontent);
 
-		final GridView list = (GridView) popupcontent.findViewById(R.id.popup_portrait_chooser_list);
-		PortraitAdapter adapter = new PortraitAdapter(getContext(), portraitPaths);
+		list = (GridView) popupcontent.findViewById(R.id.popup_portrait_chooser_list);
+		adapter = new PortraitAdapter(getContext());
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
 	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		getMain().getHero().setPortraitUri(portraitPaths.get(position));
+		imageUri = adapter.getItem(position);
 		dismiss();
 	}
 
+	public Uri getImageUri() {
+		return imageUri;
+	}
+
+	public ScaleType getScaleType() {
+		return scaleType;
+	}
+
+	public void setScaleType(ScaleType scaleType) {
+		this.scaleType = scaleType;
+	}
+
 	class PortraitAdapter extends ArrayAdapter<Uri> {
+
+		public PortraitAdapter(Context context) {
+			super(context, 0);
+		}
 
 		public PortraitAdapter(Context context, List<Uri> objects) {
 			super(context, 0, objects);
@@ -106,7 +91,7 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 				tv = (ImageView) convertView;
 			} else {
 				tv = new ImageView(getContext());
-				tv.setScaleType(ScaleType.CENTER_CROP);
+				tv.setScaleType(scaleType);
 			}
 
 			Uri file = getItem(position);

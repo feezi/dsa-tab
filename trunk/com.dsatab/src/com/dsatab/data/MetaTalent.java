@@ -20,7 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.dsatab.common.DsaMath;
-import com.dsatab.data.enums.MetaTalentType;
+import com.dsatab.data.enums.TalentType;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.util.Debug;
 
@@ -34,24 +34,29 @@ public class MetaTalent extends Talent implements JSONable {
 	private static final String FIELD_FAVORITE = "favorite";
 	private static final String FIELD_UNUSED = "unused";
 
-	private MetaTalentType metaType;
-
 	private boolean favorite, unused;
 
-	public MetaTalent(Hero hero, MetaTalentType type) {
+	public MetaTalent(Hero hero, TalentType type) {
 		super(hero);
 
-		this.metaType = type;
+		this.type = type;
+		init();
 	}
 
 	public MetaTalent(Hero hero, JSONObject json) throws JSONException {
 		super(hero);
 
-		this.metaType = MetaTalentType.valueOf(json.getString(FIELD_META_TYPE));
+		this.type = TalentType.valueOf(json.getString(FIELD_META_TYPE));
 		this.favorite = json.getBoolean(FIELD_FAVORITE);
 		this.unused = json.getBoolean(FIELD_UNUSED);
+		init();
+	}
 
-		switch (metaType) {
+	/**
+	 * 
+	 */
+	private void init() {
+		switch (type) {
 		case PirschAnsitzJagd:
 			probeInfo = ProbeInfo.parse("(MU/IN/GE)");
 			break;
@@ -65,16 +70,7 @@ public class MetaTalent extends Talent implements JSONable {
 		default:
 			probeInfo = new ProbeInfo();
 		}
-	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.dsatab.data.Talent#getName()
-	 */
-	@Override
-	public String getName() {
-		return metaType.getName();
 	}
 
 	/*
@@ -95,12 +91,12 @@ public class MetaTalent extends Talent implements JSONable {
 	@Override
 	public Integer getProbeBonus() {
 
-		switch (metaType) {
+		switch (type) {
 		case PirschAnsitzJagd: {
-			Integer wildnis = getTalentValue(Talent.WILDNISLEBEN);
-			Integer fährtensuche = getTalentValue(Talent.FÄHRTENSUCHEN);
-			Integer schleichen = getTalentValue(Talent.SCHLEICHEN);
-			Integer tierkunde = getTalentValue(Talent.TIERKUNDE);
+			Integer wildnis = getTalentValue(TalentType.Wildnisleben);
+			Integer fährtensuche = getTalentValue(TalentType.Fährtensuchen);
+			Integer schleichen = getTalentValue(TalentType.Schleichen);
+			Integer tierkunde = getTalentValue(TalentType.Tierkunde);
 			Integer distance = 0;
 
 			EquippedItem huntingWeapon = hero.getHuntingWeapon();
@@ -130,9 +126,9 @@ public class MetaTalent extends Talent implements JSONable {
 			return value;
 		}
 		case Kräutersuchen: {
-			Integer wildnis = getTalentValue(Talent.WILDNISLEBEN);
-			Integer sinnen = getTalentValue(Talent.SINNENSCHÄRFE);
-			Integer planzen = getTalentValue(Talent.PFLANZENKUNDE);
+			Integer wildnis = getTalentValue(TalentType.Wildnisleben);
+			Integer sinnen = getTalentValue(TalentType.Sinnenschärfe);
+			Integer planzen = getTalentValue(TalentType.Pflanzenkunde);
 
 			Integer minValue = DsaMath.min(wildnis, sinnen, planzen);
 			int value = Math.round(DsaMath.sum(wildnis, sinnen, planzen) / 3.0f);
@@ -145,9 +141,9 @@ public class MetaTalent extends Talent implements JSONable {
 			return value;
 		}
 		case NahrungSammeln: {
-			Integer wildnis = getTalentValue(Talent.WILDNISLEBEN);
-			Integer sinnen = getTalentValue(Talent.SINNENSCHÄRFE);
-			Integer planzen = getTalentValue(Talent.PFLANZENKUNDE);
+			Integer wildnis = getTalentValue(TalentType.Wildnisleben);
+			Integer sinnen = getTalentValue(TalentType.Sinnenschärfe);
+			Integer planzen = getTalentValue(TalentType.Pflanzenkunde);
 
 			Integer minValue = DsaMath.min(wildnis, sinnen, planzen);
 			int value = Math.round(DsaMath.sum(wildnis, sinnen, planzen) / 3.0f);
@@ -160,11 +156,11 @@ public class MetaTalent extends Talent implements JSONable {
 			return value;
 		}
 		case Wache:
-			Integer selbst = getTalentValue(Talent.SELBSTBEHERRSCHUNG);
-			Integer sinnen = getTalentValue(Talent.SINNENSCHÄRFE);
-			Integer schleichen = getTalentValue(Talent.SCHLEICHEN);
-			Integer verstecken = getTalentValue(Talent.SICH_VERSTECKEN);
-			Integer wildnis = getTalentValue(Talent.WILDNISLEBEN);
+			Integer selbst = getTalentValue(TalentType.Selbstbeherrschung);
+			Integer sinnen = getTalentValue(TalentType.Sinnenschärfe);
+			Integer schleichen = getTalentValue(TalentType.Schleichen);
+			Integer verstecken = getTalentValue(TalentType.SichVerstecken);
+			Integer wildnis = getTalentValue(TalentType.Wildnisleben);
 
 			Debug.verbose("selbst " + selbst + " sinnen " + sinnen + " schleich " + schleichen + " versteck "
 					+ verstecken + " wildn " + wildnis);
@@ -185,17 +181,13 @@ public class MetaTalent extends Talent implements JSONable {
 		}
 	}
 
-	private int getTalentValue(String talentName) {
+	private int getTalentValue(TalentType talentName) {
 		Talent talent = hero.getTalent(talentName);
 
 		if (talent == null)
 			return 0;
 		else
 			return talent.getValue();
-	}
-
-	public MetaTalentType getMetaType() {
-		return metaType;
 	}
 
 	/*
@@ -257,7 +249,7 @@ public class MetaTalent extends Talent implements JSONable {
 	public JSONObject toJSONObject() throws JSONException {
 		JSONObject out = new JSONObject();
 
-		out.put(FIELD_META_TYPE, metaType.name());
+		out.put(FIELD_META_TYPE, type.name());
 		out.put(FIELD_UNUSED, unused);
 		out.put(FIELD_FAVORITE, favorite);
 

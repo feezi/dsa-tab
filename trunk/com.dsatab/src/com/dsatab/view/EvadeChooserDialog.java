@@ -16,7 +16,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.activity.MainActivity;
+import com.dsatab.activity.DsaTabActivity;
 import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.enums.AttributeType;
@@ -37,9 +37,9 @@ public class EvadeChooserDialog extends AlertDialog implements android.view.View
 
 	private ListView othersList;
 
-	private MainActivity main;
+	private DsaTabActivity main;
 
-	public EvadeChooserDialog(MainActivity context) {
+	public EvadeChooserDialog(DsaTabActivity context) {
 		super(context);
 		this.main = context;
 		init();

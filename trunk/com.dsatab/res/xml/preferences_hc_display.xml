@@ -39,7 +39,7 @@
             android:title="Würfelleiste konfigurieren">
             <intent                
             	android:targetPackage="com.dsatab"
-            	android:targetClass="com.dsatab.activity.BasePreferenceActivity"
+            	android:targetClass="com.dsatab.activity.DsaTabPreferenceActivity"
             	android:action="VIEW">
             	<extra android:name="layout" android:value="@xml/preferences_hc_display_diceslider" />
             </intent>
@@ -51,7 +51,7 @@
             android:title="Kopfzeile konfigurieren" >
             <intent                
             	android:targetPackage="com.dsatab"
-            	android:targetClass="com.dsatab.activity.BasePreferenceActivity"
+            	android:targetClass="com.dsatab.activity.DsaTabPreferenceActivity"
             	android:action="VIEW">
             	<extra android:name="layout" android:value="@xml/preferences_hc_display_header" />
             </intent>

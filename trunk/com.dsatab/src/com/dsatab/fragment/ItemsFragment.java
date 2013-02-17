@@ -15,55 +15,292 @@
  */
 package com.dsatab.fragment;
 
-import java.util.UUID;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.text.TextUtils;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ListView;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.ActionMode;
+import com.actionbarsherlock.view.ActionMode.Callback;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.animoto.android.views.DraggableGridView;
-import com.animoto.android.views.OnRearrangeListener;
+import com.actionbarsherlock.view.SubMenu;
 import com.dsatab.R;
-import com.dsatab.activity.ItemChooserActivity;
+import com.dsatab.activity.ItemContainerEditActivity;
+import com.dsatab.activity.ItemEditActivity;
 import com.dsatab.data.Hero;
-import com.dsatab.data.ItemLocationInfo;
 import com.dsatab.data.adapter.GridItemAdapter;
+import com.dsatab.data.adapter.ItemContainerAdapter;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
-import com.dsatab.util.Debug;
+import com.dsatab.data.items.ItemContainer;
 import com.dsatab.util.Util;
-import com.dsatab.view.CardView;
-import com.dsatab.view.PageButton;
-import com.dsatab.xml.DataManager;
+import com.dsatab.view.ItemChooserDialog;
+import com.dsatab.view.listener.HeroInventoryChangedListener;
+import com.rokoder.android.lib.support.v4.widget.GridViewCompat;
 
-public class ItemsFragment extends BaseFragment implements View.OnClickListener, OnItemSelectedListener,
-		OnItemClickListener {
+public class ItemsFragment extends BaseListFragment implements OnItemClickListener, HeroInventoryChangedListener {
 
-	private static final int ACTION_CHOOSE_CARD = 2;
+	private static final int MENU_CONTAINER_GROUP = 99;
 
 	private static final String PREF_KEY_LAST_OPEN_SCREEN = "_lastopenscreen";
 
-	private DraggableGridView mWorkspace;
+	private ListView containerList;
+	private ItemContainerAdapter containerAdapter;
+
+	private GridViewCompat itemList;
 
 	private GridItemAdapter itemAdapter;
 
-	private PageButton mPreviousView, mNextView;
 	private int mCurrentScreen = -1;
 
-	private ItemCard selectedItem = null;
+	private ItemChooserDialog itemChooserDialog;
+
+	protected ActionMode mContainerMode;
+	protected Callback mContainerCallback;
+
+	private final class ItemsActionMode implements ActionMode.Callback {
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, com.actionbarsherlock.view.MenuItem item) {
+			boolean notifyChanged = false;
+
+			SparseBooleanArray checkedPositions = itemList.getCheckedItemPositions();
+			if (checkedPositions != null) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
+					if (checkedPositions.valueAt(i)) {
+						Item selectedItem = itemAdapter.getItem(checkedPositions.keyAt(i)).getItem();
+
+						if (item.getGroupId() == MENU_CONTAINER_GROUP) {
+							int newScreen = item.getItemId();
+							if (newScreen != selectedItem.getItemInfo().getScreen()) {
+								getHero().moveItem(selectedItem, newScreen);
+								notifyChanged = true;
+							}
+						} else {
+							switch (item.getItemId()) {
+							case R.id.option_delete:
+								getHero().removeItem(selectedItem);
+								notifyChanged = false;
+								break;
+							case R.id.option_view:
+								ItemEditActivity.view(getActivity(), selectedItem);
+								mode.finish();
+								return true;
+							case R.id.option_edit:
+								ItemEditActivity.edit(getActivity(), selectedItem);
+								mode.finish();
+								return true;
+							case R.id.option_equipped:
+								return false;
+							case R.id.option_move:
+								return false;
+							case R.id.option_equipped_set1:
+								getHero().addEquippedItem(getActivity(), selectedItem, null, null, 0);
+								break;
+							case R.id.option_equipped_set2:
+								getHero().addEquippedItem(getActivity(), selectedItem, null, null, 1);
+								break;
+							case R.id.option_equipped_set3:
+								getHero().addEquippedItem(getActivity(), selectedItem, null, null, 2);
+								break;
+							}
+						}
+
+					}
+
+				}
+				if (notifyChanged) {
+					itemAdapter.notifyDataSetChanged();
+				}
+			}
+			mode.finish();
+			return true;
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			mode.getMenuInflater().inflate(R.menu.item_list_popupmenu, menu);
+
+			com.actionbarsherlock.view.MenuItem move = menu.findItem(R.id.option_move);
+			if (isSetIndex(mCurrentScreen)) {
+				move.setVisible(false);
+			} else {
+				move.setVisible(true);
+				SubMenu moveMenu = move.getSubMenu();
+
+				for (ItemContainer itemContainer : getHero().getItemContainers()) {
+					moveMenu.add(MENU_CONTAINER_GROUP, itemContainer.getId(), Menu.NONE, itemContainer.getName())
+							.setIcon(Util.getDrawableByUri(itemContainer.getIconUri()));
+				}
+			}
+
+			mode.setTitle("Ausrüstung");
+			return true;
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			mMode = null;
+			itemList.clearChoices();
+			itemAdapter.notifyDataSetChanged();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * com.actionbarsherlock.view.ActionMode.Callback#onPrepareActionMode
+		 * (com.actionbarsherlock.view.ActionMode,
+		 * com.actionbarsherlock.view.Menu)
+		 */
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			SparseBooleanArray checkedPositions = itemList.getCheckedItemPositions();
+			int selected = 0;
+			boolean isEquippable = true;
+			boolean changed = false;
+			com.actionbarsherlock.view.MenuItem view = menu.findItem(R.id.option_view);
+			com.actionbarsherlock.view.MenuItem equipped = menu.findItem(R.id.option_equipped);
+			if (checkedPositions != null) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
+					if (checkedPositions.valueAt(i)) {
+						Item selectedItem = itemAdapter.getItem(checkedPositions.keyAt(i)).getItem();
+						selected++;
+
+						isEquippable &= selectedItem.isEquipable();
+					}
+				}
+			}
+
+			mode.setSubtitle(selected + " ausgewählt");
+
+			if (selected == 1) {
+				if (!view.isEnabled()) {
+					view.setEnabled(true);
+					changed = true;
+				}
+			} else {
+				if (view.isEnabled()) {
+					view.setEnabled(false);
+					changed = true;
+				}
+			}
+
+			if (isEquippable) {
+				if (!equipped.isEnabled()) {
+					equipped.setEnabled(true);
+					changed = true;
+				}
+			} else {
+				if (equipped.isEnabled()) {
+					equipped.setEnabled(false);
+					changed = true;
+				}
+			}
+			return changed;
+		}
+	}
+
+	private final class ItemsContainerActionMode implements ActionMode.Callback {
+
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, com.actionbarsherlock.view.MenuItem item) {
+			boolean notifyChanged = false;
+
+			SparseBooleanArray checkedPositions = containerList.getCheckedItemPositions();
+			if (checkedPositions != null) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
+					if (checkedPositions.valueAt(i)) {
+
+						ItemContainer itemContainer = (ItemContainer) containerList.getItemAtPosition(checkedPositions
+								.keyAt(i));
+
+						switch (item.getItemId()) {
+						case R.id.option_delete:
+							getHero().removeItemContainer(itemContainer);
+							notifyChanged = true;
+							break;
+						case R.id.option_edit: {
+							Intent intent = new Intent(getActivity(), ItemContainerEditActivity.class);
+							intent.putExtra(ItemContainerEditFragment.INTENT_ITEM_CHOOSER_ID, itemContainer.getId());
+							startActivity(intent);
+							mode.finish();
+							return true;
+						}
+						case R.id.option_add: {
+							Intent intent = new Intent(getActivity(), ItemContainerEditActivity.class);
+							startActivity(intent);
+							mode.finish();
+							return true;
+						}
+						}
+					}
+
+				}
+				if (notifyChanged) {
+					updateContainerList();
+					containerAdapter.notifyDataSetChanged();
+				}
+			}
+			mode.finish();
+			return true;
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			mode.getMenuInflater().inflate(R.menu.item_container_popupmenu, menu);
+			mode.setTitle("Behälter");
+			return true;
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			mContainerMode = null;
+			containerAdapter.notifyDataSetChanged();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * com.actionbarsherlock.view.ActionMode.Callback#onPrepareActionMode
+		 * (com.actionbarsherlock.view.ActionMode,
+		 * com.actionbarsherlock.view.Menu)
+		 */
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			SparseBooleanArray checkedPositions = containerList.getCheckedItemPositions();
+			if (checkedPositions != null) {
+				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
+					if (checkedPositions.valueAt(i)) {
+
+						ItemContainer itemContainer = (ItemContainer) containerList.getItemAtPosition(checkedPositions
+								.keyAt(i));
+
+						MenuItem editItem = menu.findItem(R.id.option_edit);
+						MenuItem deleteItem = menu.findItem(R.id.option_delete);
+
+						editItem.setEnabled(itemContainer.getId() >= Hero.FIRST_INVENTORY_SCREEN);
+						deleteItem.setEnabled(itemContainer.getId() > Hero.FIRST_INVENTORY_SCREEN);
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -74,87 +311,63 @@ public class ItemsFragment extends BaseFragment implements View.OnClickListener,
 	@Override
 	public void onHeroLoaded(Hero hero) {
 
-		itemAdapter = new GridItemAdapter(getActivity());
+		updateContainerList();
+
+	}
+
+	/**
+	 * 
+	 */
+	private void updateContainerList() {
+		ItemContainer set1 = new ItemContainer(0, "Set I");
+		set1.setIconUri(Util.getUriForResourceId(Util.getThemeResourceId(getActivity(), R.attr.imgBarSet1)));
+
+		ItemContainer set2 = new ItemContainer(1, "Set II");
+		set2.setIconUri(Util.getUriForResourceId(Util.getThemeResourceId(getActivity(), R.attr.imgBarSet2)));
+
+		ItemContainer set3 = new ItemContainer(2, "Set III");
+		set3.setIconUri(Util.getUriForResourceId(Util.getThemeResourceId(getActivity(), R.attr.imgBarSet3)));
+
+		containerAdapter = new ItemContainerAdapter(getActivity(), getHero().getItemContainers());
+		containerAdapter.insert(set1, 0);
+		containerAdapter.insert(set2, 1);
+		containerAdapter.insert(set3, 2);
+		containerList.setAdapter(containerAdapter);
 
 		SharedPreferences pref = getActivity().getPreferences(Activity.MODE_PRIVATE);
 		int screen = pref.getInt(PREF_KEY_LAST_OPEN_SCREEN, 0);
+
 		showScreen(screen);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onActivityResult(int, int,
-	 * android.content.Intent)
-	 */
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	private void showItemPopup() {
+		if (itemChooserDialog == null) {
+			itemChooserDialog = new ItemChooserDialog(getActivity());
+			itemChooserDialog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-		if (requestCode == ACTION_CHOOSE_CARD && resultCode == Activity.RESULT_OK) {
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					Item item = itemChooserDialog.getItem(position);
 
-			Item item = null;
-
-			final int cellNumber = data.getIntExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CELL,
-					ItemLocationInfo.INVALID_POSITION);
-
-			UUID id = (UUID) data.getSerializableExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_ID);
-			String cardName = data.getStringExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_NAME);
-
-			Hero hero = getHero();
-
-			if (id != null) {
-				item = hero.getItem(id);
-			}
-			if (item == null && !TextUtils.isEmpty(cardName)) {
-
-				// on a set page check whether he already has the item and reuse
-				// it
-				if (getActiveSet() >= 0) {
-					item = hero.getItem(cardName);
-				}
-				if (item == null) {
-					Item card = DataManager.getItemByName(cardName);
-					item = (Item) card.duplicate();
-				}
-			}
-
-			if (item != null) {
-
-				if (cellNumber != ItemLocationInfo.INVALID_POSITION && item.getItemInfo().getCellNumber() == cellNumber) {
-					// the icon is already in the screen no need to add it again
-				} else {
-					if (selectedItem != null && selectedItem.getItem().equals(item.getName())) {
-						// the icon is already in the screen no need to add it
-						// again
-					} else {
-						int cell = cellNumber;
-						if (selectedItem != null) {
-							cell = itemAdapter.getPosition(selectedItem);
-
-							if (selectedItem instanceof EquippedItem)
-								getHero().removeEquippedItem((EquippedItem) selectedItem);
-							else
-								getHero().removeItem(selectedItem.getItem());
-						}
-
-						item.getItemInfo().setCellNumber(cell);
-						item.getItemInfo().setScreen(mCurrentScreen);
-
-						CardView cardView = (CardView) mWorkspace.getChildAt(cell);
-						if (cardView != null) {
-							cardView.setItem(item);
-						}
+					if (item != null) {
+						item = item.duplicate();
 						if (isSetIndex(mCurrentScreen)) {
-							hero.addEquippedItem(getBaseActivity(), item, null, null, getActiveSet());
+							getHero().addEquippedItem(getBaseActivity(), item, null, null, getActiveSet());
 						} else {
-							hero.addItem(item);
+							item.getItemInfo().setScreen(mCurrentScreen);
+							getHero().addItem(item);
 						}
 					}
+					itemChooserDialog.dismiss();
 				}
-			}
+			});
 		}
 
-		super.onActivityResult(requestCode, resultCode, data);
+		if (itemAdapter.getFilter().getTypes() != null && !itemAdapter.getFilter().getTypes().isEmpty()) {
+			itemChooserDialog.setItemTypes(itemAdapter.getFilter().getTypes());
+		}
+
+		itemChooserDialog.show();
 	}
 
 	public static boolean isSetIndex(int index) {
@@ -177,6 +390,9 @@ public class ItemsFragment extends BaseFragment implements View.OnClickListener,
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+
+		mCallback = new ItemsActionMode();
+		mContainerCallback = new ItemsContainerActionMode();
 	}
 
 	/*
@@ -189,6 +405,13 @@ public class ItemsFragment extends BaseFragment implements View.OnClickListener,
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.item_grid_menu, menu);
+
+		SubMenu gridSet = menu.findItem(R.id.option_itemgrid_set).getSubMenu();
+
+		for (ItemContainer itemContainer : getHero().getItemContainers()) {
+			gridSet.add(MENU_CONTAINER_GROUP, itemContainer.getId(), Menu.NONE, itemContainer.getName()).setIcon(
+					Util.getDrawableByUri(itemContainer.getIconUri()));
+		}
 		updateActionBarIcons(menu, mCurrentScreen);
 	}
 
@@ -216,7 +439,7 @@ public class ItemsFragment extends BaseFragment implements View.OnClickListener,
 
 		switch (item.getItemId()) {
 		case R.id.option_item_add_table:
-			selectItem(null);
+			showItemPopup();
 			return true;
 		case R.id.option_itemgrid_set1:
 			showScreen(0);
@@ -230,11 +453,12 @@ public class ItemsFragment extends BaseFragment implements View.OnClickListener,
 			showScreen(2);
 			getSherlockActivity().invalidateOptionsMenu();
 			return true;
-		case R.id.option_itemgrid_inventory:
-			showScreen(Hero.MAXIMUM_SET_NUMBER);
-			getSherlockActivity().invalidateOptionsMenu();
-			return true;
 		default:
+			if (item.getGroupId() == MENU_CONTAINER_GROUP) {
+				showScreen(item.getItemId());
+				getSherlockActivity().invalidateOptionsMenu();
+				return true;
+			}
 			return super.onOptionsItemSelected(item);
 		}
 	}
@@ -250,7 +474,8 @@ public class ItemsFragment extends BaseFragment implements View.OnClickListener,
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = configureContainerView(inflater.inflate(R.layout.sheet_items_table, container, false));
 
-		mWorkspace = (DraggableGridView) root.findViewById(R.id.workspace);
+		itemList = (GridViewCompat) root.findViewById(R.id.workspace);
+		containerList = (ListView) root.findViewById(R.id.container_list);
 
 		return root;
 	}
@@ -265,29 +490,38 @@ public class ItemsFragment extends BaseFragment implements View.OnClickListener,
 		// 192*288
 		// 120*180
 
-		mPreviousView = (PageButton) findViewById(R.id.previous_screen);
-		mNextView = (PageButton) findViewById(R.id.next_screen);
+		itemAdapter = new GridItemAdapter(getActivity());
+		itemList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+		itemList.setAdapter(itemAdapter);
+		itemList.setOnItemClickListener(this);
+		itemList.setOnItemLongClickListener(this);
 
-		mPreviousView.setMaxLevel(Hero.MAXIMUM_SET_NUMBER);
-		mNextView.setMaxLevel(Hero.MAXIMUM_SET_NUMBER);
-
-		mPreviousView.setHapticFeedbackEnabled(false);
-		mPreviousView.setOnClickListener(this);
-		mNextView.setHapticFeedbackEnabled(false);
-		mNextView.setOnClickListener(this);
-
-		mWorkspace.setOnItemClickListener(this);
-		mWorkspace.setOnRearrangeListener(new OnRearrangeListener() {
-			public void onRearrange(int oldIndex, int newIndex) {
-
-				Debug.verbose("Moving from " + oldIndex + " to " + newIndex);
-
-				ItemCard oldItemCard = itemAdapter.getItem(oldIndex);
-				ItemCard newItemCard = itemAdapter.getItem(newIndex);
-				int oldItemIndex = oldItemCard.getItemInfo().getCellNumber();
-
-				oldItemCard.getItemInfo().setCellNumber(newItemCard.getItemInfo().getCellNumber());
-				newItemCard.getItemInfo().setCellNumber(oldItemIndex);
+		containerList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+		containerList.setOnItemClickListener(this);
+		containerList.setOnItemLongClickListener(new ListView.OnItemLongClickListener() {
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see
+			 * android.widget.AdapterView.OnItemLongClickListener#onItemLongClick
+			 * (android.widget.AdapterView, android.view.View, int, long)
+			 */
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				containerList.setItemChecked(position, true);
+				showScreen(position);
+				if (mContainerMode == null) {
+					if (mContainerCallback != null) {
+						mContainerMode = ((SherlockFragmentActivity) getActivity()).startActionMode(mContainerCallback);
+						customizeActionModeCloseButton();
+						mContainerMode.invalidate();
+					} else {
+						return false;
+					}
+				} else {
+					mContainerMode.invalidate();
+				}
+				return false;
 			}
 		});
 
@@ -303,21 +537,25 @@ public class ItemsFragment extends BaseFragment implements View.OnClickListener,
 	 */
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		if (view instanceof CardView) {
-			CardView cardView = (CardView) view;
-			if (cardView.getItem() != null) {
-				selectItem(cardView.getItem());
+		if (parent == containerList) {
+			if (mContainerMode != null) {
+				mContainerMode.invalidate();
+			}
+			containerList.setItemChecked(position, true);
+			showScreen(position);
+		} else {
+			if (mMode == null) {
+				itemList.setItemChecked(position, false);
+				ItemEditActivity.view(getActivity(), itemAdapter.getItem(position));
+			} else {
+				super.onItemClick(parent, view, position, id);
 			}
 		}
 	}
 
-	private void updateIndicators(int screen) {
-		mPreviousView.setLevel(screen);
-		mNextView.setLevel(Hero.MAXIMUM_SET_NUMBER - screen);
-	}
-
 	private void updateActionBarIcons(Menu menu, int newScreen) {
 		MenuItem item = menu.findItem(R.id.option_itemgrid_set);
+
 		switch (newScreen) {
 		case 0:
 			item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarSet1));
@@ -331,34 +569,15 @@ public class ItemsFragment extends BaseFragment implements View.OnClickListener,
 			item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarSet3));
 			item.setTitle("Set");
 			break;
-		case Hero.MAXIMUM_SET_NUMBER:
-			item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarSet3));
-			item.setTitle("Rucksack");
+		default:
+			ItemContainer itemContainer = getHero().getItemContainer(newScreen);
+			if (itemContainer != null) {
+				item.setIcon(Util.getDrawableByUri(itemContainer.getIconUri()));
+				item.setTitle(itemContainer.getName());
+			}
 			break;
 		}
 
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.view.drag.Workspace.OnScreenChangeListener#onScreenChange(int,
-	 * int)
-	 */
-	public void onScreenChange(int oldScreen, int newScreen) {
-		updateIndicators(newScreen);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.view.drag.Workspace.OnScreenChangeListener#onScreenAdded(int)
-	 */
-	public void onScreenAdded(int newScreen) {
-		getSherlockActivity().invalidateOptionsMenu();
-		updateIndicators(mCurrentScreen);
 	}
 
 	/*
@@ -376,162 +595,37 @@ public class ItemsFragment extends BaseFragment implements View.OnClickListener,
 		edit.commit();
 	}
 
-	private void fillBodyItems(Hero hero) {
-
-		// mWorkspace.clear();
-
-		if (hero != null && mCurrentScreen >= 0) {
-
+	private void showScreen(int screen) {
+		if (getHero() != null && screen >= 0) {
+			if (mMode != null) {
+				mMode.finish();
+			}
 			itemAdapter.setNotifyOnChange(false);
 			itemAdapter.clear();
-			mWorkspace.setTag(mCurrentScreen);
+			itemList.clearChoicesC();
 
-			if (isSetIndex(mCurrentScreen)) {
-
-				for (EquippedItem item : hero.getEquippedItems(mCurrentScreen)) {
-					if (item.getItem() == null) {
-						Debug.verbose("Skipping " + item.getName() + "because equippedItem.getItem was null");
-						continue;
-					}
-
+			if (isSetIndex(screen)) {
+				mCurrentScreen = screen;
+				for (EquippedItem item : getHero().getEquippedItems(screen)) {
 					itemAdapter.add(item);
-					// success = mWorkspace.addItemInScreen(item);
-
-					// is unable to add item at specified position try again
-					// without position info (will be added in first empty slot)
-					// if (!success
-					// && (item.getItemInfo().getCellX() !=
-					// ItemLocationInfo.INVALID_POSITION || item
-					// .getItemInfo().getCellY() !=
-					// ItemLocationInfo.INVALID_POSITION)) {
-					//
-					// item.getItemInfo().setCellX(ItemLocationInfo.INVALID_POSITION);
-					// item.getItemInfo().setCellY(ItemLocationInfo.INVALID_POSITION);
-					// success = mWorkspace.addItemInScreen(item);
-					// }
-					// if (!success) {
-					// Debug.verbose("Skipping " + item.getName() +
-					// "because inventory page was FULL");
-					// }
-
 				}
 			} else {
-				for (Item item : hero.getItems()) {
+				ItemContainer itemContainer = getHero().getItemContainer(screen);
+				if (itemContainer == null) {
+					itemContainer = getHero().getItemContainers().get(0);
+				}
+				mCurrentScreen = itemContainer.getId();
+				for (Item item : itemContainer.getItems()) {
 					itemAdapter.add(item);
-					// if (item.getItemInfo().getScreen() !=
-					// ItemLocationInfo.INVALID_POSITION
-					// && item.getItemInfo().getScreen() != mCurrentScreen)
-					// continue;
-					//
-					// success = mWorkspace.addItemInScreen(item);
-					//
-					// // is unable to add item at specified position try again
-					// // without position info (will be added in first empty
-					// slot)
-					// if (!success
-					// && (item.getItemInfo().getCellX() !=
-					// ItemLocationInfo.INVALID_POSITION || item
-					// .getItemInfo().getCellY() !=
-					// ItemLocationInfo.INVALID_POSITION)) {
-					//
-					// item.getItemInfo().setCellX(ItemLocationInfo.INVALID_POSITION);
-					// item.getItemInfo().setCellY(ItemLocationInfo.INVALID_POSITION);
-					// success = mWorkspace.addItemInScreen(item);
-					// }
-					//
-					// if (!success) {
-					// Debug.warning("Unable to add item " + item.getTitle() +
-					// "screen " + mCurrentScreen + " full");
-					// break;
-					// }
 				}
 			}
-			itemAdapter.prepare();
-			itemAdapter.notifyDataSetChanged();
-		}
 
-		mWorkspace.removeAllViews();
-		for (int i = 0; i < itemAdapter.getCount(); i++) {
-			View view = itemAdapter.getView(i, null, mWorkspace);
-			view.setDuplicateParentStateEnabled(false);
-			mWorkspace.addView(view);
-		}
-	}
+			itemAdapter.setNotifyOnChange(true);
+			itemAdapter.sort(ItemCard.CELL_NUMBER_COMPARATOR);
 
-	private void showScreen(int screen) {
+			containerList.setItemChecked(mCurrentScreen, true);
 
-		if (screen >= 0 && screen <= Hero.MAXIMUM_SET_NUMBER) {
-			int oldScreen = mCurrentScreen;
-
-			mCurrentScreen = screen;
-
-			fillBodyItems(getHero());
-
-			onScreenChange(oldScreen, mCurrentScreen);
-		}
-	}
-
-	private void selectItem(ItemCard itemCard) {
-		if (itemCard != null)
-			selectedItem = itemCard;
-		else
-			selectedItem = null;
-
-		Intent intent = new Intent(getActivity(), ItemChooserActivity.class);
-
-		if (selectedItem != null) {
-			Item item = selectedItem.getItem();
-			intent.setAction(Intent.ACTION_PICK);
-			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_ID, item.getId());
-			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_NAME, item.getName());
-			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CATEGORY, item.getCategory());
-			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CELL, itemCard.getItemInfo().getCellNumber());
-		}
-
-		getActivity().startActivityForResult(intent, ACTION_CHOOSE_CARD);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.widget.AdapterView.OnItemSelectedListener#onItemSelected(android
-	 * .widget.AdapterView, android.view.View, int, long)
-	 */
-	@Override
-	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-		if (position != AdapterView.INVALID_POSITION) {
-			showScreen(position);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.widget.AdapterView.OnItemSelectedListener#onNothingSelected(android
-	 * .widget.AdapterView)
-	 */
-	@Override
-	public void onNothingSelected(AdapterView<?> parent) {
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-	 */
-	@Override
-	public void onClick(View v) {
-
-		switch (v.getId()) {
-		case R.id.next_screen:
-			showScreen(mCurrentScreen + 1);
-			return;
-		case R.id.previous_screen:
-			showScreen(mCurrentScreen - 1);
-			return;
+			getSherlockActivity().invalidateOptionsMenu();
 		}
 	}
 
@@ -553,6 +647,7 @@ public class ItemsFragment extends BaseFragment implements View.OnClickListener,
 			itemAdapter.add(item);
 			itemAdapter.sort(ItemCard.CELL_NUMBER_COMPARATOR);
 		}
+		containerAdapter.notifyDataSetChanged();
 	}
 
 	/*
@@ -564,7 +659,7 @@ public class ItemsFragment extends BaseFragment implements View.OnClickListener,
 	 */
 	@Override
 	public void onItemChanged(EquippedItem item) {
-		if (item.getItemInfo().getScreen() == mCurrentScreen) {
+		if (item.getSet() == mCurrentScreen) {
 			itemAdapter.sort(ItemCard.CELL_NUMBER_COMPARATOR);
 		}
 	}
@@ -595,6 +690,7 @@ public class ItemsFragment extends BaseFragment implements View.OnClickListener,
 		if (item.getItemInfo().getScreen() == mCurrentScreen) {
 			itemAdapter.remove(item);
 		}
+		containerAdapter.notifyDataSetChanged();
 	}
 
 	/*
@@ -606,7 +702,7 @@ public class ItemsFragment extends BaseFragment implements View.OnClickListener,
 	 */
 	@Override
 	public void onItemEquipped(EquippedItem item) {
-		if (item.getItemInfo().getScreen() == mCurrentScreen) {
+		if (item.getSet() == mCurrentScreen) {
 			itemAdapter.add(item);
 			itemAdapter.sort(ItemCard.CELL_NUMBER_COMPARATOR);
 		}
@@ -621,9 +717,57 @@ public class ItemsFragment extends BaseFragment implements View.OnClickListener,
 	 */
 	@Override
 	public void onItemUnequipped(EquippedItem item) {
-		if (item.getItemInfo().getScreen() == mCurrentScreen) {
+		if (item.getSet() == mCurrentScreen) {
 			itemAdapter.remove(item);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onActiveSetChanged
+	 * (int, int)
+	 */
+	@Override
+	public void onActiveSetChanged(int newSet, int oldSet) {
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemContainerAdded
+	 * (com.dsatab.data.items.ItemContainer)
+	 */
+	@Override
+	public void onItemContainerAdded(ItemContainer itemContainer) {
+		containerAdapter.add(itemContainer);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemContainerRemoved
+	 * (com.dsatab.data.items.ItemContainer)
+	 */
+	@Override
+	public void onItemContainerRemoved(ItemContainer itemContainer) {
+		containerAdapter.remove(itemContainer);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemContainerChanged
+	 * (com.dsatab.data.items.ItemContainer)
+	 */
+	@Override
+	public void onItemContainerChanged(ItemContainer itemContainer) {
+		containerAdapter.notifyDataSetChanged();
 	}
 
 }

@@ -16,13 +16,20 @@
  */
 package com.dsatab.data;
 
+import android.os.SystemClock;
+
 /**
  * @author Ganymede
  * 
  */
 public abstract class BaseProbe implements Probe {
 
+	public static long cacheValidationDate = 0;
+
 	protected ProbeInfo probeInfo;
+
+	protected int modCache = Integer.MIN_VALUE;
+	protected long cacheDate = 0;
 
 	/**
 	 * 
@@ -33,6 +40,22 @@ public abstract class BaseProbe implements Probe {
 
 	public ProbeInfo getProbeInfo() {
 		return probeInfo;
+	}
+
+	public int getModCache() {
+		if (cacheDate > cacheValidationDate)
+			return modCache;
+		else
+			return Integer.MIN_VALUE;
+	}
+
+	public void setModCache(int cacheValue) {
+		this.modCache = cacheValue;
+		this.cacheDate = SystemClock.uptimeMillis();
+	}
+
+	public void clearCache() {
+		this.modCache = Integer.MIN_VALUE;
 	}
 
 }

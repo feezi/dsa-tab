@@ -6,6 +6,7 @@ import java.util.EnumSet;
 import android.text.TextUtils;
 
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.data.modifier.RulesModificator.ModificatorType;
 import com.dsatab.util.Debug;
 import com.dsatab.xml.DataManager;
 
@@ -59,6 +60,16 @@ public class Spell extends MarkableElement implements Value {
 			info = new SpellInfo();
 			info.setName(name);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.Probe#getModificatorType()
+	 */
+	@Override
+	public ModificatorType getModificatorType() {
+		return ModificatorType.Spell;
 	}
 
 	public boolean hasFlag(Flags flag) {

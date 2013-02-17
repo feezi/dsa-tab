@@ -1,16 +1,20 @@
 package com.dsatab.data.modifier;
 
+import java.util.Arrays;
+import java.util.List;
+
+import com.dsatab.data.Art;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.CombatDistanceTalent;
 import com.dsatab.data.CombatMeleeAttribute;
 import com.dsatab.data.CombatProbe;
 import com.dsatab.data.CombatShieldTalent;
 import com.dsatab.data.Hero;
-import com.dsatab.data.Modifier;
 import com.dsatab.data.Probe;
 import com.dsatab.data.Spell;
 import com.dsatab.data.Talent;
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.data.modifier.RulesModificator.ModificatorType;
 
 public class LeModificator extends AbstractModificator {
 
@@ -41,18 +45,32 @@ public class LeModificator extends AbstractModificator {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.dsatab.data.modifier.Modificator#getAffectedModifierTypes()
+	 */
+	@Override
+	public List<ModificatorType> getAffectedModifierTypes() {
+		return Arrays.asList(ModificatorType.ALL);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.modifier.Modificator#affects(com.dsatab.data.enums.
+	 * AttributeType)
+	 */
+	@Override
+	public boolean affects(AttributeType type) {
+		return AttributeType.isEigenschaft(type) || AttributeType.isFight(type);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.dsatab.data.modifier.Modificator#affects(com.dsatab.data.Probe)
 	 */
 	@Override
-	public boolean affects(Probe probe) {
-		if (probe instanceof Attribute) {
-			Attribute attribute = (Attribute) probe;
-			if (AttributeType.isEigenschaft(attribute.getType()) || AttributeType.isFight(attribute.getType())) {
-				return true;
-			} else {
-				return false;
-			}
-		} else if (probe instanceof Talent || probe instanceof Spell) {
+	public boolean affect(Probe probe) {
+		if (probe instanceof Talent || probe instanceof Spell) {
 			return true;
 		} else if (probe instanceof CombatProbe || probe instanceof CombatShieldTalent
 				|| probe instanceof CombatDistanceTalent || probe instanceof CombatMeleeAttribute) {
@@ -60,6 +78,17 @@ public class LeModificator extends AbstractModificator {
 		} else {
 			return false;
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.modifier.Modificator#fulfills(com.dsatab.data.Hero)
+	 */
+	@Override
+	public boolean fulfills() {
+		float ratio = hero.getRatio(AttributeType.Lebensenergie_Aktuell);
+		return ratio < LEVEL_1;
 	}
 
 	/*
@@ -99,15 +128,15 @@ public class LeModificator extends AbstractModificator {
 	}
 
 	@Override
-	public Modifier getModifier(Probe probe) {
+	public int getModifierValue(Probe probe) {
 		if (isActive()) {
 			int modifier = 0;
 			float ratio = hero.getRatio(AttributeType.Lebensenergie_Aktuell);
 
 			if (probe instanceof Attribute) {
 				Attribute attribute = (Attribute) probe;
-				return getModifier(attribute.getType());
-			} else if (probe instanceof Talent || probe instanceof Spell) {
+				return getModifierValue(attribute.getType());
+			} else if (probe instanceof Talent || probe instanceof Spell || probe instanceof Art) {
 
 				if (ratio < LEVEL_3) {
 					modifier = -9;
@@ -127,17 +156,14 @@ public class LeModificator extends AbstractModificator {
 				}
 			}
 
-			this.modifier.setModifier(modifier);
-			this.modifier.setTitle(getModificatorName());
-			this.modifier.setDescription(getModificatorInfo());
-			return this.modifier;
+			return modifier;
 		} else {
-			return null;
+			return 0;
 		}
 	}
 
 	@Override
-	public Modifier getModifier(AttributeType type) {
+	public int getModifierValue(AttributeType type) {
 		if (isActive()) {
 			int modifier = 0;
 			float ratio = hero.getRatio(AttributeType.Lebensenergie_Aktuell);
@@ -156,12 +182,9 @@ public class LeModificator extends AbstractModificator {
 				}
 			}
 
-			this.modifier.setModifier(modifier);
-			this.modifier.setTitle(getModificatorName());
-			this.modifier.setDescription(getModificatorInfo());
-			return this.modifier;
+			return modifier;
 		} else {
-			return null;
+			return 0;
 		}
 	}
 

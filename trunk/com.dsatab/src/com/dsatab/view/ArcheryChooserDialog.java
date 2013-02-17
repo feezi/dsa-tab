@@ -17,10 +17,10 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.activity.MainActivity;
+import com.dsatab.activity.DsaTabActivity;
 import com.dsatab.data.CombatProbe;
-import com.dsatab.data.SpecialFeature;
 import com.dsatab.data.adapter.SpinnerSimpleAdapter;
+import com.dsatab.data.enums.FeatureType;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
@@ -47,9 +47,9 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 
 	private int erschwernis;
 
-	private MainActivity main;
+	private DsaTabActivity main;
 
-	public ArcheryChooserDialog(MainActivity context) {
+	public ArcheryChooserDialog(DsaTabActivity context) {
 		super(context);
 		this.main = context;
 		init();
@@ -67,7 +67,7 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 			text1.setText(item.getTitle());
 			text2.setText(item.getInfo());
 		}
-		iconLeft.setImageResource(item.getResourceId());
+		iconLeft.setImageURI(item.getIconUri());
 		iconLeft.setOnClickListener(this);
 	}
 
@@ -211,11 +211,11 @@ public class ArcheryChooserDialog extends AlertDialog implements android.view.Vi
 		iconRight.setVisibility(View.GONE);
 
 		String[] modificationStrings = getContext().getResources().getStringArray(R.array.archeryModificationStrings);
-		if (main.getHero().hasFeature(SpecialFeature.MEISTERSCHUETZE)) {
+		if (main.getHero().hasFeature(FeatureType.Meisterschütze)) {
 			modificationStrings[SCHNELLSCHUSS_INDEX] = "Schnellschuß +0";
 			modificationValues[SCHNELLSCHUSS_INDEX] = 0;
 
-		} else if (main.getHero().hasFeature(SpecialFeature.SCHARFSCHUETZE)) {
+		} else if (main.getHero().hasFeature(FeatureType.Scharfschütze)) {
 			modificationStrings[SCHNELLSCHUSS_INDEX] = "Schnellschuß +1";
 			modificationValues[SCHNELLSCHUSS_INDEX] = 1;
 		}

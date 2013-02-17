@@ -8,9 +8,11 @@
         android:id="@+id/popup_item_list"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/popup_item_new"
         android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="true"
         android:layout_below="@+id/popup_item_category" >
+
     </ListView>
 
     <Spinner
@@ -41,5 +43,15 @@
         android:hint="@string/label_search"
         android:visibility="invisible" >
     </EditText>
+
+    <Button
+        android:id="@+id/popup_item_new"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableLeft="?attr/imgSwordAdd"
+        android:layout_alignLeft="@+id/popup_item_list"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/popup_item_list"
+        android:text="Neuen Gegenstand erstellen" />
 
 </RelativeLayout>

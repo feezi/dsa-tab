@@ -2,7 +2,7 @@ package com.dsatab.data.items;
 
 import android.text.TextUtils;
 
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.data.Dice;
@@ -90,7 +90,7 @@ public class Weapon extends CloseCombatItem {
 
 	@Override
 	public int getResourceId() {
-		switch (getCombatTalentType()) {
+		switch (getTalentType()) {
 		case Anderthalbhänder:
 		case Zweihandschwerter:
 			return R.drawable.icon_2schwert;
@@ -152,19 +152,19 @@ public class Weapon extends CloseCombatItem {
 				dice.constant += tpModifier;
 				dice.constant += modifier;
 				if (tpModifier + modifier > 0) {
-					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen),
+					info.appendColor(DsaTabApplication.getInstance().getResources().getColor(R.color.ValueGreen),
 							dice.toString());
 				} else {
-					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed),
+					info.appendColor(DsaTabApplication.getInstance().getResources().getColor(R.color.ValueRed),
 							dice.toString());
 				}
 			} else {
 				info.append(tp);
 				if (tpModifier + modifier > 0) {
-					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueGreen),
+					info.appendColor(DsaTabApplication.getInstance().getResources().getColor(R.color.ValueGreen),
 							Util.toProbe(tpModifier + modifier));
 				} else {
-					info.appendColor(DSATabApplication.getInstance().getResources().getColor(R.color.ValueRed),
+					info.appendColor(DsaTabApplication.getInstance().getResources().getColor(R.color.ValueRed),
 							Util.toProbe(tpModifier + modifier));
 				}
 			}

@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.activity.MainActivity.ProbeListener;
+import com.dsatab.activity.DsaTabActivity.ProbeListener;
 import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.data.CombatProbe;
 import com.dsatab.data.Hero;
@@ -164,7 +164,8 @@ public class FightEquippedItemAdapter extends OpenArrayAdapter<EquippedItem> {
 		// }
 
 		StyleableSpannableStringBuilder title = new StyleableSpannableStringBuilder();
-		title.append(item.getTitle());
+		if (!TextUtils.isEmpty(item.getTitle()))
+			title.append(item.getTitle());
 
 		holder.text2.setText(itemSpecification.getInfo());
 
@@ -199,7 +200,7 @@ public class FightEquippedItemAdapter extends OpenArrayAdapter<EquippedItem> {
 		} else if (itemSpecification instanceof Shield) {
 			holder.icon1.setVisibility(View.INVISIBLE);
 			if (equippedItem.getUsageType() == UsageType.Paradewaffe)
-				holder.icon2.setImageResource(item.getResourceId());
+				holder.icon2.setImageURI(item.getIconUri());
 			else
 				holder.icon2.setImageResource(R.drawable.icon_shield);
 

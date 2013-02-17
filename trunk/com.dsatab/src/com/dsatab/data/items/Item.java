@@ -1,6 +1,5 @@
 package com.dsatab.data.items;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,11 +7,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+import android.net.Uri;
 import android.text.TextUtils;
 
-import com.dsatab.DSATabApplication;
 import com.dsatab.data.ItemLocationInfo;
-import com.dsatab.util.Debug;
+import com.dsatab.util.Util;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
@@ -20,6 +19,11 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "item")
 public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard {
+
+	/**
+	 * 
+	 */
+	public static final String ITEM_TYPES_SEP = ";";
 
 	private static final long serialVersionUID = 7011220901677479470L;
 
@@ -35,8 +39,6 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		}
 	};
 
-	public static final String POSTFIX = ".jpg";
-
 	@DatabaseField(id = true, columnName = "_id")
 	private UUID id;
 
@@ -49,7 +51,19 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	@DatabaseField
 	private String itemTypes;
 	@DatabaseField
-	public String path = null;
+	public String imageUriHelper = null;
+	@DatabaseField
+	public String iconUriHelper = null;
+	/**
+	 * in kreuzer
+	 */
+	@DatabaseField
+	private int price;
+	/**
+	 * in unzen
+	 */
+	@DatabaseField
+	private float weight;
 
 	// we need these wrapper since ormlite does not inheritance for
 	// ItemSpecification yet. All these collections will be merged into
@@ -65,12 +79,14 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	@ForeignCollectionField(eager = true)
 	private ForeignCollection<MiscSpecification> miscSpecsHelper;
 
+	// transient fields
+
 	private List<ItemSpecification> itemSpecs;
 
 	private ItemLocationInfo itemInfo;
 
 	private Boolean hasCardImage;
-	private File imageFile;
+	private Uri iconUri = null, imageUri = null;
 	private int count;
 	private String slot;
 
@@ -104,8 +120,8 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 
 		if (itemSpecification.getType() != null) {
 			if (TextUtils.isEmpty(itemTypes))
-				itemTypes = ";";
-			itemTypes = itemTypes.concat(itemSpecification.getType().name() + ";");
+				itemTypes = ITEM_TYPES_SEP;
+			itemTypes = itemTypes.concat(itemSpecification.getType().name() + ITEM_TYPES_SEP);
 		}
 	}
 
@@ -166,6 +182,22 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		return slot;
 	}
 
+	public int getPrice() {
+		return price;
+	}
+
+	public void setPrice(int price) {
+		this.price = price;
+	}
+
+	public float getWeight() {
+		return weight;
+	}
+
+	public void setWeight(float weight) {
+		this.weight = weight;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -176,8 +208,12 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		return this;
 	}
 
+	public boolean hasTitle() {
+		return !TextUtils.isEmpty(title);
+	}
+
 	public String getTitle() {
-		if (title != null)
+		if (!TextUtils.isEmpty(title))
 			return title;
 		else
 			return getName();
@@ -199,51 +235,22 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		this.slot = slot;
 	}
 
-	public String getPath() {
-		return path;
-	}
-
 	public void setCategory(String category) {
 		this.category = category;
 	}
 
 	public void setTitle(String title) {
-		this.title = title;
+		if (TextUtils.isEmpty(title))
+			this.title = null;
+		else
+			this.title = title;
 	}
 
-	public void setPath(String path) {
-		if (TextUtils.isEmpty(path))
-			path = null;
-
-		this.imageFile = null;
-		this.hasCardImage = null;
-		this.path = path;
-	}
-
-	public File getFile() {
-		if (imageFile == null) {
-			if (!TextUtils.isEmpty(path)) {
-				imageFile = new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), path);
-				if (!imageFile.exists())
-					imageFile = null;
-			}
-
-			// try to find a image with title of item in cards directory
-			if (imageFile == null && !TextUtils.isEmpty(title)) {
-				imageFile = new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), title + POSTFIX);
-				if (!imageFile.exists())
-					imageFile = null;
-			}
-
-			// try to find a image with name of item in cards directory
-			if (imageFile == null && !TextUtils.isEmpty(name)) {
-				imageFile = new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), name + POSTFIX);
-				if (!imageFile.exists())
-					imageFile = null;
-			}
-
+	public Uri getImageUri() {
+		if (imageUri == null && imageUriHelper != null) {
+			imageUri = Uri.parse(imageUriHelper);
 		}
-		return imageFile;
+		return imageUri;
 	}
 
 	public boolean isEquipable() {
@@ -256,11 +263,9 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 
 	public boolean hasImage() {
 		if (hasCardImage == null) {
-			File file = getFile();
-			hasCardImage = file != null && file.isFile();
+			hasCardImage = imageUri != null;
 		}
 		return hasCardImage;
-
 	}
 
 	public String getInfo() {
@@ -315,12 +320,38 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		return true;
 	}
 
-	public int getResourceId() {
-		if (getSpecifications().isEmpty())
-			return 0;
-		else
-			return getSpecifications().get(0).getResourceId();
+	public Uri getIconUri() {
+		if (iconUri == null && iconUriHelper != null) {
+			iconUri = Uri.parse(iconUriHelper);
+		}
 
+		if (iconUri != null) {
+			return iconUri;
+		} else {
+			if (getSpecifications().isEmpty())
+				return null;
+			else
+				return Util.getUriForResourceId(getSpecifications().get(0).getResourceId());
+		}
+	}
+
+	public void setIconUri(Uri iconUri) {
+		this.iconUri = iconUri;
+		if (iconUri != null)
+			this.iconUriHelper = iconUri.toString();
+		else
+			this.iconUriHelper = null;
+	}
+
+	public void setImageUri(Uri imageUri) {
+		this.imageUri = imageUri;
+		if (imageUri != null) {
+			this.imageUriHelper = imageUri.toString();
+			this.hasCardImage = true;
+		} else {
+			this.hasCardImage = false;
+			this.imageUriHelper = null;
+		}
 	}
 
 	/**
@@ -341,14 +372,8 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	}
 
 	public Item duplicate() {
-		Item item = null;
-		try {
-			item = (Item) clone();
-
-			item.id = UUID.randomUUID();
-		} catch (CloneNotSupportedException e) {
-			Debug.error(e);
-		}
+		Item item = this.clone();
+		item.id = UUID.randomUUID();
 		return item;
 	}
 
@@ -358,21 +383,26 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public Object clone() throws CloneNotSupportedException {
-		Item item = (Item) super.clone();
-		item.itemInfo = (ItemLocationInfo) itemInfo.clone();
+	public Item clone() {
+		Item item;
+		try {
+			item = (Item) super.clone();
+			item.itemInfo = (ItemLocationInfo) itemInfo.clone();
 
-		item.itemSpecs = new ArrayList<ItemSpecification>(getSpecifications().size());
+			item.itemSpecs = new ArrayList<ItemSpecification>(getSpecifications().size());
 
-		for (ItemSpecification specification : getSpecifications()) {
-			item.itemSpecs.add(specification.clone());
+			for (ItemSpecification specification : getSpecifications()) {
+				item.itemSpecs.add(specification.clone());
+			}
+
+			item.weaponSpecsHelper = null;
+			item.shieldSpecsHelper = null;
+			item.distanceWeaponSpecsHelper = null;
+			item.armorSpecsHelper = null;
+			item.miscSpecsHelper = null;
+		} catch (CloneNotSupportedException e) {
+			return null;
 		}
-
-		item.weaponSpecsHelper = null;
-		item.shieldSpecsHelper = null;
-		item.distanceWeaponSpecsHelper = null;
-		item.armorSpecsHelper = null;
-		item.miscSpecsHelper = null;
 
 		return item;
 	}

@@ -51,6 +51,13 @@ public abstract class BaseAttributesFragment extends BaseFragment {
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		findViews(view);
+	}
+
+	/**
+	 * 
+	 */
+	protected void findViews(View view) {
 		tfLabelAE = (TextView) view.findViewById(R.id.attr_ae_label);
 		tfLabelAU = (TextView) view.findViewById(R.id.attr_au_label);
 		tfLabelKE = (TextView) view.findViewById(R.id.attr_ke_label);

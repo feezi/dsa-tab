@@ -1,18 +1,15 @@
 package com.dsatab.data;
 
-import com.dsatab.DSATabApplication;
-import com.dsatab.activity.BasePreferenceActivity;
-import com.dsatab.data.enums.CombatTalentType;
+import com.dsatab.DsaTabApplication;
+import com.dsatab.activity.DsaTabPreferenceActivity;
 import com.dsatab.data.enums.Position;
-import com.gandulf.guilib.util.Debug;
+import com.dsatab.data.enums.TalentType;
 
 public class CombatMeleeTalent extends BaseCombatTalent {
 
 	private CombatMeleeAttribute pa;
 
 	private CombatMeleeAttribute at;
-
-	private CombatTalentType type;
 
 	public CombatMeleeTalent(Hero hero, CombatMeleeAttribute at, CombatMeleeAttribute pa) {
 		super(hero);
@@ -24,18 +21,8 @@ public class CombatMeleeTalent extends BaseCombatTalent {
 		this.pa = pa;
 	}
 
-	public CombatTalentType getCombatTalentType() {
-		return type;
-	}
-
-	protected void setCombatTalentType(CombatTalentType type) {
-
-		this.type = type;
-
-		if (type == null)
-			Debug.verbose("No type found for " + getName());
-
-		this.probeInfo.applyBePattern(type.getBe());
+	public void setType(TalentType type) {
+		super.setType(type);
 
 		// we have to set the talent again to refresh some values
 		if (at != null)
@@ -52,14 +39,9 @@ public class CombatMeleeTalent extends BaseCombatTalent {
 		return pa;
 	}
 
-	public void setName(String name) {
-		super.setName(name);
-		setCombatTalentType(CombatTalentType.byName(getName()));
-	}
-
 	public Position getPosition(int w20) {
 
-		if (DSATabApplication.getPreferences().getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_MORE_TARGET_ZONES,
+		if (DsaTabApplication.getPreferences().getBoolean(DsaTabPreferenceActivity.KEY_HOUSE_RULES_MORE_TARGET_ZONES,
 				false)) {
 
 			switch (type) {

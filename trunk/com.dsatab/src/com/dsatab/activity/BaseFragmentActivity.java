@@ -27,7 +27,7 @@ import android.view.Display;
 import android.view.WindowManager;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.util.Util;
 
 /**
@@ -45,8 +45,8 @@ public class BaseFragmentActivity extends SherlockFragmentActivity {
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-		SharedPreferences preferences = DSATabApplication.getPreferences();
-		updateFullscreenStatus(preferences.getBoolean(BasePreferenceActivity.KEY_FULLSCREEN, false));
+		SharedPreferences preferences = DsaTabApplication.getPreferences();
+		updateFullscreenStatus(preferences.getBoolean(DsaTabPreferenceActivity.KEY_FULLSCREEN, false));
 	}
 
 	/*
@@ -62,15 +62,15 @@ public class BaseFragmentActivity extends SherlockFragmentActivity {
 
 	protected void applyPreferencesToTheme() {
 
-		SharedPreferences pref = DSATabApplication.getPreferences();
-		String bgPath = pref.getString(BasePreferenceActivity.KEY_STYLE_BG_PATH, null);
+		SharedPreferences pref = DsaTabApplication.getPreferences();
+		String bgPath = pref.getString(DsaTabPreferenceActivity.KEY_STYLE_BG_PATH, null);
 
 		if (bgPath != null) {
 
-			WindowManager wm = (WindowManager) DSATabApplication.getInstance().getSystemService(Context.WINDOW_SERVICE);
+			WindowManager wm = (WindowManager) DsaTabApplication.getInstance().getSystemService(Context.WINDOW_SERVICE);
 			Display display = wm.getDefaultDisplay();
 			Bitmap bg = Util.decodeBitmap(new File(bgPath), Math.max(display.getWidth(), display.getHeight()));
-			BitmapDrawable drawable = new BitmapDrawable(DSATabApplication.getInstance().getResources(), bg);
+			BitmapDrawable drawable = new BitmapDrawable(DsaTabApplication.getInstance().getResources(), bg);
 			getWindow().setBackgroundDrawable(drawable);
 		} else {
 			getWindow().setBackgroundDrawableResource(Util.getThemeResourceId(this, android.R.attr.windowBackground));

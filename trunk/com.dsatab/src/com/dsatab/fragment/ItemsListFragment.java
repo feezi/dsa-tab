@@ -19,46 +19,46 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
 
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.SubMenu;
 import com.dsatab.R;
-import com.dsatab.activity.ItemChooserActivity;
+import com.dsatab.activity.ItemEditActivity;
 import com.dsatab.data.Hero;
-import com.dsatab.data.adapter.EquippedItemListAdapter;
+import com.dsatab.data.adapter.ExpandableItemAdapter;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
+import com.dsatab.data.items.ItemContainer;
 import com.dsatab.data.items.ItemType;
+import com.dsatab.util.Util;
 import com.dsatab.view.ItemChooserDialog;
-import com.dsatab.xml.DataManager;
+import com.dsatab.view.listener.HeroInventoryChangedListener;
 
 public class ItemsListFragment extends BaseListFragment implements OnItemClickListener,
-		DialogInterface.OnMultiChoiceClickListener {
+		DialogInterface.OnMultiChoiceClickListener, HeroInventoryChangedListener {
 
-	private static final int ACTION_CHOOSE_CARD = 2;
-	private static final int ACTION_SHOW_CARD = 1;
+	private static final int MENU_CONTAINER_GROUP = 99;
 
-	private ListView itemList;
+	private static final String PREF_KEY_GROUP_EXPANDED = "ITEM_GROUP_EXPANDED";
 
-	private EquippedItemListAdapter itemAdapter;
+	private ExpandableListView itemList;
 
-	private Item selectedItem;
+	private ExpandableItemAdapter itemAdapter;
 
 	private ItemChooserDialog itemChooserDialog;
 
@@ -74,27 +74,46 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 			if (checkedPositions != null) {
 				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
-						Item selectedItem = itemAdapter.getItem(checkedPositions.keyAt(i));
-						switch (item.getItemId()) {
-						case R.id.option_delete:
-							getHero().removeItem(selectedItem);
-							notifyChanged = false;
-							break;
-						case R.id.option_view:
-							selectItem(selectedItem);
-							mode.finish();
-							return true;
-						case R.id.option_equipped:
-							return false;
-						case R.id.option_equipped_set1:
-							getHero().addEquippedItem(getActivity(), selectedItem, null, null, 0);
-							break;
-						case R.id.option_equipped_set2:
-							getHero().addEquippedItem(getActivity(), selectedItem, null, null, 1);
-							break;
-						case R.id.option_equipped_set3:
-							getHero().addEquippedItem(getActivity(), selectedItem, null, null, 2);
-							break;
+
+						Object obj = itemList.getItemAtPosition(checkedPositions.keyAt(i));
+						if (obj instanceof Item) {
+							Item selectedItem = (Item) obj;
+
+							if (item.getGroupId() == MENU_CONTAINER_GROUP) {
+								int newScreen = item.getItemId();
+								if (newScreen != selectedItem.getItemInfo().getScreen()) {
+									getHero().moveItem(selectedItem, newScreen);
+									notifyChanged = true;
+								}
+							} else {
+								switch (item.getItemId()) {
+								case R.id.option_delete:
+									getHero().removeItem(selectedItem);
+									notifyChanged = false;
+									break;
+								case R.id.option_view:
+									ItemEditActivity.view(getActivity(), selectedItem);
+									mode.finish();
+									return true;
+								case R.id.option_edit:
+									ItemEditActivity.edit(getActivity(), selectedItem);
+									mode.finish();
+									return true;
+								case R.id.option_equipped:
+									return false;
+								case R.id.option_move:
+									return false;
+								case R.id.option_equipped_set1:
+									getHero().addEquippedItem(getActivity(), selectedItem, null, null, 0);
+									break;
+								case R.id.option_equipped_set2:
+									getHero().addEquippedItem(getActivity(), selectedItem, null, null, 1);
+									break;
+								case R.id.option_equipped_set3:
+									getHero().addEquippedItem(getActivity(), selectedItem, null, null, 2);
+									break;
+								}
+							}
 						}
 
 					}
@@ -111,6 +130,16 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 		@Override
 		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 			mode.getMenuInflater().inflate(R.menu.item_list_popupmenu, menu);
+
+			com.actionbarsherlock.view.MenuItem move = menu.findItem(R.id.option_move);
+
+			SubMenu moveMenu = move.getSubMenu();
+
+			for (ItemContainer itemContainer : getHero().getItemContainers()) {
+				moveMenu.add(MENU_CONTAINER_GROUP, itemContainer.getId(), Menu.NONE, itemContainer.getName()).setIcon(
+						Util.getDrawableByUri(itemContainer.getIconUri()));
+			}
+
 			mode.setTitle("Ausrüstung");
 			return true;
 		}
@@ -134,7 +163,6 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
 			SparseBooleanArray checkedPositions = itemList.getCheckedItemPositions();
 			int selected = 0;
-			boolean hasImage = false;
 			boolean isEquippable = true;
 			boolean changed = false;
 			com.actionbarsherlock.view.MenuItem view = menu.findItem(R.id.option_view);
@@ -142,17 +170,19 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 			if (checkedPositions != null) {
 				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
-						Item selectedItem = itemAdapter.getItem(checkedPositions.keyAt(i));
-						selected++;
-						hasImage |= selectedItem.hasImage();
-						isEquippable &= selectedItem.isEquipable();
+						Object obj = itemList.getItemAtPosition(checkedPositions.keyAt(i));
+						if (obj instanceof Item) {
+							Item selectedItem = (Item) obj;
+							selected++;
+							isEquippable &= selectedItem.isEquipable();
+						}
 					}
 				}
 			}
 
 			mode.setSubtitle(selected + " ausgewählt");
 
-			if (selected == 1 && hasImage) {
+			if (selected == 1) {
 				if (!view.isEnabled()) {
 					view.setEnabled(true);
 					changed = true;
@@ -188,53 +218,6 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 	@Override
 	public void onHeroLoaded(Hero hero) {
 		fillBodyItems(hero);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onActivityResult(int, int,
-	 * android.content.Intent)
-	 */
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-		if (requestCode == ACTION_CHOOSE_CARD && resultCode == Activity.RESULT_OK) {
-
-			Item item = null;
-
-			UUID id = (UUID) data.getSerializableExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_ID);
-			String cardName = data.getStringExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_NAME);
-
-			Hero hero = getHero();
-
-			if (id != null) {
-				item = hero.getItem(id);
-			}
-			if (item == null && !TextUtils.isEmpty(cardName)) {
-
-				// on a set page check whether he already has the item and reuse
-				// it
-				// if (getActiveSet() >= 0) {
-				// item = hero.getItem(cardName);
-				// }
-				if (item == null) {
-					Item card = DataManager.getItemByName(cardName);
-					item = (Item) card.duplicate();
-				}
-			}
-
-			if (item != null) {
-				if (selectedItem != null && selectedItem.getItem().equals(item.getName())) {
-					// the icon is already in the screen no need to add it
-					// again
-				} else {
-					hero.addItem(item);
-				}
-			}
-		}
-
-		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	/*
@@ -317,7 +300,11 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return configureContainerView(inflater.inflate(R.layout.sheet_items_list, container, false));
+		View root = configureContainerView(inflater.inflate(R.layout.sheet_items_list, container, false));
+
+		itemList = (ExpandableListView) root.findViewById(android.R.id.list);
+
+		return root;
 	}
 
 	/*
@@ -328,10 +315,43 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 
-		itemList = (ListView) findViewById(android.R.id.list);
-		itemList.setOnItemClickListener(this);
 		itemList.setOnItemLongClickListener(this);
 		itemList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+		itemList.setGroupIndicator(getResources().getDrawable(
+				Util.getThemeResourceId(getActivity(), R.attr.imgExpander)));
+		itemList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+			@Override
+			public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+				if (mMode == null) {
+					// Talent talent = talentAdapter.getChild(groupPosition,
+					// childPosition);
+					// getBaseActivity().checkProbe(talent);
+				} else {
+					int pos = itemList.getPositionForView(v);
+					itemList.setItemChecked(pos, !itemList.isItemChecked(pos));
+					ItemsListFragment.this.onItemClick(parent, v, pos, id);
+				}
+				return true;
+			}
+		});
+		itemList.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
+
+			@Override
+			public void onGroupCollapse(int groupPosition) {
+				Editor edit = preferences.edit();
+				edit.putBoolean(PREF_KEY_GROUP_EXPANDED + groupPosition, false);
+				edit.commit();
+			}
+		});
+		itemList.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+
+			@Override
+			public void onGroupExpand(int groupPosition) {
+				Editor edit = preferences.edit();
+				edit.putBoolean(PREF_KEY_GROUP_EXPANDED + groupPosition, true);
+				edit.commit();
+			}
+		});
 
 		categories = ItemType.values();
 		categoriesSelected = new HashSet<ItemType>(Arrays.asList(categories));
@@ -340,23 +360,17 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 	}
 
 	private void fillBodyItems(Hero hero) {
-		itemAdapter = new EquippedItemListAdapter(getActivity(), getHero(), getHero().getItems());
+		// itemAdapter = new EquippedItemListAdapter(getActivity(), getHero(),
+		// getHero().getItems());
+		itemAdapter = new ExpandableItemAdapter(getActivity(), getHero());
 		itemList.setAdapter(itemAdapter);
 		refreshEmptyView(itemAdapter);
-	}
 
-	private void selectItem(Item itemCard) {
-		selectedItem = itemCard;
-		if (selectedItem != null) {
-			Intent intent = new Intent(getActivity(), ItemChooserActivity.class);
-			intent.setAction(Intent.ACTION_VIEW);
-			Item item = selectedItem.getItem();
-			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_ID, item.getId());
-			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_NAME, item.getName());
-			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CATEGORY, item.getCategory());
-			intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CELL, itemCard.getItemInfo().getCellNumber());
-
-			getActivity().startActivityForResult(intent, ACTION_SHOW_CARD);
+		for (int i = 0; i < itemAdapter.getGroupCount(); i++) {
+			if (preferences.getBoolean(PREF_KEY_GROUP_EXPANDED + i, true))
+				itemList.expandGroup(i);
+			else
+				itemList.collapseGroup(i);
 		}
 	}
 
@@ -388,13 +402,7 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 		if (itemChooserDialog == null) {
 			itemChooserDialog = new ItemChooserDialog(getActivity());
 			itemChooserDialog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-				/*
-				 * (non-Javadoc)
-				 * 
-				 * @see
-				 * android.widget.AdapterView.OnItemClickListener#onItemClick
-				 * (android.widget.AdapterView, android.view.View, int, long)
-				 */
+
 				@Override
 				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 					Item item = itemChooserDialog.getItem(position);
@@ -419,12 +427,25 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 	 * (non-Javadoc)
 	 * 
 	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onActiveSetChanged
+	 * (int, int)
+	 */
+	@Override
+	public void onActiveSetChanged(int newSet, int oldSet) {
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
 	 * com.dsatab.view.listener.InventoryChangedListener#onItemAdded(com.dsatab
 	 * .data.items.Item)
 	 */
 	@Override
 	public void onItemAdded(Item item) {
-		itemAdapter.add(item);
+		// itemAdapter.add(item);
+		itemAdapter.notifyDataSetChanged();
 		refreshEmptyView(itemAdapter);
 	}
 
@@ -449,7 +470,8 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 	 */
 	@Override
 	public void onItemRemoved(Item item) {
-		itemAdapter.remove(item);
+		// itemAdapter.remove(item);
+		itemAdapter.notifyDataSetChanged();
 		refreshEmptyView(itemAdapter);
 	}
 
@@ -474,6 +496,54 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 	 */
 	@Override
 	public void onItemUnequipped(EquippedItem item) {
+		itemAdapter.notifyDataSetChanged();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemChanged(com
+	 * .dsatab.data.items.Item)
+	 */
+	@Override
+	public void onItemChanged(Item item) {
+		itemAdapter.notifyDataSetChanged();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemContainerAdded
+	 * (com.dsatab.data.items.ItemContainer)
+	 */
+	@Override
+	public void onItemContainerAdded(ItemContainer itemContainer) {
+		itemAdapter.notifyDataSetChanged();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemContainerRemoved
+	 * (com.dsatab.data.items.ItemContainer)
+	 */
+	@Override
+	public void onItemContainerRemoved(ItemContainer itemContainer) {
+		itemAdapter.notifyDataSetChanged();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.view.listener.HeroInventoryChangedListener#onItemContainerChanged
+	 * (com.dsatab.data.items.ItemContainer)
+	 */
+	@Override
+	public void onItemContainerChanged(ItemContainer itemContainer) {
 		itemAdapter.notifyDataSetChanged();
 	}
 

@@ -34,7 +34,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.dsatab.data.Hero;
 import com.dsatab.data.adapter.FileAdapter;
@@ -65,9 +65,7 @@ public class DocumentsFragment extends BaseFragment implements OnItemClickListen
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 
-		File pdfsDir = DSATabApplication.getDirectory(DSATabApplication.DIR_PDFS);
-		if (!pdfsDir.exists())
-			pdfsDir.mkdirs();
+		File pdfsDir = DsaTabApplication.getDirectory(DsaTabApplication.DIR_PDFS);
 
 		listView = (ListView) findViewById(android.R.id.list);
 		registerForContextMenu(listView);

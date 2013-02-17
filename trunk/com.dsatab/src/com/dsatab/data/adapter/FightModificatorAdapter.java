@@ -1,6 +1,6 @@
 package com.dsatab.data.adapter;
 
-import java.util.List;
+import java.util.Collection;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,16 +11,19 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.activity.MainActivity;
+import com.dsatab.activity.DsaTabActivity;
 import com.dsatab.activity.ModificatorEditActivity;
 import com.dsatab.data.CustomModificator;
 import com.dsatab.data.modifier.AbstractModificator;
 import com.dsatab.data.modifier.Modificator;
+import com.dsatab.data.modifier.RulesModificator;
+import com.dsatab.data.modifier.WoundModificator;
 import com.dsatab.util.Util;
 
 public class FightModificatorAdapter extends OpenArrayAdapter<Modificator> implements OnClickListener {
@@ -34,7 +37,7 @@ public class FightModificatorAdapter extends OpenArrayAdapter<Modificator> imple
 
 	private Activity activity;
 
-	public FightModificatorAdapter(Activity context, List<Modificator> objects) {
+	public FightModificatorAdapter(Activity context, Collection<Modificator> objects) {
 		super(context, 0, objects);
 		this.activity = context;
 
@@ -74,7 +77,7 @@ public class FightModificatorAdapter extends OpenArrayAdapter<Modificator> imple
 	@Override
 	public void onClick(View v) {
 		activity.startActivityForResult(new Intent(activity, ModificatorEditActivity.class),
-				MainActivity.ACTION_ADD_MODIFICATOR);
+				DsaTabActivity.ACTION_ADD_MODIFICATOR);
 	}
 
 	/*
@@ -157,10 +160,17 @@ public class FightModificatorAdapter extends OpenArrayAdapter<Modificator> imple
 				holder.active.setVisibility(View.GONE);
 			}
 
-			if (item instanceof CustomModificator) {
-				holder.icon1.setVisibility(View.INVISIBLE);
-			} else {
-				holder.icon1.setVisibility(View.VISIBLE);
+			holder.icon1.setBackgroundResource(0);
+			holder.icon1.setScaleType(ScaleType.CENTER);
+			if (item instanceof WoundModificator) {
+				if (item.isActive())
+					holder.icon1.setImageResource(R.drawable.icon_wound_selected);
+				else
+					holder.icon1.setImageResource(R.drawable.icon_wound_normal);
+			} else if (item instanceof RulesModificator) {
+				holder.icon1.setImageResource(Util.getThemeResourceId(getContext(), R.attr.imgSettings));
+			} else if (item instanceof CustomModificator) {
+				holder.icon1.setImageResource(Util.getThemeResourceId(getContext(), R.attr.imgModifier));
 			}
 
 			if (item != null) {

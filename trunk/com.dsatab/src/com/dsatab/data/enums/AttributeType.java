@@ -6,12 +6,17 @@ public enum AttributeType {
 
 	Mut("MU", false, true), Klugheit("KL", false, true), Intuition("IN", false, true), Charisma("CH", false, true), Fingerfertigkeit(
 			"FF", false, true), Gewandtheit("GE", true, true), Konstitution("KO", false, true), Körperkraft("KK",
-			false, true), Sozialstatus("SO"), Lebensenergie_Aktuell("LE"), Lebensenergie("LE Total"), Ausdauer_Aktuell("AU"), Ausdauer(
-			"AU Total"), Astralenergie_Aktuell("AE"), Astralenergie("AE"), Karmaenergie_Aktuell("KE"), Karmaenergie(
-			"KE Total"), Magieresistenz("MR"), ini("INI", true, true), Initiative_Aktuell("INI", true, false), at("AT",
-			true, true, false), pa("PA", true, true, false), fk("FK", true, true, false), Behinderung("BE", false), Ausweichen(
-			"AW", true, true), Geschwindigkeit("GS", true, false, false), Entrueckung("ENT", false), Verzueckung("VZ",
-			false), Erschoepfung("ERS", false);
+			false, true), Sozialstatus("SO"), Lebensenergie("LE Total"), Ausdauer("AU Total"), Astralenergie("AE Total"), Karmaenergie(
+			"KE Total"), Magieresistenz("MR"), ini("INI", true, true), at("AT", true, true, false), pa("PA", true,
+			true, false), fk("FK", true, true, false),
+
+	// CUSTOM Attribute Types
+	Lebensenergie_Aktuell("LE"), Karmaenergie_Aktuell("KE"), Astralenergie_Aktuell("AE"), Initiative_Aktuell("INI",
+			true, false), Ausdauer_Aktuell("AU"), Geschwindigkeit("GS", true, false, false), Behinderung("BE", false), Ausweichen(
+			"AW", true, true), Entrueckung("ENT", false), Verzueckung("VZ", false), Erschoepfung("ERS", false),
+
+	// Attribute Types with no attribute object, just used for modificators
+	Wundschwelle("WS", false, false, false);
 
 	public static final AttributeType[] EIGENSCHAFTEN = { Mut, Klugheit, Intuition, Charisma, Fingerfertigkeit,
 			Gewandtheit, Konstitution, Körperkraft };

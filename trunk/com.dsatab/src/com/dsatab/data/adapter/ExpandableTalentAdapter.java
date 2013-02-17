@@ -2,7 +2,7 @@ package com.dsatab.data.adapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,8 +18,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dsatab.R;
-import com.dsatab.activity.MainActivity.EditListener;
-import com.dsatab.activity.MainActivity.ProbeListener;
+import com.dsatab.activity.DsaTabActivity.EditListener;
+import com.dsatab.activity.DsaTabActivity.ProbeListener;
 import com.dsatab.data.CombatDistanceTalent;
 import com.dsatab.data.CombatMeleeTalent;
 import com.dsatab.data.Hero;
@@ -59,7 +59,7 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 		groups = new ArrayList<TalentGroupType>(Arrays.asList(TalentGroupType.values()));
 		groups.retainAll(hero.getTalentGroups().keySet());
 
-		groupsMap = new HashMap<TalentGroupType, List<Talent>>();
+		groupsMap = new EnumMap<TalentGroupType, List<Talent>>(TalentGroupType.class);
 
 		inflater = LayoutInflater.from(context);
 
@@ -109,7 +109,7 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 		List<Talent> talents = groupsMap.get(groupType);
 
 		if (talents == null) {
-			TalentGroup talentGroup = hero.getTalentGroups().get(groupType);
+			TalentGroup talentGroup = hero.getTalentGroup(groupType);
 
 			if (talentGroup != null && talentGroup.getTalents() != null) {
 				talents = filter(talentGroup.getTalents());
@@ -331,7 +331,7 @@ public class ExpandableTalentAdapter extends BaseExpandableListAdapter {
 		TalentGroupType groupType = getGroup(groupPosition);
 
 		if (groupType != null) {
-			TalentGroup talentGroup = hero.getTalentGroups().get(groupType);
+			TalentGroup talentGroup = hero.getTalentGroup(groupType);
 
 			holder.text1.setText(groupType.name());
 

@@ -15,17 +15,15 @@
  */
 package com.dsatab.data.adapter;
 
-import java.io.File;
-
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Gallery;
 
-import com.dsatab.DSATabApplication;
 import com.dsatab.R;
 import com.dsatab.data.ItemLocationInfo;
 import com.dsatab.data.items.Item;
@@ -86,7 +84,7 @@ public class GalleryImageCursorAdapter extends SimpleCursorAdapter {
 
 	class ItemCardCursor implements ItemCard {
 
-		private File file;
+		private Uri imageUri;
 		private String title;
 
 		/**
@@ -101,25 +99,10 @@ public class GalleryImageCursorAdapter extends SimpleCursorAdapter {
 				this.title = name;
 			}
 
-			String path = c.getString(c.getColumnIndex("path"));
-			if (file == null && !TextUtils.isEmpty(path)) {
-				this.file = new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), path);
-				if (!file.exists())
-					file = null;
+			String imageUriHelper = c.getString(c.getColumnIndex("imageUriHelper"));
+			if (!TextUtils.isEmpty(imageUriHelper)) {
+				imageUri = Uri.parse(imageUriHelper);
 			}
-
-			if (file == null && !TextUtils.isEmpty(title)) {
-				this.file = new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), title + Item.POSTFIX);
-				if (!file.exists())
-					file = null;
-			}
-
-			if (file == null && !TextUtils.isEmpty(name) && !name.equals(title)) {
-				this.file = new File(DSATabApplication.getDirectory(DSATabApplication.DIR_CARDS), name + Item.POSTFIX);
-				if (!file.exists())
-					file = null;
-			}
-
 		}
 
 		@Override
@@ -128,8 +111,8 @@ public class GalleryImageCursorAdapter extends SimpleCursorAdapter {
 		}
 
 		@Override
-		public File getFile() {
-			return file;
+		public Uri getImageUri() {
+			return imageUri;
 		}
 
 		/*
@@ -139,7 +122,7 @@ public class GalleryImageCursorAdapter extends SimpleCursorAdapter {
 		 */
 		@Override
 		public boolean hasImage() {
-			return file != null;
+			return imageUri != null;
 		}
 
 		@Override

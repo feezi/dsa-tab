@@ -166,7 +166,7 @@ public class EquippedItemListItem extends CheckableRelativeLayout {
 
 		if (icon1 != null) {
 			icon1.setVisibility(View.VISIBLE);
-			icon1.setImageResource(e.getResourceId());
+			icon1.setImageURI(e.getIconUri());
 		}
 		// Set value for the first text field
 		if (text1 != null) {

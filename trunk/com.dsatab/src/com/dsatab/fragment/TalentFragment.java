@@ -31,7 +31,7 @@ import android.widget.ListView;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.dsatab.R;
-import com.dsatab.activity.MainActivity;
+import com.dsatab.activity.DsaTabActivity;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.CombatMeleeAttribute;
 import com.dsatab.data.CombatTalent;
@@ -75,7 +75,7 @@ public class TalentFragment extends BaseListFragment implements HeroChangedListe
 							Talent talent = (Talent) obj;
 							switch (item.getItemId()) {
 							case R.id.option_edit_talent:
-								MainActivity.showEditPopup(getActivity(), talent);
+								DsaTabActivity.showEditPopup(getActivity(), talent);
 								mode.finish();
 								return true;
 							case R.id.option_mark_favorite_talent:

@@ -29,7 +29,7 @@ import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.bugsense.trace.BugSenseHandler;
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.dsatab.cloud.HeroExchange.OnHeroExchangeListener;
 import com.dsatab.data.HeroFileInfo;
@@ -96,7 +96,7 @@ public class ImportHeroesTaskNew extends AsyncTask<String, String, Integer> impl
 
 		boolean cancel = false;
 		// Create a directory in the SDCard to store the files
-		File baseDir = new File(DSATabApplication.getDsaTabPath());
+		File baseDir = new File(DsaTabApplication.getDsaTabPath());
 		if (!baseDir.exists()) {
 			baseDir.mkdirs();
 		}

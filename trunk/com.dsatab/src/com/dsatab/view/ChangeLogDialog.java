@@ -11,7 +11,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.preference.PreferenceManager;
@@ -19,7 +18,7 @@ import android.util.Log;
 import android.webkit.WebView;
 import android.widget.Toast;
 
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.gandulf.guilib.util.ResUtil;
 
@@ -57,7 +56,7 @@ public class ChangeLogDialog {
 	}
 
 	// Parse a the release tag and return html code
-	private String ParseReleaseTag(XmlResourceParser aXml) throws XmlPullParserException, IOException {
+	private String parseReleaseTag(XmlResourceParser aXml) throws XmlPullParserException, IOException {
 		int version = aXml.getAttributeIntValue(null, "versioncode", 0);
 		if (version > lastSeenVersion)
 			newChangelogFound = true;
@@ -95,16 +94,16 @@ public class ChangeLogDialog {
 	}
 
 	// CSS style for the html
-	private String GetStyle() {
+	private String getStyle() {
 		return "<style type=\"text/css\">" + "h1 { margin-left: 0px; }" + "li { margin-left: 0px; }"
 				+ "ul { padding-left: 30px;}" + "</style>";
 	}
 
 	// Get the changelog in html code, this will be shown in the dialog's
 	// webview
-	private String GetHTMLChangelog(int aResourceId, Resources aResource) {
+	private String getHTMLChangelog(int aResourceId, Resources aResource) {
 		String _Result = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"
-				+ GetStyle() + "</head><body>";
+				+ getStyle() + "</head><body>";
 
 		String summary = ResUtil.loadResToString(R.raw.donate, fActivity);
 		_Result += summary;
@@ -114,7 +113,7 @@ public class ChangeLogDialog {
 			int eventType = _xml.getEventType();
 			while (eventType != XmlPullParser.END_DOCUMENT) {
 				if ((eventType == XmlPullParser.START_TAG) && (_xml.getName().equals("release"))) {
-					_Result = _Result + ParseReleaseTag(_xml);
+					_Result = _Result + parseReleaseTag(_xml);
 				}
 				eventType = _xml.next();
 			}
@@ -137,27 +136,20 @@ public class ChangeLogDialog {
 	// Call to show the changelog dialog
 	public void show(boolean forceShow) {
 		// Get resources
-		String _PackageName = fActivity.getPackageName();
-		Resources _Resource;
-		try {
-			_Resource = fActivity.getPackageManager().getResourcesForApplication(_PackageName);
-		} catch (NameNotFoundException e) {
-			e.printStackTrace();
-			return;
-		}
+		Resources resource = fActivity.getResources();
 
 		// Get dialog title
-		String _Title = _Resource.getString(R.string.app_name);
-		_Title = _Title + " " + DSATabApplication.getInstance().getPackageVersionName();
+		String title = resource.getString(R.string.app_name);
+		title = title + " " + DsaTabApplication.getInstance().getPackageVersionName();
 
 		// Create html change log
-		String _HTML = GetHTMLChangelog(R.xml.changelog, _Resource);
+		String html = getHTMLChangelog(R.xml.changelog, resource);
 
 		// Get button strings
-		String _Close = _Resource.getString(R.string.label_ok);
+		String close = resource.getString(R.string.label_ok);
 
 		// Check for empty changelog
-		if (_HTML.equals("") == true) {
+		if (html.equals("")) {
 			// Could not load change log, message user and exit void
 			Toast.makeText(fActivity, "Could not load change log", Toast.LENGTH_SHORT).show();
 			return;
@@ -168,15 +160,15 @@ public class ChangeLogDialog {
 			return;
 		} else {
 			// setting new lastseen version
-			setSeenVersion(DSATabApplication.getInstance().getPackageVersion());
+			setSeenVersion(DsaTabApplication.getInstance().getPackageVersion());
 		}
 
 		// Create webview and load html
-		WebView _WebView = new WebView(fActivity);
-		_WebView.getSettings().setDefaultTextEncodingName("utf-8");
-		_WebView.loadDataWithBaseURL(null, _HTML, "text/html", "utf-8", null);
-		AlertDialog.Builder builder = new AlertDialog.Builder(fActivity).setTitle(_Title).setView(_WebView)
-				.setPositiveButton(_Close, new Dialog.OnClickListener() {
+		WebView webView = new WebView(fActivity);
+		webView.getSettings().setDefaultTextEncodingName("utf-8");
+		webView.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
+		AlertDialog.Builder builder = new AlertDialog.Builder(fActivity).setTitle(title).setView(webView)
+				.setPositiveButton(close, new Dialog.OnClickListener() {
 					public void onClick(DialogInterface dialogInterface, int i) {
 						dialogInterface.dismiss();
 					}

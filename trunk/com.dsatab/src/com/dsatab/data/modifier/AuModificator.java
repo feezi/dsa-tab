@@ -1,5 +1,8 @@
 package com.dsatab.data.modifier;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.dsatab.data.Attribute;
 import com.dsatab.data.CombatDistanceTalent;
 import com.dsatab.data.CombatMeleeAttribute;
@@ -9,6 +12,7 @@ import com.dsatab.data.Hero;
 import com.dsatab.data.Modifier;
 import com.dsatab.data.Probe;
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.data.modifier.RulesModificator.ModificatorType;
 
 public class AuModificator extends AbstractModificator {
 
@@ -17,6 +21,17 @@ public class AuModificator extends AbstractModificator {
 
 	public AuModificator(Hero hero) {
 		super(hero);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.modifier.Modificator#getAffectedModifierTypes()
+	 */
+	@Override
+	public List<ModificatorType> getAffectedModifierTypes() {
+		return Arrays.asList(ModificatorType.Attribute, ModificatorType.CombatTalent, ModificatorType.DistanceWeapon,
+				ModificatorType.Shield, ModificatorType.Weapon);
 	}
 
 	/*
@@ -46,21 +61,36 @@ public class AuModificator extends AbstractModificator {
 	 * @see com.dsatab.data.modifier.Modificator#affects(com.dsatab.data.Probe)
 	 */
 	@Override
-	public boolean affects(Probe probe) {
-		if (probe instanceof Attribute) {
-			Attribute attribute = (Attribute) probe;
-			if (attribute.getType() == AttributeType.ini || attribute.getType() == AttributeType.Initiative_Aktuell
-					|| AttributeType.isFight(attribute.getType())) {
-				return true;
-			} else {
-				return false;
-			}
-		} else if (probe instanceof CombatProbe || probe instanceof CombatShieldTalent
+	public boolean affect(Probe probe) {
+		if (probe instanceof CombatProbe || probe instanceof CombatShieldTalent
 				|| probe instanceof CombatDistanceTalent || probe instanceof CombatMeleeAttribute) {
 			return true;
 		} else {
 			return false;
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.modifier.Modificator#affects(com.dsatab.data.enums.
+	 * AttributeType)
+	 */
+	@Override
+	public boolean affects(AttributeType type) {
+		return (type == AttributeType.ini || type == AttributeType.Initiative_Aktuell || AttributeType.isFight(type));
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.modifier.Modificator#fulfills(com.dsatab.data.Hero)
+	 */
+	@Override
+	public boolean fulfills() {
+		float ratio = hero.getRatio(AttributeType.Ausdauer_Aktuell);
+		return ratio < LEVEL_1;
 	}
 
 	@Override
@@ -91,8 +121,15 @@ public class AuModificator extends AbstractModificator {
 		return info;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.data.modifier.Modificator#getModifierValue(com.dsatab.data
+	 * .Probe)
+	 */
 	@Override
-	public Modifier getModifier(Probe probe) {
+	public int getModifierValue(Probe probe) {
 		if (isActive()) {
 			int modifier = 0;
 
@@ -106,20 +143,39 @@ public class AuModificator extends AbstractModificator {
 				}
 			} else if (probe instanceof Attribute) {
 				Attribute attr = (Attribute) probe;
-				return getModifier(attr.getType());
+				return getModifierValue(attr.getType());
 			}
-
-			this.modifier.setModifier(modifier);
-			this.modifier.setTitle(getModificatorName());
-			this.modifier.setDescription(getModificatorInfo());
-			return this.modifier;
+			return modifier;
 		} else {
-			return null;
+			return 0;
 		}
 	}
 
 	@Override
 	public Modifier getModifier(AttributeType type) {
+		int modifierValue = getModifierValue(type);
+
+		if (modifierValue != 0) {
+			this.modifier.setModifier(modifierValue);
+			this.modifier.setTitle(getModificatorName());
+			this.modifier.setDescription(getModificatorInfo());
+
+			return modifier;
+		} else {
+			return null;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.dsatab.data.modifier.Modificator#getModifierValue(com.dsatab.data
+	 * .enums.AttributeType)
+	 */
+	@Override
+	public int getModifierValue(AttributeType type) {
+
 		if (isActive()) {
 			int modifier = 0;
 			float ratio = hero.getRatio(AttributeType.Ausdauer_Aktuell);
@@ -135,13 +191,9 @@ public class AuModificator extends AbstractModificator {
 					modifier = -1;
 				}
 			}
-
-			this.modifier.setModifier(modifier);
-			this.modifier.setTitle(getModificatorName());
-			this.modifier.setDescription(getModificatorInfo());
-			return this.modifier;
+			return modifier;
 		} else {
-			return null;
+			return 0;
 		}
 	}
 

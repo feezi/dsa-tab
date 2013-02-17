@@ -23,12 +23,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.dsatab.fragment.NotesEditFragment;
-import com.dsatab.fragment.NotesEditFragment.OnNotesEditListener;
 
-public class NotesEditActivity extends BaseFragmentActivity implements OnNotesEditListener {
+public class NotesEditActivity extends BaseFragmentActivity {
 
 	private NotesEditFragment fragment;
 
@@ -39,7 +38,7 @@ public class NotesEditActivity extends BaseFragmentActivity implements OnNotesEd
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setTheme(DSATabApplication.getInstance().getCustomTheme());
+		setTheme(DsaTabApplication.getInstance().getCustomTheme());
 		applyPreferencesToTheme();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_notes_edit);
@@ -74,28 +73,6 @@ public class NotesEditActivity extends BaseFragmentActivity implements OnNotesEd
 				| ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
 		actionBar.setCustomView(customActionBarView, new ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.MATCH_PARENT));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.fragment.NotesEditFragment.OnNotesEditListener#onNoteCanceled
-	 * ()
-	 */
-	@Override
-	public void onNoteCanceled() {
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.fragment.NotesEditFragment.OnNotesEditListener#onNoteSaved
-	 * (android.os.Bundle)
-	 */
-	@Override
-	public void onNoteSaved(Bundle data) {
 	}
 
 }

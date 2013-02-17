@@ -4,6 +4,8 @@ import java.util.Comparator;
 import java.util.EnumSet;
 
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.data.enums.TalentType;
+import com.dsatab.data.modifier.RulesModificator.ModificatorType;
 
 public class Talent extends MarkableElement implements Value {
 
@@ -20,46 +22,11 @@ public class Talent extends MarkableElement implements Value {
 
 	};
 
-	public static final String ATHLETIK = "Athletik";
-
-	public static final String PEITSCHE = "Peitsche";
-
-	public static final String WILDNISLEBEN = "Wildnisleben";
-	public static final String TIERKUNDE = "Tierkunde";
-	public static final String FÄHRTENSUCHEN = "Fährtensuchen";
-	public static final String SCHLEICHEN = "Schleichen";
-	public static final String SINNENSCHÄRFE = "Sinnenschärfe";
-	public static final String PFLANZENKUNDE = "Pflanzenkunde";
-	public static final String SELBSTBEHERRSCHUNG = "Selbstbeherrschung";
-	public static final String SICH_VERSTECKEN = "Sich verstecken";
-	public static final String GEFAHRENINSTINKT = "Gefahreninstinkt";
-
-	public static final String GEISTER_RUFEN = "Geister rufen";
-	public static final String GEISTER_BANNEN = "Geister bannen";
-	public static final String GEISTER_BINDEN = "Geister binden";
-	public static final String GEISTER_ANRUFEN = "Geister aufnehmen";
-
-	public static final String LITURGIE_KENNTNIS_PREFIX = "Liturgiekenntnis";
-	public static final String RITUAL_KENNTNIS_PREFIX = "Ritualkenntnis:";
-
-	public static final String RITUAL_KENNTNIS_KRISTALLOMANTIE = "Ritualkenntnis: Kristallomantie";
-	public static final String RITUAL_KENNTNIS_RUNENZAUBEREI = "Ritualkenntnis: Runenzauberei";
-	public static final String RITUAL_KENNTNIS_ZIBILJA = "Ritualkenntnis: Zibilja";
-	public static final String RITUAL_KENNTNIS_ALCHEMIST = "Ritualkenntnis: Alchimist";
-	public static final String RITUAL_KENNTNIS_DERWISCH = "Ritualkenntnis: Derwisch";
-	public static final String RITUAL_KENNTNIS_DRUIDE = "Ritualkenntnis: Druide";
-	public static final String RITUAL_KENNTNIS_DURRO_DUN = "Ritualkenntnis: Durro-Dûn";
-	public static final String RITUAL_KENNTNIS_GEODE = "Ritualkenntnis: Geode";
-	public static final String RITUAL_KENNTNIS_SCHARLATEN = "Ritualkenntnis: Scharlatan";
-	public static final String RITUAL_KENNTNIS_GILDENMAGIE = "Ritualkenntnis: Gildenmagie";
-	public static final String RITUAL_KENNTNIS_HEXE = "Ritualkenntnis: Hexe";
-	public static final String RITUAL_KENNTNIS_ZAUBERTAENZER_PREFIX = "Ritualkenntnis: Zaubertänzer";
-
 	protected Hero hero;
 
 	protected Integer value;
 
-	private String name;
+	protected TalentType type;
 
 	private String talentSpezialisierung;
 
@@ -69,23 +36,31 @@ public class Talent extends MarkableElement implements Value {
 
 	private EnumSet<Flags> flags = EnumSet.noneOf(Flags.class);
 
-	public static final String ARMBRUST = "Armbrust";
-
-	public static final String DOLCHE = "Dolche";
-
-	public static final String AKROBATIK = "Akrobatik";
-
 	public Talent(Hero hero) {
 		super();
 		this.hero = hero;
 	}
 
 	public String getName() {
-		return name;
+		return type.xmlName();
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public TalentType getType() {
+		return type;
+	}
+
+	public void setType(TalentType type) {
+		this.type = type;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.data.Probe#getModificatorType()
+	 */
+	@Override
+	public ModificatorType getModificatorType() {
+		return ModificatorType.Talent;
 	}
 
 	public void setProbeBe(String be) {

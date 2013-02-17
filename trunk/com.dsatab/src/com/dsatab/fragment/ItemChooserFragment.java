@@ -49,8 +49,9 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.bugsense.trace.BugSenseHandler;
-import com.dsatab.DSATabApplication;
+import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
+import com.dsatab.activity.ItemEditActivity;
 import com.dsatab.data.Hero;
 import com.dsatab.data.ItemLocationInfo;
 import com.dsatab.data.adapter.GalleryImageAdapter;
@@ -63,7 +64,6 @@ import com.dsatab.data.items.ItemType;
 import com.dsatab.util.Debug;
 import com.dsatab.util.Util;
 import com.dsatab.view.CardView;
-import com.dsatab.view.ItemChooserDialog;
 import com.dsatab.view.ItemListItem;
 import com.dsatab.xml.DataManager;
 import com.j256.ormlite.stmt.PreparedQuery;
@@ -73,8 +73,8 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 	public static final String INTENT_EXTRA_ITEM_CELL = "itemCell";
 	public static final String INTENT_EXTRA_ITEM_NAME = "itemName";
-	public static final String INTENT_EXTRA_ITEM_ID = "itemID";
-	public static final String INTENT_EXTRA_EQUIPPED_ITEM_ID = "equippedItemID";
+	public static final String INTENT_EXTRA_ITEM_ID = "itemId";
+	public static final String INTENT_EXTRA_EQUIPPED_ITEM_ID = "equippedItemId";
 	public static final String INTENT_EXTRA_ITEM_TYPE = "itemType";
 	public static final String INTENT_EXTRA_ITEM_CATEGORY = "itemCategory";
 	public static final String INTENT_EXTRA_ITEM = "item";
@@ -92,8 +92,6 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	private int cellNumber;
 
 	private BaseAdapter imageAdapter;
-
-	private ItemChooserDialog itemChooserDialog;
 
 	private Item selectedCard = null;
 	private Item foundItem = null;
@@ -138,7 +136,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.sheet_item, container, false);
+		return inflater.inflate(R.layout.sheet_item_chooser, container, false);
 	}
 
 	public void setOnItemChooserListener(OnItemChooserListener onItemChooserListener) {
@@ -165,7 +163,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		Hero hero = DSATabApplication.getInstance().getHero();
+		Hero hero = DsaTabApplication.getInstance().getHero();
 
 		if (hero == null) {
 			Toast.makeText(getActivity(), "Fehler: Kein Held geladen.", Toast.LENGTH_SHORT).show();
@@ -177,7 +175,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		String itemCategory = null;
 
 		try {
-			allItems = DSATabApplication.getInstance().getDBHelper().getDao(Item.class).queryBuilder().prepare();
+			allItems = DsaTabApplication.getInstance().getDBHelper().getDao(Item.class).queryBuilder().prepare();
 		} catch (SQLException e) {
 			BugSenseHandler.sendExceptionMessage(Debug.CATEGORY_DATABASE, "ItemChooserFragment prepare ItemDAO", e);
 		}
@@ -275,16 +273,6 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 				showCard(card, null, false);
 			}
 		});
-
-		if (categorySelectable) {
-			gallery.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-				@Override
-				public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-					showItemChooserPopup();
-					return true;
-				}
-			});
-		}
 
 		if (imageAdapter.getCount() == 0) {
 			Toast.makeText(getActivity(), "Keine Einträge gefunden", Toast.LENGTH_SHORT).show();
@@ -438,32 +426,6 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 	}
 
-	private void showItemChooserPopup() {
-		if (itemChooserDialog == null) {
-			itemChooserDialog = new ItemChooserDialog(getActivity());
-			itemChooserDialog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-				/*
-				 * (non-Javadoc)
-				 * 
-				 * @see
-				 * android.widget.AdapterView.OnItemClickListener#onItemClick
-				 * (android.widget.AdapterView, android.view.View, int, long)
-				 */
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-					Item item = itemChooserDialog.getItem(position);
-					if (item != null) {
-						chooseType(item.getSpecifications().get(0).getType(), item.getCategory(), item);
-					}
-					itemChooserDialog.dismiss();
-
-				}
-			});
-		}
-
-		itemChooserDialog.show(categoriesSelected);
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -542,9 +504,16 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
+		com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_edit, Menu.NONE, "Bearbeiten");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarEdit));
+
+		item = menu.add(Menu.NONE, R.id.option_add, Menu.NONE, "Erstellen");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarSwordAdd));
+
 		if (searchable) {
-			com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_search, Menu.NONE,
-					"Gegenstand suchen");
+			item = menu.add(Menu.NONE, R.id.option_search, Menu.NONE, "Gegenstand suchen");
 
 			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
 					| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
@@ -614,16 +583,9 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 		if (categorySelectable) {
 			// --
-
-			com.actionbarsherlock.view.MenuItem item = menu.add(Menu.NONE, R.id.option_item_filter, Menu.NONE,
-					"Filtern");
+			item = menu.add(Menu.NONE, R.id.option_item_filter, Menu.NONE, "Filtern");
 			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 			item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarFilter));
-		}
-		// --
-
-		if (onItemChooserListener != null) {
-			Util.inflateAcceptAbortMenu(getActivity(), menu);
 		}
 
 		super.onCreateOptionsMenu(menu, inflater);
@@ -689,15 +651,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.option_accept) {
-			if (selectedCard != null) {
-				selectCard(selectedCard);
-			}
-			return true;
-		} else if (item.getItemId() == R.id.option_cancel) {
-			cancel();
-			return true;
-		} else if (item.getItemId() == R.id.option_item_filter) {
+		if (item.getItemId() == R.id.option_item_filter) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
 			String[] categoryNames = new String[categories.length];
@@ -725,7 +679,12 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 				}
 			});
 			return true;
-
+		} else if (item.getItemId() == R.id.option_edit) {
+			ItemEditActivity.edit(getActivity(), selectedCard);
+			return true;
+		} else if (item.getItemId() == R.id.option_add) {
+			ItemEditActivity.create(getActivity());
+			return true;
 		} else {
 			return super.onOptionsItemSelected(item);
 		}

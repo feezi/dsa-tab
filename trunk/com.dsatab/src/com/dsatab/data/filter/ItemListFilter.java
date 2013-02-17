@@ -68,7 +68,7 @@ public class ItemListFilter extends OpenFilter<Item> {
 		this.category = category;
 	}
 
-	protected boolean isFilterSet() {
+	public boolean isFilterSet() {
 		return constraint != null || types != null || category != null;
 	}
 

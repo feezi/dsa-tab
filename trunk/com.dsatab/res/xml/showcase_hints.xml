@@ -26,6 +26,13 @@
             title="Zusätzliche Modifikatoren"
             viewId="@id/fight_modifiers_add"/>        
     </fragment>
+    <fragment name="ItemsFragment">
+        <hint
+            id="ITEMS_CONTAINER_MENU"
+            description="Du kannst deine Behälter bearbeiten und neue hinzufügen, indem du lange auf die Liste klickst."
+            title="Behälter bearbeiten"
+            viewId="@id/container_list"/>
+    </fragment>
     
     <fragment name="DiceSlider">
         <hint

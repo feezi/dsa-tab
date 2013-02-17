@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.dsatab"
     android:installLocation="auto"
-    android:versionCode="57"
-    android:versionName="4.0.4">
+    android:versionCode="59"
+    android:versionName="4.0.6">
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -37,7 +37,7 @@
         android:xlargeScreens="true" />
 
     <application
-        android:name="DSATabApplication"
+        android:name="DsaTabApplication"
         android:hardwareAccelerated="true"
         android:icon="@drawable/icon"
         android:label="DsaTab"
@@ -45,7 +45,7 @@
         android:allowBackup="true"
         android:theme="@style/DsaTabTheme.Dark" >
         <activity
-            android:name="com.dsatab.activity.MainActivity"
+            android:name="com.dsatab.activity.DsaTabActivity"
             android:uiOptions="splitActionBarWhenNarrow"
             android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified" >
             <intent-filter>
@@ -55,7 +55,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.BasePreferenceActivity"
+            android:name="com.dsatab.activity.DsaTabPreferenceActivity"
             android:label="Einstellungen" >
         </activity>
         <activity
@@ -81,6 +81,16 @@
             android:theme="@style/Theme.Dialog.Dark">
         </activity>
         <activity
+            android:name=".activity.ItemContainerEditActivity"
+            android:label="Behälter bearbeiten"
+            android:logo="@android:drawable/ic_menu_edit"
+            android:theme="@style/Theme.Dialog.Dark" />        
+            <activity
+            android:name=".activity.ItemEditActivity"
+            android:label="Gegenstand"
+            android:logo="@android:drawable/ic_menu_edit"
+            android:theme="@style/Theme.Dialog.Dark" />
+        <activity
             android:name="com.dsatab.activity.HeroChooserActivity"
             android:label="Held auswählen" >
         </activity>
@@ -98,8 +108,7 @@
         </activity>
 
         <receiver
-            android:name="com.gandulf.guilib.download.DownloadBroadcastReceiver"
-            android:exported="false" >
+            android:name="com.gandulf.guilib.download.DownloadBroadcastReceiver" android:exported="false" >
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
             </intent-filter>

@@ -6,6 +6,7 @@ import java.util.Collection;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -22,6 +24,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 
 import com.dsatab.R;
+import com.dsatab.activity.ItemEditActivity;
 import com.dsatab.data.adapter.ItemCursorAdapter;
 import com.dsatab.data.adapter.SpinnerSimpleAdapter;
 import com.dsatab.data.items.Item;
@@ -42,6 +45,7 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 	private Collection<ItemType> itemTypes = null;
 
 	private ImageButton searchButton;
+	private Button newButton;
 	private EditText searchText;
 
 	public ItemChooserDialog(Context context) {
@@ -169,6 +173,8 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 
 		searchButton = (ImageButton) popupcontent.findViewById(R.id.popup_search_button);
 		searchButton.setOnClickListener(this);
+		newButton = (Button) popupcontent.findViewById(R.id.popup_item_new);
+		newButton.setOnClickListener(this);
 
 		searchText = (EditText) popupcontent.findViewById(R.id.popup_autosearch);
 
@@ -230,6 +236,10 @@ public class ItemChooserDialog extends AlertDialog implements android.view.View.
 		switch (v.getId()) {
 		case R.id.popup_search_button:
 			toggleSearch();
+			break;
+		case R.id.popup_item_new:
+			getContext().startActivity(new Intent(getContext(), ItemEditActivity.class));
+			dismiss();
 			break;
 		}
 

@@ -22,7 +22,7 @@ import java.util.List;
 
 import android.text.TextUtils;
 
-import com.dsatab.data.enums.CombatTalentType;
+import com.dsatab.data.enums.TalentType;
 import com.j256.ormlite.field.DatabaseField;
 
 /**
@@ -47,7 +47,7 @@ public abstract class CloseCombatItem extends ItemSpecification {
 	@DatabaseField
 	private String combatTalentTypesWrapper;
 
-	private List<CombatTalentType> combatTalentType = null;
+	private List<TalentType> combatTalentType = null;
 
 	/**
 	 * 
@@ -92,8 +92,8 @@ public abstract class CloseCombatItem extends ItemSpecification {
 		this.wmPa = wmPa;
 	}
 
-	public CombatTalentType getCombatTalentType() {
-		initCombatTalentTypes();
+	public TalentType getTalentType() {
+		initTalentTypes();
 
 		if (combatTalentType.isEmpty())
 			return null;
@@ -101,32 +101,32 @@ public abstract class CloseCombatItem extends ItemSpecification {
 			return combatTalentType.get(0);
 	}
 
-	public List<CombatTalentType> getCombatTalentTypes() {
-		initCombatTalentTypes();
+	public List<TalentType> getTalentTypes() {
+		initTalentTypes();
 		return Collections.unmodifiableList(combatTalentType);
 	}
 
-	public void addCombatTalentType(CombatTalentType type) {
-		initCombatTalentTypes();
+	public void addTalentType(TalentType type) {
+		initTalentTypes();
 		if (!combatTalentType.contains(type)) {
 			combatTalentType.add(type);
 
 			if (TextUtils.isEmpty(combatTalentTypesWrapper))
 				combatTalentTypesWrapper = type.name();
 			else
-				combatTalentTypesWrapper = combatTalentTypesWrapper.concat(SEP + type);
+				combatTalentTypesWrapper = combatTalentTypesWrapper.concat(SEP + type.name());
 		}
 	}
 
-	private void initCombatTalentTypes() {
+	private void initTalentTypes() {
 		if (combatTalentType == null) {
 
-			combatTalentType = new ArrayList<CombatTalentType>();
+			combatTalentType = new ArrayList<TalentType>();
 
 			if (!TextUtils.isEmpty(combatTalentTypesWrapper)) {
 				String[] types = combatTalentTypesWrapper.split(SEP);
 				for (String type : types) {
-					combatTalentType.add(CombatTalentType.valueOf(type));
+					combatTalentType.add(TalentType.valueOf(type));
 				}
 			}
 		}

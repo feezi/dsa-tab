@@ -20,6 +20,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.dsatab.data.enums.AttributeType;
+import com.dsatab.data.enums.FeatureType;
+import com.dsatab.data.enums.TalentType;
 import com.dsatab.util.Util;
 
 /**
@@ -136,16 +138,16 @@ public class CustomAttribute extends Attribute implements JSONable {
 			break;
 		case Ausweichen:
 			value = 0;
-			if (hero.hasFeature(SpecialFeature.AUSWEICHEN_1))
+			if (hero.hasFeature(FeatureType.AusweichenI))
 				value += 3;
-			if (hero.hasFeature(SpecialFeature.AUSWEICHEN_2))
+			if (hero.hasFeature(FeatureType.AusweichenII))
 				value += 3;
-			if (hero.hasFeature(SpecialFeature.AUSWEICHEN_3))
+			if (hero.hasFeature(FeatureType.AusweichenIII))
 				value += 3;
-			if (hero.hasFeature(SpecialFeature.ZWERGENWUCHS))
+			if (hero.hasFeature(FeatureType.Zwergenwuchs))
 				value += 1;
 
-			Talent athletik = hero.getTalent(Talent.ATHLETIK);
+			Talent athletik = hero.getTalent(TalentType.Athletik);
 			if (athletik != null && athletik.getValue() >= 9) {
 				value += (athletik.getValue() - 9) / 3;
 			}
@@ -179,17 +181,17 @@ public class CustomAttribute extends Attribute implements JSONable {
 			else if (ge >= 11)
 				value += 1;
 
-			if (hero.hasFeature(SpecialFeature.FLINK))
+			if (hero.hasFeature(FeatureType.Flink))
 				value += 1;
-			if (hero.hasFeature(SpecialFeature.BEHAEBIG))
+			if (hero.hasFeature(FeatureType.Behäbig))
 				value -= 1;
-			if (hero.hasFeature(SpecialFeature.EINBEINIG))
+			if (hero.hasFeature(FeatureType.Einbeinig))
 				value -= 3;
-			if (hero.hasFeature(SpecialFeature.KLEINWUECHSIG))
+			if (hero.hasFeature(FeatureType.Kleinwüchsig))
 				value -= 1;
-			if (hero.hasFeature(SpecialFeature.LAHM))
+			if (hero.hasFeature(FeatureType.Lahm))
 				value -= 1;
-			if (hero.hasFeature(SpecialFeature.ZWERGENWUCHS))
+			if (hero.hasFeature(FeatureType.Zwergenwuchs))
 				value -= 2;
 
 			if (this.originalBaseValue == null)

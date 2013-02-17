@@ -17,23 +17,25 @@
 package com.dsatab.xml;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import android.net.Uri;
 import android.text.TextUtils;
 import android.text.TextUtils.StringSplitter;
+import au.com.bytecode.opencsv.CSVReader;
 
-import com.dsatab.DSATabApplication;
-import com.dsatab.activity.BasePreferenceActivity;
+import com.dsatab.DsaTabApplication;
+import com.dsatab.activity.DsaTabPreferenceActivity;
 import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.data.ArtInfo;
 import com.dsatab.data.SpellInfo;
-import com.dsatab.data.enums.CombatTalentType;
 import com.dsatab.data.enums.Position;
+import com.dsatab.data.enums.TalentType;
 import com.dsatab.data.items.Armor;
 import com.dsatab.data.items.DistanceWeapon;
 import com.dsatab.data.items.Item;
@@ -47,21 +49,23 @@ import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 public class XmlParser {
 
+	public static final String IMAGE_POSTFIX = ".jpg";
+
 	public static final String ENCODING = "UTF-8";
 
 	public static void fillItems() {
 
 		try {
-			readItems("items.txt");
+			readItems("data/items.csv");
 
-			if (DSATabApplication.getPreferences().getBoolean(BasePreferenceActivity.KEY_HOUSE_RULES_MORE_WOUND_ZONES,
-					false)) {
-				readItems("items_armor_house.txt");
+			if (DsaTabApplication.getPreferences().getBoolean(
+					DsaTabPreferenceActivity.KEY_HOUSE_RULES_MORE_WOUND_ZONES, false)) {
+				readItems("data/items_armor_house.csv");
 			} else {
-				readItems("items_armor.txt");
+				readItems("data/items_armor.csv");
 			}
 		} catch (IOException e) {
-			throw new DsaTabRuntimeException("Could not parse items from items.txt", e);
+			throw new DsaTabRuntimeException("Could not parse items from items.csv", e);
 		}
 
 	}
@@ -70,59 +74,50 @@ public class XmlParser {
 
 		BufferedReader r = null;
 		try {
-			r = new BufferedReader(new InputStreamReader(DSATabApplication.getInstance().getAssets().open("arts.txt"),
-					ENCODING), 1024 * 8);
+			r = new BufferedReader(new InputStreamReader(DsaTabApplication.getInstance().getAssets()
+					.open("data/arts.csv"), ENCODING), 1024 * 8);
 
-			String line;
-			StringSplitter splitter = new TextUtils.SimpleStringSplitter(';');
+			CSVReader reader = new CSVReader(r);
 
-			RuntimeExceptionDao<ArtInfo, Integer> artDao = DSATabApplication.getInstance().getDBHelper()
+			RuntimeExceptionDao<ArtInfo, Integer> artDao = DsaTabApplication.getInstance().getDBHelper()
 					.getRuntimeDao(ArtInfo.class);
 
-			Iterator<String> i = null;
-
 			ArtInfo item = null;
-			while ((line = r.readLine()) != null) {
+			String lineData[];
+			while ((lineData = reader.readNext()) != null) {
 
-				if (TextUtils.isEmpty(line) || line.startsWith("#"))
+				if (lineData.length == 0 || lineData[0].startsWith("#"))
 					continue;
 
-				try {
-					item = new ArtInfo();
-					splitter.setString(line);
-					i = splitter.iterator();
+				item = new ArtInfo();
 
-					item.setName(i.next().trim());
-					if (i.hasNext())
-						item.setGrade(Util.gradeToInt(i.next().trim()));
-					if (i.hasNext())
-						item.setTarget(i.next().trim());
-					if (i.hasNext())
-						item.setRange(i.next().trim());
-					if (i.hasNext())
-						item.setCastDuration(i.next().trim());
-					if (i.hasNext())
-						item.setEffect(i.next().trim());
-					if (i.hasNext())
-						item.setEffectDuration(i.next().trim());
-					if (i.hasNext())
-						item.setOrigin(i.next().trim());
-					if (i.hasNext())
-						item.setSource(i.next().trim());
-					if (i.hasNext())
-						item.setProbe(i.next().trim());
-					if (i.hasNext())
-						item.setMerkmale(i.next().trim());
+				item.setName(lineData[0].trim());
+				if (lineData.length > 1)
+					item.setGrade(Util.gradeToInt(lineData[1].trim()));
+				if (lineData.length > 2)
+					item.setTarget(lineData[2].trim());
+				if (lineData.length > 3)
+					item.setRange(lineData[3].trim());
+				if (lineData.length > 4)
+					item.setCastDuration(lineData[4].trim());
+				if (lineData.length > 5)
+					item.setEffect(lineData[5].trim());
+				if (lineData.length > 6)
+					item.setEffectDuration(lineData[6].trim());
+				if (lineData.length > 7)
+					item.setOrigin(lineData[7].trim());
+				if (lineData.length > 8)
+					item.setSource(lineData[8].trim());
+				if (lineData.length > 9)
+					item.setProbe(lineData[9].trim());
+				if (lineData.length > 10)
+					item.setMerkmale(lineData[10].trim());
 
-					artDao.create(item);
-
-				} catch (StringIndexOutOfBoundsException e) {
-					Debug.warning("Could not parse:" + line);
-				}
+				artDao.create(item);
 
 			}
 		} catch (IOException e) {
-			throw new DsaTabRuntimeException("Could not read arts from arts.txt", e);
+			throw new DsaTabRuntimeException("Could not read arts from arts.csv", e);
 		} finally {
 			try {
 				if (r != null)
@@ -137,60 +132,51 @@ public class XmlParser {
 
 		BufferedReader r = null;
 		try {
-			r = new BufferedReader(new InputStreamReader(
-					DSATabApplication.getInstance().getAssets().open("zauber.txt"), ENCODING), 1024 * 8);
+			r = new BufferedReader(new InputStreamReader(DsaTabApplication.getInstance().getAssets()
+					.open("data/spells.csv"), ENCODING), 1024 * 8);
 
-			String line;
-			StringSplitter splitter = new TextUtils.SimpleStringSplitter(';');
+			CSVReader reader = new CSVReader(r);
 
-			Iterator<String> i = null;
-
-			RuntimeExceptionDao<SpellInfo, Integer> spellDao = DSATabApplication.getInstance().getDBHelper()
+			RuntimeExceptionDao<SpellInfo, Integer> spellDao = DsaTabApplication.getInstance().getDBHelper()
 					.getRuntimeDao(SpellInfo.class);
 
+			String lineData[];
 			SpellInfo item = null;
-			while ((line = r.readLine()) != null) {
+			while ((lineData = reader.readNext()) != null) {
 
-				if (TextUtils.isEmpty(line) || line.startsWith("#"))
+				if (lineData.length == 0 || lineData[0].startsWith("#"))
 					continue;
 
-				try {
-					item = new SpellInfo();
-					splitter.setString(line);
-					i = splitter.iterator();
+				item = new SpellInfo();
+				item.setName(lineData[0].trim());
+				if (lineData.length > 1)
+					item.setSource(lineData[1].trim());
+				if (lineData.length > 2)
+					item.setProbe(lineData[2].trim());
+				if (lineData.length > 3)
+					item.setComplexity(lineData[3].trim());
+				if (lineData.length > 4)
+					item.setRepresentation(lineData[4].trim());
+				if (lineData.length > 5)
+					item.setMerkmale(lineData[5].trim());
+				if (lineData.length > 6)
+					item.setCastDuration(lineData[6].trim());
+				if (lineData.length > 7)
+					item.setCosts(lineData[7].trim());
+				if (lineData.length > 8)
+					item.setTarget(lineData[8].trim());
+				if (lineData.length > 9)
+					item.setRange(lineData[9].trim());
+				if (lineData.length > 10)
+					item.setEffectDuration(lineData[10].trim());
+				if (lineData.length > 11)
+					item.setEffect(lineData[11].trim());
 
-					item.setName(i.next().trim());
-					if (i.hasNext())
-						item.setSource(i.next().trim());
-					if (i.hasNext())
-						item.setProbe(i.next().trim());
-					if (i.hasNext())
-						item.setComplexity(i.next().trim());
-					if (i.hasNext())
-						item.setRepresentation(i.next().trim());
-					if (i.hasNext())
-						item.setMerkmale(i.next().trim());
-					if (i.hasNext())
-						item.setCastDuration(i.next().trim());
-					if (i.hasNext())
-						item.setCosts(i.next().trim());
-					if (i.hasNext())
-						item.setTarget(i.next().trim());
-					if (i.hasNext())
-						item.setRange(i.next().trim());
-					if (i.hasNext())
-						item.setEffectDuration(i.next().trim());
-					if (i.hasNext())
-						item.setEffect(i.next().trim());
-
-					spellDao.create(item);
-				} catch (StringIndexOutOfBoundsException e) {
-					Debug.warning("Could not parse:" + line);
-				}
+				spellDao.create(item);
 
 			}
 		} catch (IOException e) {
-			throw new DsaTabRuntimeException("Could nor read spells from zauber.txt", e);
+			throw new DsaTabRuntimeException("Could nor read spells from spells.csv", e);
 		} finally {
 			try {
 				if (r != null)
@@ -204,44 +190,43 @@ public class XmlParser {
 	private static void readItems(String file) throws IOException {
 		BufferedReader r = null;
 		try {
-			r = new BufferedReader(new InputStreamReader(DSATabApplication.getInstance().getAssets().open(file),
+			r = new BufferedReader(new InputStreamReader(DsaTabApplication.getInstance().getAssets().open(file),
 					ENCODING), 1024 * 8);
 
-			String line;
+			CSVReader reader = new CSVReader(r);
+			String[] lineData;
 			StringSplitter splitter = new TextUtils.SimpleStringSplitter(';');
 
-			List<Position> armorPositions = DSATabApplication.getInstance().getConfiguration().getArmorPositions();
+			List<Position> armorPositions = DsaTabApplication.getInstance().getConfiguration().getArmorPositions();
 
-			RuntimeExceptionDao<Weapon, Integer> weaponDao = DSATabApplication.getInstance().getDBHelper()
+			RuntimeExceptionDao<Weapon, Integer> weaponDao = DsaTabApplication.getInstance().getDBHelper()
 					.getRuntimeDao(Weapon.class);
 
-			RuntimeExceptionDao<Shield, Integer> shieldDao = DSATabApplication.getInstance().getDBHelper()
+			RuntimeExceptionDao<Shield, Integer> shieldDao = DsaTabApplication.getInstance().getDBHelper()
 					.getRuntimeDao(Shield.class);
 
-			RuntimeExceptionDao<Armor, Integer> armorDao = DSATabApplication.getInstance().getDBHelper()
+			RuntimeExceptionDao<Armor, Integer> armorDao = DsaTabApplication.getInstance().getDBHelper()
 					.getRuntimeDao(Armor.class);
 
-			RuntimeExceptionDao<DistanceWeapon, Integer> distanceWeaponDao = DSATabApplication.getInstance()
+			RuntimeExceptionDao<DistanceWeapon, Integer> distanceWeaponDao = DsaTabApplication.getInstance()
 					.getDBHelper().getRuntimeDao(DistanceWeapon.class);
 
-			RuntimeExceptionDao<MiscSpecification, Integer> miscspecDao = DSATabApplication.getInstance().getDBHelper()
+			RuntimeExceptionDao<MiscSpecification, Integer> miscspecDao = DsaTabApplication.getInstance().getDBHelper()
 					.getRuntimeDao(MiscSpecification.class);
 
-			RuntimeExceptionDao<Item, UUID> itemDao = DSATabApplication.getInstance().getDBHelper().getItemDao();
+			RuntimeExceptionDao<Item, UUID> itemDao = DsaTabApplication.getInstance().getDBHelper().getItemDao();
 
-			Iterator<String> i = null;
 			ItemType type = null;
 			Item item = null;
 			String specLabel, name;
-			while ((line = r.readLine()) != null) {
+			while ((lineData = reader.readNext()) != null) {
 
-				if (TextUtils.isEmpty(line) || line.startsWith("#"))
+				if (lineData.length == 0 || lineData[0].startsWith("#"))
 					continue;
 
 				item = new Item();
-				splitter.setString(line);
-				i = splitter.iterator();
-				type = parseBase(item, i);
+
+				type = parseBase(item, lineData);
 
 				specLabel = null;
 				name = item.getName();
@@ -268,23 +253,23 @@ public class XmlParser {
 					item = existingItem;
 				else
 					itemDao.create(item);
-				if (line.startsWith("W;")) {
-					Weapon w = readWeapon(item, i);
+				if (lineData[0].equals("W")) {
+					Weapon w = readWeapon(item, lineData);
 					w.setSpecificationLabel(specLabel);
 					item.addSpecification(w);
 					weaponDao.create(w);
-				} else if (line.startsWith("D;")) {
-					DistanceWeapon w = readDistanceWeapon(item, i);
+				} else if (lineData[0].equals("D")) {
+					DistanceWeapon w = readDistanceWeapon(item, lineData);
 					w.setSpecificationLabel(specLabel);
 					item.addSpecification(w);
 					distanceWeaponDao.create(w);
-				} else if (line.startsWith("A;")) {
-					Armor w = readArmor(item, i, armorPositions);
+				} else if (lineData[0].equals("A")) {
+					Armor w = readArmor(item, lineData, armorPositions);
 					w.setSpecificationLabel(specLabel);
 					item.addSpecification(w);
 					armorDao.create(w);
-				} else if (line.startsWith("S;")) {
-					Shield w = readShield(item, i);
+				} else if (lineData[0].equals("S")) {
+					Shield w = readShield(item, lineData);
 					w.setSpecificationLabel(specLabel);
 					item.addSpecification(w);
 					shieldDao.create(w);
@@ -306,39 +291,40 @@ public class XmlParser {
 		}
 	}
 
-	private static Weapon readWeapon(Item item, Iterator<String> i) {
+	private static Weapon readWeapon(Item item, String[] lineData) {
 
 		try {
 
 			Weapon w = new Weapon(item);
 
-			w.setTp(i.next()); // TP
+			w.setTp(lineData[4]); // TP
 
-			String tpKK = i.next(); // TPKK
+			String tpKK = lineData[5]; // TPKK
 			String tpKKMin = tpKK.substring(0, tpKK.indexOf("/"));
 			String tpKKStep = tpKK.substring(tpKK.indexOf("/") + 1);
 			w.setTpKKMin(Integer.valueOf(tpKKMin));
 			w.setTpKKStep(Integer.valueOf(tpKKStep));
 
-			String wm = i.next(); // WM
+			String wm = lineData[6]; // WM
 			String wmAt = wm.substring(0, wm.indexOf("/"));
 			String wmPa = wm.substring(wm.indexOf("/") + 1);
 
 			w.setWmAt(Util.parseInteger(wmAt));
 			w.setWmPa(Util.parseInteger(wmPa));
 
-			w.setIni(Util.parseInteger(i.next())); // INI
+			w.setIni(Util.parseInteger(lineData[7])); // INI
 
-			w.setBf(Util.parseInteger(i.next())); // BF
+			w.setBf(Util.parseInteger(lineData[8])); // BF
 
-			w.setDistance(i.next().trim()); // distance
+			w.setDistance(lineData[9].trim()); // distance
 
-			String twohanded = i.next(); // twohanded
+			String twohanded = lineData[10]; // twohanded
 			if (twohanded != null && twohanded.contains("z"))
 				w.setTwoHanded(true);
 
-			while (i.hasNext()) { // type
-				w.addCombatTalentType(CombatTalentType.valueOf(i.next()));
+			for (int i = 11; i < lineData.length; i++) { // type
+				if (!TextUtils.isEmpty(lineData[i]))
+					w.addTalentType(TalentType.valueOf(lineData[i]));
 			}
 
 			return w;
@@ -349,54 +335,42 @@ public class XmlParser {
 		return null;
 	}
 
-	private static Armor readArmor(Item item, Iterator<String> i, List<Position> armorPositions) {
+	private static Armor readArmor(Item item, String[] lineData, List<Position> armorPositions) {
 
 		Armor w = new Armor(item);
 
-		w.setTotalBe(Util.parseFloat(i.next()));
+		w.setTotalBe(Util.parseFloat(lineData[4]));
 
+		int i = 5;
 		for (Position pos : armorPositions) {
-			if (!i.hasNext())
-				break;
-			w.setRs(pos, Util.parseInteger(i.next()));
+			w.setRs(pos, Util.parseInt(lineData[i++], 0));
 		}
 
-		if (i.hasNext()) {
-			int zonenRs = Util.parseInteger(i.next());
-			w.setZonenRs(zonenRs);
-		}
-		if (i.hasNext()) {
-			Integer totalRs = Util.parseInteger(i.next());
-			w.setTotalRs(totalRs);
-		}
-		if (i.hasNext()) {
-			int stars = Util.parseInteger(i.next());
-			w.setStars(stars);
-		}
+		w.setZonenRs(Util.parseInt(lineData[i++], 0));
+		w.setTotalRs(Util.parseInt(lineData[i++], 0));
+		w.setStars(Util.parseInt(lineData[i++], 0));
 
-		if (i.hasNext()) {
-			String mod = i.next();
-			if (mod.contains("Z"))
-				w.setZonenHalfBe(true);
-		}
-		if (i.hasNext()) {
-			int pieces = Util.parseInteger(i.next());
-			w.setTotalPieces(pieces);
-		}
+		String mod = lineData[i++];
+		if (mod.contains("Z"))
+			w.setZonenHalfBe(true);
+
+		w.setTotalPieces(Util.parseInt(lineData[i++], 1));
+
 		return w;
 	}
 
-	private static DistanceWeapon readDistanceWeapon(Item item, Iterator<String> i) {
+	private static DistanceWeapon readDistanceWeapon(Item item, String[] lineData) {
 
 		try {
 			DistanceWeapon w = new DistanceWeapon(item);
 
-			w.setTp(i.next());
-			w.setDistances(i.next());
-			w.setTpDistances(i.next());
+			w.setTp(lineData[4]);
+			w.setDistances(lineData[5]);
+			w.setTpDistances(lineData[6]);
 
-			while (i.hasNext()) { // type
-				w.setCombatTalentType(CombatTalentType.valueOf(i.next()));
+			for (int i = 7; i < lineData.length; i++) { // type
+				if (!TextUtils.isEmpty(lineData[i]))
+					w.setTalentType(TalentType.valueOf(lineData[i]));
 			}
 
 			return w;
@@ -467,19 +441,19 @@ public class XmlParser {
 	// guessCategory = null;
 	// if (item.getCategory() == null) {
 	//
-	// if (w.getCombatTalentType() == CombatTalentType.Zweihandhiebwaffen) {
+	// if (w.getTalentType() == TalentType.Zweihandhiebwaffen) {
 	// guessCategory = "Zweihandhiebwaffen und -flegel";
-	// } else if (w.getCombatTalentType() == CombatTalentType.Zweihandflegel) {
+	// } else if (w.getTalentType() == TalentType.Zweihandflegel) {
 	// guessCategory = "Zweihandhiebwaffen und -flegel";
-	// } else if (w.getCombatTalentType() == CombatTalentType.Zweihandschwerter)
+	// } else if (w.getTalentType() == TalentType.Zweihandschwerter)
 	// {
 	// guessCategory = "Zweihandschwerter und -säbel";
-	// } else if (w.getCombatTalentType() == CombatTalentType.Speere) {
+	// } else if (w.getTalentType() == TalentType.Speere) {
 	// guessCategory = "Speere und Stäbe";
-	// } else if (w.getCombatTalentType() == CombatTalentType.Stäbe) {
+	// } else if (w.getTalentType() == TalentType.Stäbe) {
 	// guessCategory = "Speere und Stäbe";
-	// } else if (w.getCombatTalentTypes().size() == 1) {
-	// guessCategory = w.getCombatTalentType().name();
+	// } else if (w.getTalentTypes().size() == 1) {
+	// guessCategory = w.getTalentType().name();
 	// }
 	//
 	// }
@@ -502,7 +476,7 @@ public class XmlParser {
 	// r.append(w.isTwoHanded() ? "Z" : "");
 	// r.append(";");
 	//
-	// for (CombatTalentType t : w.getCombatTalentTypes()) {
+	// for (TalentType t : w.getTalentTypes()) {
 	// r.append(t.name());
 	// r.append(";");
 	// }
@@ -513,19 +487,19 @@ public class XmlParser {
 	// guessCategory = null;
 	// if (item.getCategory() == null) {
 	//
-	// if (w.getCombatTalentType() == CombatTalentType.Armbrust) {
+	// if (w.getTalentType() == TalentType.Armbrust) {
 	// guessCategory = "Schusswaffen";
-	// } else if (w.getCombatTalentType() == CombatTalentType.Bogen) {
+	// } else if (w.getTalentType() == TalentType.Bogen) {
 	// guessCategory = "Schusswaffen";
-	// } else if (w.getCombatTalentType() == CombatTalentType.Blasrohr) {
+	// } else if (w.getTalentType() == TalentType.Blasrohr) {
 	// guessCategory = "Schusswaffen";
-	// } else if (w.getCombatTalentType() == CombatTalentType.Wurfbeile) {
+	// } else if (w.getTalentType() == TalentType.Wurfbeile) {
 	// guessCategory = "Wurfwaffen";
-	// } else if (w.getCombatTalentType() == CombatTalentType.Wurfmesser) {
+	// } else if (w.getTalentType() == TalentType.Wurfmesser) {
 	// guessCategory = "Wurfwaffen";
-	// } else if (w.getCombatTalentType() == CombatTalentType.Wurfspeere) {
+	// } else if (w.getTalentType() == TalentType.Wurfspeere) {
 	// guessCategory = "Wurfwaffen";
-	// } else if (w.getCombatTalentType() == CombatTalentType.Schleuder) {
+	// } else if (w.getTalentType() == TalentType.Schleuder) {
 	// guessCategory = "Wurfwaffen";
 	// }
 	//
@@ -539,7 +513,7 @@ public class XmlParser {
 	// r.append(";");
 	// r.append(w.getTpDistances());
 	// r.append(";");
-	// r.append(w.getCombatTalentType().name());
+	// r.append(w.getTalentType().name());
 	// r.append(";");
 	//
 	// } else if (i instanceof Shield) {
@@ -567,7 +541,7 @@ public class XmlParser {
 	// r.append(w.isParadeWeapon() ? "P" : "");
 	// r.append(";");
 	//
-	// for (CombatTalentType t : w.getCombatTalentTypes()) {
+	// for (TalentType t : w.getTalentTypes()) {
 	// r.append(t.name());
 	// r.append(";");
 	// }
@@ -620,46 +594,66 @@ public class XmlParser {
 	// }
 	// }
 
-	private static ItemType parseBase(Item item, Iterator<String> i) {
+	private static ItemType parseBase(Item item, String[] lineData) {
 
 		ItemType type = null;
-		String typeString = i.next();// itemtype
+		String typeString = lineData[0];// itemtype
 		if (!TextUtils.isEmpty(typeString))
 			type = ItemType.fromCharacter(typeString.charAt(0)); // type
 
-		String name = i.next().replace('_', ' ').trim();
-		item.setName(name);
+		item.setName(lineData[1].replace('_', ' ').trim());
 
-		item.setPath(i.next().trim()); // path
+		String path = lineData[2].trim();
+		File imageFile = null;
+		if (!TextUtils.isEmpty(path)) {
+			imageFile = new File(path);
+			if (!imageFile.exists())
+				imageFile = new File(DsaTabApplication.getDirectory(DsaTabApplication.DIR_CARDS), path);
+			if (!imageFile.exists())
+				imageFile = null;
+		}
 
-		item.setCategory(i.next().trim()); // category
+		// try to find a image with name of item in cards directory
+		if (imageFile == null && !TextUtils.isEmpty(item.getName())) {
+			imageFile = new File(DsaTabApplication.getDirectory(DsaTabApplication.DIR_CARDS), item.getName()
+					+ IMAGE_POSTFIX);
+			if (!imageFile.exists())
+				imageFile = null;
+		}
+
+		if (imageFile != null) {
+			item.setImageUri(Uri.fromFile(imageFile));
+		}
+
+		item.setCategory(lineData[3].trim()); // category
 
 		return type;
 	}
 
-	private static Shield readShield(Item item, Iterator<String> i) {
+	private static Shield readShield(Item item, String[] lineData) {
 
 		Shield w = new Shield(item);
 
-		String wm = i.next();
+		String wm = lineData[4];
 		String wmAt = wm.substring(0, wm.indexOf("/"));
 		String wmPa = wm.substring(wm.indexOf("/") + 1);
 
 		w.setWmAt(Util.parseInteger(wmAt));
 		w.setWmPa(Util.parseInteger(wmPa));
 
-		w.setIni(Util.parseInteger(i.next()));
-		w.setBf(Util.parseInteger(i.next()));
+		w.setIni(Util.parseInteger(lineData[5]));
+		w.setBf(Util.parseInteger(lineData[6]));
 
-		String type = i.next().toLowerCase(Locale.GERMAN); // typ
+		String type = lineData[7].toLowerCase(Locale.GERMAN); // typ
 
 		if (type.contains("p"))
 			w.setParadeWeapon(true);
 		if (type.contains("s"))
 			w.setShield(true);
 
-		while (i.hasNext()) { // type
-			w.addCombatTalentType(CombatTalentType.valueOf(i.next()));
+		for (int i = 8; i < lineData.length; i++) { // type
+			if (!TextUtils.isEmpty(lineData[i]))
+				w.addTalentType(TalentType.valueOf(lineData[i]));
 		}
 
 		return w;
