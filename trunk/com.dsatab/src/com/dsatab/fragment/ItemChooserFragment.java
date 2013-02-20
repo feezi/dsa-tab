@@ -512,6 +512,10 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarSwordAdd));
 
+		item = menu.add(Menu.NONE, R.id.option_delete, Menu.NONE, "Löschen");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarDelete));
+
 		if (searchable) {
 			item = menu.add(Menu.NONE, R.id.option_search, Menu.NONE, "Gegenstand suchen");
 
@@ -680,10 +684,14 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			});
 			return true;
 		} else if (item.getItemId() == R.id.option_edit) {
-			ItemEditActivity.edit(getActivity(), selectedCard);
+			ItemEditActivity.edit(getActivity(), null, selectedCard);
+			return true;
+		} else if (item.getItemId() == R.id.option_edit) {
+			DataManager.deleteItem(selectedCard);
+			imageAdapter.notifyDataSetChanged();
 			return true;
 		} else if (item.getItemId() == R.id.option_add) {
-			ItemEditActivity.create(getActivity());
+			ItemEditActivity.create(getActivity(), null);
 			return true;
 		} else {
 			return super.onOptionsItemSelected(item);

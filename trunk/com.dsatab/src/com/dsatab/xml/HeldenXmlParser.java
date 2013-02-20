@@ -707,8 +707,8 @@ public class HeldenXmlParser {
 		for (EquippedItem equippedItem : secondaryItems) {
 			if (equippedItem.getSchildIndex() != null) {
 				if (equippedItem.getSchildIndex() > 0) {
-					EquippedItem secondaryEquippedItem = hero.getEquippedItem(EquippedItem.NAME_PREFIX_SCHILD
-							+ equippedItem.getSchildIndex());
+					EquippedItem secondaryEquippedItem = hero.getEquippedItem(equippedItem.getSet(),
+							EquippedItem.NAME_PREFIX_SCHILD + equippedItem.getSchildIndex());
 					if (secondaryEquippedItem != null) {
 						equippedItem.setSecondaryItem(secondaryEquippedItem);
 						secondaryEquippedItem.setSecondaryItem(equippedItem);
@@ -1560,7 +1560,7 @@ public class HeldenXmlParser {
 
 				// find first free slot
 				int i = 1;
-				while (hero.getEquippedItem(namePrefix + i) != null) {
+				while (hero.getEquippedItem(equippedItem.getSet(), namePrefix + i) != null) {
 					i++;
 				}
 				element.setAttribute(Xml.KEY_NAME, namePrefix + i);

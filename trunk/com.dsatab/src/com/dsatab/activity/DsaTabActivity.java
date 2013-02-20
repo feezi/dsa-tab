@@ -902,7 +902,8 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 			return true;
 		case R.id.option_set:
 			if (getHero() != null) {
-				getHero().setActiveSet(getHero().getNextActiveSet());
+				int set = getHero().getActiveSet();
+				getHero().setActiveSet((set + 1) % Hero.MAXIMUM_SET_NUMBER);
 			}
 			return true;
 		case R.id.option_tabs:

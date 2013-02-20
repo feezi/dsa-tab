@@ -26,42 +26,58 @@ import android.view.ViewGroup;
 import com.actionbarsherlock.app.ActionBar;
 import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
+import com.dsatab.data.Hero;
+import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
 import com.dsatab.fragment.ItemEditFragment;
+import com.dsatab.xml.DataManager;
 
 public class ItemEditActivity extends BaseFragmentActivity {
 
 	private ItemEditFragment fragment;
 
-	public static void create(Context context) {
+	public static void create(Context context, Hero hero) {
 		Intent intent = new Intent(context, ItemEditActivity.class);
-		intent.setAction(Intent.ACTION_PICK);
+		intent.setAction(Intent.ACTION_INSERT);
+		if (hero != null) {
+			intent.putExtra(ItemEditFragment.INTENT_EXTRA_HERO, hero.getKey());
+		}
 		context.startActivity(intent);
 	}
 
-	public static void edit(Context context, ItemCard itemCard) {
+	public static void edit(Context context, Hero hero, ItemCard itemCard) {
 		if (itemCard != null) {
 
 			Item item = itemCard.getItem();
 
 			Intent intent = new Intent(context, ItemEditActivity.class);
-			intent.setAction(Intent.ACTION_PICK);
+			intent.setAction(Intent.ACTION_EDIT);
+			if (itemCard instanceof EquippedItem) {
+				intent.putExtra(ItemEditFragment.INTENT_EXTRA_EQUIPPED_ITEM_ID, item.getId());
+			}
 			intent.putExtra(ItemEditFragment.INTENT_EXTRA_ITEM_ID, item.getId());
-
+			if (hero != null) {
+				intent.putExtra(ItemEditFragment.INTENT_EXTRA_HERO, hero.getKey());
+			}
 			context.startActivity(intent);
 		}
 	}
 
-	public static void view(Context context, ItemCard itemCard) {
+	public static void view(Context context, Hero hero, ItemCard itemCard) {
 		if (itemCard != null) {
 
 			Item item = itemCard.getItem();
 
 			Intent intent = new Intent(context, ItemEditActivity.class);
 			intent.setAction(Intent.ACTION_VIEW);
+			if (itemCard instanceof EquippedItem) {
+				intent.putExtra(ItemEditFragment.INTENT_EXTRA_EQUIPPED_ITEM_ID, item.getId());
+			}
 			intent.putExtra(ItemEditFragment.INTENT_EXTRA_ITEM_ID, item.getId());
-
+			if (hero != null) {
+				intent.putExtra(ItemEditFragment.INTENT_EXTRA_HERO, hero.getKey());
+			}
 			context.startActivity(intent);
 		}
 	}
@@ -72,7 +88,7 @@ public class ItemEditActivity extends BaseFragmentActivity {
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
 	 */
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(final Bundle savedInstanceState) {
 		setTheme(DsaTabApplication.getInstance().getCustomTheme());
 		applyPreferencesToTheme();
 		super.onCreate(savedInstanceState);
@@ -87,10 +103,31 @@ public class ItemEditActivity extends BaseFragmentActivity {
 			@Override
 			public void onClick(View v) {
 				Item item = fragment.accept();
-				if (DsaTabApplication.getInstance().getHero().getItem(item.getId()) == null) {
-					DsaTabApplication.getInstance().getHero().addItem(item);
+
+				if (getIntent().hasExtra(ItemEditFragment.INTENT_EXTRA_HERO)) {
+					if (DsaTabApplication.getInstance().getHero().getItem(item.getId()) == null) {
+						DsaTabApplication.getInstance().getHero().addItem(item);
+					} else {
+						DsaTabApplication.getInstance().getHero().fireItemChangedEvent(item);
+					}
+
+					// update item database with image uris, or create item in
+					// db if it doesn't exists yet
+					Item dbItem = DataManager.getItemByName(item.getName());
+					if (dbItem != null) {
+						dbItem.setImageUri(item.getImageUri());
+						dbItem.setIconUri(item.getIconUri());
+						DataManager.updateItem(dbItem);
+					} else {
+						DataManager.createItem(item);
+					}
 				} else {
-					DsaTabApplication.getInstance().getHero().fireItemChangedEvent(item);
+					if (Intent.ACTION_EDIT.equals(getIntent().getAction())
+							|| Intent.ACTION_VIEW.equals(getIntent().getAction())) {
+						DataManager.updateItem(item);
+					} else if (Intent.ACTION_INSERT.equals(getIntent().getAction())) {
+						DataManager.createItem(item);
+					}
 				}
 				setResult(RESULT_OK);
 				finish();

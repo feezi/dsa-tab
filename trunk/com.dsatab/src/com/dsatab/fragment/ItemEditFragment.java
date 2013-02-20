@@ -30,6 +30,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -53,17 +56,20 @@ import com.dsatab.view.PortraitChooserDialog;
 import com.dsatab.xml.DataManager;
 import com.gandulf.guilib.util.DefaultTextWatcher;
 
-public class ItemEditFragment extends BaseFragment implements OnClickListener {
+public class ItemEditFragment extends BaseFragment implements OnClickListener, OnCheckedChangeListener {
 
 	private static final int ACTION_PHOTO = 1;
 
 	public static final String INTENT_EXTRA_ITEM_ID = "itemId";
+	public static final String INTENT_EXTRA_EQUIPPED_ITEM_ID = "equippedItemId";
+	public static final String INTENT_EXTRA_HERO = "hero";
 
 	private CardView imageView;
 	private ItemListItem itemView;
 
 	private EditText nameView, titleView, priceView, weightView;
 	private ImageView iconView;
+	private CheckBox imageTextOverlayView;
 	private Spinner categorySpn;
 	private SpinnerSimpleAdapter<String> categoryAdapter;
 
@@ -100,7 +106,9 @@ public class ItemEditFragment extends BaseFragment implements OnClickListener {
 		imageView = (CardView) root.findViewById(R.id.popup_edit_image);
 		itemView = (ItemListItem) root.findViewById(R.id.inc_gal_item_view);
 		categorySpn = (Spinner) root.findViewById(R.id.popup_edit_category);
+		imageTextOverlayView = (CheckBox) root.findViewById(R.id.popup_edit_overlay);
 		imageView.setOnClickListener(this);
+		imageTextOverlayView.setOnCheckedChangeListener(this);
 
 		return root;
 	}
@@ -138,6 +146,7 @@ public class ItemEditFragment extends BaseFragment implements OnClickListener {
 			public void afterTextChanged(Editable s) {
 				cloneItem.setName(s.toString());
 				itemView.setItem(cloneItem, itemSpecification);
+				imageView.setItem(cloneItem);
 			}
 		});
 
@@ -147,6 +156,7 @@ public class ItemEditFragment extends BaseFragment implements OnClickListener {
 			public void afterTextChanged(Editable s) {
 				cloneItem.setTitle(s.toString());
 				itemView.setItem(cloneItem, itemSpecification);
+				imageView.setItem(cloneItem);
 			}
 		});
 
@@ -218,6 +228,7 @@ public class ItemEditFragment extends BaseFragment implements OnClickListener {
 		priceView.setText(Util.toString(card.getPrice()));
 		weightView.setText(Util.toString(card.getWeight()));
 		categorySpn.setSelection(categoryAdapter.getPosition(card.getCategory()));
+		imageTextOverlayView.setChecked(card.isImageTextOverlay());
 
 	}
 
@@ -240,6 +251,7 @@ public class ItemEditFragment extends BaseFragment implements OnClickListener {
 		origItem.setIconUri(cloneItem.getIconUri());
 		origItem.setImageUri(cloneItem.getImageUri());
 		origItem.setCategory((String) categorySpn.getSelectedItem());
+		origItem.setImageTextOverlay(cloneItem.isImageTextOverlay());
 		return origItem;
 	}
 
@@ -276,6 +288,24 @@ public class ItemEditFragment extends BaseFragment implements OnClickListener {
 			}
 		});
 		pdialog.show();
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged
+	 * (android.widget.CompoundButton, boolean)
+	 */
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		switch (buttonView.getId()) {
+		case R.id.popup_edit_overlay:
+			cloneItem.setImageTextOverlay(isChecked);
+			imageView.setItem(cloneItem);
+			break;
+		}
 
 	}
 

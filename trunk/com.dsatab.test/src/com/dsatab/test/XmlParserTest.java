@@ -16,11 +16,15 @@
  */
 package com.dsatab.test;
 
+import java.io.InputStream;
+
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.filter.Filters;
 import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
+
+import android.test.InstrumentationTestCase;
 
 import com.dsatab.data.Hero;
 import com.dsatab.data.enums.AttributeType;
@@ -156,7 +160,7 @@ public class XmlParserTest extends InstrumentationTestCase {
 		assertEquals(attrIntegerValue("/helden/held/kampf/kampfwerte[@name='Dolche']/parade/@value", dom), hero
 				.getCombatTalent(TalentType.Dolche).getDefense().getValue());
 
-		EquippedItem langSchwert = hero.getEquippedItem("nkwaffe1");
+		EquippedItem langSchwert = hero.getEquippedItem(0, "nkwaffe1");
 		assertEquals(11,
 				langSchwert.getCombatProbeAttacke().getValue() + hero.getModifier(langSchwert.getCombatProbeAttacke()));
 		assertEquals(16,
@@ -167,7 +171,7 @@ public class XmlParserTest extends InstrumentationTestCase {
 		assertEquals(hero.getCombatTalent(TalentType.Schwerter), langSchwert.getTalent());
 		assertEquals(Hand.rechts, langSchwert.getHand());
 
-		EquippedItem drachenzahn = hero.getEquippedItem("nkwaffe2");
+		EquippedItem drachenzahn = hero.getEquippedItem(0, "nkwaffe2");
 		assertEquals(-1,
 				drachenzahn.getCombatProbeAttacke().getValue() + hero.getModifier(drachenzahn.getCombatProbeAttacke()));
 		assertEquals(-1,

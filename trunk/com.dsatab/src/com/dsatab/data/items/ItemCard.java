@@ -44,6 +44,8 @@ public interface ItemCard {
 
 	public boolean hasImage();
 
+	public boolean isImageTextOverlay();
+
 	public String getTitle();
 
 	public Item getItem();

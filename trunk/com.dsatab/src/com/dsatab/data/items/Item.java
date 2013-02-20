@@ -54,6 +54,8 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	public String imageUriHelper = null;
 	@DatabaseField
 	public String iconUriHelper = null;
+	@DatabaseField
+	public boolean imageTextOverlay = true;
 	/**
 	 * in kreuzer
 	 */
@@ -115,6 +117,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 			}
 		}
 		itemSpecification.setVersion(version);
+		itemSpecification.setItem(this);
 
 		itemSpecs.add(itemSpecification);
 
@@ -138,6 +141,10 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 				itemSpecs.addAll(armorSpecsHelper);
 			if (miscSpecsHelper != null)
 				itemSpecs.addAll(miscSpecsHelper);
+
+			if (itemSpecs.isEmpty()) {
+				addSpecification(new MiscSpecification(this, ItemType.Sonstiges));
+			}
 		}
 		return Collections.unmodifiableList(itemSpecs);
 	}
@@ -198,6 +205,14 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 		this.weight = weight;
 	}
 
+	public boolean isImageTextOverlay() {
+		return imageTextOverlay;
+	}
+
+	public void setImageTextOverlay(boolean imageTextOverlay) {
+		this.imageTextOverlay = imageTextOverlay;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -249,6 +264,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 	public Uri getImageUri() {
 		if (imageUri == null && imageUriHelper != null) {
 			imageUri = Uri.parse(imageUriHelper);
+			hasCardImage = true;
 		}
 		return imageUri;
 	}
@@ -263,7 +279,7 @@ public class Item implements Serializable, Comparable<Item>, Cloneable, ItemCard
 
 	public boolean hasImage() {
 		if (hasCardImage == null) {
-			hasCardImage = imageUri != null;
+			hasCardImage = getImageUri() != null;
 		}
 		return hasCardImage;
 	}
