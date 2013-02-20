@@ -94,11 +94,11 @@ public class ItemsFragment extends BaseListFragment implements OnItemClickListen
 								notifyChanged = false;
 								break;
 							case R.id.option_view:
-								ItemEditActivity.view(getActivity(), selectedItem);
+								ItemEditActivity.view(getActivity(), getHero(), selectedItem);
 								mode.finish();
 								return true;
 							case R.id.option_edit:
-								ItemEditActivity.edit(getActivity(), selectedItem);
+								ItemEditActivity.edit(getActivity(), getHero(), selectedItem);
 								mode.finish();
 								return true;
 							case R.id.option_equipped:
@@ -546,7 +546,7 @@ public class ItemsFragment extends BaseListFragment implements OnItemClickListen
 		} else {
 			if (mMode == null) {
 				itemList.setItemChecked(position, false);
-				ItemEditActivity.view(getActivity(), itemAdapter.getItem(position));
+				ItemEditActivity.view(getActivity(), getHero(), itemAdapter.getItem(position));
 			} else {
 				super.onItemClick(parent, view, position, id);
 			}

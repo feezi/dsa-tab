@@ -158,25 +158,31 @@
                 app:layout_gravity="start|end"
                 app:layout_row="9"
                 tools:listitem="@android:layout/simple_spinner_item" />
+
+            <CheckBox
+                android:id="@+id/popup_edit_overlay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_columnSpan="2"
+                app:layout_gravity="left"
+                app:layout_row="10"
+                android:text="Name über dem Bild anzeigen" />
+            
             
             <android.support.v7.widget.Space
                 android:id="@+id/space1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_column="0"
-                app:layout_gravity="fill"
-                app:layout_row="10" />
+                app:layout_gravity="fill" />
             
             <include
                 android:id="@+id/inc_gal_item_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_columnSpan="2"
-                app:layout_gravity="start|end"
-                app:layout_row="11"
-                layout="@layout/item_listitem_view" />
-
-            
+                app:layout_gravity="start|end"                
+                layout="@layout/item_listitem_view" />            
             
         </android.support.v7.widget.GridLayout>
 

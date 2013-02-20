@@ -86,6 +86,7 @@ public class GalleryImageCursorAdapter extends SimpleCursorAdapter {
 
 		private Uri imageUri;
 		private String title;
+		private boolean imageTextOverlay;
 
 		/**
 		 * 
@@ -94,6 +95,7 @@ public class GalleryImageCursorAdapter extends SimpleCursorAdapter {
 
 			this.title = c.getString(c.getColumnIndex("title"));
 			String name = c.getString(c.getColumnIndex("name"));
+			String imageTextOverlay = c.getString(c.getColumnIndex("imageTextOverlay"));
 
 			if (TextUtils.isEmpty(title)) {
 				this.title = name;
@@ -103,6 +105,8 @@ public class GalleryImageCursorAdapter extends SimpleCursorAdapter {
 			if (!TextUtils.isEmpty(imageUriHelper)) {
 				imageUri = Uri.parse(imageUriHelper);
 			}
+
+			this.imageTextOverlay = Boolean.parseBoolean(imageTextOverlay);
 		}
 
 		@Override
@@ -113,6 +117,16 @@ public class GalleryImageCursorAdapter extends SimpleCursorAdapter {
 		@Override
 		public Uri getImageUri() {
 			return imageUri;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.dsatab.data.items.ItemCard#isImageTextOverlay()
+		 */
+		@Override
+		public boolean isImageTextOverlay() {
+			return imageTextOverlay;
 		}
 
 		/*

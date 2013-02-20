@@ -18,14 +18,15 @@ package com.dsatab.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Checkable;
 import android.widget.ImageView;
@@ -45,21 +46,21 @@ public class CardView extends ImageView implements Checkable {
 
 	private static final int[] CHECKED_STATE_SET = { android.R.attr.state_checked };
 
-	private ItemCard item;
-
 	private String itemText;
 
-	private boolean hasCardImage;
+	private int textGravity;
+	private boolean imageTextOverlay;
 
 	private Paint paint;
 
 	private Path textPath;
+	private Rect textBox;
 
 	private boolean calculated = false;
 
 	private boolean highQuality = false;
 
-	private static int TEXT_PADDING = 20;
+	private int TEXT_PADDING = 0;
 
 	boolean mChecked = false;
 
@@ -94,6 +95,7 @@ public class CardView extends ImageView implements Checkable {
 		setBackgroundResource(R.drawable.border_patch);
 		setScaleType(ScaleType.FIT_XY);
 
+		textBox = new Rect();
 		paint = new Paint();
 		paint.setTextAlign(Align.CENTER);
 		paint.setTextSize(20);
@@ -136,35 +138,33 @@ public class CardView extends ImageView implements Checkable {
 		return drawableState;
 	}
 
-	public ItemCard getItem() {
-		return item;
-	}
-
-	public void setItem(Cursor c) {
-
-	}
-
 	public void setItem(ItemCard item) {
-		this.item = item;
-
 		calculated = false;
 		setTag(item);
 
-		if (item != null && item.hasImage()) {
-			if (highQuality) {
-				setImageBitmap(DataManager.getBitmap(item.getImageUri(), HQ_IMAGE_SIZE));
-				setScaleType(ScaleType.FIT_CENTER);
+		if (item != null) {
+			if (item.hasImage()) {
+				if (highQuality) {
+					setImageBitmap(DataManager.getBitmap(item.getImageUri(), HQ_IMAGE_SIZE));
+					setScaleType(ScaleType.FIT_CENTER);
+				} else {
+					setImageBitmap(DataManager.getBitmap(item.getImageUri(), LQ_IMAGE_SIZE));
+					setScaleType(ScaleType.FIT_CENTER);
+				}
+				textGravity = Gravity.CENTER;
 			} else {
-				setImageBitmap(DataManager.getBitmap(item.getImageUri(), LQ_IMAGE_SIZE));
-				setScaleType(ScaleType.FIT_CENTER);
+				textGravity = Gravity.CENTER;
+				setImageResource(R.drawable.item_card);
+				setScaleType(ScaleType.FIT_XY);
 			}
-			hasCardImage = true;
-			itemText = null;
+			itemText = item.getTitle();
+			imageTextOverlay = item.isImageTextOverlay();
 		} else {
-			hasCardImage = false;
+			imageTextOverlay = false;
 			setImageResource(R.drawable.item_card);
 			setScaleType(ScaleType.FIT_XY);
-			itemText = item.getTitle();
+			itemText = null;
+			textGravity = Gravity.CENTER;
 		}
 
 		invalidate();
@@ -179,16 +179,22 @@ public class CardView extends ImageView implements Checkable {
 	}
 
 	private void calcTextSize(int w, int h) {
-		if (calculated || TextUtils.isEmpty(itemText))
+		if (calculated || TextUtils.isEmpty(itemText) || !imageTextOverlay)
 			return;
 		paint.setTextSize(getWidth() / 7);
 
-		int maxWidth;
-		if (hasCardImage) {
+		int maxWidth = 0;
+		switch (textGravity) {
+		case Gravity.TOP:
 			maxWidth = (w - TEXT_PADDING * 2);
-		} else {
+			break;
+		case Gravity.CENTER:
 			maxWidth = (int) Math.sqrt((w - TEXT_PADDING * 2) * (w - TEXT_PADDING * 2) + (h - TEXT_PADDING * 2)
 					* (h - TEXT_PADDING * 2));
+			break;
+		default:
+			maxWidth = (w - TEXT_PADDING * 2);
+			break;
 		}
 
 		float width = paint.measureText(itemText);
@@ -203,12 +209,17 @@ public class CardView extends ImageView implements Checkable {
 		else
 			textPath.reset();
 
-		if (hasCardImage) {
-			textPath.moveTo(TEXT_PADDING, TEXT_PADDING);
-			textPath.lineTo(w - TEXT_PADDING, TEXT_PADDING);
-		} else {
+		switch (textGravity) {
+		case Gravity.TOP:
+			textPath.moveTo(0, TEXT_PADDING + paint.getTextSize() / 2);
+			textPath.lineTo(w, TEXT_PADDING + paint.getTextSize() / 2);
+			textBox.set(0, 0, w, (int) (TEXT_PADDING * 2 + paint.getTextSize()));
+			break;
+		case Gravity.CENTER:
 			textPath.moveTo(TEXT_PADDING, TEXT_PADDING);
 			textPath.lineTo(w - TEXT_PADDING, h - TEXT_PADDING);
+			textBox.set(0, 0, 0, 0);
+			break;
 		}
 
 		calculated = true;
@@ -234,9 +245,15 @@ public class CardView extends ImageView implements Checkable {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		if (!TextUtils.isEmpty(itemText)) {
+		if (!TextUtils.isEmpty(itemText) && imageTextOverlay) {
 			calcTextSize(getWidth(), getHeight());
+			if (!textBox.isEmpty()) {
+				paint.setAlpha(80);
+				canvas.drawRect(textBox, paint);
+				paint.setAlpha(255);
+			}
 			canvas.drawTextOnPath(itemText, textPath, 0, paint.getTextSize() / 2, paint);
+
 		}
 	}
 }

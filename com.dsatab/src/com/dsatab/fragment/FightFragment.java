@@ -238,10 +238,10 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 
 							switch (item.getItemId()) {
 							case R.id.option_edit:
-								ItemEditActivity.edit(getActivity(), equippedItem);
+								ItemEditActivity.edit(getActivity(), getHero(), equippedItem);
 								break;
 							case R.id.option_view:
-								ItemEditActivity.view(getActivity(), equippedItem);
+								ItemEditActivity.view(getActivity(), getHero(), equippedItem);
 								break;
 							case R.id.option_assign_secondary: {
 								final EquippedItem equippedPrimaryWeapon = equippedItem;

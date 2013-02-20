@@ -253,6 +253,7 @@ public class XmlParser {
 					item = existingItem;
 				else
 					itemDao.create(item);
+
 				if (lineData[0].equals("W")) {
 					Weapon w = readWeapon(item, lineData);
 					w.setSpecificationLabel(specLabel);
@@ -622,6 +623,7 @@ public class XmlParser {
 		}
 
 		if (imageFile != null) {
+			item.setImageTextOverlay(false);
 			item.setImageUri(Uri.fromFile(imageFile));
 		}
 

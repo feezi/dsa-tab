@@ -332,6 +332,16 @@ public class EquippedItem implements ItemCard {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.dsatab.data.items.ItemCard#isImageTextOverlay()
+	 */
+	@Override
+	public boolean isImageTextOverlay() {
+		return getItem().isImageTextOverlay();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.dsatab.data.items.ItemCard#hasImage()
 	 */
 	@Override

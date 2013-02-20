@@ -285,12 +285,8 @@ public class Hero {
 		itemListener.remove(v);
 	}
 
-	public EquippedItem getEquippedItem(String name) {
-		return getEquippedItem(activeSet, name);
-	}
-
 	public EquippedItem getEquippedItem(int set, String name) {
-		if (name == null)
+		if (name == null || set < 0 || set >= MAXIMUM_SET_NUMBER)
 			return null;
 
 		for (EquippedItem item : getEquippedItems(set)) {
@@ -298,7 +294,6 @@ public class Hero {
 				return item;
 		}
 		return null;
-
 	}
 
 	public EquippedItem getEquippedItem(UUID id) {
@@ -374,11 +369,6 @@ public class Hero {
 
 	public int getActiveSet() {
 		return activeSet;
-	}
-
-	public int getNextActiveSet() {
-		int set = getActiveSet();
-		return (set + 1) % MAXIMUM_SET_NUMBER;
 	}
 
 	public void setActiveSet(int activeSet) {

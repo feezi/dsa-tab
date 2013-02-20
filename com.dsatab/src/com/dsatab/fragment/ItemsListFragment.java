@@ -92,11 +92,11 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 									notifyChanged = false;
 									break;
 								case R.id.option_view:
-									ItemEditActivity.view(getActivity(), selectedItem);
+									ItemEditActivity.view(getActivity(), getHero(), selectedItem);
 									mode.finish();
 									return true;
 								case R.id.option_edit:
-									ItemEditActivity.edit(getActivity(), selectedItem);
+									ItemEditActivity.edit(getActivity(), getHero(), selectedItem);
 									mode.finish();
 									return true;
 								case R.id.option_equipped:

@@ -40,6 +40,7 @@ import com.dsatab.DsaTabApplication;
 import com.dsatab.data.ArtInfo;
 import com.dsatab.data.SpellInfo;
 import com.dsatab.data.items.Item;
+import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.ItemType;
 import com.dsatab.util.Debug;
 import com.dsatab.util.Util;
@@ -269,6 +270,45 @@ public class DataManager {
 
 		return items;
 
+	}
+
+	public static int deleteItem(Item item) {
+		RuntimeExceptionDao<Item, UUID> itemDao = DsaTabApplication.getInstance().getDBHelper().getItemDao();
+
+		int result = itemDao.delete(item);
+		for (ItemSpecification itemSpec : item.getSpecifications()) {
+			RuntimeExceptionDao itemSpecDao = DsaTabApplication.getInstance().getDBHelper()
+					.getRuntimeDao(itemSpec.getClass());
+			itemSpecDao.delete(itemSpec);
+		}
+		return result;
+	}
+
+	public static int updateItem(Item item) {
+		RuntimeExceptionDao<Item, UUID> itemDao = DsaTabApplication.getInstance().getDBHelper().getItemDao();
+
+		int result = itemDao.update(item);
+		for (ItemSpecification itemSpec : item.getSpecifications()) {
+			RuntimeExceptionDao itemSpecDao = DsaTabApplication.getInstance().getDBHelper()
+					.getRuntimeDao(itemSpec.getClass());
+			itemSpecDao.createOrUpdate(itemSpec);
+		}
+
+		return result;
+	}
+
+	public static int createItem(Item item) {
+		RuntimeExceptionDao<Item, UUID> itemDao = DsaTabApplication.getInstance().getDBHelper().getItemDao();
+		int result = itemDao.create(item);
+
+		for (ItemSpecification itemSpec : item.getSpecifications()) {
+			RuntimeExceptionDao itemSpecDao = DsaTabApplication.getInstance().getDBHelper()
+					.getRuntimeDao(itemSpec.getClass());
+			itemSpecDao.create(itemSpec);
+		}
+		itemDao.update(item);
+
+		return result;
 	}
 
 	public static Bitmap getBitmap(File file, int suggestedSize) {
