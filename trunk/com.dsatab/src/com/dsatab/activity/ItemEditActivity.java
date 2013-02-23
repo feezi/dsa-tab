@@ -64,24 +64,6 @@ public class ItemEditActivity extends BaseFragmentActivity {
 		}
 	}
 
-	public static void view(Context context, Hero hero, ItemCard itemCard) {
-		if (itemCard != null) {
-
-			Item item = itemCard.getItem();
-
-			Intent intent = new Intent(context, ItemEditActivity.class);
-			intent.setAction(Intent.ACTION_VIEW);
-			if (itemCard instanceof EquippedItem) {
-				intent.putExtra(ItemEditFragment.INTENT_EXTRA_EQUIPPED_ITEM_ID, item.getId());
-			}
-			intent.putExtra(ItemEditFragment.INTENT_EXTRA_ITEM_ID, item.getId());
-			if (hero != null) {
-				intent.putExtra(ItemEditFragment.INTENT_EXTRA_HERO, hero.getKey());
-			}
-			context.startActivity(intent);
-		}
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 

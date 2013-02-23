@@ -15,14 +15,11 @@
  */
 package com.dsatab.fragment;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -32,7 +29,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter.CursorToStringConverter;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,40 +44,21 @@ import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.bugsense.trace.BugSenseHandler;
-import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.ItemEditActivity;
 import com.dsatab.data.Hero;
-import com.dsatab.data.ItemLocationInfo;
 import com.dsatab.data.adapter.GalleryImageAdapter;
 import com.dsatab.data.adapter.GalleryImageCursorAdapter;
-import com.dsatab.data.enums.Position;
-import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemSpecification;
 import com.dsatab.data.items.ItemType;
-import com.dsatab.util.Debug;
 import com.dsatab.util.Util;
 import com.dsatab.view.CardView;
 import com.dsatab.view.ItemListItem;
 import com.dsatab.xml.DataManager;
-import com.j256.ormlite.stmt.PreparedQuery;
 
 public class ItemChooserFragment extends BaseFragment implements View.OnClickListener, View.OnLongClickListener,
 		DialogInterface.OnMultiChoiceClickListener {
-
-	public static final String INTENT_EXTRA_ITEM_CELL = "itemCell";
-	public static final String INTENT_EXTRA_ITEM_NAME = "itemName";
-	public static final String INTENT_EXTRA_ITEM_ID = "itemId";
-	public static final String INTENT_EXTRA_EQUIPPED_ITEM_ID = "equippedItemId";
-	public static final String INTENT_EXTRA_ITEM_TYPE = "itemType";
-	public static final String INTENT_EXTRA_ITEM_CATEGORY = "itemCategory";
-	public static final String INTENT_EXTRA_ITEM = "item";
-	public static final String INTENT_EXTRA_SEARCHABLE = "searchable";
-	public static final String INTENT_EXTRA_CATEGORY_SELECTABLE = "categorySelectale";
-
-	public static final String INTENT_EXTRA_ARMOR_POSITION = "position";
 
 	private Gallery gallery;
 	private CardView imageView;
@@ -89,32 +66,16 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 	private ImageButton[] categoryButtons;
 
-	private int cellNumber;
-
 	private BaseAdapter imageAdapter;
 
 	private Item selectedCard = null;
-	private Item foundItem = null;
 
 	private ItemSpecification selectedItemSpecification = null;
-
-	boolean categorySelectable = true;
-	boolean searchable = true;
-
-	private OnItemChooserListener onItemChooserListener;
 
 	private DataSetObserver dataSetObserver;
 
 	private Set<ItemType> categoriesSelected;
 	private ItemType[] categories;
-
-	PreparedQuery<Item> allItems;
-
-	public interface OnItemChooserListener {
-		public void onItemSelected(Item item, int cellNumber);
-
-		public void onItemCanceled();
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -139,11 +100,6 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		return inflater.inflate(R.layout.sheet_item_chooser, container, false);
 	}
 
-	public void setOnItemChooserListener(OnItemChooserListener onItemChooserListener) {
-		this.onItemChooserListener = onItemChooserListener;
-		getSherlockActivity().invalidateOptionsMenu();
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -152,8 +108,9 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		onItemChooserListener = null;
-		imageAdapter.unregisterDataSetObserver(dataSetObserver);
+		if (imageAdapter != null) {
+			imageAdapter.unregisterDataSetObserver(dataSetObserver);
+		}
 	}
 
 	/*
@@ -163,73 +120,11 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		Hero hero = DsaTabApplication.getInstance().getHero();
 
-		if (hero == null) {
-			Toast.makeText(getActivity(), "Fehler: Kein Held geladen.", Toast.LENGTH_SHORT).show();
-			getActivity().finish();
-			super.onActivityCreated(savedInstanceState);
-			return;
-		}
 		categories = ItemType.values();
 		String itemCategory = null;
 
-		try {
-			allItems = DsaTabApplication.getInstance().getDBHelper().getDao(Item.class).queryBuilder().prepare();
-		} catch (SQLException e) {
-			BugSenseHandler.sendExceptionMessage(Debug.CATEGORY_DATABASE, "ItemChooserFragment prepare ItemDAO", e);
-		}
-
 		categoriesSelected = new HashSet<ItemType>();
-
-		Bundle extra = getActivity().getIntent().getExtras();
-		if (extra != null) {
-			foundItem = (Item) extra.getSerializable(INTENT_EXTRA_ITEM);
-
-			cellNumber = extra.getInt(INTENT_EXTRA_ITEM_CELL, ItemLocationInfo.INVALID_POSITION);
-			categorySelectable = extra.getBoolean(INTENT_EXTRA_CATEGORY_SELECTABLE, true);
-			searchable = extra.getBoolean(INTENT_EXTRA_SEARCHABLE, true);
-
-			if (foundItem == null) {
-				String itemName = extra.getString(INTENT_EXTRA_ITEM_NAME);
-				UUID itemId = (UUID) extra.getSerializable(INTENT_EXTRA_ITEM_ID);
-				UUID equippedItemId = (UUID) extra.getSerializable(INTENT_EXTRA_EQUIPPED_ITEM_ID);
-
-				String itemType = extra.getString(INTENT_EXTRA_ITEM_TYPE);
-				itemCategory = extra.getString(INTENT_EXTRA_ITEM_CATEGORY);
-
-				if (itemType != null) {
-					categoriesSelected.add(ItemType.valueOf(itemType));
-				}
-
-				if (itemId != null) {
-					foundItem = hero.getItem(itemId);
-				}
-
-				if (equippedItemId != null) {
-					EquippedItem selectedEquippedItem = hero.getEquippedItem(equippedItemId);
-					foundItem = selectedEquippedItem.getItem();
-					selectedItemSpecification = selectedEquippedItem.getItemSpecification();
-				}
-				if (foundItem == null && !TextUtils.isEmpty(itemName)) {
-					foundItem = DataManager.getItemByName(itemName);
-				}
-
-				if (foundItem != null) {
-					if (selectedItemSpecification == null) {
-						selectedItemSpecification = foundItem.getSpecifications().get(0);
-					}
-					categoriesSelected.add(selectedItemSpecification.getType());
-					itemCategory = foundItem.getCategory();
-				}
-			} else {
-				if (selectedItemSpecification == null) {
-					selectedItemSpecification = foundItem.getSpecifications().get(0);
-				}
-				categoriesSelected.add(selectedItemSpecification.getType());
-				itemCategory = foundItem.getCategory();
-			}
-		}
 
 		gallery = (Gallery) findViewById(R.id.gal_gallery);
 		gallery.setSpacing(0);
@@ -242,26 +137,8 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		imageView.setOnClickListener(this);
 		imageView.setOnLongClickListener(this);
 
-		if (extra != null && extra.containsKey(INTENT_EXTRA_ARMOR_POSITION)) {
-			Position pos = (Position) extra.getSerializable(INTENT_EXTRA_ARMOR_POSITION);
-
-			List<EquippedItem> equippedItems = hero.getArmor(pos);
-			List<Item> items = new ArrayList<Item>(equippedItems.size());
-			for (int i = 0; i < equippedItems.size(); i++) {
-				items.add(equippedItems.get(i).getItem());
-			}
-			imageAdapter = new GalleryImageAdapter(getActivity(), items);
-		} else {
-			if (searchable) {
-				Cursor c = DataManager.getItemsCursor(null, categoriesSelected, itemCategory);
-				imageAdapter = new GalleryImageCursorAdapter(getActivity(), c);
-			} else {
-				if (foundItem != null)
-					imageAdapter = new GalleryImageAdapter(getActivity(), Arrays.asList(foundItem));
-				else
-					imageAdapter = new GalleryImageAdapter(getActivity(), new ArrayList<Item>(0));
-			}
-		}
+		Cursor c = DataManager.getItemsCursor(null, categoriesSelected, itemCategory);
+		imageAdapter = new GalleryImageCursorAdapter(getActivity(), c);
 
 		gallery.setAdapter(imageAdapter);
 		gallery.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -269,23 +146,12 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Cursor c = (Cursor) gallery.getItemAtPosition(position);
 				Item card = DataManager.getItemByCursor(c);
-				foundItem = null;
 				showCard(card, null, false);
 			}
 		});
 
 		if (imageAdapter.getCount() == 0) {
 			Toast.makeText(getActivity(), "Keine Einträge gefunden", Toast.LENGTH_SHORT).show();
-			cancel();
-		} else {
-			// TODO getPosition
-			// int index = 0;
-			// if (foundItem != null) {
-			// index = imageAdapter.getPositionByName(foundItem);
-			// }
-			// Debug.verbose("Showing index " + index);
-			// gallery.setSelection(index, false);
-
 		}
 
 		dataSetObserver = new DataSetObserver() {
@@ -296,21 +162,13 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			 */
 			@Override
 			public void onChanged() {
-				if (foundItem == null) {
-					Item item = null;
-					if (imageAdapter.getCount() > 0) {
-						Cursor cursor = (Cursor) imageAdapter.getItem(0);
-						item = DataManager.getItemByCursor(cursor);
-					}
-					if (item != null) {
-						showCard(item, null, true);
-					}
-				} else {
-					// TODO getPosition
-					// int index = imageAdapter.getPosition(foundItem);
-					// if (index >= 0) {
-					// gallery.setSelection(index, false);
-					// }
+				Item item = null;
+				if (imageAdapter.getCount() > 0) {
+					Cursor cursor = (Cursor) imageAdapter.getItem(0);
+					item = DataManager.getItemByCursor(cursor);
+				}
+				if (item != null) {
+					showCard(item, null, true);
 				}
 			}
 		};
@@ -337,40 +195,24 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		categoryButtons[6] = specialButton;
 		categoryButtons[7] = bagsButton;
 
-		if (categorySelectable) {
+		weaponButton.setTag(ItemType.Waffen);
+		shieldButton.setTag(ItemType.Schilde);
+		distanceButton.setTag(ItemType.Fernwaffen);
+		armorButton.setTag(ItemType.Rüstung);
+		itemsButton.setTag(ItemType.Sonstiges);
+		clothButton.setTag(ItemType.Kleidung);
+		specialButton.setTag(ItemType.Schmuck);
+		bagsButton.setTag(ItemType.Behälter);
 
-			weaponButton.setTag(ItemType.Waffen);
-			shieldButton.setTag(ItemType.Schilde);
-			distanceButton.setTag(ItemType.Fernwaffen);
-			armorButton.setTag(ItemType.Rüstung);
-			itemsButton.setTag(ItemType.Sonstiges);
-			clothButton.setTag(ItemType.Kleidung);
-			specialButton.setTag(ItemType.Schmuck);
-			bagsButton.setTag(ItemType.Behälter);
-
-			for (ImageButton button : categoryButtons) {
-				button.setOnClickListener(this);
-				button.setOnLongClickListener(this);
-				ItemType buttonType = (ItemType) button.getTag();
-				if (categoriesSelected.contains(buttonType))
-					button.setSelected(true);
-			}
-		} else {
-			for (ImageButton button : categoryButtons) {
-				button.setVisibility(View.GONE);
-			}
-
+		for (ImageButton button : categoryButtons) {
+			button.setOnClickListener(this);
+			button.setOnLongClickListener(this);
+			ItemType buttonType = (ItemType) button.getTag();
+			if (categoriesSelected.contains(buttonType))
+				button.setSelected(true);
 		}
 
-		if (searchable && imageAdapter.getCount() > 1) {
-			gallery.setVisibility(View.VISIBLE);
-		} else {
-			gallery.setVisibility(View.GONE);
-		}
-
-		if (foundItem != null)
-			showCard(foundItem, selectedItemSpecification, true);
-		else if (gallery.getSelectedItem() != null) {
+		if (gallery.getSelectedItem() != null) {
 			if (gallery.getSelectedItem() instanceof Cursor) {
 				showCard(DataManager.getItemByCursor((Cursor) gallery.getSelectedItem()), null, true);
 			} else if (gallery.getSelectedItem() instanceof Item)
@@ -384,10 +226,6 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		getActivity().supportInvalidateOptionsMenu();
 
 		super.onActivityCreated(savedInstanceState);
-	}
-
-	public OnItemChooserListener getOnItemChooserListener() {
-		return onItemChooserListener;
 	}
 
 	protected void filter(ItemType cardType, String itemCategory, String constraint) {
@@ -433,14 +271,7 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	 */
 	@Override
 	public void onClick(View v) {
-
-		if (v == imageView) {
-			if (selectedCard != null) {
-				selectCard(selectedCard);
-			} else {
-				cancel();
-			}
-		} else if (v.getTag() instanceof ItemType) {
+		if (v.getTag() instanceof ItemType) {
 			ItemType cardType = (ItemType) v.getTag();
 			chooseType(cardType, null, null);
 		}
@@ -449,29 +280,12 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 
 	public boolean onLongClick(View v) {
 
-		if (v == imageView) {
-			if (selectedCard != null) {
-				selectCard(selectedCard);
-			} else {
-				cancel();
-			}
-			return true;
-		} else if (v.getTag() instanceof ItemType) {
+		if (v.getTag() instanceof ItemType) {
 			ItemType cardType = (ItemType) v.getTag();
 			openSubCategoriesDialog(cardType);
 			return true;
 		}
 		return false;
-	}
-
-	private void selectCard(Item item) {
-		if (onItemChooserListener != null)
-			onItemChooserListener.onItemSelected(item, cellNumber);
-	}
-
-	private void cancel() {
-		if (onItemChooserListener != null)
-			onItemChooserListener.onItemCanceled();
 	}
 
 	private void showCard(Item card, ItemSpecification itemSpecification, boolean animate) {
@@ -516,81 +330,77 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarDelete));
 
-		if (searchable) {
-			item = menu.add(Menu.NONE, R.id.option_search, Menu.NONE, "Gegenstand suchen");
+		item = menu.add(Menu.NONE, R.id.option_search, Menu.NONE, "Gegenstand suchen");
 
-			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
-					| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-			item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarSearch));
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
+				| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarSearch));
 
-			final AutoCompleteTextView searchView = new AutoCompleteTextView(getSherlockActivity()
-					.getSupportActionBar().getThemedContext());
+		final AutoCompleteTextView searchView = new AutoCompleteTextView(getSherlockActivity().getSupportActionBar()
+				.getThemedContext());
 
-			searchView.setCompoundDrawablesWithIntrinsicBounds(
-					Util.getThemeResourceId(getActivity(), R.attr.imgSearch), 0, 0, 0);
-			searchView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		searchView.setCompoundDrawablesWithIntrinsicBounds(Util.getThemeResourceId(getActivity(), R.attr.imgSearch), 0,
+				0, 0);
+		searchView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 
-			final int[] to = new int[] { android.R.id.text1 };
-			final String[] from = new String[] { "name" };
+		final int[] to = new int[] { android.R.id.text1 };
+		final String[] from = new String[] { "name" };
 
-			// Create a SimpleCursorAdapter for the State Name field.
-			final SimpleCursorAdapter adapter = new SimpleCursorAdapter(getSherlockActivity().getSupportActionBar()
-					.getThemedContext(), android.R.layout.simple_dropdown_item_1line, null, from, to, 0);
+		// Create a SimpleCursorAdapter for the State Name field.
+		final SimpleCursorAdapter adapter = new SimpleCursorAdapter(getSherlockActivity().getSupportActionBar()
+				.getThemedContext(), android.R.layout.simple_dropdown_item_1line, null, from, to, 0);
 
-			// Set the CursorToStringConverter, to provide the labels for the
-			// choices to be displayed in the AutoCompleteTextView.
-			adapter.setCursorToStringConverter(new CursorToStringConverter() {
-				public String convertToString(android.database.Cursor cursor) {
-					// Get the label for this row out of the "state" column
-					if (cursor != null) {
-						final int columnIndex = cursor.getColumnIndexOrThrow("name");
-						final String str = cursor.getString(columnIndex);
+		// Set the CursorToStringConverter, to provide the labels for the
+		// choices to be displayed in the AutoCompleteTextView.
+		adapter.setCursorToStringConverter(new CursorToStringConverter() {
+			public String convertToString(android.database.Cursor cursor) {
+				// Get the label for this row out of the "state" column
+				if (cursor != null) {
+					final int columnIndex = cursor.getColumnIndexOrThrow("name");
+					final String str = cursor.getString(columnIndex);
 
-						return str;
-					} else
-						return null;
+					return str;
+				} else
+					return null;
+			}
+		});
+
+		// Set the FilterQueryProvider, to run queries for choices
+		// that match the specified input.
+		adapter.setFilterQueryProvider(new FilterQueryProvider() {
+			public Cursor runQuery(CharSequence constraint) {
+				// Search for states whose names begin with the specified
+				// letters.
+				Cursor cursor = DataManager.getItemsCursor(constraint, null, null);
+				return cursor;
+			}
+		});
+		searchView.setAdapter(adapter);
+		searchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				// Get the cursor, positioned to the corresponding row in
+				// the
+				// result set
+				Cursor cursor = (Cursor) adapter.getItem(position);
+
+				// Get the state's capital from this row in the database.
+				String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
+
+				Item item = DataManager.getItemByName(name);
+				if (item != null) {
+					Util.hideKeyboard(getView());
+					chooseType(item.getSpecifications().get(0).getType(), item.getCategory(), item);
 				}
-			});
+			}
+		});
+		item.setActionView(searchView);
+		searchView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 
-			// Set the FilterQueryProvider, to run queries for choices
-			// that match the specified input.
-			adapter.setFilterQueryProvider(new FilterQueryProvider() {
-				public Cursor runQuery(CharSequence constraint) {
-					// Search for states whose names begin with the specified
-					// letters.
-					Cursor cursor = DataManager.getItemsCursor(constraint, null, null);
-					return cursor;
-				}
-			});
-			searchView.setAdapter(adapter);
-			searchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-					// Get the cursor, positioned to the corresponding row in
-					// the
-					// result set
-					Cursor cursor = (Cursor) adapter.getItem(position);
-
-					// Get the state's capital from this row in the database.
-					String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
-
-					Item item = DataManager.getItemByName(name);
-					if (item != null) {
-						Util.hideKeyboard(getView());
-						chooseType(item.getSpecifications().get(0).getType(), item.getCategory(), item);
-					}
-				}
-			});
-			item.setActionView(searchView);
-			searchView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-		}
-
-		if (categorySelectable) {
-			// --
-			item = menu.add(Menu.NONE, R.id.option_item_filter, Menu.NONE, "Filtern");
-			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-			item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarFilter));
-		}
+		// --
+		item = menu.add(Menu.NONE, R.id.option_item_filter, Menu.NONE, "Filtern");
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		item.setIcon(Util.getThemeResourceId(getActivity(), R.attr.imgBarFilter));
 
 		super.onCreateOptionsMenu(menu, inflater);
 	}
@@ -604,15 +414,6 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
-		com.actionbarsherlock.view.MenuItem item = menu.findItem(R.id.option_item_filter);
-		if (item != null) {
-			item.setVisible(categorySelectable);
-		}
-
-		item = menu.findItem(R.id.option_search);
-		if (item != null) {
-			item.setVisible(searchable);
-		}
 	}
 
 	private void chooseType(ItemType type, String category, Item item) {
@@ -624,12 +425,11 @@ public class ItemChooserFragment extends BaseFragment implements View.OnClickLis
 			button.setSelected(categoriesSelected.contains(button.getTag()));
 		}
 
-		foundItem = item;
 		gallery.setVisibility(View.VISIBLE);
 		filter(categoriesSelected, category, null);
 
-		if (foundItem != null)
-			showCard(foundItem, null, true);
+		if (item != null)
+			showCard(item, null, true);
 	}
 
 	private void openSubCategoriesDialog(final ItemType cardType) {

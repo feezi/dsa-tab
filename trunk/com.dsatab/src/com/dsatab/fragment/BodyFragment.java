@@ -18,6 +18,8 @@ package com.dsatab.fragment;
 
 import java.util.List;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
@@ -37,12 +39,13 @@ import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.dsatab.activity.DsaTabActivity;
 import com.dsatab.activity.DsaTabPreferenceActivity;
-import com.dsatab.activity.ItemChooserActivity;
+import com.dsatab.activity.ItemViewActivity;
 import com.dsatab.data.ArmorAttribute;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Value;
 import com.dsatab.data.WoundAttribute;
+import com.dsatab.data.adapter.EquippedItemAdapter;
 import com.dsatab.data.items.EquippedItem;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemContainer;
@@ -193,16 +196,23 @@ public class BodyFragment extends BaseFragment implements OnClickListener, HeroI
 		else if (v.getTag() instanceof ArmorAttribute) {
 			ArmorAttribute value = (ArmorAttribute) v.getTag();
 
-			List<EquippedItem> equippedItems = getHero().getArmor(value.getPosition());
-			if (!equippedItems.isEmpty()) {
-				Intent intent = new Intent(getActivity(), ItemChooserActivity.class);
-				intent.setAction(Intent.ACTION_VIEW);
-				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ARMOR_POSITION, value.getPosition());
-				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
-				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_SEARCHABLE, false);
-				startActivity(intent);
-			} else {
+			final List<EquippedItem> equippedItems = getHero().getArmor(value.getPosition());
+
+			if (equippedItems.isEmpty()) {
 				Toast.makeText(getActivity(), "Keine Einträge gefunden", Toast.LENGTH_SHORT).show();
+			} else if (equippedItems.size() == 1) {
+				ItemViewActivity.view(getActivity(), getHero(), equippedItems.get(0));
+			} else {
+				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+				builder.setTitle("Rüstung");
+				final EquippedItemAdapter adapter = new EquippedItemAdapter(builder.getContext(), equippedItems);
+				builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						ItemViewActivity.view(getActivity(), getHero(), adapter.getItem(which));
+					}
+				});
+				builder.show();
 			}
 
 		}

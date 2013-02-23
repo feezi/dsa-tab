@@ -16,7 +16,7 @@
            <PreferenceScreen           		
                 android:key="downloadMediaScreen"
                 android:title="Portraits, Bilder, etc herunterladen"
-                android:fragment="com.dsatab.activity.BasePreferenceActivity$PrefsDownloadFragment"
+                android:fragment="com.dsatab.activity.DsaTabPreferenceActivity$PrefsDownloadFragment"
                 android:summary="Ladet zusätzliche Charakter Portraits, etc. aus dem Internet herunter.">
                 
                 <intent                

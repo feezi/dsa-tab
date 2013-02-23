@@ -60,8 +60,6 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 
 	private ArtAdapter artAdapter;
 
-	private ArtInfoDialog liturgieInfo;
-
 	private View empty;
 
 	private final class ArtActionMode implements ActionMode.Callback {
@@ -101,7 +99,7 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 
 				}
 				if (notifyChanged) {
-					artAdapter.refilter();
+					artAdapter.notifyDataSetChanged();
 				}
 			}
 			mode.finish();
@@ -232,9 +230,7 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 	 * @param probe
 	 */
 	private void showInfo(Art probe) {
-		if (liturgieInfo == null) {
-			liturgieInfo = new ArtInfoDialog(getBaseActivity());
-		}
+		ArtInfoDialog liturgieInfo = new ArtInfoDialog(getBaseActivity(), getHero());
 		liturgieInfo.setArt(probe);
 		liturgieInfo.show();
 	}
@@ -346,7 +342,7 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 		}
 
 		if (value instanceof Art) {
-			artAdapter.refilter();
+			artAdapter.notifyDataSetChanged();
 		}
 
 		if (value instanceof Talent) {

@@ -28,6 +28,7 @@ import com.dsatab.R;
 import com.dsatab.data.ItemLocationInfo;
 import com.dsatab.data.items.Item;
 import com.dsatab.data.items.ItemCard;
+import com.dsatab.util.Util;
 import com.dsatab.view.CardView;
 
 public class GalleryImageCursorAdapter extends SimpleCursorAdapter {
@@ -106,7 +107,7 @@ public class GalleryImageCursorAdapter extends SimpleCursorAdapter {
 				imageUri = Uri.parse(imageUriHelper);
 			}
 
-			this.imageTextOverlay = Boolean.parseBoolean(imageTextOverlay);
+			this.imageTextOverlay = Util.parseBoolean(imageTextOverlay);
 		}
 
 		@Override

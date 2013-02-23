@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.dsatab.common.StyleableSpannableStringBuilder;
+import com.dsatab.data.Hero;
 import com.dsatab.data.Spell;
 import com.dsatab.data.SpellInfo;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
@@ -29,8 +30,11 @@ public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnCl
 
 	private boolean editMode = false;
 
-	public SpellInfoDialog(Context context) {
+	private Hero hero;
+
+	public SpellInfoDialog(Context context, Hero hero) {
 		super(context);
+		this.hero = hero;
 		init();
 	}
 
@@ -79,6 +83,7 @@ public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnCl
 				set(R.id.popup_spell_source, info.getSource());
 				set(R.id.popup_spell_complexity, info.getComplexity());
 				set(R.id.popup_spell_merkmal, info.getMerkmale());
+				set(R.id.popup_spell_probe, info.getProbe());
 			}
 			set(R.id.popup_spell_row_comment, R.id.popup_spell_comment, spell.getComments());
 			set(R.id.popup_spell_row_variant, R.id.popup_spell_variant, spell.getVariant());
@@ -135,14 +140,17 @@ public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnCl
 					info.setSource(getValue(R.id.popup_spell_source_edit));
 					info.setComplexity(getValue(R.id.popup_spell_complexity_edit));
 					info.setMerkmale(getValue(R.id.popup_spell_merkmal_edit));
+					info.setProbe(getValue(R.id.popup_spell_probe_edit));
 
 					spell.setComments(getValue(R.id.popup_spell_comment_edit));
 					spell.setVariant(getValue(R.id.popup_spell_variant_edit));
+					spell.setProbePattern(info.getProbe());
 
 					RuntimeExceptionDao<SpellInfo, Long> dao = DsaTabApplication.getInstance().getDBHelper()
 							.getRuntimeExceptionDao(SpellInfo.class);
 					dao.createOrUpdate(info);
 
+					hero.fireValueChangedEvent(spell);
 					Toast.makeText(getContext(), "Zauberinformationen wurden gespeichert", Toast.LENGTH_SHORT).show();
 					SpellInfoDialog.this.dismiss();
 				} else {
@@ -211,6 +219,7 @@ public class SpellInfoDialog extends AlertDialog implements DialogInterface.OnCl
 					spell.getComments(), edit);
 			edit(R.id.popup_spell_row_variant, R.id.popup_spell_variant, R.id.popup_spell_variant_edit,
 					spell.getVariant(), edit);
+			edit(0, R.id.popup_spell_probe, R.id.popup_spell_probe_edit, info.getProbe(), edit);
 
 			if (findViewById(R.id.popup_spell_hero_values_row) != null) {
 				if (findViewById(R.id.popup_spell_row_comment) != null

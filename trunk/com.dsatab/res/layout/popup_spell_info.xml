@@ -51,6 +51,35 @@
                 style="@style/TextLabel.Popup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="Probe" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/popup_spell_probe"
+                style="@style/TextValue.NoTouch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="right|center_vertical"
+                android:text="" >
+            </TextView>
+
+            <EditText
+                android:id="@+id/popup_spell_probe_edit"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=""
+                android:inputType="text"
+                android:visibility="gone" />
+        </TableRow>
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                style="@style/TextLabel.Popup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="Kosten" >
             </TextView>
 

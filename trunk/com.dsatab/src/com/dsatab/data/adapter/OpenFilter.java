@@ -23,7 +23,6 @@ import java.util.Locale;
 import android.text.TextUtils;
 import android.widget.Filter;
 
-
 /**
  * @author Ganymede
  * 
@@ -119,7 +118,7 @@ public class OpenFilter<T> extends Filter {
 		list.mObjects = (List<T>) results.values;
 
 		if (results.count > 0) {
-			list.notifyDataSetChanged();
+			list.notifyDataSetChanged(false);
 		} else {
 			list.notifyDataSetInvalidated();
 		}

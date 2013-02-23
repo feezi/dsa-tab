@@ -395,7 +395,7 @@ public class DsaTabPreferenceActivity extends UnifiedSherlockPreferenceActivity 
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.dsatab.activity.BasePreferenceActivity#onSharedPreferenceChanged(
+	 * com.dsatab.activity.DsaTabPreferenceActivity#onSharedPreferenceChanged(
 	 * android.content.SharedPreferences, java.lang.String)
 	 */
 	@Override
@@ -860,7 +860,7 @@ public class DsaTabPreferenceActivity extends UnifiedSherlockPreferenceActivity 
 		 * (non-Javadoc)
 		 * 
 		 * @see
-		 * com.dsatab.activity.BasePreferenceActivity.BasePreferenceFragment
+		 * com.dsatab.activity.DsaTabPreferenceActivity.BasePreferenceFragment
 		 * #getPreferenceResourceId()
 		 */
 		@Override
@@ -879,7 +879,7 @@ public class DsaTabPreferenceActivity extends UnifiedSherlockPreferenceActivity 
 		 * (non-Javadoc)
 		 * 
 		 * @see
-		 * com.dsatab.activity.BasePreferenceActivity.BasePreferenceFragment
+		 * com.dsatab.activity.DsaTabPreferenceActivity.BasePreferenceFragment
 		 * #getPreferenceResourceId()
 		 */
 		@Override
@@ -898,7 +898,7 @@ public class DsaTabPreferenceActivity extends UnifiedSherlockPreferenceActivity 
 		 * (non-Javadoc)
 		 * 
 		 * @see
-		 * com.dsatab.activity.BasePreferenceActivity.BasePreferenceFragment
+		 * com.dsatab.activity.DsaTabPreferenceActivity.BasePreferenceFragment
 		 * #getPreferenceResourceId()
 		 */
 		@Override
@@ -917,7 +917,7 @@ public class DsaTabPreferenceActivity extends UnifiedSherlockPreferenceActivity 
 		 * (non-Javadoc)
 		 * 
 		 * @see
-		 * com.dsatab.activity.BasePreferenceActivity.BasePreferenceFragment
+		 * com.dsatab.activity.DsaTabPreferenceActivity.BasePreferenceFragment
 		 * #getPreferenceResourceId()
 		 */
 		@Override
@@ -936,7 +936,7 @@ public class DsaTabPreferenceActivity extends UnifiedSherlockPreferenceActivity 
 		 * (non-Javadoc)
 		 * 
 		 * @see
-		 * com.dsatab.activity.BasePreferenceActivity.BasePreferenceFragment
+		 * com.dsatab.activity.DsaTabPreferenceActivity.BasePreferenceFragment
 		 * #getPreferenceResourceId()
 		 */
 		@Override
@@ -956,7 +956,7 @@ public class DsaTabPreferenceActivity extends UnifiedSherlockPreferenceActivity 
 		 * (non-Javadoc)
 		 * 
 		 * @see
-		 * com.dsatab.activity.BasePreferenceActivity.BasePreferenceFragment
+		 * com.dsatab.activity.DsaTabPreferenceActivity.BasePreferenceFragment
 		 * #getPreferenceResourceId()
 		 */
 		@Override
@@ -975,7 +975,7 @@ public class DsaTabPreferenceActivity extends UnifiedSherlockPreferenceActivity 
 		 * (non-Javadoc)
 		 * 
 		 * @see
-		 * com.dsatab.activity.BasePreferenceActivity.BasePreferenceFragment
+		 * com.dsatab.activity.DsaTabPreferenceActivity.BasePreferenceFragment
 		 * #getPreferenceResourceId()
 		 */
 		@Override
@@ -994,7 +994,7 @@ public class DsaTabPreferenceActivity extends UnifiedSherlockPreferenceActivity 
 		 * (non-Javadoc)
 		 * 
 		 * @see
-		 * com.dsatab.activity.BasePreferenceActivity.BasePreferenceFragment
+		 * com.dsatab.activity.DsaTabPreferenceActivity.BasePreferenceFragment
 		 * #getPreferenceResourceId()
 		 */
 		@Override

@@ -38,6 +38,7 @@ import com.actionbarsherlock.view.SubMenu;
 import com.dsatab.R;
 import com.dsatab.activity.ItemContainerEditActivity;
 import com.dsatab.activity.ItemEditActivity;
+import com.dsatab.activity.ItemViewActivity;
 import com.dsatab.data.Hero;
 import com.dsatab.data.adapter.GridItemAdapter;
 import com.dsatab.data.adapter.ItemContainerAdapter;
@@ -94,7 +95,7 @@ public class ItemsFragment extends BaseListFragment implements OnItemClickListen
 								notifyChanged = false;
 								break;
 							case R.id.option_view:
-								ItemEditActivity.view(getActivity(), getHero(), selectedItem);
+								ItemViewActivity.view(getActivity(), getHero(), selectedItem);
 								mode.finish();
 								return true;
 							case R.id.option_edit:
@@ -546,7 +547,7 @@ public class ItemsFragment extends BaseListFragment implements OnItemClickListen
 		} else {
 			if (mMode == null) {
 				itemList.setItemChecked(position, false);
-				ItemEditActivity.view(getActivity(), getHero(), itemAdapter.getItem(position));
+				ItemViewActivity.view(getActivity(), getHero(), itemAdapter.getItem(position));
 			} else {
 				super.onItemClick(parent, view, position, id);
 			}

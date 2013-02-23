@@ -49,8 +49,6 @@ public class SpellFragment extends BaseListFragment implements OnItemClickListen
 
 	private SpellAdapter spellAdapter;
 
-	private SpellInfoDialog spellInfo;
-
 	private final class SpellActionMode implements ActionMode.Callback {
 		@Override
 		public boolean onActionItemClicked(ActionMode mode, com.actionbarsherlock.view.MenuItem item) {
@@ -90,7 +88,7 @@ public class SpellFragment extends BaseListFragment implements OnItemClickListen
 					}
 				}
 				if (notifyChanged) {
-					spellAdapter.refilter();
+					spellAdapter.notifyDataSetChanged();
 				}
 			}
 
@@ -219,9 +217,7 @@ public class SpellFragment extends BaseListFragment implements OnItemClickListen
 	 * @param probe
 	 */
 	private void showInfo(Spell probe) {
-		if (spellInfo == null) {
-			spellInfo = new SpellInfoDialog(getBaseActivity());
-		}
+		SpellInfoDialog spellInfo = new SpellInfoDialog(getBaseActivity(), getHero());
 		spellInfo.setSpell(probe);
 		spellInfo.show();
 	}
