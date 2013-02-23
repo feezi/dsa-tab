@@ -59,8 +59,6 @@ public class Art extends MarkableElement implements Value {
 
 	private Talent kenntnis;
 
-	private String costs, effect, castDuration;
-
 	public enum Flags {
 		Begabung
 	}
@@ -69,9 +67,10 @@ public class Art extends MarkableElement implements Value {
 
 	private boolean customProbe;
 
-	public Art(Hero hero) {
+	public Art(Hero hero, String name) {
 		super();
 		this.hero = hero;
+		setName(name);
 	}
 
 	/*
@@ -155,7 +154,7 @@ public class Art extends MarkableElement implements Value {
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		this.name = name.trim();
 
 		setType(ArtType.getTypeOfArt(name));
 		if (type != null) {
@@ -189,15 +188,25 @@ public class Art extends MarkableElement implements Value {
 		}
 
 		if (info == null) {
-			Debug.warning("No unique art found for " + name + " : " + grade);
+			info = new ArtInfo();
+			info.setName(name);
+			if (grade != null) {
+				info.setGrade(Util.gradeToInt(grade));
+			}
+			Debug.warning("No unique art found for " + name + " : " + grade + " creating a new one");
 		}
 
-		if (info != null && !TextUtils.isEmpty(info.getProbe())) {
-			probeInfo.applyProbePattern(info.getProbe());
-		}
+		setProbePattern(info.getProbe());
 
-		if (probeInfo.getErschwernis() == null && info != null && info.getGrade() >= 0) {
+		if (probeInfo.getErschwernis() == null && info.getGrade() > 0) {
 			probeInfo.setErschwernis(info.getGrade() * 2 - 2);
+		}
+	}
+
+	public void setProbePattern(String pattern) {
+		probeInfo.applyProbePattern(pattern);
+		if (!TextUtils.isEmpty(pattern)) {
+			info.setProbe(pattern);
 		}
 
 		if (getArtTalent() != null) {
@@ -206,25 +215,6 @@ public class Art extends MarkableElement implements Value {
 		} else {
 			customProbe = true;
 		}
-
-	}
-
-	public void setProbePattern(String pattern) {
-
-		probeInfo.applyProbePattern(pattern);
-
-	}
-
-	public void setCosts(String costs) {
-		this.costs = costs;
-	}
-
-	public void setEffect(String effect) {
-		this.effect = effect;
-	}
-
-	public void setCastDuration(String castDuration) {
-		this.castDuration = castDuration;
 	}
 
 	public ArtInfo getInfo() {
@@ -301,42 +291,6 @@ public class Art extends MarkableElement implements Value {
 
 	public int getMaximum() {
 		return 25;
-	}
-
-	public String getCosts() {
-
-		if (TextUtils.isEmpty(costs) && info != null) {
-			return info.getCosts();
-		} else {
-			return costs;
-		}
-	}
-
-	public String getEffect() {
-		if (info != null) {
-			if (TextUtils.isEmpty(effect))
-				effect = info.getEffect();
-			else
-				effect += (" - " + info.getEffect());
-		}
-		return effect;
-	}
-
-	public String getCastDuration() {
-
-		if (TextUtils.isEmpty(castDuration) && info != null) {
-			return info.getCastDuration();
-		} else {
-			return castDuration;
-		}
-	}
-
-	public String getCastDurationDetailed() {
-		if (TextUtils.isEmpty(castDuration) && info != null) {
-			return info.getCastDurationDetailed();
-		} else {
-			return castDuration;
-		}
 	}
 
 }

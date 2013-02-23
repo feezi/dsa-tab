@@ -33,7 +33,7 @@
             android:title="Vollbild" />
 
         <PreferenceScreen
-            android:fragment="com.dsatab.activity.BasePreferenceActivity$PrefsDisplayDiceSliderFragment"            
+            android:fragment="com.dsatab.activity.DsaTabPreferenceActivity$PrefsDisplayDiceSliderFragment"            
             android:key="displayDiceSliderScreen"
             android:summary="Hier kannst du einstellen wie sich die Würfelleiste verhalten soll."
             android:title="Würfelleiste konfigurieren">
@@ -45,7 +45,7 @@
             </intent>
             </PreferenceScreen>
         <PreferenceScreen
-            android:fragment="com.dsatab.activity.BasePreferenceActivity$PrefsDisplayHeaderFragment"            
+            android:fragment="com.dsatab.activity.DsaTabPreferenceActivity$PrefsDisplayHeaderFragment"            
             android:key="displayHeaderScreen"
             android:summary="Hier kannst du einstellen was alles in der Kopfzeile angezeigt werden soll."
             android:title="Kopfzeile konfigurieren" >

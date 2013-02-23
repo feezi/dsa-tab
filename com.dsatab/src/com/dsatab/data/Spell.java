@@ -41,9 +41,10 @@ public class Spell extends MarkableElement implements Value {
 
 	private EnumSet<Flags> flags = EnumSet.noneOf(Flags.class);
 
-	public Spell(Hero hero) {
+	public Spell(Hero hero, String name) {
 		super();
 		this.hero = hero;
+		setName(name);
 	}
 
 	public String getName() {
@@ -51,11 +52,11 @@ public class Spell extends MarkableElement implements Value {
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		this.name = name.trim();
 
 		this.info = DataManager.getSpellByName(name);
 		if (info == null) {
-			Debug.warning("No spell info found for " + name);
+			Debug.warning("No spell info found for " + name + ", creating one");
 
 			info = new SpellInfo();
 			info.setName(name);
@@ -99,6 +100,9 @@ public class Spell extends MarkableElement implements Value {
 
 	public void setProbePattern(String pattern) {
 		this.probeInfo.applyProbePattern(pattern);
+		if (!TextUtils.isEmpty(pattern)) {
+			info.setProbe(pattern);
+		}
 	}
 
 	/*

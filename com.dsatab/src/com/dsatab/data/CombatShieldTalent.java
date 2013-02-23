@@ -11,6 +11,16 @@ import com.dsatab.data.items.UsageType;
 
 public class CombatShieldTalent extends BaseCombatTalent {
 
+	/**
+	 * 
+	 */
+	public static final String PARIERWAFFENPARADE = "Parierwaffenparade";
+
+	/**
+	 * 
+	 */
+	public static final String SCHILDPARADE = "Schildparade";
+
 	protected UsageType usageType;
 
 	private int set;
@@ -34,13 +44,11 @@ public class CombatShieldTalent extends BaseCombatTalent {
 	public String getName() {
 		switch (usageType) {
 		case Schild:
-			return "Schildparade";
+			return SCHILDPARADE;
 		case Paradewaffe:
-			return "Parierwaffenparade";
-		default:
-			return "CombatShieldTalent with no UsageType";
+			return PARIERWAFFENPARADE;
 		}
-
+		return null;
 	}
 
 	public Probe getAttack() {

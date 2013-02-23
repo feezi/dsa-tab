@@ -44,6 +44,7 @@ import android.text.TextUtils;
 import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.common.DsaTabRuntimeException;
 import com.dsatab.data.Art;
+import com.dsatab.data.ArtInfo;
 import com.dsatab.data.Attribute;
 import com.dsatab.data.BaseCombatTalent;
 import com.dsatab.data.ChangeEvent;
@@ -182,7 +183,13 @@ public class HeldenXmlParser {
 		List<Element> sfs = DomUtil.getChildrenByTagName(heldElement, Xml.KEY_VORTEILE, Xml.KEY_VORTEIL);
 
 		for (Element element : sfs) {
-			FeatureType featureType = FeatureType.byXmlName(element.getAttributeValue(Xml.KEY_NAME));
+			FeatureType featureType;
+			try {
+				featureType = FeatureType.byXmlName(element.getAttributeValue(Xml.KEY_NAME));
+			} catch (IllegalArgumentException e) {
+				BugSenseHandler.sendEvent("Unknown FeatureType:" + element.getAttributeValue(Xml.KEY_NAME));
+				continue;
+			}
 			Feature adv = new Feature(featureType);
 			String value = element.getAttributeValue(Xml.KEY_VALUE);
 			if (!TextUtils.isEmpty(value)) {
@@ -254,8 +261,15 @@ public class HeldenXmlParser {
 
 			String name = element.getAttributeValue(Xml.KEY_NAME).trim();
 			ArtType type = ArtType.getTypeOfArt(name);
+
 			if (type == null) {
-				FeatureType featureType = FeatureType.byXmlName(element.getAttributeValue(Xml.KEY_NAME));
+				FeatureType featureType = null;
+				try {
+					featureType = FeatureType.byXmlName(element.getAttributeValue(Xml.KEY_NAME));
+				} catch (IllegalArgumentException e) {
+					BugSenseHandler.sendEvent("Unknown FeatureType:" + element.getAttributeValue(Xml.KEY_NAME));
+					continue;
+				}
 				Feature specialFeature = new Feature(featureType);
 				specialFeature.setComment(element.getAttributeValue(Xml.KEY_KOMMENTAR));
 
@@ -320,18 +334,24 @@ public class HeldenXmlParser {
 					hero.addFeature(specialFeature);
 				}
 			} else {
-				Art art = new Art(hero);
-
+				Art art = new Art(hero, element.getAttributeValue(Xml.KEY_NAME));
 				art.setUnused(Boolean.parseBoolean(element.getAttributeValue(Xml.KEY_UNUSED)));
 				art.setFavorite(Boolean.parseBoolean(element.getAttributeValue(Xml.KEY_FAVORITE)));
 
-				art.setName(element.getAttributeValue(Xml.KEY_NAME).trim());
-				art.setEffect(element.getAttributeValue(Xml.KEY_WIRKUNG));
-				art.setCastDuration(element.getAttributeValue(Xml.KEY_DAUER));
-				art.setCosts(element.getAttributeValue(Xml.KEY_KOSTEN));
-
 				if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_PROBE))) {
 					art.setProbePattern(element.getAttributeValue(Xml.KEY_PROBE));
+				}
+
+				ArtInfo info = art.getInfo();
+
+				if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_WIRKUNG))) {
+					info.setEffect(element.getAttributeValue(Xml.KEY_WIRKUNG));
+				}
+				if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_DAUER))) {
+					info.setCastDuration(element.getAttributeValue(Xml.KEY_DAUER));
+				}
+				if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_KOSTEN))) {
+					info.setCosts(element.getAttributeValue(Xml.KEY_KOSTEN));
 				}
 
 				hero.addArt(art);
@@ -648,8 +668,10 @@ public class HeldenXmlParser {
 					bezeichner);
 
 			CombatTalent combatTalent = null;
-			if (!TextUtils.isEmpty(element.getAttributeValue(Xml.KEY_TALENT))) {
-				combatTalent = hero.getCombatTalent(element.getAttributeValue(Xml.KEY_TALENT));
+			String combatTalentName = element.getAttributeValue(Xml.KEY_TALENT);
+			if (!TextUtils.isEmpty(combatTalentName) && !CombatShieldTalent.SCHILDPARADE.equals(combatTalentName)
+					&& !CombatShieldTalent.PARIERWAFFENPARADE.equals(combatTalentName)) {
+				combatTalent = hero.getCombatTalent(combatTalentName);
 			} else {
 				combatTalent = EquippedItem.getCombatTalent(hero, usageType, set, name, itemSpecification);
 			}
@@ -923,10 +945,10 @@ public class HeldenXmlParser {
 
 		for (int i = 0; i < spellList.size(); i++) {
 			Element element = (Element) spellList.get(i);
-			Spell spell = new Spell(hero);
+			Spell spell = new Spell(hero, element.getAttributeValue(Xml.KEY_NAME));
 
 			spell.setProbePattern(element.getAttributeValue(Xml.KEY_PROBE));
-			spell.setName(element.getAttributeValue(Xml.KEY_NAME));
+
 			spell.setValue(Util.parseInteger(element.getAttributeValue(Xml.KEY_VALUE)));
 
 			spell.setComments(element.getAttributeValue(Xml.KEY_ANMERKUNGEN));
@@ -978,7 +1000,13 @@ public class HeldenXmlParser {
 			Element element = (Element) talentList.get(i);
 
 			talent = null;
-			TalentType talentType = TalentType.byXmlName(element.getAttributeValue(Xml.KEY_NAME));
+			TalentType talentType;
+			try {
+				talentType = TalentType.byXmlName(element.getAttributeValue(Xml.KEY_NAME));
+			} catch (IllegalArgumentException e) {
+				BugSenseHandler.sendEvent("Unknown TalentType:" + element.getAttributeValue(Xml.KEY_NAME));
+				continue;
+			}
 			int talentValue = Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
 
 			TalentGroupType talentGroupType = null;

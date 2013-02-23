@@ -16,7 +16,6 @@
  */
 package com.dsatab.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,32 +23,16 @@ import android.os.Bundle;
 import com.actionbarsherlock.view.MenuItem;
 import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
-import com.dsatab.data.items.EquippedItem;
-import com.dsatab.data.items.Item;
-import com.dsatab.data.items.ItemCard;
 import com.dsatab.fragment.ItemChooserFragment;
-import com.dsatab.fragment.ItemChooserFragment.OnItemChooserListener;
-import com.dsatab.fragment.ItemEditFragment;
-import com.dsatab.util.Debug;
 
-public class ItemChooserActivity extends BaseFragmentActivity implements OnItemChooserListener {
+public class ItemChooserActivity extends BaseFragmentActivity {
 
 	private ItemChooserFragment fragment;
 
-	public static void start(Context context, ItemCard itemCard) {
-		if (itemCard != null) {
-			Intent intent = new Intent(context, ItemChooserActivity.class);
-			intent.setAction(Intent.ACTION_VIEW);
-			if (itemCard instanceof EquippedItem) {
-				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_EQUIPPED_ITEM_ID, ((EquippedItem) itemCard).getId());
-				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_SEARCHABLE, false);
-				intent.putExtra(ItemChooserFragment.INTENT_EXTRA_CATEGORY_SELECTABLE, false);
-			} else {
-				Item item = itemCard.getItem();
-				intent.putExtra(ItemEditFragment.INTENT_EXTRA_ITEM_ID, item.getId());
-			}
-			context.startActivity(intent);
-		}
+	public static void start(Context context) {
+		Intent intent = new Intent(context, ItemChooserActivity.class);
+		intent.setAction(Intent.ACTION_VIEW);
+		context.startActivity(intent);
 	}
 
 	/*
@@ -66,28 +49,11 @@ public class ItemChooserActivity extends BaseFragmentActivity implements OnItemC
 
 		fragment = (ItemChooserFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_item_chooser);
 
-		if (getIntent() != null && Intent.ACTION_VIEW.equals(getIntent().getAction()))
-			fragment.setOnItemChooserListener(null);
-		else
-			fragment.setOnItemChooserListener(this);
-
 		getSupportActionBar().setDisplayShowTitleEnabled(true);
 		getSupportActionBar().setDisplayShowHomeEnabled(true);
 		getSupportActionBar().setDisplayUseLogoEnabled(true);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setHomeButtonEnabled(true);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.fragment.ItemChooserFragment.OnItemChooserListener#onDismiss()
-	 */
-	@Override
-	public void onItemCanceled() {
-		setResult(Activity.RESULT_CANCELED);
-		finish();
 	}
 
 	/*
@@ -100,32 +66,11 @@ public class ItemChooserActivity extends BaseFragmentActivity implements OnItemC
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == android.R.id.home) {
-			onItemCanceled();
+			finish();
 			return true;
 		} else {
 			return super.onOptionsItemSelected(item);
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.dsatab.fragment.ItemChooserFragment.OnItemChooserListener#onItemSelected
-	 * (com.dsatab.data.items.Item)
-	 */
-	@Override
-	public void onItemSelected(Item item, int cellNumber) {
-		Debug.verbose("Selected " + item.getName());
-		Intent intent = new Intent();
-		intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_TYPE, item.getSpecifications().get(0).getType().name());
-		intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_NAME, item.getName());
-		intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_ID, item.getId());
-		intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CATEGORY, item.getCategory());
-
-		intent.putExtra(ItemChooserFragment.INTENT_EXTRA_ITEM_CELL, cellNumber);
-
-		setResult(Activity.RESULT_OK, intent);
-		finish();
-	}
 }

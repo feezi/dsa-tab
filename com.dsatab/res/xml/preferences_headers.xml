@@ -3,25 +3,25 @@
     xmlns:unified="http://schemas.android.com/apk/res-auto">
 
     <header
-    		unified:fragment="com.dsatab.activity.BasePreferenceActivity$PrefsRulesFragment"
+    		unified:fragment="com.dsatab.activity.DsaTabPreferenceActivity$PrefsRulesFragment"
     		unified:icon="?attr/imgSettings"
     		unified:title="Regeln"
     		unified:summary="Einstellungen die Regeln von DSA betreffend."
     		unified:preferenceRes="@xml/preferences_hc_rules" />
     
-	<header unified:fragment="com.dsatab.activity.BasePreferenceActivity$PrefsDisplayFragment"
+	<header unified:fragment="com.dsatab.activity.DsaTabPreferenceActivity$PrefsDisplayFragment"
             unified:icon="?attr/imgView"
             unified:title="Darstellung"
             unified:summary="Einstellungen die Darstellung von DsaTab betreffend."
             unified:preferenceRes="@xml/preferences_hc_display" />
 
-	<header unified:fragment="com.dsatab.activity.BasePreferenceActivity$PrefsSetupFragment"
+	<header unified:fragment="com.dsatab.activity.DsaTabPreferenceActivity$PrefsSetupFragment"
             unified:icon="?attr/imgSettings"
             unified:title="Setup"
             unified:summary="Systemeinstellungen DsaTab betreffend." 
             unified:preferenceRes="@xml/preferences_hc_setup" />
     
-	<header unified:fragment="com.dsatab.activity.BasePreferenceActivity$PrefsInfoFragment"
+	<header unified:fragment="com.dsatab.activity.DsaTabPreferenceActivity$PrefsInfoFragment"
             unified:icon="?attr/imgInfo"
             unified:title="Informationen"
             unified:summary="Alle möglichen Informationen rund um DsaTab."

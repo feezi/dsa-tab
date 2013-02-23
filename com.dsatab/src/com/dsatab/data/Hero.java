@@ -1370,6 +1370,12 @@ public class Hero {
 		return connections;
 	}
 
+	/**
+	 * Used in rules.xml by code
+	 * 
+	 * @param type
+	 * @return
+	 */
 	public Feature getFeature(String type) {
 		return getFeature(FeatureType.byXmlName(type));
 	}
@@ -1773,16 +1779,15 @@ public class Hero {
 
 	public BaseCombatTalent getCombatTalent(TalentType talentType) {
 		Talent talent = talentByType.get(talentType);
-
 		if (talent == null) {
-
-			Debug.verbose("Couldn't find " + talentType + " trying combattalents");
 			// add missing combat talents with a value of base.
 			if (talentType != null) {
 				if (talentType.isFk()) {
-					// TODO what shall be do in such a case???
+					CombatDistanceTalent distanceTalent = new CombatDistanceTalent(this);
+					distanceTalent.setValue(-4);
+					distanceTalent.setType(talentType);
+					talent = distanceTalent;
 				} else {
-
 					CombatMeleeAttribute at = new CombatMeleeAttribute(this);
 					at.setName(CombatMeleeAttribute.ATTACKE);
 					at.setValue(getAttributeValue(AttributeType.at));

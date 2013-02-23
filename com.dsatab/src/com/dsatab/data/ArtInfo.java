@@ -51,6 +51,8 @@ public class ArtInfo {
 	@DatabaseField
 	private String castDuration;
 	@DatabaseField
+	private String costs;
+	@DatabaseField
 	private String effect;
 	@DatabaseField
 	private String effectDuration;
@@ -117,6 +119,10 @@ public class ArtInfo {
 		this.merkmale = merkmale;
 	}
 
+	public void setCosts(String costs) {
+		this.costs = costs;
+	}
+
 	public String getTargetDetailed() {
 		if (!TextUtils.isEmpty(target)) {
 			if (target.equals("G"))
@@ -147,10 +153,11 @@ public class ArtInfo {
 	}
 
 	public String getCosts() {
-		if (grade >= 0)
+		if (TextUtils.isEmpty(costs) && grade >= 0) {
 			return LITURGIE_COSTS[grade];
-		else
-			return "";
+		} else {
+			return costs;
+		}
 	}
 
 	public void setTarget(String target) {

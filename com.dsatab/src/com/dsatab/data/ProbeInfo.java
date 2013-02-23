@@ -34,7 +34,7 @@ public class ProbeInfo implements Cloneable {
 
 	// e.g.: MU/IN/KL (+5) or (MU/IN/KL) or +5
 	private static final Pattern PROBE_PATTERN = Pattern.compile(
-			"(\\(?([a-z-]{2})/([a-z-]{2})/([a-z-]{2})\\)?)?\\s*\\(?([+-]\\d+)?\\)?", Pattern.CASE_INSENSITIVE);
+			"(\\(?([a-z-]{2})/([a-z-]{2})/([a-z-]{2})\\)?)?\\(?([+-]\\d+)?\\)?", Pattern.CASE_INSENSITIVE);
 
 	private AttributeType[] attributeTypes;
 	private String attributesString;
@@ -60,29 +60,18 @@ public class ProbeInfo implements Cloneable {
 		beFlag = BE_FLAG_NONE;
 	}
 
-	/**
-	 * 
-	 */
-	public ProbeInfo(AttributeType[] attrs) {
-		this.attributeTypes = attrs;
-	}
-
-	/**
-	 * 
-	 */
-	public ProbeInfo(AttributeType[] attrs, Integer erschwernis) {
-		this.attributeTypes = attrs;
-		this.erschwernis = erschwernis;
-	}
-
 	public AttributeType[] getAttributeTypes() {
 		return attributeTypes;
 	}
 
 	public void applyProbePattern(String s) {
+		attributesString = null;
+		attributeTypes = null;
+		if (!TextUtils.isEmpty(s)) {
+			// remove all whitespaces from string
+			s = s.replace(" ", "");
 
-		if (s != null) {
-			Matcher matcher = PROBE_PATTERN.matcher(s.trim());
+			Matcher matcher = PROBE_PATTERN.matcher(s);
 
 			if (matcher.matches()) {
 				if (!TextUtils.isEmpty(matcher.group(1))) {
@@ -95,9 +84,6 @@ public class ProbeInfo implements Cloneable {
 			} else {
 				Debug.warning("No probe match found for " + s);
 			}
-		} else {
-			attributesString = null;
-			attributeTypes = null;
 		}
 	}
 
@@ -238,9 +224,7 @@ public class ProbeInfo implements Cloneable {
 
 	public static ProbeInfo parse(String s) {
 		ProbeInfo info = new ProbeInfo();
-		if (s != null) {
-			info.applyProbePattern(s);
-		}
+		info.applyProbePattern(s);
 		return info;
 	}
 

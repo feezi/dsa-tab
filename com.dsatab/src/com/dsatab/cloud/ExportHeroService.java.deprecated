@@ -45,7 +45,7 @@ import android.text.TextUtils;
 
 import com.dsatab.DSATabApplication;
 import com.dsatab.R;
-import com.dsatab.activity.BasePreferenceActivity;
+import com.dsatab.activity.DsaTabPreferenceActivity;
 import com.dsatab.data.HeroFileInfo;
 import com.dsatab.util.Debug;
 

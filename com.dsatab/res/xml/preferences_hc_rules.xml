@@ -3,7 +3,7 @@
 
     
         <PreferenceScreen
-            android:fragment="com.dsatab.activity.BasePreferenceActivity$PrefsHouseRulesFragment"
+            android:fragment="com.dsatab.activity.DsaTabPreferenceActivity$PrefsHouseRulesFragment"
             android:key="houseRules"
             android:summary="Spezielle Hausregeln konfigurieren die vom offiziellen Regelwerk abweichen"
             android:title="Hausregeln verwenden" >

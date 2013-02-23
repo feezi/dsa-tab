@@ -297,13 +297,22 @@ public class OpenArrayAdapter<T> extends BaseAdapter implements Filterable {
 			notifyDataSetChanged();
 	}
 
+	public void notifyDataSetChanged(boolean refiler) {
+		if (refiler && getFilter().isFilterSet()) {
+			mNotifyOnChange = false;
+			refilter();
+		} else {
+			super.notifyDataSetChanged();
+		}
+		mNotifyOnChange = true;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void notifyDataSetChanged() {
-		super.notifyDataSetChanged();
-		mNotifyOnChange = true;
+		notifyDataSetChanged(true);
 	}
 
 	/**

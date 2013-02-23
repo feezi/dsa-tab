@@ -141,20 +141,23 @@ public class ArtAdapter extends OpenArrayAdapter<Art> {
 			info.append(artInfo.getTarget());
 		}
 		if (artInfo != null && !TextUtils.isEmpty(artInfo.getRange())) {
-			info.append(",");
+			if (info.length() > 0)
+				info.append(",");
 			info.append(artInfo.getRange());
 		}
-		if (!TextUtils.isEmpty(art.getCastDuration())) {
-			info.append(",");
-			info.append(art.getCastDuration());
+		if (artInfo != null && !TextUtils.isEmpty(artInfo.getCastDuration())) {
+			if (info.length() > 0)
+				info.append(",");
+			info.append(artInfo.getCastDuration());
 		}
 
 		holder.text2.setText(info);
 
-		if (art.hasCustomProbe()) {
+		if (art.hasCustomProbe() && !TextUtils.isEmpty(art.getProbeInfo().getAttributesString())) {
 			holder.text3.setText(art.getProbeInfo().getAttributesString());
+		} else if (!TextUtils.isEmpty(artInfo.getProbe()) && art.getProbeInfo().getAttributeTypes() == null) {
+			holder.text3.setText(artInfo.getProbe());
 		} else {
-
 			if (artInfo != null && !TextUtils.isEmpty(artInfo.getEffectDuration()))
 				holder.text3.setText(artInfo.getEffectDuration());
 			else

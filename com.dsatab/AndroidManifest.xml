@@ -90,6 +90,11 @@
             android:label="Gegenstand"
             android:logo="@android:drawable/ic_menu_edit"
             android:theme="@style/Theme.Dialog.Dark" />
+            <activity
+            android:name=".activity.ItemViewActivity"
+            android:label="Gegenstand"
+            android:logo="@android:drawable/ic_menu_view"
+            android:theme="@style/Theme.Dialog.Dark" />
         <activity
             android:name="com.dsatab.activity.HeroChooserActivity"
             android:label="Held auswählen" >

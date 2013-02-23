@@ -53,6 +53,7 @@ import com.commonsware.cwac.sacklist.SackOfViewsAdapter;
 import com.dsatab.R;
 import com.dsatab.activity.DsaTabActivity;
 import com.dsatab.activity.ItemEditActivity;
+import com.dsatab.activity.ItemViewActivity;
 import com.dsatab.activity.ModificatorEditActivity;
 import com.dsatab.common.StyleableSpannableStringBuilder;
 import com.dsatab.data.Attribute;
@@ -241,7 +242,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 								ItemEditActivity.edit(getActivity(), getHero(), equippedItem);
 								break;
 							case R.id.option_view:
-								ItemEditActivity.view(getActivity(), getHero(), equippedItem);
+								ItemViewActivity.view(getActivity(), getHero(), equippedItem);
 								break;
 							case R.id.option_assign_secondary: {
 								final EquippedItem equippedPrimaryWeapon = equippedItem;

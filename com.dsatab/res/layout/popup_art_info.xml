@@ -24,6 +24,15 @@
 			<TextView android:layout_width="wrap_content" android:id="@+id/popup_liturgie_target"
 				style="@style/TextValue.NoTouch" android:layout_height="wrap_content"
 				android:text="P" android:gravity="right|center_vertical"></TextView>
+			
+			<EditText
+                android:id="@+id/popup_liturgie_target_edit"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=""
+                android:inputType="text"
+                android:visibility="gone" />
 		</TableRow>
 		
 		<TableRow android:layout_width="wrap_content"
@@ -33,6 +42,15 @@
 			<TextView android:layout_width="wrap_content" android:id="@+id/popup_liturgie_range"
 				style="@style/TextValue.NoTouch" android:layout_height="wrap_content"
 				android:text="Z" android:gravity="right|center_vertical"></TextView>
+			
+			<EditText
+                android:id="@+id/popup_liturgie_range_edit"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=""
+                android:inputType="text"
+                android:visibility="gone" />
 		</TableRow>
 		
 		<TableRow android:layout_width="wrap_content"
@@ -42,6 +60,15 @@
 			<TextView android:layout_width="wrap_content" android:id="@+id/popup_liturgie_castduration"
 				style="@style/TextValue.NoTouch" android:layout_height="wrap_content"
 				android:text="Z" android:gravity="right|center_vertical"></TextView>
+			
+			<EditText
+                android:id="@+id/popup_liturgie_castduration_edit"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=""
+                android:inputType="text"
+                android:visibility="gone" />
 		</TableRow>
 		
 		<TableRow android:layout_height="wrap_content"
@@ -53,6 +80,15 @@
 				android:layout_width="wrap_content" style="@style/TextValue.NoTouch"
 				android:id="@+id/popup_liturgie_effect"
 				android:text="" android:singleLine="false" android:gravity="right|center_vertical"></TextView>
+			
+			<EditText
+                android:id="@+id/popup_liturgie_effect_edit"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=""
+                android:inputType="text"
+                android:visibility="gone" />
 		</TableRow>
 		
 		<TableRow android:layout_width="wrap_content"
@@ -63,6 +99,15 @@
 			<TextView android:layout_width="wrap_content" android:text=""
 				style="@style/TextValue.NoTouch" android:layout_height="wrap_content"
 				android:id="@+id/popup_liturgie_effectduration" android:gravity="right|center_vertical"></TextView>
+			
+			<EditText
+                android:id="@+id/popup_liturgie_effectduration_edit"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=""
+                android:inputType="text"
+                android:visibility="gone" />
 		</TableRow>
 		
 		<TableRow android:layout_width="wrap_content"
@@ -72,6 +117,15 @@
 			<TextView android:layout_width="wrap_content" android:id="@+id/popup_liturgie_probe"
 				style="@style/TextValue.NoTouch" android:layout_height="wrap_content"
 				android:gravity="right|center_vertical"></TextView>
+			
+			<EditText
+                android:id="@+id/popup_liturgie_probe_edit"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=""
+                android:inputType="text"
+                android:visibility="gone" />
 		</TableRow>
 		
 		<TableRow android:layout_width="wrap_content"
@@ -82,6 +136,15 @@
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text="10SP"
 				style="@style/TextValue.NoTouch" android:id="@+id/popup_liturgie_costs" android:gravity="right|center_vertical"></TextView>
+			
+			<EditText
+                android:id="@+id/popup_liturgie_costs_edit"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=""
+                android:inputType="text"
+                android:visibility="gone" />
 		</TableRow>
 		
 		<TableRow android:layout_width="wrap_content"
@@ -92,16 +155,40 @@
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text="10SP"
 				style="@style/TextValue.NoTouch" android:id="@+id/popup_liturgie_origin" android:gravity="right|center_vertical"></TextView>
+			<EditText
+                android:id="@+id/popup_liturgie_origin_edit"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=""
+                android:inputType="text"
+                android:visibility="gone" />
 		</TableRow>
 		
 		    <TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
 			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Quelle" style="@style/TextLabel.Popup"></TextView>
 			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/popup_liturgie_source" style="@style/TextValue.NoTouch" android:gravity="right|center_vertical"></TextView>
+			<EditText
+                android:id="@+id/popup_liturgie_source_edit"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=""
+                android:inputType="text"
+                android:visibility="gone" />
 		</TableRow>
 		
-		        <TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+		<TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
 			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Merkmal" android:paddingRight="5dp" style="@style/TextLabel.Popup"></TextView>
 			<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Objekt" android:id="@+id/popup_liturgie_merkmal" style="@style/TextValue.NoTouch" android:gravity="right|center_vertical"></TextView>
+			<EditText
+                android:id="@+id/popup_liturgie_merkmal_edit"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=""
+                android:inputType="text"
+                android:visibility="gone" />
 		</TableRow>
 		
 	</TableLayout>

@@ -81,12 +81,14 @@ public class ItemContainer {
 		this.capacity = capacity;
 	}
 
-	public int getWeight() {
+	public float getWeight() {
+		float weight = 0;
+		if (items != null) {
+			for (Item item : items) {
+				weight += item.getWeight();
+			}
+		}
 		return weight;
-	}
-
-	public void setWeight(int weight) {
-		this.weight = weight;
 	}
 
 	public List<Item> getItems() {

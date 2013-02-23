@@ -39,6 +39,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.SubMenu;
 import com.dsatab.R;
 import com.dsatab.activity.ItemEditActivity;
+import com.dsatab.activity.ItemViewActivity;
 import com.dsatab.data.Hero;
 import com.dsatab.data.adapter.ExpandableItemAdapter;
 import com.dsatab.data.items.EquippedItem;
@@ -92,7 +93,7 @@ public class ItemsListFragment extends BaseListFragment implements OnItemClickLi
 									notifyChanged = false;
 									break;
 								case R.id.option_view:
-									ItemEditActivity.view(getActivity(), getHero(), selectedItem);
+									ItemViewActivity.view(getActivity(), getHero(), selectedItem);
 									mode.finish();
 									return true;
 								case R.id.option_edit:

@@ -1050,4 +1050,18 @@ public class Util {
 		}
 		return null;
 	}
+
+	/**
+	 * @param imageTextOverlay
+	 * @return
+	 */
+	public static boolean parseBoolean(String value) {
+		if (value == null)
+			return false;
+		else if ("1".equals(value))
+			return true;
+		else
+			return Boolean.parseBoolean(value);
+
+	}
 }

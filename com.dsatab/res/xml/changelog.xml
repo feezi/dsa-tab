@@ -3,6 +3,8 @@
 	<change>Dynamische Regeln/Modifikatoren via xml</change>
 	<change>Neu Gegenstande können nun in DsaTab erstellt editiert werden (derzeit nur Basiswerte wie Name, Titel, Kategorie)</change>
 	<change>Gegenstandsverwaltung unterstützt nun Behälter</change>
+	<change>Die Werte von Künsten können nun in den Details geändert werden</change>
+	<change>"Probe" zu den änderbaren Werten der Zauber hinzugefügt</change>
 	<fix>Jagdwaffen wurden nicht gespeichert</fix>
 	<fix>Weitere Bugfixes</fix>    
 </release>
