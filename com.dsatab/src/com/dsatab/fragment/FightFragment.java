@@ -226,6 +226,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 		@Override
 		public boolean onActionItemClicked(ActionMode mode, com.actionbarsherlock.view.MenuItem item) {
 			boolean notifyChanged = false;
+			boolean refill = false;
 
 			SparseBooleanArray checkedPositions = fightList.getCheckedItemPositions();
 			if (checkedPositions != null) {
@@ -293,6 +294,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 											equippedSecondaryWeapon.setBeidhändigerKampf(bhKampf);
 
 											fillFightItemDescriptions();
+
 										}
 
 									}
@@ -310,7 +312,7 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 									equippedSecondaryWeapon.setSecondaryItem(null);
 								}
 
-								fillFightItemDescriptions();
+								refill = true;
 								break;
 							}
 							case R.id.option_select_version: {
@@ -381,7 +383,9 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 						}
 					}
 				}
-				if (notifyChanged) {
+				if (refill) {
+					fillFightItemDescriptions();
+				} else if (notifyChanged) {
 					fightItemAdapter.notifyDataSetChanged();
 				}
 			}

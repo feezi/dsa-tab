@@ -178,6 +178,7 @@ public class ImportHeroesTaskNew extends AsyncTask<String, String, Integer> impl
 						.show();
 			} else {
 				Toast.makeText(context, R.string.download_error, Toast.LENGTH_SHORT).show();
+				Debug.error(caughtException);
 				BugSenseHandler.sendException(caughtException);
 			}
 		}
