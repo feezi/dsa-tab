@@ -56,10 +56,10 @@ public enum TalentType {
 			"Sprachen kennen Ologhaijan"), SprachenKennenRissoal("Sprachen kennen Rissoal"), SprachenKennenRogolan(
 			"Sprachen kennen Rogolan"), SprachenKennenRssahh("Sprachen kennen Rssahh"), SprachenKennenTrollisch(
 			"Sprachen kennen Trollisch"), SprachenKennenUrtulamidya("Sprachen kennen Urtulamidya"), SprachenKennenTulamidya(
-			"Sprachen kennen Tulamidya"), SprachenKennenWudu("Sprachen kennen Wudu"), SprachenKennenZLit(
-			"Sprachen kennen Z'Lit"), SprachenKennenZelemja("Sprachen kennen Zelemja"), SprachenKennenZhayad(
-			"Sprachen kennen Zhayad"), SprachenKennenZhulchammaqra("Sprachen kennen Zhulchammaqra"), SprachenKennenZyklopäisch(
-			"Sprachen kennen Zyklopäisch"),
+			"Sprachen kennen Tulamidya"), SprachenKennenThorwalsch("Sprachen kennen Thorwalsch"), SprachenKennenWudu(
+			"Sprachen kennen Wudu"), SprachenKennenZLit("Sprachen kennen Z'Lit"), SprachenKennenZelemja(
+			"Sprachen kennen Zelemja"), SprachenKennenZhayad("Sprachen kennen Zhayad"), SprachenKennenZhulchammaqra(
+			"Sprachen kennen Zhulchammaqra"), SprachenKennenZyklopäisch("Sprachen kennen Zyklopäisch"),
 	//
 	LesenSchreibenAltImperialeZeichen("Lesen/Schreiben (Alt-)Imperiale Zeichen"), LesenSchreibenAltesAlaani(
 			"Lesen/Schreiben Altes Alaani"), LesenSchreibenAltesAmulashtra("Lesen/Schreiben Altes Amulashtra"), LesenSchreibenKuslikerZichen(

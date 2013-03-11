@@ -319,7 +319,7 @@ public class DsaTabApplication extends Application implements OnSharedPreference
 		boolean stats = getPreferences().getBoolean(DsaTabPreferenceActivity.KEY_USAGE_STATS, true);
 
 		AnalyticsManager.setEnabled(stats);
-		if (stats) {
+		if (stats && !BuildConfig.DEBUG) {
 			BugSenseHandler.initAndStartSession(this, BUGSENSE_API_KEY);
 		}
 
@@ -492,6 +492,7 @@ public class DsaTabApplication extends Application implements OnSharedPreference
 			Toast.makeText(this, getString(R.string.hero_saved, hero.getName()), Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
 			Toast.makeText(this, "Held konnte nicht gespeichert werden.", Toast.LENGTH_LONG).show();
+			Debug.error(e);
 			BugSenseHandler.sendException(e);
 		} finally {
 			if (out != null) {
