@@ -16,6 +16,7 @@
  */
 package com.dsatab.fragment;
 
+import java.util.Arrays;
 import java.util.List;
 
 import android.app.Activity;
@@ -33,8 +34,8 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
+import com.dsatab.TabInfo;
 import com.dsatab.activity.DsaTabActivity;
-import com.dsatab.activity.DsaTabPreferenceActivity;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Value;
 import com.dsatab.data.modifier.Modificator;
@@ -45,15 +46,38 @@ import com.dsatab.view.FilterSettings.FilterType;
 import com.dsatab.view.listener.FilterChangedListener;
 import com.dsatab.view.listener.HeroChangedListener;
 import com.dsatab.view.listener.HeroInventoryChangedListener;
+import com.dsatab.view.listener.HeroLoader;
 
 /**
  * @author Ganymede
  * 
  */
-public abstract class BaseFragment extends SherlockFragment implements HeroChangedListener, FilterChangedListener,
-		OnSharedPreferenceChangeListener {
+public abstract class BaseFragment extends SherlockFragment implements HeroLoader, HeroChangedListener,
+		FilterChangedListener, OnSharedPreferenceChangeListener {
 
-	private static final String FILTER_SETTINGS = "FILTER_SETTINGS";
+	public static final String TAB_POSITION = "TAB_POSITION";
+	public static final String TAB_INFO = "TAB_INFO";
+
+	public static List<String> activities;
+	public static List<Class<? extends BaseFragment>> activityValues;
+
+	static {
+		activities = Arrays.asList("Keine", "Charakter", "Talente", "Zauber", "Künste", "Wunden", "Kampf",
+				"Ausrüstung (Bilder)", "Ausrüstung (Liste)", "Notizen", "Geldbörse", "Karte", "Dokumente");
+
+		activityValues = Arrays.asList(null, CharacterFragment.class, TalentFragment.class, SpellFragment.class,
+				ArtFragment.class, BodyFragment.class, FightFragment.class, ItemsFragment.class,
+				ItemsListFragment.class, NotesFragment.class, PurseFragment.class, MapFragment.class,
+				DocumentsFragment.class);
+	}
+
+	public static String getFragmentTitle(Class<? extends BaseFragment> fragmentClass) {
+		int index = activityValues.indexOf(fragmentClass);
+		if (index >= 0)
+			return activities.get(index);
+		else
+			return null;
+	}
 
 	protected SharedPreferences preferences;
 
@@ -102,14 +126,6 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 		super.onAttach(activity);
 	}
 
-	/**
-	 * special method that is called when this fragment is actually shown on
-	 * screen and not only preloaded in the ViewPager
-	 */
-	public void onShown() {
-
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -152,23 +168,20 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.Fragment#onSaveInstanceState(android.os.Bundle)
-	 */
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putParcelable(FILTER_SETTINGS, filterSettings);
+	protected int getTabPosition() {
+		int pos = -1;
+		if (getArguments() != null) {
+			pos = getArguments().getInt(BaseFragment.TAB_POSITION, -1);
+		}
+		return pos;
 	}
 
-	public void setTabInfo(FilterSettings filterSettings) {
-		this.filterSettings = filterSettings;
-		if (filterSettings != null) {
-			onFilterChanged(null, this.filterSettings);
+	protected TabInfo getTabInfo() {
+		TabInfo tabInfo = null;
+		if (getArguments() != null) {
+			tabInfo = getArguments().getParcelable(BaseFragment.TAB_INFO);
 		}
+		return tabInfo;
 	}
 
 	/*
@@ -244,9 +257,13 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		if (savedInstanceState != null) {
-			filterSettings = savedInstanceState.getParcelable(FILTER_SETTINGS);
+		if (getTabPosition() >= 0 && getTabInfo() != null) {
+			filterSettings = getTabInfo().getFilterSettings(getTabPosition());
+			if (filterSettings != null) {
+				onFilterChanged(null, filterSettings);
+			}
 		}
+
 		Hero hero = getHero();
 		if (hero != null) {
 			// Debug.verbose(getClass().getName() +
@@ -256,19 +273,6 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.Fragment#setUserVisibleHint(boolean)
-	 */
-	@Override
-	public void setUserVisibleHint(boolean isVisibleToUser) {
-		if (getUserVisibleHint() == false && isVisibleToUser == true)
-			onShown();
-
-		super.setUserVisibleHint(isVisibleToUser);
 	}
 
 	/*
@@ -350,9 +354,7 @@ public abstract class BaseFragment extends SherlockFragment implements HeroChang
 	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (DsaTabPreferenceActivity.KEY_MODIFY_TABS.equals(key)) {
-			onFilterChanged(null, getFilterSettings());
-		}
+
 	}
 
 	protected FilterSettings getFilterSettings() {

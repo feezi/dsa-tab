@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
-    <style name="DsaTabTheme.Light" parent="@DsaTabTheme.__Light">            		
+    <style name="DsaTabTheme.Light" parent="@DsaTabTheme.__Light">
+        
         <!-- Holo generated styles -->
         <item name="android:editTextBackground">@drawable/edit_text_holo_light</item>
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewDsaTabLight</item>

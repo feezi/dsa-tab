@@ -22,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -30,7 +31,6 @@ import com.dsatab.fragment.ArtFragment;
 import com.dsatab.fragment.BaseFragment;
 import com.dsatab.fragment.BaseListFragment;
 import com.dsatab.fragment.FightFragment;
-import com.dsatab.fragment.MapFragment;
 import com.dsatab.util.Util;
 import com.dsatab.view.FightFilterSettings;
 import com.dsatab.view.FilterSettings;
@@ -40,14 +40,13 @@ import com.dsatab.view.ListFilterSettings;
  * @author Ganymede
  * 
  */
-public class TabInfo implements Parcelable, JSONable {
+public class TabInfo implements Parcelable, JSONable, Cloneable {
 
 	public static final int MAX_TABS_PER_PAGE = 2;
 
 	private static final String FIELD_ACTIVITY_CLAZZ = "activityClazz";
 	private static final String FIELD_TAB_RESOURCE_INDEX = "tabResourceId";
 	private static final String FIELD_TAB_ICON_URI = "iconUri";
-	private static final String FIELD_TAB_FLING_ENABLED = "tabFlingenabled";
 	private static final String FIELD_PRIMARY_ACTIVITY_CLAZZ = "activityClazz1";
 	private static final String FIELD_SECONDARY_ACTIVITY_CLAZZ = "activityClazz2";
 	private static final String FIELD_DICE_SLIDER = "diceSlider";
@@ -59,7 +58,6 @@ public class TabInfo implements Parcelable, JSONable {
 
 	private boolean diceSlider = true;
 	private boolean attributeList = true;
-	private boolean tabFlingEnabled = true;
 
 	private transient UUID id;
 	private transient int containerId;
@@ -125,7 +123,6 @@ public class TabInfo implements Parcelable, JSONable {
 		}
 		this.diceSlider = in.readInt() == 0 ? false : true;
 		this.id = UUID.randomUUID();
-		this.tabFlingEnabled = in.readInt() == 0 ? false : true;
 		this.filterSettings = (FilterSettings[]) in.readSerializable();
 		this.attributeList = in.readInt() == 0 ? false : true;
 	}
@@ -192,9 +189,6 @@ public class TabInfo implements Parcelable, JSONable {
 
 		this.id = UUID.randomUUID();
 
-		if (in.has(FIELD_TAB_FLING_ENABLED))
-			tabFlingEnabled = in.optBoolean(FIELD_TAB_FLING_ENABLED, true);
-
 		if (in.has(FIELD_ATTRIBUTE_LIST))
 			attributeList = in.optBoolean(FIELD_ATTRIBUTE_LIST, true);
 
@@ -236,7 +230,10 @@ public class TabInfo implements Parcelable, JSONable {
 		BaseFragment fragment = null;
 		if (activityClazz[pos] != null) {
 			fragment = activityClazz[pos].newInstance();
-			fragment.setTabInfo(filterSettings[pos]);
+			Bundle args = new Bundle();
+			args.putParcelable(BaseFragment.TAB_INFO, this);
+			args.putInt(BaseFragment.TAB_POSITION, pos);
+			fragment.setArguments(args);
 		}
 		return fragment;
 	}
@@ -246,16 +243,22 @@ public class TabInfo implements Parcelable, JSONable {
 		refreshAdditionalSettings();
 	}
 
-	public boolean isTabFlingEnabled() {
-		return activityClazz[0] != MapFragment.class && activityClazz[1] != MapFragment.class;
-	}
-
-	public void setTabFlingEnabled(boolean tabFlingEnabled) {
-		this.tabFlingEnabled = tabFlingEnabled;
-	}
-
 	public Uri getIconUri() {
 		return iconUri;
+	}
+
+	public String getTitle() {
+		StringBuilder title = new StringBuilder();
+
+		for (Class<? extends BaseFragment> clazz : getActivityClazzes()) {
+			if (clazz != null) {
+				if (title.length() > 0)
+					title.append("/");
+
+				title.append(BaseFragment.getFragmentTitle(clazz));
+			}
+		}
+		return title.toString();
 	}
 
 	public void setIconUri(Uri uri) {
@@ -316,6 +319,10 @@ public class TabInfo implements Parcelable, JSONable {
 		}
 	}
 
+	public FilterSettings getFilterSettings(int pos) {
+		return filterSettings[pos];
+	}
+
 	public FilterSettings getFilterSettings(BaseFragment baseFragment) {
 		for (int i = 0; i < activityClazz.length; i++) {
 			if (activityClazz[i] == baseFragment.getClass()) {
@@ -365,7 +372,6 @@ public class TabInfo implements Parcelable, JSONable {
 		else
 			dest.writeString(null);
 		dest.writeInt(diceSlider ? 1 : 0);
-		dest.writeInt(tabFlingEnabled ? 1 : 0);
 		dest.writeSerializable(filterSettings);
 		dest.writeInt(attributeList ? 1 : 0);
 	}
@@ -393,7 +399,6 @@ public class TabInfo implements Parcelable, JSONable {
 		}
 
 		out.put(FIELD_DICE_SLIDER, diceSlider);
-		out.put(FIELD_TAB_FLING_ENABLED, tabFlingEnabled);
 		if (filterSettings != null) {
 
 			JSONArray jsonArray = new JSONArray();
@@ -418,6 +423,21 @@ public class TabInfo implements Parcelable, JSONable {
 	@Override
 	public String toString() {
 		return "TabInfo :" + activityClazz;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public TabInfo clone() {
+		try {
+			return (TabInfo) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 }

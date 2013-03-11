@@ -35,10 +35,8 @@ public class Debug {
 	protected static boolean debugMode = com.dsatab.BuildConfig.DEBUG;
 
 	public static void trace(String message) {
-		if (!debugMode || !TRACE)
-			return;
-
-		Log.d(tag, "TRACE:" + message);
+		if (debugMode && TRACE)
+			Log.d(tag, "TRACE:" + message);
 	}
 
 	/**
@@ -50,9 +48,11 @@ public class Debug {
 	 *            The message to be passed on
 	 */
 	public static void warning(String source, String message) {
-		Log.w(tag, source + " - " + message);
-		Exception e = new Exception(source + " - " + message);
-		e.printStackTrace();
+		if (debugMode) {
+			Log.w(tag, source + " - " + message);
+			Exception e = new Exception(source + " - " + message);
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -62,7 +62,8 @@ public class Debug {
 	 *            The message to be passed on
 	 */
 	public static void warning(String message) {
-		Log.w(tag, message);
+		if (debugMode)
+			Log.w(tag, message);
 	}
 
 	/**
@@ -72,9 +73,9 @@ public class Debug {
 	 *            The message to be passed on
 	 */
 	public static void print(String message) {
-		if (!debugMode)
-			return;
-		Log.v(tag, message);
+		if (debugMode) {
+			Log.v(tag, message);
+		}
 	}
 
 	/**
@@ -87,6 +88,7 @@ public class Debug {
 		Log.e(tag, message);
 		Exception e = new Exception(message);
 		e.printStackTrace();
+
 	}
 
 	public static void error(String message, Throwable e) {
@@ -101,7 +103,9 @@ public class Debug {
 	 *            The message to be passed on
 	 */
 	public static void warning(Throwable t) {
-		Log.w(tag, t.getMessage(), t);
+		if (debugMode) {
+			Log.w(tag, t.getMessage(), t);
+		}
 	}
 
 	/**
@@ -122,9 +126,9 @@ public class Debug {
 	 * @param message
 	 */
 	public static void verbose(String method, String message) {
-		if (!debugMode)
-			return;
-		Log.v(tag, method + " - " + message);
+		if (debugMode) {
+			Log.v(tag, method + " - " + message);
+		}
 	}
 
 	public static void heap() {
@@ -141,9 +145,9 @@ public class Debug {
 	 * @param message
 	 */
 	public static void verbose(String message) {
-		if (!debugMode)
-			return;
-		Log.v(tag, message);
+		if (debugMode) {
+			Log.v(tag, message);
+		}
 	}
 
 }

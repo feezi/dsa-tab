@@ -64,7 +64,8 @@ public class TalentGroup {
 			TalentType.LesenSchreibenIsdiraAsdharia, TalentType.LesenSchreibenMahrischeGlyphen,
 			TalentType.LesenSchreibenRogolan, TalentType.LesenSchreibenTrollischeRaumbilderschrift,
 			TalentType.LesenSchreibenUrtulamidya, TalentType.LesenSchreibenWudu, TalentType.LesenSchreibenZhayad,
-			TalentType.LesenSchreibenKuslikerZichen, TalentType.LesenSchreibenTulamidya };
+			TalentType.LesenSchreibenKuslikerZichen, TalentType.LesenSchreibenTulamidya,
+			TalentType.LesenSchreibenNanduria };
 
 	public static TalentType[] GABEN_TALENTS = { TalentType.Ritualkenntnis, TalentType.Gefahreninstinkt,
 			TalentType.Liturgiekenntnis, TalentType.GeisterAufnehmen, TalentType.GeisterBannen,

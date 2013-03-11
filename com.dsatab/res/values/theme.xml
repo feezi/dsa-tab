@@ -2,11 +2,10 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:custom="http://schemas.android.com/apk/res-auto">
     
-    <style name="DsaTabTheme.__Dark" parent="@Theme.Sherlock">
-        <item name="iconImageViewStyle">@style/Widget.IconImageView</item>
+    <style name="DsaTabTheme.__Dark" parent="@Theme.Sherlock">                
         
+        <item name="iconImageViewStyle">@style/Widget.IconImageView</item>        
         <item name="listItemBackground">@drawable/list_background_holo_dark</item>
-        
         
         <item name="android:soundEffectsEnabled">false</item>
         

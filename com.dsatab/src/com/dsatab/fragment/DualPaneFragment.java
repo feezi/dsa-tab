@@ -37,6 +37,7 @@ import com.dsatab.data.Hero;
 import com.dsatab.view.FilterSettings;
 import com.dsatab.view.FilterSettings.FilterType;
 import com.dsatab.view.listener.FilterChangedListener;
+import com.dsatab.view.listener.HeroLoader;
 import com.gandulf.guilib.util.Debug;
 
 /**
@@ -44,7 +45,7 @@ import com.gandulf.guilib.util.Debug;
  * 
  */
 public class DualPaneFragment extends SherlockFragment implements FilterChangedListener,
-		OnSharedPreferenceChangeListener {
+		OnSharedPreferenceChangeListener, HeroLoader {
 
 	private static final String TABINFO = "TABINFO";
 
@@ -74,6 +75,10 @@ public class DualPaneFragment extends SherlockFragment implements FilterChangedL
 		}
 		setRetainInstance(true);
 		setHasOptionsMenu(true);
+	}
+
+	public TabInfo getTabInfo() {
+		return tabInfo;
 	}
 
 	/*
@@ -302,15 +307,7 @@ public class DualPaneFragment extends SherlockFragment implements FilterChangedL
 
 	}
 
-	public void setTabInfo(TabInfo tabInfo) {
-		for (int i = 0; i < fragments.size(); i++) {
-			Fragment f = fragments.get(i);
-			if (f instanceof BaseFragment) {
-				((BaseFragment) f).setTabInfo(tabInfo.getFilterSettings()[i]);
-			}
-		}
-	}
-
+	@Override
 	public void loadHero(Hero hero) {
 
 		for (Fragment left : fragments) {
@@ -320,6 +317,7 @@ public class DualPaneFragment extends SherlockFragment implements FilterChangedL
 
 	}
 
+	@Override
 	public void unloadHero(Hero hero) {
 		for (Fragment left : fragments) {
 			if (left instanceof BaseFragment)
@@ -328,4 +326,20 @@ public class DualPaneFragment extends SherlockFragment implements FilterChangedL
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.Fragment#toString()
+	 */
+	@Override
+	public String toString() {
+
+		StringBuilder sb = new StringBuilder("DP[");
+		for (Fragment left : fragments) {
+			if (left != null)
+				sb.append(left.toString());
+		}
+		sb.append("]");
+		return sb.toString();
+	}
 }

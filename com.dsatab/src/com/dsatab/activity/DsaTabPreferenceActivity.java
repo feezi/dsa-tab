@@ -109,6 +109,10 @@ public class DsaTabPreferenceActivity extends UnifiedSherlockPreferenceActivity 
 	public static final String KEY_FULLSCREEN = "fullscreen";
 
 	public static final String KEY_SETUP_SDCARD_PATH = "sdcardPath";
+
+	public static final String KEY_SETUP_SDCARD_PATH_PREFIX = KEY_SETUP_SDCARD_PATH + ".";
+	public static final String KEY_SETUP_SDCARD_DOCUMENTS_PATH = KEY_SETUP_SDCARD_PATH_PREFIX
+			+ DsaTabApplication.DIR_PDFS;
 	public static final String KEY_SETUP_SDCARD_HERO_PATH = "sdcardHeroPath";
 
 	public static final String KEY_DOWNLOAD_SCREEN = "downloadMediaScreen";
@@ -164,8 +168,6 @@ public class DsaTabPreferenceActivity extends UnifiedSherlockPreferenceActivity 
 	public static final String KEY_HEADER_MR = "header_mr";
 	public static final String KEY_HEADER_GS = "header_gs";
 	public static final String KEY_HEADER_WS = "header_ws";
-
-	public static final String KEY_MODIFY_TABS = "modifyTabs";
 
 	public static final String SCREEN_ORIENTATION_AUTO = "auto";
 	public static final String SCREEN_ORIENTATION_LANDSCAPE = "landscape";

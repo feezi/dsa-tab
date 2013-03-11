@@ -151,7 +151,7 @@ public class MapFragment extends BaseFragment {
 
 		progress = (ProgressBar) root.findViewById(R.id.map_progress);
 		progressText = (TextView) root.findViewById(R.id.map_progress_text);
-
+		osmMapView = null;
 		return configureContainerView(root);
 	}
 
@@ -175,6 +175,8 @@ public class MapFragment extends BaseFragment {
 				osmMapView.getController().setCenter(center);
 			}
 
+		}
+		if (osmMapView.getParent() == null) {
 			((ViewGroup) getView()).addView(osmMapView, 0);
 		}
 	}
@@ -488,11 +490,9 @@ public class MapFragment extends BaseFragment {
 		}
 
 		if (!TextUtils.isEmpty(lastMap)) {
-
-			if (getUserVisibleHint()) {
-				loadMap(lastMap);
-			}
+			loadMap(lastMap);
 		}
+
 	}
 
 	private void showMapChooser() {

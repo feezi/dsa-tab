@@ -36,7 +36,7 @@ import com.dsatab.xml.HeldenXmlParser;
  * @author Ganymede
  * 
  */
-public class HeroLoader extends AsyncTaskLoader<Hero> {
+public class HeroLoaderTask extends AsyncTaskLoader<Hero> {
 
 	private Hero hero;
 
@@ -44,7 +44,7 @@ public class HeroLoader extends AsyncTaskLoader<Hero> {
 
 	private Exception exception;
 
-	public HeroLoader(Context context, String heroPath) {
+	public HeroLoaderTask(Context context, String heroPath) {
 		super(context);
 		this.path = heroPath;
 

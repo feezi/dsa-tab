@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>    
-    <style name="DsaTabTheme.Dark" parent="@DsaTabTheme.__Dark">
+    <style name="DsaTabTheme.Dark" parent="@DsaTabTheme.__Dark">    
+        
         <!-- Holo generated styles -->
         <item name="android:editTextBackground">@drawable/edit_text_holo_dark</item>
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewDsaTabDark</item>

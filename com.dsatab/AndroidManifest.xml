@@ -3,7 +3,7 @@
     package="com.dsatab"
     android:installLocation="auto"
     android:versionCode="59"
-    android:versionName="4.0.6">
+    android:versionName="4.0.6" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />    
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <uses-feature
         android:name="android.hardware.microphone"
@@ -38,15 +38,14 @@
 
     <application
         android:name="DsaTabApplication"
+        android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@drawable/icon"
         android:label="DsaTab"
         android:largeHeap="true"
-        android:allowBackup="true"
         android:theme="@style/DsaTabTheme.Dark" >
         <activity
             android:name="com.dsatab.activity.DsaTabActivity"
-            android:uiOptions="splitActionBarWhenNarrow"
             android:windowSoftInputMode="stateAlwaysHidden|adjustUnspecified" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -66,31 +65,31 @@
             android:name="com.dsatab.activity.NotesEditActivity"
             android:label="Notiz bearbeiten"
             android:logo="@android:drawable/ic_menu_edit"
-            android:theme="@style/Theme.Dialog.Dark">
+            android:theme="@style/Theme.Dialog.Dark" >
         </activity>
         <activity
             android:name=".activity.TabEditActivity"
             android:label="Tab bearbeiten"
             android:logo="@android:drawable/ic_menu_edit"
-            android:theme="@style/Theme.Dialog.Dark">
+            android:theme="@style/Theme.Dialog.Dark" >
         </activity>
         <activity
             android:name=".activity.ModificatorEditActivity"
             android:label="Modifikator bearbeiten"
             android:logo="@android:drawable/ic_menu_edit"
-            android:theme="@style/Theme.Dialog.Dark">
+            android:theme="@style/Theme.Dialog.Dark" >
         </activity>
         <activity
             android:name=".activity.ItemContainerEditActivity"
             android:label="Behälter bearbeiten"
             android:logo="@android:drawable/ic_menu_edit"
-            android:theme="@style/Theme.Dialog.Dark" />        
-            <activity
+            android:theme="@style/Theme.Dialog.Dark" />
+        <activity
             android:name=".activity.ItemEditActivity"
             android:label="Gegenstand"
             android:logo="@android:drawable/ic_menu_edit"
             android:theme="@style/Theme.Dialog.Dark" />
-            <activity
+        <activity
             android:name=".activity.ItemViewActivity"
             android:label="Gegenstand"
             android:logo="@android:drawable/ic_menu_view"
@@ -113,7 +112,8 @@
         </activity>
 
         <receiver
-            android:name="com.gandulf.guilib.download.DownloadBroadcastReceiver" android:exported="false" >
+            android:name="com.gandulf.guilib.download.DownloadBroadcastReceiver"
+            android:exported="false" >
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
             </intent-filter>
@@ -123,10 +123,12 @@
             android:name="com.gandulf.guilib.download.UnzipIntentService"
             android:exported="false" >
         </service>
-        <!-- service
+        <!--
+        service
             android:name="com.dsatab.common.ExportHeroService"
             android:exported="false" >
-        </service-->
+        </service
+        -->
 
         <meta-data
             android:name="android.app.default_searchable"

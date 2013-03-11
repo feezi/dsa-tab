@@ -140,7 +140,18 @@ public class DsaTabApplication extends Application implements OnSharedPreference
 	}
 
 	public static File getDirectory(String name) {
-		File dirFile = new File(getDsaTabDirectory(), name);
+		File dirFile = null;
+		if (getPreferences().contains(DsaTabPreferenceActivity.KEY_SETUP_SDCARD_PATH_PREFIX + name)) {
+			File dir = new File(getPreferences().getString(
+					DsaTabPreferenceActivity.KEY_SETUP_SDCARD_PATH_PREFIX + name, null));
+
+			if (dir.exists() && dir.isDirectory()) {
+				dirFile = dir;
+			}
+		}
+		if (dirFile == null) {
+			dirFile = new File(getDsaTabDirectory(), name);
+		}
 		if (!dirFile.exists())
 			dirFile.mkdirs();
 		return dirFile;

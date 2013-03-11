@@ -83,8 +83,13 @@ public class ItemContainerAdapter extends OpenArrayAdapter<ItemContainer> {
 		if (item.getId() >= Hero.FIRST_INVENTORY_SCREEN) {
 			holder.text2.setText(item.getItems().size() + " "
 					+ getContext().getResources().getQuantityString(R.plurals.items, item.getItems().size()));
-			holder.text3.setText(getContext().getResources().getString(R.string.label_capacity, item.getWeight(),
-					item.getCapacity()));
+			if (item.getCapacity() != 0 || item.getWeight() != 0) {
+				holder.text3.setVisibility(View.VISIBLE);
+				holder.text3.setText(getContext().getResources().getString(R.string.label_capacity, item.getWeight(),
+						item.getCapacity()));
+			} else {
+				holder.text3.setVisibility(View.GONE);
+			}
 		} else {
 			holder.text2.setText(null);
 			holder.text3.setText(null);

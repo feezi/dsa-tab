@@ -71,7 +71,7 @@ public enum TalentType {
 			"Lesen/Schreiben Rogolan"), LesenSchreibenTrollischeRaumbilderschrift(
 			"Lesen/Schreiben Trollische Raumbilderschrift"), LesenSchreibenUrtulamidya("Lesen/Schreiben Urtulamidya"), LesenSchreibenWudu(
 			"Lesen/Schreiben Wudu"), LesenSchreibenZhayad("Lesen/Schreiben Zhayad"), LesenSchreibenTulamidya(
-			"Lesen/Schreiben Tulamidya"),
+			"Lesen/Schreiben Tulamidya"), LesenSchreibenNanduria("Lesen/Schreiben Nanduria"),
 	//
 	Ritualkenntnis, RitualkenntnisAlchimist("Ritualkenntnis: Alchimist"), RitualkenntnisDerwisch(
 			"Ritualkenntnis: Derwisch"), RitualkenntnisDruide("Ritualkenntnis: Druide"), RitualkenntnisDurroDun(

@@ -2,6 +2,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:custom="http://schemas.android.com/apk/res-auto">
     <style name="DsaTabTheme.__Light" parent="@Theme.Sherlock.Light.DarkActionBar">            		
+               
         <item name="iconImageViewStyle">@style/Widget.IconImageView</item>
         
         <item name="listItemBackground">@drawable/list_background_holo_light</item>
