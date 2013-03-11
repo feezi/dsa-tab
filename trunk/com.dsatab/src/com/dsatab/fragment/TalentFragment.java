@@ -317,9 +317,9 @@ public class TalentFragment extends BaseListFragment implements HeroChangedListe
 		super.onModifiersChanged(values);
 	}
 
-	private void loadHeroTalents(Hero hero2) {
+	private void loadHeroTalents(Hero hero) {
 
-		talentAdapter = new ExpandableTalentAdapter(getActivity(), getHero(), getFilterSettings());
+		talentAdapter = new ExpandableTalentAdapter(getActivity(), hero, getFilterSettings());
 
 		talentAdapter.setProbeListener(getBaseActivity().getProbeListener());
 		talentAdapter.setEditListener(getBaseActivity().getEditListener());

@@ -162,7 +162,10 @@ public class ListFilterSettings implements FilterSettings, JSONable, Serializabl
 	}
 
 	public void set(ListFilterSettings settings) {
-		set(settings.isShowFavorite(), settings.isShowNormal(), settings.isShowUnused(), settings.isIncludeModifiers());
+		if (settings != null) {
+			set(settings.isShowFavorite(), settings.isShowNormal(), settings.isShowUnused(),
+					settings.isIncludeModifiers());
+		}
 	}
 
 	/**

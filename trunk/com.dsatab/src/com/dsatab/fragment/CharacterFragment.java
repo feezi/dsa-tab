@@ -41,6 +41,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -96,8 +97,9 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 					getActivity().startActivityForResult(camera, ACTION_PHOTO);
 					break;
 				case R.id.option_pick_image:
+					File portraitsDir = DsaTabApplication.getDirectory(DsaTabApplication.DIR_PORTRAITS);
 					Intent photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
-					photoPickerIntent.setType("image/*");
+					photoPickerIntent.setDataAndType(Uri.fromFile(portraitsDir), "image/*");
 					getActivity().startActivityForResult(Intent.createChooser(photoPickerIntent, "Bild auswählen"),
 							ACTION_GALERY);
 					break;
@@ -128,6 +130,7 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 
 		@Override
 		public void onDestroyActionMode(ActionMode mode) {
+			resetPortaitView();
 			mMode = null;
 		}
 
@@ -360,6 +363,29 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 		}
 	}
 
+	protected void resizePortaiView() {
+		LayoutParams layoutParams = (LayoutParams) portraitView.getLayoutParams();
+		int imageWidth = portraitView.getWidth(), imageHeight = portraitView.getHeight();
+
+		if (portraitView.getDrawable().getIntrinsicWidth() > 0)
+			imageWidth = portraitView.getDrawable().getIntrinsicWidth();
+
+		if (portraitView.getDrawable().getIntrinsicHeight() > 0)
+			imageHeight = portraitView.getDrawable().getIntrinsicHeight();
+
+		float ratio = portraitView.getHeight() / (float) imageHeight;
+		layoutParams.width = (int) (imageWidth * ratio);
+
+		portraitView.requestLayout();
+	}
+
+	protected void resetPortaitView() {
+		LayoutParams layoutParams = (LayoutParams) portraitView.getLayoutParams();
+		layoutParams.width = getResources().getDimensionPixelSize(R.dimen.portrait_width_small);
+		layoutParams.height = LayoutParams.MATCH_PARENT;
+		portraitView.requestLayout();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -376,6 +402,21 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 				mMode = ((SherlockFragmentActivity) getActivity()).startActionMode(mCallback);
 				customizeActionModeCloseButton();
 				mMode.invalidate();
+				resizePortaiView();
+
+				// ObjectAnimator moveDown = ObjectAnimator.ofInt(layoutParams,
+				// "width", portraitView.getWidth(),
+				// portraitView.getWidth() * 3);
+				// moveDown.setDuration(2000);
+				// moveDown.addUpdateListener(new
+				// ValueAnimator.AnimatorUpdateListener() {
+				// @Override
+				// public void onAnimationUpdate(ValueAnimator arg0) {
+				// portraitView.requestLayout();
+				// }
+				// });
+				// moveDown.start();
+
 			}
 			return true;
 		}
@@ -576,6 +617,7 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 
 		fillSpecialFeatures(hero);
 
+		((TextView) findViewById(R.id.gen_name)).setText(hero.getName());
 		// --
 		ImageView portrait = (ImageView) findViewById(R.id.gen_portrait);
 		portrait.setOnClickListener(this);

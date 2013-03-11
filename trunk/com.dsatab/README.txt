@@ -21,4 +21,7 @@ To deploy this app you need the following Libraries in your Eclipse workspace:
 		Can be downloaded from https://github.com/thquinn/DraggableGridView
 	
 	- GridViewCompat
-		Can be downloaded from https://github.com/paramvir-b/AndroidGridViewCompatLib	
+		Can be downloaded from https://github.com/paramvir-b/AndroidGridViewCompatLib
+	
+- GridLayout v7 support library from google sdk	
+	Can be downloaded from google using sdk manager

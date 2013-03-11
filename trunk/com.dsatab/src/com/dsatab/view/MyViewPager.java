@@ -16,18 +16,18 @@
  */
 package com.dsatab.view;
 
+import org.osmdroid.views.MapView;
+
 import android.content.Context;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
+import android.view.View;
 
 /**
  * @author Ganymede
  * 
  */
 public class MyViewPager extends ViewPager {
-
-	private boolean draggable = true;
 
 	public MyViewPager(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -37,20 +37,19 @@ public class MyViewPager extends ViewPager {
 		super(context);
 	}
 
-	public boolean isDraggable() {
-		return draggable;
-	}
-
-	public void setDraggable(boolean draggable) {
-		this.draggable = draggable;
-	}
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.view.ViewPager#canScroll(android.view.View,
+	 * boolean, int, int, int)
+	 */
 	@Override
-	public boolean onInterceptTouchEvent(MotionEvent ev) {
-		if (!draggable)
-			return false;
-		else
-			return super.onInterceptTouchEvent(ev);
+	protected boolean canScroll(View child, boolean checkV, int dx, int x, int y) {
+		if (child instanceof MapView) {
+			return true;
+		} else {
+			return super.canScroll(child, checkV, dx, x, y);
+		}
 	}
 
 }

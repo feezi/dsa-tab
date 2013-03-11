@@ -17,12 +17,10 @@
 package com.dsatab.activity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -50,19 +48,7 @@ import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.dsatab.TabInfo;
 import com.dsatab.data.adapter.SpinnerSimpleAdapter;
-import com.dsatab.fragment.ArtFragment;
 import com.dsatab.fragment.BaseFragment;
-import com.dsatab.fragment.BodyFragment;
-import com.dsatab.fragment.CharacterFragment;
-import com.dsatab.fragment.DocumentsFragment;
-import com.dsatab.fragment.FightFragment;
-import com.dsatab.fragment.ItemsFragment;
-import com.dsatab.fragment.ItemsListFragment;
-import com.dsatab.fragment.MapFragment;
-import com.dsatab.fragment.NotesFragment;
-import com.dsatab.fragment.PurseFragment;
-import com.dsatab.fragment.SpellFragment;
-import com.dsatab.fragment.TalentFragment;
 import com.dsatab.util.Util;
 import com.dsatab.view.FightFilterSettings;
 import com.dsatab.view.ListFilterSettings;
@@ -80,9 +66,6 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	private CheckBox diceslider, attribteList;
 
 	private LinearLayout addons[] = new LinearLayout[TabInfo.MAX_TABS_PER_PAGE];
-
-	private List<String> activities;
-	private List<Class<? extends BaseFragment>> activityValues;
 
 	private TabInfo currentInfo = null;
 
@@ -128,16 +111,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		tabsAdapter = new TabsAdapter(this, tabs);
 		tabsList.setAdapter(tabsAdapter);
 
-		activities = Arrays.asList("Keine", "Charakterbogen", "Talente", "Zaubersprüche", "Künste", "Wunden",
-				"Kampfschirm", "Ausrüstung (Bilder)", "Ausrüstung (Liste)", "Notizen", "Geldbörse", "Karte",
-				"Dokumente");
-
-		activityValues = Arrays.asList(null, CharacterFragment.class, TalentFragment.class, SpellFragment.class,
-				ArtFragment.class, BodyFragment.class, FightFragment.class, ItemsFragment.class,
-				ItemsListFragment.class, NotesFragment.class, PurseFragment.class, MapFragment.class,
-				DocumentsFragment.class);
-
-		SpinnerSimpleAdapter<String> adapter = new SpinnerSimpleAdapter<String>(this, activities);
+		SpinnerSimpleAdapter<String> adapter = new SpinnerSimpleAdapter<String>(this, BaseFragment.activities);
 		spinner1.setAdapter(adapter);
 		spinner1.setOnItemSelectedListener(this);
 
@@ -227,8 +201,14 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 			break;
 		case R.id.option_tab_delete:
 			tabs.remove(currentInfo);
-			selectTabInfo(null);
 			tabsAdapter.notifyDataSetChanged();
+			if (tabsList.getCheckedItemPosition() != DragSortListView.INVALID_POSITION
+					&& tabsList.getCheckedItemPosition() < tabsAdapter.getCount()) {
+				selectTabInfo(tabsAdapter.getItem(tabsList.getCheckedItemPosition()));
+			} else {
+				tabsList.clearChoices();
+				selectTabInfo(null);
+			}
 			break;
 		case R.id.option_tab_reset:
 			tabs = DsaTabApplication.getInstance().getHero().getHeroConfiguration().getDefaultTabs();
@@ -247,10 +227,10 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		currentInfo = info;
 		if (info != null) {
 			Class<? extends BaseFragment> clazz1 = info.getActivityClazz(0);
-			spinner1.setSelection(activityValues.indexOf(clazz1));
+			spinner1.setSelection(BaseFragment.activityValues.indexOf(clazz1));
 
 			Class<? extends BaseFragment> clazz2 = info.getActivityClazz(1);
-			spinner2.setSelection(activityValues.indexOf(clazz2));
+			spinner2.setSelection(BaseFragment.activityValues.indexOf(clazz2));
 
 			diceslider.setChecked(info.isDiceSlider());
 			attribteList.setChecked(info.isAttributeList());
@@ -398,6 +378,13 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	public void remove(int which) {
 		tabs.remove(which);
 		tabsAdapter.notifyDataSetChanged();
+		if (tabsList.getCheckedItemPosition() != DragSortListView.INVALID_POSITION
+				&& tabsList.getCheckedItemPosition() < tabsAdapter.getCount()) {
+			selectTabInfo(tabsAdapter.getItem(tabsList.getCheckedItemPosition()));
+		} else {
+			tabsList.clearChoices();
+			selectTabInfo(null);
+		}
 	}
 
 	/*
@@ -422,10 +409,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		Util.hideKeyboard(tabsList);
 		DsaTabApplication.getInstance().getHero().getHeroConfiguration().setTabs(tabs);
 
-		Editor edit = DsaTabApplication.getPreferences().edit();
-		edit.putString(DsaTabPreferenceActivity.KEY_MODIFY_TABS, "" + System.currentTimeMillis());
-		edit.commit();
-
+		setResult(RESULT_OK);
 		super.finish();
 	}
 
@@ -496,11 +480,13 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	public void onItemSelected(AdapterView<?> adapter, View view, int position, long id) {
 		if (currentInfo != null) {
 			if (adapter == spinner1) {
-				Class<? extends BaseFragment> clazz1 = activityValues.get(spinner1.getSelectedItemPosition());
+				Class<? extends BaseFragment> clazz1 = BaseFragment.activityValues.get(spinner1
+						.getSelectedItemPosition());
 				currentInfo.setActivityClazz(0, clazz1);
 				updateTabInfoSettings(currentInfo);
 			} else if (adapter == spinner2) {
-				Class<? extends BaseFragment> clazz2 = activityValues.get(spinner2.getSelectedItemPosition());
+				Class<? extends BaseFragment> clazz2 = BaseFragment.activityValues.get(spinner2
+						.getSelectedItemPosition());
 				currentInfo.setActivityClazz(1, clazz2);
 				updateTabInfoSettings(currentInfo);
 			}
