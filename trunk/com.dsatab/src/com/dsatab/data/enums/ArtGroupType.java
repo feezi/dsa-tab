@@ -25,7 +25,7 @@ import com.dsatab.data.Art;
  * @author Ganymede
  * 
  */
-public enum ArtType {
+public enum ArtGroupType {
 
 	Liturige(Art.LITURGIE_PREFIX, TalentType.Liturgiekenntnis), Ritual(Art.RITUAL_PREFIX, TalentType.Ritualkenntnis), RitualSeher(
 			Art.RITUAL_SEHER_PREFIX, TalentType.Ritualkenntnis), Stabzauber(Art.STABZAUBER_PREFIX,
@@ -36,29 +36,29 @@ public enum ArtType {
 			TalentType.RitualkenntnisDerwisch), Runen(Art.RUNEN_PREFIX), Kugelzauber(Art.KUGELZAUBER_PREFIX), KristallomantischesRitual(
 			Art.KRISTALLOMANTISCHES_RITUAL_PREFIX, TalentType.RitualkenntnisKristallomantie), Hexenfluch(
 			Art.HEXENFLUCH_PREFIX, TalentType.RitualkenntnisHexe), GabeDesOdun(Art.GABE_DES_ODUN_PREFIX,
-			TalentType.RitualkenntnisDurroDun), DruidischesHerrschaftsritual(Art.DRUIDISCHES_HERRSCHAFTSRITUAL_PREFIX,
+			TalentType.RitualkenntnisDurroDûn), DruidischesHerrschaftsritual(Art.DRUIDISCHES_HERRSCHAFTSRITUAL_PREFIX,
 			TalentType.RitualkenntnisDruide), DruidischesDolchritual(Art.DRUIDISCHES_DOLCHRITUAL_PREFIX,
 			TalentType.RitualkenntnisDruide), Zaubertanz(Art.ZAUBERTANZ_PREFIX, TalentType.RitualkenntnisZaubertänzer), Zauberzeichen(
 			Art.ZAUBERZEICHEN_PREFIX), ZibiljaRitual(Art.ZIBILJA_RITUAL_PREFIX, TalentType.RitualkenntnisZibilja);
 
-	public static final Map<String, ArtType> artMappings = new HashMap<String, ArtType>();
+	public static final Map<String, ArtGroupType> artMappings = new HashMap<String, ArtGroupType>();
 	static {
-		artMappings.put("Apport", ArtType.Stabzauber);
-		artMappings.put("Bannschwert", ArtType.Stabzauber);
-		artMappings.put("Die Gestalt aus Rauch", ArtType.Ritual);
-		artMappings.put("Kristallkraft bündeln", ArtType.KristallomantischesRitual);
+		artMappings.put(FeatureType.Apport.xmlName(), ArtGroupType.Stabzauber);
+		artMappings.put(FeatureType.Bannschwert.xmlName(), ArtGroupType.Stabzauber);
+		artMappings.put(FeatureType.DieGestaltAusRauch.xmlName(), ArtGroupType.Ritual);
+		artMappings.put(FeatureType.KristallkraftBündeln.xmlName(), ArtGroupType.KristallomantischesRitual);
 	}
 
 	private String prefix;
 
 	private TalentType talentType;
 
-	private ArtType(String prefix) {
+	private ArtGroupType(String prefix) {
 		this.prefix = prefix;
 		this.talentType = null;
 	}
 
-	private ArtType(String prefix, TalentType talentType) {
+	private ArtGroupType(String prefix, TalentType talentType) {
 		this.prefix = prefix;
 		this.talentType = talentType;
 	}
@@ -79,11 +79,11 @@ public enum ArtType {
 		return name;
 	}
 
-	public static ArtType getTypeOfArt(String artName) {
-		ArtType result = artMappings.get(artName);
+	public static ArtGroupType getTypeOfArt(String artName) {
+		ArtGroupType result = artMappings.get(artName);
 		if (result == null) {
-			ArtType[] types = ArtType.values();
-			for (ArtType type : types) {
+			ArtGroupType[] types = ArtGroupType.values();
+			for (ArtGroupType type : types) {
 				if (artName.startsWith(type.prefix)) {
 					result = type;
 					break;

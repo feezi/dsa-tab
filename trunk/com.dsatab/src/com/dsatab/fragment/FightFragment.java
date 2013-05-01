@@ -1065,7 +1065,9 @@ public class FightFragment extends BaseListFragment implements OnLongClickListen
 	@Override
 	public void onActiveSetChanged(int newSet, int oldSet) {
 		fillFightItemDescriptions();
-		getActivity().supportInvalidateOptionsMenu();
+		if (getActivity() != null) {
+			getActivity().supportInvalidateOptionsMenu();
+		}
 	}
 
 	/*

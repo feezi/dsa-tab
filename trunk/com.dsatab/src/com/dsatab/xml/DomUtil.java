@@ -50,26 +50,6 @@ public class DomUtil {
 		}
 	}
 
-	public static List<Element> getChildrenByTagName(Element parent, Element subParent, String tagName) {
-		List<Element> children;
-
-		if (subParent != null) {
-			children = subParent.getChildren(tagName);
-		} else {
-			children = parent.getChildren(tagName);
-		}
-
-		return children;
-
-	}
-
-	public static List<Element> getChildrenByTagName(Element parent, String tagName) {
-		List<Element> children = parent.getChildren(tagName);
-
-		return children;
-
-	}
-
 	public static List<Element> getChildrenByTagName(Element parent, String subParentTagName, String tagName) {
 
 		List<Element> children = new LinkedList<Element>();

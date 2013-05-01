@@ -16,28 +16,10 @@
  */
 package com.dsatab.data.enums;
 
-import java.util.Arrays;
-
-import com.dsatab.data.TalentGroup;
-
 /**
  * @author Ganymede
  * 
  */
 public enum TalentGroupType {
-	Nahkampf(TalentGroup.NAHKAMPF_TALENTS), Fernkampf(TalentGroup.FERNKAMPF_TALENTS), Körperlich(
-			TalentGroup.KÖRPER_TALENTS), Gesellschaft(TalentGroup.GESELLSCHAFT_TALENTS), Natur(
-			TalentGroup.NATUR_TALENTS), Wissen(TalentGroup.WISSEN_TALENTS), Handwerk(TalentGroup.HANDWERK_TALENTS), Sprachen(
-			TalentGroup.SPACHEN_TALENTS), Gaben(TalentGroup.GABEN_TALENTS), Meta(TalentGroup.META_TALENTS);
-
-	private TalentType[] talents;
-
-	private TalentGroupType(TalentType[] talents) {
-		Arrays.sort(talents);
-		this.talents = talents;
-	}
-
-	public boolean contains(TalentType talentName) {
-		return Arrays.binarySearch(talents, talentName) >= 0;
-	}
+	Nahkampf, Fernkampf, Körperlich, Gesellschaft, Natur, Wissen, Handwerk, Sprachen, Schriften, Gaben, Meta;
 }

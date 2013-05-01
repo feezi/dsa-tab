@@ -33,11 +33,9 @@ import android.view.ViewGroup;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.dsatab.R;
 import com.dsatab.TabInfo;
-import com.dsatab.data.Hero;
 import com.dsatab.view.FilterSettings;
 import com.dsatab.view.FilterSettings.FilterType;
 import com.dsatab.view.listener.FilterChangedListener;
-import com.dsatab.view.listener.HeroLoader;
 import com.gandulf.guilib.util.Debug;
 
 /**
@@ -45,7 +43,7 @@ import com.gandulf.guilib.util.Debug;
  * 
  */
 public class DualPaneFragment extends SherlockFragment implements FilterChangedListener,
-		OnSharedPreferenceChangeListener, HeroLoader {
+		OnSharedPreferenceChangeListener {
 
 	private static final String TABINFO = "TABINFO";
 
@@ -247,7 +245,8 @@ public class DualPaneFragment extends SherlockFragment implements FilterChangedL
 					left.setUserVisibleHint(value);
 			} catch (NullPointerException e) {
 				// TODO find a better way to handle exception
-				// if we call this to soon on the fragent before its added a npe
+				// if we call this to soon on the fragment before its added a
+				// npe
 				// is thrown ignore this here.
 			}
 		}
@@ -303,25 +302,6 @@ public class DualPaneFragment extends SherlockFragment implements FilterChangedL
 		for (Fragment left : fragments) {
 			if (left instanceof BaseFragment)
 				((BaseFragment) left).onSharedPreferenceChanged(sharedPreferences, key);
-		}
-
-	}
-
-	@Override
-	public void loadHero(Hero hero) {
-
-		for (Fragment left : fragments) {
-			if (left instanceof BaseFragment)
-				((BaseFragment) left).loadHero(hero);
-		}
-
-	}
-
-	@Override
-	public void unloadHero(Hero hero) {
-		for (Fragment left : fragments) {
-			if (left instanceof BaseFragment)
-				((BaseFragment) left).unloadHero(hero);
 		}
 
 	}

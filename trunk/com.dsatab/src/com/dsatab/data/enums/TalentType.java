@@ -1,143 +1,197 @@
-/**
- *  This file is part of DsaTab.
- *
- *  DsaTab is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  DsaTab is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with DsaTab.  If not, see <http://www.gnu.org/licenses/>.
- */
 package com.dsatab.data.enums;
 
-/**
- * @author Ganymede
- * 
- */
 public enum TalentType {
+	Anderthalbhänder("Anderthalbhänder", TalentGroupType.Nahkampf, -2), Armbrust("Armbrust", TalentGroupType.Fernkampf,
+			-5), Bastardstäbe("Bastardstäbe", TalentGroupType.Nahkampf, -2), Belagerungswaffen("Belagerungswaffen",
+			TalentGroupType.Fernkampf, null), Blasrohr("Blasrohr", TalentGroupType.Fernkampf, -5), Bogen("Bogen",
+			TalentGroupType.Fernkampf, -3), Diskus("Diskus", TalentGroupType.Fernkampf, -3), Dolche("Dolche",
+			TalentGroupType.Nahkampf, -1), Fechtwaffen("Fechtwaffen", TalentGroupType.Nahkampf, -1), Hiebwaffen(
+			"Hiebwaffen", TalentGroupType.Nahkampf, -4), Infanteriewaffen("Infanteriewaffen", TalentGroupType.Nahkampf,
+			-3), Kettenstäbe("Kettenstäbe", TalentGroupType.Nahkampf, -1), Kettenwaffen("Kettenwaffen",
+			TalentGroupType.Nahkampf, -3), Lanzenreiten("Lanzenreiten", TalentGroupType.Fernkampf, null), Peitsche(
+			"Peitsche", TalentGroupType.Nahkampf, -1), Raufen("Raufen", TalentGroupType.Nahkampf, 0), Ringen("Ringen",
+			TalentGroupType.Nahkampf, 0), Säbel("Säbel", TalentGroupType.Nahkampf, -2), Schleuder("Schleuder",
+			TalentGroupType.Fernkampf, -2), Schwerter("Schwerter", TalentGroupType.Nahkampf, -2), Speere("Speere",
+			TalentGroupType.Nahkampf, -3), Stäbe("Stäbe", TalentGroupType.Nahkampf, -2), Wurfbeile("Wurfbeile",
+			TalentGroupType.Fernkampf, -2), Wurfmesser("Wurfmesser", TalentGroupType.Fernkampf, -3), Wurfspeere(
+			"Wurfspeere", TalentGroupType.Fernkampf, -2), Zweihandflegel("Zweihandflegel", TalentGroupType.Nahkampf, -3), Zweihandhiebwaffen(
+			"Zweihandhiebwaffen", TalentGroupType.Nahkampf, -3), Zweihandschwertersäbel("Zweihandschwerter/-säbel",
+			TalentGroupType.Nahkampf, -2), Akrobatik("Akrobatik", TalentGroupType.Körperlich, null), Athletik(
+			"Athletik", TalentGroupType.Körperlich, null), Fliegen("Fliegen", TalentGroupType.Körperlich, null), Gaukeleien(
+			"Gaukeleien", TalentGroupType.Körperlich, null), Klettern("Klettern", TalentGroupType.Körperlich, null), Körperbeherrschung(
+			"Körperbeherrschung", TalentGroupType.Körperlich, null), Reiten("Reiten", TalentGroupType.Körperlich, null), Schleichen(
+			"Schleichen", TalentGroupType.Körperlich, null), Schwimmen("Schwimmen", TalentGroupType.Körperlich, null), Selbstbeherrschung(
+			"Selbstbeherrschung", TalentGroupType.Körperlich, null), SichVerstecken("Sich verstecken",
+			TalentGroupType.Körperlich, null), Singen("Singen", TalentGroupType.Körperlich, null), Sinnenschärfe(
+			"Sinnenschärfe", TalentGroupType.Körperlich, null), Skifahren("Skifahren", TalentGroupType.Körperlich, null), StimmenImitieren(
+			"Stimmen imitieren", TalentGroupType.Körperlich, null), Tanzen("Tanzen", TalentGroupType.Körperlich, null), Taschendiebstahl(
+			"Taschendiebstahl", TalentGroupType.Körperlich, null), Zechen("Zechen", TalentGroupType.Körperlich, null), Betören(
+			"Betören", TalentGroupType.Gesellschaft, null), Etikette("Etikette", TalentGroupType.Gesellschaft, null), Gassenwissen(
+			"Gassenwissen", TalentGroupType.Gesellschaft, null), Lehren("Lehren", TalentGroupType.Gesellschaft, null), Menschenkenntnis(
+			"Menschenkenntnis", TalentGroupType.Gesellschaft, null), Schauspielerei("Schauspielerei",
+			TalentGroupType.Gesellschaft, null), SchriftlicherAusdruck("Schriftlicher Ausdruck",
+			TalentGroupType.Gesellschaft, null), SichVerkleiden("Sich verkleiden", TalentGroupType.Gesellschaft, null), Überreden(
+			"Überreden", TalentGroupType.Gesellschaft, null), Überzeugen("Überzeugen", TalentGroupType.Gesellschaft,
+			null), Galanterie("Galanterie", TalentGroupType.Gesellschaft, null), Fährtensuchen("Fährtensuchen",
+			TalentGroupType.Natur, null), FallenStellen("Fallen stellen", TalentGroupType.Natur, null), FesselnEntfesseln(
+			"Fesseln/Entfesseln", TalentGroupType.Natur, null), FischenAngeln("Fischen/Angeln", TalentGroupType.Natur,
+			null), Orientierung("Orientierung", TalentGroupType.Natur, null), Wettervorhersage("Wettervorhersage",
+			TalentGroupType.Natur, null), Seefischerei("Seefischerei", TalentGroupType.Natur, null), Wildnisleben(
+			"Wildnisleben", TalentGroupType.Natur, null), LesenSchreiben("Lesen/Schreiben", TalentGroupType.Schriften,
+			null), LesenSchreibenAltesAlaani("Lesen/Schreiben Altes Alaani", TalentGroupType.Schriften, null), LesenSchreibenAltesAmulashtra(
+			"Lesen/Schreiben Altes Amulashtra", TalentGroupType.Schriften, null), LesenSchreibenAmulashtra(
+			"Lesen/Schreiben Amulashtra", TalentGroupType.Schriften, null), LesenSchreibenAngram(
+			"Lesen/Schreiben Angram", TalentGroupType.Schriften, null), LesenSchreibenArkanil(
+			"Lesen/Schreiben Arkanil", TalentGroupType.Schriften, null), LesenSchreibenChrmk("Lesen/Schreiben Chrmk",
+			TalentGroupType.Schriften, null), LesenSchreibenChuchas("Lesen/Schreiben Chuchas",
+			TalentGroupType.Schriften, null), LesenSchreibenDrakhardZinken("Lesen/Schreiben Drakhard-Zinken",
+			TalentGroupType.Schriften, null), LesenSchreibenDraknedGlyphen("Lesen/Schreiben Drakned-Glyphen",
+			TalentGroupType.Schriften, null), LesenSchreibenGeheiligteGlyphenVonUnau(
+			"Lesen/Schreiben Geheiligte Glyphen von Unau", TalentGroupType.Schriften, null), LesenSchreibenGimarilGlyphen(
+			"Lesen/Schreiben Gimaril-Glyphen", TalentGroupType.Schriften, null), LesenSchreibenGjalskisch(
+			"Lesen/Schreiben Gjalskisch", TalentGroupType.Schriften, null), LesenSchreibenHjaldingscheRunen(
+			"Lesen/Schreiben Hjaldingsche Runen", TalentGroupType.Schriften, null), LesenSchreibenAltImperialeZeichen(
+			"Lesen/Schreiben (Alt-)Imperiale Zeichen", TalentGroupType.Schriften, null), LesenSchreibenIsdiraAsdharia(
+			"Lesen/Schreiben Isdira/Asdharia", TalentGroupType.Schriften, null), LesenSchreibenAltesKemi(
+			"Lesen/Schreiben Altes Kemi", TalentGroupType.Schriften, null), LesenSchreibenKuslikerZeichen(
+			"Lesen/Schreiben Kusliker Zeichen", TalentGroupType.Schriften, null), LesenSchreibenNanduria(
+			"Lesen/Schreiben Nanduria", TalentGroupType.Schriften, null), LesenSchreibenRogolan(
+			"Lesen/Schreiben Rogolan", TalentGroupType.Schriften, null), LesenSchreibenTrollischeRaumbilderschrift(
+			"Lesen/Schreiben Trollische Raumbilderschrift", TalentGroupType.Schriften, null), LesenSchreibenTulamidya(
+			"Lesen/Schreiben Tulamidya", TalentGroupType.Schriften, null), LesenSchreibenUrtulamidya(
+			"Lesen/Schreiben Urtulamidya", TalentGroupType.Schriften, null), LesenSchreibenZhayad(
+			"Lesen/Schreiben Zhayad", TalentGroupType.Schriften, null), LesenSchreibenMahrischeGlyphen(
+			"Lesen/Schreiben Mahrische Glyphen", TalentGroupType.Schriften, null), LesenSchreibenWudu(
+			"Lesen/Schreiben Wudu", TalentGroupType.Schriften, null), SprachenKennen("Sprachen kennen",
+			TalentGroupType.Sprachen, null), SprachenKennenGarethi("Sprachen kennen Garethi", TalentGroupType.Sprachen,
+			null), SprachenKennenBosparano("Sprachen kennen Bosparano", TalentGroupType.Sprachen, null), SprachenKennenAltImperialAureliani(
+			"Sprachen kennen Alt-Imperial/Aureliani", TalentGroupType.Sprachen, null), SprachenKennenZyklopäisch(
+			"Sprachen kennen Zyklopäisch", TalentGroupType.Sprachen, null), SprachenKennenTulamidya(
+			"Sprachen kennen Tulamidya", TalentGroupType.Sprachen, null), SprachenKennenUrtulamidya(
+			"Sprachen kennen Urtulamidya", TalentGroupType.Sprachen, null), SprachenKennenZelemja(
+			"Sprachen kennen Zelemja", TalentGroupType.Sprachen, null), SprachenKennenAltesKemi(
+			"Sprachen kennen Altes Kemi", TalentGroupType.Sprachen, null), SprachenKennenAlaani(
+			"Sprachen kennen Alaani", TalentGroupType.Sprachen, null), SprachenKennenZhulchammaqra(
+			"Sprachen kennen Zhulchammaqra", TalentGroupType.Sprachen, null), SprachenKennenFerkina(
+			"Sprachen kennen Ferkina", TalentGroupType.Sprachen, null), SprachenKennenRuuz("Sprachen kennen Ruuz",
+			TalentGroupType.Sprachen, null), SprachenKennenRabensprache("Sprachen kennen Rabensprache",
+			TalentGroupType.Sprachen, null), SprachenKennenNujuka("Sprachen kennen Nujuka", TalentGroupType.Sprachen,
+			null), SprachenKennenMohisch("Sprachen kennen Mohisch", TalentGroupType.Sprachen, null), SprachenKennenThorwalsch(
+			"Sprachen kennen Thorwalsch", TalentGroupType.Sprachen, null), SprachenKennenHjaldingsch(
+			"Sprachen kennen Hjaldingsch", TalentGroupType.Sprachen, null), SprachenKennenIsdira(
+			"Sprachen kennen Isdira", TalentGroupType.Sprachen, null), SprachenKennenAsdharia(
+			"Sprachen kennen Asdharia", TalentGroupType.Sprachen, null), SprachenKennenRogolan(
+			"Sprachen kennen Rogolan", TalentGroupType.Sprachen, null), SprachenKennenAngram("Sprachen kennen Angram",
+			TalentGroupType.Sprachen, null), SprachenKennenOloghaijan("Sprachen kennen Ologhaijan",
+			TalentGroupType.Sprachen, null), SprachenKennenOloarkh("Sprachen kennen Oloarkh", TalentGroupType.Sprachen,
+			null), SprachenKennenGoblinisch("Sprachen kennen Goblinisch", TalentGroupType.Sprachen, null), SprachenKennenTrollisch(
+			"Sprachen kennen Trollisch", TalentGroupType.Sprachen, null), SprachenKennenRssahh(
+			"Sprachen kennen Rssahh", TalentGroupType.Sprachen, null), SprachenKennenGrolmisch(
+			"Sprachen kennen Grolmisch", TalentGroupType.Sprachen, null), SprachenKennenKoboldisch(
+			"Sprachen kennen Koboldisch", TalentGroupType.Sprachen, null), SprachenKennenDrachisch(
+			"Sprachen kennen Drachisch", TalentGroupType.Sprachen, null), SprachenKennenZhayad(
+			"Sprachen kennen Zhayad", TalentGroupType.Sprachen, null), SprachenKennenAtak("Sprachen kennen Atak",
+			TalentGroupType.Sprachen, null), SprachenKennenFüchsisch("Sprachen kennen Füchsisch",
+			TalentGroupType.Sprachen, null), SprachenKennenMahrisch("Sprachen kennen Mahrisch",
+			TalentGroupType.Sprachen, null), SprachenKennenRissoal("Sprachen kennen Rissoal", TalentGroupType.Sprachen,
+			null), SprachenKennenMolochisch("Sprachen kennen Molochisch", TalentGroupType.Sprachen, null), SprachenKennenNeckergesang(
+			"Sprachen kennen Neckergesang", TalentGroupType.Sprachen, null), SprachenKennenZLit(
+			"Sprachen kennen Z'Lit", TalentGroupType.Sprachen, null), SprachenKennenWudu("Sprachen kennen Wudu",
+			TalentGroupType.Sprachen, null), Anatomie("Anatomie", TalentGroupType.Wissen, null), Baukunst("Baukunst",
+			TalentGroupType.Wissen, null), BrettKartenspiel("Brett-/Kartenspiel", TalentGroupType.Wissen, null), Geografie(
+			"Geografie", TalentGroupType.Wissen, null), Geschichtswissen("Geschichtswissen", TalentGroupType.Wissen,
+			null), Gesteinskunde("Gesteinskunde", TalentGroupType.Wissen, null), GötterUndKulte("Götter und Kulte",
+			TalentGroupType.Wissen, null), Heraldik("Heraldik", TalentGroupType.Wissen, null), Hüttenkunde(
+			"Hüttenkunde", TalentGroupType.Wissen, null), Schiffbau("Schiffbau", TalentGroupType.Wissen, null), Kriegskunst(
+			"Kriegskunst", TalentGroupType.Wissen, null), Kryptographie("Kryptographie", TalentGroupType.Wissen, null), Magiekunde(
+			"Magiekunde", TalentGroupType.Wissen, null), Mechanik("Mechanik", TalentGroupType.Wissen, null), Pflanzenkunde(
+			"Pflanzenkunde", TalentGroupType.Wissen, null), Philosophie("Philosophie", TalentGroupType.Wissen, null), Rechnen(
+			"Rechnen", TalentGroupType.Wissen, null), Rechtskunde("Rechtskunde", TalentGroupType.Wissen, null), SagenUndLegenden(
+			"Sagen und Legenden", TalentGroupType.Wissen, null), Schätzen("Schätzen", TalentGroupType.Wissen, null), Sprachenkunde(
+			"Sprachenkunde", TalentGroupType.Wissen, null), Staatskunst("Staatskunst", TalentGroupType.Wissen, null), Sternkunde(
+			"Sternkunde", TalentGroupType.Wissen, null), Tierkunde("Tierkunde", TalentGroupType.Wissen, null), Abrichten(
+			"Abrichten", TalentGroupType.Handwerk, null), Ackerbau("Ackerbau", TalentGroupType.Handwerk, null), Alchimie(
+			"Alchimie", TalentGroupType.Handwerk, null), Bergbau("Bergbau", TalentGroupType.Handwerk, null), Bogenbau(
+			"Bogenbau", TalentGroupType.Handwerk, null), BooteFahren("Boote fahren", TalentGroupType.Handwerk, null), Brauer(
+			"Brauer", TalentGroupType.Handwerk, null), Drucker("Drucker", TalentGroupType.Handwerk, null), FahrzeugLenken(
+			"Fahrzeug lenken", TalentGroupType.Handwerk, null), Falschspiel("Falschspiel", TalentGroupType.Handwerk,
+			null), Feinmechanik("Feinmechanik", TalentGroupType.Handwerk, null), Feuersteinbearbeitung(
+			"Feuersteinbearbeitung", TalentGroupType.Handwerk, null), Fleischer("Fleischer", TalentGroupType.Handwerk,
+			null), GerberKürschner("Gerber/Kürschner", TalentGroupType.Handwerk, null), Glaskunst("Glaskunst",
+			TalentGroupType.Handwerk, null), Grobschmied("Grobschmied", TalentGroupType.Handwerk, null), Handel(
+			"Handel", TalentGroupType.Handwerk, null), Hauswirtschaft("Hauswirtschaft", TalentGroupType.Handwerk, null), HeilkundeGift(
+			"Heilkunde: Gift", TalentGroupType.Handwerk, null), HeilkundeKrankheiten("Heilkunde: Krankheiten",
+			TalentGroupType.Handwerk, null), HeilkundeSeele("Heilkunde: Seele", TalentGroupType.Handwerk, null), HeilkundeWunden(
+			"Heilkunde: Wunden", TalentGroupType.Handwerk, null), Kartographie("Kartographie",
+			TalentGroupType.Handwerk, null), HundeschlittenFahren("Hundeschlitten fahren", TalentGroupType.Handwerk,
+			null), EisseglerFahren("Eissegler fahren", TalentGroupType.Handwerk, null), Kapellmeister("Kapellmeister",
+			TalentGroupType.Handwerk, null), Steuermann("Steuermann", TalentGroupType.Handwerk, null), Holzbearbeitung(
+			"Holzbearbeitung", TalentGroupType.Handwerk, null), Instrumentenbauer("Instrumentenbauer",
+			TalentGroupType.Handwerk, null), Kartografie("Kartografie", TalentGroupType.Handwerk, null), Kochen(
+			"Kochen", TalentGroupType.Handwerk, null), Kristallzucht("Kristallzucht", TalentGroupType.Handwerk, null), Lederarbeiten(
+			"Lederarbeiten", TalentGroupType.Handwerk, null), MalenZeichnen("Malen/Zeichnen", TalentGroupType.Handwerk,
+			null), Maurer("Maurer", TalentGroupType.Handwerk, null), Metallguss("Metallguss", TalentGroupType.Handwerk,
+			null), Musizieren("Musizieren", TalentGroupType.Handwerk, null), SchlösserKnacken("Schlösser knacken",
+			TalentGroupType.Handwerk, null), SchnapsBrennen("Schnaps brennen", TalentGroupType.Handwerk, null), Schneidern(
+			"Schneidern", TalentGroupType.Handwerk, null), Seefahrt("Seefahrt", TalentGroupType.Handwerk, null), Seiler(
+			"Seiler", TalentGroupType.Handwerk, null), Steinmetz("Steinmetz", TalentGroupType.Handwerk, null), SteinschneiderJuwelier(
+			"Steinschneider/Juwelier", TalentGroupType.Handwerk, null), Stellmacher("Stellmacher",
+			TalentGroupType.Handwerk, null), StoffeFärben("Stoffe färben", TalentGroupType.Handwerk, null), Tätowieren(
+			"Tätowieren", TalentGroupType.Handwerk, null), Töpfern("Töpfern", TalentGroupType.Handwerk, null), Viehzucht(
+			"Viehzucht", TalentGroupType.Handwerk, null), Webkunst("Webkunst", TalentGroupType.Handwerk, null), Winzer(
+			"Winzer", TalentGroupType.Handwerk, null), Zimmermann("Zimmermann", TalentGroupType.Handwerk, null), Gefahreninstinkt(
+			"Gefahreninstinkt", TalentGroupType.Gaben, null), Zwergennase("Zwergennase", TalentGroupType.Gaben, null), GeisterRufen(
+			"Geister rufen", TalentGroupType.Gaben, null), GeisterBannen("Geister bannen", TalentGroupType.Gaben, null), GeisterBinden(
+			"Geister binden", TalentGroupType.Gaben, null), GeisterAufnehmen("Geister aufnehmen",
+			TalentGroupType.Gaben, null), PirschUndAnsitzjagd("Pirsch- und Ansitzjagd", TalentGroupType.Meta, null), NahrungSammeln(
+			"Nahrung sammeln", TalentGroupType.Meta, null), Kräutersuche("Kräutersuche", TalentGroupType.Meta, null), WacheHalten(
+			"Wache halten", TalentGroupType.Meta, null), Ritualkenntnis("Ritualkenntnis", TalentGroupType.Gaben, null), RitualkenntnisAlchimist(
+			"Ritualkenntnis: Alchimist", TalentGroupType.Gaben, null), RitualkenntnisDerwisch(
+			"Ritualkenntnis: Derwisch", TalentGroupType.Gaben, null), RitualkenntnisDruide("Ritualkenntnis: Druide",
+			TalentGroupType.Gaben, null), RitualkenntnisDurroDûn("Ritualkenntnis: Durro-Dûn", TalentGroupType.Gaben,
+			null), RitualkenntnisGeode("Ritualkenntnis: Geode", TalentGroupType.Gaben, null), RitualkenntnisGildenmagie(
+			"Ritualkenntnis: Gildenmagie", TalentGroupType.Gaben, null), RitualkenntnisHexe("Ritualkenntnis: Hexe",
+			TalentGroupType.Gaben, null), RitualkenntnisKristallomantie("Ritualkenntnis: Kristallomantie",
+			TalentGroupType.Gaben, null), RitualkenntnisRunenzauberei("Ritualkenntnis: Runenzauberei",
+			TalentGroupType.Gaben, null), RitualkenntnisScharlatan("Ritualkenntnis: Scharlatan", TalentGroupType.Gaben,
+			null), RitualkenntnisZaubertänzer("Ritualkenntnis: Zaubertänzer", TalentGroupType.Gaben, null), RitualkenntnisZaubertänzerHazaqi(
+			"Ritualkenntnis: Zaubertänzer (Hazaqi)", TalentGroupType.Gaben, null), RitualkenntnisZaubertänzerMajuna(
+			"Ritualkenntnis: Zaubertänzer (Majuna)", TalentGroupType.Gaben, null), RitualkenntnisZaubertänzernovadischeSharisad(
+			"Ritualkenntnis: Zaubertänzer (novadische Sharisad)", TalentGroupType.Gaben, null), RitualkenntnisZaubertänzertulamidischeSharisad(
+			"Ritualkenntnis: Zaubertänzer (tulamidische Sharisad)", TalentGroupType.Gaben, null), RitualkenntnisZibilja(
+			"Ritualkenntnis: Zibilja", TalentGroupType.Gaben, null), Liturgiekenntnis("Liturgiekenntnis",
+			TalentGroupType.Gaben, null), LiturgiekenntnisAngrosch("Liturgiekenntnis (Angrosch)",
+			TalentGroupType.Gaben, null), LiturgiekenntnisAves("Liturgiekenntnis (Aves)", TalentGroupType.Gaben, null), LiturgiekenntnisBoron(
+			"Liturgiekenntnis (Boron)", TalentGroupType.Gaben, null), LiturgiekenntnisEfferd(
+			"Liturgiekenntnis (Efferd)", TalentGroupType.Gaben, null), LiturgiekenntnisFirun(
+			"Liturgiekenntnis (Firun)", TalentGroupType.Gaben, null), LiturgiekenntnisGravesh(
+			"Liturgiekenntnis (Gravesh)", TalentGroupType.Gaben, null), LiturgiekenntnisHRanga(
+			"Liturgiekenntnis (H'Ranga)", TalentGroupType.Gaben, null), LiturgiekenntnisHSzint(
+			"Liturgiekenntnis (H'Szint)", TalentGroupType.Gaben, null), LiturgiekenntnisHesinde(
+			"Liturgiekenntnis (Hesinde)", TalentGroupType.Gaben, null), LiturgiekenntnisIfirn(
+			"Liturgiekenntnis (Ifirn)", TalentGroupType.Gaben, null), LiturgiekenntnisIngerimm(
+			"Liturgiekenntnis (Ingerimm)", TalentGroupType.Gaben, null), LiturgiekenntnisKamaluq(
+			"Liturgiekenntnis (Kamaluq)", TalentGroupType.Gaben, null), LiturgiekenntnisKor("Liturgiekenntnis (Kor)",
+			TalentGroupType.Gaben, null), LiturgiekenntnisNandus("Liturgiekenntnis (Nandus)", TalentGroupType.Gaben,
+			null), LiturgiekenntnisPeraine("Liturgiekenntnis (Peraine)", TalentGroupType.Gaben, null), LiturgiekenntnisPhex(
+			"Liturgiekenntnis (Phex)", TalentGroupType.Gaben, null), LiturgiekenntnisPraios(
+			"Liturgiekenntnis (Praios)", TalentGroupType.Gaben, null), LiturgiekenntnisRahja(
+			"Liturgiekenntnis (Rahja)", TalentGroupType.Gaben, null), LiturgiekenntnisRondra(
+			"Liturgiekenntnis (Rondra)", TalentGroupType.Gaben, null), LiturgiekenntnisSwafnir(
+			"Liturgiekenntnis (Swafnir)", TalentGroupType.Gaben, null), LiturgiekenntnisTairach(
+			"Liturgiekenntnis (Tairach)", TalentGroupType.Gaben, null), LiturgiekenntnisTravia(
+			"Liturgiekenntnis (Travia)", TalentGroupType.Gaben, null), LiturgiekenntnisTsa("Liturgiekenntnis (Tsa)",
+			TalentGroupType.Gaben, null), LiturgiekenntnisZsahh("Liturgiekenntnis (Zsahh)", TalentGroupType.Gaben, null);
 
-	Anderthalbhänder(-2), Armbrust(-5, true), Bastardstäbe(-2, false), Belagerungswaffen(null, true), Blasrohr(-5, true), Bogen(
-			-3, true), Diskus(-3, true), Dolche(-1), Fechtwaffen(-1), Hiebwaffen(-4), Infanteriewaffen(-3), Kettenstäbe(
-			-1), Kettenwaffen(-3), Lanzenreiten(null, true), Peitsche(-1), Raufen(0), Ringen(0), Schleuder(-2, true), Schwerter(
-			-2), Speere(-3), Stäbe(-2), Säbel(-2), Wurfbeile(-2, true), Wurfmesser(-3, true), Wurfspeere(-2, true), Zweihandflegel(
-			-3), Zweihandhiebwaffen(-3), Zweihandschwerter(-2, false, "Zweihandschwerter/-säbel"),
-	//
-	Athletik, Klettern, Körperbeherrschung, Schleichen, Schwimmen, Selbstbeherrschung, SichVerstecken("Sich verstecken"), Singen, Sinnenschärfe, Tanzen, Zechen, Akrobatik, Fliegen, Gaukeleien, Reiten, Skifahren, StimmenImitieren(
-			"Stimmen imitieren"), Taschendiebstahl,
-	//
-	Menschenkenntnis, Überreden, Betören, Etikette, Gassenwissen, Lehren, SichVerkleiden("Sich verkleiden"), Überzeugen, Galanterie, Schauspielerei, SchriftlicherAusdruck(
-			"Schriftlicher Ausdruck"),
-	//
-	Fährtensuchen, Orientierung, Wildnisleben, FallenStellen("Fallen stellen"), FesselnEntfesseln("Fesseln/Entfesseln"), FischenAngeln(
-			"Fischen/Angeln"), Wettervorhersage, Seefischerei,
-	//
-	GötterUndKulte("Götter und Kulte"), Rechnen, SagenUndLegenden("Sagen und Legenden"), BrettKartenspiel(
-			"Brett-/Kartenspiel"), Geografie, Geschichtswissen, Gesteinskunde, Heraldik, Kriegskunst, Kryptographie, Magiekunde, Mechanik, Pflanzenkunde, Philosophie, Rechtskunde, Schätzen, Sprachenkunde, Staatskunst, Sternkunde, Tierkunde, Anatomie, Baukunst, Hüttenkunde, Schiffbau,
-	//
-	SprachenKennen("Sprachen kennen"), LesenSchreiben("Lesen/Schreiben"),
-
-	SprachenKennenAlaani("Sprachen kennen Alaani"), SprachenKennenAltImperialAureliani(
-			"Sprachen kennen Alt-Imperial/Aureliani"), SprachenKennenAltesKemi("Sprachen kennen Altes Kemi"), SprachenKennenAngram(
-			"Sprachen kennen Angram"), SprachenKennenAsdharia("Sprachen kennen Asdharia"), SprachenKennenAtak(
-			"Sprachen kennen Atak"), SprachenKennenBosparano("Sprachen kennen Bosparano"), SprachenKennenDrachisch(
-			"Sprachen kennen Drachisch"), SprachenKennenFerkina("Sprachen kennen Ferkina"), SprachenKennenGarethi(
-			"Sprachen kennen Garethi"), SprachenKennenGoblinisch("Sprachen kennen Goblinisch"), SprachenKennenGrolmisch(
-			"Sprachen kennen Grolmisch"), SprachenKennenHjaldingsch("Sprachen kennen Hjaldingsch"), SprachenKennenIsdira(
-			"Sprachen kennen Isdira"), SprachenKennenKoboldisch("Sprachen kennen Koboldisch"), SprachenKennenMahrisch(
-			"Sprachen kennen Mahrisch"), SprachenKennenMohisch("Sprachen kennen Mohisch"), SprachenKennenMolochisch(
-			"Sprachen kennen Molochisch"), SprachenKennenNeckergesang("Sprachen kennen Neckergesang"), SprachenKennenNujuka(
-			"Sprachen kennen Nujuka"), SprachenKennenOloarkh("Sprachen kennen Oloarkh"), SprachenKennenOloghaijan(
-			"Sprachen kennen Ologhaijan"), SprachenKennenRissoal("Sprachen kennen Rissoal"), SprachenKennenRogolan(
-			"Sprachen kennen Rogolan"), SprachenKennenRssahh("Sprachen kennen Rssahh"), SprachenKennenTrollisch(
-			"Sprachen kennen Trollisch"), SprachenKennenUrtulamidya("Sprachen kennen Urtulamidya"), SprachenKennenTulamidya(
-			"Sprachen kennen Tulamidya"), SprachenKennenThorwalsch("Sprachen kennen Thorwalsch"), SprachenKennenWudu(
-			"Sprachen kennen Wudu"), SprachenKennenZLit("Sprachen kennen Z'Lit"), SprachenKennenZelemja(
-			"Sprachen kennen Zelemja"), SprachenKennenZhayad("Sprachen kennen Zhayad"), SprachenKennenZhulchammaqra(
-			"Sprachen kennen Zhulchammaqra"), SprachenKennenZyklopäisch("Sprachen kennen Zyklopäisch"),
-	//
-	LesenSchreibenAltImperialeZeichen("Lesen/Schreiben (Alt-)Imperiale Zeichen"), LesenSchreibenAltesAlaani(
-			"Lesen/Schreiben Altes Alaani"), LesenSchreibenAltesAmulashtra("Lesen/Schreiben Altes Amulashtra"), LesenSchreibenKuslikerZichen(
-			"Lesen/Schreiben Kusliker Zeichen"), LesenSchreibenAltesKemi("Lesen/Schreiben Altes Kemi"), LesenSchreibenAngram(
-			"Lesen/Schreiben Angram"), LesenSchreibenChrmk("Lesen/Schreiben Chrmk"), LesenSchreibenChuchas(
-			"Lesen/Schreiben Chuchas"), LesenSchreibenGimarilGlyphen("Lesen/Schreiben Gimaril-Glyphen"), LesenSchreibenGjalskisch(
-			"Lesen/Schreiben Gjalskisch"), LesenSchreibenHjaldingscheRunen("Lesen/Schreiben Hjaldingsche Runen"), LesenSchreibenIsdiraAsdharia(
-			"Lesen/Schreiben Isdira/Asdharia"), LesenSchreibenMahrischeGlyphen("Lesen/Schreiben Mahrische Glyphen"), LesenSchreibenRogolan(
-			"Lesen/Schreiben Rogolan"), LesenSchreibenTrollischeRaumbilderschrift(
-			"Lesen/Schreiben Trollische Raumbilderschrift"), LesenSchreibenUrtulamidya("Lesen/Schreiben Urtulamidya"), LesenSchreibenWudu(
-			"Lesen/Schreiben Wudu"), LesenSchreibenZhayad("Lesen/Schreiben Zhayad"), LesenSchreibenTulamidya(
-			"Lesen/Schreiben Tulamidya"), LesenSchreibenNanduria("Lesen/Schreiben Nanduria"),
-	//
-	Ritualkenntnis, RitualkenntnisAlchimist("Ritualkenntnis: Alchimist"), RitualkenntnisDerwisch(
-			"Ritualkenntnis: Derwisch"), RitualkenntnisDruide("Ritualkenntnis: Druide"), RitualkenntnisDurroDun(
-			"Ritualkenntnis: Durro-Dûn"), RitualkenntnisGeode("Ritualkenntnis: Geode"), RitualkenntnisGildenmagie(
-			"Ritualkenntnis: Gildenmagie"), RitualkenntnisHexe("Ritualkenntnis: Hexe"), RitualkenntnisKristallomantie(
-			"Ritualkenntnis: Kristallomantie"), RitualkenntnisRunenzauberei("Ritualkenntnis: Runenzauberei"), RitualkenntnisScharlatan(
-			"Ritualkenntnis: Scharlatan"), RitualkenntnisZaubertänzer("Ritualkenntnis: Zaubertänzer"), RitualkenntnisZaubertänzerHazaqi(
-			"Ritualkenntnis: Zaubertänzer (Hazaqi)"), RitualkenntnisZaubertänzerMajuna(
-			"Ritualkenntnis: Zaubertänzer (Majuna)"), RitualkenntnisZaubertänzernovadischeSharisad(
-			"Ritualkenntnis: Zaubertänzer (novadische Sharisad)"), RitualkenntnisZaubertänzerTulamidischeSharisad(
-			"Ritualkenntnis: Zaubertänzer (tulamidische Sharisad)"), RitualkenntnisZibilja("Ritualkenntnis: Zibilja"),
-	//
-	Liturgiekenntnis, LiturgiekenntnisAngrosch("Liturgiekenntnis (Angrosch)"), LiturgiekenntnisAves(
-			"Liturgiekenntnis (Aves)"), LiturgiekenntnisBoron("Liturgiekenntnis (Boron)"), LiturgiekenntnisEfferd(
-			"Liturgiekenntnis (Efferd)"), LiturgiekenntnisFirun("Liturgiekenntnis (Firun)"), LiturgiekenntnisGravesh(
-			"Liturgiekenntnis (Gravesh)"), LiturgiekenntnisHRanga("Liturgiekenntnis (H'Ranga)"), LiturgiekenntnisHSzint(
-			"Liturgiekenntnis (H'Szint)"), LiturgiekenntnisHesinde("Liturgiekenntnis (Hesinde)"), LiturgiekenntnisIfirn(
-			"Liturgiekenntnis (Ifirn)"), LiturgiekenntnisIngerimm("Liturgiekenntnis (Ingerimm)"), LiturgiekenntnisKamaluq(
-			"Liturgiekenntnis (Kamaluq)"), LiturgiekenntnisKor("Liturgiekenntnis (Kor)"), LiturgiekenntnisNandus(
-			"Liturgiekenntnis (Nandus)"), LiturgiekenntnisPeraine("Liturgiekenntnis (Peraine)"), LiturgiekenntnisPhex(
-			"Liturgiekenntnis (Phex)"), LiturgiekenntnisPraios("Liturgiekenntnis (Praios)"), LiturgiekenntnisRahja(
-			"Liturgiekenntnis (Rahja)"), LiturgiekenntnisRondra("Liturgiekenntnis (Rondra)"), LiturgiekenntnisSwafnir(
-			"Liturgiekenntnis (Swafnir)"), LiturgiekenntnisTairach("Liturgiekenntnis (Tairach)"), LiturgiekenntnisTravia(
-			"Liturgiekenntnis (Travia)"), LiturgiekenntnisTsa("Liturgiekenntnis (Tsa)"), LiturgiekenntnisZsahh(
-			"Liturgiekenntnis (Zsahh)"),
-
-	//
-	Gefahreninstinkt, GeisterRufen("Geister rufen"), GeisterBannen("Geister bannen"), GeisterBinden("Geister binden"), GeisterAufnehmen(
-			"Geister aufnehmen"),
-	//
-	HeilkundeWunden("Heilkunde: Wunden"), Holzbearbeitung, Kochen, Lederarbeiten, MalenZeichnen("Malen/Zeichnen"), Schneidern, Abrichten, BooteFahren(
-			"Boote fahren"), EisseglerFahren("Eissegler fahren"), FahrzeugLenken("Fahrzeug lenken"), Falschspiel, Grobschmied, HeilkundeGift(
-			"Heilkunde: Gift"), HeilkundeKrankheiten("Heilkunde: Krankheiten"), HundeschlittenFahren(
-			"Hundeschlitten fahren,"), Kartographie, Musizieren, SchlösserKnacken("Schlösser knacken"), StoffeFärben(
-			"Stoffe Färben"), Tätowieren, Töpfern, Webkunst, Ackerbau, Alchimie, Bergbau, Bogenbau, Brauer, Drucker, Feinmechanik, Feuersteinbearbeitung, Fleischer, GerberKürschner(
-			"Gerber/Kürschner"), Glaskunst, Handel, Hauswirtschaft, HeilkundeSeele("Heilkunde: Seele"), Instrumentenbauer, Kapellmeister, Kartografie, Kristallzucht, Maurer, Metallguss, SchnapsBrennen(
-			"Schnaps brennen"), Seefahrt, Seiler, Steinmetz, SteinschneiderJuwelier("Steinschneider/Juwelier"), Stellmacher, Steuermann, Viehzucht, Winzer, Zimmermann,
-	//
-	PirschAnsitzJagd("Pirsch- und Ansitzjagd"), NahrungSammeln("Nahrung sammeln"), Kräutersuchen("Kräutersuche"), Wache(
-			"Wache halten");
-
+	private TalentGroupType groupType;
 	private Integer be;
-
-	private boolean fk;
 
 	private String xmlName;
 
-	private TalentType() {
-	}
-
-	private TalentType(String xmlName) {
-		this(null, false, xmlName);
-	}
-
-	private TalentType(Integer be) {
-		this(be, false, null);
-	}
-
-	private TalentType(Integer be, boolean fk) {
-		this(be, fk, null);
-	}
-
-	private TalentType(Integer be, boolean fk, String name) {
+	private TalentType(String name, TalentGroupType type, Integer be) {
 		this.be = be;
-		this.fk = fk;
 		this.xmlName = name;
+		this.groupType = type;
 	}
 
 	public String xmlName() {
@@ -147,12 +201,12 @@ public enum TalentType {
 			return name();
 	}
 
-	public Integer getBe() {
-		return be;
+	public TalentGroupType type() {
+		return groupType;
 	}
 
-	public boolean isFk() {
-		return fk;
+	public Integer getBe() {
+		return be;
 	}
 
 	public static TalentType byXmlName(String code) {
@@ -165,7 +219,6 @@ public enum TalentType {
 				return attr;
 			}
 		}
-		throw new IllegalArgumentException(code + " cannot be transformed into en TalentType enum");
+		throw new IllegalArgumentException(code + " cannot be transformed into a TalentType enum");
 	}
-
 }

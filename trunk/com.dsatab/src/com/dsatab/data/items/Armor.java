@@ -51,7 +51,7 @@ public class Armor extends ItemSpecification {
 	 * no arg constructor for ormlite
 	 */
 	public Armor() {
-
+		super(null, ItemType.Rüstung, 0);
 	}
 
 	public Armor(Item item) {

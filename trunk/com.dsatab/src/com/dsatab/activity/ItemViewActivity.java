@@ -37,7 +37,7 @@ public class ItemViewActivity extends BaseFragmentActivity {
 	private ItemFragment fragment;
 
 	public static void view(Context context, Hero hero, ItemCard itemCard) {
-		if (itemCard != null) {
+		if (itemCard != null && context != null) {
 
 			Item item = itemCard.getItem();
 

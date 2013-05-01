@@ -159,7 +159,12 @@ public class EquippedItemListItem extends CheckableRelativeLayout {
 	}
 
 	public void setItem(Item e) {
-		setItem(e, e.getSpecifications().get(0));
+
+		ItemSpecification itemSpecification = null;
+		if (e != null && !e.getSpecifications().isEmpty()) {
+			itemSpecification = e.getSpecifications().get(0);
+		}
+		setItem(e, itemSpecification);
 	}
 
 	public void setItem(Item e, ItemSpecification spec) {
@@ -177,9 +182,13 @@ public class EquippedItemListItem extends CheckableRelativeLayout {
 
 		// set value for the second text field
 		if (text2 != null) {
-			text2.setText(spec.getInfo());
-			if (textColor != Color.TRANSPARENT)
-				text2.setTextColor(textColor);
+			if (spec != null) {
+				text2.setText(spec.getInfo());
+				if (textColor != Color.TRANSPARENT)
+					text2.setTextColor(textColor);
+			} else {
+				text2.setText(null);
+			}
 		}
 
 		int visibility = e.isEquipable() ? View.VISIBLE : View.GONE;

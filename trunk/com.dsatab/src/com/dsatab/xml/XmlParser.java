@@ -325,7 +325,7 @@ public class XmlParser {
 
 			for (int i = 11; i < lineData.length; i++) { // type
 				if (!TextUtils.isEmpty(lineData[i]))
-					w.addTalentType(TalentType.valueOf(lineData[i]));
+					w.addTalentType(TalentType.byXmlName(lineData[i]));
 			}
 
 			return w;
@@ -597,7 +597,7 @@ public class XmlParser {
 
 	private static ItemType parseBase(Item item, String[] lineData) {
 
-		ItemType type = null;
+		ItemType type = ItemType.Sonstiges;
 		String typeString = lineData[0];// itemtype
 		if (!TextUtils.isEmpty(typeString))
 			type = ItemType.fromCharacter(typeString.charAt(0)); // type

@@ -205,7 +205,7 @@ public class BodyFragment extends BaseFragment implements OnClickListener, HeroI
 			} else {
 				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 				builder.setTitle("Rüstung");
-				final EquippedItemAdapter adapter = new EquippedItemAdapter(builder.getContext(), equippedItems);
+				final EquippedItemAdapter adapter = new EquippedItemAdapter(getActivity(), equippedItems);
 				builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -242,7 +242,9 @@ public class BodyFragment extends BaseFragment implements OnClickListener, HeroI
 	public void onActiveSetChanged(int newSet, int oldSet) {
 		updateView();
 		bodyLayout.setArmorAttributes(getHero().getArmorAttributes());
-		getActivity().supportInvalidateOptionsMenu();
+		if (getActivity() != null) {
+			getActivity().supportInvalidateOptionsMenu();
+		}
 	}
 
 	private void updateView() {

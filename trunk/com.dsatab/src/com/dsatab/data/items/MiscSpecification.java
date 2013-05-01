@@ -30,7 +30,7 @@ public class MiscSpecification extends ItemSpecification {
 	 * no arg constructor for ormlite
 	 */
 	public MiscSpecification() {
-
+		super(null, ItemType.Sonstiges, 0);
 	}
 
 	/**

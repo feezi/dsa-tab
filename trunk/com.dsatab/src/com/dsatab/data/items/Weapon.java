@@ -92,7 +92,7 @@ public class Weapon extends CloseCombatItem {
 	public int getResourceId() {
 		switch (getTalentType()) {
 		case Anderthalbhänder:
-		case Zweihandschwerter:
+		case Zweihandschwertersäbel:
 			return R.drawable.icon_2schwert;
 		case Hiebwaffen:
 			return R.drawable.icon_hieb;

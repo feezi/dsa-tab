@@ -21,12 +21,13 @@ import java.util.List;
 
 import android.util.SparseBooleanArray;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ExpandableListAdapter;
+import android.widget.GridView;
+import android.widget.ListView;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.ActionMode;
@@ -59,15 +60,19 @@ public abstract class BaseListFragment extends BaseFragment implements OnItemLon
 				gridViewCompat = (GridViewCompat) parent;
 			}
 
-			SparseBooleanArray checked;
+			SparseBooleanArray checked = null;
 			if (gridViewCompat != null)
 				checked = gridViewCompat.getCheckedItemPositionsC();
-			else
-				checked = ((AbsListView) parent).getCheckedItemPositions();
+			else if (parent instanceof ListView)
+				checked = ((ListView) parent).getCheckedItemPositions();
+			else if (parent instanceof GridView)
+				checked = ((GridView) parent).getCheckedItemPositions();
 
 			boolean hasCheckedElement = false;
-			for (int i = 0; i < checked.size() && !hasCheckedElement; i++) {
-				hasCheckedElement = checked.valueAt(i);
+			if (checked != null) {
+				for (int i = 0; i < checked.size() && !hasCheckedElement; i++) {
+					hasCheckedElement = checked.valueAt(i);
+				}
 			}
 
 			if (hasCheckedElement) {
@@ -75,6 +80,19 @@ public abstract class BaseListFragment extends BaseFragment implements OnItemLon
 			} else {
 				mMode.finish();
 			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.Fragment#setUserVisibleHint(boolean)
+	 */
+	@Override
+	public void setUserVisibleHint(boolean isVisibleToUser) {
+		super.setUserVisibleHint(isVisibleToUser);
+		if (!isVisibleToUser && mMode != null) {
+			mMode.finish();
 		}
 	}
 
@@ -98,16 +116,22 @@ public abstract class BaseListFragment extends BaseFragment implements OnItemLon
 
 		if (gridViewCompat != null)
 			gridViewCompat.setItemCheckedC(position, !gridViewCompat.isItemCheckedC(position));
-		else
-			((AbsListView) parent).setItemChecked(position, !((AbsListView) parent).isItemChecked(position));
+		else if (parent instanceof ListView) {
+			((ListView) parent).setItemChecked(position, !((ListView) parent).isItemChecked(position));
+		} else {
+			// TODO define what todo with regular gridview
+		}
 
 		List<Object> checkedObjects = new ArrayList<Object>();
 
 		SparseBooleanArray checked;
 		if (gridViewCompat != null)
 			checked = gridViewCompat.getCheckedItemPositionsC();
-		else
-			checked = ((AbsListView) parent).getCheckedItemPositions();
+		else if (parent instanceof ListView) {
+			checked = ((ListView) parent).getCheckedItemPositions();
+		} else {
+			checked = null;
+		}
 
 		boolean hasCheckedElement = false;
 		if (checked != null) {

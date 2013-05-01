@@ -211,7 +211,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 			}
 			break;
 		case R.id.option_tab_reset:
-			tabs = DsaTabApplication.getInstance().getHero().getHeroConfiguration().getDefaultTabs();
+			tabs = DsaTabApplication.getInstance().getHero().getHeroConfiguration().getDefaultTabs(tabs);
 			tabsAdapter = new TabsAdapter(this, tabs);
 			tabsList.setAdapter(tabsAdapter);
 			selectTabInfo(null);

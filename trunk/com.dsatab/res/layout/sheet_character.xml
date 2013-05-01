@@ -52,8 +52,7 @@
                 </TextView>
             </TableRow>
 
-            <TableRow
-                android:id="@+id/row_titel"
+            <TableRow                
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" >
 
@@ -72,6 +71,7 @@
                     android:paddingLeft="4dip" >
                 </TextView>
             </TableRow>
+
             <TableRow
                 android:id="@+id/row_titel"
                 android:layout_width="wrap_content"

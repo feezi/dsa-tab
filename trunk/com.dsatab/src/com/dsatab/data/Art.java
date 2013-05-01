@@ -6,8 +6,9 @@ import java.util.EnumSet;
 
 import android.text.TextUtils;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.common.DsaTabRuntimeException;
-import com.dsatab.data.enums.ArtType;
+import com.dsatab.data.enums.ArtGroupType;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.TalentType;
 import com.dsatab.data.modifier.RulesModificator.ModificatorType;
@@ -49,7 +50,7 @@ public class Art extends MarkableElement implements Value {
 
 	};
 
-	private ArtType type;
+	private ArtGroupType type;
 
 	private Hero hero;
 
@@ -87,7 +88,7 @@ public class Art extends MarkableElement implements Value {
 		String grade;
 
 		name = name.trim();
-		ArtType type = ArtType.getTypeOfArt(name);
+		ArtGroupType type = ArtGroupType.getTypeOfArt(name);
 		if (type != null) {
 			name = type.truncateName(name);
 		}
@@ -107,11 +108,11 @@ public class Art extends MarkableElement implements Value {
 		return name;
 	}
 
-	public ArtType getType() {
+	public ArtGroupType getType() {
 		return type;
 	}
 
-	protected void setType(ArtType type) {
+	protected void setType(ArtGroupType type) {
 		this.type = type;
 
 		switch (type) {
@@ -156,7 +157,7 @@ public class Art extends MarkableElement implements Value {
 	public void setName(String name) {
 		this.name = name.trim();
 
-		setType(ArtType.getTypeOfArt(name));
+		setType(ArtGroupType.getTypeOfArt(name));
 		if (type != null) {
 			name = type.truncateName(name);
 		} else {
@@ -193,6 +194,7 @@ public class Art extends MarkableElement implements Value {
 			if (grade != null) {
 				info.setGrade(Util.gradeToInt(grade));
 			}
+			BugSenseHandler.sendEvent("No unique art found for " + name + " : " + grade + " creating a new one");
 			Debug.warning("No unique art found for " + name + " : " + grade + " creating a new one");
 		}
 

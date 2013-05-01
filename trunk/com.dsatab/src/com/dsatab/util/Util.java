@@ -621,19 +621,21 @@ public class Util {
 	}
 
 	public static void setText(TextView tf, Integer value, int modifier, String prefix, boolean inverse) {
-		if (value != null) {
+		if (tf != null) {
+			if (value != null) {
 
-			value += modifier;
+				value += modifier;
 
-			if (prefix != null) {
-				tf.setText(prefix);
-				tf.append(Util.toString(value));
-			} else
-				tf.setText(Util.toString(value));
-		} else {
-			tf.setText(null);
+				if (prefix != null) {
+					tf.setText(prefix);
+					tf.append(Util.toString(value));
+				} else
+					tf.setText(Util.toString(value));
+			} else {
+				tf.setText(null);
+			}
+			setTextColor(tf, modifier, inverse);
 		}
-		setTextColor(tf, modifier, inverse);
 	}
 
 	public static void appendValue(Hero hero, StyleableSpannableStringBuilder title, AttributeType type) {

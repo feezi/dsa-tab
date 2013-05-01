@@ -57,14 +57,14 @@ public class MetaTalent extends Talent implements JSONable {
 	 */
 	private void init() {
 		switch (type) {
-		case PirschAnsitzJagd:
+		case PirschUndAnsitzjagd:
 			probeInfo = ProbeInfo.parse("(MU/IN/GE)");
 			break;
-		case Kräutersuchen:
+		case Kräutersuche:
 		case NahrungSammeln:
 			probeInfo = ProbeInfo.parse("(MU/IN/FF)");
 			break;
-		case Wache:
+		case WacheHalten:
 			probeInfo = ProbeInfo.parse("(MU/IN/KO)");
 			break;
 		default:
@@ -92,7 +92,7 @@ public class MetaTalent extends Talent implements JSONable {
 	public Integer getProbeBonus() {
 
 		switch (type) {
-		case PirschAnsitzJagd: {
+		case PirschUndAnsitzjagd: {
 			Integer wildnis = getTalentValue(TalentType.Wildnisleben);
 			Integer fährtensuche = getTalentValue(TalentType.Fährtensuchen);
 			Integer schleichen = getTalentValue(TalentType.Schleichen);
@@ -125,7 +125,7 @@ public class MetaTalent extends Talent implements JSONable {
 			}
 			return value;
 		}
-		case Kräutersuchen: {
+		case Kräutersuche: {
 			Integer wildnis = getTalentValue(TalentType.Wildnisleben);
 			Integer sinnen = getTalentValue(TalentType.Sinnenschärfe);
 			Integer planzen = getTalentValue(TalentType.Pflanzenkunde);
@@ -155,7 +155,7 @@ public class MetaTalent extends Talent implements JSONable {
 			}
 			return value;
 		}
-		case Wache:
+		case WacheHalten:
 			Integer selbst = getTalentValue(TalentType.Selbstbeherrschung);
 			Integer sinnen = getTalentValue(TalentType.Sinnenschärfe);
 			Integer schleichen = getTalentValue(TalentType.Schleichen);
