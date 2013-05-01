@@ -237,6 +237,7 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 
 		loadingView.setVisibility(View.VISIBLE);
 		loadingView.startAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_in));
+		viewPager.setEnabled(false);
 
 		Bundle args = new Bundle();
 		args.putString(KEY_HERO_PATH, heroPath);
@@ -350,6 +351,7 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 	public void onLoadFinished(Loader<Hero> loader, Hero hero) {
 		loadingView.startAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_out));
 		loadingView.setVisibility(View.GONE);
+		viewPager.setEnabled(true);
 
 		// Swap the new cursor in. (The framework will take care of closing the
 		// old cursor once we return.)
