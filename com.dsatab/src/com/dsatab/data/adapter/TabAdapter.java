@@ -64,7 +64,7 @@ public class TabAdapter extends OpenArrayAdapter<TabInfo> {
 
 		d.setBounds(0, 0, getContext().getResources().getDimensionPixelSize(R.dimen.abs__dropdownitem_icon_width),
 				getContext().getResources().getDimensionPixelSize(R.dimen.abs__dropdownitem_icon_width));
-		view.setCompoundDrawablesRelative(d, null, null, null);
+		view.setCompoundDrawables(d, null, null, null);
 		return view;
 	}
 
@@ -88,7 +88,7 @@ public class TabAdapter extends OpenArrayAdapter<TabInfo> {
 		d.setBounds(0, 0, getContext().getResources().getDimensionPixelSize(R.dimen.abs__dropdownitem_icon_width),
 				getContext().getResources().getDimensionPixelSize(R.dimen.abs__dropdownitem_icon_width));
 		view.setGravity(Gravity.CENTER);
-		view.setCompoundDrawablesRelative(d, null, null, null);
+		view.setCompoundDrawables(d, null, null, null);
 		return view;
 	}
 

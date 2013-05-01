@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.DsaTabApplication;
 import com.dsatab.TabInfo;
 import com.dsatab.data.Hero.CombatStyle;
@@ -87,7 +88,6 @@ public class HeroConfiguration {
 	 */
 	public HeroConfiguration(Hero hero) {
 		this.hero = hero;
-		tabInfos = new ArrayList<TabInfo>(10);
 
 		modificators = new ArrayList<CustomModificator>();
 		wounds = new ArrayList<WoundAttribute>();
@@ -100,6 +100,8 @@ public class HeroConfiguration {
 
 		leModifierActive = true;
 		auModifierActive = true;
+
+		tabInfos = getDefaultTabs(null);
 	}
 
 	public HeroConfiguration(Hero hero, JSONObject in) throws JSONException {
@@ -192,8 +194,13 @@ public class HeroConfiguration {
 
 			for (int i = 0; i < array.length(); i++) {
 				JSONObject tab = array.getJSONObject(i);
-				MetaTalent info = new MetaTalent(this.hero, tab);
-				metaTalents.add(info);
+				try {
+					MetaTalent info = new MetaTalent(this.hero, tab);
+					metaTalents.add(info);
+				} catch (Exception e) {
+					Debug.warning(e);
+					BugSenseHandler.sendException(e);
+				}
 			}
 		} else {
 			metaTalents = new HashSet<MetaTalent>();
@@ -235,22 +242,12 @@ public class HeroConfiguration {
 	 *            one of {@link ActivityInfo} SCREEN_ORIENTATION_
 	 * @return
 	 */
-	public List<TabInfo> getTabs(int orientation) {
+	public List<TabInfo> getTabs() {
 		return tabInfos;
 	}
 
-	public void setTabs(int orientation, List<TabInfo> tabs) {
-		tabInfos = tabs;
-	}
-
-	public List<TabInfo> getTabs() {
-		Configuration configuration = DsaTabApplication.getInstance().getResources().getConfiguration();
-		return getTabs(configuration.orientation);
-	}
-
 	public void setTabs(List<TabInfo> tabs) {
-		Configuration configuration = DsaTabApplication.getInstance().getResources().getConfiguration();
-		setTabs(configuration.orientation, tabs);
+		tabInfos = tabs;
 	}
 
 	public TabInfo getTab(int index) {
@@ -390,10 +387,13 @@ public class HeroConfiguration {
 		this.itemContainers = itemContainers;
 	}
 
-	public List<TabInfo> getDefaultTabs() {
+	public List<TabInfo> getDefaultTabs(List<TabInfo> tabInfos) {
 
-		List<TabInfo> tabInfos = new ArrayList<TabInfo>();
-
+		if (tabInfos == null) {
+			tabInfos = new ArrayList<TabInfo>(15);
+		} else {
+			tabInfos.clear();
+		}
 		if (isDualPanel()) {
 			tabInfos.add(new TabInfo(CharacterFragment.class, TalentFragment.class,
 					getTabResourceId(CharacterFragment.class)));
@@ -419,10 +419,6 @@ public class HeroConfiguration {
 		}
 
 		return tabInfos;
-	}
-
-	public void reset() {
-		tabInfos = getDefaultTabs();
 	}
 
 	/**

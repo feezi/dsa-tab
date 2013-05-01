@@ -78,9 +78,7 @@ public class Hero {
 	private EditableValue experience, freeExperience;
 
 	private Map<AttributeType, Attribute> attributes;
-	private Map<FeatureType, Feature> specialFeaturesByName;
-	private Map<FeatureType, Feature> advantagesByName;
-	private Map<FeatureType, Feature> disadvantagesByName;
+	private Map<FeatureType, Feature> featuresByName;
 
 	private Map<TalentGroupType, TalentGroup> talentGroups;
 	private Map<TalentType, Talent> talentByType;
@@ -148,9 +146,7 @@ public class Hero {
 		this.talentByType = new EnumMap<TalentType, Talent>(TalentType.class);
 		this.spellsByName = new HashMap<String, Spell>();
 		this.artsByName = new TreeMap<String, Art>();
-		this.specialFeaturesByName = new EnumMap<FeatureType, Feature>(FeatureType.class);
-		this.disadvantagesByName = new EnumMap<FeatureType, Feature>(FeatureType.class);
-		this.advantagesByName = new EnumMap<FeatureType, Feature>(FeatureType.class);
+		this.featuresByName = new EnumMap<FeatureType, Feature>(FeatureType.class);
 
 		for (int i = 0; i < equippedItems.length; i++) {
 			this.equippedItems[i] = new LinkedList<EquippedItem>();
@@ -167,15 +163,16 @@ public class Hero {
 	private void fillConfiguration() {
 		// fill metatalents
 
-		List<TalentType> metaTalentTypes = new ArrayList<TalentType>(Arrays.asList(TalentGroup.META_TALENTS));
+		List<TalentType> metaTalentTypes = new ArrayList<TalentType>(Arrays.asList(TalentType.WacheHalten,
+				TalentType.Kräutersuche, TalentType.NahrungSammeln, TalentType.PirschUndAnsitzjagd));
 
 		for (MetaTalent metaTalent : getHeroConfiguration().getMetaTalents()) {
 			metaTalentTypes.remove(metaTalent.getType());
-			addTalent(TalentGroupType.Meta, metaTalent);
+			addTalent(metaTalent);
 		}
 		for (TalentType metaType : metaTalentTypes) {
 			MetaTalent metaTalent = new MetaTalent(this, metaType);
-			addTalent(TalentGroupType.Meta, metaTalent);
+			addTalent(metaTalent);
 		}
 
 		// fill wounds
@@ -215,7 +212,6 @@ public class Hero {
 
 			if (configuration == null) {
 				configuration = new HeroConfiguration(this);
-				configuration.reset();
 			}
 		} finally {
 			if (fis != null)
@@ -759,8 +755,7 @@ public class Hero {
 
 	/**
 	 * @param item
-	 * @return <code>true</code> if item has been added successfully, otherwise
-	 *         <code>false</code>
+	 * @return <code>true</code> if item has been added successfully, otherwise <code>false</code>
 	 */
 	public boolean addItem(Item item) {
 
@@ -1338,23 +1333,7 @@ public class Hero {
 	}
 
 	public Map<FeatureType, Feature> getSpecialFeatures() {
-		return specialFeaturesByName;
-	}
-
-	public Map<FeatureType, Feature> getAdvantages() {
-		return advantagesByName;
-	}
-
-	public Map<FeatureType, Feature> getDisadvantages() {
-		return disadvantagesByName;
-	}
-
-	public Feature getDisadvantage(String name) {
-		return disadvantagesByName.get(name);
-	}
-
-	public Feature getAdvantage(FeatureType type) {
-		return advantagesByName.get(type);
+		return featuresByName;
 	}
 
 	public void addConnection(Connection connection) {
@@ -1381,27 +1360,11 @@ public class Hero {
 	}
 
 	public Feature getFeature(FeatureType type) {
-		if (type.isAdvantage())
-			return advantagesByName.get(type);
-		else if (type.isDisdvantage())
-			return disadvantagesByName.get(type);
-		else if (type.isSpecialFeature())
-			return specialFeaturesByName.get(type);
-		else
-			return null;
+		return featuresByName.get(type);
 	}
 
 	public boolean hasFeature(FeatureType type) {
-		boolean found = false;
-		if (type.isAdvantage())
-			found = advantagesByName.containsKey(type);
-		else if (type.isDisdvantage())
-			found = disadvantagesByName.containsKey(type);
-		else if (type.isSpecialFeature())
-			found = specialFeaturesByName.containsKey(type);
-
-		return found;
-
+		return featuresByName.containsKey(type);
 	}
 
 	public void addChangeEvent(ChangeEvent event) {
@@ -1621,8 +1584,7 @@ public class Hero {
 	}
 
 	/**
-	 * A general overall Rs value calculated using the zone system sum with
-	 * multipliers
+	 * A general overall Rs value calculated using the zone system sum with multipliers
 	 * 
 	 * @return
 	 */
@@ -1650,7 +1612,7 @@ public class Hero {
 				}
 			}
 
-			Feature natRs = getAdvantage(FeatureType.NatürlicherRüstungsschutz);
+			Feature natRs = getFeature(FeatureType.NatürlicherRüstungsschutz);
 			if (natRs != null && natRs.getValue() != null) {
 				totalRs += natRs.getValue();
 			}
@@ -1685,7 +1647,7 @@ public class Hero {
 			}
 		}
 
-		Feature natRs = getAdvantage(FeatureType.NatürlicherRüstungsschutz);
+		Feature natRs = getFeature(FeatureType.NatürlicherRüstungsschutz);
 		if (natRs != null && natRs.getValue() != null)
 			rs += natRs.getValue();
 
@@ -1705,8 +1667,11 @@ public class Hero {
 	}
 
 	public Talent getTalent(String talentName) {
-		TalentType type = TalentType.byXmlName(talentName);
+		TalentType type = null;
+
+		type = TalentType.byXmlName(talentName);
 		return talentByType.get(type);
+
 	}
 
 	public Spell getSpell(String spellName) {
@@ -1782,7 +1747,7 @@ public class Hero {
 		if (talent == null) {
 			// add missing combat talents with a value of base.
 			if (talentType != null) {
-				if (talentType.isFk()) {
+				if (talentType.type() == TalentGroupType.Fernkampf) {
 					CombatDistanceTalent distanceTalent = new CombatDistanceTalent(this);
 					distanceTalent.setValue(-4);
 					distanceTalent.setType(talentType);
@@ -1977,17 +1942,23 @@ public class Hero {
 	/**
 	 * @param talent
 	 */
-	public void addTalent(TalentGroupType type, Talent talent) {
-		if (type != null) {
-			TalentGroup tg = talentGroups.get(type);
+	public void addTalent(Talent talent) {
+		addTalent(talent, true);
+	}
+
+	public void addTalent(Talent talent, boolean visible) {
+
+		if (visible) {
+			TalentGroup tg = talentGroups.get(talent.type.type());
 			if (tg != null) {
 				tg.getTalents().add(talent);
 			} else {
-				tg = new TalentGroup(type);
+				tg = new TalentGroup(talent.type.type());
 				tg.getTalents().add(talent);
-				talentGroups.put(type, tg);
+				talentGroups.put(talent.type.type(), tg);
 			}
 		}
+
 		talentByType.put(talent.getType(), talent);
 
 		if (talent instanceof MetaTalent) {
@@ -2006,19 +1977,10 @@ public class Hero {
 	 * @param adv
 	 */
 	public void addFeature(Feature adv) {
-		Map<FeatureType, Feature> targetList = null;
 
-		if (adv.getType().isDisdvantage()) {
-			targetList = disadvantagesByName;
-		} else if (adv.getType().isAdvantage()) {
-			targetList = advantagesByName;
-		} else if (adv.getType().isSpecialFeature()) {
-			targetList = specialFeaturesByName;
-		}
-
-		Feature existingAdv = targetList.get(adv.getType());
+		Feature existingAdv = featuresByName.get(adv.getType());
 		if (existingAdv == null) {
-			targetList.put(adv.getType(), adv);
+			featuresByName.put(adv.getType(), adv);
 		} else {
 			existingAdv.addValue(adv.getValueAsString());
 		}

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/gen_main_layout"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" xmlns:android1="http://schemas.android.com/apk/res/android">
+    android:layout_height="fill_parent">
 
     <fragment
         android:id="@+id/inc_attributes"
@@ -51,4 +51,10 @@
 		
 	</com.dsatab.view.DiceSlider>
 	</LinearLayout>
+	
+    <FrameLayout android:id="@+id/loading" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/Darker" android:visibility="gone">
+        
+        <ProgressBar android:layout_width="wrap_content" android:layout_height="wrap_content" android:indeterminate="true" android:layout_gravity="center"/>
+        
+    </FrameLayout>
 </RelativeLayout>

@@ -34,7 +34,9 @@ public class PortraitChooserDialog extends AlertDialog implements AdapterView.On
 
 	public void setImages(List<Uri> imageUris) {
 		adapter.clear();
-		adapter.addAll(imageUris);
+		for (Uri uri : imageUris) {
+			adapter.add(uri);
+		}
 	}
 
 	private void init() {

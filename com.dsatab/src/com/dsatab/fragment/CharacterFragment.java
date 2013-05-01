@@ -130,17 +130,16 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 
 		@Override
 		public void onDestroyActionMode(ActionMode mode) {
-			resetPortaitView();
+			if (getActivity() != null) {
+				resetPortaitView();
+			}
 			mMode = null;
 		}
 
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see
-		 * com.actionbarsherlock.view.ActionMode.Callback#onPrepareActionMode
-		 * (com.actionbarsherlock.view.ActionMode,
-		 * com.actionbarsherlock.view.Menu)
+		 * @see com.actionbarsherlock.view.ActionMode.Callback#onPrepareActionMode (com.actionbarsherlock.view.ActionMode, com.actionbarsherlock.view.Menu)
 		 */
 		@Override
 		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
@@ -159,9 +158,7 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater,
-	 * android.view.ViewGroup, android.os.Bundle)
+	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -275,8 +272,20 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.dsatab.activity.BaseMainActivity#onActivityResult(int, int,
-	 * android.content.Intent)
+	 * @see android.support.v4.app.Fragment#setUserVisibleHint(boolean)
+	 */
+	@Override
+	public void setUserVisibleHint(boolean isVisibleToUser) {
+		super.setUserVisibleHint(isVisibleToUser);
+		if (!isVisibleToUser && mMode != null) {
+			mMode.finish();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.dsatab.activity.BaseMainActivity#onActivityResult(int, int, android.content.Intent)
 	 */
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -381,7 +390,8 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 
 	protected void resetPortaitView() {
 		LayoutParams layoutParams = (LayoutParams) portraitView.getLayoutParams();
-		layoutParams.width = getResources().getDimensionPixelSize(R.dimen.portrait_width_small);
+		layoutParams.width = DsaTabApplication.getInstance().getResources()
+				.getDimensionPixelSize(R.dimen.portrait_width_small);
 		layoutParams.height = LayoutParams.MATCH_PARENT;
 		portraitView.requestLayout();
 	}
@@ -565,12 +575,10 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.dsatab.activity.BaseMenuActivity#onHeroLoaded(com.dsatab.data.Hero)
+	 * @see com.dsatab.activity.BaseMenuActivity#onHeroLoaded(com.dsatab.data.Hero)
 	 */
 	@Override
 	public void onHeroLoaded(Hero hero) {
-
 		updateValues();
 
 		Util.setText(tfExperience, hero.getExperience(), null);
@@ -746,80 +754,60 @@ public class CharacterFragment extends BaseAttributesFragment implements OnClick
 
 		boolean showComments = preferences.getBoolean(PREF_SHOW_FEATURE_COMMENTS, true);
 
-		StyleableSpannableStringBuilder stringBuilder = new StyleableSpannableStringBuilder();
+		StyleableSpannableStringBuilder featureBuilder = new StyleableSpannableStringBuilder();
+		StyleableSpannableStringBuilder advantageBuilder = new StyleableSpannableStringBuilder();
+		StyleableSpannableStringBuilder disadvantageBuilder = new StyleableSpannableStringBuilder();
 
-		if (!hero.getSpecialFeatures().isEmpty()) {
-			boolean first = true;
+		StyleableSpannableStringBuilder currentBuilder = null;
+		if (hero != null && !hero.getSpecialFeatures().isEmpty()) {
 			for (Feature feature : hero.getSpecialFeatures().values()) {
-
-				if (!first) {
-					stringBuilder.append(", ");
-				} else {
-					first = false;
+				switch (feature.getType().type()) {
+				case Advantage:
+					currentBuilder = advantageBuilder;
+					break;
+				case Disadvantage:
+					currentBuilder = disadvantageBuilder;
+					break;
+				case SpecialFeature:
+					currentBuilder = featureBuilder;
+					break;
 				}
-				stringBuilder.append(feature.toString());
+
+				if (currentBuilder.length() > 0) {
+					currentBuilder.append(", ");
+				}
+				currentBuilder.append(feature.toString());
 				if (showComments && !TextUtils.isEmpty(feature.getComment())) {
-					stringBuilder.appendColor(Color.GRAY, " (");
-					stringBuilder.appendColor(Color.GRAY, feature.getComment());
-					stringBuilder.appendColor(Color.GRAY, ")");
+					currentBuilder.appendColor(Color.GRAY, " (");
+					currentBuilder.appendColor(Color.GRAY, feature.getComment());
+					currentBuilder.appendColor(Color.GRAY, ")");
 				}
 
 			}
+		}
+
+		if (featureBuilder.length() > 0) {
 			tfSpecialFeaturesTitle.setVisibility(View.VISIBLE);
 			tfSpecialFeatures.setVisibility(View.VISIBLE);
-			tfSpecialFeatures.setText(stringBuilder);
+			tfSpecialFeatures.setText(featureBuilder);
 		} else {
 			tfSpecialFeatures.setVisibility(View.GONE);
 			tfSpecialFeaturesTitle.setVisibility(View.GONE);
 		}
 
-		if (!hero.getAdvantages().isEmpty()) {
-			stringBuilder.clear();
-			boolean first = true;
-			for (Feature advantage : hero.getAdvantages().values()) {
-
-				if (!first) {
-					stringBuilder.append(", ");
-				} else {
-					first = false;
-				}
-				stringBuilder.append(advantage.toString());
-				if (showComments && !TextUtils.isEmpty(advantage.getComment())) {
-					stringBuilder.appendColor(Color.GRAY, " (");
-					stringBuilder.appendColor(Color.GRAY, advantage.getComment());
-					stringBuilder.appendColor(Color.GRAY, ")");
-				}
-
-			}
+		if (advantageBuilder.length() > 0) {
 			tfAdvantagesTitle.setVisibility(View.VISIBLE);
 			tfAdvantages.setVisibility(View.VISIBLE);
-			tfAdvantages.setText(stringBuilder);
+			tfAdvantages.setText(advantageBuilder);
 		} else {
 			tfAdvantages.setVisibility(View.GONE);
 			tfAdvantagesTitle.setVisibility(View.GONE);
 		}
 
-		if (!hero.getDisadvantages().isEmpty()) {
-			stringBuilder.clear();
-			boolean first = true;
-			for (Feature disadvantage : hero.getDisadvantages().values()) {
-
-				if (!first) {
-					stringBuilder.append(", ");
-				} else {
-					first = false;
-				}
-				stringBuilder.append(disadvantage.toString());
-				if (showComments && !TextUtils.isEmpty(disadvantage.getComment())) {
-					stringBuilder.appendColor(Color.GRAY, " (");
-					stringBuilder.appendColor(Color.GRAY, disadvantage.getComment());
-					stringBuilder.appendColor(Color.GRAY, ")");
-				}
-
-			}
+		if (disadvantageBuilder.length() > 0) {
 			tfDisadvantgesTitle.setVisibility(View.VISIBLE);
 			tfDisadvantages.setVisibility(View.VISIBLE);
-			tfDisadvantages.setText(stringBuilder);
+			tfDisadvantages.setText(disadvantageBuilder);
 		} else {
 			tfDisadvantages.setVisibility(View.GONE);
 			tfDisadvantgesTitle.setVisibility(View.GONE);

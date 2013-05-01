@@ -319,7 +319,7 @@ public class DsaTabApplication extends Application implements OnSharedPreference
 		boolean stats = getPreferences().getBoolean(DsaTabPreferenceActivity.KEY_USAGE_STATS, true);
 
 		AnalyticsManager.setEnabled(stats);
-		if (stats && !BuildConfig.DEBUG) {
+		if (stats) {
 			BugSenseHandler.initAndStartSession(this, BUGSENSE_API_KEY);
 		}
 

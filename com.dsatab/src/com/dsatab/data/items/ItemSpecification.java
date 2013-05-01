@@ -38,7 +38,7 @@ public abstract class ItemSpecification implements Cloneable {
 	 * 
 	 */
 	public ItemSpecification() {
-
+		this.type = ItemType.Sonstiges;
 	}
 
 	public ItemSpecification(Item item, ItemType type, int version) {

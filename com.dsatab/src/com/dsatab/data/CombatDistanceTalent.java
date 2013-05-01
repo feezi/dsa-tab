@@ -62,7 +62,7 @@ public class CombatDistanceTalent extends BaseCombatTalent implements Value {
 
 		if (type == TalentType.Lanzenreiten)
 			baseValue = hero.getAttributeValue(AttributeType.at);
-		else if (type.isFk())
+		else
 			baseValue = hero.getAttributeValue(AttributeType.fk);
 
 		return baseValue;

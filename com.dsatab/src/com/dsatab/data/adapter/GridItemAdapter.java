@@ -67,7 +67,7 @@ public class GridItemAdapter extends OpenArrayAdapter<ItemCard> {
 	 */
 	@Override
 	public ItemCard getItem(int position) {
-		if (position < mObjects.size())
+		if (mObjects != null && position < mObjects.size())
 			return mObjects.get(position);
 		else
 			return null;
@@ -89,11 +89,13 @@ public class GridItemAdapter extends OpenArrayAdapter<ItemCard> {
 	}
 
 	private void propagatePosition() {
-		final int count = mObjects.size();
-		ItemCard card;
-		for (int i = 0; i < count; i++) {
-			card = mObjects.get(i);
-			card.getItemInfo().setCellNumber(i);
+		if (mObjects != null) {
+			final int count = mObjects.size();
+			ItemCard card;
+			for (int i = 0; i < count; i++) {
+				card = mObjects.get(i);
+				card.getItemInfo().setCellNumber(i);
+			}
 		}
 	}
 
@@ -111,7 +113,7 @@ public class GridItemAdapter extends OpenArrayAdapter<ItemCard> {
 	}
 
 	public int getPositionByName(ItemCard item) {
-		if (item != null) {
+		if (item != null && mObjects != null) {
 			for (int i = 0; i < mObjects.size(); i++) {
 				if (item.getTitle().equals(mObjects.get(i).getTitle()))
 					return i;

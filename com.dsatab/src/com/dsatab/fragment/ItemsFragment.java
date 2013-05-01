@@ -60,7 +60,7 @@ public class ItemsFragment extends BaseListFragment implements OnItemClickListen
 	private ListView containerList;
 	private ItemContainerAdapter containerAdapter;
 
-	private GridViewCompat itemList;
+	private GridViewCompat itemGridCompat;
 
 	private GridItemAdapter itemAdapter;
 
@@ -76,7 +76,7 @@ public class ItemsFragment extends BaseListFragment implements OnItemClickListen
 		public boolean onActionItemClicked(ActionMode mode, com.actionbarsherlock.view.MenuItem item) {
 			boolean notifyChanged = false;
 
-			SparseBooleanArray checkedPositions = itemList.getCheckedItemPositions();
+			SparseBooleanArray checkedPositions = itemGridCompat.getCheckedItemPositionsC();
 			if (checkedPositions != null) {
 				for (int i = checkedPositions.size() - 1; i >= 0; i--) {
 					if (checkedPositions.valueAt(i)) {
@@ -153,7 +153,7 @@ public class ItemsFragment extends BaseListFragment implements OnItemClickListen
 		@Override
 		public void onDestroyActionMode(ActionMode mode) {
 			mMode = null;
-			itemList.clearChoices();
+			itemGridCompat.clearChoicesC();
 			itemAdapter.notifyDataSetChanged();
 		}
 
@@ -167,7 +167,7 @@ public class ItemsFragment extends BaseListFragment implements OnItemClickListen
 		 */
 		@Override
 		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-			SparseBooleanArray checkedPositions = itemList.getCheckedItemPositions();
+			SparseBooleanArray checkedPositions = itemGridCompat.getCheckedItemPositions();
 			int selected = 0;
 			boolean isEquippable = true;
 			boolean changed = false;
@@ -475,7 +475,7 @@ public class ItemsFragment extends BaseListFragment implements OnItemClickListen
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = configureContainerView(inflater.inflate(R.layout.sheet_items_table, container, false));
 
-		itemList = (GridViewCompat) root.findViewById(R.id.workspace);
+		itemGridCompat = (GridViewCompat) root.findViewById(R.id.workspace);
 		containerList = (ListView) root.findViewById(R.id.container_list);
 
 		return root;
@@ -492,10 +492,10 @@ public class ItemsFragment extends BaseListFragment implements OnItemClickListen
 		// 120*180
 
 		itemAdapter = new GridItemAdapter(getActivity());
-		itemList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-		itemList.setAdapter(itemAdapter);
-		itemList.setOnItemClickListener(this);
-		itemList.setOnItemLongClickListener(this);
+		itemGridCompat.setChoiceModeC(ListView.CHOICE_MODE_MULTIPLE);
+		itemGridCompat.setAdapter(itemAdapter);
+		itemGridCompat.setOnItemClickListener(this);
+		itemGridCompat.setOnItemLongClickListener(this);
 
 		containerList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		containerList.setOnItemClickListener(this);
@@ -546,7 +546,7 @@ public class ItemsFragment extends BaseListFragment implements OnItemClickListen
 			showScreen(position);
 		} else {
 			if (mMode == null) {
-				itemList.setItemChecked(position, false);
+				itemGridCompat.setItemCheckedC(position, false);
 				ItemViewActivity.view(getActivity(), getHero(), itemAdapter.getItem(position));
 			} else {
 				super.onItemClick(parent, view, position, id);
@@ -603,7 +603,7 @@ public class ItemsFragment extends BaseListFragment implements OnItemClickListen
 			}
 			itemAdapter.setNotifyOnChange(false);
 			itemAdapter.clear();
-			itemList.clearChoicesC();
+			itemGridCompat.clearChoicesC();
 
 			if (isSetIndex(screen)) {
 				mCurrentScreen = screen;

@@ -69,7 +69,7 @@ import com.dsatab.data.SpellInfo;
 import com.dsatab.data.Talent;
 import com.dsatab.data.Talent.Flags;
 import com.dsatab.data.TalentGroup;
-import com.dsatab.data.enums.ArtType;
+import com.dsatab.data.enums.ArtGroupType;
 import com.dsatab.data.enums.AttributeType;
 import com.dsatab.data.enums.EventCategory;
 import com.dsatab.data.enums.FeatureType;
@@ -260,7 +260,7 @@ public class HeldenXmlParser {
 		for (Element element : sf) {
 
 			String name = element.getAttributeValue(Xml.KEY_NAME).trim();
-			ArtType type = ArtType.getTypeOfArt(name);
+			ArtGroupType type = ArtGroupType.getTypeOfArt(name);
 
 			if (type == null) {
 				FeatureType featureType = null;
@@ -616,8 +616,8 @@ public class HeldenXmlParser {
 
 	protected static void fillEquippedItems(Hero hero, Element heroElement) {
 
-		List<Element> equippedElements = DomUtil.getChildrenByTagName(getEquippmentElement(heroElement),
-				Xml.KEY_HELDENAUSRUESTUNG);
+		Element equippementNode = getEquippmentElement(heroElement);
+		List<Element> equippedElements = equippementNode.getChildren(Xml.KEY_HELDENAUSRUESTUNG);
 
 		List<Element> beidhaendigerKampfElements = new ArrayList<Element>();
 		List<EquippedItem> secondaryItems = new ArrayList<EquippedItem>();
@@ -651,7 +651,7 @@ public class HeldenXmlParser {
 			Item item = hero.getItem(itemName, itemSlot);
 
 			if (item == null) {
-				BugSenseHandler.sendExceptionMessage(Debug.CATEGORY_DATA, itemName, new InconsistentDataException(
+				BugSenseHandler.sendExceptionMessage(Debug.CATEGORY_DATA, "" + itemName, new InconsistentDataException(
 						"Unable to find an item with the name '" + itemName + "' in slot '" + itemSlot + "'."));
 				continue;
 			}
@@ -1009,59 +1009,48 @@ public class HeldenXmlParser {
 			}
 			int talentValue = Util.parseInt(element.getAttributeValue(Xml.KEY_VALUE));
 
-			TalentGroupType talentGroupType = null;
 			found = false;
-			for (TalentGroupType type : TalentGroupType.values()) {
-				if (type.contains(talentType)) {
-					talentGroupType = type;
-					found = true;
 
-					// combattalenttypes have to be handled special!!!
-					if (type == TalentGroupType.Nahkampf || type == TalentGroupType.Fernkampf) {
-						// add Peitsche as CombatTalent although
-						// Heldensoftware doesn't treat is as one
-						if (TalentType.Peitsche == talentType) {
-							CombatMeleeAttribute at = new CombatMeleeAttribute(hero);
-							at.setName(CombatMeleeAttribute.ATTACKE);
-							at.setValue(hero.getAttributeValue(AttributeType.at) + talentValue);
+			// combattalenttypes have to be handled special!!!
+			if (talentType.type() == TalentGroupType.Nahkampf || talentType.type() == TalentGroupType.Fernkampf) {
+				// add Peitsche as CombatTalent although
+				// Heldensoftware doesn't treat is as one
+				if (TalentType.Peitsche == talentType) {
+					CombatMeleeAttribute at = new CombatMeleeAttribute(hero);
+					at.setName(CombatMeleeAttribute.ATTACKE);
+					at.setValue(hero.getAttributeValue(AttributeType.at) + talentValue);
 
-							talent = new CombatMeleeTalent(hero, at, null);
-						} else if (talentType.isFk()) {
-							talent = new CombatDistanceTalent(hero);
-						} else {
-							Element combatElement;
-							for (Iterator<Element> iter = combatAttributesList.iterator(); iter.hasNext();) {
-								combatElement = iter.next();
-								String combatTalentName = combatElement.getAttributeValue(Xml.KEY_NAME);
+					talent = new CombatMeleeTalent(hero, at, null);
+				} else if (talentType.type() == TalentGroupType.Fernkampf) {
+					talent = new CombatDistanceTalent(hero);
+				} else {
+					Element combatElement;
+					for (Iterator<Element> iter = combatAttributesList.iterator(); iter.hasNext();) {
+						combatElement = iter.next();
+						String combatTalentName = combatElement.getAttributeValue(Xml.KEY_NAME);
 
-								if (talentType.xmlName().equals(combatTalentName)) {
-									List<Element> nodes = combatElement.getChildren();
+						if (talentType.xmlName().equals(combatTalentName)) {
+							List<Element> nodes = combatElement.getChildren();
 
-									CombatMeleeAttribute at = null, pa = null;
-									for (Element node : nodes) {
-										Element item = (Element) node;
-										if (Xml.KEY_ATTACKE.equals(item.getName())) {
-											at = new CombatMeleeAttribute(hero);
-											at.setName(CombatMeleeAttribute.ATTACKE);
-											at.setValue(Util.parseInteger(item.getAttributeValue(Xml.KEY_VALUE)));
-										} else if (Xml.KEY_PARADE.equals(item.getName())) {
-											pa = new CombatMeleeAttribute(hero);
-											pa.setName(CombatMeleeAttribute.PARADE);
-											pa.setValue(Util.parseInteger(item.getAttributeValue(Xml.KEY_VALUE)));
-										}
-									}
-									talent = new CombatMeleeTalent(hero, at, pa);
-									iter.remove();
-									break;
+							CombatMeleeAttribute at = null, pa = null;
+							for (Element node : nodes) {
+								Element item = (Element) node;
+								if (Xml.KEY_ATTACKE.equals(item.getName())) {
+									at = new CombatMeleeAttribute(hero);
+									at.setName(CombatMeleeAttribute.ATTACKE);
+									at.setValue(Util.parseInteger(item.getAttributeValue(Xml.KEY_VALUE)));
+								} else if (Xml.KEY_PARADE.equals(item.getName())) {
+									pa = new CombatMeleeAttribute(hero);
+									pa.setName(CombatMeleeAttribute.PARADE);
+									pa.setValue(Util.parseInteger(item.getAttributeValue(Xml.KEY_VALUE)));
 								}
 							}
+							talent = new CombatMeleeTalent(hero, at, pa);
+							iter.remove();
+							break;
 						}
 					}
-					break;
 				}
-			}
-			if (!found) {
-				Debug.warning("No Talentgroup found for:" + talentType);
 			}
 
 			if (talent == null) {
@@ -1074,7 +1063,7 @@ public class HeldenXmlParser {
 			talent.setType(talentType);
 			talent.setValue(talentValue);
 
-			hero.addTalent(talentGroupType, talent);
+			hero.addTalent(talent);
 		}
 
 		// now add missing talents with combattalents
@@ -1101,7 +1090,7 @@ public class HeldenXmlParser {
 			CombatMeleeTalent combatTalent = new CombatMeleeTalent(hero, at, pa);
 			combatTalent.setType(TalentType.byXmlName(talentName));
 
-			hero.addTalent(null, combatTalent);
+			hero.addTalent(combatTalent, false);
 		}
 	}
 
@@ -1230,7 +1219,7 @@ public class HeldenXmlParser {
 
 		for (Entry<Purse.PurseUnit, Integer> entry : purse.getCoins().entrySet()) {
 			boolean found = false;
-			for (Element p : DomUtil.getChildrenByTagName(element, Xml.KEY_MUENZE)) {
+			for (Element p : element.getChildren(Xml.KEY_MUENZE)) {
 				if (entry.getKey().xmlName().equals(p.getAttributeValue(Xml.KEY_NAME))) {
 					if (entry.getValue() != null)
 						p.setAttribute(Xml.KEY_ANZAHL, entry.getValue().toString());
@@ -1353,7 +1342,7 @@ public class HeldenXmlParser {
 			Debug.verbose("Xml popuplate free xp " + freeExperienceElement);
 		}
 
-		List<Element> equippedElements = DomUtil.getChildrenByTagName(equippmentNode, Xml.KEY_HELDENAUSRUESTUNG);
+		List<Element> equippedElements = equippmentNode.getChildren(Xml.KEY_HELDENAUSRUESTUNG);
 
 		List<EquippedItem> allEquippedItems = new ArrayList<EquippedItem>(hero.getAllEquippedItems());
 		List<Element> huntingWeaponElements = new ArrayList<Element>();
@@ -1438,8 +1427,7 @@ public class HeldenXmlParser {
 
 		// items
 
-		List<Element> itemsElements = DomUtil.getChildrenByTagName(heldElement, Xml.KEY_GEGENSTAENDE,
-				Xml.KEY_GEGENSTAND);
+		List<Element> itemsElements = itemsNode.getChildren(Xml.KEY_GEGENSTAND);
 
 		List<Item> allItems = new ArrayList<Item>();
 		for (ItemContainer itemContainer : hero.getItemContainers()) {

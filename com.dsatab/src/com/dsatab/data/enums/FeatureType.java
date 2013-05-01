@@ -718,16 +718,30 @@ public enum FeatureType {
 	private static final int TYPE_DISADVANTAGE = 2;
 	private static final int TYPE_SPECIAL_FEATURE = 3;
 
+	public enum FeatureGroupType {
+		Advantage, Disadvantage, SpecialFeature
+	}
+
 	private String xmlName;
-	private int type;
+	private FeatureGroupType type;
 
 	private FeatureType(String xmlName) {
 		this.xmlName = xmlName;
 	}
 
-	private FeatureType(String xmlName, int type) {
+	private FeatureType(String xmlName, int typeInt) {
 		this.xmlName = xmlName;
-		this.type = type;
+		switch (typeInt) {
+		case TYPE_ADVANTAGE:
+			type = FeatureGroupType.Advantage;
+			break;
+		case TYPE_DISADVANTAGE:
+			type = FeatureGroupType.Disadvantage;
+			break;
+		case TYPE_SPECIAL_FEATURE:
+			type = FeatureGroupType.SpecialFeature;
+			break;
+		}
 	}
 
 	public String xmlName() {
@@ -735,15 +749,19 @@ public enum FeatureType {
 	}
 
 	public boolean isAdvantage() {
-		return type == TYPE_ADVANTAGE;
+		return type == FeatureGroupType.Advantage;
 	}
 
 	public boolean isDisdvantage() {
-		return type == TYPE_DISADVANTAGE;
+		return type == FeatureGroupType.Disadvantage;
 	}
 
 	public boolean isSpecialFeature() {
-		return type == TYPE_SPECIAL_FEATURE;
+		return type == FeatureGroupType.SpecialFeature;
+	}
+
+	public FeatureGroupType type() {
+		return type;
 	}
 
 	public static FeatureType byXmlName(String code) {

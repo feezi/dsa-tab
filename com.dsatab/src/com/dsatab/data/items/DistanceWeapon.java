@@ -38,7 +38,7 @@ public class DistanceWeapon extends ItemSpecification {
 	 * no arg constructor for ormlite
 	 */
 	public DistanceWeapon() {
-
+		super(null, ItemType.Fernwaffen, 0);
 	}
 
 	public DistanceWeapon(Item item) {

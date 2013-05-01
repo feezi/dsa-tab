@@ -63,7 +63,7 @@ public class CombatMeleeTalent extends BaseCombatTalent {
 			case Anderthalbhänder:
 			case Infanteriewaffen:
 			case Zweihandhiebwaffen:
-			case Zweihandschwerter:
+			case Zweihandschwertersäbel:
 				return Position.stangen_zweih_hieb[w20];
 			case Raufen:
 			case Ringen:

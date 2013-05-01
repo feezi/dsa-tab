@@ -70,19 +70,21 @@ public class ExpandableItemAdapter extends BaseExpandableListAdapter implements 
 	 */
 	@Override
 	public void notifyDataSetChanged() {
+		itemContainers = new ArrayList<ItemContainer>(hero.getItemContainers());
 		itemContainersMap.clear();
 		super.notifyDataSetChanged();
 	}
 
 	public Item getChild(int groupPosition, int childPosition) {
 		ItemContainer groupType = getGroup(groupPosition);
+		if (groupType != null) {
+			List<Item> items = getItems(groupType);
 
-		List<Item> Items = getItems(groupType);
-
-		if (Items != null && childPosition < Items.size() && childPosition >= 0)
-			return Items.get(childPosition);
-		else
-			return null;
+			if (items != null && childPosition < items.size() && childPosition >= 0) {
+				return items.get(childPosition);
+			}
+		}
+		return null;
 	}
 
 	private List<Item> getItems(ItemContainer itemContainer) {
@@ -118,13 +120,14 @@ public class ExpandableItemAdapter extends BaseExpandableListAdapter implements 
 
 	public int getChildrenCount(int groupPosition) {
 		ItemContainer groupType = getGroup(groupPosition);
+		if (groupType != null) {
+			List<Item> items = getItems(groupType);
 
-		List<Item> Items = getItems(groupType);
-
-		if (Items != null)
-			return Items.size();
-		else
-			return 0;
+			if (items != null) {
+				return items.size();
+			}
+		}
+		return 0;
 	}
 
 	public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView,
@@ -168,7 +171,10 @@ public class ExpandableItemAdapter extends BaseExpandableListAdapter implements 
 	}
 
 	public ItemContainer getGroup(int groupPosition) {
-		return itemContainers.get(groupPosition);
+		if (groupPosition >= 0 && groupPosition < itemContainers.size())
+			return itemContainers.get(groupPosition);
+		else
+			return null;
 	}
 
 	public int getGroupCount() {

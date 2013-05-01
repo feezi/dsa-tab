@@ -53,7 +53,7 @@ public abstract class CloseCombatItem extends ItemSpecification {
 	 * 
 	 */
 	public CloseCombatItem() {
-
+		super(null, ItemType.Waffen, 0);
 	}
 
 	public CloseCombatItem(Item item, ItemType type, int version) {

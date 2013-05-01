@@ -37,6 +37,7 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -98,6 +99,8 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 	private MyViewPager viewPager;
 
 	private TabInfo tabInfo;
+
+	private View loadingView;
 
 	public static class EditListener implements View.OnClickListener, View.OnLongClickListener {
 
@@ -232,9 +235,8 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 
 	public final void loadHero(String heroPath) {
 
-		Hero oldHero = DsaTabApplication.getInstance().getHero();
-		if (oldHero != null)
-			onHeroUnloaded(oldHero);
+		loadingView.setVisibility(View.VISIBLE);
+		loadingView.startAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_in));
 
 		Bundle args = new Bundle();
 		args.putString(KEY_HERO_PATH, heroPath);
@@ -281,9 +283,7 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * android.support.v4.view.ViewPager.OnPageChangeListener#onPageScrolled
-	 * (int, float, int)
+	 * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageScrolled (int, float, int)
 	 */
 	@Override
 	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -293,8 +293,7 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.support.v4.view.ViewPager.OnPageChangeListener#
-	 * onPageScrollStateChanged(int)
+	 * @see android.support.v4.view.ViewPager.OnPageChangeListener# onPageScrollStateChanged(int)
 	 */
 	@Override
 	public void onPageScrollStateChanged(int state) {
@@ -304,9 +303,7 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * android.support.v4.view.ViewPager.OnPageChangeListener#onPageSelected
-	 * (int)
+	 * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageSelected (int)
 	 */
 	@Override
 	public void onPageSelected(int position) {
@@ -332,6 +329,7 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 	}
 
 	private void loadHero() {
+		// in case of orientation chage the hero is already loaded, just recreate the menu etc...
 		if (DsaTabApplication.getInstance().getHero() != null) {
 			onHeroLoaded(DsaTabApplication.getInstance().getHero());
 		} else {
@@ -345,12 +343,14 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 	}
 
 	public Loader<Hero> onCreateLoader(int id, Bundle args) {
-		// Debug.verbose("Creating loader for " +
-		// args.getString(KEY_HERO_PATH));
+		// Debug.verbose("Creating loader for " + args.getString(KEY_HERO_PATH));
 		return new HeroLoaderTask(this, args.getString(KEY_HERO_PATH));
 	}
 
 	public void onLoadFinished(Loader<Hero> loader, Hero hero) {
+		loadingView.startAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_out));
+		loadingView.setVisibility(View.GONE);
+
 		// Swap the new cursor in. (The framework will take care of closing the
 		// old cursor once we return.)
 		if (loader instanceof HeroLoaderTask) {
@@ -366,7 +366,6 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 			Toast.makeText(this, getString(R.string.hero_loaded, hero.getName()), Toast.LENGTH_SHORT).show();
 		}
 		onHeroLoaded(hero);
-
 	}
 
 	public void onLoaderReset(Loader<Hero> loader) {
@@ -379,8 +378,7 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.app.Activity#onActivityResult(int, int,
-	 * android.content.Intent)
+	 * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
 	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -442,6 +440,8 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 		applyPreferencesToTheme();
 		super.onCreate(savedInstanceState);
 
+		preferences = DsaTabApplication.getPreferences();
+
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		getSupportActionBar().setDisplayShowHomeEnabled(false);
 
@@ -453,8 +453,7 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 		setContentView(R.layout.main_tab_view);
 
 		viewPager = (MyViewPager) findViewById(R.id.viewpager);
-
-		preferences = DsaTabApplication.getPreferences();
+		loadingView = findViewById(R.id.loading);
 
 		String orientation = preferences.getString(DsaTabPreferenceActivity.KEY_SCREEN_ORIENTATION,
 				DsaTabPreferenceActivity.DEFAULT_SCREEN_ORIENTATION);
@@ -463,10 +462,6 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 
 		probeListener = new ProbeListener(this);
 		editListener = new EditListener(this);
-
-		if (preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_SHAKE_ROLL_DICE, false)) {
-			registerShakeDice();
-		}
 
 		if (savedInstanceState != null) {
 			tabInfo = savedInstanceState.getParcelable(KEY_TAB_INFO);
@@ -497,6 +492,10 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			return;
 		}
+
+		// TODO make sure the viewpager fragments are already initialized
+		// here!!!
+		loadHero();
 
 		showNewsInfoPopup();
 	}
@@ -568,7 +567,6 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 	}
 
 	private void showNewsInfoPopup() {
-
 		if (newsShown)
 			return;
 
@@ -722,10 +720,7 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 		if (hero == null) {
 			Toast.makeText(this, "Error: Trying to load empty hero. Please contact developer!", Toast.LENGTH_LONG)
 					.show();
-			// tabBarHelper.setNavigationTabsEnabled(false);
 			return;
-		} else {
-			// tabBarHelper.setNavigationTabsEnabled(true);
 		}
 
 		TabInfo oldInfo = tabInfo;
@@ -736,29 +731,8 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 			showTab(tabInfo);
 		}
 
-		if (viewPagerAdapter != null) {
-			Fragment fragment = viewPagerAdapter.getFragment(viewPager.getCurrentItem());
-			if (fragment instanceof com.dsatab.view.listener.HeroLoader) {
-				((com.dsatab.view.listener.HeroLoader) fragment).loadHero(hero);
-			}
-		}
-
 		if (attributeFragment != null && attributeFragment.isAdded())
 			attributeFragment.loadHero(hero);
-
-	}
-
-	protected void onHeroUnloaded(Hero hero) {
-		if (viewPagerAdapter != null) {
-			Fragment fragment = viewPagerAdapter.getFragment(viewPager.getCurrentItem());
-			if (fragment instanceof com.dsatab.view.listener.HeroLoader) {
-				((com.dsatab.view.listener.HeroLoader) fragment).unloadHero(hero);
-			}
-		}
-
-		if (attributeFragment != null && attributeFragment.isAdded()) {
-			attributeFragment.unloadHero(hero);
-		}
 
 	}
 
@@ -784,7 +758,6 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 	private void registerShakeDice() {
 		if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_ACCELEROMETER)) {
 			if (mShaker == null) {
-
 				final Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 				mShaker = new ShakeListener(this);
 				mShaker.setOnShakeListener(new ShakeListener.OnShakeListener() {
@@ -817,7 +790,6 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 	 */
 	@Override
 	protected void onDestroy() {
-		onHeroUnloaded(getHero());
 		unregisterShakeDice();
 		DsaTabApplication.getPreferences().unregisterOnSharedPreferenceChangeListener(this);
 
@@ -835,9 +807,12 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 
 	@Override
 	protected void onResume() {
-		if (mShaker != null)
-			mShaker.resume();
-
+		if (preferences.getBoolean(DsaTabPreferenceActivity.KEY_PROBE_SHAKE_ROLL_DICE, false)) {
+			if (mShaker == null)
+				registerShakeDice();
+			else
+				mShaker.resume();
+		}
 		super.onResume();
 	}
 
@@ -850,21 +825,6 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 	protected void onStop() {
 		AnalyticsManager.endSession(this);
 		super.onStop();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onPostCreate(android.os.Bundle)
-	 */
-	@Override
-	protected void onPostCreate(Bundle savedInstanceState) {
-		super.onPostCreate(savedInstanceState);
-
-		loadHero();
-
-		// setupTabs();
-		showTab(tabInfo);
 	}
 
 	@Override
@@ -896,9 +856,7 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.actionbarsherlock.app.SherlockFragmentActivity#onPrepareOptionsMenu
-	 * (com.actionbarsherlock.view.Menu)
+	 * @see com.actionbarsherlock.app.SherlockFragmentActivity#onPrepareOptionsMenu (com.actionbarsherlock.view.Menu)
 	 */
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
@@ -970,9 +928,7 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * android.support.v4.app.FragmentActivity#onSaveInstanceState(android.os
-	 * .Bundle)
+	 * @see android.support.v4.app.FragmentActivity#onSaveInstanceState(android.os .Bundle)
 	 */
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
@@ -996,9 +952,7 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#
-	 * onSharedPreferenceChanged(android.content.SharedPreferences,
-	 * java.lang.String)
+	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener# onSharedPreferenceChanged(android.content.SharedPreferences, java.lang.String)
 	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -1025,7 +979,7 @@ public class DsaTabActivity extends BaseFragmentActivity implements OnClickListe
 				}
 			} else if (DsaTabPreferenceActivity.SCREEN_ORIENTATION_AUTO.equals(orientation)) {
 				if (getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_SENSOR) {
-					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 				}
 			}
 		}

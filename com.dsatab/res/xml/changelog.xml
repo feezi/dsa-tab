@@ -1,4 +1,12 @@
 <changelog>    
+<release version="4.0.9" versioncode="62">
+    <fix>Abstürze beim Wechseln des aktiven Sets</fix>
+    <fix>Stabilitätsverbesserungen</fix>
+</release>
+<release version="4.0.8" versioncode="61">
+    <fix>Zwergennase wird nun korrekt als Vorteil/Gabe erkannt</fix>
+    <fix>Abwärtskompatibilitätsprobleme auf der Gegenstände-Seite behoben</fix>
+</release>
 <release version="4.0.6" versioncode="59">	
 	<change>Dynamische Regeln/Modifikatoren via xml</change>
 	<change>Gegenstande können nun in DsaTab erstellt/editiert werden (derzeit nur Basiswerte wie Name, Titel, Kategorie)</change>

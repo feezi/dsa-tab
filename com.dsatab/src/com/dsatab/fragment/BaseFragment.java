@@ -39,6 +39,7 @@ import com.dsatab.activity.DsaTabActivity;
 import com.dsatab.data.Hero;
 import com.dsatab.data.Value;
 import com.dsatab.data.modifier.Modificator;
+import com.dsatab.util.Debug;
 import com.dsatab.util.Hint;
 import com.dsatab.util.Util;
 import com.dsatab.view.FilterSettings;
@@ -120,6 +121,7 @@ public abstract class BaseFragment extends SherlockFragment implements HeroLoade
 		if (getView() != null) {
 			Hero hero = getHero();
 			if (hero != null) {
+				Debug.verbose("Loading hero in " + getClass() + " onAttach " + hero.getName());
 				loadHero(hero);
 			}
 		}
@@ -266,8 +268,7 @@ public abstract class BaseFragment extends SherlockFragment implements HeroLoade
 
 		Hero hero = getHero();
 		if (hero != null) {
-			// Debug.verbose(getClass().getName() +
-			// " onActivity created and ONSCREEN CALLING HEROLOADED");
+			Debug.verbose("Loading hero in " + getClass() + " onActivityCreated " + hero.getName());
 			loadHero(hero);
 		}
 

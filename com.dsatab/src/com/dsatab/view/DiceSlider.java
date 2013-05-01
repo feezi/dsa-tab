@@ -122,13 +122,17 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 
 	public DiceSlider(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		this.activity = (Activity) context;
+		if (context instanceof Activity) {
+			this.activity = (Activity) context;
+		}
 		init();
 	}
 
 	public DiceSlider(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		this.activity = (Activity) context;
+		if (context instanceof Activity) {
+			this.activity = (Activity) context;
+		}
 		init();
 	}
 
@@ -528,7 +532,9 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 		if (!isOpened())
 			animateOpen();
 
-		Hint.showRandomHint("DiceSlider", activity);
+		if (activity != null) {
+			Hint.showRandomHint("DiceSlider", activity);
+		}
 
 		clearDice();
 
@@ -723,8 +729,10 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 			}
 
 			findViewById(R.id.dice_probe_table).setOnClickListener(this);
-			infoButton.setVisibility(View.VISIBLE);
-			infoButton.setOnClickListener(this);
+			if (infoButton != null) {
+				infoButton.setVisibility(View.VISIBLE);
+				infoButton.setOnClickListener(this);
+			}
 
 		} else {
 
@@ -737,8 +745,10 @@ public class DiceSlider extends WrappingSlidingDrawer implements View.OnClickLis
 			}
 
 			findViewById(R.id.dice_probe_table).setOnClickListener(null);
-			infoButton.setOnClickListener(null);
-			infoButton.setVisibility(View.GONE);
+			if (infoButton != null) {
+				infoButton.setOnClickListener(null);
+				infoButton.setVisibility(View.GONE);
+			}
 
 		}
 
