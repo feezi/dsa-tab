@@ -153,6 +153,9 @@ public class HeldenXmlParser {
 		Element freeXpElement = DomUtil.getChildByTagName(heroElement, Xml.KEY_BASIS, Xml.KEY_FREIE_ABENTEUERPUNKTE);
 		hero.getFreeExperience().setValue(Util.parseInteger(freeXpElement.getAttributeValue(Xml.KEY_VALUE)));
 
+		fillArtsAndSpecialFeatures(hero, heroElement);
+		fillAdvantages(hero, heroElement); // has to be done before attributes because vollzauber features havea effect on astralenergie
+
 		fillAttributes(hero, heroElement);
 
 		Element basisElement = heroElement.getChild(Xml.KEY_BASIS);
@@ -162,8 +165,7 @@ public class HeldenXmlParser {
 
 		fillTalents(hero, heroElement);
 		fillSpells(hero, heroElement);
-		fillArtsAndSpecialFeatures(hero, heroElement);
-		fillAdvantages(hero, heroElement);
+
 		fillItems(hero, heroElement);
 		fillEquippedItems(hero, heroElement);
 		fillPurse(hero, heroElement);
