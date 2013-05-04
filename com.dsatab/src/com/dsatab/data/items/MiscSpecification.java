@@ -37,7 +37,7 @@ public class MiscSpecification extends ItemSpecification {
 	 * @param item
 	 */
 	public MiscSpecification(Item item, ItemType type) {
-		super(item, type, 0);
+		super(item, type != null ? type : ItemType.Sonstiges, 0);
 	}
 
 	/*

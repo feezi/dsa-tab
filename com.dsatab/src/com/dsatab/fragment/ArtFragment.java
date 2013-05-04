@@ -123,10 +123,7 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see
-		 * com.actionbarsherlock.view.ActionMode.Callback#onPrepareActionMode
-		 * (com.actionbarsherlock.view.ActionMode,
-		 * com.actionbarsherlock.view.Menu)
+		 * @see com.actionbarsherlock.view.ActionMode.Callback#onPrepareActionMode (com.actionbarsherlock.view.ActionMode, com.actionbarsherlock.view.Menu)
 		 */
 		@Override
 		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
@@ -197,9 +194,7 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater,
-	 * android.view.ViewGroup, android.os.Bundle)
+	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -238,8 +233,7 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.dsatab.activity.BaseMenuActivity#onHeroLoaded(com.dsatab.data.Hero)
+	 * @see com.dsatab.activity.BaseMenuActivity#onHeroLoaded(com.dsatab.data.Hero)
 	 */
 	@Override
 	public void onHeroLoaded(Hero hero) {
@@ -354,9 +348,7 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget
-	 * .AdapterView, android.view.View, int, long)
+	 * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget .AdapterView, android.view.View, int, long)
 	 */
 	@Override
 	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
@@ -372,15 +364,14 @@ public class ArtFragment extends BaseListFragment implements OnItemClickListener
 	}
 
 	private void loadHeroArts(Hero hero) {
-		artAdapter = new ArtAdapter(getBaseActivity(), hero.getArts().values(), getFilterSettings());
+		artAdapter = new ArtAdapter(getActivity(), hero.getArts().values(), getFilterSettings());
 		artList.setAdapter(artAdapter);
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.dsatab.fragment.BaseFragment#onFilterChanged(com.dsatab.view.
-	 * FilterSettings.FilterType, com.dsatab.view.FilterSettings)
+	 * @see com.dsatab.fragment.BaseFragment#onFilterChanged(com.dsatab.view. FilterSettings.FilterType, com.dsatab.view.FilterSettings)
 	 */
 	@Override
 	public void onFilterChanged(FilterType type, FilterSettings settings) {
