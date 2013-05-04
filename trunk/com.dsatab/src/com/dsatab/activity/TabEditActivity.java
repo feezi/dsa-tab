@@ -122,8 +122,6 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		iconView = (ImageView) findViewById(R.id.popup_edit_icon);
 		iconView.setOnClickListener(this);
 
-		selectTabInfo(null);
-
 		// Inflate a "Done" custom action bar view to serve as the "Up"
 		// affordance.
 		LayoutInflater inflater = LayoutInflater.from(this);
@@ -151,6 +149,12 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 			finish();
 			return;
 		}
+
+		if (tabsAdapter.getCount() > 0) {
+			selectTabInfo(tabsAdapter.getItem(0));
+		} else {
+			selectTabInfo(null);
+		}
 	}
 
 	@Override
@@ -174,9 +178,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.actionbarsherlock.app.SherlockFragmentActivity#onPrepareOptionsMenu
-	 * (com.actionbarsherlock.view.Menu)
+	 * @see com.actionbarsherlock.app.SherlockFragmentActivity#onPrepareOptionsMenu (com.actionbarsherlock.view.Menu)
 	 */
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
@@ -416,9 +418,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged
-	 * (android.widget.CompoundButton, boolean)
+	 * @see android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged (android.widget.CompoundButton, boolean)
 	 */
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -472,9 +472,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * android.widget.AdapterView.OnItemSelectedListener#onItemSelected(android
-	 * .widget.AdapterView, android.view.View, int, long)
+	 * @see android.widget.AdapterView.OnItemSelectedListener#onItemSelected(android .widget.AdapterView, android.view.View, int, long)
 	 */
 	@Override
 	public void onItemSelected(AdapterView<?> adapter, View view, int position, long id) {
@@ -496,9 +494,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * android.widget.AdapterView.OnItemSelectedListener#onNothingSelected(android
-	 * .widget.AdapterView)
+	 * @see android.widget.AdapterView.OnItemSelectedListener#onNothingSelected(android .widget.AdapterView)
 	 */
 	@Override
 	public void onNothingSelected(AdapterView<?> adapter) {
@@ -531,9 +527,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget
-	 * .AdapterView, android.view.View, int, long)
+	 * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget .AdapterView, android.view.View, int, long)
 	 */
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -558,8 +552,7 @@ public class TabEditActivity extends BaseFragmentActivity implements OnItemClick
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see android.widget.ArrayAdapter#getView(int, android.view.View,
-		 * android.view.ViewGroup)
+		 * @see android.widget.ArrayAdapter#getView(int, android.view.View, android.view.ViewGroup)
 		 */
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
