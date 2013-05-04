@@ -31,6 +31,7 @@ import android.view.ViewGroup;
 import com.dsatab.TabInfo;
 import com.dsatab.data.HeroConfiguration;
 import com.dsatab.fragment.DualPaneFragment;
+import com.dsatab.fragment.EmptyFragment;
 import com.gandulf.guilib.util.Debug;
 
 /**
@@ -85,7 +86,7 @@ public class TabPagerAdapter extends FragmentStatePagerAdapter {
 			try {
 				TabInfo tabInfo = tabInfos.get(pos);
 				if (tabInfo.getTabCount() == 0) {
-					return null;
+					f = new EmptyFragment();
 				} else if (tabInfo.getTabCount() == 1) {
 					f = tabInfo.getFragment(0);
 				} else {
@@ -105,8 +106,7 @@ public class TabPagerAdapter extends FragmentStatePagerAdapter {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * android.support.v4.view.PagerAdapter#getItemPosition(java.lang.Object)
+	 * @see android.support.v4.view.PagerAdapter#getItemPosition(java.lang.Object)
 	 */
 	@Override
 	public int getItemPosition(Object object) {
@@ -129,9 +129,7 @@ public class TabPagerAdapter extends FragmentStatePagerAdapter {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * android.support.v4.app.FragmentStatePagerAdapter#destroyItem(android.
-	 * view.ViewGroup, int, java.lang.Object)
+	 * @see android.support.v4.app.FragmentStatePagerAdapter#destroyItem(android. view.ViewGroup, int, java.lang.Object)
 	 */
 	@Override
 	public void destroyItem(ViewGroup container, int position, Object object) {

@@ -21,6 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.bugsense.trace.BugSenseHandler;
+import com.dsatab.exception.InconsistentDataException;
+
 public enum ItemType {
 	Waffen('W', "weapons", true), Fernwaffen('D', "weapons", true), Rüstung('A', "weapons", true), Schilde('S',
 			"weapons", true), Sonstiges('M', "misc"), Behälter('B', "bags"), Kleidung('C', "cloths"), Schmuck('X',
@@ -102,7 +105,9 @@ public enum ItemType {
 		case 'X':
 			return Schmuck;
 		default:
-			return null;
+			BugSenseHandler.sendException(new InconsistentDataException("Character " + c
+					+ " not regognized for itemtype"));
+			return Sonstiges;
 		}
 	}
 }

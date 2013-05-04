@@ -91,7 +91,7 @@ public class TabInfo implements Parcelable, JSONable, Cloneable {
 		this.diceSlider = diceSlider;
 		this.id = UUID.randomUUID();
 
-		refreshAdditionalSettings();
+		updateFilterSettings();
 	}
 
 	public TabInfo(Class<? extends BaseFragment> activityClazz1, Class<? extends BaseFragment> activityClazz2,
@@ -211,7 +211,7 @@ public class TabInfo implements Parcelable, JSONable, Cloneable {
 			}
 		}
 
-		refreshAdditionalSettings();
+		updateFilterSettings();
 	}
 
 	public UUID getId() {
@@ -240,7 +240,7 @@ public class TabInfo implements Parcelable, JSONable, Cloneable {
 
 	public void setActivityClazz(int pos, Class<? extends BaseFragment> activityClazz) {
 		this.activityClazz[pos] = activityClazz;
-		refreshAdditionalSettings();
+		updateFilterSettings();
 	}
 
 	public Uri getIconUri() {
@@ -300,7 +300,7 @@ public class TabInfo implements Parcelable, JSONable, Cloneable {
 
 	}
 
-	private void refreshAdditionalSettings() {
+	public void updateFilterSettings() {
 
 		for (int i = 0; i < activityClazz.length; i++) {
 			if (activityClazz[i] != null) {
@@ -315,6 +315,8 @@ public class TabInfo implements Parcelable, JSONable, Cloneable {
 				} else {
 					filterSettings[i] = null;
 				}
+			} else {
+				filterSettings[i] = null;
 			}
 		}
 	}

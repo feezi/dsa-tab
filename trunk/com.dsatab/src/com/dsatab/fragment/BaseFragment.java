@@ -32,6 +32,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.bugsense.trace.BugSenseHandler;
 import com.dsatab.DsaTabApplication;
 import com.dsatab.R;
 import com.dsatab.TabInfo;
@@ -189,9 +190,7 @@ public abstract class BaseFragment extends SherlockFragment implements HeroLoade
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.dsatab.fragment.FilterChangedListener#onFilterChanged(com.dsatab.
-	 * view.FilterSettings.FilterType, com.dsatab.view.FilterSettings)
+	 * @see com.dsatab.fragment.FilterChangedListener#onFilterChanged(com.dsatab. view.FilterSettings.FilterType, com.dsatab.view.FilterSettings)
 	 */
 	@Override
 	public void onFilterChanged(FilterType type, FilterSettings settings) {
@@ -223,9 +222,7 @@ public abstract class BaseFragment extends SherlockFragment implements HeroLoade
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater,
-	 * android.view.ViewGroup, android.os.Bundle)
+	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -260,6 +257,8 @@ public abstract class BaseFragment extends SherlockFragment implements HeroLoade
 		super.onActivityCreated(savedInstanceState);
 
 		if (getTabPosition() >= 0 && getTabInfo() != null) {
+			// update filter settings to be correct type just to be sure
+			getTabInfo().updateFilterSettings();
 			filterSettings = getTabInfo().getFilterSettings(getTabPosition());
 			if (filterSettings != null) {
 				onFilterChanged(null, filterSettings);
@@ -268,12 +267,14 @@ public abstract class BaseFragment extends SherlockFragment implements HeroLoade
 
 		Hero hero = getHero();
 		if (hero != null) {
-			Debug.verbose("Loading hero in " + getClass() + " onActivityCreated " + hero.getName());
-			loadHero(hero);
+			if (getActivity() != null) {
+				Debug.verbose("Loading hero in " + getClass() + " onActivityCreated " + hero.getName());
+				loadHero(hero);
+			} else {
+				BugSenseHandler.sendException(new IllegalArgumentException(
+						"getActivity was null in onActivityCreated of BaseFragment"));
+			}
 		}
-
-		// Prepare the loader. Either re-connect with an existing one,
-		// or start a new one.
 	}
 
 	/*
@@ -349,9 +350,7 @@ public abstract class BaseFragment extends SherlockFragment implements HeroLoade
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#
-	 * onSharedPreferenceChanged(android.content.SharedPreferences,
-	 * java.lang.String)
+	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener# onSharedPreferenceChanged(android.content.SharedPreferences, java.lang.String)
 	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
